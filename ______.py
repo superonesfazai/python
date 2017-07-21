@@ -18,7 +18,7 @@ _a = r'''
                  ░
 '''
 
-print(termcolor.colored(_a, 'green'), termcolor.colored(_a, 'blue'))
+print(termcolor.colored(_a, 'green'))
 print(termcolor.colored(_a, 'yellow'))
 print(termcolor.colored(_a, 'red'))
 print(termcolor.colored(_a, 'blue'))
