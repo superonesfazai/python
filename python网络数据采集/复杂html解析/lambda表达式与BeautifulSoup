@@ -1,0 +1,17 @@
+但是会用几个例子来演示它们是如何用在网络数据采集中的。
+Lambda 表达式本质上就是一个函数,可以作为其他函数的变量使用;也就是说,一个函
+数不是定义成 f(x, y) ,而是定义成 f(g(x), y) ,或 f(g(x), h(x)) 的形式。
+
+BeautifulSoup 允许我们把特定函数类型当作 findAll 函数的参数。唯一的限制条件是这些
+函数必须把一个标签作为参数且返回结果是布尔类型。BeautifulSoup 用这个函数来评估它
+遇到的每个标签对象,最后把评估结果为“真”的标签保留,把其他标签剔除。
+
+例如,下面的代码就是获取有两个属性的标签:
+soup.findAll(lambda tag: len(tag.attrs) == 2)
+
+这行代码会找出下面的标签:
+<div class="body" id="content"></div>
+<span style="color:red" class="title"></span>
+
+如果你愿意多写一点儿代码,那么在 BeautifulSoup 里用 Lambda 表达式选择标签,将是正
+则表达式的完美替代方案

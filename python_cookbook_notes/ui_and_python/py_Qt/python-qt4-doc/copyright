@@ -1,0 +1,199 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Contact: pyqt@riverbankcomputing.com
+Files-Excluded: doc/html/_static
+                doc/html/searchindex.js
+                examples/webkit/fancybrowser/jquery.min.js
+                examples/webkit/fancybrowser/jquery_rc2.py
+                examples/webkit/fancybrowser/jquery_rc3.py
+
+Files: *
+Copyright: 2007-2014, Riverbank Computing Limited
+License: GPL-2 or GPL-3
+
+Files: contrib/lang/lang.py
+Copyright: 2006, Hans-Peter Jansen <hpj@urpla.net>
+License: WTFPL-2
+
+Files: contrib/pymodeltest/*
+Copyright: 2007, Trolltech ASA
+License: GPL-2
+
+Files: contrib/sandbox/sandbox.*
+Copyright: 2007-2009, Mark Summerfield
+License: GPL-2+
+
+Files: dbus/*          
+Copyright: 2012, Riverbank Computing Limited
+License: GPL-2+
+
+Files: elementtree/*
+Copyright: 1999-2004, Fredrik Lundh
+License: SecretLabs
+
+Files: examples/*
+Copyright: 1992-2007, Trolltech ASA
+           2006-2007, David Boddie <david@boddie.org.uk>
+           2007-2011, Riverbank Computing Limited
+           2010-2011, Nokia Corporation and/or its subsidiary(-ies)
+           2012,      Digia Plc and/or its subsidiary(-ies)
+           2010-2012, Hans-Peter Jansen <hpj@urpla.net>
+           2014,      Moritz Warning <moritzwarning@web.de>
+License: BSD-3-clause
+
+Files: examples/demos/*
+       examples/draganddrop/delayedencoding/images/example.svg
+       examples/ipc/*
+Copyright: 2010, Hans-Peter Jansen <hpj@urpla.net>
+           2010, Nokia Corporation and/or its subsidiary(-ies)
+License: LGPL-2.1 with Nokia-1.1 exception or GPL-3
+
+Files: examples/designer/plugins/python/*
+       examples/designer/plugins/widgets/*
+Copyright: 2006,      David Boddie <david@boddie.org.uk>
+           2005-2006, Trolltech ASA
+           2008,      Denviso GmbH <ulrich.berning@denviso.de>
+License: GPL-2+
+
+Files: pyuic/*
+Copyright: 2006,      Thorsten Marek <shlomme@gmx.net>
+           2011-2014, Riverbank Computing Limited
+License: GPL-2 or BSD-3-clause
+
+Files: debian/*
+Copyright: 2006-2010, Thorsten Marek <shlomme@debian.org>
+           2011-2014, Scott Kitterman <scott@kitterman.com>
+           2013-2014, Dmitry Shachnev <mitya57@debian.org>
+           2001-2014, Other Debian contributors
+License: GPL-2+
+
+License: GPL-2
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License version 2.0 as
+ published by the Free Software Foundation.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License, version 2, can be found in /usr/share/common-licenses/GPL-2.
+
+License: GPL-3
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License version 3.0 as
+ published by the Free Software Foundation.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License, version 3, can be found in /usr/share/common-licenses/GPL-3.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License, version 2, can be found in /usr/share/common-licenses/GPL-2.
+
+License: LGPL-2.1 with Nokia-1.1 exception
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License version
+ 2.1 as published by the Free Software Foundation.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Lesser General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU Lesser General
+ Public License, version 2.1, can be found in
+ /usr/share/common-licenses/LGPL-2.1.
+ .
+ As an additional permission to the GNU Lesser General Public License version
+ 2.1, the object code form of a "work that uses the Library" may incorporate
+ material from a header file that is part of the Library.  You may distribute
+ such object code under terms of your choice, provided that:
+     (i)   the header files of the Library have not been modified; and
+     (ii)  the incorporated material is limited to numerical parameters, data
+           structure layouts, accessors, macros, inline functions and
+           templates; and
+     (iii) you comply with the terms of Section 6 of the GNU Lesser General
+           Public License version 2.1.
+ .
+ Moreover, you may apply this exception to a modified version of the Library,
+ provided that such modification does not involve copying material from the
+ Library into the modified Library's header files unless such material is
+ limited to (i) numerical parameters; (ii) data structure layouts;
+ (iii) accessors; and (iv) small macros, templates and inline functions of
+ five lines or less in length.
+ .
+ Furthermore, you are not required to apply this additional permission to a
+ modified version of the Library.
+
+License: BSD-3-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ * Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: WTFPL-2
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+ .
+ DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+ .
+ 0. You just DO WHAT THE FUCK YOU WANT TO.
+
+License: SecretLabs
+ By obtaining, using, and/or copying this software and/or its
+ associated documentation, you agree that you have read, understood,
+ and will comply with the following terms and conditions:
+ .
+ Permission to use, copy, modify, and distribute this software and
+ its associated documentation for any purpose and without fee is
+ hereby granted, provided that the above copyright notice appears in
+ all copies, and that both that copyright notice and this permission
+ notice appear in supporting documentation, and that the name of
+ Secret Labs AB or the author not be used in advertising or publicity
+ pertaining to distribution of the software without specific, written
+ prior permission.
+ .
+ SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+ TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANT-
+ ABILITY AND FITNESS.  IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR
+ BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+ DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+ WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ OF THIS SOFTWARE.

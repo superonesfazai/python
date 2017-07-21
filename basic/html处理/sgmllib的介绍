@@ -1,0 +1,47 @@
+HTML 处理分成三步:将 HTML 分解成它的组成片段,对片段进行加工,接着
+将片段再重新合成 HTML。第一步是通过 sgmllib.py 来完成的,它是标准 Python
+库的一部分。
+
+理解本章的关键是要知道 HTML 不只是文本,更是结构化文本。这种结构来
+源于开始与结束标记的或多或少分级序列。通常您并不以这种方式处理 HTML
+,而是以文本方式 在一个文本编辑中对其进行处理,或以可视的方式 在一个
+浏览器中进行浏览或页面编辑工具中进行编辑。 sgmllib.py 表现出了 HTML 的
+结构 。
+
+sgmllib.py包含一个重要的类: SGMLParser 。 SGMLParser 将 HTML 分解成有用的片
+段,比如开始标记和结束标记。在它成功地分解出某个数据为一个有用的片
+段后,它会根据所发现的数据,调用一个自身内部的方法。为了使用这个分
+析器,您需要子类化 SGMLParser 类,并且覆盖这些方法。这就是当我说它表
+示了 HTML 结构 的意思:HTML 的结构决定了方法调用的次序和传给每个方
+法的参数。
+
+SGMLParser将 HTML 分析成 8 类数据,然后对每一类调用单独的方法:
+开始标记 (Start tag)
+    是开始一个块的 HTML 标记,像 <html> 、 <head> 、 <body> 或 <pre> 等,或
+    是一个独一的标记,像 <br> 或 <img> 等。当它找到一个开始标记
+    tagname , SGMLParser 将查找名为 start_ tagname 或 do_ tagname 的方法。例
+    如,当它找到一个 <pre> 标记,它将查找一个 start_pre 或 do_pre 的方法。
+    如果找到了, SGMLParser 会使用这个标记的属性列表来调用这个方法;
+    否则,它用这个标记的名字和属性列表来调用 unknown_starttag 方法。
+结束标记 (End tag)
+    是结束一个块的 HTML 标记,像 </html> 、 </head> 、 </body> 或 </pre> 等。
+    当找到一个结束标记时, SGMLParser 将查找名为 end_ tagname 的方法。如
+    果找到, SGMLParser 调用这个方法,否则它使用标记的名字来调用unknown_endtag
+字符引用 (Character reference)
+    用字符的十进制或等同的十六进制来表示的转义字符,像 &#160; 。当
+    找到, SGMLParser 使用十进制或等同的十六进制字符文本来调用handle_charref
+实体引用 (Entity reference)
+    HTML 实体,像 &copy; 。当找到, SGMLParser 使用 HTML 实体的名字来调
+    用 handle_entityref 。
+注释 (Comment)
+    HTML 注释,包括在 <!-- ... --> 之间。当找到, SGMLParser 用注释内容来调
+    用 handle_comment 。
+处理指令 (Processing instruction)
+    HTML 处理指令,包括在 <? ... > 之间。当找到, SGMLParser 用处理指令
+    内容来调用 handle_pi 。
+声明 (Declaration)
+    HTML 声明,如 DOCTYPE ,包括在 <! ... > 之间。当找到, SGMLParser 用声
+    明内容来调用 handle_decl 。
+文本数据 (Text data)
+    文本块。不满足其它 7 种类别的任何东西。当找到, SGMLParser 用文本
+    来调用 handle_data 。

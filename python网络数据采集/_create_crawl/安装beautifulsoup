@@ -1,0 +1,4 @@
+Linux 系统上的基本安装方法是:
+$sudo apt-get install python-bs4
+然后运行来安装库文件
+$pip install beautifulsoup4

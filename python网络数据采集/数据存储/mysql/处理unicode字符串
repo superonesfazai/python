@@ -1,0 +1,14 @@
+刚开始的时候,你最想做的事情可能就是把采集的结果保存到数据库里。让我们用前面维
+基百科爬虫的例子来演示一下如何实现数据存储。
+
+在进行网络数据采集时,处理 Unicode 字符串是很痛苦的事情。默认情况下,MySQL 也
+不支持 Unicode 字符处理。不过你可以设置这个功能(这么做会增加数据库的占用空间)。
+因为在维基百科上我们难免会遇到各种各样的字符,所以最好一开始就让你的数据库支持
+Unicode:
+    ALTER DATABASE scraping CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+    ALTER TABLE pages CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    ALTER TABLE pages CHANGE title title VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    ALTER TABLE pages CHANGE content content VARCHAR(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+这四行语句改变的内容有:数据库、数据表,以及两个字段的默认编码都从 utf8mb4
+(严格说来也属于 Unicode,但是对大多数 Unicode 字符的支持都非常不好)转变成了
+utf8mb4_unicode_ci 。

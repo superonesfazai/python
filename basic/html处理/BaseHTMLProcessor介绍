@@ -1,0 +1,14 @@
+SGMLParser  介绍
+
+自身不会产生任何结果。它只是分析,分析,再分析,对于它找到
+的有趣的东西会调用相应的一个方法,但是这些方法什么都不做。 SGMLParser
+是一个 HTML 消费者 (consumer):它接收 HTML,将其分解成小的、结构化的
+小块。正如您所看到的,在前一节中,您可以定义 SGMLParser 的子类,它可
+以捕捉特别标记和生成有用的东西,如一个网页中所有链接的一个列表。现
+在我们将沿着这条路更深一步。我们要定义一个可以捕捉 SGMLParser 所丢出
+来的所有东西的一个类,接着重建整个 HTML 文档。用技术术语来说,这个
+类将是一个 HTML 生产者 (producer)。
+
+BaseHTMLProcessor 子类化 SGMLParser ,并且提供了全部的 8 个处理方法:
+unknown_starttag, unknown_endtag, handle_charref, handle_entityref, handle_comment,
+handle_pi, handle_decl 和 handle_data 。
