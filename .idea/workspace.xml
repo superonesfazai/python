@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/test" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/简单的包装类_test.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/简单的包装类_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,7 +20,7 @@
     <SUITE FILE_PATH="coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1500723351107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
     <SUITE FILE_PATH="coverage/PythonDoc$Unittests_for_except_test_test_01.coverage" NAME="Unittests for except_test.test_01 Coverage Results" MODIFIED="1500709971376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
     <SUITE FILE_PATH="coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="简单的包装类_test Coverage Results" MODIFIED="1500804729846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="包装标准类型_test Coverage Results" MODIFIED="1500816226822" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装" />
     <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
     <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_request_cookie_test_py.coverage" NAME="Unittests in request_cookie_test.py Coverage Results" MODIFIED="1500644170986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/cookie" />
     <SUITE FILE_PATH="coverage/PythonDoc$schedule_test.coverage" NAME="schedule_test Coverage Results" MODIFIED="1500644612579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/schedule" />
@@ -39,38 +39,28 @@
       <file leaf-file-name="生成器_test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
+            <state relative-caret-position="1134">
               <caret line="63" column="13" lean-forward="false" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="类" pinned="false" current-in-tab="false">
+      <file leaf-file-name="类" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="538">
-              <caret line="80" column="4" lean-forward="false" selection-start-line="80" selection-start-column="4" selection-end-line="80" selection-end-column="4" />
+            <state relative-caret-position="144">
+              <caret line="94" column="3" lean-forward="true" selection-start-line="94" selection-start-column="3" selection-end-line="94" selection-end-column="3" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="简单的包装类_test.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="简单的包装类_test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/简单的包装类_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="72" column="102" lean-forward="false" selection-start-line="72" selection-start-column="102" selection-end-line="72" selection-end-column="102" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/test">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="5" lean-forward="false" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
+            <state relative-caret-position="121">
+              <caret line="59" column="9" lean-forward="true" selection-start-line="59" selection-start-column="9" selection-end-line="59" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -79,18 +69,8 @@
       <file leaf-file-name="包装标准类型_test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="定制_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/定制_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-131">
-              <caret line="60" column="8" lean-forward="false" selection-start-line="60" selection-start-column="8" selection-end-line="60" selection-end-column="8" />
+            <state relative-caret-position="225">
+              <caret line="51" column="23" lean-forward="false" selection-start-line="51" selection-start-column="23" selection-end-line="51" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -119,7 +99,7 @@
       <file leaf-file-name="class_test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/class_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
+            <state relative-caret-position="576">
               <caret line="32" column="11" lean-forward="false" selection-start-line="32" selection-start-column="11" selection-end-line="32" selection-end-column="11" />
               <folding />
             </state>
@@ -180,10 +160,10 @@
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/从标准类派生_test.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/定制_test.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/多类型定制_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/test" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/简单的包装类_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
       </list>
     </option>
   </component>
@@ -194,8 +174,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="285" />
-    <option name="y" value="60" />
+    <option name="x" value="440" />
+    <option name="y" value="48" />
     <option name="width" value="778" />
     <option name="height" value="668" />
   </component>
@@ -217,6 +197,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -259,28 +240,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="面向对象" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="python_cookbook_notes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="面向对象" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="包装" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -362,7 +321,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -396,23 +354,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.简单的包装类_test">
-    <configuration default="false" name="Unittests in 函数修饰符_test.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/python_cookbook_notes/面向对象/函数修饰符_test.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Python.包装标准类型_test">
     <configuration default="false" name="从标准类派生_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -484,6 +426,25 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/简单的包装类_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="包装标准类型_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -737,19 +698,19 @@
       <item index="1" class="java.lang.String" itemvalue="Python.request_test" />
       <item index="2" class="java.lang.String" itemvalue="Python.str_format_文本缩进_test" />
       <item index="3" class="java.lang.String" itemvalue="Python.pandas_test" />
-      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in 函数修饰符_test.py" />
-      <item index="5" class="java.lang.String" itemvalue="Python.从标准类派生_test" />
-      <item index="6" class="java.lang.String" itemvalue="Python.定制_test" />
-      <item index="7" class="java.lang.String" itemvalue="Python.多类型定制_test" />
-      <item index="8" class="java.lang.String" itemvalue="Python.简单的包装类_test" />
+      <item index="4" class="java.lang.String" itemvalue="Python.从标准类派生_test" />
+      <item index="5" class="java.lang.String" itemvalue="Python.定制_test" />
+      <item index="6" class="java.lang.String" itemvalue="Python.多类型定制_test" />
+      <item index="7" class="java.lang.String" itemvalue="Python.简单的包装类_test" />
+      <item index="8" class="java.lang.String" itemvalue="Python.包装标准类型_test" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.简单的包装类_test" />
-        <item index="1" class="java.lang.String" itemvalue="Python.多类型定制_test" />
-        <item index="2" class="java.lang.String" itemvalue="Python.定制_test" />
-        <item index="3" class="java.lang.String" itemvalue="Python.从标准类派生_test" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in 函数修饰符_test.py" />
+        <item index="0" class="java.lang.String" itemvalue="Python.包装标准类型_test" />
+        <item index="1" class="java.lang.String" itemvalue="Python.简单的包装类_test" />
+        <item index="2" class="java.lang.String" itemvalue="Python.多类型定制_test" />
+        <item index="3" class="java.lang.String" itemvalue="Python.定制_test" />
+        <item index="4" class="java.lang.String" itemvalue="Python.从标准类派生_test" />
       </list>
     </recent_temporary>
   </component>
@@ -799,10 +760,9 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="285" y="60" width="778" height="668" extended-state="0" />
-    <editor active="true" />
+    <frame x="440" y="48" width="778" height="668" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3200514" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32262212" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1074,14 +1034,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/11.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/11.py" />
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/create_child_class_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
@@ -1092,7 +1045,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/class_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
+        <state relative-caret-position="576">
           <caret line="32" column="11" lean-forward="false" selection-start-line="32" selection-start-column="11" selection-end-line="32" selection-end-column="11" />
           <folding />
         </state>
@@ -1100,25 +1053,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
+        <state relative-caret-position="1134">
           <caret line="63" column="13" lean-forward="false" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/解构器_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/解构器_test.py" />
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/函数修饰符_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="19" column="25" lean-forward="true" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="25" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1126,7 +1071,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="499" column="4" lean-forward="false" selection-start-line="499" selection-start-column="4" selection-end-line="499" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1134,7 +1078,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="94">
           <caret line="83" column="0" lean-forward="false" selection-start-line="82" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1148,7 +1091,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/定制_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-131">
+        <state relative-caret-position="1080">
           <caret line="60" column="8" lean-forward="false" selection-start-line="60" selection-start-column="8" selection-end-line="60" selection-end-column="8" />
           <folding />
         </state>
@@ -1158,22 +1101,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1152">
           <caret line="64" column="14" lean-forward="false" selection-start-line="64" selection-start-column="14" selection-end-line="64" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="538">
-          <caret line="80" column="4" lean-forward="false" selection-start-line="80" selection-start-column="4" selection-end-line="80" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1188,8 +1115,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/简单的包装类_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="72" column="102" lean-forward="false" selection-start-line="72" selection-start-column="102" selection-end-line="72" selection-end-column="102" />
+        <state relative-caret-position="121">
+          <caret line="59" column="9" lean-forward="true" selection-start-line="59" selection-start-column="9" selection-end-line="59" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/包装标准类型_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="51" column="23" lean-forward="false" selection-start-line="51" selection-start-column="23" selection-end-line="51" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="94" column="3" lean-forward="true" selection-start-line="94" selection-start-column="3" selection-end-line="94" selection-end-column="3" />
           <folding />
         </state>
       </provider>

@@ -83,3 +83,33 @@ vars()返回一个字典,它包含了对象存储于__dict__中的属性(键)和
 实现授权  (授权是包装的一个特性)
 授权 采用已存在的功能以达到最大限度的代码重用
 实现授权的关键点就是覆盖__getattr__()方法, 在代码中包含一个对getattr()内建函数的调用
+
+## __slots__
+这种特性的主要目的是节省内存,其副作用是某种类型的安全
+他能防止用户随心所欲的动态增加实例属性
+带__slots__属性的类定义不会存在__dict__了(除非你在__slots__中增加'__dict__'元素)
+
+## __getattribute__()
+如果你在__getattribute__()中不知何故在此调用了__getattribute__(),就将会陷入无穷的递归
+为避免在使用此方法引起无穷递归,应该先调用祖先类的同名方法
+eg:
+super(obj, self).__getattribute__(attr)
+
+## 描述符
+
+## 属性和property()内建函数
+property()内建函数有4个参数,
+property(fget=None, fset=None, fdel=None, doc=None)
+一般用法是,将它写在一个类定义中,property()接受一些传进来的参数
+(其实是方法)作为参数
+实际上,property()是在它所在类被创建时被调用的,这些传进来的(作为参数的)
+方法是非绑定的,所以这些方法其实就是函数!
+
+## 元类和__metaclass__
+
+## 与类相关的模块
+UserList    提供一个列表对象的封装类
+UserDict    .......字典..........
+UserString  .......字符串........,它包括一个MutableString子类,需要时可以提供相关功能
+types       定义所有python对象的类型在标准python解释器的名字
+operator    标准操作符的函数接口
