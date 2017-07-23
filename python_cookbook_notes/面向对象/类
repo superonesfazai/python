@@ -1,0 +1,85 @@
+## 特殊的类属性
+c.__name__      类的名字(字符串)
+c.__doc__       类的文档字符串
+c.__bases__     类所有父类构成的元组
+c.__dict__      类的属性
+c.__module__    类定义所在的模块
+c.__class__     实例对应的类          等同于type(c)
+
+## __new__() "构造器方法"
+
+## __del__() "解构器方法"
+只有当所有类对象被清除,即类引用计数为0 , 解构器最后才调用
+
+## 静态方法(staticmethod())和类方法(classmethod() 内建函数)
+
+## 使用函数修饰符
+
+## 子类与派生
+语法：
+class SubClassName(ParentClass[, ParentClass, ...]):
+    class_suite
+
+## 继承
+描述了基类的属性如何"遗传"给派生类.
+一个子类可以继承它的基类的任何属性
+不管是数据属性还是方法
+
+## __bases__类属性
+
+## 通过继承覆盖方法
+
+## 重写__init__不会自动调用基类的__init__
+类似于上面的覆盖非特殊方法
+当从一个带构造器__init()__的类派生
+如果你不去覆盖__init__(),它将会被继承并被自动调用
+但如果你在子类中覆盖了__init__(),子类被实例化时,基类的__init__()就不会被自动调用
+
+## 从标准类型派生
+
+## 多重继承
+(方法解释顺序(MRO):现在的查询方法是广度优先,以前是深度优先)
+
+## issubclass(), isinstance()
+
+## hasattr(), getattr(), setattr(), delattr()
+eg:
+class myClass(object):
+    def __init__(self):
+        self.foo = 100
+
+a = myClass()
+hasattr(a, 'foo')       # True
+getattr(a, 'foo')       # 100
+hasattr(a, 'bar')       # AttributeError: myClass instance has no attribute 'bar'
+getattr(c, 'bar', 'oops!')      # 'oops!'
+setattr(myInst, 'bar', 'my attr')
+dir(myInst)     # ['__doc__', '__module__', 'bar', 'foo']
+getattr(myInst, 'bar')      # 'my attr'
+delattr(myInst, 'foo')
+dir(myInst)     # ['__doc__', '__moudle__', 'bar']
+hasattr(myInst, 'foo')      #False
+
+
+## dir()
+
+## super()
+方便调用相应的属性
+
+## vars()
+vars()内建函数与dir()类似
+vars()返回一个字典,它包含了对象存储于__dict__中的属性(键)和值
+如果提供对象没有这样一个属性值, 则会引发一个TypeError
+如果没有提供对象作为vars()的一个参数,它将显示locals()的字典
+
+## 定制
+
+## 私有化
+双下划线(__) 类元素私有性
+单下划线(_)  实现简单的模块级私有化
+
+## *授权
+包装
+实现授权  (授权是包装的一个特性)
+授权 采用已存在的功能以达到最大限度的代码重用
+实现授权的关键点就是覆盖__getattr__()方法, 在代码中包含一个对getattr()内建函数的调用

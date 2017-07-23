@@ -14,3 +14,6 @@ if __name__ == '__main__':
                 'uid':'sa', \
                 'pwd':'secret'}
     print(buildConnectionString(myParams))
+
+    for i in '可迭代对象':
+        pass

@@ -90,3 +90,12 @@ ValueError: Attempted relative import in non-package
 原因分析: from ..database import db_session 这样的写法是显式相对引用, 这种引用方式只能用于 package 中, 而不能用于主模块中。
 因为主 module 的 name 总是为 main , 并没有层次结构, 也就无从谈起相对引用了。
 换句话, if __name__=="__main__": 和相对引用是不能并存的。
+
+## __builtins__ 和__builtin__
+这两个模块不能混淆, __builtins__包含内建名称空间中内建名字的集合
+其中大多数来自__builtin__模块, 该模块包含内建函数,异常以及其他属性
+
+## globals()和locals()
+分别返回调用者全局和局部名称空间的字典
+在一个函数内部,局部名称空间代表在函数执行时候定义的所有名字
+locals()就是返回这些名字的字典  global()返回函数可访问的全局的名字
