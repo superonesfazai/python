@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from SocketServer import TCPServer, BaseRequestHandler
+from socketserver import TCPServer, BaseRequestHandler
 import traceback
 
 class MyBaseRequestHandler(BaseRequestHandler):

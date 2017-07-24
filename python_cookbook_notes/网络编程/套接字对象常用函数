@@ -1,0 +1,27 @@
+s.bind()        绑定地址(主机名,端口号对)到套接字
+s.listen()      开启TCP监听
+s.accept()      被动接受TCP客户端连接,(阻塞式)等待连接的到来
+
+客户端套接字函数
+s.connect()     主动初始化TCP服务器的连接
+s.connect_ex()  connect()函数的扩展版本,出错时会返回出错码,而不是抛出异常
+
+公共用途套接字函数
+s.recv()        接收TCP数据
+s.send()        发送TCP数据
+s.sendall()     完整的发送TCP数据
+s.recvfrom()    接收UDP数据
+s.sendto()      发送UDP数据
+s.getpeername() 连接到当前套接字的远端的地址(TCP连接)
+s.getsockname() 当前套接字的地址
+s.getsockopt()  返回指定套接字的参数
+s.setsockopt()  设置指定套接字的参数
+s.close()       关闭套接字
+
+面向模块的套接字函数
+s.setblocking() 设置套接字的阻塞和非阻塞模式
+s.settimeout()  设置阻塞套接字操作的超时时间
+s.gettimeout()  得到阻塞套接字操作的超时时间
+面向文件的套接字函数
+s.fileno()      套接字的文字描述符
+s.makefile()    创建一个与该套接字关联的文件对象

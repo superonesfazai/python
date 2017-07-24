@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from SocketServer import ThreadingTCPServer, StreamRequestHandler
+from socketserver import ThreadingTCPServer, StreamRequestHandler
 import traceback
 
 class MyStreamRequestHandler(StreamRequestHandler):
