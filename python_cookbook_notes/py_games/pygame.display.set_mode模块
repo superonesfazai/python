@@ -1,0 +1,13 @@
+set_mode会返回一个Surface对象,代表了在桌面上出现的那个窗口,
+三个参数:
+    第一个为元祖,代表分 辨率(必须);
+    第二个是一个标志位,具体意思见下表,如果不用什么特性,就指定0
+    第三个为色深
+
+标志位	    功能
+FULLSCREEN	创建一个全屏窗口
+DOUBLEBUF	创建一个“双缓冲”窗口,建议在HWSURFACE或者OPENGL时使用
+HWSURFACE	创建一个硬件加速的窗口,必须和FULLSCREEN同时使用
+OPENGL	    创建一个OPENGL渲染的窗口
+RESIZABLE	创建一个可以改变大小的窗口
+NOFRAME	    创建一个没有边框的窗口

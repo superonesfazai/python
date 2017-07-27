@@ -1,0 +1,5 @@
+对于pygame而已,加载图片就是pygame.image.load
+给它一个文件名然后就还给你一个surface对象
+尽管读入的图像的格式各不相同,surface对象隐藏了这些不同
+你可以对一个surface对象进行绘画,变形,复制等各种操作
+事实上,屏幕也是一个surface, pygame.display.set_mode就返回了一个屏幕surface对象

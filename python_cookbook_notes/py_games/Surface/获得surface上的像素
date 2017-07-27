@@ -1,0 +1,4 @@
+set_at的兄弟get_at可以帮我们做这件事
+它接受一个坐标返回指定坐标点上的颜色。
+不过记住get_at在对hardware surface操作的时候很慢
+而全屏的时候总是hardware的，所以慎用这个方法！
