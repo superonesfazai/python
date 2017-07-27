@@ -69,7 +69,7 @@ class SimpleSelector(QtGui.QWidget, Ui_Window):
             element.removeAttribute('style')
 
         for element in elements:
-            element.setAttribute('style', 'background-color: #f0f090')
+            element.setAttribute('style', 'bg-color: #f0f090')
 
         self._lastElements = elements
 

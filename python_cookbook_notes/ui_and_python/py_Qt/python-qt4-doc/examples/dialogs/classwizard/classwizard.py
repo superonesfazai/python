@@ -68,7 +68,7 @@ class ClassWizard(QtGui.QWizard):
         self.setPixmap(QtGui.QWizard.BannerPixmap,
                 QtGui.QPixmap(':/images/banner.png'))
         self.setPixmap(QtGui.QWizard.BackgroundPixmap,
-                QtGui.QPixmap(':/images/background.png'))
+                QtGui.QPixmap(':/images/bg.png'))
 
         self.setWindowTitle("Class Wizard")
 

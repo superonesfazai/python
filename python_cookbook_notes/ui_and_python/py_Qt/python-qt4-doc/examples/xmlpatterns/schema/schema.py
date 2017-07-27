@@ -240,7 +240,7 @@ class MainWindow(QtGui.QMainWindow, Ui_SchemaMainWindow):
             self.validationStatus.setText("validation successful")
             background = QtCore.Qt.green
 
-        styleSheet = 'QLabel {background: %s; padding: 3px}' % QtGui.QColor(background).light(160).name()
+        styleSheet = 'QLabel {bg: %s; padding: 3px}' % QtGui.QColor(background).light(160).name()
         self.validationStatus.setStyleSheet(styleSheet)
 
     def textChanged(self):

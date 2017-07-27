@@ -152,7 +152,7 @@ class MainWindow(QtGui.QMainWindow):
     def highlightAllLinks(self):
         code = """$('a').each(
                     function () {
-                        $(this).css('background-color', 'yellow') 
+                        $(this).css('bg-color', 'yellow') 
                     } 
                   )"""
         self.view.page().mainFrame().evaluateJavaScript(code)

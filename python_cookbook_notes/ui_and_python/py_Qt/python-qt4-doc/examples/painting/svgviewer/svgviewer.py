@@ -179,7 +179,7 @@ class SvgView(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
         self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
 
-        # Prepare background check-board pattern.
+        # Prepare bg check-board pattern.
         tilePixmap = QtGui.QPixmap(64, 64)
         tilePixmap.fill(QtCore.Qt.white)
         tilePainter = QtGui.QPainter(tilePixmap)
