@@ -1,0 +1,39 @@
+pygame.draw.rect
+    用法：pygame.draw.rect(Surface, color, Rect, width=0)
+    pygame.draw.rect在surface上画一个矩形,除了surface和color,
+    rect接受一个矩形的坐标和线宽参数,如果线宽是0或省略,则填充.
+    我们有一个另外的方法来画矩形——fill方法, 如果你还记得的话,
+    事实上fill可能还会快一点点，因为fill由显卡来完成。
+
+pygame.draw.polygon
+    用法：pygame.draw.polygon(Surface, color, pointlist, width=0)
+    polygon就是多边形,用法类似rect,第一、第二、第四的参数都是相同的,
+    只不过polygon会接受一系列坐标的列表，代表了各个顶点。
+
+pygame.draw.circle
+    用法：pygame.draw.circle(Surface, color, pos, radius, width=0)
+    很简单，画一个圆。与其他不同的是，它接收一个圆心坐标和半径参数。
+
+pygame.draw.ellipse
+    用法：pygame.draw.ellipse(Surface, color, Rect, width=0)
+    你可以把一个ellipse想象成一个被压扁的圆
+    事实上，它是可以被一个矩形装起来的.
+    pygame.draw.ellipse的第三个参数就是这个椭圆的外接矩形
+
+pygame.draw.arc
+    用法：pygame.draw.arc(Surface, color, Rect, start_angle, stop_angle, width=1)
+    arc是椭圆的一部分,所以它的参数也就比椭圆多一点
+    但它是不封闭的,因此没有fill方法,start_angle和stop_angle为开始和结束的角度
+
+pygame.draw.line
+    用法：pygame.draw.line(Surface, color, start_pos, end_pos, width=1)
+    我相信所有的人都能看明白
+
+pygame.draw.lines
+    用法：pygame.draw.lines(Surface, color, closed, pointlist, width=1)
+    closed是一个布尔变量,指明是否需要多画一条线来使这些线条闭合(感觉就和polygone一样了)
+    pointlist是一个点的数组
+
+上面的表中我们还有aaline和aalines,
+玩游戏的都知道开出“抗锯齿(antialiasing)”效果会让画面更好看一些
+模型的边就不会是锯齿形的了,这两个方法就是在画线的时候做这事情的,参数和上面一样,省略
