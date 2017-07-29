@@ -18,11 +18,11 @@ import pygame
 from pygame.locals import *
 
 screen = pygame.display.set_mode((640, 480), 0, 32)
-screen.set_clip(0, 400, 200, 600)
 # 在左下角画地图
+screen.set_clip(0, 400, 200, 600)
 draw_map()
-screen.set_clip(0, 0, 800, 60)
 # 在上方画菜单面板
+screen.set_clip(0, 0, 800, 60)
 draw_panel()
 
 

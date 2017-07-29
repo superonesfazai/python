@@ -1,4 +1,4 @@
-# coding = utf-8
+# coding: utf-8
 __author__ = 'super_fazai'
 # @Time    : 17-7-20 下午9:08
 # @File    : test.py
@@ -8,7 +8,7 @@ tmp = []
 
 def fact():
     global tmp
-    for i in range(1, 10000):
+    for i in range(1, 10):
         s = 1
         for j in range(1, i+1):
             s = s * j
@@ -22,6 +22,18 @@ for i in range(0, len(tmp)):
     sum = sum + int(tmp[i])
 
 print(sum)
+
+for i in range(3):
+    print(i)
+
+a = {'a': 1, '2': 2}
+
+# 以dict传参
+def t(**kwargs):
+    for k, v in kwargs.items():
+        print(k, '=', v)
+
+t(**a)
 
 
 
