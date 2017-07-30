@@ -3,7 +3,7 @@
 #上三角
 for i in range(1, 6):
     for j in range(i):
-        print('* ', end='')
+        print('*', end=' ')
     print()
 
 print()
@@ -12,7 +12,7 @@ print()
 tmp_num = 5
 while tmp_num <= 5 and tmp_num >=0:
     for j in range(tmp_num):
-        print('* ', end='')
+        print('*', end=' ')
     tmp_num -= 1
     print()
 
@@ -20,12 +20,12 @@ while tmp_num <= 5 and tmp_num >=0:
 num = int(input('请输入要打印上三角的行数：'))
 for i in range(1, num+1):
     for j in range(i):
-        print('* ', end='')
+        print('*', end=' ')
     print()
 tmp_num = num - 1
 while tmp_num <= num and tmp_num >=0:
     for j in range(tmp_num):
-        print('* ', end='')
+        print('*', end=' ')
     tmp_num -= 1
     print()
 
