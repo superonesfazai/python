@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="" />
+    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -10,78 +12,88 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/PythonDoc$findfiles.coverage" NAME="findfiles Coverage Results" MODIFIED="1500891066682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/py_Qt/python-qt4-doc/examples/dialogs" />
-    <SUITE FILE_PATH="coverage/PythonDoc$label_button_scale_test.coverage" NAME="label_button_scale_test Coverage Results" MODIFIED="1500891799156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
-    <SUITE FILE_PATH="coverage/PythonDoc$cmath_test.coverage" NAME="cmath_test Coverage Results" MODIFIED="1501050421481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/cmath" />
-    <SUITE FILE_PATH="coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1500723351107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$plane.coverage" NAME="plane Coverage Results" MODIFIED="1501233791451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
-    <SUITE FILE_PATH="coverage/PythonDoc$udp__client.coverage" NAME="udp_时间戳_client Coverage Results" MODIFIED="1500882507969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1500880431417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$hello_world.coverage" NAME="hello_world Coverage Results" MODIFIED="1501123727872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test__1_.coverage" NAME="直线运动_test (1) Coverage Results" MODIFIED="1501227026949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PythonDoc$juhe_data_box_office.coverage" NAME="juhe_data_box_office Coverage Results" MODIFIED="1500625327181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
-    <SUITE FILE_PATH="coverage/PythonDoc$label_test.coverage" NAME="label_test Coverage Results" MODIFIED="1500890615150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
-    <SUITE FILE_PATH="coverage/PythonDoc$pygame_draw_test.coverage" NAME="pygame_draw_test Coverage Results" MODIFIED="1501302796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
-    <SUITE FILE_PATH="coverage/PythonDoc$surface.coverage" NAME="设置surface的像素 Coverage Results" MODIFIED="1501157107571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/Surface" />
-    <SUITE FILE_PATH="coverage/PythonDoc$str_format__test.coverage" NAME="str_format_文本缩进_test Coverage Results" MODIFIED="1500708345754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/文本" />
-    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_for_except_test_test_02.coverage" NAME="Unittests for except_test.test_02 Coverage Results" MODIFIED="1500709736343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
-    <SUITE FILE_PATH="coverage/PythonDoc$compile_test.coverage" NAME="compile_test Coverage Results" MODIFIED="1500864612319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_Shape.coverage" NAME="turtle.Shape Coverage Results" MODIFIED="1500970128069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$gettext_test.coverage" NAME="gettext_test Coverage Results" MODIFIED="1501069091029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/gettext" />
-    <SUITE FILE_PATH="coverage/PythonDoc$functools_test.coverage" NAME="functools_test Coverage Results" MODIFIED="1501056246512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/functools" />
-    <SUITE FILE_PATH="coverage/PythonDoc$__test.coverage" NAME="静态方法_类方法_test Coverage Results" MODIFIED="1500857363587" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_setup.coverage" NAME="turtle.setup Coverage Results" MODIFIED="1500969933297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$plane__1_.coverage" NAME="plane (1) Coverage Results" MODIFIED="1501302444895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="颜色的混合_test Coverage Results" MODIFIED="1501302665947" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/颜色的威力" />
-    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
-    <SUITE FILE_PATH="coverage/PythonDoc$schedule_test.coverage" NAME="schedule_test Coverage Results" MODIFIED="1500644612579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/schedule" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_bgcolor.coverage" NAME="turtle.bgcolor Coverage Results" MODIFIED="1500989690561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$button_test.coverage" NAME="button_test Coverage Results" MODIFIED="1500890626830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
-    <SUITE FILE_PATH="coverage/PythonDoc$pickle_test.coverage" NAME="pickle_test Coverage Results" MODIFIED="1501067114480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/pickle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$socketserver_tcp__client.coverage" NAME="socketserver_tcp_时间戳_client Coverage Results" MODIFIED="1500886430455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_onkey.coverage" NAME="turtle.onkey Coverage Results" MODIFIED="1500969478817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_bgpic.coverage" NAME="turtle.bgpic Coverage Results" MODIFIED="1500967665761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$.coverage" NAME="单例模式 Coverage Results" MODIFIED="1501404949873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
-    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in__test_py.coverage" NAME="Unittests in 函数修饰符_test.py Coverage Results" MODIFIED="1500790440831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
+    <SUITE FILE_PATH="coverage/PythonDoc$twisted_reactor_tcp__server.coverage" NAME="twisted_reactor_tcp_时间戳_server Coverage Results" MODIFIED="1500886447675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
     <SUITE FILE_PATH="coverage/PythonDoc$wuziqi_xxx.coverage" NAME="wuziqi_xxx Coverage Results" MODIFIED="1500980707670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1501406353579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
-    <SUITE FILE_PATH="coverage/PythonDoc$2_test.coverage" NAME="直线运动2_test Coverage Results" MODIFIED="1501228909201" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_tracer.coverage" NAME="turtle.tracer Coverage Results" MODIFIED="1500968995013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$socketserver_tcp__server.coverage" NAME="socketserver_tcp_时间戳_server Coverage Results" MODIFIED="1500885592000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_for_except_test_test_01.coverage" NAME="Unittests for except_test.test_01 Coverage Results" MODIFIED="1500709971376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
-    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_request_cookie_test_py.coverage" NAME="Unittests in request_cookie_test.py Coverage Results" MODIFIED="1500644170986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/cookie" />
+    <SUITE FILE_PATH="coverage/PythonDoc$udp__server.coverage" NAME="udp_时间戳_server Coverage Results" MODIFIED="1500882453343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1501069475616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a" />
+    <SUITE FILE_PATH="coverage/PythonDoc$plane.coverage" NAME="plane Coverage Results" MODIFIED="1501233791451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
+    <SUITE FILE_PATH="coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1500723351107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PythonDoc$wuziqi_test.coverage" NAME="wuziqi_test Coverage Results" MODIFIED="1501044049716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$surface.coverage" NAME="设置surface的像素 Coverage Results" MODIFIED="1501157107571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/Surface" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_test_py.coverage" NAME="Unittests in test.py Coverage Results" MODIFIED="1500980366632" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="coverage/PythonDoc$buttonframeDemo.coverage" NAME="buttonframeDemo Coverage Results" MODIFIED="1500894911136" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/wxpython" />
     <SUITE FILE_PATH="coverage/PythonDoc$tcp__client.coverage" NAME="tcp_时间戳_client Coverage Results" MODIFIED="1500880529514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$turtle_setworldcoordinates.coverage" NAME="turtle.setworldcoordinates Coverage Results" MODIFIED="1500968705434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$label_button_test.coverage" NAME="label_button_test Coverage Results" MODIFIED="1500891061427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
-    <SUITE FILE_PATH="coverage/PythonDoc$fileinput_test.coverage" NAME="fileinput_test Coverage Results" MODIFIED="1501067963240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/fileinput" />
-    <SUITE FILE_PATH="coverage/PythonDoc$threading_lock.coverage" NAME="threading_lock Coverage Results" MODIFIED="1500706259269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
+    <SUITE FILE_PATH="coverage/PythonDoc$label_test.coverage" NAME="label_test Coverage Results" MODIFIED="1500890615150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="coverage/PythonDoc$turtle_test.coverage" NAME="turtle_test Coverage Results" MODIFIED="1501312779013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$udp__server.coverage" NAME="udp_时间戳_server Coverage Results" MODIFIED="1500882453343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$write_my_name.coverage" NAME="write_my_name Coverage Results" MODIFIED="1500980119465" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$label_button_test.coverage" NAME="label_button_test Coverage Results" MODIFIED="1500891061427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test__1_.coverage" NAME="直线运动_test (1) Coverage Results" MODIFIED="1501227026949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_setup.coverage" NAME="turtle.setup Coverage Results" MODIFIED="1500969933297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$compile_test.coverage" NAME="compile_test Coverage Results" MODIFIED="1500864612319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
+    <SUITE FILE_PATH="coverage/PythonDoc$pygame_draw_test.coverage" NAME="pygame_draw_test Coverage Results" MODIFIED="1501302796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_Shape.coverage" NAME="turtle.Shape Coverage Results" MODIFIED="1500970128069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$__test.coverage" NAME="静态方法_类方法_test Coverage Results" MODIFIED="1500857363587" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_bgcolor.coverage" NAME="turtle.bgcolor Coverage Results" MODIFIED="1500989690561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$socketserver_tcp__server.coverage" NAME="socketserver_tcp_时间戳_server Coverage Results" MODIFIED="1500885592000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_request_cookie_test_py.coverage" NAME="Unittests in request_cookie_test.py Coverage Results" MODIFIED="1500644170986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/cookie" />
+    <SUITE FILE_PATH="coverage/PythonDoc$fileinput_test.coverage" NAME="fileinput_test Coverage Results" MODIFIED="1501067963240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/fileinput" />
+    <SUITE FILE_PATH="coverage/PythonDoc$.coverage" NAME="单例模式 Coverage Results" MODIFIED="1501404949873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
     <SUITE FILE_PATH="coverage/PythonDoc$weight.coverage" NAME="weight Coverage Results" MODIFIED="1500899658087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games" />
-    <SUITE FILE_PATH="coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1501069475616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a" />
     <SUITE FILE_PATH="coverage/PythonDoc$odbchelper.coverage" NAME="odbchelper Coverage Results" MODIFIED="1500725854193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/basic" />
-    <SUITE FILE_PATH="coverage/PythonDoc$twisted_reactor_tcp__server.coverage" NAME="twisted_reactor_tcp_时间戳_server Coverage Results" MODIFIED="1500886447675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
+    <SUITE FILE_PATH="coverage/PythonDoc$functools_test.coverage" NAME="functools_test Coverage Results" MODIFIED="1501056246512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/functools" />
+    <SUITE FILE_PATH="coverage/PythonDoc$button_test.coverage" NAME="button_test Coverage Results" MODIFIED="1500890626830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
+    <SUITE FILE_PATH="coverage/PythonDoc$socketserver_tcp__client.coverage" NAME="socketserver_tcp_时间戳_client Coverage Results" MODIFIED="1500886430455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$label_button_scale_test.coverage" NAME="label_button_scale_test Coverage Results" MODIFIED="1500891799156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
+    <SUITE FILE_PATH="coverage/PythonDoc$json_test.coverage" NAME="json_test Coverage Results" MODIFIED="1500619485134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in__test_py.coverage" NAME="Unittests in 函数修饰符_test.py Coverage Results" MODIFIED="1500790440831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
+    <SUITE FILE_PATH="coverage/PythonDoc$pygame_test.coverage" NAME="pygame全屏显示_test Coverage Results" MODIFIED="1501302816775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示" />
     <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_except_test_py.coverage" NAME="Unittests in except_test.py Coverage Results" MODIFIED="1500709883341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
-    <SUITE FILE_PATH="coverage/PythonDoc$hashlib_test.coverage" NAME="hashlib_test Coverage Results" MODIFIED="1501058077725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib" />
-    <SUITE FILE_PATH="coverage/PythonDoc$wuziqi_test.coverage" NAME="wuziqi_test Coverage Results" MODIFIED="1501044049716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$pickle_test.coverage" NAME="pickle_test Coverage Results" MODIFIED="1501067114480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/pickle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$2_test.coverage" NAME="直线运动2_test Coverage Results" MODIFIED="1501228909201" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_for_except_test_test_01.coverage" NAME="Unittests for except_test.test_01 Coverage Results" MODIFIED="1500709971376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
+    <SUITE FILE_PATH="coverage/PythonDoc$request_test.coverage" NAME="request_test Coverage Results" MODIFIED="1500643266485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
+    <SUITE FILE_PATH="coverage/PythonDoc$cmath_test.coverage" NAME="cmath_test Coverage Results" MODIFIED="1501050421481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/cmath" />
+    <SUITE FILE_PATH="coverage/PythonDoc$juhe_data_box_office.coverage" NAME="juhe_data_box_office Coverage Results" MODIFIED="1500625327181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_setworldcoordinates.coverage" NAME="turtle.setworldcoordinates Coverage Results" MODIFIED="1500968705434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_onkey.coverage" NAME="turtle.onkey Coverage Results" MODIFIED="1500969478817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="coverage/PythonDoc$Control.coverage" NAME="Control Coverage Results" MODIFIED="1501231857001" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="coverage/PythonDoc$turtle_onclick.coverage" NAME="turtle.onclick Coverage Results" MODIFIED="1500990672255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_bgpic.coverage" NAME="turtle.bgpic Coverage Results" MODIFIED="1500967665761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$findfiles.coverage" NAME="findfiles Coverage Results" MODIFIED="1500891066682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/py_Qt/python-qt4-doc/examples/dialogs" />
+    <SUITE FILE_PATH="coverage/PythonDoc$schedule_test.coverage" NAME="schedule_test Coverage Results" MODIFIED="1500644612579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/schedule" />
     <SUITE FILE_PATH="coverage/PythonDoc$turtle_window_height_window_width.coverage" NAME="turtle.window_height_window_width Coverage Results" MODIFIED="1500969625725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$pygame_test.coverage" NAME="pygame全屏显示_test Coverage Results" MODIFIED="1501302816775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_for_except_test_test_02.coverage" NAME="Unittests for except_test.test_02 Coverage Results" MODIFIED="1500709736343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
+    <SUITE FILE_PATH="coverage/PythonDoc$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1501406353579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="颜色的混合_test Coverage Results" MODIFIED="1501302665947" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/颜色的威力" />
+    <SUITE FILE_PATH="coverage/PythonDoc$gettext_test.coverage" NAME="gettext_test Coverage Results" MODIFIED="1501069091029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/gettext" />
+    <SUITE FILE_PATH="coverage/PythonDoc$turtle_tracer.coverage" NAME="turtle.tracer Coverage Results" MODIFIED="1500968995013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$hello_world.coverage" NAME="hello_world Coverage Results" MODIFIED="1501123727872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games" />
+    <SUITE FILE_PATH="coverage/PythonDoc$udp__client.coverage" NAME="udp_时间戳_client Coverage Results" MODIFIED="1500882507969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="coverage/PythonDoc$Enemy.coverage" NAME="Enemy Coverage Results" MODIFIED="1501233374577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
-    <SUITE FILE_PATH="coverage/PythonDoc$write_my_name.coverage" NAME="write_my_name Coverage Results" MODIFIED="1500980119465" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$hashlib_test.coverage" NAME="hashlib_test Coverage Results" MODIFIED="1501058077725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib" />
+    <SUITE FILE_PATH="coverage/PythonDoc$threading_lock.coverage" NAME="threading_lock Coverage Results" MODIFIED="1500706259269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
     <SUITE FILE_PATH="coverage/PythonDoc$python_test.coverage" NAME="动态生成和执行python代码_test Coverage Results" MODIFIED="1500868744902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
-    <SUITE FILE_PATH="coverage/PythonDoc$json_test.coverage" NAME="json_test Coverage Results" MODIFIED="1500619485134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
+    <SUITE FILE_PATH="coverage/PythonDoc$str_format__test.coverage" NAME="str_format_文本缩进_test Coverage Results" MODIFIED="1500708345754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/文本" />
+    <SUITE FILE_PATH="coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1500880431417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$plane__1_.coverage" NAME="plane (1) Coverage Results" MODIFIED="1501302444895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="coverage/PythonDoc$pandas_test.coverage" NAME="pandas_test Coverage Results" MODIFIED="1500712729521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/use_pandas_deal_with_datas" />
     <SUITE FILE_PATH="coverage/PythonDoc$twisted_reactor_tcp__client.coverage" NAME="twisted_reactor_tcp_时间戳_client Coverage Results" MODIFIED="1500887160946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
-    <SUITE FILE_PATH="coverage/PythonDoc$Unittests_in_test_py.coverage" NAME="Unittests in test.py Coverage Results" MODIFIED="1500980366632" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$request_test.coverage" NAME="request_test Coverage Results" MODIFIED="1500643266485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="______.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/______.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="23" column="36" lean-forward="true" selection-start-line="23" selection-start-column="36" selection-end-line="23" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -170,8 +182,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="522" />
-    <option name="y" value="90" />
+    <option name="x" value="357" />
+    <option name="y" value="46" />
     <option name="width" value="784" />
     <option name="height" value="671" />
   </component>
@@ -195,52 +207,17 @@
     <panes>
       <pane id="ProjectPane">
         <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="python_cookbook_notes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="PythonDoc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="python_cookbook_notes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="算法" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
+          <expand>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -277,64 +254,7 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.tmp">
-    <configuration default="false" name="颜色的混合_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/py_games/颜色的威力" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/py_games/颜色的威力/颜色的混合_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="pygame_draw_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw/pygame_draw_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="pygame全屏显示_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示/pygame全屏显示_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="单例模式" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="单例模式" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -351,26 +271,14 @@
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
-      <method />
     </configuration>
-    <configuration default="false" name="tmp" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/算法" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/算法/tmp.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
     </configuration>
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -436,25 +344,6 @@
       <option name="ADDITIONAL_ARGS" value="" />
       <method />
     </configuration>
-    <configuration default="true" type="Python.PyramidServer" factoryName="Pyramid server">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="launchJavascriptDebuger" value="false" />
-      <option name="additionalOptions" value="" />
-      <option name="browserUrl" value="" />
-      <option name="CONFIGURATION_FILE" value="" />
-      <method />
-    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -474,6 +363,25 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
+    <configuration default="true" type="Python.PyramidServer" factoryName="Pyramid server">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="CONFIGURATION_FILE" value="" />
+      <method />
+    </configuration>
     <configuration default="true" type="Tox" factoryName="Tox">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -485,15 +393,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <module name="PythonDoc" />
-      <method />
-    </configuration>
-    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
-      <node-interpreter>project</node-interpreter>
-      <node-options />
-      <gulpfile />
-      <tasks />
-      <arguments />
-      <envs />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
@@ -539,64 +438,25 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <configuration default="false" name="test" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="颜色的混合_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/py_games/颜色的威力" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/modules/turtle/test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/py_games/颜色的威力/颜色的混合_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
-      <method />
     </configuration>
-    <configuration default="false" name="request_test" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/request_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="str_format_文本缩进_test" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/文本" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/文本/str_format_文本缩进_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="pandas_test" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="pandas_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -613,9 +473,116 @@
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
-      <method />
     </configuration>
-    <configuration default="false" name="turtle_test" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="pygame_draw_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw/pygame_draw_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="pygame全屏显示_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示/pygame全屏显示_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="request_test" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/request_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="str_format_文本缩进_test" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/文本" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/文本/str_format_文本缩进_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/modules/turtle/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="tmp" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/算法" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/算法/tmp.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="turtle_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -632,7 +599,6 @@
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
-      <method />
     </configuration>
     <list size="10">
       <item index="0" class="java.lang.String" itemvalue="Python.test" />
@@ -702,9 +668,9 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="522" y="90" width="784" height="671" extended-state="0" />
+    <frame x="357" y="46" width="784" height="671" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16544656" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24362245" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -726,7 +692,7 @@
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="processedProjectFiles" value="true" />
+    <option name="version" value="1" />
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -754,13 +720,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/py_games/使用字体模块/查看本机自带字体.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="27" lean-forward="true" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/py_games/hello_world.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
@@ -832,13 +791,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python3.5/random.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="722" column="0" lean-forward="false" selection-start-line="722" selection-start-column="0" selection-end-line="722" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file:///usr/lib/python3.5/random.py" />
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动/直线运动_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-38">
@@ -1072,6 +1025,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="12" column="35" lean-forward="true" selection-start-line="12" selection-start-column="35" selection-end-line="12" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/______.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="36" lean-forward="true" selection-start-line="23" selection-start-column="36" selection-end-line="23" selection-end-column="36" />
+          <folding />
         </state>
       </provider>
     </entry>
