@@ -20,7 +20,9 @@ except StopIteration as e:
     print(e, 'this is StopIteration')
     print('')
 
-# 由于python的for循环中有__next__(),和对StopIteration的处理,所以使用一个for循环而不是手动迭代穿过一个生成器,总是简洁漂亮很多
+# for循环的本质
+# 1. 先调用可迭代对象的__iter__方法得到一个可迭代对象
+# 2. 由于python的for循环中有__next__(),和对StopIteration的处理,所以使用一个for循环而不是手动迭代穿过一个生成器,总是简洁漂亮很多
 # eg:
 for each_item in simple_gen():
     print(each_item)

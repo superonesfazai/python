@@ -5,3 +5,5 @@ __author__ = 'super_fazai'
 
 def pr_b():
     print('-' * 30)
+
+pr_b()

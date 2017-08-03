@@ -1,0 +1,8 @@
+1. 重新导入模块
+    模块被导入后, import module不能重新导入模块
+    # 重新加载模块的方法
+    from imp import *
+    import reload_test
+    reload_test.test()      # 先测试下原先的自定义test函数
+    reload(reload_test)     # 重新加载模块
+    reload_test.test()      # 再次测试test函数
