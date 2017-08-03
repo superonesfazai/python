@@ -7,9 +7,9 @@
 # isinstance(),用于判断是否为可迭代对象
 #
 
-from collections import Iterator
+from collections import Iterable
 
-print(isinstance([], Iterator))
+print(isinstance([], Iterable))
 
 # 测试发现添加了__iter__方法的my_list对象已经是一个可迭代对象了
 class MyList(object):
@@ -25,8 +25,8 @@ class MyList(object):
         pass
 
 my_list = MyList()
-from collections import Iterator
-print(isinstance(my_list, Iterator))
+from collections import Iterable
+print(isinstance(my_list, Iterable))
 
 # for循环的本质如下:
 '''
@@ -40,7 +40,7 @@ print(isinstance(my_list, Iterator))
 li = [1, 2, 3]
 iterator = li.__iter__()
 
-print(isinstance(iter([]), Iterator))
+print(isinstance(iter([]), Iterable))
 
 while True:
     try:
