@@ -42,3 +42,7 @@ compile的三个参数都是必须的
     第一个：要编译的python代码
     第二个：虽然是必须的,但通常被置为空串,该参数代表了存放代码对象的文件名字(字符串类型)
     第三个：字符串,表明代码对象的类型
+
+# 手动编译
+import compileall
+compileall.compile_dir(目录)

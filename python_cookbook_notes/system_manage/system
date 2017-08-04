@@ -8,6 +8,7 @@
     sys.append(路径)
     sys.insert(0, 'test')
 4. reload有什么作用，在什么情况下才需要使用reload？
+    from imp import reload
     reload可以重新载入模块(module)
     如果你在运行过程中，更改了之前导入的某个模块，但又希望
     在不中断程序的运行的情况下，更新模块中的更改后的内容

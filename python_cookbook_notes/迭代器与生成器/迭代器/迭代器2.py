@@ -6,7 +6,7 @@
 @Time    : 2017/8/3 13:58
 @connect : superonesfazai@gmail.com
 '''
-
+# 一体化迭代器
 class MyList(object):
     '''自定义一个容器, 保存多个数据, 做成可迭代对象'''
     def __init__(self):

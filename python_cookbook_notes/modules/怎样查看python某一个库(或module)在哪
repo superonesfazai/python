@@ -1,0 +1,7 @@
+eg:
+os库是python的标准库, 要想知道他的存储路径
+
+method：
+
+import os
+print(os.__file__)      # __file__就是os模块的文件名

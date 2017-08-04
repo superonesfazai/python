@@ -99,3 +99,45 @@ ValueError: Attempted relative import in non-package
 分别返回调用者全局和局部名称空间的字典
 在一个函数内部,局部名称空间代表在函数执行时候定义的所有名字
 locals()就是返回这些名字的字典  global()返回函数可访问的全局的名字
+
+## python怎么编译pyc文件
+$ python -m compile xxx.py      对当前目录下的xxx.py文件生成pyc
+
+## python语法允许你在源码中把几个字符串连在一起来构成新字符串
+
+eg:
+>>> f = 'hello' 'world'
+>>> f
+'helloworld'
+
+>>> f = urllib.urlopen('http://'
+... 'localhost'
+... ':8000'
+... '/test/test.py')
+
+如你所想的, 下面就是urlopen()方法所得到的真实输入
+>>> 'http://' 'localhost' ':8000' '/test/test.py'
+http://localhost:8000/test/test.py
+
+## python复数的概念
+1. 复数不能单独存在, 它们总是和一个值为0.0的实数部分一起来构成复数
+2. 复数由实数部分跟虚数部分构成
+3. 表示虚数的语法: real+imagj
+4. 实数部分和虚数部分都是浮点型
+6. 虚数部分必须有后缀j或J
+
+>>> aComplex = -8.3-1.2j
+>>> aComplex
+(-8.3-1.2j)
+>>> aComplex.real
+-8.3
+>>> aComplex.imag
+-1.2
+>>> aComplex.conjugate()
+(-8.3+1.2j)
+>>> complex(4)
+(4+0j)
+>>> complex(2.4, -8)
+(2.4-8j)
+>>> complex(2.3e-10, 45.3e4)
+(2.3e-10+453000j)

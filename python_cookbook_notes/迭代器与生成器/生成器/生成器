@@ -1,0 +1,104 @@
+关于yield关键字的理解：
+    1. 遇到yield关键字后, 代码的执行会被暂停, 但会执行当行yield语句
+    2. 可以把yield关键字理解为return, 可以返回值
+    3. 再次运行就跳过yield并执行下面的语句
+
+# 使用了yield关键字的函数不再是函数, 而是生成器(即使用了yield的函数就是生成器)
+
+yield关键字有两点作⽤：
+    保存当前运⾏状态(断点), 然后暂停执⾏, 即将⽣成器(函数)挂起
+    将yield关键字后⾯表达式的值作为返回值返回, 此时可以理解为起到了return的作⽤
+
+可以使⽤next()函数让⽣成器从断点处继续执⾏, 即唤醒⽣成器(函数)
+Python3中的⽣成器可以使⽤return返回最终运⾏的返回值, ⽽Python2
+中的⽣成器不允许使⽤return返回⼀个返回值(即可以使⽤return从⽣成
+器中退出, 但return后不能有任何表达式）
+
+yield与return
+    在一个生成器中, 如果没有return, 则默认执行到函数完毕时返回StopIteration;
+    如果遇到return, 则直接抛出StopIteration终止迭代
+
+生成器支持的方法：
+1. close()      手动关闭生成器函数, 后面的调用会直接返回StopIteration异常
+2. next()
+3. send()       使用send唤醒
+    我们除了可以使用next()函数来唤醒生成器继续执行外
+    还可以使用send()函数唤醒执行
+    使⽤send()函数的⼀个好处是可以在唤醒的同时向断点处传⼊⼀个附加数据。
+
+eg:
+执⾏到yield时, gen函数作⽤暂时保存, 返回i的值;
+temp接收下次c.send("python"), send发送过来的值， c.next()等价c.send(None)
+def gen():
+    i = 0
+    while i<5:
+        temp = yield i
+        print(temp)
+        i+=1
+
+*使⽤send:
+In [43]: f = gen()
+In [44]: next(f)
+Out[44]: 0
+In [45]: f.send('haha')
+haha
+Out[45]: 1
+In [46]: next(f)
+None
+Out[46]: 2
+In [47]: f.send('haha')
+haha
+Out[47]: 3
+In [48]:
+
+*使⽤next函数:
+In [11]: f = gen()
+In [12]: next(f)
+Out[12]: 0
+In [13]: next(f)
+None
+Out[13]: 1
+In [14]: next(f)
+None
+Out[14]: 2
+In [15]: next(f)
+None
+Out[15]: 3
+In [16]: next(f)
+None
+Out[16]: 4
+In [17]: next(f)
+None
+-------------------------------------------------------------
+--------------
+StopIteration Traceback (most rec
+ent call last)
+<ipython-input-17-468f0afdf1b9> in <module>()
+----> 1 next(f)
+StopIteration:
+
+*使⽤ __next__() ⽅法(不常使⽤):
+In [18]: f = gen()
+In [19]: f.__next__()
+Out[19]: 0
+In [20]: f.__next__()
+None
+Out[20]: 1
+In [21]: f.__next__()
+None
+Out[21]: 2
+In [22]: f.__next__()
+None
+Out[22]: 3
+In [23]: f.__next__()
+None
+Out[23]: 4
+In [24]: f.__next__()
+None
+-------------------------------------------------------------
+--------------
+StopIteration Traceback (most rec
+ent call last)
+<ipython-input-24-39ec527346a9> in <module>()
+----> 1 f.__next__()
+StopIteration:

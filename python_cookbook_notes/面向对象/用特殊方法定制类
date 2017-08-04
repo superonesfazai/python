@@ -1,0 +1,86 @@
+特殊方法                                    描述
+基本定制型
+C.__init__(self[, arg1, ...])          构造器(带一些可选的参数)
+C.__new__(self[, arg1, ...])           构造器(带一些可选的参数);通常用在设置不变数据类 型的子类
+C.__del__(self)                        解构器
+C.__str__(self)                        可打印的字符输出;内建 str()及 print 语句
+C.__repr__(self)                       运行时的字符串输出;内建 repr() 和`` 操作符
+C.__unicode__(self)                    Unicode 字符串输出;内建 unicode()
+C.__call__(self, *args)                表示可调用的实例
+C.__nonzero__(self)                    为object定义Flase值；内建bool()
+C.__len__(self)                        "长度"(可用于类); 内建len()
+
+对象(值)比较
+C.__cmp__(self, obj)                   对象比较;内建 cmp()    # python3不再支持
+C.__lt__(self, obj) and                小于/小于或等于;对应<及<=操作符
+C.__gt__(self, obj) and                大于/大于或等于;对应>及>=操作符
+C.__eq__(self, obj) and                等于/不等于;对应==,!=及<>操作符
+
+属性
+C.__getattr__(self, attr)              获取属性;内建 getattr();仅当属性没有找到时调用
+C.__setattr__(self, attr, val)         设置属性
+C.__delattr__(self, attr)              删除属性
+C.__getattribute__(self, attr)         获取属性;内建 getattr();总是被调用
+C.__get__(self, attr)                  (描述符)获取属性
+C.__set__(self, attr, val)             (描述符)设置属性
+C.__delete__(self, attr)               (描述符)删除属性
+
+定制类／模拟类型
+数值类型: 二进制操作符
+C.__*add__(self, obj)                  加;+操作符
+C.__*sub__(self, obj)                  减;-操作符
+C.__*mul__(self, obj)                  乘;*操作符
+C.__*div__(self, obj)                  除;/操作符
+C.__*truediv__(self, obj)              True 除;/操作符
+C.__*floordiv__(self, obj)             Floor 除;//操作符
+C.__*mod__(self, obj)                  取模/取余;%操作符
+C.__*divmod__(self, obj)               除和取模;内建 divmod()
+C.__*pow__(self, obj[, mod])           乘幂;内建 pow();**操作符
+C.__*lshift__(self, obj)               左移位;<<操作符
+C.__*rshift__(self, obj)               右移;>>操作符
+C.__*and__(self, obj)                  按位与;&操作符
+C.__*or__(self, obj)                   按位或;|操作符
+C.__*xor__(self, obj)                  按位与或;^操作符
+
+数值类型: 一元操作符
+C.__neg__(self)                        一元负
+C.__pos__(self)                        一元正
+C.__abs__(self)                        绝对值;内建 abs()
+C.__invert__(self)                     按位求反;~操作符
+
+数值类型:数值转换
+C.__complex__(self, com)               转为 complex(复数);内建 complex()
+C.__int__(self)                        转为 int;内建 int()
+C.__long__(self)                       转为 long;内建 long()
+C.__float__(self)                      转为 float;内建 float()
+
+数值类型: 基本表示法(String)
+C.__oct__(self)                        八进制表示;内建 oct()
+C.__hex__(self)                        十六进制表示;内建 hex()
+
+数值类型:数值压缩
+C.__coerce__(self, num)                压缩成同样的数值类型;内建 coerce()   # python2.7就已经不支持
+C.__index__(self)                      在有必要时,压缩可选的数值类型为整型(比如:用于切片索引等等)
+
+序列类型
+C.__len__(self)                        序列中项的数目
+C.__getitem__(self, ind)               得到单个序列元素
+C.__setitem__(self, ind,val)           设置单个序列元素
+C.__delitem__(self, ind)               删除单个序列元素
+
+序列类型
+C.__getslice__(self, ind1, ind2)       得到序列片断   # python3以上就不支持__getslice__(), __setslice__() and __delslice__() were killed. The syntax a[i:j] now translates to a.__getitem__(slice(i, j))
+C.__setslice__(self, i1, i2, val)      设置序列片断   # python3以上就不支持
+C.__delslice__(self, ind1, ind2)       删除序列片断   # python3以上就不支持
+C.__contains__(self, val)              测试序列成员;内建 in 关键字
+C.__*add__(self,obj)                   串连;+操作符
+C.__*mul__(self,obj)                   重复;*操作符
+C.__iter__(self)                       创建迭代类;内建 iter()
+
+映射类型
+C.__len__(self)                        mapping中的项的数目
+C.__hash__(self)                       散列(hash)函数值
+C.__getitem__(self,key)                得到给定键(key)的值
+C.__setitem__(self,key,val)            设置给定键(key)的值
+C.__delitem__(self,key)                删除给定键(key)的值
+C.__missing__(self,key)                给定键如果不存在字典中, 则提供一个默认值

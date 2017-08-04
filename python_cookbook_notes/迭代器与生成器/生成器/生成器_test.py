@@ -3,7 +3,9 @@ __author__ = 'super_fazai'
 # @Time    : 17-7-23 下午12:15
 # @File    : 生成器_test.py
 
+# 生成器(generator)
 # 从语法上讲: 生成器是一个带yield语句的函数
+# 生成器是一种特殊的迭代器
 # 生成器的运作方式:当到达一个真正返回或者函数接受没有更多的值返回(当调用next()), 一个StopIteration()异常会抛出
 
 # 下面是一个简单的生成器
@@ -38,6 +40,7 @@ def rand_gen(a_list):
 for item in rand_gen(['a', 'b', 'c']):
     print(item)
 
+print('')
 # 加强的生成器的特性
 # 除了__next__()来获得下一个生成的值
 # 用户可以将值回送给生成器[send()]

@@ -1,0 +1,4 @@
+模块              描述
+exceptions      内建异常(永远不用导入这个模块)
+contextlib      为使用with语句的上下文对象工具
+sys             包含各种异常相关的对象和函数(见sys.ex*)

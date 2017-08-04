@@ -1,0 +1,16 @@
+模块                      内容
+base64              提供二进制字符串和文本字符串间的编码/解码操作
+binascii            提供二进制和 ASCII 编码的二进制字符串间的编码/解码操作
+bz2                 访问 BZ2 格式的压缩文件
+csv                 访问 csv 文件(逗号分隔文件)
+filecmp             用于比较目录和文件
+fileinput           提供多个文本文件的行迭代器
+getopt/optparse    提供了命令行参数的解析/处理
+glob/fnmatch        提供 Unix 样式的通配符匹配的功能
+gzip/zlib           读写 GNU zip( gzip) 文件(压缩需要 zlib 模块)
+shutil              提供高级文件访问功能
+c/StringIO          对字符串对象提供类文件接口
+tarfile             读写 TAR 归档文件, 支持压缩文件
+tempfile            创建一个临时文件(名)
+uu                  格式的编码和解码
+zipfile             用于读取 ZIP 归档文件的工具
