@@ -1,0 +1,26 @@
+对于一种类型来说, 它完全可以同时定义三个函数族中的所有操作
+换句话说, 一个对象可以既表现出数值对象的特性, 也可以表现出关联对象的特性
+
+eg.  下面是一个数值对象和关联对象的混合体
+
+In [38]: class MyInt(int):
+    ...:     def __getitem__(self, key):
+    ...:         return key + str(self)
+    ...:
+
+In [39]: w = MyInt(1)
+
+In [40]: e = MyInt(2)
+
+In [41]: w+e
+Out[41]: 3
+
+In [42]: w['key']
+Out[42]: 'key1'
+
+看上去a['key']这样的操作是一个类似于dict这样的对象才会支持的操作
+从int继承来的MyInt应该自然是一个数值对象, 但是通过重写__getitem__这个python中的special method
+可以视为指定了MyInt在Python内部对应的PyTypeObject对象的tp_as_mapping.mp_subscript操作
+最终结果是MyInt的实例对象可以表现得像一个关联对象一样
+
+归根结底就在于PyTypeObject中允许一种类型同时指定三种不同对象的行为特性

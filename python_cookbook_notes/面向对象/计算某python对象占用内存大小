@@ -1,0 +1,18 @@
+如何计算
+Python 在 sys 模块中提供函数 getsizeof 来计算 Python 对象的大小。
+
+sys.getsizeof(object[, default])
+
+以字节（byte）为单位返回对象大小。
+这个对象可以是任何类型的对象。
+所以内置对象都能返回正确的结果
+但不保证对第三方扩展有效，因为和具体实现相关。
+
+......
+
+getsizeof() 调用对象的 __sizeof__ 方法， 如果对象由垃圾收集器管理， 则会加上额外的垃圾收集器开销
+
+当然，对象内存占用与 Python 版本以及操作系统版本关系密切
+
+import sys
+print(sys.version)

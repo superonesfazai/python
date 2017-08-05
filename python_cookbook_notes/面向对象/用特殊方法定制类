@@ -27,20 +27,20 @@ C.__delete__(self, attr)               (描述符)删除属性
 
 定制类／模拟类型
 数值类型: 二进制操作符
-C.__*add__(self, obj)                  加;+操作符
-C.__*sub__(self, obj)                  减;-操作符
-C.__*mul__(self, obj)                  乘;*操作符
-C.__*div__(self, obj)                  除;/操作符
-C.__*truediv__(self, obj)              True 除;/操作符
-C.__*floordiv__(self, obj)             Floor 除;//操作符
-C.__*mod__(self, obj)                  取模/取余;%操作符
-C.__*divmod__(self, obj)               除和取模;内建 divmod()
-C.__*pow__(self, obj[, mod])           乘幂;内建 pow();**操作符
-C.__*lshift__(self, obj)               左移位;<<操作符
-C.__*rshift__(self, obj)               右移;>>操作符
-C.__*and__(self, obj)                  按位与;&操作符
-C.__*or__(self, obj)                   按位或;|操作符
-C.__*xor__(self, obj)                  按位与或;^操作符
+C.__add__(self, obj)                  加;+操作符
+C.__sub__(self, obj)                  减;-操作符
+C.__mul__(self, obj)                  乘;*操作符
+C.__div__(self, obj)                  除;/操作符
+C.__truediv__(self, obj)              True 除;/操作符
+C.__floordiv__(self, obj)             Floor 除;//操作符
+C.__mod__(self, obj)                  取模/取余;%操作符
+C.__divmod__(self, obj)               除和取模;内建 divmod()
+C.__pow__(self, obj[, mod])           乘幂;内建 pow();**操作符
+C.__lshift__(self, obj)               左移位;<<操作符
+C.__rshift__(self, obj)               右移;>>操作符
+C.__and__(self, obj)                  按位与;&操作符
+C.__or__(self, obj)                   按位或;|操作符
+C.__xor__(self, obj)                  按位与或;^操作符
 
 数值类型: 一元操作符
 C.__neg__(self)                        一元负
@@ -62,7 +62,7 @@ C.__hex__(self)                        十六进制表示;内建 hex()
 C.__coerce__(self, num)                压缩成同样的数值类型;内建 coerce()   # python2.7就已经不支持
 C.__index__(self)                      在有必要时,压缩可选的数值类型为整型(比如:用于切片索引等等)
 
-序列类型
+序列类型(如list,str, 而str类型不可变对象所以没有__setitem__(),)
 C.__len__(self)                        序列中项的数目
 C.__getitem__(self, ind)               得到单个序列元素
 C.__setitem__(self, ind,val)           设置单个序列元素
