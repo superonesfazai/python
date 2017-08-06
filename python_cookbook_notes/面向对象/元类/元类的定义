@@ -1,0 +1,55 @@
+## 元类就是用来创建类的东西
+## 元类就是用来创建这些(对象)的, 元类就是类的类
+
+可以理解为：
+MyClass = MetaClass()   # 使用元类创建出一个对象, 这个对象称为类
+MyObject = MyClass()    # 使用'类'来创建出实例对象
+
+你已经看到了type可以让你像这样做:
+MyClass = type('MyClass', (), {})
+
+#重点:
+## 这是因为函数type实际上是⼀个元类
+## type就是Python在背后⽤来创建所有类的元类
+现在你想知道那为什么type会全部采⽤⼩写形式⽽不是Type呢？
+好吧， 我猜这是为了和str保持⼀致性， str是⽤来创建字符串对象的类， ⽽int
+是⽤来创建整数对象的类。
+## type就是创建类对象的类。 你可以通过检查__class__属性来看到这⼀点
+
+但就元类本身⽽⾔, 它们其实是很简单的：
+1. 拦截类的创建
+2. 修改类
+3. 返回修改之后的类
+
+>>> age = 35
+>>> age.__class__
+<type 'int'>
+>>> name = 'bob'
+>>> name.__class__
+<type 'str'>
+>>> def foo(): pass
+>>>foo.__class__
+<type 'function'>
+>>> class Bar(object): pass
+>>> b = Bar()
+>>> b.__class__
+<class '__main__.Bar'>
+
+# 现在， 对于任何⼀个__class__的__class__属性⼜是什么呢？
+
+>>> a.__class__.__class__
+<type 'type'>
+>>> age.__class__.__class__
+<type 'type'>
+>>> foo.__class__.__class__
+<type 'type'>
+>>> b.__class__.__class__
+<type 'type'>
+
+## 因此, 元类就是创建类这种对象的东⻄
+## type就是Python的内建元类, 当然了, 你也可以创建⾃⼰的元类
+
+"元类就是深度的魔法, 99%的⽤户应该根本不必为此操⼼. 如果你想搞清楚
+究竟是否需要⽤到元类, 那么你就不需要它. 那些实际⽤到元类的⼈都⾮常
+清楚地知道他们需要做什么, ⽽且根本不需要解释为什么要⽤元类."
+                                —— Python界的领袖 Tim Peters

@@ -43,7 +43,7 @@ def main():
         seq = input('enter sequence: ')
         var = input('Iterative variable name? ')
         if ltype == 'f':
-            exec_str = exec_dict['f'] % (var,seq, var)
+            exec_str = exec_dict['f'] % (var, seq, var)
         elif ltype == 'w':
             if dtype == 's':
                 svar = input('enter sequence name? ')

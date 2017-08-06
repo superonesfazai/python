@@ -2,15 +2,38 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/无参数的函数_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的功能" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/functools/wraps_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/gc垃圾回收" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/intern机制/intern机制" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/大整数对象池/大整数对象池" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/小整数对象池/小整数对象池" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/引用计数机制" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/多层装饰器调用_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的func_preferences相关.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/__metaclass__属性" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/元类的定义" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类2.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有属性的类.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有方法的类.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建类_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中删除类属性, 类方法" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中动态给类绑定属性_方法.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property升级getter和setter方法.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property取代getter和setter.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化_test.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md" afterPath="$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/执行环境/notes" afterPath="$PROJECT_DIR$/python_cookbook_notes/执行环境/notes" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/执行环境/动态生成和执行python代码_test.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/执行环境/动态生成和执行python代码_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解" afterPath="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,195 +47,201 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$udp__server.coverage" NAME="udp_时间戳_server Coverage Results" MODIFIED="1500882453343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$fileinput_test.coverage" NAME="fileinput_test Coverage Results" MODIFIED="1501067963240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/fileinput" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$wuziqi_test.coverage" NAME="wuziqi_test Coverage Results" MODIFIED="1501044049716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_cookie_test_py.coverage" NAME="Unittests in request_cookie_test.py Coverage Results" MODIFIED="1500644170986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/cookie" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test1.coverage" NAME="闭包_test1 Coverage Results" MODIFIED="1501818370247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
-    <SUITE FILE_PATH="coverage/PythonDoc$psw_encrypt.coverage" NAME="psw_encrypt Coverage Results" MODIFIED="1501807507723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/加密与解密" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_button_scale_test.coverage" NAME="label_button_scale_test Coverage Results" MODIFIED="1500891799156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_test.coverage" NAME="turtle_test Coverage Results" MODIFIED="1501720776006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$curl.coverage" NAME="curl Coverage Results" MODIFIED="1501927531043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tools" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_except_test_py.coverage" NAME="Unittests in except_test.py Coverage Results" MODIFIED="1500709883341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$socketserver_tcp__client.coverage" NAME="socketserver_tcp_时间戳_client Coverage Results" MODIFIED="1500886430455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$udp__client.coverage" NAME="udp_时间戳_client Coverage Results" MODIFIED="1500882507969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$str_format__test.coverage" NAME="str_format_文本缩进_test Coverage Results" MODIFIED="1500708345754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/文本" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$compile_test.coverage" NAME="compile_test Coverage Results" MODIFIED="1500864612319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
     <SUITE FILE_PATH="coverage/PythonDoc$zip_test.coverage" NAME="zip_test Coverage Results" MODIFIED="1501841598942" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_demo.coverage" NAME="类装饰器_demo Coverage Results" MODIFIED="1501946398694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_setup.coverage" NAME="turtle.setup Coverage Results" MODIFIED="1500969933297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_bgcolor.coverage" NAME="turtle.bgcolor Coverage Results" MODIFIED="1500989690561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$threading_lock.coverage" NAME="threading_lock Coverage Results" MODIFIED="1500706259269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$schedule_test.coverage" NAME="schedule_test Coverage Results" MODIFIED="1500644612579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/schedule" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$request_test.coverage" NAME="request_test Coverage Results" MODIFIED="1500643266485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
     <SUITE FILE_PATH="coverage/PythonDoc$copy_deepcopy_.coverage" NAME="copy_deepcopy_可变对象 Coverage Results" MODIFIED="1501763584537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝" />
     <SUITE FILE_PATH="coverage/PythonDoc$return.coverage" NAME="装饰器中的return Coverage Results" MODIFIED="1501944250685" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$surface.coverage" NAME="设置surface的像素 Coverage Results" MODIFIED="1501157107571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/Surface" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_setworldcoordinates.coverage" NAME="turtle.setworldcoordinates Coverage Results" MODIFIED="1500968705434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1500880431417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$______.coverage" NAME="______ Coverage Results" MODIFIED="1501719226088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_for_except_test_test_01.coverage" NAME="Unittests for except_test.test_01 Coverage Results" MODIFIED="1500709971376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$json_test.coverage" NAME="json_test Coverage Results" MODIFIED="1500619485134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp__client.coverage" NAME="tcp_时间戳_client Coverage Results" MODIFIED="1500880529514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$twisted_reactor_tcp__client.coverage" NAME="twisted_reactor_tcp_时间戳_client Coverage Results" MODIFIED="1500887160946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
     <SUITE FILE_PATH="coverage/PythonDoc$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1501774130035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pickle_test.coverage" NAME="pickle_test Coverage Results" MODIFIED="1501067114480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/pickle" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test__1_.coverage" NAME="直线运动_test (1) Coverage Results" MODIFIED="1501227026949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
     <SUITE FILE_PATH="coverage/PythonDoc$.coverage" NAME="闭包内层函数修改外层函数的属性 Coverage Results" MODIFIED="1501819213844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$____.coverage" NAME="对象值(==)比较 Coverage Results" MODIFIED="1501725724528" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/对象值(==)比较" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$twisted_reactor_tcp__server.coverage" NAME="twisted_reactor_tcp_时间戳_server Coverage Results" MODIFIED="1500886447675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
     <SUITE FILE_PATH="coverage/PythonDoc$legb.coverage" NAME="legb规则 Coverage Results" MODIFIED="1501820085662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_test.coverage" NAME="label_test Coverage Results" MODIFIED="1500890615150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$.coverage" NAME="迭代器 Coverage Results" MODIFIED="1501738981968" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
     <SUITE FILE_PATH="coverage/PythonDoc$_fibonacci_test.coverage" NAME="生成器_fibonacci_test Coverage Results" MODIFIED="1501816004578" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pygame_draw_test.coverage" NAME="pygame_draw_test Coverage Results" MODIFIED="1501302796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$plane.coverage" NAME="plane Coverage Results" MODIFIED="1501233791451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Enemy.coverage" NAME="Enemy Coverage Results" MODIFIED="1501233374577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="coverage/PythonDoc$fib.coverage" NAME="fib迭代器 Coverage Results" MODIFIED="1501811111730" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PythonDoc$2.coverage" NAME="迭代器2 Coverage Results" MODIFIED="1501807695037" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$juhe_data_box_office.coverage" NAME="juhe_data_box_office Coverage Results" MODIFIED="1500625327181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
+    <SUITE FILE_PATH="coverage/PythonDoc$2.coverage" NAME="自定义元类2 Coverage Results" MODIFIED="1502012874511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$b.coverage" NAME="b Coverage Results" MODIFIED="1501721004664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a/b" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$wuziqi_xxx.coverage" NAME="wuziqi_xxx Coverage Results" MODIFIED="1500980707670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_tracer.coverage" NAME="turtle.tracer Coverage Results" MODIFIED="1500968995013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$button_test.coverage" NAME="button_test Coverage Results" MODIFIED="1500890626830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in__test_py.coverage" NAME="Unittests in 函数修饰符_test.py Coverage Results" MODIFIED="1500790440831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$buttonframeDemo.coverage" NAME="buttonframeDemo Coverage Results" MODIFIED="1500894911136" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/wxpython" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$2.coverage" NAME="迭代器2 Coverage Results" MODIFIED="1501744265043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
-    <SUITE FILE_PATH="coverage/PythonDoc$__.coverage" NAME="装饰器带参数_在原有修饰器的基础上_设置外部变量 Coverage Results" MODIFIED="1501944734335" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_for_except_test_test_02.coverage" NAME="Unittests for except_test.test_02 Coverage Results" MODIFIED="1500709736343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
+    <SUITE FILE_PATH="coverage/PythonDoc$__.coverage" NAME="装饰器带参数_在原有修饰器的基础上_设置外部变量 Coverage Results" MODIFIED="1501992839614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_Shape.coverage" NAME="turtle.Shape Coverage Results" MODIFIED="1500970128069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$odbchelper.coverage" NAME="odbchelper Coverage Results" MODIFIED="1500725854193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/basic" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Control.coverage" NAME="Control Coverage Results" MODIFIED="1501231857001" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$gettext_test.coverage" NAME="gettext_test Coverage Results" MODIFIED="1501069091029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/gettext" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$write_my_name.coverage" NAME="write_my_name Coverage Results" MODIFIED="1500980119465" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="coverage/PythonDoc$compile_exec_eval_test.coverage" NAME="compile_exec_eval_test Coverage Results" MODIFIED="1501767123531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1501069475616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_window_height_window_width.coverage" NAME="turtle.window_height_window_width Coverage Results" MODIFIED="1500969625725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test.coverage" NAME="迭代器_test Coverage Results" MODIFIED="1501744916833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$functools_test.coverage" NAME="functools_test Coverage Results" MODIFIED="1501056246512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/functools" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="被装饰的函数有不定长参数_test Coverage Results" MODIFIED="1501943255715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="被装饰的函数有参数_test Coverage Results" MODIFIED="1502008604160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_bgpic.coverage" NAME="turtle.bgpic Coverage Results" MODIFIED="1500967665761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_button_test.coverage" NAME="label_button_test Coverage Results" MODIFIED="1500891061427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$weight.coverage" NAME="weight Coverage Results" MODIFIED="1500899658087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$hashlib_test.coverage" NAME="hashlib_test Coverage Results" MODIFIED="1501058077725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$socketserver_tcp__server.coverage" NAME="socketserver_tcp_时间戳_server Coverage Results" MODIFIED="1500885592000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$python_test.coverage" NAME="动态生成和执行python代码_test Coverage Results" MODIFIED="1500868744902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pandas_test.coverage" NAME="pandas_test Coverage Results" MODIFIED="1500712729521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/use_pandas_deal_with_datas" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test2.coverage" NAME="闭包_test2 Coverage Results" MODIFIED="1501818601507" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
-    <SUITE FILE_PATH="coverage/PythonDoc$copy_deepcopy_test1.coverage" NAME="copy_deepcopy_test1 Coverage Results" MODIFIED="1501763412427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_onkey.coverage" NAME="turtle.onkey Coverage Results" MODIFIED="1500969478817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="coverage/PythonDoc$test_.coverage" NAME="test_爬取某工学院整站所有节点 Coverage Results" MODIFIED="1501926489512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/spiders" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$hello_world.coverage" NAME="hello_world Coverage Results" MODIFIED="1501123727872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pygame_test.coverage" NAME="pygame全屏显示_test Coverage Results" MODIFIED="1501302816775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame显示" />
     <SUITE FILE_PATH="coverage/PythonDoc$enumerate_test.coverage" NAME="enumerate_test Coverage Results" MODIFIED="1501841233242" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1501720873399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1501406353579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$findfiles.coverage" NAME="findfiles Coverage Results" MODIFIED="1500891066682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/py_Qt/python-qt4-doc/examples/dialogs" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_onclick.coverage" NAME="turtle.onclick Coverage Results" MODIFIED="1500990672255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$plane__1_.coverage" NAME="plane (1) Coverage Results" MODIFIED="1501302444895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
+    <SUITE FILE_PATH="coverage/PythonDoc$func_preferences.coverage" NAME="func_preferences相关 Coverage Results" MODIFIED="1501981616186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_cookie_test_py.coverage" NAME="Unittests in request_cookie_test.py Coverage Results" MODIFIED="1500644170986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/cookie" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test1.coverage" NAME="闭包_test1 Coverage Results" MODIFIED="1501818370247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
+    <SUITE FILE_PATH="coverage/PythonDoc$psw_encrypt.coverage" NAME="psw_encrypt Coverage Results" MODIFIED="1501807507723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/加密与解密" />
+    <SUITE FILE_PATH="coverage/PythonDoc$curl.coverage" NAME="curl Coverage Results" MODIFIED="1501927531043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tools" />
+    <SUITE FILE_PATH="coverage/PythonDoc$type.coverage" NAME="使用type创建带有方法的类 Coverage Results" MODIFIED="1502008402726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
+    <SUITE FILE_PATH="coverage/PythonDoc$type_test.coverage" NAME="使用type创建类_test Coverage Results" MODIFIED="1502007325138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$socketserver_tcp__client.coverage" NAME="socketserver_tcp_时间戳_client Coverage Results" MODIFIED="1500886430455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$compile_test.coverage" NAME="compile_test Coverage Results" MODIFIED="1500864612319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_demo.coverage" NAME="类装饰器_demo Coverage Results" MODIFIED="1501946398694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_setup.coverage" NAME="turtle.setup Coverage Results" MODIFIED="1500969933297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$request_test.coverage" NAME="request_test Coverage Results" MODIFIED="1500643266485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1500880431417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$1.coverage" NAME="自定义元类1 Coverage Results" MODIFIED="1502012980225" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$______.coverage" NAME="______ Coverage Results" MODIFIED="1501719226088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_for_except_test_test_01.coverage" NAME="Unittests for except_test.test_01 Coverage Results" MODIFIED="1500709971376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$twisted_reactor_tcp__client.coverage" NAME="twisted_reactor_tcp_时间戳_client Coverage Results" MODIFIED="1500887160946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pickle_test.coverage" NAME="pickle_test Coverage Results" MODIFIED="1501067114480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/pickle" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test__1_.coverage" NAME="直线运动_test (1) Coverage Results" MODIFIED="1501227026949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_test.coverage" NAME="label_test Coverage Results" MODIFIED="1500890615150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$.coverage" NAME="迭代器 Coverage Results" MODIFIED="1501738981968" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$plane.coverage" NAME="plane Coverage Results" MODIFIED="1501233791451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Enemy.coverage" NAME="Enemy Coverage Results" MODIFIED="1501233374577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$juhe_data_box_office.coverage" NAME="juhe_data_box_office Coverage Results" MODIFIED="1500625327181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_tracer.coverage" NAME="turtle.tracer Coverage Results" MODIFIED="1500968995013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$2.coverage" NAME="迭代器2 Coverage Results" MODIFIED="1501744265043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
+    <SUITE FILE_PATH="coverage/PythonDoc$propertygettersetter.coverage" NAME="使用property升级getter和setter方法 Coverage Results" MODIFIED="1502005400537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_for_except_test_test_02.coverage" NAME="Unittests for except_test.test_02 Coverage Results" MODIFIED="1500709736343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Control.coverage" NAME="Control Coverage Results" MODIFIED="1501231857001" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
+    <SUITE FILE_PATH="coverage/PythonDoc$compile_exec_eval_test.coverage" NAME="compile_exec_eval_test Coverage Results" MODIFIED="1501767123531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1501069475616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_window_height_window_width.coverage" NAME="turtle.window_height_window_width Coverage Results" MODIFIED="1500969625725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$functools_test.coverage" NAME="functools_test Coverage Results" MODIFIED="1501056246512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/functools" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_button_test.coverage" NAME="label_button_test Coverage Results" MODIFIED="1500891061427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$hashlib_test.coverage" NAME="hashlib_test Coverage Results" MODIFIED="1501058077725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$socketserver_tcp__server.coverage" NAME="socketserver_tcp_时间戳_server Coverage Results" MODIFIED="1500885592000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$python_test.coverage" NAME="动态生成和执行python代码_test Coverage Results" MODIFIED="1500868744902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test2.coverage" NAME="闭包_test2 Coverage Results" MODIFIED="1501818601507" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
+    <SUITE FILE_PATH="coverage/PythonDoc$copy_deepcopy_test1.coverage" NAME="copy_deepcopy_test1 Coverage Results" MODIFIED="1501763412427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_.coverage" NAME="运行过程中动态给类绑定属性_方法 Coverage Results" MODIFIED="1501984959702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_onkey.coverage" NAME="turtle.onkey Coverage Results" MODIFIED="1500969478817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1501720873399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
+    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1501406353579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
     <SUITE FILE_PATH="coverage/PythonDoc$test__old.coverage" NAME="test_智联招聘_old Coverage Results" MODIFIED="1501927133205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/spiders" />
     <SUITE FILE_PATH="coverage/PythonDoc$base64.coverage" NAME="将base64编码的字符串还原为图片保存 Coverage Results" MODIFIED="1501927728375" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/base64" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_test_py.coverage" NAME="Unittests in test.py Coverage Results" MODIFIED="1500980366632" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$__test.coverage" NAME="静态方法_类方法_test Coverage Results" MODIFIED="1500857363587" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$2_test.coverage" NAME="直线运动2_test Coverage Results" MODIFIED="1501228909201" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$cmath_test.coverage" NAME="cmath_test Coverage Results" MODIFIED="1501050421481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/cmath" />
-    <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$plane__1_.coverage" NAME="plane (1) Coverage Results" MODIFIED="1501302444895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="装饰器_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="装饰器的功能" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的功能">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="装饰器的理解" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="7" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="类装饰器_demo.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="35" column="23" lean-forward="true" selection-start-line="35" selection-start-column="23" selection-end-line="35" selection-end-column="23" />
+            <state relative-caret-position="88">
+              <caret line="13" column="17" lean-forward="true" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="无参数的函数_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/无参数的函数_test.py">
+      <file leaf-file-name="多层装饰器调用_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/多层装饰器调用_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="232">
-              <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+            <state relative-caret-position="-47">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="被装饰的函数有参数_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py">
+      <file leaf-file-name="使用type创建类_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建类_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="157">
-              <caret line="14" column="17" lean-forward="false" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
+            <state relative-caret-position="255">
+              <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="被装饰的函数有不定长参数_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py">
+      <file leaf-file-name="notes" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/notes">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="292">
-              <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+            <state relative-caret-position="530">
+              <caret line="40" column="20" lean-forward="false" selection-start-line="40" selection-start-column="20" selection-end-line="40" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="装饰器中的return.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py">
+      <file leaf-file-name="使用type创建带有方法的类.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有方法的类.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="265">
-              <caret line="30" column="4" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="装饰器带参数_在原有修饰器的基础上_设置外部变量.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py">
+      <file leaf-file-name="动态生成和执行python代码_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/动态生成和执行python代码_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="36" column="5" lean-forward="false" selection-start-line="36" selection-start-column="5" selection-end-line="36" selection-end-column="5" />
+            <state relative-caret-position="870">
+              <caret line="58" column="22" lean-forward="false" selection-start-line="58" selection-start-column="22" selection-end-line="58" selection-end-column="22" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="def_and_函数的参数.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/basic/def_and_函数的参数.py">
+      <file leaf-file-name="运行过程中删除类属性, 类方法" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中删除类属性, 类方法">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="249">
-              <caret line="95" column="3" lean-forward="false" selection-start-line="93" selection-start-column="0" selection-end-line="95" selection-end-column="3" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="运行过程中动态给类绑定属性_方法.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中动态给类绑定属性_方法.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-332">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="compile_exec_eval_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/compile_exec_eval_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="使用type创建带有属性的类.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有属性的类.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -246,31 +275,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器/迭代器.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器/迭代器_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝/copy_deepcopy_test1.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝/copy_deepcopy_不可变对象.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝/copy_deepcopy_可变对象.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/tmp/test2.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/tmp/test3.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/tmp/test1.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/system_manage/system" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器/迭代器2.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/算法/fib迭代器.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/闭包/闭包_test1.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/闭包/闭包_test2.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/闭包/闭包的应用场景" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/闭包/闭包内层函数修改外层函数的属性.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/闭包/legb规则.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器_fibonacci_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame的模块" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/linux/scp_notes" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/执行环境/notes" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/怎样查看python某一个库(或module)在哪" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/修改IDE相关快捷键" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/执行环境/安装pymouse" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/文件/与目录共事/工厂函数file()" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/数字运算内建函数/coerce_test.py" />
@@ -279,7 +283,6 @@
         <option value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/enumerate_test.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/zip_test.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/文件/文件相关模块" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获/异常相关标准库" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/用特殊方法定制类" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/计算某python对象占用内存大小" />
@@ -291,12 +294,38 @@
         <option value="$PROJECT_DIR$/python_cookbook_notes/modules/base64/将base64编码的字符串还原为图片保存.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的功能" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/无参数的函数_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/func_preferences相关.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/functools/wraps_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/多层装饰器调用_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中动态给类绑定属性_方法.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中删除类属性, 类方法" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的func_preferences相关.py" />
         <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property升级getter和setter方法.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property取代getter和setter.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建类_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有属性的类.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有方法的类.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/__metaclass__属性" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类2.py" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/元类的定义" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/小整数对象池/小整数对象池" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/大整数对象池/大整数对象池" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/intern机制/intern机制" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/引用计数机制" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/gc垃圾回收" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/执行环境/notes" />
+        <option value="$PROJECT_DIR$/python_cookbook_notes/执行环境/动态生成和执行python代码_test.py" />
       </list>
     </option>
   </component>
@@ -306,9 +335,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="537" />
-    <option name="y" value="57" />
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="x" value="484" />
+    <option name="y" value="174" />
     <option name="width" value="721" />
     <option name="height" value="671" />
   </component>
@@ -330,28 +359,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <expand>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="装饰器" type="cbb8eebc:String" user="装饰器" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -387,7 +395,90 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <expand>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
+              <item name="垃圾回收" type="cbb8eebc:String" user="垃圾回收" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
+              <item name="垃圾回收" type="cbb8eebc:String" user="垃圾回收" />
+              <item name="intern机制" type="cbb8eebc:String" user="intern机制" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
+              <item name="面向对象" type="cbb8eebc:String" user="面向对象" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -423,39 +514,39 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.类装饰器_demo">
-    <configuration name="装饰器带参数_在原有修饰器的基础上_设置外部变量" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.自定义元类1">
+    <configuration name="自定义元类1" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="类装饰器_demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="自定义元类2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -716,24 +807,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="装饰器中的return" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
     <configuration name="str_format_文本缩进_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -788,26 +861,60 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <list size="11">
+    <configuration name="使用type创建带有属性的类" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有属性的类.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="使用type创建带有方法的类" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有方法的类.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <list size="10">
       <item index="0" class="java.lang.String" itemvalue="Python.request_test" />
       <item index="1" class="java.lang.String" itemvalue="Python.test" />
       <item index="2" class="java.lang.String" itemvalue="Python.str_format_文本缩进_test" />
       <item index="3" class="java.lang.String" itemvalue="Python.pandas_test" />
       <item index="4" class="java.lang.String" itemvalue="Python.turtle_test" />
       <item index="5" class="java.lang.String" itemvalue="Python.queue_test" />
-      <item index="6" class="java.lang.String" itemvalue="Python.被装饰的函数有参数_test" />
-      <item index="7" class="java.lang.String" itemvalue="Python.被装饰的函数有不定长参数_test" />
-      <item index="8" class="java.lang.String" itemvalue="Python.装饰器中的return" />
-      <item index="9" class="java.lang.String" itemvalue="Python.装饰器带参数_在原有修饰器的基础上_设置外部变量" />
-      <item index="10" class="java.lang.String" itemvalue="Python.类装饰器_demo" />
+      <item index="6" class="java.lang.String" itemvalue="Python.使用type创建带有属性的类" />
+      <item index="7" class="java.lang.String" itemvalue="Python.被装饰的函数有参数_test" />
+      <item index="8" class="java.lang.String" itemvalue="Python.自定义元类1" />
+      <item index="9" class="java.lang.String" itemvalue="Python.自定义元类2" />
     </list>
     <recent_temporary>
-      <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.类装饰器_demo" />
-        <item index="1" class="java.lang.String" itemvalue="Python.装饰器带参数_在原有修饰器的基础上_设置外部变量" />
-        <item index="2" class="java.lang.String" itemvalue="Python.装饰器中的return" />
-        <item index="3" class="java.lang.String" itemvalue="Python.被装饰的函数有不定长参数_test" />
-        <item index="4" class="java.lang.String" itemvalue="Python.被装饰的函数有参数_test" />
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python.自定义元类1" />
+        <item index="1" class="java.lang.String" itemvalue="Python.自定义元类2" />
+        <item index="2" class="java.lang.String" itemvalue="Python.被装饰的函数有参数_test" />
+        <item index="3" class="java.lang.String" itemvalue="Python.使用type创建带有属性的类" />
       </list>
     </recent_temporary>
   </component>
@@ -857,27 +964,27 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="537" y="57" width="721" height="671" extended-state="1" />
+    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18515626" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23372287" sideWeight="0.5048544" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22370617" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23372287" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871014" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32589287" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39929327" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -889,12 +996,12 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23372287" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22370617" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32871014" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32589287" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -926,207 +1033,16 @@
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="12" />
+      <option name="time" value="13" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/函数式编程/闭包/闭包的应用场景">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器/迭代器2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器/迭代器.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="9" column="48" lean-forward="true" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器/生成器_fibonacci_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="22" column="7" lean-forward="true" selection-start-line="22" selection-start-column="7" selection-end-line="22" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/修改IDE相关快捷键">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="30" lean-forward="false" selection-start-line="2" selection-start-column="30" selection-end-line="2" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/怎样查看python某一个库(或module)在哪">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="22" lean-forward="false" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/安装pymouse" />
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="16" lean-forward="true" selection-start-line="15" selection-start-column="16" selection-end-line="15" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/py_games/pygame事件/pygame.event事件">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/py_games/pygame的模块">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="24" lean-forward="false" selection-start-line="13" selection-start-column="24" selection-end-line="13" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/linux/scp_notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/文件/与目录共事/test.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/数字运算内建函数/divmod_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="18" lean-forward="false" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/数字运算内建函数/notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="51" lean-forward="false" selection-start-line="1" selection-start-column="51" selection-end-line="1" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/文件/与目录共事/工厂函数file()">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/文本/1">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/数字运算内建函数/coerce_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="14" lean-forward="false" selection-start-line="8" selection-start-column="14" selection-end-line="8" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/zip_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="11" lean-forward="false" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/enumerate_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="19" lean-forward="false" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/test">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="5" lean-forward="false" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/文件/文件相关模块">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="36" lean-forward="false" selection-start-line="15" selection-start-column="36" selection-end-line="15" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/linux/ssh_notes.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/linux/linux下查看ssh的用户登录日志">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="124" column="0" lean-forward="false" selection-start-line="124" selection-start-column="0" selection-end-line="124" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获/异常相关标准库">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="34" lean-forward="false" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/包装/何谓对象" />
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/计算某python对象内存占用大小" />
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/计算某python对象占用内存大小">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="17" column="17" lean-forward="false" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1162,9 +1078,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
           <caret line="34" column="7" lean-forward="false" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
-          <folding>
-            <element signature="e#143#154#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1172,7 +1085,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="8" column="7" lean-forward="false" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1180,7 +1092,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
           <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1188,7 +1099,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="19" column="15" lean-forward="false" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1196,31 +1106,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="13" column="10" lean-forward="false" selection-start-line="13" selection-start-column="10" selection-end-line="13" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/无参数的函数_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="14" column="17" lean-forward="false" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1228,39 +1113,84 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/basic/def_and_函数的参数.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
+        <state relative-caret-position="1425">
           <caret line="95" column="3" lean-forward="false" selection-start-line="93" selection-start-column="0" selection-end-line="95" selection-end-column="3" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py">
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="28">
+          <caret line="2" column="27" lean-forward="false" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py">
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/data_deal_with/dict_deal_with/基于dictionary的字符串格式化.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="265">
-          <caret line="30" column="4" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py">
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/functools/wraps_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="36" column="5" lean-forward="false" selection-start-line="36" selection-start-column="5" selection-end-line="36" selection-end-column="5" />
-          <folding />
+        <state relative-caret-position="915">
+          <caret line="61" column="3" lean-forward="false" selection-start-line="61" selection-start-column="3" selection-end-line="61" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/functools/functools_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="89" column="42" lean-forward="false" selection-start-line="89" selection-start-column="42" selection-end-line="89" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/python_stubs/-1136445070/builtins.py" />
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property取代getter和setter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="16" lean-forward="true" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property升级getter和setter方法.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="26" lean-forward="true" selection-start-line="24" selection-start-column="26" selection-end-line="24" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="16" lean-forward="false" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1268,22 +1198,207 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-767">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-752">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="388">
+          <caret line="33" column="1" lean-forward="false" selection-start-line="33" selection-start-column="1" selection-end-line="33" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-707">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的func_preferences相关.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-662">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="46" column="11" lean-forward="false" selection-start-line="43" selection-start-column="0" selection-end-line="46" selection-end-column="11" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器的理解">
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/垃圾回收/大整数对象池/大整数对象池">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="7" selection-end-column="17" />
+        <state relative-caret-position="0">
+          <caret line="0" column="14" lean-forward="false" selection-start-line="0" selection-start-column="14" selection-end-line="0" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/垃圾回收/intern机制/intern机制">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="33" column="18" lean-forward="false" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/垃圾回收/引用计数机制">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="14" lean-forward="true" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/垃圾回收/gc垃圾回收">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="27" column="3" lean-forward="false" selection-start-line="27" selection-start-column="3" selection-end-line="27" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/元类的定义">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="12" lean-forward="false" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/__metaclass__属性">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="16" column="26" lean-forward="false" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/垃圾回收/小整数对象池/小整数对象池">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="12" lean-forward="false" selection-start-line="7" selection-start-column="12" selection-end-line="7" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/无参数的函数_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/多层装饰器调用_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-47">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/compile_exec_eval_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/notes">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="530">
+          <caret line="40" column="20" lean-forward="false" selection-start-line="40" selection-start-column="20" selection-end-line="40" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/执行环境/动态生成和执行python代码_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="870">
+          <caret line="58" column="22" lean-forward="false" selection-start-line="58" selection-start-column="22" selection-end-line="58" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中删除类属性, 类方法">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中动态给类绑定属性_方法.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-332">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有属性的类.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有方法的类.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建类_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="35" column="23" lean-forward="true" selection-start-line="35" selection-start-column="23" selection-end-line="35" selection-end-column="23" />
+        <state relative-caret-position="88">
+          <caret line="13" column="17" lean-forward="true" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
           <folding />
         </state>
       </provider>

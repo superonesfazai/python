@@ -24,3 +24,13 @@ foo(3,5)
 sleep(2)
 foo(2,4)
 
+'''
+测试结果:
+foo called at Sun Aug  6 16:36:44 2017
+3 5
+8
+foo called at Sun Aug  6 16:36:46 2017
+2 4
+6
+'''
+

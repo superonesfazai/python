@@ -9,7 +9,7 @@
 
 from time import ctime, sleep
 
-# 对应使用可变参数*args, 和关键字参数**kwargs来接收不同的参数即可
+# 对应使用可变参数*args, 和关键字参数**kwargs来接收不同的参数即可   (*args 为元组数据, **kwargs 为字典数据)
 #可变参数
 #可变参数就是传入的参数个数是可变的，可以是1个、2个到任意个，还可以是0个
 #关键字参数
@@ -28,12 +28,43 @@ foo(3,5,7)
 sleep(2)
 foo(2,4,9)
 
-@timefun
-def foo2(**kwargs):
-    total = 0
-    for v in kwargs.values():
-        total += v
-    print(total)
+print()
+print('----分割线----')
+print()
 
+@timefun
+def foo2(*args, **kwargs):
+    total = 0
+    print('args = %s' % (args,))
+    for k, v in kwargs.items():
+        total += v
+        print('k=', k, ' ', 'v=', v)
+    print(total)
+@timefun
+def say_hello():        # 不传参数也能匹配到装饰器中的*args, **kwargs 即:*args = (), **kwargs = {}, 所以不报错, 同样使用了装饰器timefun
+    print('---hello---')
+
+say_hello()
+a = (3, 4, 5)
 tmp = {'a':1, 'b':2, 'c':3}
-foo2(**tmp)     # 切记字典要这样传参才有效且不报错
+foo2(*a, **tmp)     # 切记字典要这样传参才有效且不报错
+                    # * 跟 ** 代表打包
+
+'''
+测试结果:
+foo called at Sun Aug  6 10:18:15 2017
+15
+foo called at Sun Aug  6 10:18:17 2017
+15
+
+----分割线----
+
+say_hello called at Sun Aug  6 10:18:17 2017
+---hello---
+foo2 called at Sun Aug  6 10:18:17 2017
+args = (3, 4, 5)
+k= a   v= 1
+k= b   v= 2
+k= c   v= 3
+6
+'''

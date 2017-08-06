@@ -16,9 +16,10 @@
 
 class Test():
     def __call__(self, *args, **kwargs):
+        '''当把一个对象当作函数使用的时候被调用'''
         print('call me!')
 
-t = Test()
+t = Test()      # 切记: Test() == Test.__call__()
 t()     # call me
 
 class Test1(object):

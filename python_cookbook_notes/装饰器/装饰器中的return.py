@@ -19,7 +19,12 @@ def timefun(func):
 def timefun2(func):
     def wrappedfunc():
         print("%s called at %s"%(func.__name__, ctime()))
+        # 法1：
         return func()   # 就可以调用含return的普通函数了
+        # 法2:
+        # 或者像下面这样先接收等inner内部逻辑结束后再return
+        # result = func()
+        # return result
     return wrappedfunc
 
 @timefun

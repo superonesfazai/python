@@ -26,7 +26,7 @@ callable(obj)       如果obj可调用,return True
 compile(string, file, type)     从type类型中创建代码对象;file是代码存放的地方(通常设为"")
 eval(obj, globals=globals(), locals=locals())
     对obj进行求值,obj是已编译为代码对象的表达式,或是一个字符串表达式;
-    可以给出全局或者/和局部的名称空间
+    可以给出全局或者/和局部的名称空间       # eval执行的编译代码中,不能进行赋值操作
 exec obj
     执行obj,单一的python语句或者语句的集合
     也就是说格式是代码对象或者字符串;

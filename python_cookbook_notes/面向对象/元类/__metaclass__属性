@@ -1,0 +1,32 @@
+你可以在定义⼀个类的时候为其添加__metaclass__属性
+
+    class Foo(object):
+        __metaclass__ = something…
+        ...省略...
+如果你这么做了, Python就会⽤元类来创建类Foo.
+* ⼩⼼点, 这⾥⾯有些技巧.
+你⾸先写下class Foo(object), 但是类Foo还没有在内存中创建.
+Python会在类的定义中寻找__metaclass__属性,
+如果找到了, Python就会⽤它来创建类Foo
+如果没有找到, 就会⽤内建的type来创建这个类.
+
+把下⾯这段话反复读⼏次, 当你写如下代码时 :
+    class Foo(Bar):
+        pass
+
+Python做了如下的操作：
+1. Foo中有__metaclass__这个属性吗? 如果是, Python会通过
+    __metaclass__创建⼀个名字为Foo的类(对象)
+2. 如果Python没有找到__metaclass__, 它会继续在Bar(⽗类) 中寻找
+    __metaclass__属性, 并尝试做和前⾯同样的操作.
+3. 如果Python在任何⽗类中都找不到__metaclass__, 它就会在模块层次
+    中去寻找__metaclass__, 并尝试做同样的操作.
+4. 如果还是找不到__metaclass__, Python就会⽤内置的type来创建这个类
+    对象.
+
+现在的问题就是， 你可以在__metaclass__中放置些什么代码呢？
+
+答案就是: 可以创建⼀个类的东⻄.
+
+那么什么可以⽤来创建⼀个类呢?
+type, 或者任何使⽤到type或者⼦类化type的东东都可以
