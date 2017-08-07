@@ -19,6 +19,8 @@
 # 幸运的是, __metaclass__实际上可以被任意调⽤
 # 它并不需要是⼀个正式的类, 所以, 我这⾥就先以⼀个简单的函数作为例⼦开始
 
+## 等同于: Foo = upper_attr(future_class_name, future_class_parents, future_class_attr)
+
 # 在python3中
 def upper_attr(future_class_name, future_class_parents, future_class_attr):
     # 遍历属性字典, 把不是__开头的属性名字变为大写

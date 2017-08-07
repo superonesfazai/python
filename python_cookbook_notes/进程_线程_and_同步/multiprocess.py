@@ -41,3 +41,13 @@ if __name__ == '__main__':
     pw.join()
     # pr进程里是死循环，无法等待其结束，只能强行终止:
     pr.terminate()
+
+'''
+测试结果:
+Put A to queue...
+Get A from queue.
+Put B to queue...
+Get B from queue.
+Put C to queue...
+Get C from queue.
+'''

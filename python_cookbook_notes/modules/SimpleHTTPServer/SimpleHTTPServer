@@ -1,0 +1,10 @@
+简单地HTTP Server,不使⽤Web框架
+
+在自己机器简单的使用HTTP Server
+
+可以运⾏起来静态服务。 平时⽤它预览和下载⽂件太⽅便了。
+	在终端中输⼊命令：
+	python2中
+		$ python -m SimpleHTTPServer PORT
+	python3中
+		$ python -m http.server PORT
