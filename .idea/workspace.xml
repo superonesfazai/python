@@ -2,36 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/excle_deal_with/xlrd/xlrd" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/excle_deal_with/xlsxwriter/xlsxwriter" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/excle_deal_with/xlwt/xlwt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/SimpleHTTPServer/SimpleHTTPServer" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/filter_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/map_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/set_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/celery/celery" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/functools/reduce_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/glob/glob" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/redis/redis" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/图像处理相关/Pillow(PIL)/Pillow(PIL)" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/pdb_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo1.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo2.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo3.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo4.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo5运⾏过程中使⽤pdb修改变量的值.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/__getattribute__的坑.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/python_cookbook_notes/scikit_learn/.ipynb_checkpoints/普通最小二乘法-checkpoint.ipynb" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/机器学习库/scikit-learn/.ipynb_checkpoints/普通最小二乘法-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/python_cookbook_notes/scikit_learn/Sklearn.md" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/机器学习库/scikit-learn/Sklearn.md" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/python_cookbook_notes/scikit_learn/普通最小二乘法.ipynb" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/机器学习库/scikit-learn/普通最小二乘法.ipynb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/db_and_数据持久化/mysql/.ipynb_checkpoints/mysql_test_jupyter-checkpoint.ipynb" afterPath="$PROJECT_DIR$/python_cookbook_notes/db_and_数据持久化/mysql/.ipynb_checkpoints/mysql_test_jupyter-checkpoint.ipynb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib/hashlib_test.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib/hashlib_test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/引用计数机制" afterPath="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/引用计数机制" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" afterPath="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -155,28 +126,18 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="pdb_notes" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/pdb_notes">
+      <file leaf-file-name="shutil" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="254">
-              <caret line="17" column="35" lean-forward="false" selection-start-line="17" selection-start-column="35" selection-end-line="17" selection-end-column="35" />
+            <state relative-caret-position="0">
+              <caret line="0" column="7" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="7" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="类" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="41" lean-forward="false" selection-start-line="11" selection-start-column="41" selection-end-line="11" selection-end-column="41" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="demo1.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo1.py">
+      <file leaf-file-name="child_process.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/child_process.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -185,32 +146,38 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demo2.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo2.py">
+      <file leaf-file-name="multiprocess.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="22" column="8" lean-forward="false" selection-start-line="22" selection-start-column="8" selection-end-line="22" selection-end-column="8" />
-              <folding />
+            <state relative-caret-position="-1">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#19#61#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demo3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo3.py">
+      <file leaf-file-name="process_communication.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/process_communication.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1500">
-              <caret line="100" column="8" lean-forward="false" selection-start-line="100" selection-start-column="8" selection-end-line="100" selection-end-column="8" />
-              <folding />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#36#78#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demo4.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo4.py">
+      <file leaf-file-name="queue_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/queue_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="28" lean-forward="false" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-              <folding />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#66#89#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -235,21 +202,39 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ip_2_where_from.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/使用api/ip_2_where_from.py">
+      <file leaf-file-name="pickle_test.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/pickle/pickle_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="23" column="29" lean-forward="false" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
-              <folding />
+            <state relative-caret-position="165">
+              <caret line="11" column="14" lean-forward="true" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
+              <folding>
+                <marker date="1501666388000" expanded="true" signature="2309:2340" ph="SELECT * FRO... memos" />
+                <marker date="1501666388000" expanded="true" signature="2900:2954" ph="CREATE TABLE... memos" />
+                <marker date="1501666388000" expanded="true" signature="3120:3153" ph="INSERT INTO memos... " />
+                <marker date="1501666388000" expanded="true" signature="3225:3244" ph="SELECT * FRO... memos" />
+                <marker date="1501666388000" expanded="true" signature="3537:3586" ph="UPDATE memos... " />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="hashlib_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/hashlib/hashlib_test.py">
+      <file leaf-file-name="threading_lock.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/threading_lock.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="31" lean-forward="false" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#19#30#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="beautifulsoup_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/beautifulsoup_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -343,9 +328,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="443" />
-    <option name="y" value="64" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="685" />
+    <option name="y" value="42" />
     <option name="width" value="721" />
     <option name="height" value="671" />
   </component>
@@ -402,7 +387,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <expand>
@@ -425,50 +409,106 @@
               <item name="Root" type="cbb8eebc:String" user="Root" />
               <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
               <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="文件" type="cbb8eebc:String" user="文件" />
+              <item name="modules" type="cbb8eebc:String" user="modules" />
+              <item name="SimpleHTTPServer" type="cbb8eebc:String" user="SimpleHTTPServer" />
             </path>
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
               <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
               <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="调试" type="cbb8eebc:String" user="调试" />
+              <item name="modules" type="cbb8eebc:String" user="modules" />
+              <item name="图像处理相关" type="cbb8eebc:String" user="图像处理相关" />
             </path>
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="调试" type="cbb8eebc:String" user="调试" />
-              <item name="pdb" type="cbb8eebc:String" user="pdb" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
             </path>
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="调试" type="cbb8eebc:String" user="调试" />
-              <item name="pdb" type="cbb8eebc:String" user="pdb" />
-              <item name="print大法好" type="cbb8eebc:String" user="print大法好" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
             </path>
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
             </path>
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="面向对象" type="cbb8eebc:String" user="面向对象" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
             </path>
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python网络数据采集" type="cbb8eebc:String" user="python网络数据采集" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
+              <item name="python_stubs" type="cbb8eebc:String" user="python_stubs" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
+              <item name="python_stubs" type="cbb8eebc:String" user="python_stubs" />
+              <item name="-1136445070" type="cbb8eebc:String" user="-1136445070" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
+              <item name="/" type="cbb8eebc:String" user="/" />
+              <item name="Users" type="cbb8eebc:String" user="Users" />
+              <item name="afa" type="cbb8eebc:String" user="afa" />
+              <item name="Library" type="cbb8eebc:String" user="Library" />
+              <item name="Caches" type="cbb8eebc:String" user="Caches" />
+              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
+              <item name="python_stubs" type="cbb8eebc:String" user="python_stubs" />
+              <item name="-1136445070" type="cbb8eebc:String" user="-1136445070" />
+              <item name="scipy" type="cbb8eebc:String" user="scipy" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -973,19 +1013,20 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <frame x="685" y="42" width="721" height="671" extended-state="1" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871014" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32871014" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23372287" sideWeight="0.5048544" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22203673" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22203673" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39929327" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39929327" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1045,40 +1086,17 @@
           <line>13</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/python网络数据采集/_create_crawl/beautifulsoup_test.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="15" />
+      <option name="time" value="17" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/元类的定义">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/数字运算内建函数/notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/map_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="14">
-          <caret line="15" column="3" lean-forward="true" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/functools/reduce_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
-          <caret line="46" column="3" lean-forward="true" selection-start-line="46" selection-start-column="3" selection-end-line="46" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/filter_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -1118,13 +1136,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="7" lean-forward="false" selection-start-line="0" selection-start-column="7" selection-end-line="0" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -1182,13 +1193,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/beautifulsoup_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1265,13 +1269,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/SimpleHTTPServer/SimpleHTTPServer">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="16" lean-forward="false" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo5运⾏过程中使⽤pdb修改变量的值.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -1283,7 +1280,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="11" column="16" lean-forward="true" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1291,7 +1287,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1299,7 +1294,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="402">
           <caret line="35" column="30" lean-forward="true" selection-start-line="35" selection-start-column="30" selection-end-line="35" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1307,41 +1301,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/child_process.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="49" column="17" lean-forward="false" selection-start-line="49" selection-start-column="17" selection-end-line="49" selection-end-column="17" />
-          <folding>
-            <element signature="e#19#61#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/scrapetest.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/可靠的网络连接.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1395,7 +1354,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/pdb_notes">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
+        <state relative-caret-position="255">
           <caret line="17" column="35" lean-forward="false" selection-start-line="17" selection-start-column="35" selection-end-line="17" selection-end-column="35" />
           <folding />
         </state>
@@ -1406,6 +1365,108 @@
         <state relative-caret-position="165">
           <caret line="11" column="41" lean-forward="false" selection-start-line="11" selection-start-column="41" selection-end-line="11" selection-end-column="41" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/SimpleHTTPServer/SimpleHTTPServer">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="19" lean-forward="false" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="7" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/child_process.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#19#61#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/process_communication.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#36#78#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/queue_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#66#89#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/threading_lock.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#19#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/beautifulsoup_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/scrapetest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/可靠的网络连接.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/pickle/pickle_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="14" lean-forward="true" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
+          <folding>
+            <marker date="1501666388000" expanded="true" signature="2309:2340" ph="SELECT * FRO... memos" />
+            <marker date="1501666388000" expanded="true" signature="2900:2954" ph="CREATE TABLE... memos" />
+            <marker date="1501666388000" expanded="true" signature="3120:3153" ph="INSERT INTO memos... " />
+            <marker date="1501666388000" expanded="true" signature="3225:3244" ph="SELECT * FRO... memos" />
+            <marker date="1501666388000" expanded="true" signature="3537:3586" ph="UPDATE memos... " />
+          </folding>
         </state>
       </provider>
     </entry>
