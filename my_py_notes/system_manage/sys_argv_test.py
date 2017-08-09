@@ -19,7 +19,7 @@ def test():
 
 
 def fuck():
-    print('This is a test!')
+    print('This is a 避免死锁!')
 
 if __name__ == '__main__':
     test()
@@ -31,7 +31,7 @@ sys.argv[1] 命令行输入的参数1
 sys.argv[2] 命令行输入的参数2
 
 测试用例：
-$ python /home/zhanghe/code/python/test/test_sys_arg.py
-$ python /home/zhanghe/code/python/test/test_sys_arg.py fuc
-$ python /home/zhanghe/code/python/test/test_sys_arg.py fuck
+$ python /home/zhanghe/code/python/避免死锁/test_sys_arg.py
+$ python /home/zhanghe/code/python/避免死锁/test_sys_arg.py fuc
+$ python /home/zhanghe/code/python/避免死锁/test_sys_arg.py fuck
 """

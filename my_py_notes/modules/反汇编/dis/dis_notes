@@ -1,0 +1,42 @@
+python提供了dis这个标准模块来进行反汇编
+而无需我们自己去解析pyc文件
+
+用法很简单, 对于函数, 可以直接用dis.dis()来查看
+就返回 函数的字节码
+dis.dis()的参数可以是函数对象, 或者代码对象
+如果是函数对象, 则显示函数对象的func_code属性
+
+dis输出的文本的格式如下:
+程序中的行号  字节码偏移量     字节码的命令  命令参数     参数的相关说明
+      4           0             LOAD_FAST
+
+eg.
+>>> dis.dis(f1)
+  4           0 LOAD_FAST                0 (a)
+              3 LOAD_FAST                1 (b)
+              6 BINARY_ADD
+              7 STORE_FAST               2 (c)
+
+  5          10 LOAD_FAST                2 (c)
+             13 RETURN_VALUE
+
+>>> dis.dis(f2.func_code)
+  8           0 LOAD_CONST               1 ('ok')
+              3 PRINT_ITEM
+              4 PRINT_NEWLINE
+              5 LOAD_CONST               0 (None)
+              8 RETURN_VALUE
+
+eg.上面的信息告诉我们字节码命令“LOAD_FAST”对应源程序中的第4行
+    位于字节码的第0字节, 命令的参数为0, 这个0表示变量a。
+
+下面是对函数f1()的字节码的详细解释
+在Python虚拟机运行字节码时, 会操作一个堆栈保存临时信息。
+
+LOAD_FAST    0 (a)  将变量a指向的对象压入堆栈
+LOAD_FAST    1 (b)  将变量b指向的对象压入堆栈
+BINARY_ADD          将堆栈顶部的两个对象弹出、相加、并将结果压入堆栈
+STORE_FAST   2 (c)  将堆栈顶部的对象弹出，并用变量c指向它
+
+LOAD_FAST    2 (c)  将变量c指向的对象压入堆栈
+RETURN_VALUE        返回堆栈顶部的对象

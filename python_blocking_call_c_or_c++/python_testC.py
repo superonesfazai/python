@@ -3,6 +3,6 @@
 
 import test
 
-print("start test modual")
+print("start 避免死锁 modual")
 test.fac(2)
 print('bye everyone!')

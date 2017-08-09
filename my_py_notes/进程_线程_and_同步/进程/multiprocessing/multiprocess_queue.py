@@ -4,7 +4,6 @@ from multiprocessing import Process, Queue
 import time
 import random
 
-
 def write(q):
     """
     写数据进程执行的代码

@@ -23,8 +23,8 @@ def note(func):
 
 @note
 def test():
-    "test function"
-    print('I am test')
+    "避免死锁 function"
+    print('I am 避免死锁')
 
 test()
 print(test.__doc__)
@@ -44,8 +44,8 @@ def note(func):
 
 @note
 def test():
-    "test function"
-    print('I am test')
+    "避免死锁 function"
+    print('I am 避免死锁')
 
 test()
 print(test.__doc__)
@@ -53,10 +53,10 @@ print(test.__doc__)
 '''
 测试结果:
 note something
-I am test
+I am 避免死锁
 wrapper function
 
 note something
-I am test
-test function
+I am 避免死锁
+避免死锁 function
 '''

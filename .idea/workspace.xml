@@ -2,7 +2,114 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/sortinggraphs.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/某一时刻状态如图所示.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/线程运行过程.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/markdown/markdown-basic.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/modules/反汇编/dis/dis_notes" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/modules/反汇编/dis/dis_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/system_manage/os_info.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/可移植性/python版本判断_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/执行环境/use_eval_实现简单的计算器.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/简单的实现shell下类似cat的功能.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/计算一个文件夹的大小.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/hashes/md5.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/searches/binary_search.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/searches/linear_search.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/bogosort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/cocktail_shaker_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/gnome_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/heap_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/merge_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/normal_distribution_QuickSort_README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/quick_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/radix_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/random_normaldistribution_quicksort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/shell_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/topological_sort.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/冒泡排序.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/插入排序.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/sorts/选择排序.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/算法/动态程序/fibonacci.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/notes" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/死锁_demo.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/避免死锁" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/Queue模块相关" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/⽤FIFO队列实现上述⽣产者与消费者问题.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/生产者与消费者模式的说明" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁的概念" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的应用/多个线程有序的执行.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的概念" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/notes" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/threading注意点/线程执行代码的封装.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/threading注意点/线程的执行顺序.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/主线程会等待所有的子进程结束后才结束_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/列表当做实参传递到线程中_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo1.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo2.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/总结" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多进程-共享全局变量/在多线程中修改全局变量_demo.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/查看线程数量.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程, 线程对比" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocess_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocessing_Process_demo1.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocessing_Process_demo2.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/notes" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/Pool_apply堵塞式_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/Pool_note" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/异步的定义" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/进程池_Pool_test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/进程池之异步.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程的创建-Process子类.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/多进程修改全局变量测试.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/终端会出现多少次hello?.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/os.wait_回收资源.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/僵尸进程.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/孤儿进程.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/Queue_note" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/进程池中的Queue.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tools/youtube_downloader_fast.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/mac_os_x_10.11" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/process_multiprocessing.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/process_pool.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/child_process.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/child_process.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/multiprocess.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocess_queue.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/processDemo.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/processDemo.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/process_communication.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/process_communication.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/queue_test.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/queue_test.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/threading_lock.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/threading_lock.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/threading_test.py" afterPath="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/threading_test.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/db_and_数据持久化/sqlite3/sqlite3_demo.py" afterPath="$PROJECT_DIR$/my_py_notes/db_and_数据持久化/sqlite3/sqlite3_demo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/internet_code/html_deal_with/html.py" afterPath="$PROJECT_DIR$/my_py_notes/internet_code/html_deal_with/html.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/modules/fileinput/fileinput_test.py" afterPath="$PROJECT_DIR$/my_py_notes/modules/fileinput/fileinput_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/modules/functools/wraps_test.py" afterPath="$PROJECT_DIR$/my_py_notes/modules/functools/wraps_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/modules/hashlib/hashlib_test.py" afterPath="$PROJECT_DIR$/my_py_notes/modules/hashlib/hashlib_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/system_manage/sys_argv_test.py" afterPath="$PROJECT_DIR$/my_py_notes/system_manage/sys_argv_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/tmp/test1.py" afterPath="$PROJECT_DIR$/my_py_notes/tmp/test1.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/tools/html.py" afterPath="$PROJECT_DIR$/my_py_notes/tools/html.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/tools/url.py" afterPath="$PROJECT_DIR$/my_py_notes/tools/url.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/ui_and_python/py_Qt/HelloPyQt.py" afterPath="$PROJECT_DIR$/my_py_notes/ui_and_python/py_Qt/HelloPyQt.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/ui_and_python/py_Qt/python-qt4-doc/examples/network/loopback.py" afterPath="$PROJECT_DIR$/my_py_notes/ui_and_python/py_Qt/python-qt4-doc/examples/network/loopback.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/执行环境/动态生成和执行python代码_test.py" afterPath="$PROJECT_DIR$/my_py_notes/执行环境/动态生成和执行python代码_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/read_or_write_2_big_files.py" afterPath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/read_or_write_2_big_files.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/分割路径名.py" afterPath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/分割路径名.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/构造路径名.py" afterPath="$PROJECT_DIR$/my_py_notes/文件/与目录共事/构造路径名.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/网络编程/套接字:通信端点/socket/udp/client.py" afterPath="$PROJECT_DIR$/my_py_notes/网络编程/套接字:通信端点/socket/udp/client.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/装饰器/类装饰器_demo.py" afterPath="$PROJECT_DIR$/my_py_notes/装饰器/类装饰器_demo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/装饰器/被装饰的func_preferences相关.py" afterPath="$PROJECT_DIR$/my_py_notes/装饰器/被装饰的func_preferences相关.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/面向对象/__getattribute__的坑.py" afterPath="$PROJECT_DIR$/my_py_notes/面向对象/__getattribute__的坑.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/面向对象/包装/简单的包装类_test.py" afterPath="$PROJECT_DIR$/my_py_notes/面向对象/包装/简单的包装类_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes/面向对象/类私有化/类私有化" afterPath="$PROJECT_DIR$/my_py_notes/面向对象/类私有化/类私有化" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_blocking_call_c_or_c++/python_testC.py" afterPath="$PROJECT_DIR$/python_blocking_call_c_or_c++/python_testC.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python_blocking_call_c_or_c++/setup.py" afterPath="$PROJECT_DIR$/python_blocking_call_c_or_c++/setup.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python绝技/violent_python/port_scanner.py" afterPath="$PROJECT_DIR$/python绝技/violent_python/port_scanner.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,8 +123,10 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$udp__server.coverage" NAME="udp_时间戳_server Coverage Results" MODIFIED="1500882453343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$fileinput_test.coverage" NAME="fileinput_test Coverage Results" MODIFIED="1501067963240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/fileinput" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$wuziqi_test.coverage" NAME="wuziqi_test Coverage Results" MODIFIED="1501044049716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$hello_.coverage" NAME="终端会出现多少次hello? Coverage Results" MODIFIED="1502264928695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_button_scale_test.coverage" NAME="label_button_scale_test Coverage Results" MODIFIED="1500891799156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_test.coverage" NAME="turtle_test Coverage Results" MODIFIED="1501720776006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$multiprocessing_Process_demo2.coverage" NAME="multiprocessing_Process_demo2 Coverage Results" MODIFIED="1502262684765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_except_test_py.coverage" NAME="Unittests in except_test.py Coverage Results" MODIFIED="1500709883341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$udp__client.coverage" NAME="udp_时间戳_client Coverage Results" MODIFIED="1500882507969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$str_format__test.coverage" NAME="str_format_文本缩进_test Coverage Results" MODIFIED="1500708345754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/文本" />
@@ -28,24 +137,33 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$schedule_test.coverage" NAME="schedule_test Coverage Results" MODIFIED="1500644612579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/schedule" />
     <SUITE FILE_PATH="coverage/PythonDoc$copy_deepcopy_.coverage" NAME="copy_deepcopy_可变对象 Coverage Results" MODIFIED="1501763584537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝" />
     <SUITE FILE_PATH="coverage/PythonDoc$return.coverage" NAME="装饰器中的return Coverage Results" MODIFIED="1501944250685" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+    <SUITE FILE_PATH="coverage/PythonDoc$FIFO.coverage" NAME="⽤FIFO队列实现上述⽣产者与消费者问题 Coverage Results" MODIFIED="1502272784353" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Doctests_in_quick_sort.coverage" NAME="Doctests in quick_sort Coverage Results" MODIFIED="1502177148927" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/算法/sorts" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$surface.coverage" NAME="设置surface的像素 Coverage Results" MODIFIED="1501157107571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/Surface" />
+    <SUITE FILE_PATH="coverage/PythonDoc$os_wait_.coverage" NAME="os.wait_回收资源 Coverage Results" MODIFIED="1502241389923" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait" />
+    <SUITE FILE_PATH="coverage/PythonDoc$child_process.coverage" NAME="child_process Coverage Results" MODIFIED="1502253148581" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_setworldcoordinates.coverage" NAME="turtle.setworldcoordinates Coverage Results" MODIFIED="1500968705434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="coverage/PythonDoc$__getattribute__.coverage" NAME="__getattribute__的坑 Coverage Results" MODIFIED="1502091072470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
+    <SUITE FILE_PATH="coverage/PythonDoc$quick_sort.coverage" NAME="quick_sort Coverage Results" MODIFIED="1502177449193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/算法/sorts" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$json_test.coverage" NAME="json_test Coverage Results" MODIFIED="1500619485134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp__client.coverage" NAME="tcp_时间戳_client Coverage Results" MODIFIED="1500880529514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1501774130035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
-    <SUITE FILE_PATH="coverage/PythonDoc$.coverage" NAME="闭包内层函数修改外层函数的属性 Coverage Results" MODIFIED="1501819213844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
+    <SUITE FILE_PATH="coverage/PythonDoc$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1502173291138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/tmp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$process_multiprocessing.coverage" NAME="process_multiprocessing Coverage Results" MODIFIED="1502261458506" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
+    <SUITE FILE_PATH="coverage/PythonDoc$.coverage" NAME="多个线程有序的执行 Coverage Results" MODIFIED="1502272106732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的应用" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$____.coverage" NAME="对象值(==)比较 Coverage Results" MODIFIED="1501725724528" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/对象值(==)比较" />
     <SUITE FILE_PATH="coverage/PythonDoc$filter_test.coverage" NAME="filter_test Coverage Results" MODIFIED="1502092563342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$twisted_reactor_tcp__server.coverage" NAME="twisted_reactor_tcp_时间戳_server Coverage Results" MODIFIED="1500886447675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Doctest_quick_sort.coverage" NAME="Doctest quick_sort Coverage Results" MODIFIED="1502176826789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/算法/sorts" />
     <SUITE FILE_PATH="coverage/PythonDoc$legb.coverage" NAME="legb规则 Coverage Results" MODIFIED="1501820085662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
     <SUITE FILE_PATH="coverage/PythonDoc$_fibonacci_test.coverage" NAME="生成器_fibonacci_test Coverage Results" MODIFIED="1501816004578" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pygame_draw_test.coverage" NAME="pygame_draw_test Coverage Results" MODIFIED="1501302796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
     <SUITE FILE_PATH="coverage/PythonDoc$fib.coverage" NAME="fib迭代器 Coverage Results" MODIFIED="1501811111730" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
     <SUITE FILE_PATH="coverage/PythonDoc$2.coverage" NAME="自定义元类2 Coverage Results" MODIFIED="1502012874511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$b.coverage" NAME="b Coverage Results" MODIFIED="1501721004664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a/b" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Pool_apply_test.coverage" NAME="Pool_apply堵塞式_test Coverage Results" MODIFIED="1502253272023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池" />
     <SUITE FILE_PATH="coverage/PythonDoc$multiprocess.coverage" NAME="multiprocess Coverage Results" MODIFIED="1502108299486" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$wuziqi_xxx.coverage" NAME="wuziqi_xxx Coverage Results" MODIFIED="1500980707670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$process_pool.coverage" NAME="process_pool Coverage Results" MODIFIED="1502253263998" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$button_test.coverage" NAME="button_test Coverage Results" MODIFIED="1500890626830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in__test_py.coverage" NAME="Unittests in 函数修饰符_test.py Coverage Results" MODIFIED="1500790440831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$buttonframeDemo.coverage" NAME="buttonframeDemo Coverage Results" MODIFIED="1500894911136" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/wxpython" />
@@ -55,7 +173,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$gettext_test.coverage" NAME="gettext_test Coverage Results" MODIFIED="1501069091029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/gettext" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$write_my_name.coverage" NAME="write_my_name Coverage Results" MODIFIED="1500980119465" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test.coverage" NAME="迭代器_test Coverage Results" MODIFIED="1501744916833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="被装饰的函数有参数_test Coverage Results" MODIFIED="1502008604160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="互斥锁_test Coverage Results" MODIFIED="1502270820688" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_bgpic.coverage" NAME="turtle.bgpic Coverage Results" MODIFIED="1500967665761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$weight.coverage" NAME="weight Coverage Results" MODIFIED="1500899658087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pandas_test.coverage" NAME="pandas_test Coverage Results" MODIFIED="1500712729521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/use_pandas_deal_with_datas" />
@@ -66,21 +184,27 @@
     <SUITE FILE_PATH="coverage/PythonDoc$enumerate_test.coverage" NAME="enumerate_test Coverage Results" MODIFIED="1501841233242" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$findfiles.coverage" NAME="findfiles Coverage Results" MODIFIED="1500891066682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/py_Qt/python-qt4-doc/examples/dialogs" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_onclick.coverage" NAME="turtle.onclick Coverage Results" MODIFIED="1500990672255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$multiprocess_test.coverage" NAME="multiprocess_test Coverage Results" MODIFIED="1502243687260" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_Pool_test.coverage" NAME="进程池_Pool_test Coverage Results" MODIFIED="1502247781594" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$plane__1_.coverage" NAME="plane (1) Coverage Results" MODIFIED="1501302444895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="coverage/PythonDoc$func_preferences.coverage" NAME="func_preferences相关 Coverage Results" MODIFIED="1501981616186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_cookie_test_py.coverage" NAME="Unittests in request_cookie_test.py Coverage Results" MODIFIED="1500644170986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/cookie" />
     <SUITE FILE_PATH="coverage/PythonDoc$_test1.coverage" NAME="闭包_test1 Coverage Results" MODIFIED="1501818370247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
     <SUITE FILE_PATH="coverage/PythonDoc$psw_encrypt.coverage" NAME="psw_encrypt Coverage Results" MODIFIED="1501807507723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/加密与解密" />
-    <SUITE FILE_PATH="coverage/PythonDoc$processDemo.coverage" NAME="processDemo Coverage Results" MODIFIED="1502108207674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
+    <SUITE FILE_PATH="coverage/PythonDoc$processDemo.coverage" NAME="processDemo Coverage Results" MODIFIED="1502263624176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
     <SUITE FILE_PATH="coverage/PythonDoc$curl.coverage" NAME="curl Coverage Results" MODIFIED="1501927531043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tools" />
     <SUITE FILE_PATH="coverage/PythonDoc$type.coverage" NAME="使用type创建带有方法的类 Coverage Results" MODIFIED="1502008402726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_Process.coverage" NAME="进程的创建-Process子类 Coverage Results" MODIFIED="1502246721639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
     <SUITE FILE_PATH="coverage/PythonDoc$type_test.coverage" NAME="使用type创建类_test Coverage Results" MODIFIED="1502007325138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$socketserver_tcp__client.coverage" NAME="socketserver_tcp_时间戳_client Coverage Results" MODIFIED="1500886430455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$sys_argv_test.coverage" NAME="sys_argv_test Coverage Results" MODIFIED="1502175025033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/system_manage" />
+    <SUITE FILE_PATH="coverage/PythonDoc$os_info.coverage" NAME="os_info Coverage Results" MODIFIED="1502175151652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/system_manage" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$compile_test.coverage" NAME="compile_test Coverage Results" MODIFIED="1500864612319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
-    <SUITE FILE_PATH="coverage/PythonDoc$_demo.coverage" NAME="类装饰器_demo Coverage Results" MODIFIED="1501946398694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_demo.coverage" NAME="在多线程中修改全局变量_demo Coverage Results" MODIFIED="1502269360622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多进程-共享全局变量" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_setup.coverage" NAME="turtle.setup Coverage Results" MODIFIED="1500969933297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$request_test.coverage" NAME="request_test Coverage Results" MODIFIED="1500643266485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
-    <SUITE FILE_PATH="coverage/PythonDoc$demo1.coverage" NAME="demo1 Coverage Results" MODIFIED="1502110118522" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好" />
+    <SUITE FILE_PATH="coverage/PythonDoc$demo1.coverage" NAME="demo1 Coverage Results" MODIFIED="1502271442285" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据" />
+    <SUITE FILE_PATH="coverage/PythonDoc$process_communication.coverage" NAME="process_communication Coverage Results" MODIFIED="1502250632639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1500880431417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="coverage/PythonDoc$1.coverage" NAME="自定义元类1 Coverage Results" MODIFIED="1502012980225" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$______.coverage" NAME="______ Coverage Results" MODIFIED="1501719226088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -88,19 +212,22 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$twisted_reactor_tcp__client.coverage" NAME="twisted_reactor_tcp_时间戳_client Coverage Results" MODIFIED="1500887160946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pickle_test.coverage" NAME="pickle_test Coverage Results" MODIFIED="1501067114480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/pickle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test__1_.coverage" NAME="直线运动_test (1) Coverage Results" MODIFIED="1501227026949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
-    <SUITE FILE_PATH="coverage/PythonDoc$demo2.coverage" NAME="demo2 Coverage Results" MODIFIED="1502099970692" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好" />
+    <SUITE FILE_PATH="coverage/PythonDoc$demo2.coverage" NAME="demo2 Coverage Results" MODIFIED="1502271542421" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$label_test.coverage" NAME="label_test Coverage Results" MODIFIED="1500890615150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$.coverage" NAME="迭代器 Coverage Results" MODIFIED="1501738981968" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$plane.coverage" NAME="plane Coverage Results" MODIFIED="1501233791451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Enemy.coverage" NAME="Enemy Coverage Results" MODIFIED="1501233374577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PythonDoc$multiprocessing_Process_demo1.coverage" NAME="multiprocessing_Process_demo1 Coverage Results" MODIFIED="1502244526810" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
+    <SUITE FILE_PATH="coverage/PythonDoc$Queue.coverage" NAME="进程池中的Queue Coverage Results" MODIFIED="1502251330572" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$juhe_data_box_office.coverage" NAME="juhe_data_box_office Coverage Results" MODIFIED="1500625327181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
     <SUITE FILE_PATH="coverage/PythonDoc$map_test.coverage" NAME="map_test Coverage Results" MODIFIED="1502091820097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_tracer.coverage" NAME="turtle.tracer Coverage Results" MODIFIED="1500968995013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$2.coverage" NAME="迭代器2 Coverage Results" MODIFIED="1501744265043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/迭代器" />
     <SUITE FILE_PATH="coverage/PythonDoc$propertygettersetter.coverage" NAME="使用property升级getter和setter方法 Coverage Results" MODIFIED="1502005400537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_for_except_test_test_02.coverage" NAME="Unittests for except_test.test_02 Coverage Results" MODIFIED="1500709736343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
+    <SUITE FILE_PATH="coverage/PythonDoc$use_eval_.coverage" NAME="use_eval_实现简单的计算器 Coverage Results" MODIFIED="1502164697296" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/执行环境" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Control.coverage" NAME="Control Coverage Results" MODIFIED="1501231857001" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
     <SUITE FILE_PATH="coverage/PythonDoc$compile_exec_eval_test.coverage" NAME="compile_exec_eval_test Coverage Results" MODIFIED="1501767123531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1501069475616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a" />
@@ -115,6 +242,7 @@
     <SUITE FILE_PATH="coverage/PythonDoc$copy_deepcopy_test1.coverage" NAME="copy_deepcopy_test1 Coverage Results" MODIFIED="1501763412427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝" />
     <SUITE FILE_PATH="coverage/PythonDoc$_.coverage" NAME="运行过程中动态给类绑定属性_方法 Coverage Results" MODIFIED="1501984959702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_onkey.coverage" NAME="turtle.onkey Coverage Results" MODIFIED="1500969478817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
+    <SUITE FILE_PATH="coverage/PythonDoc$python_test.coverage" NAME="python版本判断_test Coverage Results" MODIFIED="1502172660327" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/可移植性" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1501720873399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1501406353579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
     <SUITE FILE_PATH="coverage/PythonDoc$test__old.coverage" NAME="test_智联招聘_old Coverage Results" MODIFIED="1501927133205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/spiders" />
@@ -126,115 +254,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="shutil" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil">
+      <file leaf-file-name="互斥锁_test.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="7" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="child_process.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/child_process.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="multiprocess.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#19#61#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="process_communication.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/process_communication.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#36#78#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="queue_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/queue_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#66#89#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="scrapetest.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/scrapetest.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="可靠的网络连接.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/可靠的网络连接.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pickle_test.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/pickle/pickle_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="14" lean-forward="true" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
-              <folding>
-                <marker date="1501666388000" expanded="true" signature="2309:2340" ph="SELECT * FRO... memos" />
-                <marker date="1501666388000" expanded="true" signature="2900:2954" ph="CREATE TABLE... memos" />
-                <marker date="1501666388000" expanded="true" signature="3120:3153" ph="INSERT INTO memos... " />
-                <marker date="1501666388000" expanded="true" signature="3225:3244" ph="SELECT * FRO... memos" />
-                <marker date="1501666388000" expanded="true" signature="3537:3586" ph="UPDATE memos... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="threading_lock.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/threading_lock.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <element signature="e#19#30#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="beautifulsoup_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/beautifulsoup_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="283">
+              <caret line="35" column="14" lean-forward="true" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
               <folding />
             </state>
           </provider>
@@ -262,63 +286,60 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/python_cookbook_notes/modules/turtle/wuziqi_test.py" root0="FORCE_HIGHLIGHTING" />
-  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/多层装饰器调用_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/python核心编程日记.md" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中动态给类绑定属性_方法.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有不定长参数_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器中的return.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/运行过程中删除类属性, 类方法" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的func_preferences相关.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/类装饰器_demo.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/装饰器带参数_在原有修饰器的基础上_设置外部变量.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类私有化/类私有化" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property升级getter和setter方法.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/属性property/使用property取代getter和setter.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建类_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有属性的类.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类/使用type创建带有方法的类.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/装饰器/被装饰的函数有参数_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/__metaclass__属性" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类2.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/元类的定义" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/小整数对象池/小整数对象池" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/大整数对象池/大整数对象池" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/intern机制/intern机制" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/gc垃圾回收" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/执行环境/notes" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/执行环境/动态生成和执行python代码_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类/自定义元类1.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/垃圾回收/引用计数机制" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/类" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/面向对象/__getattribute__的坑.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/map_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/filter_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/functools/reduce_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/set_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/glob/glob" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/celery/celery" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/redis/redis" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/Pillow(PIL)/Pillow(PIL)" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/xlsxwriter/xlsxwriter" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/xlwt/xlwt" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/xlrd/xlrd" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/SimpleHTTPServer/SimpleHTTPServer" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/pdb_notes" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo5运⾏过程中使⽤pdb修改变量的值.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo4.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib/hashlib_test.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo1.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo2.py" />
-        <option value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo3.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/算法/sorts/merge_sort.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/算法/sorts/heap_sort.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/modules/反汇编/dis/dis_notes" />
+        <option value="$PROJECT_DIR$/my_py_notes/modules/反汇编/dis/dis_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/面向对象/类私有化/类私有化" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/process_multiprocessing.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/孤儿进程.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/僵尸进程.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/notes" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocessing_Process_demo1.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/os.wait_回收资源.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程的创建-Process子类.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/Pool_apply堵塞式_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/异步的定义" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/进程池之异步.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/Queue_note" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/process_communication.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/进程池中的Queue.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/Pool_note" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/进程池_Pool_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/child_process.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/process_pool.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/多进程修改全局变量测试.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/process_multiprocessing.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocess_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocess.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocessing_Process_demo2.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/processDemo.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/终端会出现多少次hello?.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/notes" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程, 线程对比" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/主线程会等待所有的子进程结束后才结束_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/查看线程数量.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/threading注意点/线程执行代码的封装.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/threading注意点/线程的执行顺序.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多进程-共享全局变量/在多线程中修改全局变量_demo.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/列表当做实参传递到线程中_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/notes" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的概念" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁_test.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁的概念" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo1.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo2.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/总结" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的应用/多个线程有序的执行.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/⽤FIFO队列实现上述⽣产者与消费者问题.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/Queue模块相关" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/生产者与消费者模式的说明" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/死锁_demo.py" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/test" />
+        <option value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/避免死锁" />
       </list>
     </option>
   </component>
@@ -328,11 +349,100 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="685" />
-    <option name="y" value="42" />
-    <option name="width" value="721" />
-    <option name="height" value="671" />
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="x" value="622" />
+    <option name="y" value="23" />
+    <option name="width" value="658" />
+    <option name="height" value="661" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>CSS</id>
+          </State>
+          <State>
+            <id>Code quality toolsCSS</id>
+          </State>
+          <State>
+            <id>Code quality toolsJavaScript</id>
+          </State>
+          <State>
+            <id>CoffeeScript</id>
+          </State>
+          <State>
+            <id>Cucumber</id>
+          </State>
+          <State>
+            <id>Django</id>
+          </State>
+          <State>
+            <id>Dockerfile issues</id>
+          </State>
+          <State>
+            <id>File Watchers</id>
+          </State>
+          <State>
+            <id>Flow type checkerJavaScript</id>
+          </State>
+          <State>
+            <id>General</id>
+          </State>
+          <State>
+            <id>GeneralCoffeeScript</id>
+          </State>
+          <State>
+            <id>GeneralJavaScript</id>
+          </State>
+          <State>
+            <id>HTML</id>
+          </State>
+          <State>
+            <id>Ini Files</id>
+          </State>
+          <State>
+            <id>Internationalization issues</id>
+          </State>
+          <State>
+            <id>Invalid elementsCSS</id>
+          </State>
+          <State>
+            <id>JSON</id>
+          </State>
+          <State>
+            <id>JavaScript</id>
+          </State>
+          <State>
+            <id>Puppet</id>
+          </State>
+          <State>
+            <id>Python</id>
+          </State>
+          <State>
+            <id>RELAX NG</id>
+          </State>
+          <State>
+            <id>SQL</id>
+          </State>
+          <State>
+            <id>Sass/SCSS</id>
+          </State>
+          <State>
+            <id>TypeScript</id>
+          </State>
+          <State>
+            <id>XML</id>
+          </State>
+          <State>
+            <id>docker-compose</id>
+          </State>
+        </expanded-state>
+      </profile-state>
+    </entry>
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -352,6 +462,123 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <expand>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="死锁" type="cbb8eebc:String" user="死锁" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="生产者与消费者模式" type="cbb8eebc:String" user="生产者与消费者模式" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="生产者与消费者模式" type="cbb8eebc:String" user="生产者与消费者模式" />
+              <item name="Queue模块" type="cbb8eebc:String" user="Queue模块" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="线程" type="cbb8eebc:String" user="线程" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="线程" type="cbb8eebc:String" user="线程" />
+              <item name="同步" type="cbb8eebc:String" user="同步" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="线程" type="cbb8eebc:String" user="线程" />
+              <item name="同步" type="cbb8eebc:String" user="同步" />
+              <item name="互斥锁" type="cbb8eebc:String" user="互斥锁" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="线程" type="cbb8eebc:String" user="线程" />
+              <item name="多线程-threading" type="cbb8eebc:String" user="多线程-threading" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="线程" type="cbb8eebc:String" user="线程" />
+              <item name="多线程-threading" type="cbb8eebc:String" user="多线程-threading" />
+              <item name="threading注意点" type="cbb8eebc:String" user="threading注意点" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="进程" type="cbb8eebc:String" user="进程" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="进程" type="cbb8eebc:String" user="进程" />
+              <item name="multiprocessing" type="cbb8eebc:String" user="multiprocessing" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="进程" type="cbb8eebc:String" user="进程" />
+              <item name="进程的回收-wait" type="cbb8eebc:String" user="进程的回收-wait" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
+              <item name="my_py_notes" type="cbb8eebc:String" user="my_py_notes" />
+              <item name="进程_线程_and_同步" type="cbb8eebc:String" user="进程_线程_and_同步" />
+              <item name="进程" type="cbb8eebc:String" user="进程" />
+              <item name="进程间通信-Queue" type="cbb8eebc:String" user="进程间通信-Queue" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -387,149 +614,27 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <expand>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="modules" type="cbb8eebc:String" user="modules" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="modules" type="cbb8eebc:String" user="modules" />
-              <item name="SimpleHTTPServer" type="cbb8eebc:String" user="SimpleHTTPServer" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="PythonDoc" type="cbb8eebc:String" user="PythonDoc" />
-              <item name="python_cookbook_notes" type="cbb8eebc:String" user="python_cookbook_notes" />
-              <item name="modules" type="cbb8eebc:String" user="modules" />
-              <item name="图像处理相关" type="cbb8eebc:String" user="图像处理相关" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-              <item name="Library" type="cbb8eebc:String" user="Library" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-              <item name="Library" type="cbb8eebc:String" user="Library" />
-              <item name="Caches" type="cbb8eebc:String" user="Caches" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-              <item name="Library" type="cbb8eebc:String" user="Library" />
-              <item name="Caches" type="cbb8eebc:String" user="Caches" />
-              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-              <item name="Library" type="cbb8eebc:String" user="Library" />
-              <item name="Caches" type="cbb8eebc:String" user="Caches" />
-              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
-              <item name="python_stubs" type="cbb8eebc:String" user="python_stubs" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-              <item name="Library" type="cbb8eebc:String" user="Library" />
-              <item name="Caches" type="cbb8eebc:String" user="Caches" />
-              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
-              <item name="python_stubs" type="cbb8eebc:String" user="python_stubs" />
-              <item name="-1136445070" type="cbb8eebc:String" user="-1136445070" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="External Dependencies" type="cbb8eebc:String" user="External Dependencies" />
-              <item name="/" type="cbb8eebc:String" user="/" />
-              <item name="Users" type="cbb8eebc:String" user="Users" />
-              <item name="afa" type="cbb8eebc:String" user="afa" />
-              <item name="Library" type="cbb8eebc:String" user="Library" />
-              <item name="Caches" type="cbb8eebc:String" user="Caches" />
-              <item name="PyCharm2017.2" type="cbb8eebc:String" user="PyCharm2017.2" />
-              <item name="python_stubs" type="cbb8eebc:String" user="python_stubs" />
-              <item name="-1136445070" type="cbb8eebc:String" user="-1136445070" />
-              <item name="scipy" type="cbb8eebc:String" user="scipy" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/excle_deal_with" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/tools" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/spiders" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/函数式编程" />
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁" />
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading" />
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信" />
+      <recent name="$PROJECT_DIR$/my_py_notes/markdown" />
+      <recent name="$PROJECT_DIR$/my_py_notes/算法/动态程序" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程" />
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
+      <recent name="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信" />
       <recent name="$PROJECT_DIR$/python_cookbook_notes/modules/机器学习库/scikit-learn" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/modules/图像处理相关" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/py_games/飞机大战" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
-      <recent name="$PROJECT_DIR$/python_cookbook_notes/py_games/images" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -544,7 +649,43 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.demo1">
+  <component name="RunManager" selected="Python.⽤FIFO队列实现上述⽣产者与消费者问题">
+    <configuration name="多个线程有序的执行" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的应用" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的应用/多个线程有序的执行.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="⽤FIFO队列实现上述⽣产者与消费者问题" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/⽤FIFO队列实现上述⽣产者与消费者问题.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
       <node-interpreter>project</node-interpreter>
       <node-options />
@@ -711,6 +852,24 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
+    <configuration name="互斥锁_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <configuration name="demo1" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -718,13 +877,13 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo1.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -736,49 +895,13 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="hashlib_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/modules/hashlib/hashlib_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="multiprocess" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -801,24 +924,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="processDemo" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/processDemo.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
     <configuration name="queue_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -837,20 +942,20 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="reduce_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="quick_sort" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/modules/functools" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes/算法/sorts" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/modules/functools/reduce_test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes/算法/sorts/quick_sort.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -869,24 +974,6 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/internet_code/request/request_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="set_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/set_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -945,25 +1032,27 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <list size="11">
-      <item index="0" class="java.lang.String" itemvalue="Python.request_test" />
-      <item index="1" class="java.lang.String" itemvalue="Python.test" />
-      <item index="2" class="java.lang.String" itemvalue="Python.str_format_文本缩进_test" />
-      <item index="3" class="java.lang.String" itemvalue="Python.pandas_test" />
-      <item index="4" class="java.lang.String" itemvalue="Python.turtle_test" />
-      <item index="5" class="java.lang.String" itemvalue="Python.queue_test" />
-      <item index="6" class="java.lang.String" itemvalue="Python.reduce_test" />
-      <item index="7" class="java.lang.String" itemvalue="Python.set_test" />
-      <item index="8" class="java.lang.String" itemvalue="Python.hashlib_test" />
-      <item index="9" class="java.lang.String" itemvalue="Python.demo1" />
-      <item index="10" class="java.lang.String" itemvalue="Python.multiprocess" />
+    <list size="12">
+      <item index="0" class="java.lang.String" itemvalue="Python.quick_sort" />
+      <item index="1" class="java.lang.String" itemvalue="Python.request_test" />
+      <item index="2" class="java.lang.String" itemvalue="Python.test" />
+      <item index="3" class="java.lang.String" itemvalue="Python.str_format_文本缩进_test" />
+      <item index="4" class="java.lang.String" itemvalue="Python.pandas_test" />
+      <item index="5" class="java.lang.String" itemvalue="Python.turtle_test" />
+      <item index="6" class="java.lang.String" itemvalue="Python.queue_test" />
+      <item index="7" class="java.lang.String" itemvalue="Python.互斥锁_test" />
+      <item index="8" class="java.lang.String" itemvalue="Python.demo1" />
+      <item index="9" class="java.lang.String" itemvalue="Python.demo2" />
+      <item index="10" class="java.lang.String" itemvalue="Python.多个线程有序的执行" />
+      <item index="11" class="java.lang.String" itemvalue="Python.⽤FIFO队列实现上述⽣产者与消费者问题" />
     </list>
     <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.demo1" />
-        <item index="1" class="java.lang.String" itemvalue="Python.hashlib_test" />
-        <item index="2" class="java.lang.String" itemvalue="Python.multiprocess" />
-        <item index="3" class="java.lang.String" itemvalue="Python.set_test" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.⽤FIFO队列实现上述⽣产者与消费者问题" />
+        <item index="1" class="java.lang.String" itemvalue="Python.多个线程有序的执行" />
+        <item index="2" class="java.lang.String" itemvalue="Python.demo2" />
+        <item index="3" class="java.lang.String" itemvalue="Python.demo1" />
+        <item index="4" class="java.lang.String" itemvalue="Python.互斥锁_test" />
       </list>
     </recent_temporary>
   </component>
@@ -981,29 +1070,29 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_in_test_py - 2017.07.22 at 19h 28m 07s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctest_quick_sort - 2017.08.08 at 15h 20m 27s.xml">
+      <configuration name="Doctest quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.22 at 19h 28m 16s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 19m 36s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.22 at 19h 31m 20s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 20m 19s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.22 at 19h 35m 45s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 20m 53s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.25 at 18h 23m 43s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 23m 57s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.25 at 18h 23m 57s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 24m 43s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.25 at 18h 27m 26s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 25m 06s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_py - 2017.07.25 at 18h 59m 26s.xml">
-      <configuration name="Unittests in test.py" configurationId="tests" />
+    <history-entry file="Doctests_in_quick_sort - 2017.08.08 at 15h 25m 49s.xml">
+      <configuration name="Doctests in quick_sort" configurationId="tests" />
     </history-entry>
     <history-entry file="Unittests_in_函数修饰符_test_py - 2017.07.23 at 14h 13m 54s.xml">
       <configuration name="Unittests in 函数修饰符_test.py" configurationId="tests" />
@@ -1013,18 +1102,19 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="685" y="42" width="721" height="671" extended-state="1" />
+    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32871014" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23372287" sideWeight="0.5048544" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22203673" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.221875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39929327" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1033,30 +1123,8 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23372287" sideWeight="0.5048544" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22203673" sideWeight="0.49514562" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32871014" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39929327" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -1092,82 +1160,74 @@
           <option name="timeStamp" value="16" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="17" />
+      <option name="time" value="20" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/filter_test.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/异步的定义">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="26" lean-forward="false" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+        <state relative-caret-position="30">
+          <caret line="2" column="1" lean-forward="false" selection-start-line="2" selection-start-column="1" selection-end-line="2" selection-end-column="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/__getattribute__的坑.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/multiprocess_queue.py" />
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/进程池中的Queue.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="148">
+          <caret line="24" column="19" lean-forward="false" selection-start-line="24" selection-start-column="19" selection-end-line="24" selection-end-column="19" />
+          <folding>
+            <element signature="e#380#421#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/Pool_note">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="20" lean-forward="false" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/进程池之异步.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-232">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#132#164#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/multiprocessing/pool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-404">
+          <caret line="618" column="8" lean-forward="false" selection-start-line="618" selection-start-column="8" selection-end-line="618" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/notes">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="23" lean-forward="true" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/Pool_apply堵塞式_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
-          <caret line="9" column="21" lean-forward="false" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+          <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="32" />
+          <folding>
+            <element signature="e#144#176#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__/set_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="35" column="21" lean-forward="false" selection-start-line="35" selection-start-column="21" selection-end-line="35" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/schedule/schedule_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/datetime.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/时间与财务计算/time.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/glob/glob">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="9" lean-forward="true" selection-start-line="0" selection-start-column="9" selection-end-line="0" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/internet_code/request/request_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2491">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/internet_code/urlparse/urlparse_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/internet_code/html_deal_with/html.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/internet_code/html_deal_with/replace_html_test.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/process_pool.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1175,298 +1235,374 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/.idea/misc.xml">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/进程池/进程池_Pool_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
+        <state relative-caret-position="-252">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#139#171#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/.idea/python网络数据采集.iml">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/多进程修改全局变量测试.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="195">
+          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding>
+            <element signature="e#137#146#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/文档读取/用Beautiful和python3对文档进行utf-8编码.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/process_multiprocessing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/os.wait_回收资源.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="30" column="56" lean-forward="true" selection-start-line="30" selection-start-column="56" selection-end-line="30" selection-end-column="56" />
+          <folding>
+            <element signature="e#216#225#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/僵尸进程.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#199#208#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程的回收-wait/孤儿进程.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/Queue_note">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/queue_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-159">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/child_process.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue/process_communication.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="388">
+          <caret line="33" column="18" lean-forward="false" selection-start-line="33" selection-start-column="17" selection-end-line="33" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/python_stubs/-1136445070/posix.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="323" column="25" lean-forward="true" selection-start-line="323" selection-start-column="25" selection-end-line="323" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/processDemo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
-          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <caret line="7" column="40" lean-forward="false" selection-start-line="7" selection-start-column="40" selection-end-line="7" selection-end-column="40" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/使用api/解析json/json_test.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocessing_Process_demo2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="11" lean-forward="false" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+        <state relative-caret-position="489">
+          <caret line="53" column="3" lean-forward="true" selection-start-line="53" selection-start-column="3" selection-end-line="53" selection-end-column="3" />
+          <folding>
+            <element signature="e#155#190#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/celery/celery">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="9" lean-forward="false" selection-start-line="0" selection-start-column="9" selection-end-line="0" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/redis/redis">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="2" lean-forward="false" selection-start-line="0" selection-start-column="2" selection-end-line="0" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/图像处理相关/Pillow(PIL)/Pillow(PIL)">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="4" lean-forward="false" selection-start-line="0" selection-start-column="4" selection-end-line="0" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/xlsxwriter/xlsxwriter" />
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/xlwt/xlwt" />
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/xlrd/xlrd" />
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/data_deal_with/excle_deal_with/xlrd/xlrd">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocessing_Process_demo1.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/db_and_数据持久化/mysql/Untitled.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/db_and_数据持久化/mysql/.ipynb_checkpoints/mysql_test_jupyter-checkpoint.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/data_deal_with/xml_deal_with/xml2dict_test.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/终端会出现多少次hello?.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="14" column="14" lean-forward="false" selection-start-line="14" selection-start-column="14" selection-end-line="14" selection-end-column="14" />
+        <state relative-caret-position="210">
+          <caret line="14" column="14" lean-forward="true" selection-start-line="14" selection-start-column="14" selection-end-line="14" selection-end-column="14" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/db_and_数据持久化/mysql/mysql_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="8" lean-forward="false" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/db_and_数据持久化/mysql/py_mySQL.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocess_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo5运⾏过程中使⽤pdb修改变量的值.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing/multiprocess_queue.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="2" lean-forward="false" selection-start-line="28" selection-start-column="2" selection-end-line="28" selection-end-column="2" />
+        <state relative-caret-position="478">
+          <caret line="42" column="0" lean-forward="true" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/system_manage/system">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/notes">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="16" lean-forward="true" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
+        <state relative-caret-position="30">
+          <caret line="2" column="5" lean-forward="false" selection-start-line="2" selection-start-column="5" selection-end-line="2" selection-end-column="5" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/文件/与目录共事/批量修改文件名称.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程, 线程对比">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="240">
+          <caret line="16" column="4" lean-forward="false" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/文件/与目录共事/file.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/主线程会等待所有的子进程结束后才结束_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="35" column="30" lean-forward="true" selection-start-line="35" selection-start-column="30" selection-end-line="35" selection-end-column="30" />
+        <state relative-caret-position="508">
+          <caret line="42" column="33" lean-forward="false" selection-start-line="42" selection-start-column="33" selection-end-line="42" selection-end-column="33" />
+          <folding>
+            <element signature="e#171#187#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/processDemo.py">
+    <entry file="file:///usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/threading.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+        <state relative-caret-position="201">
+          <caret line="1260" column="59" lean-forward="true" selection-start-line="1260" selection-start-column="7" selection-end-line="1260" selection-end-column="59" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/使用api/ip_2_where_from.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/查看线程数量.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="50" column="12" lean-forward="false" selection-start-line="50" selection-start-column="12" selection-end-line="50" selection-end-column="12" />
+          <folding>
+            <element signature="e#132#148#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/threading注意点/线程执行代码的封装.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="34" column="4" lean-forward="false" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="4" />
+          <folding>
+            <element signature="e#263#279#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/threading注意点/线程的执行顺序.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="54" column="10" lean-forward="false" selection-start-line="54" selection-start-column="10" selection-end-line="54" selection-end-column="10" />
+          <folding>
+            <element signature="e#245#261#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/线程运行过程.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多进程-共享全局变量/在多线程中修改全局变量_demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="448">
+          <caret line="39" column="25" lean-forward="false" selection-start-line="39" selection-start-column="25" selection-end-line="39" selection-end-column="25" />
+          <folding>
+            <element signature="e#142#170#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/列表当做实参传递到线程中_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="32" lean-forward="false" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
+          <folding>
+            <element signature="e#143#171#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/notes">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="3" lean-forward="false" selection-start-line="10" selection-start-column="3" selection-end-line="10" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的概念">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="11" lean-forward="false" selection-start-line="16" selection-start-column="11" selection-end-line="16" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁的概念">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="530">
+          <caret line="38" column="8" lean-forward="false" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="27" column="24" lean-forward="false" selection-start-line="27" selection-start-column="24" selection-end-line="27" selection-end-column="24" />
+          <folding>
+            <element signature="e#131#147#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/demo2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
-          <caret line="23" column="29" lean-forward="false" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
-          <folding />
+          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="e#131#147#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/hashlib/hashlib_test.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/多线程-threading/多线程-非共享数据/总结">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="31" lean-forward="false" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
+        <state relative-caret-position="15">
+          <caret line="1" column="7" lean-forward="false" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="8" lean-forward="false" selection-start-line="22" selection-start-column="8" selection-end-line="22" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1500">
-          <caret line="100" column="8" lean-forward="false" selection-start-line="100" selection-start-column="8" selection-end-line="100" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/print大法好/demo4.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="28" lean-forward="false" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/调试/pdb/pdb_notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="35" lean-forward="false" selection-start-line="17" selection-start-column="35" selection-end-line="17" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/面向对象/类">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="41" lean-forward="false" selection-start-line="11" selection-start-column="41" selection-end-line="11" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/SimpleHTTPServer/SimpleHTTPServer">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/同步的应用/多个线程有序的执行.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
-          <caret line="9" column="19" lean-forward="false" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/shutil/shutil">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="7" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/child_process.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/multiprocess.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="9" column="34" lean-forward="false" selection-start-line="9" selection-start-column="34" selection-end-line="9" selection-end-column="34" />
           <folding>
-            <element signature="e#19#61#0" expanded="true" />
+            <element signature="e#171#204#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/process_communication.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/Queue模块相关">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#36#78#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/queue_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#66#89#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步/threading_lock.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#19#30#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/beautifulsoup_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="135">
+          <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/scrapetest.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/Queue模块/⽤FIFO队列实现上述⽣产者与消费者问题.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/_create_crawl/可靠的网络连接.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_cookbook_notes/modules/pickle/pickle_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="14" lean-forward="true" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
+        <state relative-caret-position="433">
+          <caret line="48" column="19" lean-forward="false" selection-start-line="48" selection-start-column="19" selection-end-line="48" selection-end-column="19" />
           <folding>
-            <marker date="1501666388000" expanded="true" signature="2309:2340" ph="SELECT * FRO... memos" />
-            <marker date="1501666388000" expanded="true" signature="2900:2954" ph="CREATE TABLE... memos" />
-            <marker date="1501666388000" expanded="true" signature="3120:3153" ph="INSERT INTO memos... " />
-            <marker date="1501666388000" expanded="true" signature="3225:3244" ph="SELECT * FRO... memos" />
-            <marker date="1501666388000" expanded="true" signature="3537:3586" ph="UPDATE memos... " />
+            <element signature="e#146#162#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/生产者与消费者模式/生产者与消费者模式的说明">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="34" lean-forward="false" selection-start-line="7" selection-start-column="34" selection-end-line="7" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/死锁_demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="403">
+          <caret line="32" column="41" lean-forward="false" selection-start-line="32" selection-start-column="41" selection-end-line="32" selection-end-column="41" />
+          <folding>
+            <element signature="e#220#236#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/避免死锁">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="21" lean-forward="true" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/markdown/markdown-basic.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="265">
+            <caret line="31" column="18" lean-forward="false" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/死锁/避免死锁">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="150">
+            <caret line="10" column="28" lean-forward="true" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/线程/同步/互斥锁/互斥锁_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="283">
+          <caret line="35" column="14" lean-forward="true" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
+          <folding />
         </state>
       </provider>
     </entry>

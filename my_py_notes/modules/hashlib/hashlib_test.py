@@ -44,6 +44,7 @@ m.update(str.encode())
 value = m.hexdigest()
 print(value)
 
+# 切记: update(bytes1)这个方法会在原有的bytes基础上加上bytes1再进行加密
 
 '''
 python3下测试结果:

@@ -99,7 +99,7 @@ class Dialog(QtGui.QDialog):
 
         while not self.tcpServer.isListening() and not self.tcpServer.listen():
             ret = QtGui.QMessageBox.critical(self, "Loopback",
-                    "Unable to start the test: %s." % self.tcpServer.errorString(),
+                    "Unable to start the 避免死锁: %s." % self.tcpServer.errorString(),
                     QtGui.QMessageBox.Retry | QtGui.QMessageBox.Cancel)
             if ret == QtGui.QMessageBox.Cancel:
                 return

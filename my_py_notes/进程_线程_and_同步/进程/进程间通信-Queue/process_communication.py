@@ -32,3 +32,18 @@ if __name__=='__main__':
     pw.join()
     # pr进程里是死循环，无法等待其结束，只能强行终止:
     pr.terminate()
+    print('所有数据都以写入并且读完')
+
+
+'''
+测试结果:
+Process to write: 6249
+Put A to queue...
+Process to read: 6250
+Get A from queue.
+Put B to queue...
+Get B from queue.
+Put C to queue...
+Get C from queue.
+所有数据都以写入并且读完
+'''

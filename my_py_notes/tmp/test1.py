@@ -15,11 +15,15 @@
 # def a():
 #     print('*' * 20)
 
-import sys
-sys.path.append('.')
+# import sys
+# sys.path.append('.')
+#
+# from imp import *
+# import test2
+# test2.a()
+# # reload(test2)
+# test2.a()
 
-from imp import *
-import test2
-test2.a()
-# reload(test2)
-test2.a()
+a = 10000000
+b = 10000000
+print(a is b)

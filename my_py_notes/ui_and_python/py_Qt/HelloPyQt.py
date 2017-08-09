@@ -9,7 +9,7 @@ class HelloPyQt(QtGui.QWidget):
         super(HelloPyQt, self).__init__(parent)
         self.setWindowTitle("py_Qt Test")
       
-        self.textHello = QtGui.QTextEdit("This is a test program written in python with py_Qt lib!")
+        self.textHello = QtGui.QTextEdit("This is a 避免死锁 program written in python with py_Qt lib!")
         self.btnPress = QtGui.QPushButton("Press me!")
       
         layout = QtGui.QVBoxLayout()

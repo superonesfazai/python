@@ -7,12 +7,12 @@
 #通常的用法
 #1.
 def test1():
-    with open('test.txt', "r") as f:
+    with open('避免死锁.txt', "r") as f:
         print (f.read())
     f.close()
 #2.
 def test2():    
-    f = open("test.txt", "r")    
+    f = open("避免死锁.txt", "r")
     for line in f.readlines(): 
         line = line.strip('\n')  #python按行读取文件，如何去掉换行符"\n"
         print (line)    
@@ -34,7 +34,7 @@ def read_in_block(file_path):
                 return  # 如果读取到文件末尾，则退出
 
 def test3():    
-    file_path = "test.txt"    
+    file_path = "避免死锁.txt"
     for block in read_in_block(file_path):        
         print (block)
 
@@ -42,7 +42,7 @@ def test3():
 #利用open("", "")系统自带方法生成迭代对象
 #for line in f这种用法是把文件对象f当作迭代对象,系统将自动处理IO缓冲和内存管理, 这种方法是更加pythonic的方法,比较简洁
 def test4():
-    with open('test.txt') as f:
+    with open('避免死锁.txt') as f:
         for line in f:
             line = line.strip('\n')
             print (line)

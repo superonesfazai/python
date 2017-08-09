@@ -5,3 +5,17 @@
 * x_: 单后置下划线, 往往用于避免与python关键字冲突
 
 通过name manging(名字重整(目的就是以防子类意外重写基类的方法或者属性)eg._Class__object) 机制就可以访问private了
+
+eg.
+
+In [24]: class A():
+    ...:     def __init__(self):
+    ...:         self.__a = 1
+    ...:     def __ss(self):
+    ...:         print('cccc')
+
+In [27]: a._A__ss()
+cccc
+
+In [29]: a._A__a
+Out[29]: 1

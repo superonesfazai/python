@@ -3,8 +3,8 @@
 
 import os
 
-print(os.path.join(r'~/myFile/', 'test.txt'))
-print(os.path.join(r'~/myFile', 'test.txt'))
+print(os.path.join(r'~/myFile/', '避免死锁.txt'))
+print(os.path.join(r'~/myFile', '避免死锁.txt'))
 
 # expander将对使用~来表示当前用户根目录进行扩展
 # 在任何平台上,只要用户拥有一个根目录,它就会有效,像 Windows、UNIX 和Mac OS X,
