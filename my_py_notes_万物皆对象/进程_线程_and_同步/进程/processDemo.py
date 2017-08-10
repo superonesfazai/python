@@ -16,7 +16,7 @@ else:           # 父进程则os.fork()返回子进程的pid
     print('I (%s) just created a child process (%s).' % (os.getpid(), pid))
 
 # fork()创建出来的子进程和父进程谁先运行?
-# 答: 父进程先运行, 因为是由init进程来先创建了父进程
+# 答: 父进程、子进程执行顺序没有规律，完全取决于操作系统的调度算法
 
 '''
 普通的函数调⽤, 调⽤⼀次, 返回⼀次 
