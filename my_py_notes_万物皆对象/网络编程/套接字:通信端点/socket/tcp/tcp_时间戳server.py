@@ -6,6 +6,10 @@ __author__ = 'super_fazai'
 from socket import *
 from time import ctime
 
+'''
+TCP用三次握手过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性
+'''
+
 # # *服务器设置的伪代码
 # ss = socket()       # 创建服务器的套接字
 # ss.bind()           # 把地址绑定在套接字上

@@ -14,7 +14,6 @@ from sys import exit
 pygame.init()
 screen = pygame.display.set_mode((640, 480), 0, 32)
 background = pygame.image.load('./shell.jpg')
-pygame.
 
 Fullscreen = False
 
