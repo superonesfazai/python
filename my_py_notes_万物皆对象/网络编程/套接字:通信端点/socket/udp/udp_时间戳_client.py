@@ -27,7 +27,7 @@ try:
         data, addr = udp_cli_sock.recvfrom(buf_size)
         if not data:
             break
-        print(data)
+        print(data.decode('utf-8'))
         udp_cli_sock.close()
 except EOFError as e:
     print('EOFError')

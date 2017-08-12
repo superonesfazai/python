@@ -14,7 +14,10 @@ while True:
     # recvfrom与recv方法类似，不同的是可以将发送数据的客户端的地址也返回
     # 接收一个数据
     data, address = s.recvfrom(1024)
-    print('Received:', data, 'from', address)
+    print('Received:', data.decode('utf-8'), 'from', address)
+    if data.decode('utf-8') == 'quit':
+        s.close()
+        break
 
 '''
 测试

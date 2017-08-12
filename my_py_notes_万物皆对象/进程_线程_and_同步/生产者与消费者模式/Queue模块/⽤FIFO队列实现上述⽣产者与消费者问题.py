@@ -15,6 +15,8 @@ import time
 # python3中
 from queue import Queue
 
+## 通过队列来实现低耦合, 高内聚
+
 class Producer(threading.Thread):
     def run(self):
         global queue

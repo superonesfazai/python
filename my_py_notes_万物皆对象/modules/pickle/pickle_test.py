@@ -19,7 +19,7 @@ tmp = b"cos\nsystem\n(S'echo hello world'\ntR."
 print(pickle.loads(tmp))
 
 print('-' * 30)
-# import copyreg
+# import copyregs
 # import io
 #
 # class MyPickler(pickle.Pickler):

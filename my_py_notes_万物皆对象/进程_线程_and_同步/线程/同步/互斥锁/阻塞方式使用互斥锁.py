@@ -16,7 +16,7 @@ def test1():
     for i in range(1000000):
         # 1. True表示堵塞 即如果这个锁在上锁之前已经被上锁了, 那么这个线程会在这⾥⼀直等待到解锁为⽌
         # 2. False表示⾮堵塞, 即不管本次调⽤能够成功上锁, 都不会卡在这, ⽽是继续执⾏下⾯的代码
-        mutexFlag = mutex.acquire(True)
+        mutexFlag = mutex.acquire(blocking=True)     # 默认blocking为Ture, 即阻塞状态, 改为False为非阻塞状态
         if mutexFlag:
             g_num += 1
             mutex.release()     # 释放锁, 表示将锁设置为未上锁状态

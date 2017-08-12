@@ -15,6 +15,7 @@ def get_links(article_url):
     bs_obj = BeautifulSoup(html)
     return bs_obj.find("div", {"id":"bodyContent"}).findAll("a",
                     href=re.compile("^(/wiki/)((?!:).)*$"))
+
 def get_history_ips(page_url):
     # 编辑历史页面URL链接格式是:
     # http://en.wikipedia.org/w/index.php?title=Title_in_URL&action=history
