@@ -1,43 +1,66 @@
-## 应用层（application layer）
+### 应用层（application layer）
 
 OSI Layer 7
-
-DHCP（v6） DNS FTP Gopher HTTP（SPDY、HTTP/2） IMAP4 IRC NNTP XMPP POP3 SIP SMTP SNMP SSH TELNET RPC RTCP RTP RTSP SDP SOAP GTP STUN NTP SSDP
-
-## 表示层（presentation layer）
+```
+DHCP(v6) 
+DNS 
+FTP                         文件传送协议              
+Gopher HTTP(SPDY,HTTP/2) 
+IMAP4 
+IRC                         互联网接力聊天室
+NNTP 
+XMPP 
+POP3 
+SIP 
+SMTP 
+SNMP 
+SSH                         远程登陆协议
+TELNET                      远程登录协议
+RPC 
+RTCP 
+RTP 
+RTSP 
+SDP 
+SOAP 
+GTP 
+STUN 
+NTP 
+SSDP
+```
+### 表示层（presentation layer）
 
 OSI Layer 6
 
 该层被弃用。应用层的HTTP、FTP、Telnet等协议有类似的功能。传输层的TLS/SSL也有类似功能。
 
-## 会话层（session layer）
+### 会话层（session layer）
 
 OSI Layer 5
 
 该层被弃用。应用层的HTTP、RPC、SDP、RTCP等协议有类似的功能。
 
-## 传输层（transport layer）
+### 传输层（transport layer）
 
 OSI Layer 4
 
 TCP（T/TCP · Fast Open） UDP DCCP SCTP RSVP PPTP TLS/SSL
 
-## 网络层（network layer）
+### 网络层（network layer）
 
 OSI Layer 3
 
 IP（v4·v6） ICMP（v6） IGMP IS-IS IPsec BGP RIP OSPF RARP
 
-## 数据链路层（data link layer）
+### 数据链路层（data link layer）
 
 OSI Layer 2
 
 Wi-Fi（IEEE 802.11） ARP WiMAX（IEEE 802.16） ATM DTM 令牌环 以太网 FDDI 帧中继 GPRS EV-DO HSPA HDLC PPP PPPoE L2TP ISDN SPB STP
 
-## 物理层（physical layer）
+### 物理层（physical layer）
 
 OSI Layer 1
 
 以太网 调制解调器 电力线通信 同步光网络 G.709 光导纤维 同轴电缆 双绞线
 
-![](TCP与IP协议族中各协议之间的关系.jpg)
+![](images/TCP与IP协议族中各协议之间的关系.jpg)
