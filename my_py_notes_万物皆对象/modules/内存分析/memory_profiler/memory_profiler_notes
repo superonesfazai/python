@@ -1,0 +1,49 @@
+memory_profiler是一个Python模块,
+可以监视一个进程的内存消耗,
+甚至可以一行一行的分析Python程序的内存消耗.
+它纯粹是由Python实现, 用户可选psutil模块（强烈推荐）作为依赖
+
+示例
+
+用@profile修饰你需要监视的函数，这里my_func函数分配列表a和b，然后删除b
+
+@profile
+def my_func():
+    a = [1] * (10 ** 6)
+    b = [2] * (2 * 10 ** 7)
+    del b
+    return a
+
+if __name__ == '__main__':
+    my_func()
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+运行脚本时需传入-m memory_profiler参数
+
+$ python -m memory_profiler example.py
+以上命令输出如下
+
+Line # Mem usage Increment Line Contents
+==============================================
+3 @profile
+4 5.97 MB 0.00 MB def my_func():
+5 13.61 MB 7.64 MB a = [1] * (10 ** 6)
+6 166.20 MB 152.59 MB b = [2] * (2 * 10 ** 7)
+7 13.61 MB -152.59 MB del b
+8 13.61 MB 0.00 MB return a
+
+FAQ
+
+Q：结果有多准确？
+A：这个模块通过向操作系统内核查询当前进程所分配内存大小来获得内存消耗，可能与Python解释器实际使用的内存大小稍有区别。而且由于Python的垃圾回收器的影响，结果可能会在不同平台甚至不同运行之间有差别。
+Q：在Windows下可用吗？
+A：是的，但是你需要psutil模块
+github主页：https://github.com/fabianp/memory_profiler
