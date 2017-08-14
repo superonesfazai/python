@@ -1,1 +1,0 @@
-../../../toys/clocks/content/QuitButton.qml
