@@ -18,20 +18,23 @@ from time import ctime
 # ss.close()          # 关闭服务器套接字
 
 host = ''
-port = 21567
+port = 8082
 buf_size = 1024
-addr = (host, port)
+ser_addr = (host, port)
 
-udp_ser_sock = socket(AF_INET, SOCK_DGRAM)
-udp_ser_sock.bind(addr)
+udp_ser_sock = socket(AF_INET, SOCK_DGRAM)  # AF_INET 用于internet进程间通讯, AF_UNIX 用于本机进程间通讯
+                                            # socket.SOCK_DGRAM 指明传输层协议使用udp
+udp_ser_sock.bind(ser_addr)
 
 try:
     while True:
         print('waiting for message...')
-        data, addr = udp_ser_sock.recvfrom(buf_size)
-        udp_ser_sock.sendto('[%s] %s' %
-                                (ctime(), data), addr)
-        print('...received from and returned to:', addr)
+        client_data, client_addr = udp_ser_sock.recvfrom(buf_size)    # recvfrom默认阻塞, 会等待直到客户端传输数据
+                                                            # recv()方法只有一个返回值, 那就是接收到的数据, 但是没有地址
+        # 通过decode()方法把bytes转换为str类型, 因为传输用的数据类型都是bytes
+        print('...received from and returned to:', client_addr, 'info:', client_data.decode())
+        # 切记sendto(要发送数据的bytes类型, 目标的ip和端口(一个元组))
+        udp_ser_sock.sendto(('[%s] %s' % (ctime(), client_data.decode())).encode(), client_addr)
 except EOFError as e:
     print('EOFError')
 except KeyError as ek:

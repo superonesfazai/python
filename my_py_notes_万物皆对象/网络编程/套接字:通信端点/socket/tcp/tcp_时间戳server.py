@@ -40,8 +40,8 @@ try:
             data = tcp_cli_sock.recv(buf_size)
             if not data:
                 break
-            tcp_cli_sock.send('[%s] %s' % (ctime(), data))
-            tcp_cli_sock.close()
+            tcp_cli_sock.send(('[%s] %s' % (ctime(), data)).encode())
+            # tcp_cli_sock.close()
 except EOFError as e:
     print('EOFError')
 except KeyError as ek:

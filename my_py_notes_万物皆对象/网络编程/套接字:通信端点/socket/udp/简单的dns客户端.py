@@ -12,6 +12,7 @@ import socket
 client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_addr = ('127.0.0.1', 8053)
 domain = input("请输入要查询的域名：")
+
 while domain:
     # 向服务端发送要查询的域名
     client_sock.sendto(domain.encode("utf-8"), server_addr)

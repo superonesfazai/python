@@ -2,7 +2,7 @@
 
 import socket
 
-port = 8081
+port = 2425
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    # 1. 创建套接字
 # 从指定的端口，从任何发送者，接收UDP数据
 s.bind(('', port))

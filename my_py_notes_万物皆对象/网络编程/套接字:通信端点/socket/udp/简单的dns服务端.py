@@ -27,6 +27,7 @@ while True:
     domain = receive_data.decode("utf-8")
     print(client_addr, ": ", domain)
     # 从字典中获取对应域名的ip地址
+    # get()的第二个参数表示如果键值不存在, 则返回第二个参数
     ip = domain_ip.get(domain, "i do not know")
     # 将ip地址返回给客户端
     server_sock.sendto(ip.encode("utf-8"), client_addr)

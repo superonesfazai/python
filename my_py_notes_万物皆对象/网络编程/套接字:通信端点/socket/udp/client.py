@@ -3,9 +3,9 @@
 import socket
 
 port = 8081
-host = 'localhost'
+host = '127.0.0.1'
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.sendto(b'hello,this is a 避免死锁 info !', (host, port))
+s.sendto('hello,this is a 避免死锁 info !'.encode(), (host, port))
 
 '''
 测试

@@ -12,7 +12,7 @@ from socket import *
 #     cs.send()/cs.recv()     # 对话(发送与接收)
 # cs.close()          # 关闭客户端套接字
 
-host = ' localhost '
+host = '127.0.0.1'
 port = 21567
 buf_size = 1024
 addr = (host, port)
@@ -25,11 +25,11 @@ try:
         data = input('> ')
         if not data:
             break
-        tcp_cli_sock.send(data)
+        tcp_cli_sock.send(data.encode())
         data = tcp_cli_sock.recv(buf_size)
         if not data:
             break
-        print(data)
+        print(data.decode())
 except EOFError as e:
     print('EOFError')
 except KeyError as ek:
