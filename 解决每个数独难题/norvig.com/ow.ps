@@ -1,0 +1,2762 @@
+%!
+%%BoundingBox: (atend)
+%%Pages: (atend)
+%%DocumentFonts: (atend)
+%%EndComments
+%%BeginProlog
+%
+% FrameMaker postscript_prolog 3.0, for use with FrameMaker 3.0
+% This postscript_prolog file is Copyright (c) 1986-1991 Frame Technology
+% Corporation.  All rights reserved.  This postscript_prolog file may be
+% freely copied and distributed in conjunction with documents created using
+% FrameMaker.
+% NOTE
+% This file fixes the problem with NeWS printers dithering color output.
+% Any questions should be sent to mickey@magickingdom.eng.sun.com
+%
+% Known Problems:
+%	Due to bugs in Transcript, the 'PS-Adobe-' is omitted from line 1
+/FMversion (3.0) def 
+% Set up Color vs. Black-and-White
+
+/FMPrintInColor { % once-thru loop gimmick
+    % See if we're a NeWSprint printer
+     /currentcanvas where {
+        pop systemdict /separationdict known
+	exit
+     } if
+% originally had the following, which should always be false:
+%    /currentcanvas where {
+%        pop currentcanvas /Color known {
+%	    currentcanvas /Color get
+%	    exit
+%        } if
+%    } if
+    systemdict /colorimage known
+    systemdict /currentcolortransfer known and
+exit } loop def
+
+% Uncomment the following line to force b&w on color printer
+%   /FMPrintInColor false def
+/FrameDict 195 dict def 
+systemdict /errordict known not {/errordict 10 dict def
+		errordict /rangecheck {stop} put} if
+% The readline in 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put 
+errordict /rangecheck {FrameDict /bug true put} put 
+FrameDict /bug false put 
+mark 
+% Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark 
+errordict /rangecheck FrameDict /tmprangecheck get put 
+FrameDict /bug get { 
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop 
+			dup 10 eq {exit} if 
+			dup 13 eq {exit} if 
+			gstring exch gindex exch put 
+			/gindex gindex 1 add def 
+		} loop
+		pop 
+		gstring 0 gindex getinterval true 
+		} def
+	} if
+/FMVERSION {
+	FMversion ne {
+		/Times-Roman findfont 18 scalefont setfont
+		100 100 moveto
+		(FrameMaker version does not match postscript_prolog!)
+		dup =
+		show showpage
+		} if
+	} def 
+/FMLOCAL {
+	FrameDict begin
+	0 def 
+	end 
+	} def 
+	/gstring FMLOCAL
+	/gfile FMLOCAL
+	/gindex FMLOCAL
+	/orgxfer FMLOCAL
+	/orgproc FMLOCAL
+	/organgle FMLOCAL
+	/orgfreq FMLOCAL
+	/yscale FMLOCAL
+	/xscale FMLOCAL
+	/manualfeed FMLOCAL
+	/paperheight FMLOCAL
+	/paperwidth FMLOCAL
+/FMDOCUMENT { 
+	array /FMfonts exch def 
+	/#copies exch def
+	FrameDict begin
+	0 ne dup {setmanualfeed} if
+	/manualfeed exch def
+	/paperheight exch def
+	/paperwidth exch def
+	/yscale exch def
+	/xscale exch def
+	currenttransfer cvlit /orgxfer exch def
+	currentscreen cvlit /orgproc exch def
+	/organgle exch def /orgfreq exch def
+	setpapername 
+	manualfeed {true} {papersize} ifelse 
+	{manualpapersize} {false} ifelse 
+	{desperatepapersize} if
+	end 
+	} def 
+	/pagesave FMLOCAL
+	/orgmatrix FMLOCAL
+	/landscape FMLOCAL
+/FMBEGINPAGE { 
+	FrameDict begin 
+	/pagesave save def
+	3.86 setmiterlimit
+	/landscape exch 0 ne def
+	landscape { 
+		90 rotate 0 exch neg translate pop 
+		}
+		{pop pop}
+		ifelse
+	xscale yscale scale
+	/orgmatrix matrix def
+	gsave 
+	} def 
+/FMENDPAGE {
+	grestore 
+	pagesave restore
+	end 
+	showpage
+	} def 
+/FMFONTDEFINE { 
+	FrameDict begin
+	findfont 
+	ReEncode 
+	1 index exch 
+	definefont 
+	FMfonts 3 1 roll 
+	put
+	end 
+	} def 
+/FMFILLS {
+	FrameDict begin
+	array /fillvals exch def
+	end 
+	} def 
+/FMFILL {
+	FrameDict begin
+	 fillvals 3 1 roll put
+	end 
+	} def 
+/FMNORMALIZEGRAPHICS { 
+	newpath
+	0.0 0.0 moveto
+	1 setlinewidth
+	0 setlinecap
+	0 0 0 sethsbcolor
+	0 setgray 
+	} bind def
+	/fx FMLOCAL
+	/fy FMLOCAL
+	/fh FMLOCAL
+	/fw FMLOCAL
+	/llx FMLOCAL
+	/lly FMLOCAL
+	/urx FMLOCAL
+	/ury FMLOCAL
+/FMBEGINEPSF { 
+	end 
+	/FMEPSF save def 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall 
+	fx fy translate 
+	rotate
+	fw urx llx sub div fh ury lly sub div scale 
+	llx neg lly neg translate 
+	} bind def
+/FMENDEPSF {
+	FMEPSF restore
+	FrameDict begin 
+	} bind def
+FrameDict begin 
+/setmanualfeed {
+%%BeginFeature *ManualFeed True
+	 statusdict /manualfeed true put
+%%EndFeature
+	} def
+/max {2 copy lt {exch} if pop} bind def
+/min {2 copy gt {exch} if pop} bind def
+/inch {72 mul} def
+/pagedimen { 
+	paperheight sub abs 16 lt exch 
+	paperwidth sub abs 16 lt and
+	{/papername exch def} {pop} ifelse
+	} def
+	/papersizedict FMLOCAL
+/setpapername { 
+	/papersizedict 14 dict def 
+	papersizedict begin
+	/papername /unknown def 
+		/Letter 8.5 inch 11.0 inch pagedimen
+		/LetterSmall 7.68 inch 10.16 inch pagedimen
+		/Tabloid 11.0 inch 17.0 inch pagedimen
+		/Ledger 17.0 inch 11.0 inch pagedimen
+		/Legal 8.5 inch 14.0 inch pagedimen
+		/Statement 5.5 inch 8.5 inch pagedimen
+		/Executive 7.5 inch 10.0 inch pagedimen
+		/A3 11.69 inch 16.5 inch pagedimen
+		/A4 8.26 inch 11.69 inch pagedimen
+		/A4Small 7.47 inch 10.85 inch pagedimen
+		/B4 10.125 inch 14.33 inch pagedimen
+		/B5 7.16 inch 10.125 inch pagedimen
+	end
+	} def
+/papersize {
+	papersizedict begin
+		/Letter {lettertray letter} def
+		/LetterSmall {lettertray lettersmall} def
+		/Tabloid {11x17tray 11x17} def
+		/Ledger {ledgertray ledger} def
+		/Legal {legaltray legal} def
+		/Statement {statementtray statement} def
+		/Executive {executivetray executive} def
+		/A3 {a3tray a3} def
+		/A4 {a4tray a4} def
+		/A4Small {a4tray a4small} def
+		/B4 {b4tray b4} def
+		/B5 {b5tray b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	/FMdicttop countdictstack 1 add def 
+	statusdict begin stopped end 
+	countdictstack -1 FMdicttop {pop end} for 
+	} def
+/manualpapersize {
+	papersizedict begin
+		/Letter {letter} def
+		/LetterSmall {lettersmall} def
+		/Tabloid {11x17} def
+		/Ledger {ledger} def
+		/Legal {legal} def
+		/Statement {statement} def
+		/Executive {executive} def
+		/A3 {a3} def
+		/A4 {a4} def
+		/A4Small {a4small} def
+		/B4 {b4} def
+		/B5 {b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	stopped 
+	} def
+/desperatepapersize {
+	statusdict /setpageparams known
+		{
+		paperwidth paperheight 0 1 
+		statusdict begin
+		{setpageparams} stopped pop 
+		end
+		} if
+	} def
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/dmatrix matrix def
+/dpi    72 0 dmatrix defaultmatrix dtransform
+    dup mul exch   dup mul add   sqrt def
+/freq dpi 18.75 div 8 div round dup 0 eq {pop 1} if 8 mul dpi exch div def
+/sangle 1 0 dmatrix defaultmatrix dtransform exch atan def
+/DiacriticEncoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+] def
+/ReEncode { 
+	dup 
+	length 
+	dict begin 
+	{
+	1 index /FID ne 
+		{def} 
+		{pop pop} ifelse 
+	} forall 
+	0 eq {/Encoding DiacriticEncoding def} if 
+	currentdict 
+	end 
+	} bind def
+/graymode true def
+	/bwidth FMLOCAL
+	/bpside FMLOCAL
+	/bstring FMLOCAL
+	/onbits FMLOCAL
+	/offbits FMLOCAL
+	/xindex FMLOCAL
+	/yindex FMLOCAL
+	/x FMLOCAL
+	/y FMLOCAL
+/setpattern {
+	 /bwidth  exch def
+	 /bpside  exch def
+	 /bstring exch def
+	 /onbits 0 def  /offbits 0 def
+	 freq sangle landscape {90 add} if 
+		{/y exch def
+		 /x exch def
+		 /xindex x 1 add 2 div bpside mul cvi def
+		 /yindex y 1 add 2 div bpside mul cvi def
+		 bstring yindex bwidth mul xindex 8 idiv add get
+		 1 7 xindex 8 mod sub bitshift and 0 ne
+		 {/onbits  onbits  1 add def 1}
+		 {/offbits offbits 1 add def 0}
+		 ifelse
+		}
+		setscreen
+	 {} settransfer
+	 offbits offbits onbits add div FMsetgray
+	/graymode false def
+	} bind def
+/grayness {
+	FMsetgray
+	graymode not {
+		/graymode true def
+		orgxfer cvx settransfer
+		orgfreq organgle orgproc cvx setscreen
+		} if
+	} bind def
+	/HUE FMLOCAL
+	/SAT FMLOCAL
+	/BRIGHT FMLOCAL
+	/Colors FMLOCAL
+FMPrintInColor 
+	
+	{
+	/HUE 0 def
+	/SAT 0 def
+	/BRIGHT 0 def
+	% array of arrays Hue and Sat values for the separations [HUE BRIGHT]
+	/Colors   
+	[[0    0  ]    % black
+	 [0    0  ]    % white
+	 [0.00 1.0]    % red
+	 [0.37 1.0]    % green
+	 [0.60 1.0]    % blue
+	 [0.50 1.0]    % cyan
+	 [0.83 1.0]    % magenta
+	 [0.16 1.0]    % comment / yellow
+	 ] def
+      
+	/BEGINBITMAPCOLOR { 
+		BITMAPCOLOR} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPCOLORc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUECOLOR } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUECOLORc } def
+	/K { 
+		Colors exch get dup
+		0 get /HUE exch store 
+		1 get /BRIGHT exch store
+		  HUE 0 eq BRIGHT 0 eq and
+			{1.0 SAT sub setgray}
+			{HUE SAT BRIGHT sethsbcolor} 
+		  ifelse
+		} def
+	/FMsetgray { 
+		/SAT exch 1.0 exch sub store 
+		  HUE 0 eq BRIGHT 0 eq and
+			{1.0 SAT sub setgray}
+			{HUE SAT BRIGHT sethsbcolor} 
+		  ifelse
+		} bind def
+	}
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPGRAY} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPGRAYc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUEGRAY } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUEGRAYc } def
+	/FMsetgray {setgray} bind def
+	/K { 
+		pop
+		} def
+	}
+ifelse
+/normalize {
+	transform round exch round exch itransform
+	} bind def
+/dnormalize {
+	dtransform round exch round exch idtransform
+	} bind def
+/lnormalize { 
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+/H { 
+	lnormalize setlinewidth
+	} bind def
+/Z {
+	setlinecap
+	} bind def
+	/fillvals FMLOCAL
+/X { 
+	fillvals exch get
+	dup type /stringtype eq
+	{8 1 setpattern} 
+	{grayness}
+	ifelse
+	} bind def
+/V { 
+	gsave eofill grestore
+	} bind def
+/N { 
+	stroke
+	} bind def
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+	/n FMLOCAL
+/L { 
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+/Y { 
+	L 
+	closepath
+	} bind def
+	/x1 FMLOCAL
+	/x2 FMLOCAL
+	/y1 FMLOCAL
+	/y2 FMLOCAL
+	/rad FMLOCAL
+/R { 
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y 
+	} bind def
+/RR { 
+	/rad exch def
+	normalize
+	/y2 exch def
+	/x2 exch def
+	normalize
+	/y1 exch def
+	/x1 exch def
+	newpath
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rad arcto
+	x2 y2 x2 y1 rad arcto
+	x2 y1 x1 y1 rad arcto
+	x1 y1 x1 y2 rad arcto
+	closepath
+	16 {pop} repeat
+	} bind def
+/C { 
+	grestore
+	gsave
+	R 
+	clip
+	} bind def
+	/FMpointsize FMLOCAL
+/F { 
+	FMfonts exch get
+	FMpointsize scalefont
+	setfont
+	} bind def
+/Q { 
+	/FMpointsize exch def
+	F 
+	} bind def
+/T { 
+	moveto show
+	} bind def
+/RF { 
+	rotate
+	0 ne {-1 1 scale} if
+	} bind def
+/TF { 
+	gsave
+	moveto 
+	RF
+	show
+	grestore
+	} bind def
+/P { 
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+/PF { 
+	gsave
+	moveto 
+	RF
+	0 32 3 2 roll widthshow
+	grestore
+	} bind def
+/S { 
+	moveto
+	0 exch ashow
+	} bind def
+/SF { 
+	gsave
+	moveto
+	RF
+	0 exch ashow
+	grestore
+	} bind def
+/B { 
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+/BF { 
+	gsave
+	moveto
+	RF
+	0 32 4 2 roll 0 exch awidthshow
+	grestore
+	} bind def
+/G { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath fill
+	grestore
+	} bind def
+/A { 
+	gsave
+	savematrix
+	newpath
+	2 index 2 div add exch 3 index 2 div sub exch 
+	normalize 2 index 2 div sub exch 3 index 2 div add exch 
+	translate 
+	scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	restorematrix
+	stroke
+	grestore
+	} bind def
+	/x FMLOCAL
+	/y FMLOCAL
+	/w FMLOCAL
+	/h FMLOCAL
+	/xx FMLOCAL
+	/yy FMLOCAL
+	/ww FMLOCAL
+	/hh FMLOCAL
+	/FMsaveobject FMLOCAL
+	/FMoptop FMLOCAL
+	/FMdicttop FMLOCAL
+/BEGINPRINTCODE { 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count 4 sub def 
+	/FMsaveobject save def
+	userdict begin 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	3 index neg 3 index neg translate
+	} bind def
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMsaveobject restore 
+	} bind def
+/gn { 
+	0 
+	{	46 mul 
+		cf read pop 
+		32 sub 
+		dup 46 lt {exit} if 
+		46 sub add 
+		} loop
+	add 
+	} bind def
+	/str FMLOCAL
+/cfs { 
+	/str sl string def 
+	0 1 sl 1 sub {str exch val put} for 
+	str def 
+	} bind def
+/ic [ 
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+	/sl FMLOCAL
+	/val FMLOCAL
+	/ws FMLOCAL
+	/im FMLOCAL
+	/bs FMLOCAL
+	/cs FMLOCAL
+	/len FMLOCAL
+	/pos FMLOCAL
+/ms { 
+	/sl exch def 
+	/val 255 def 
+	/ws cfs 
+	/im cfs 
+	/val 0 def 
+	/bs cfs 
+	/cs cfs 
+	} bind def
+400 ms 
+/ip { 
+	is 
+	0 
+	cf cs readline pop 
+	{	ic exch get exec 
+		add 
+		} forall 
+	pop 
+	
+	} bind def
+/wh { 
+	/len exch def 
+	/pos exch def 
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/bl { 
+	/len exch def 
+	/pos exch def 
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/s1 1 string def
+/fl { 
+	/len exch def 
+	/pos exch def 
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len 
+	} bind def
+/hx { 
+	3 copy getinterval 
+	cf exch readhexstring pop pop 
+	} bind def
+	/h FMLOCAL
+	/w FMLOCAL
+	/d FMLOCAL
+	/lb FMLOCAL
+	/bitmapsave FMLOCAL
+	/is FMLOCAL
+	/cf FMLOCAL
+/wbytes { 
+	dup 
+	8 eq {pop} {1 eq {7 add 8 idiv} {3 add 4 idiv} ifelse} ifelse
+	} bind def
+/BEGINBITMAPBWc { 
+	1 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAPGRAYc { 
+	8 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAP2BITc { 
+	2 {} COMMONBITMAPc
+	} bind def
+/COMMONBITMAPc { 
+	/r exch def
+	/d exch def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/lb w d wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	r                    
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{ip} image 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BEGINBITMAPBW { 
+	1 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAPGRAY { 
+	8 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAP2BIT { 
+	2 {} COMMONBITMAP
+	} bind def
+/COMMONBITMAP { 
+	/r exch def
+	/d exch def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/bitmapsave save def 
+	r                    
+	/is w d wbytes string def
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{cf is readhexstring pop} image
+	bitmapsave restore 
+	grestore
+	} bind def
+	/proc1 FMLOCAL
+	/proc2 FMLOCAL
+	/newproc FMLOCAL
+/Fmcc {
+    /proc2 exch cvlit def
+    /proc1 exch cvlit def
+    /newproc proc1 length proc2 length add array def
+    newproc 0 proc1 putinterval
+    newproc proc1 length proc2 putinterval
+    newproc cvx
+} bind def
+/ngrayt 256 array def
+/nredt 256 array def
+/nbluet 256 array def
+/ngreent 256 array def
+	/gryt FMLOCAL
+	/blut FMLOCAL
+	/grnt FMLOCAL
+	/redt FMLOCAL
+	/indx FMLOCAL
+	/cynu FMLOCAL
+	/magu FMLOCAL
+	/yelu FMLOCAL
+	/k FMLOCAL
+	/u FMLOCAL
+/colorsetup {
+	currentcolortransfer
+	/gryt exch def
+	/blut exch def
+	/grnt exch def
+	/redt exch def
+	0 1 255 {
+		/indx exch def
+		/cynu 1 red indx get 255 div sub def
+		/magu 1 green indx get 255 div sub def
+		/yelu 1 blue indx get 255 div sub def
+		/k cynu magu min yelu min def
+		/u k currentundercolorremoval exec def
+		nredt indx 1 0 cynu u sub max sub redt exec put
+		ngreent indx 1 0 magu u sub max sub grnt exec put
+		nbluet indx 1 0 yelu u sub max sub blut exec put
+		ngrayt indx 1 k currentblackgeneration exec sub gryt exec put
+	} for
+	{255 mul cvi nredt exch get}
+	{255 mul cvi ngreent exch get}
+	{255 mul cvi nbluet exch get}
+	{255 mul cvi ngrayt exch get}
+	setcolortransfer
+	{pop 0} setundercolorremoval
+	{} setblackgeneration
+	} bind def
+	/tran FMLOCAL
+/fakecolorsetup {
+	/tran 256 string def
+	0 1 255 {/indx exch def 
+		tran indx
+		red indx get 77 mul
+		green indx get 151 mul
+		blue indx get 28 mul
+		add add 256 idiv put} for
+	currenttransfer
+	{255 mul cvi tran exch get 255.0 div}
+	exch Fmcc settransfer
+} bind def
+/BITMAPCOLOR { 
+	/d 8 def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/bitmapsave save def 
+	colorsetup
+	/is w d wbytes string def
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{cf is readhexstring pop} {is} {is} true 3 colorimage 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCOLORc { 
+	/d 8 def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/lb w d wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	colorsetup
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{ip} {is} {is} true 3 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLORc { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        
+        /is w string def
+        
+        ws 0 w getinterval is copy pop 
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        {ip} {gip} {bip} true 3 colorimage
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUECOLOR { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        /is w string def
+        /gis w string def
+        /bis w string def
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        { cf is readhexstring pop } 
+        { cf gis readhexstring pop } 
+        { cf bis readhexstring pop } 
+        true 3 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUEGRAYc { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        
+        /is w string def
+        
+        ws 0 w getinterval is copy pop 
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        {ip gip bip w gray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/ww FMLOCAL
+/r FMLOCAL
+/g FMLOCAL
+/b FMLOCAL
+/i FMLOCAL
+/gray { 
+        /ww exch def
+        /b exch def
+        /g exch def
+        /r exch def
+        0 1 ww 1 sub { /i exch def r i get .299 mul g i get .587 mul
+			b i get .114 mul add add r i 3 -1 roll floor cvi put } for
+        r
+        } bind def
+/BITMAPTRUEGRAY { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        /is w string def
+        /gis w string def
+        /bis w string def
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        { cf is readhexstring pop 
+          cf gis readhexstring pop 
+          cf bis readhexstring pop w gray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPGRAY { 
+	8 {fakecolorsetup} COMMONBITMAP
+	} bind def
+/BITMAPGRAYc { 
+	8 {fakecolorsetup} COMMONBITMAPc
+	} bind def
+/ENDBITMAP {
+	} bind def
+end 
+	/ALDsave FMLOCAL
+	/ALDmatrix matrix def ALDmatrix currentmatrix pop
+/StartALD {
+	/ALDsave save def
+	 savematrix
+	 ALDmatrix setmatrix
+	} bind def
+/InALD {
+	 restorematrix
+	} bind def
+/DoneALD {
+	 ALDsave restore
+	} bind def
+%%EndProlog
+%%BeginSetup
+(3.0) FMVERSION
+1 1 612 792 0 1 6 FMDOCUMENT
+0 0 /Times-Roman FMFONTDEFINE
+1 0 /Times-Bold FMFONTDEFINE
+2 0 /Times-BoldItalic FMFONTDEFINE
+3 0 /Courier-Bold FMFONTDEFINE
+32 FMFILLS
+0 0 FMFILL
+1 0.1 FMFILL
+2 0.3 FMFILL
+3 0.5 FMFILL
+4 0.7 FMFILL
+5 0.9 FMFILL
+6 0.97 FMFILL
+7 1 FMFILL
+8 <0f1e3c78f0e1c387> FMFILL
+9 <0f87c3e1f0783c1e> FMFILL
+10 <cccccccccccccccc> FMFILL
+11 <ffff0000ffff0000> FMFILL
+12 <8142241818244281> FMFILL
+13 <03060c183060c081> FMFILL
+14 <8040201008040201> FMFILL
+16 1 FMFILL
+17 0.9 FMFILL
+18 0.7 FMFILL
+19 0.5 FMFILL
+20 0.3 FMFILL
+21 0.1 FMFILL
+22 0.03 FMFILL
+23 0 FMFILL
+24 <f0e1c3870f1e3c78> FMFILL
+25 <f0783c1e0f87c3e1> FMFILL
+26 <3333333333333333> FMFILL
+27 <0000ffff0000ffff> FMFILL
+28 <7ebddbe7e7dbbd7e> FMFILL
+29 <fcf9f3e7cf9f3f7e> FMFILL
+30 <7fbfdfeff7fbfdfe> FMFILL
+%%EndSetup
+%%Page: "1" 1
+%%BeginPaperSize: Letter
+%%EndPaperSize
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 1) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Finding and Reusing Pr) 120.85 608 T
+(ogrammers\325  W) 426.21 608 T
+(ork) 626.15 608 T
+2 24 Q
+(Peter Norvig) 333.05 530 T
+1 18 Q
+(Sun Micr) 273.74 498 T
+(osystems Laboratories) 345.88 498 T
+FMENDPAGE
+%%EndPage: "1" 2
+%%Page: "2" 2
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 2) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+72 252 720 720 C
+72 252 720 702 C
+1 30 Q
+0 X
+0 K
+(What to Reuse) 301.85 676 T
+1 18 Q
+(\245) 90 638 T
+(Anything a pr) 108 638 T
+(ogrammer or designer pr) 215.63 638 T
+(oduces is a legitimate object of r) 409.66 638 T
+(euse) 655.15 638 T
+(\245) 90 606 T
+-0.23 (Think in terms of r) 108 606 P
+-0.23 (eusing your pr) 253.69 606 P
+-0.23 (ogrammers\325 work and time, in whatever form) 364.86 606 P
+(it takes. Don\325t limit yourself to r) 108 586 T
+(eusing classes only) 355 586 T
+(.) 495.96 586 T
+(\245) 90 554 T
+(Consider r) 108 554 T
+(euse of:) 190.12 554 T
+(\245) 126 522 T
+(Classes \050data types and application frames\051) 144 522 T
+(\245) 126 490 T
+(Functions \050pr) 144 490 T
+(otocols\051) 248.13 490 T
+(\245) 126 458 T
+(Contr) 144 458 T
+(ol \337ow abstractions) 189.64 458 T
+(\245) 126 426 T
+(Syntactic abstractions \050macr) 144 426 T
+(os, entir) 363.52 426 T
+(e languages\051) 425.15 426 T
+(\245) 126 394 T
+(Data and data formats) 144 394 T
+(\245) 126 362 T
+(T) 144 362 T
+(ools for documentation, testing, version contr) 154.34 362 T
+(ol, etc.) 501.3 362 T
+72 252 720 720 C
+0 180 792 792 C
+FMENDPAGE
+%%EndPage: "2" 3
+%%Page: "3" 3
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 3) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Levels of Reuse) 296.85 700 T
+1 18 Q
+(\245) 90 662 T
+(Decide what level of r) 108 662 T
+(euse you want to support) 273.55 662 T
+(\245) 90 630 T
+(Choice can affect all stages of softwar) 108 630 T
+(e development) 395.45 630 T
+(\245) 90 414 T
+(Note that each level implies all the levels befor) 108 414 T
+(e it) 461.43 414 T
+(\245) 90 382 T
+(Later levels imply mor) 108 382 T
+(e sophistication on part of pr) 282.05 382 T
+(ogrammer/designer) 503.12 382 T
+(\245) 126 350 T
+(This is inevitable) 144 350 T
+(\245) 126 318 T
+(It is the major r) 144 318 T
+(eason why r) 265.58 318 T
+(euse is dif\336cult to achieve) 357.2 318 T
+(\245) 126 286 T
+(Reuse at earlier levels may be ineffective) 144 286 T
+(Level) 204.14 592 T
+(Reuse of) 348.09 592 T
+(Motto) 528.21 592 T
+(Instructional) 169.81 562 T
+(Ideas) 292.44 562 T
+(Read & Learn) 481.19 562 T
+(Informal) 169.81 534 T
+(Sour) 292.44 534 T
+(ce code) 329.1 534 T
+(Copy & Edit) 481.19 534 T
+(V) 169.81 506 T
+(erbatim) 181.14 506 T
+(Object code) 292.44 506 T
+(Link & Load) 481.19 506 T
+(Extensible) 169.81 478 T
+(Pr) 292.44 478 T
+(otocols, Classes) 311.09 478 T
+(Use & Extend) 481.19 478 T
+(Strati\336ed) 169.81 450 T
+(Languages, Appr) 292.44 450 T
+(oach) 425.06 450 T
+(Mix & Match) 481.19 450 T
+163.81 611.75 163.81 440.25 2 L
+V
+0.5 H
+0 Z
+N
+286.44 612.25 286.44 439.75 2 L
+V
+N
+475.19 612.25 475.19 439.75 2 L
+V
+N
+628.19 611.75 628.19 440.25 2 L
+V
+N
+163.56 612 628.44 612 2 L
+V
+N
+164.06 581.25 627.94 581.25 2 L
+V
+N
+164.06 578.75 627.94 578.75 2 L
+V
+N
+163.56 552 628.44 552 2 L
+V
+N
+163.56 524 628.44 524 2 L
+V
+N
+163.56 496 628.44 496 2 L
+V
+N
+163.56 468 628.44 468 2 L
+V
+N
+163.56 440 628.44 440 2 L
+V
+N
+FMENDPAGE
+%%EndPage: "3" 4
+%%Page: "4" 4
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 4) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Design for Reuse) 287.69 700 T
+1 18 Q
+(\245) 90 662 T
+(The spirit of r) 108 662 T
+(euse:) 215.11 662 T
+2 F
+(\245) 126 630 T
+(Don\325) 144 630 T
+(t do it twice if you can do it once!) 181.31 630 T
+1 F
+(\245) 126 598 T
+(Think in terms of a lifetime, not just one pr) 144 598 T
+(ogram) 475.49 598 T
+(\245) 90 566 T
+(Design for the level of r) 108 566 T
+(euse you want - Have a policy) 287.04 566 T
+(\245) 126 534 T
+(So that the r) 144 534 T
+(eusers will know what to expect) 239.11 534 T
+(\245) 90 502 T
+(Reuse r) 108 502 T
+(equir) 166.13 502 T
+(es an understanding of implementation vs. speci\336cation) 206.78 502 T
+(\245) 126 470 T
+(This is a good thing for other r) 144 470 T
+(easons as well) 379.06 470 T
+(\245) 90 438 T
+(Split each design into \322r) 108 438 T
+(eusable\323 and \322custom\323 parts) 292.6 438 T
+(\245) 126 406 T
+(Requir) 144 406 T
+(es awar) 197.65 406 T
+(eness of the range of possible uses) 255.77 406 T
+(\245) 126 374 T
+(Even \322custom\323 parts may end up being r) 144 374 T
+(eused) 458.02 374 T
+(\245) 90 342 T
+(See a design as an assembly of appr) 108 342 T
+(opriate components) 380.05 342 T
+(\245) 126 310 T
+(Most of the components should have been written alr) 144 310 T
+(eady) 550.43 310 T
+FMENDPAGE
+%%EndPage: "4" 5
+%%Page: "5" 5
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 5) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Reuse of Classes) 291.02 700 T
+1 18 Q
+(\245) 90 662 T
+(Common data structur) 108 662 T
+(es) 284.55 662 T
+(\245) 126 630 T
+2 F
+(Sets, Sequences, Stacks, T) 144 630 T
+(ables, T) 336.24 630 T
+(rees, Queues, Graphs,) 393.54 630 T
+1 F
+(...) 561.44 630 T
+(\245) 90 598 T
+(Common pr) 108 598 T
+(ogramming tools) 201.12 598 T
+2 F
+(\245) 126 566 T
+(Conditions, Dates, Filenames, Data set/Statistics...) 144 566 T
+(\245) 126 534 T
+(W) 144 534 T
+(indows, Menus, Dialog box, List editor) 159.33 534 T
+(, Lines, Polygons, ...) 445.23 534 T
+1 F
+(\245) 90 502 T
+(Common pr) 108 502 T
+(ograms) 201.12 502 T
+(\245) 126 470 T
+2 F
+(T) 144 470 T
+(ext editor) 153.34 470 T
+(, Spreadsheet, Whatever is important to you ...) 221.81 470 T
+1 F
+(\245) 90 438 T
+(Important lessons:) 108 438 T
+(\245) 126 406 T
+2 F
+(No global variables!) 144 406 T
+1 F
+(W) 299.42 406 T
+(ith r) 317.08 406 T
+(euse, ther) 350.24 406 T
+(e is no such thing as \322global,\323 only) 423.85 406 T
+(classes, subclasses and instances) 144 386 T
+2 F
+(\245) 126 354 T
+(No such thing as top level!) 144 354 T
+1 F
+(Design every pr) 346.91 354 T
+(ogram so that it can be) 467.5 354 T
+-0.15 (incorporated into another pr) 144 334 P
+-0.15 (ogram. Make sur) 364.59 334 P
+-0.15 (e that multiple instances and) 496.37 334 P
+(multiple specializations can work together \050Thr) 144 314 T
+(ead safe\051.) 507.96 314 T
+FMENDPAGE
+%%EndPage: "5" 6
+%%Page: "6" 6
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 6) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Reuse of Functions or Pr) 192.97 700 T
+(otocols) 510.71 700 T
+1 18 Q
+(\245) 90 662 T
+2 F
+-0.47 (Functions still matter!) 108 662 P
+1 F
+-0.47 ( Decomposition into pr) 274.02 662 P
+-0.47 (otocols is pr) 447.68 662 P
+-0.47 (obably mor) 538.35 662 P
+-0.47 (e important) 626.01 662 P
+(than decomposition into classes \050consider IDL\051.) 108 642 T
+(\245) 126 610 T
+(\322Computer Science is actually a study of things that happen.\323) 144 610 T
+(- Robin Milner) 144 578 T
+(\245) 90 546 T
+(Design your pr) 108 546 T
+(ograms to decompose into r) 222.62 546 T
+(eusable tools) 434.14 546 T
+(\245) 90 514 T
+(If your language supports it, consider basing the design on generic function) 108 514 T
+(pr) 108 494 T
+(otocols rather than on classes) 125.67 494 T
+(\245) 90 462 T
+(Some useful techniques ar) 108 462 T
+(e not available in class-obsessed languages:) 308.07 462 T
+(\245) 126 430 T
+(Multi-methods allow dispatch on mor) 144 430 T
+(e than one argument) 432.52 430 T
+(Example:) 144 398 T
+3 F
+(draw\050object,stream\051) 222.46 398 T
+1 F
+(depends on both) 427.54 398 T
+(\245) 126 366 T
+(Method combination allows customization of a method for a subclass) 144 366 T
+(without having to duplicate code in the super) 144 346 T
+(class) 489.01 346 T
+(Example: audited transactions with) 144 314 T
+3 F
+(before) 421.86 314 T
+1 F
+( and) 486.62 314 T
+3 F
+(after) 524.62 314 T
+1 F
+( methods) 578.59 314 T
+FMENDPAGE
+%%EndPage: "6" 7
+%%Page: "7" 7
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 7) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Rule of English T) 220 700 T
+(ranslation) 441.99 700 T
+1 18 Q
+(\245) 90 662 T
+(English \050or any other natural language\051 is highly r) 108 662 T
+(eusable) 493.51 662 T
+(\245) 126 630 T
+(Pr) 144 630 T
+(oof: W) 162.66 630 T
+(e can talk to a stranger without having to invent each word and) 214.12 630 T
+(phrase we use) 144 610 T
+(\245) 90 578 T
+(Code that can be quickly r) 108 578 T
+(ead as English is easy to understand and r) 311.07 578 T
+(euse) 632.63 578 T
+(\245) 90 546 T
+(Code that r) 108 546 T
+(equir) 195.61 546 T
+(es the writer) 236.27 546 T
+(\325) 332.5 546 T
+(s annotations may not be) 337.82 546 T
+(\245) 90 514 T
+(Algorithm for easy to understand, r) 108 514 T
+(eusable code:) 381.5 514 T
+(\245) 126 482 T
+(W) 144 482 T
+(rite a version of the code) 161.67 482 T
+(\245) 126 450 T
+(T) 144 450 T
+(ranslate code into English) 154.67 450 T
+(\245) 126 418 T
+(T) 144 418 T
+(ranslate English back into code) 154.67 418 T
+(\245) 126 386 T
+(Repeat until both pieces of code ar) 144 386 T
+(e the same) 408.51 386 T
+FMENDPAGE
+%%EndPage: "7" 8
+%%Page: "8" 8
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 8) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Example of Functional Decomposition) 151.42 700 T
+1 18 Q
+(\245) 90 662 T
+(Pr) 108 662 T
+(oblem:) 126.66 662 T
+3 F
+(least_common_superclass) 184.12 662 T
+1 F
+(of a set of instances) 443.17 662 T
+(\245) 90 630 T
+(Nonr) 108 630 T
+(eusable decomposition:) 147.65 630 T
+(\245) 126 598 T
+3 F
+(loop, loop, loop) 144 598 T
+1 F
+(\050Also violates rule of English translation\051) 144 566 T
+(\245) 90 534 T
+(Locally r) 108 534 T
+(eusable decomposition:) 177.14 534 T
+(\245) 126 502 T
+3 F
+(superclasses, common_superclasses,) 144 502 T
+(more_specif) 144 482 T
+(ic_class) 262.73 482 T
+1 F
+(\245) 90 450 T
+(Globally r) 108 450 T
+(eusable decomposition:) 186.15 450 T
+3 F
+(\245) 126 418 T
+(least_upper_bound, select_best) 144 418 T
+FMENDPAGE
+%%EndPage: "8" 9
+%%Page: "9" 9
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 9) 693.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Reuse of Contr) 167.14 700 T
+(ol Flow Abstractions) 359.88 700 T
+1 18 Q
+(\245) 90 662 T
+(Most algorithms can be characterized as:) 108 662 T
+2 F
+(\245) 126 630 T
+(Searching, Sorting, Filtering, Mapping, Combining, Counting) 144 630 T
+1 F
+(\245) 90 598 T
+(Code that uses loops to implement these is nonr) 108 598 T
+(eusable) 471.47 598 T
+(\245) 90 566 T
+(Code that uses contr) 108 566 T
+(ol \337ow abstractions is r) 265.07 566 T
+(eusable) 442.65 566 T
+(\245) 126 534 T
+(Build a library for each of these \050either functions or macr) 144 534 T
+(os\051) 584.38 534 T
+(\245) 126 502 T
+(Requir) 144 502 T
+(es iterators or closur) 197.65 502 T
+(es or powerful macr) 355.69 502 T
+(os) 509.74 502 T
+(\245) 90 470 T
+(Invent abstractions for common pr) 108 470 T
+(ogramming situations) 376.5 470 T
+(\245) 126 438 T
+3 F
+(try) 144 438 T
+1 F
+( +) 176.38 438 T
+3 F
+(throw) 195.63 438 T
+1 F
+( =) 249.6 438 T
+3 F
+(unwind_protect) 268.85 438 T
+1 F
+(\245) 126 406 T
+(Non-determinism with) 144 406 T
+3 F
+(choose) 321.89 406 T
+1 F
+( and) 386.65 406 T
+3 F
+(fail) 424.65 406 T
+FMENDPAGE
+%%EndPage: "9" 10
+%%Page: "10" 10
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 10) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Reuse of Syntactic Abstractions) 193.12 700 T
+1 18 Q
+(\245) 90 662 T
+(\322Expert engineers stratify complex designs ... The parts constructed at each) 108 662 T
+-0.17 (level ar) 108 642 P
+-0.17 (e used as primitives at the next level. Each level of a strati\336ed design can) 163.95 642 P
+-0.54 (be thought of as a specialized language with a variety of primitives and means of) 108 622 P
+(combination appr) 108 602 T
+(opriate to that level of detail.\323) 245.12 602 T
+2 F
+(- Harold Abelson and Gerald Sussman) 108 570 T
+1 F
+(\245) 90 538 T
+(Consider the range of extensions and modi\336cations for your pr) 108 538 T
+(ogram) 588.91 538 T
+(\245) 90 506 T
+(Implement a language that covers the range well) 108 506 T
+(\245) 90 474 T
+(W) 108 474 T
+(rite your pr) 125.67 474 T
+(ogram in this new language) 215.27 474 T
+(\245) 90 442 T
+(When the speci\336cation changes, the changes to the pr) 108 442 T
+(ogram will be easy) 515.94 442 T
+(\050Assuming you designed the right language\051) 108 410 T
+(\245) 90 378 T
+(Pr) 108 378 T
+(oblem: Not all pr) 126.66 378 T
+(ogrammers ar) 257.75 378 T
+(e good language designers) 366.82 378 T
+(\050But not all of them need to be\051) 108 346 T
+FMENDPAGE
+%%EndPage: "10" 11
+%%Page: "11" 11
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 11) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Naming Conventions) 261.41 700 T
+1 18 Q
+(\245) 90 662 T
+(Most r) 108 662 T
+(euse starts with the name of the thing to be r) 159.13 662 T
+(eused) 499.57 662 T
+(\245) 90 630 T
+(Ther) 108 630 T
+(efor) 145.65 630 T
+(e, names must be chosen wisely) 176.29 630 T
+(\245) 126 598 T
+(Minimize abbr) 144 598 T
+(eviations \050Rule of English T) 258.11 598 T
+(ranslation\051) 469.69 598 T
+(Most words have many possible abbr) 144 566 T
+(eviations, but only one spelling) 429.04 566 T
+(Possible exceptions:) 144 534 T
+3 F
+(char, demo, intro) 300.91 534 T
+1 F
+(\245) 126 502 T
+(A) 144 502 T
+(void ambiguous names) 155.66 502 T
+(\050Use) 144 470 T
+3 F
+(previous) 182.46 470 T
+1 F
+( or) 268.82 470 T
+3 F
+(f) 294.79 470 T
+(inal) 305.59 470 T
+1 F
+( instead of) 348.76 470 T
+3 F
+(last) 432.22 470 T
+1 F
+(\051) 475.4 470 T
+(\245) 126 438 T
+(Have a shar) 144 438 T
+(ed glossary of terms fr) 235.62 438 T
+(om which to build names) 407.16 438 T
+FMENDPAGE
+%%EndPage: "11" 12
+%%Page: "12" 12
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 12) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Reading is Prior to Reusing) 219.34 700 T
+1 18 Q
+(\245) 90 662 T
+(\322I\325ve learned a lot fr) 108 662 T
+(om looking at other people\325) 265.56 662 T
+(s pr) 475.77 662 T
+(ograms.\323) 504.93 662 T
+2 F
+(- Jonathan Sachs \050Lotus 1-2-3\051) 108 630 T
+1 F
+(\245) 90 598 T
+(\322Y) 108 598 T
+(ou need to study other people\325) 127.99 598 T
+(s work. Their appr) 358.69 598 T
+(oaches to pr) 503.3 598 T
+(oblem solving) 595.91 598 T
+(and the tools they use give you a fr) 108 578 T
+(esh way to look at your own work.\323) 372.53 578 T
+2 F
+(- Gary Kildall \050CP/M\051) 108 546 T
+1 F
+(\245) 90 514 T
+(\322The best way to pr) 108 514 T
+(epar) 259.58 514 T
+(e [to be a pr) 294.23 514 T
+(ogrammer] is to write pr) 385.84 514 T
+(ograms, and to) 575.35 514 T
+(study the gr) 108 494 T
+(eat pr) 199.62 494 T
+(ograms that other people have written. In my case, I went to) 244.76 494 T
+(the garbage cans at the Computer Science Center and I \336shed out listings of) 108 474 T
+(their operating system.\323) 108 454 T
+2 F
+(- Bill Gates \050Altair Basic\051) 108 422 T
+FMENDPAGE
+%%EndPage: "12" 13
+%%Page: "13" 13
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 13) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(T) 271.3 700 T
+(rade-offs in Reuse) 289.08 700 T
+2 18 Q
+(\245) 90 662 T
+(Plus:) 108 662 T
+1 F
+(\245) 126 630 T
+(Development costs ar) 144 630 T
+(e amortized) 307.55 630 T
+(\245) 126 598 T
+(Resulting code is shorter) 144 598 T
+(, simpler) 331.73 598 T
+(, mor) 397.03 598 T
+(e modular) 437.67 598 T
+(, easier to understand,) 514.47 598 T
+( modify and extend) 144 566 T
+(\245) 126 534 T
+(Impr) 144 534 T
+(ovements to one pr) 183.65 534 T
+(ogram can r) 328.72 534 T
+(etr) 422.33 534 T
+(oactively impr) 443.97 534 T
+(ove another) 554.07 534 T
+2 F
+(\245) 90 502 T
+(Minus:) 108 502 T
+1 F
+(\245) 126 470 T
+(Incr) 144 470 T
+(eased abstraction may be hard to understand for some pr) 176.65 470 T
+(ogrammers) 616.56 470 T
+(Requir) 144 438 T
+(es gr) 197.65 438 T
+(eater mathematical sophistication) 233.79 438 T
+(\245) 126 406 T
+(Resulting code may be hard to optimize for some compilers) 144 406 T
+(Requir) 144 374 T
+(es inter) 197.65 374 T
+(-pr) 253.43 374 T
+(ocedural analysis - Inlining is not enough) 277.09 374 T
+(\245) 126 342 T
+(Questions of version contr) 144 342 T
+(ol and sour) 345.06 342 T
+(ce code management) 430.71 342 T
+FMENDPAGE
+%%EndPage: "13" 14
+%%Page: "14" 14
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 14) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Languages for Reuse) 261.85 700 T
+1 18 Q
+(\245) 90 662 T
+(Pick an implementation language that supports the r) 108 662 T
+(euse you want to do) 511.97 662 T
+(\245) 90 630 T
+(Languages support differ) 108 630 T
+(ent kinds of r) 302.58 630 T
+(euse to differ) 404.71 630 T
+(ent degr) 504.3 630 T
+(ees:) 567.43 630 T
+(\245) 90 366 T
+(Featur) 108 366 T
+(es that ar) 159.63 366 T
+(e missing in some languages:) 231.25 366 T
+(\245) 126 334 T
+(Multiple inheritance, multi-methods, method combination, closur) 144 334 T
+(es,) 645.4 334 T
+(powerful macr) 144 314 T
+(os) 257.09 314 T
+(Language) 151.67 582 T
+(Class) 247 582 T
+(Function) 309.44 592 T
+(Pr) 311.61 572 T
+(otocol) 330.27 572 T
+(Contr) 397.08 592 T
+(ol) 442.72 592 T
+(Flow) 407.9 572 T
+(Syntactic) 470 592 T
+(Abstract.) 469.76 572 T
+(Popularity) 558.41 582 T
+(C++) 147.28 542 T
+(Y) 244.03 542 T
+(Y/N) 302.96 542 T
+(N) 396.89 542 T
+(N) 468.89 542 T
+(High) 554.06 542 T
+(CLOS) 147.28 514 T
+(Y) 244.03 514 T
+(Y) 302.96 514 T
+(Y) 396.89 514 T
+(Y) 468.89 514 T
+(Medium) 554.06 514 T
+(Eiffel) 147.28 486 T
+(Y) 244.03 486 T
+(Y) 302.96 486 T
+(Y/N) 396.89 486 T
+(N) 468.89 486 T
+(Low) 554.06 486 T
+(Modula-3) 147.28 458 T
+(Y) 244.03 458 T
+(Y) 302.96 458 T
+(N) 396.89 458 T
+(N) 468.89 458 T
+(Low) 554.06 458 T
+(Sather) 147.28 430 T
+(Y) 244.03 430 T
+(Y) 302.96 430 T
+(Y) 396.89 430 T
+(N) 468.89 430 T
+(Low) 554.06 430 T
+(Smalltalk) 147.28 402 T
+(Y) 244.03 402 T
+(Y/N) 302.96 402 T
+(Y) 396.89 402 T
+(Y) 468.89 402 T
+(Medium) 554.06 402 T
+141.28 611.75 141.28 392.25 2 L
+V
+0.5 H
+0 Z
+N
+238.03 612.25 238.03 391.75 2 L
+V
+N
+296.96 612.25 296.96 391.75 2 L
+V
+N
+390.89 612.25 390.89 391.75 2 L
+V
+N
+462.89 612.25 462.89 391.75 2 L
+V
+N
+548.06 612.25 548.06 391.75 2 L
+V
+N
+650.72 611.75 650.72 392.25 2 L
+V
+N
+141.03 612 650.97 612 2 L
+V
+N
+141.53 561.25 650.47 561.25 2 L
+V
+N
+141.53 558.75 650.47 558.75 2 L
+V
+N
+141.03 532 650.97 532 2 L
+V
+N
+141.03 504 650.97 504 2 L
+V
+N
+141.03 476 650.97 476 2 L
+V
+N
+141.03 448 650.97 448 2 L
+V
+N
+141.03 420 650.97 420 2 L
+V
+N
+141.03 392 650.97 392 2 L
+V
+N
+FMENDPAGE
+%%EndPage: "14" 15
+%%Page: "15" 15
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 15) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Finding) 345.98 700 T
+1 18 Q
+(\245) 90 662 T
+(Finding is easy once the spirit of r) 108 662 T
+(euse is instilled) 367.04 662 T
+2 F
+(If you build it, they will \336nd and use it!) 108 630 T
+1 F
+(\245) 90 598 T
+(Classes can be br) 108 598 T
+(owsed thr) 240.1 598 T
+(ough the hierar) 315.23 598 T
+(chy) 433.84 598 T
+(\245) 90 566 T
+(Non-hierar) 108 566 T
+(chical objects ar) 193.62 566 T
+(e harder to br) 318.2 566 T
+(owse) 425.29 566 T
+(\245) 90 534 T
+(Indexing and r) 108 534 T
+(etrieval technology works well) 221.64 534 T
+(\245) 126 502 T
+(V) 144 502 T
+(ector model is far better than boolean) 155.33 502 T
+(The mor) 144 470 T
+(e keywords the better) 210.13 470 T
+(\245) 126 438 T
+(Choosing good names is very important) 144 438 T
+(Languages with packages or modules make this easier) 144 406 T
+(\245) 126 374 T
+(Index documentation and other text as well as code) 144 374 T
+(\245) 126 342 T
+(Glossary/thesaurus can be helpful) 144 342 T
+FMENDPAGE
+%%EndPage: "15" 16
+%%Page: "16" 16
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 16) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Publishing, Seeking, Finding and Paying) 136.75 700 T
+2 18 Q
+(\245) 90 662 T
+(Publishing:) 108 662 T
+1 F
+(Making the existence of a data base known) 199.48 662 T
+(\245) 126 630 T
+(Mosaic/WWW/W) 144 630 T
+(AIS/Gopher works for public domain information) 278.93 630 T
+(\245) 126 598 T
+(Mosaic would be a good choice for enterprise-wide data base) 144 598 T
+(\245) 126 566 T
+(Establish in-house incentives for publishing code) 144 566 T
+2 F
+(\245) 90 534 T
+(Seeking:) 108 534 T
+1 F
+(Locate plausible data bases wher) 177.46 534 T
+(e information might be) 430.01 534 T
+(\245) 126 502 T
+(Just beginning to be an issue -- standards ar) 144 502 T
+(e emerging) 481.53 502 T
+(\245) 126 470 T
+(Ther) 144 470 T
+(e is a need for indexing, r) 181.65 470 T
+(etrieval and visualization) 374.72 470 T
+(\245) 90 438 T
+2 F
+(Finding:) 108 438 T
+1 F
+( Locate information within a single data base) 173.99 438 T
+(\245) 126 406 T
+(Many commer) 144 406 T
+(cial indexing and r) 256.08 406 T
+(etrieval systems available) 399.21 406 T
+(\245) 126 374 T
+(Many graphical br) 144 374 T
+(owsers available) 288.61 374 T
+2 F
+(\245) 90 342 T
+(Paying:) 108 342 T
+1 F
+(Exchanging some curr) 170.46 342 T
+(ency for information) 343.04 342 T
+(\245) 126 310 T
+(The missing link in the information superhighway/supermarket) 144 310 T
+(\245) 126 278 T
+(Even if the cost is fr) 144 278 T
+(ee, want to keep statistics on what is useful) 296.07 278 T
+FMENDPAGE
+%%EndPage: "16" 17
+%%Page: "17" 17
+612 792 1 FMBEGINPAGE
+0 10 Q
+0 X
+0 K
+(Page 17) 688.08 749.33 T
+(Object World) 72 216 T
+(Finding and Reusing Classes) 338.11 216 T
+(1/13/94) 689.46 216 T
+0 27 720 -27 -720 36.58 36 BEGINPRINTCODE
+% Sun Logo for Frame Maker - a skinny version for small prints
+%
+% stolen from NeWS/lib/NeWS/demomenu.ps Sunlogo definition
+% and modified to scale to fill bounding textrect
+% 
+% "greyvalue" accepts numbers from 0 (black) to 1 (white)
+
+% Frame Maker "printer code" textrect puts x y w h on stack
+
+/greyvalue 0 def
+/height exch def
+/width exch def
+/ypos exch def
+/xpos exch def
+
+gsave
+
+width 2 div height 10.5 div translate
+width 10.5 div height 10.5 div scale 
+45 rotate
+
+/Uchar {
+		newpath
+		-.2 0 moveto
+		0 0 .2 180 360 arc
+		0 2.9 rlineto
+		.7 0 rlineto
+		0 -2.9 rlineto
+		0 0 .9 0 180 arcn
+		0 2.9 rlineto
+		.7 0 rlineto
+		closepath
+		greyvalue setgray
+		fill
+		} def
+/2Uchar { Uchar gsave 4 4 translate Uchar grestore
+		} def
+ 4 { 2Uchar 6 0 translate 90 rotate } repeat
+    
+grestore
+
+
+
+
+ENDPRINTCODE
+1 30 Q
+(Conclusions) 318.48 700 T
+1 18 Q
+(\245) 90 662 T
+(Reuse cannot be tacked on. It permeates all design and coding.) 108 662 T
+(\245) 126 630 T
+(Efforts to r) 144 630 T
+(euse as an afterthought have failed.) 229.6 630 T
+(\245) 90 598 T
+(Choose the level of r) 108 598 T
+(euse you want:) 263.56 598 T
+(\245) 126 566 T
+(Instructional, Informal, V) 144 566 T
+(erbatim, Extensible, Strati\336ed) 342.23 566 T
+(\245) 90 534 T
+(Choose what you want to r) 108 534 T
+(euse:) 313.05 534 T
+(\245) 126 502 T
+(Classes, Function Pr) 144 502 T
+(otocols, Contr) 301.09 502 T
+(ol Flow Abstractions, Languages) 408.69 502 T
+(\245) 90 470 T
+(Make sur) 108 470 T
+(e your pr) 181.13 470 T
+(ogrammers think in terms of r) 251.76 470 T
+(euse) 484.77 470 T
+(\245) 126 438 T
+(Never do something twice if you can do it once) 144 438 T
+(\245) 126 406 T
+(Analyze your own code and discover common abstractions) 144 406 T
+(\245) 126 374 T
+(Combine existing components to build new code) 144 374 T
+(\245) 90 342 T
+(Support Finding:) 108 342 T
+(\245) 126 310 T
+(Br) 144 310 T
+(owsers, Naming Conventions, Indexing and Retrieval tools) 163.66 310 T
+(\245) 126 278 T
+(Infrastructur) 144 278 T
+(e for publishing, seeking, \336nding and paying) 246.6 278 T
+FMENDPAGE
+%%EndPage: "17" 18
+%%Trailer
+%%BoundingBox: 0 0 612 792
+%%Pages: 17 1
+%%DocumentFonts: Times-Roman
+%%+ Times-Bold
+%%+ Times-BoldItalic
+%%+ Courier-Bold
