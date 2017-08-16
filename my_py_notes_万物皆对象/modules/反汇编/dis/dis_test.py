@@ -77,7 +77,7 @@ print dis.dis(co)
 
 之前我还提到过，使用Python内置的运算符，一般会比调用函数快，其实看看字节码就明白了。
 例如这个程序：
-from operator import pow
+from operator(运算符) import pow
 
 a = 123
 a ** 456
@@ -85,7 +85,7 @@ pow(a, 456)
 对应的字节码：
   1           0 LOAD_CONST               0 (-1)
               3 LOAD_CONST               1 (('pow',))
-              6 IMPORT_NAME              0 (operator)
+              6 IMPORT_NAME              0 (operator(运算符))
               9 IMPORT_FROM              1 (pow)
              12 STORE_NAME               1 (pow)
              15 POP_TOP

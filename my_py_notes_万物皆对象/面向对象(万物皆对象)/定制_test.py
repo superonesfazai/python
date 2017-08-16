@@ -76,7 +76,7 @@ class Time60(object):
     __repr__ = __str__
 
     def __add__(self, other):
-        'Time60 - overloading the addition operator'
+        'Time60 - overloading the addition operator(运算符)'
         return self.__class__(self.hr + other.hr,
                               self.min + other.min)
     def __iadd__(self, other):

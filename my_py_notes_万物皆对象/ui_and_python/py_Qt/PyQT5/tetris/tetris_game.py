@@ -90,7 +90,7 @@ class Board(QFrame):
         return self.contentsRect().height() // Board.BoardHeight
 
     def start(self):
-        '''starts game'''
+        '''开始游戏'''
 
         if self.isPaused:
             return
@@ -106,7 +106,7 @@ class Board(QFrame):
         self.timer.start(Board.Speed, self)
 
     def pause(self):
-        '''pauses game'''
+        '''暂停游戏'''
 
         if not self.isStarted:
             return

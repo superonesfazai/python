@@ -1,7 +1,7 @@
 #!/usr/bin/python3.5
 #coding: utf-8
 
-#从 html 文档中提取数据的第一步是得到某个 HTML 文件
+#从 html 文档中提取数据的第一步是得到某个 HTML 文件系统
 
 #urllib介绍
 # #得到html
