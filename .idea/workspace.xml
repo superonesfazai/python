@@ -2,17 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/simple_flask_server2.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/templates/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/templates/layout.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/templates/message.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器模型_多线程.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器模型_多进程.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_server_Demo.py" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/机器学习/numpy_basic/.ipynb_checkpoints/numpy_basic-checkpoint.ipynb" afterPath="$PROJECT_DIR$/机器学习/numpy_basic/.ipynb_checkpoints/numpy_basic-checkpoint.ipynb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/机器学习/numpy_basic/numpy_basic.ipynb" afterPath="$PROJECT_DIR$/机器学习/numpy_basic/numpy_basic.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/python核心编程日记.md" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/python核心编程日记.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/client.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/client.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/server.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/server.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_server2_Demo.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_server2_Demo.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp十种状态" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp十种状态" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器_REUSEADDR.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器_REUSEADDR.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp长连接和短连接" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp长连接和短连接" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -72,7 +74,7 @@
     <SUITE FILE_PATH="coverage/PythonDoc$check_menu.coverage" NAME="check_menu Coverage Results" MODIFIED="1502713304084" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars" />
     <SUITE FILE_PATH="coverage/PythonDoc$Doctest_quick_sort.coverage" NAME="Doctest quick_sort Coverage Results" MODIFIED="1502176826789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/算法/sorts" />
     <SUITE FILE_PATH="coverage/PythonDoc$legb.coverage" NAME="legb规则 Coverage Results" MODIFIED="1501820085662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
-    <SUITE FILE_PATH="coverage/PythonDoc$client.coverage" NAME="client Coverage Results" MODIFIED="1502766561184" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$client.coverage" NAME="client Coverage Results" MODIFIED="1502845935308" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="coverage/PythonDoc$toolbar_.coverage" NAME="toolbar_工具栏 Coverage Results" MODIFIED="1502719903907" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars" />
     <SUITE FILE_PATH="coverage/PythonDoc$_fibonacci_test.coverage" NAME="生成器_fibonacci_test Coverage Results" MODIFIED="1501816004578" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/迭代器与生成器/生成器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pygame_draw_test.coverage" NAME="pygame_draw_test Coverage Results" MODIFIED="1501302796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/pygame.draw" />
@@ -134,7 +136,7 @@
     <SUITE FILE_PATH="coverage/PythonDoc$close_a_window.coverage" NAME="close_a_window Coverage Results" MODIFIED="1502703055989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5" />
     <SUITE FILE_PATH="coverage/PythonDoc$statusbar_.coverage" NAME="statusbar_状态栏 Coverage Results" MODIFIED="1502710208009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/images/menus_and_toolbars" />
     <SUITE FILE_PATH="coverage/PythonDoc$sys_argv_test.coverage" NAME="sys_argv_test Coverage Results" MODIFIED="1502175025033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/system_manage" />
-    <SUITE FILE_PATH="coverage/PythonDoc$tcp__client.coverage" NAME="tcp_时间戳_client Coverage Results" MODIFIED="1502767793681" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$tcp__client.coverage" NAME="tcp_时间戳_client Coverage Results" MODIFIED="1502848185643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="coverage/PythonDoc$os_info.coverage" NAME="os_info Coverage Results" MODIFIED="1502175151652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/system_manage" />
     <SUITE FILE_PATH="coverage/PythonDoc$QGridLayout_review.coverage" NAME="QGridLayout_review Coverage Results" MODIFIED="1502771860673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/layout_manage" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$compile_test.coverage" NAME="compile_test Coverage Results" MODIFIED="1500864612319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
@@ -150,6 +152,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$______.coverage" NAME="______ Coverage Results" MODIFIED="1501719226088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Unittests_for_except_test_test_01.coverage" NAME="Unittests for except_test.test_01 Coverage Results" MODIFIED="1500709971376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/规范化与异常捕获" />
     <SUITE FILE_PATH="coverage/PythonDoc$event_sender.coverage" NAME="event_sender Coverage Results" MODIFIED="1502784100093" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/events_and_signals" />
+    <SUITE FILE_PATH="coverage/PythonDoc$autogit_by_afa.coverage" NAME="autogit_by_afa Coverage Results" MODIFIED="1502871488786" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Desktop" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$twisted_reactor_tcp__client.coverage" NAME="twisted_reactor_tcp_时间戳_client Coverage Results" MODIFIED="1500887160946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/网络编程/套接字:通信端点/socket/twisted框架" />
     <SUITE FILE_PATH="coverage/PythonDoc$_event_handler.coverage" NAME="重写_event_handler Coverage Results" MODIFIED="1502782131191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/events_and_signals" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$pickle_test.coverage" NAME="pickle_test Coverage Results" MODIFIED="1501067114480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/pickle" />
@@ -196,9 +199,10 @@
     <SUITE FILE_PATH="coverage/PythonDoc$_.coverage" NAME="运行过程中动态给类绑定属性_方法 Coverage Results" MODIFIED="1501984959702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$turtle_onkey.coverage" NAME="turtle.onkey Coverage Results" MODIFIED="1500969478817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="coverage/PythonDoc$python_test.coverage" NAME="python版本判断_test Coverage Results" MODIFIED="1502172660327" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/可移植性" />
-    <SUITE FILE_PATH="coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1502767826520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$tcp_server.coverage" NAME="tcp_时间戳server Coverage Results" MODIFIED="1502848179785" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="coverage/PythonDoc$signals_and_slots.coverage" NAME="signals_and_slots Coverage Results" MODIFIED="1502781642715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/events_and_signals" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test.coverage" NAME="test Coverage Results" MODIFIED="1501720873399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
+    <SUITE FILE_PATH="coverage/PythonDoc$server__1_.coverage" NAME="server (1) Coverage Results" MODIFIED="1502845931850" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1501406353579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/算法" />
     <SUITE FILE_PATH="coverage/PythonDoc$test__old.coverage" NAME="test_智联招聘_old Coverage Results" MODIFIED="1501927133205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/spiders" />
     <SUITE FILE_PATH="coverage/PythonDoc$base64.coverage" NAME="将base64编码的字符串还原为图片保存 Coverage Results" MODIFIED="1501927728375" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/base64" />
@@ -208,7 +212,20 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$cmath_test.coverage" NAME="cmath_test Coverage Results" MODIFIED="1501050421481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/cmath" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="autogit_by_afa.py" pinned="false" current-in-tab="true">
+        <entry file="file://$USER_HOME$/Desktop/autogit_by_afa.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="7" column="28" lean-forward="false" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+              <folding>
+                <element signature="e#16#25#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -234,14 +251,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/d3py/d3py_demo.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图像处理相关/Pillow(PIL)/pillow_ascii_art.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/simple.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/icon.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/tooltip_for_button.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/close_a_window.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/messagebox.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/center_window_on_the_screen.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/images/menus_and_toolbars/statusbar_状态栏.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/images/menus_and_toolbars/simple_menu.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars/simple_menu.py" />
@@ -255,8 +264,6 @@
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/client.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/简单的dns服务端.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/简单的dns客户端.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/udp广播_test.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/absolute_pos.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/layout_manage/absolute_pos.py" />
@@ -285,6 +292,16 @@
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/message.html" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/layout.html" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/simple_flask_server2.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/client.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/python核心编程日记.md" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/server.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp十种状态" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器_REUSEADDR.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp长连接和短连接" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_server2_Demo.py" />
+        <option value="$USER_HOME$/Desktop/autogit_by_afa.py" />
       </list>
     </option>
   </component>
@@ -294,9 +311,11 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="1280" />
-    <option name="height" value="800" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="485" />
+    <option name="y" value="40" />
+    <option name="width" value="575" />
+    <option name="height" value="679" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -406,103 +425,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="ui_and_python" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="ui_and_python" type="462c0819:PsiDirectoryNode" />
-              <item name="py_Qt" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="ui_and_python" type="462c0819:PsiDirectoryNode" />
-              <item name="py_Qt" type="462c0819:PsiDirectoryNode" />
-              <item name="PyQT5" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="ui_and_python" type="462c0819:PsiDirectoryNode" />
-              <item name="py_Qt" type="462c0819:PsiDirectoryNode" />
-              <item name="PyQT5" type="462c0819:PsiDirectoryNode" />
-              <item name="widgets(小部件)" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="web_编程" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="web_编程" type="462c0819:PsiDirectoryNode" />
-              <item name="flask" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="web_编程" type="462c0819:PsiDirectoryNode" />
-              <item name="flask" type="462c0819:PsiDirectoryNode" />
-              <item name="simple_flask_server2" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="web_编程" type="462c0819:PsiDirectoryNode" />
-              <item name="flask" type="462c0819:PsiDirectoryNode" />
-              <item name="simple_flask_server2" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
-              <item name="套接字:通信端点" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
-              <item name="套接字:通信端点" type="462c0819:PsiDirectoryNode" />
-              <item name="socket" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="Scope">
         <subPane subId="Project Files">
           <expand>
@@ -612,6 +534,52 @@
           <select />
         </subPane>
       </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
+              <item name="套接字:通信端点" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
+              <item name="套接字:通信端点" type="462c0819:PsiDirectoryNode" />
+              <item name="socket" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="网络编程" type="462c0819:PsiDirectoryNode" />
+              <item name="套接字:通信端点" type="462c0819:PsiDirectoryNode" />
+              <item name="socket" type="462c0819:PsiDirectoryNode" />
+              <item name="tcp" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -621,19 +589,19 @@
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/layout_manage" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/images" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图像处理相关/Pillow(PIL)" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/linux" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/templates" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/message" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/layout_manage" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/images" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图像处理相关/Pillow(PIL)" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -648,25 +616,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.simple_flask_server2">
-    <configuration name="QCalendarWidget(日历)" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/widgets(小部件)" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/widgets(小部件)/QCalendarWidget(日历).py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
+  <component name="RunManager" selected="Python.autogit_by_afa">
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
       <node-interpreter>project</node-interpreter>
       <node-options />
@@ -833,6 +783,42 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
+    <configuration name="autogit_by_afa" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../py_virtual/py3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Desktop" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/Desktop/autogit_by_afa.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="client" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/client.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <configuration name="pandas_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -905,56 +891,20 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="server" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="server (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/server.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="simple_flask_server" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="simple_flask_server2" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/simple_flask_server2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -973,6 +923,42 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/文本/str_format_文本缩进_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="tcp_时间戳_client" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="tcp_时间戳server" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1031,24 +1017,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="udp_时间戳_client" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/udp_时间戳_client.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
     <list size="12">
       <item index="0" class="java.lang.String" itemvalue="Python.quick_sort" />
       <item index="1" class="java.lang.String" itemvalue="Python.request_test" />
@@ -1057,19 +1025,19 @@
       <item index="4" class="java.lang.String" itemvalue="Python.pandas_test" />
       <item index="5" class="java.lang.String" itemvalue="Python.turtle_test" />
       <item index="6" class="java.lang.String" itemvalue="Python.queue_test" />
-      <item index="7" class="java.lang.String" itemvalue="Python.QCalendarWidget(日历)" />
-      <item index="8" class="java.lang.String" itemvalue="Python.server" />
-      <item index="9" class="java.lang.String" itemvalue="Python.udp_时间戳_client" />
-      <item index="10" class="java.lang.String" itemvalue="Python.simple_flask_server" />
-      <item index="11" class="java.lang.String" itemvalue="Python.simple_flask_server2" />
+      <item index="7" class="java.lang.String" itemvalue="Python.server (1)" />
+      <item index="8" class="java.lang.String" itemvalue="Python.client" />
+      <item index="9" class="java.lang.String" itemvalue="Python.tcp_时间戳server" />
+      <item index="10" class="java.lang.String" itemvalue="Python.tcp_时间戳_client" />
+      <item index="11" class="java.lang.String" itemvalue="Python.autogit_by_afa" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.simple_flask_server2" />
-        <item index="1" class="java.lang.String" itemvalue="Python.simple_flask_server" />
-        <item index="2" class="java.lang.String" itemvalue="Python.udp_时间戳_client" />
-        <item index="3" class="java.lang.String" itemvalue="Python.server" />
-        <item index="4" class="java.lang.String" itemvalue="Python.QCalendarWidget(日历)" />
+        <item index="0" class="java.lang.String" itemvalue="Python.autogit_by_afa" />
+        <item index="1" class="java.lang.String" itemvalue="Python.tcp_时间戳_client" />
+        <item index="2" class="java.lang.String" itemvalue="Python.tcp_时间戳server" />
+        <item index="3" class="java.lang.String" itemvalue="Python.client" />
+        <item index="4" class="java.lang.String" itemvalue="Python.server (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -1134,15 +1102,16 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <frame x="485" y="40" width="575" height="679" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2234375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36347827" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2159864" sideWeight="0.5107034" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16933334" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16803955" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282313" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1165,12 +1134,12 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2159864" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16933334" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282313" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29510704" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36347827" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32533333" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1218,141 +1187,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars/toolbar_工具栏.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="18" column="23" lean-forward="true" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars/context_menu_上下文菜单.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-14">
-          <caret line="33" column="50" lean-forward="true" selection-start-line="33" selection-start-column="50" selection-end-line="33" selection-end-column="50" />
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars/check_menu.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="29" column="66" lean-forward="false" selection-start-line="29" selection-start-column="66" selection-end-line="29" selection-end-column="66" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars/sub_menu_子菜单.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="181">
-          <caret line="26" column="0" lean-forward="true" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars/statusbar_状态栏.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="26" column="40" lean-forward="true" selection-start-line="26" selection-start-column="40" selection-end-line="26" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/内存分析/memory_profiler/memory_profiler_notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="25" column="1" lean-forward="true" selection-start-line="25" selection-start-column="1" selection-end-line="25" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/socket模块属性">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="8" lean-forward="false" selection-start-line="13" selection-start-column="8" selection-end-line="13" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字对象常用函数">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/socketserver模块的类">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/udp的介绍">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="-3">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/udp程序流程.jpg">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/udp_时间戳_server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="33" column="36" lean-forward="false" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/简单的dns服务端.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="25" column="58" lean-forward="false" selection-start-line="25" selection-start-column="58" selection-end-line="25" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/简单的dns客户端.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="18" lean-forward="false" selection-start-line="16" selection-start-column="18" selection-end-line="16" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/python_stubs/-1625016946/_socket.py" />
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socketserver_tcp_时间戳_server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <caret line="9" column="5" lean-forward="false" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="33" column="21" lean-forward="false" selection-start-line="33" selection-start-column="21" selection-end-line="33" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="20" column="11" lean-forward="false" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/python_stubs/-1625016946/PyQt5/QtWidgets/QLabel.py" />
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp/absolute_pos.py" />
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp介绍">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/layout_manage/absolute_pos.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
@@ -1520,7 +1354,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1528,7 +1361,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
           <caret line="1" column="19" lean-forward="false" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1536,7 +1368,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" column="11" lean-forward="false" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1544,7 +1375,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="219">
           <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1552,7 +1382,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" column="47" lean-forward="false" selection-start-line="6" selection-start-column="47" selection-end-line="6" selection-end-column="47" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1560,7 +1389,192 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="34" lean-forward="false" selection-start-line="9" selection-start-column="34" selection-end-line="9" selection-end-column="34" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socketserver_tcp_时间戳_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="23" lean-forward="false" selection-start-line="15" selection-start-column="23" selection-end-line="15" selection-end-column="23" />
+          <folding>
+            <element signature="e#117#189#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_模拟QQ聊天_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_模拟QQ聊天_client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="70" lean-forward="false" selection-start-line="23" selection-start-column="70" selection-end-line="24" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/python核心编程日记.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="611">
+            <caret line="248" column="40" lean-forward="false" selection-start-line="248" selection-start-column="40" selection-end-line="248" selection-end-column="40" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/python_stubs/-1625016946/_socket.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="241">
+          <caret line="652" column="8" lean-forward="false" selection-start-line="652" selection-start-column="8" selection-end-line="652" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="66" lean-forward="false" selection-start-line="14" selection-start-column="48" selection-end-line="14" selection-end-column="66" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/use_pandas_deal_with_datas/pandas_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1172">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp十种状态">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="330">
+            <caret line="22" column="3" lean-forward="true" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器_REUSEADDR.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="22" column="5" lean-forward="false" selection-start-line="22" selection-start-column="5" selection-end-line="22" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp长连接和短连接">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="351">
+            <caret line="57" column="23" lean-forward="false" selection-start-line="57" selection-start-column="23" selection-end-line="57" selection-end-column="23" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/数据传输">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="31" lean-forward="true" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9">
+          <caret line="17" column="35" lean-forward="true" selection-start-line="17" selection-start-column="35" selection-end-line="17" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_server_Demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="32" lean-forward="true" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp的2MSL问题">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_server2_Demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="27" column="11" lean-forward="true" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp服务器模型_多进程.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/socket_multithreading_server_Demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="19" lean-forward="true" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+          <folding>
+            <element signature="e#38#103#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/tcp_时间戳_client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="72" lean-forward="false" selection-start-line="20" selection-start-column="72" selection-end-line="20" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/encodings/ascii.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/autogit_by_afa.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="28" lean-forward="false" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+          <folding>
+            <element signature="e#16#25#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

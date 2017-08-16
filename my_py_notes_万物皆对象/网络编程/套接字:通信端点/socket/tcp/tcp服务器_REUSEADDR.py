@@ -20,7 +20,7 @@ server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 使用setsockopt()方法设置socket的选项参数
 # SOL_SOCKET = Set Option Level _ SOCKET 设置选项级别为socket级
 # SO_REUSEADDR = Socket Option _ REUSEADDR 设置socket的选项参数为重用地址功能
-# 1 表示开启此选项功能，即开启重用地址功能
+# ** 1 表示开启此选项功能，即开启重用地址(端口)功能
 server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 # 绑定IP地址和端口

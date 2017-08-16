@@ -145,3 +145,105 @@ http://localhost:8000/test/test.py
 (2.4-8j)
 >>> complex(2.3e-10, 45.3e4)
 (2.3e-10+453000j)
+
+## '_'存储最近的表达式, 它是非常有用的
+```python
+>>> 1 + 1
+2
+>>> _
+2
+```
+```python
+>>> import math
+>>> math.pi / 3
+1.0471975511965976
+>>> angle = _
+>>> math.cos(angle)
+0.50000000000000011
+>>> _
+0.50000000000000011
+```
+
+## 关于元组注意点
+```puthon
+>>> 1,
+(1,)
+>>> (1,)
+(1,)
+>>> ()
+()
+>>> tuple()
+()
+>>> value = 1,
+>>> value
+(1,)
+```
+
+## 哪里可能使用in
+Good:
+```
+for key in d:
+    print key
+```
+in is generally faster.
+This pattern also works for items in arbitrary containers (such as lists, tuples, and sets).
+in is also an operator (as we'll see).
+Bad:
+```
+for key in d.keys():
+    print key
+```
+This is limited to objects with a keys() method.
+
+For consistency, use key in dict, not dict.has_key():
+
+do this:
+```python
+if key in d:
+    ...do something with d[key]
+```
+not this:
+```python
+if d.has_key(key):
+    ...do something with d[key]
+```
+This usage of in is as an operator.
+
+## 学会常用dict的get()方法
+This is the naïve way to do it:
+```python
+navs = {}
+for (portfolio, equity, position) in data:
+    if portfolio not in navs:
+        navs[portfolio] = 0
+    navs[portfolio] += position * prices[equity]
+```
+dict.get(key, default) removes the need for the test:
+```python
+navs = {}
+for (portfolio, equity, position) in data:
+    navs[portfolio] = (navs.get(portfolio, 0)
+                       + position * prices[equity])
+```
+Much more direct.
+
+## 常用dict的setdefault()方法
+Here we have to initialize mutable dictionary values. Each dictionary value will be a list. This is the naïve way:
+Initializing mutable dictionary values:
+```python
+equities = {}
+for (portfolio, equity) in data:
+    if portfolio in equities:
+        equities[portfolio].append(equity)
+    else:
+        equities[portfolio] = [equity]
+```
+dict.setdefault(key, default) does the job更有效率的:
+```python
+equities = {}
+for (portfolio, equity) in data:
+    equities.setdefault(portfolio, []).append(
+                                         equity)
+```
+dict.setdefault() 等价于 "get, or set & get". Or "set if necessary, then get". It's especially efficient if your dictionary key is expensive to compute or long to type.
+dict.setdefault()有返回值, 返回的是原先key对应的value

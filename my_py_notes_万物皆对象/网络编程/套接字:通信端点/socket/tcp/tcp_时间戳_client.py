@@ -13,16 +13,16 @@ from socket import *
 # cs.close()          # 关闭客户端套接字
 
 host = '127.0.0.1'
-port = 21567
+port = 8081
 buf_size = 1024
 addr = (host, port)
 
 tcp_cli_sock = socket(AF_INET, SOCK_STREAM)
-tcp_cli_sock.connect(addr)
+tcp_cli_sock.connect(addr)      # 当connect执行完毕后, 表示已于服务器完成三次握手, 可以进行数据传输
 
 try:
     while True:
-        data = input('> ')
+        data = input('请输入传输数据> ')
         if not data:
             break
         tcp_cli_sock.send(data.encode())
