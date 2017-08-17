@@ -41,6 +41,7 @@ for item in rand_gen(['a', 'b', 'c']):
     print(item)
 
 print('')
+
 # 加强的生成器的特性
 # 除了__next__()来获得下一个生成的值
 # 用户可以将值回送给生成器[send()]
