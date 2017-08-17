@@ -4,7 +4,7 @@
 
 import sys
 sys.path.append('...')
-from tools import time_log
+from 日常脚本 import time_log
 
 a = {1: 1, 2: 2}
 b = {1: 2, 3: 3}

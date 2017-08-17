@@ -11,7 +11,7 @@ def slow():
     time.sleep(0.01)
 
 def very_slow():
-    for i in xrange(100):
+    for i in range(100):
         fast()
         slow()
     time.sleep(0.1)
@@ -21,5 +21,5 @@ def main():
     very_slow()
     very_slow()
 
-if __name__ == '__main__'
+if __name__ == '__main__':
     main()
