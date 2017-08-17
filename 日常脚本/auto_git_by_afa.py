@@ -6,11 +6,12 @@ import time
 def auto_git():
     # os.popen('cd ~/myFiles/codeDoc/PythonDoc && ls')
     # time.sleep(0.5)
-    os.popen('cd ~/myFiles/codeDoc/PythonDoc && git add --all')
+    path = '~/myFiles/codeDoc/PythonDoc'
+    os.popen('cd {} && git add --all'.format(path))
     time.sleep(2)
-    os.system('cd ~/myFiles/codeDoc/PythonDoc && git commit -m "{}"'.format(time.ctime()))
+    os.system('cd {} && git commit -m "{}"'.format(path, time.ctime()))
     time.sleep(2)
-    os.system('cd ~/myFiles/codeDoc/PythonDoc && git push -u origin master')
+    os.system('cd {} && git push -u origin master'.format(path))
     print('提交成功!!')
 
 if __name__ == '__main__':

@@ -22,7 +22,7 @@ print('-' * 30)
 # import copyregs
 # import io
 #
-# class MyPickler(pickle.Pickler):
+# class MyPickler(pickle(对象序列化).Pickler):
 #     dispath_table = copyreg.dispatch_table
 #     dispath_table[SomeClass] = copyreg.reduce_SomeClass
 #
@@ -124,7 +124,7 @@ def main():
     # Update a record, just for good measure.
     cursor.execute("UPDATE memos SET task='learn italian' WHERE key=1")
 
-    # Load the records from the pickle data stream.
+    # Load the records from the pickle(对象序列化) data stream.
     file.seek(0)
     memos = DBUnpickler(file, conn).load()
 
