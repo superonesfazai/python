@@ -1,6 +1,8 @@
 #coding:utf-8
 __author__ = 'super_fazai'
 
+# match.group([group1,...])
+
 import re
 
 line = 'booooobbbaaby123d'
