@@ -32,19 +32,13 @@ def handle_client(c_sock, c_addr):
         recv_data = c_sock.recv(1024)
 
         if recv_data:
-            # 表示recv_data不是空数据，即客户端没有关闭连接，而是发送过来的数据
             print("接收到了客户端 %s 传来的数据 %s" % (c_addr, recv_data.decode()))
-
-            # 使用send方法向客户端发送数据， bytes类型
             c_sock.send(recv_data)
 
         else:
-            # 表示recv_data是空数据，即客户端已经主动关闭了连接，
             print("客户端 %s 已经关闭了连接" % (c_addr,))
-            # 如果不想发送数据给客户端，可以关闭socket，表示关闭了与客户端的tcp连接
             c_sock.close()
             break
-
 
 # 表示让服务器可以在处理完一个客户端之后，能够再接收新的客户端的连接请求，并与新的客户端进行数据传输
 while True:
@@ -52,11 +46,9 @@ while True:
     # 默认是阻塞的，意思是如果监听队列中没有客户端发起的连接请求，则阻塞等待，直到有客户端连接
     # accept()方法有两个返回值
     # client_sock 是用来跟客户端进行一对一通讯用的socket对象
-    # client_addr 表示接受了连接请求的客户端的地址信息（客户端ip和端口）元祖
     client_sock, client_addr = server_sock.accept()
 
     print("客户端 %s 已连接" % (client_addr, ))
-    # print("客户端 %s 已连接" % str(client_addr))
 
     # 创建一个子进程，由子进程负责数据传输
     p = Process(target=handle_client, args=(client_sock, client_addr))
