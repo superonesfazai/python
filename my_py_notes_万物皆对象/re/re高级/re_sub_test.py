@@ -51,4 +51,9 @@ print(res)
 '''
 测试结果:
 python = 998
+01/01/2017
+abc 1 2 345def
+ a b c123 4 5 d e f 
+abc123 4 5 def
+ a b c 1 2 345d e f
 '''
