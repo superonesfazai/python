@@ -23,7 +23,7 @@ class QuotesSpider(scrapy.Spider):
         'http://quotes.toscrape.com/page/1/',
     ]
 
-    def parse(self, response):
+    def parse(self, response):      # 从单个callback中返回多个请求和items
         for quote in response.css('div.quote'):
             yield {
                 'text': quote.css('span.text::text').extract()[0],

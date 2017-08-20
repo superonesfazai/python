@@ -1,0 +1,66 @@
+## scrapy.spiders.CrawlSpider类
+这是用于爬网常规网站的最常用的蜘蛛，因为它通过定义一组规则提供了一个方便的机制for following links。它可能不是最适合您的特定网站或项目，但它对于几种情况来说足够通用，所以您可以从它开始，根据需要覆盖更多自定义功能，或仅实现自己的蜘蛛。
+
+除了继承自Spider（您必须指定）的属性外，此类还支持一个新属性：
+
+#### rules
+哪个是一个（或多个）Rule对象的列表。每个Rule都 定义了一些抓取站点的行为。规则对象如下所述。如果多个规则匹配相同的链接，则将根据在此属性中定义的顺序使用第一个规则。
+
+这个蜘蛛也暴露了一个可重写的方法：
+#### parse_start_url（回应）
+start_urls响应调用此方法。它允许解析初始响应，并且必须返回 Item对象，Request 对象或包含其中任何一个的迭代。
+
+## 追踪规则
+```
+class scrapy.spiders.Rule（
+    link_extractor, 
+    callback = None,
+    cb_kwargs = None,
+    follow = None,
+    process_links = None,
+    process_request = None）
+```
+```
+link_extractor  是一个链接提取器对象，它定义了如何从每个爬网页面中提取链接。
+
+callback  是一个可调用或一个字符串（在这种情况下将使用具有该名称的蜘蛛对象的方法）被调用为使用指定的link_extractor提取的每个链接。此回调接收响应作为其第一个参数，并且必须返回包含Item和/或 Request对象（或其任何子类）的列表。
+    * 警告
+    当编写爬网蜘蛛规则时，避免使用parse回调，因为CrawlSpider使用parse方法本身来实现其逻辑。因此，如果您覆盖该parse方法，爬网蜘蛛将无法工作
+cb_kwargs 是一个包含要传递给回调函数的关键字参数的dict。
+
+follow  是一个布尔值，它指定是否应该使用此规则提取的每个响应都遵循链接。如果callback是无follow默认值True，否则默认为False。
+
+process_links  是一个可调用的或一个字符串（在这种情况下将使用来自具有该名称的蜘蛛对象的方法），这将从使用指定的每个响应提取的每个链接列表被调用link_extractor。这主要用于过滤。
+
+process_request  是一个可调用的或一个字符串（在这种情况下，将使用具有该名称的蜘蛛对象的方法），这将由此规则提取的每个请求调用，并且必须返回请求或无（以过滤出请求） 。
+```
+## CrawlSpider示例
+现在我们来看一下这个带有rule的CrawlSpider的例子：
+```python
+import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+
+class MySpider(CrawlSpider):
+    name = 'example.com'
+    allowed_domains = ['example.com']
+    start_urls = ['http://www.example.com']
+
+    rules = (
+        # Extract links matching 'category.php' (but not matching 'subsection.php')
+        # and follow links from them (since no callback means follow=True by default).
+        Rule(LinkExtractor(allow=('category\.php', ), deny=('subsection\.php', ))),
+
+        # Extract links matching 'item.php' and parse them with the spider's method parse_item
+        Rule(LinkExtractor(allow=('item\.php', )), callback='parse_item'),
+    )
+
+    def parse_item(self, response):
+        self.logger.info('Hi, this is an item page! %s', response.url)
+        item = scrapy.Item()
+        item['id'] = response.xpath('//td[@id="item_id"]/text()').re(r'ID: (\d+)')
+        item['name'] = response.xpath('//td[@id="item_name"]/text()').extract()
+        item['description'] = response.xpath('//td[@id="item_description"]/text()').extract()
+        return item
+```
+这个蜘蛛将开始爬行example.com的主页，收集类别链接和项目链接，使用该parse_item方法解析后者。对于每个项目响应，将使用XPath从HTML中提取一些数据，并将Item填充它

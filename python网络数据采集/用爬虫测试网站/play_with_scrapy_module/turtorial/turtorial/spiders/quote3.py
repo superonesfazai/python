@@ -11,8 +11,8 @@ import scrapy
 
 class AuthorSpider(scrapy.Spider):
     name = 'authors'
-    start_url = [
-        'http:://quotes.toscrape.com/',
+    start_urls = [
+        'http:://quotes.toscrape.com/'
     ]
 
     def parse(self, response):
