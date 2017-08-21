@@ -19,21 +19,22 @@ def handle_cli(cli_socket):
     for line in request_header_lines:
         print(line.decode())
 
-    response_header_lines = r'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
-    response_header_lines += '\r\n'
-    # response_body = r'''
-    # <html>
-    #     <head>
-    #         <title>hello,guys!</title>
-    #     </head>
-    #     <body>
-    #         <p>hi, guys</p>
-    #     </body>
-    # </html>
-    # '''
-    response_body = '''hello, world'''
+    response_header_lines = 'HTTP/1.1 200 OK\r\n' # 起始头
+    response_header_lines += 'Server: MyServer\r\n'     # 响应头
+    response_header_lines += 'Content-Type: text/html\r\n'
+    response_body = r'''
+    <html>
+        <head>
+            <title>hello,guys!</title>
+        </head>
+        <body>
+            <p>hi, guys</p>
+        </body>
+    </html>
+    '''
+    # response_body = '''hello, world'''
 
-    response = response_header_lines + response_body
+    response = response_header_lines + '\r\n' +response_body
     cli_socket.send(response.encode())
     cli_socket.close()
 

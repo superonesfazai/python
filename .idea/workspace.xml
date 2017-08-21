@@ -2,22 +2,36 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/mvc模式.png" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/tmp/jupyter_notebook_test.ipynb" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/文本/list常用函数.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/list_deal_with/list常用函数.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/文本/string判断类型的方法.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/string_deal_with/string判断类型的方法.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/文本/string查找与替换.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/string_deal_with/string查找与替换.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/文本/去空白符.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/string_deal_with/去空白符.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/文本/文本对齐.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/string_deal_with/文本对齐.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ascii_codec_can't_decode_byte_0xe5.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/images/RMB.JPG" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/images/fight.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/.idea/modules.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/.idea/mysite.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/.idea/workspace.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/manage.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/settings.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/urls.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/wsgi.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/admin.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/apps.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/migrations/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/models.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/urls.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/tests.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/views.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index1.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/Item_Loaders/Item_Loader_notes" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/爬虫与反爬虫" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/fileinput/fileinput_test.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/fileinput/fileinput_test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)/difflib_differ.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)/difflib_differ.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图像处理相关/Pillow(PIL)/draw_pencil_sketches_and_play_with_hotos.ipynb" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图像处理相关/Pillow(PIL)/draw_pencil_sketches_and_play_with_hotos.ipynb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/http协议_notes" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/http协议_notes" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/1_显示固定页面.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/1_显示固定页面.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/服务器动态资源请求" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/服务器动态资源请求" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包_test1.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包_test1.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包的应用场景" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包的应用场景" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/gc垃圾回收" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/gc垃圾回收" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/2_显示需要的页面.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/2_显示需要的页面.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index.html" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -31,10 +45,11 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$enumerate_test.coverage" NAME="enumerate_test Coverage Results" MODIFIED="1501841233242" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$hello_.coverage" NAME="终端会出现多少次hello? Coverage Results" MODIFIED="1502264928695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$____.coverage" NAME="对象值(==)比较 Coverage Results" MODIFIED="1501725724528" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/对象值(==)比较" />
-    <SUITE FILE_PATH="coverage/PythonDoc$1_.coverage" NAME="1_显示固定页面 Coverage Results" MODIFIED="1503234684225" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server" />
+    <SUITE FILE_PATH="coverage/PythonDoc$1_.coverage" NAME="1_显示固定页面 Coverage Results" MODIFIED="1503288997109" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$multiprocess.coverage" NAME="multiprocess Coverage Results" MODIFIED="1502108299486" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/进程_线程_and_同步" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$turtle_tracer.coverage" NAME="turtle.tracer Coverage Results" MODIFIED="1500968995013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$type_test.coverage" NAME="使用type创建类_test Coverage Results" MODIFIED="1502007325138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
+    <SUITE FILE_PATH="coverage/PythonDoc$difflib_differ.coverage" NAME="difflib_differ Coverage Results" MODIFIED="1503317749661" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$fileinput_test.coverage" NAME="fileinput_test Coverage Results" MODIFIED="1501067963240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/fileinput" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$__.coverage" NAME="装饰器带参数_在原有修饰器的基础上_设置外部变量 Coverage Results" MODIFIED="1501992839614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/装饰器" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$emit_custom_signals.coverage" NAME="emit_custom_signals Coverage Results" MODIFIED="1502784749693" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/events_and_signals" />
@@ -48,7 +63,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$urllib_parse_parse_qs.coverage" NAME="urllib_parse_parse_qs Coverage Results" MODIFIED="1502938824453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$button_test.coverage" NAME="button_test Coverage Results" MODIFIED="1500890626830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/ui_and_python/tkinter" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$simple_flask_server2.coverage" NAME="simple_flask_server2 Coverage Results" MODIFIED="1502808923531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask" />
-    <SUITE FILE_PATH="coverage/PythonDoc$2_.coverage" NAME="2_显示需要的页面 Coverage Results" MODIFIED="1503222522358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server" />
+    <SUITE FILE_PATH="coverage/PythonDoc$2_.coverage" NAME="2_显示需要的页面 Coverage Results" MODIFIED="1503289741713" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$operator_boolean.coverage" NAME="operator_boolean Coverage Results" MODIFIED="1502895879112" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/operator" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp__client.coverage" NAME="tcp_时间戳_client Coverage Results" MODIFIED="1502848185643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$tcp_QQ_server.coverage" NAME="tcp_模拟QQ聊天_server Coverage Results" MODIFIED="1502585886128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp" />
@@ -79,6 +94,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$urllib_request_urlopen.coverage" NAME="urllib_request_urlopen Coverage Results" MODIFIED="1502942251062" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test.coverage" NAME="迭代器_test Coverage Results" MODIFIED="1502930769471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/迭代器与生成器/迭代器" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$odbchelper.coverage" NAME="odbchelper Coverage Results" MODIFIED="1500725854193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/basic" />
+    <SUITE FILE_PATH="coverage/PythonDoc$_test.coverage" NAME="装饰器_test Coverage Results" MODIFIED="1503359547742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$Unittests_in__test_py.coverage" NAME="Unittests in 函数修饰符_test.py Coverage Results" MODIFIED="1500790440831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$1.coverage" NAME="自定义元类1 Coverage Results" MODIFIED="1502012980225" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/元类" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$______.coverage" NAME="______ Coverage Results" MODIFIED="1501719226088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -92,6 +108,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$Queue.coverage" NAME="进程池中的Queue Coverage Results" MODIFIED="1502251330572" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/进程间通信-Queue" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$cmath_test.coverage" NAME="cmath_test Coverage Results" MODIFIED="1501050421481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/cmath" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$_test1.coverage" NAME="闭包_test1 Coverage Results" MODIFIED="1501818370247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
+    <SUITE FILE_PATH="coverage/PythonDoc$wuziqi_test.coverage" NAME="wuziqi_test Coverage Results" MODIFIED="1503305707798" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$urllib_parse_quote.coverage" NAME="urllib_parse_quote Coverage Results" MODIFIED="1502939506734" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$udp_test.coverage" NAME="udp广播_test Coverage Results" MODIFIED="1502763302054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="coverage/PythonDoc$gevent.coverage" NAME="gevent切换执行 Coverage Results" MODIFIED="1503051288005" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/服务器模型/协程/协程-gevent版" />
@@ -101,6 +118,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$QSlider.coverage" NAME="QSlider Coverage Results" MODIFIED="1502789903612" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/widgets(小部件)" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$copy_deepcopy_.coverage" NAME="copy_deepcopy_可变对象 Coverage Results" MODIFIED="1501763584537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/深拷贝与浅拷贝" />
     <SUITE FILE_PATH="coverage/PythonDoc$_demo.coverage" NAME="应用程序_demo Coverage Results" MODIFIED="1503224249281" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/images" />
+    <SUITE FILE_PATH="coverage/PythonDoc$write_my_name.coverage" NAME="write_my_name Coverage Results" MODIFIED="1503305752954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$filter_test.coverage" NAME="filter_test Coverage Results" MODIFIED="1502092563342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$char_unicode.coverage" NAME="char_判断unicode是否为某一类型 Coverage Results" MODIFIED="1502503747019" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/文本" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$multiprocessing_Process_demo1.coverage" NAME="multiprocessing_Process_demo1 Coverage Results" MODIFIED="1502244526810" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
@@ -280,8 +298,62 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="str_format_文本缩进_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/str_format_文本缩进_test.py">
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="420">
+              <caret line="28" column="28" lean-forward="false" selection-start-line="28" selection-start-column="28" selection-end-line="28" selection-end-column="28" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="16" selection-end-column="1" />
+              <folding>
+                <element signature="e#130#162#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="admin.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/admin.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="18" column="3" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="3" />
+              <folding>
+                <element signature="e#132#164#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="315">
+              <caret line="22" column="0" lean-forward="true" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="45">
+              <caret line="3" column="0" lean-forward="true" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="装饰器的功能" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器的功能">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -290,18 +362,8 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="schedule_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/时间与财务计算/schedule/schedule_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="118">
-              <caret line="10" column="20" lean-forward="false" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="notes" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/notes">
+      <file leaf-file-name="装饰器的理解" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器的理解">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -310,18 +372,18 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="进程, 线程对比" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/进程, 线程对比">
+      <file leaf-file-name="装饰器_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="194">
-              <caret line="15" column="11" lean-forward="false" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
+            <state relative-caret-position="360">
+              <caret line="24" column="11" lean-forward="true" selection-start-line="24" selection-start-column="11" selection-end-line="24" selection-end-column="11" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="阻塞与非阻塞" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/阻塞与非阻塞">
+      <file leaf-file-name="被装饰的函数有参数_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/被装饰的函数有参数_test.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -330,51 +392,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="避免死锁" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/死锁/避免死锁">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="3" lean-forward="true" selection-start-line="11" selection-start-column="3" selection-end-line="11" selection-end-column="3" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="死锁_demo.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/死锁/死锁_demo.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-26">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="class_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/面向对象(万物皆对象)/class_test.py">
+      <file leaf-file-name="被装饰的函数有不定长参数_test.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/被装饰的函数有不定长参数_test.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="从标准类派生_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/面向对象(万物皆对象)/从标准类派生_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="何谓对象" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/面向对象(万物皆对象)/何谓对象">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="1" lean-forward="false" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -406,16 +428,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/匹配出0-100之间的数字.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_search_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_findall_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_split_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_得到二级域名_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_html_文本提取_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_complie_编译re对象提高re匹配速度.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_html_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_test.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/面向对象(万物皆对象)/继承/多类继承/用于多类继承的C3解析算法.py" />
         <option value="$PROJECT_DIR$/python_面试相关/易面试点.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/规范化与异常捕获/在流产语句finally块.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/迭代器与生成器/列表推导很快_但发电机更快吗?.py" />
@@ -443,20 +455,30 @@
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/Items/demo.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/BaseHTTPServer/simple_demo.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/3_使用类.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index.html" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/2_显示需要的页面.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/web_动态_server_demo1.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/images/应用程序_demo.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/web_动态_server_demo2(传递数据给应用).py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/服务器动态资源请求" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/simple_demo.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/1_显示固定页面.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/fileinput/fileinput_test.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包的应用场景" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包_test1.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/http协议_notes" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/gc垃圾回收" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/http协议_notes" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/1_显示固定页面.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/2_显示需要的页面.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index.html" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/Item_Loaders/Item_Loader_notes" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/Item_Loaders/爬虫与反爬虫" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/爬虫与反爬虫" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)/difflib_differ.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/admin.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/urls.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/models.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/models.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/admin.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/urls.py" />
       </list>
     </option>
   </component>
@@ -466,9 +488,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="583" />
-    <option name="y" value="61" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="601" />
+    <option name="y" value="60" />
     <option name="width" value="654" />
     <option name="height" value="681" />
   </component>
@@ -579,7 +601,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <expand>
@@ -699,13 +720,24 @@
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="_分布式爬虫_scrapy框架_搜索引擎" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="_分布式爬虫_scrapy框架_搜索引擎" type="462c0819:PsiDirectoryNode" />
+              <item name="AtricleSpider" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
-              <item name="文件系统" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="装饰器" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
@@ -716,19 +748,20 @@
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
+              <item name="开始采集" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
+              <item name="开始采集" type="462c0819:PsiDirectoryNode" />
+              <item name="通过scrapy采集" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -739,19 +772,19 @@
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy_note" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/images" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/images" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程" />
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_动态_server/images" />
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/tutorial/spiders" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/面向对象(万物皆对象)/继承" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/string_deal_with" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/list_deal_with" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/服务器模型/多路IO复用" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/服务器模型" />
-      <recent name="$PROJECT_DIR$/日常脚本" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -766,8 +799,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.simple_flask_server2">
-    <configuration name="1_显示固定页面" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.装饰器_test">
+    <configuration name="2_显示需要的页面" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -780,7 +813,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/1_显示固定页面.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/2_显示需要的页面.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -951,20 +984,38 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <configuration name="fileinput_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="装饰器_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/fileinput" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/fileinput/fileinput_test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="difflib_differ" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)/difflib_differ.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -983,24 +1034,6 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/use_pandas_deal_with_datas/pandas_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="pprint_pformat_demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/pprint(打印美化)" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/pprint(打印美化)/pprint_pformat_demo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1059,24 +1092,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="simple_flask_server2" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/simple_flask_server2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
     <configuration name="str_format_文本缩进_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1091,24 +1106,6 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/文本/str_format_文本缩进_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="system_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/system_manage" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/system_manage/system_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1167,6 +1164,42 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
+    <configuration name="write_my_name" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle/write_my_name.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="wuziqi_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle/wuziqi_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <list size="12">
       <item index="0" class="java.lang.String" itemvalue="Python.quick_sort" />
       <item index="1" class="java.lang.String" itemvalue="Python.request_test" />
@@ -1175,19 +1208,19 @@
       <item index="4" class="java.lang.String" itemvalue="Python.pandas_test" />
       <item index="5" class="java.lang.String" itemvalue="Python.turtle_test" />
       <item index="6" class="java.lang.String" itemvalue="Python.queue_test" />
-      <item index="7" class="java.lang.String" itemvalue="Python.1_显示固定页面" />
-      <item index="8" class="java.lang.String" itemvalue="Python.fileinput_test" />
-      <item index="9" class="java.lang.String" itemvalue="Python.pprint_pformat_demo" />
-      <item index="10" class="java.lang.String" itemvalue="Python.system_test" />
-      <item index="11" class="java.lang.String" itemvalue="Python.simple_flask_server2" />
+      <item index="7" class="java.lang.String" itemvalue="Python.2_显示需要的页面" />
+      <item index="8" class="java.lang.String" itemvalue="Python.wuziqi_test" />
+      <item index="9" class="java.lang.String" itemvalue="Python.write_my_name" />
+      <item index="10" class="java.lang.String" itemvalue="Python.difflib_differ" />
+      <item index="11" class="java.lang.String" itemvalue="Python.装饰器_test" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.simple_flask_server2" />
-        <item index="1" class="java.lang.String" itemvalue="Python.system_test" />
-        <item index="2" class="java.lang.String" itemvalue="Python.pprint_pformat_demo" />
-        <item index="3" class="java.lang.String" itemvalue="Python.fileinput_test" />
-        <item index="4" class="java.lang.String" itemvalue="Python.1_显示固定页面" />
+        <item index="0" class="java.lang.String" itemvalue="Python.装饰器_test" />
+        <item index="1" class="java.lang.String" itemvalue="Python.difflib_differ" />
+        <item index="2" class="java.lang.String" itemvalue="Python.write_my_name" />
+        <item index="3" class="java.lang.String" itemvalue="Python.wuziqi_test" />
+        <item index="4" class="java.lang.String" itemvalue="Python.2_显示需要的页面" />
       </list>
     </recent_temporary>
   </component>
@@ -1255,17 +1288,19 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="583" y="61" width="654" height="681" extended-state="0" />
+    <frame x="601" y="60" width="654" height="681" extended-state="1" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32262996" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21510673" sideWeight="0.5107034" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32888147" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20689656" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20525451" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32512316" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4235474" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3218391" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39929327" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1274,7 +1309,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3218391" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -1313,296 +1347,17 @@
           <option name="timeStamp" value="16" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="23" />
+      <option name="time" value="24" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图像处理相关/Pillow(PIL)/draw_pencil_sketches_and_play_with_hotos.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/机器学习库/scikit-learn/Sklearn.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="-438">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/修改IDE相关快捷键">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/怎样查看python某一个库(或module)在哪">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="47" column="9" lean-forward="false" selection-start-line="47" selection-start-column="9" selection-end-line="47" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/re/匹配出0-100之间的数字.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-194">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/spiders/scrapy/scrapy_notes.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SECOND">
-          <first_editor relative-caret-position="-65">
-            <caret line="9" column="10" lean-forward="false" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="10" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/spiders/test_智联招聘_old.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/spiders/test_爬取某工学院整站所有节点.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/system_manage/system">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/system_manage/config_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/system_manage/sys_argv_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="20">
-          <caret line="6" column="7" lean-forward="false" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/system_manage/system_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-193">
-          <caret line="33" column="23" lean-forward="true" selection-start-line="33" selection-start-column="23" selection-end-line="33" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/tmp/jupyter_notebook_test.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/tmp/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="20" column="13" lean-forward="false" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="13" lean-forward="true" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask/simple_flask_server2/simple_flask_server2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="40" column="13" lean-forward="true" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包的应用场景">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="20" lean-forward="false" selection-start-line="2" selection-start-column="20" selection-end-line="2" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/legb规则.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-404">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包_test1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="40" column="6" lean-forward="true" selection-start-line="40" selection-start-column="6" selection-end-line="40" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包_test2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="18" column="3" lean-forward="true" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/函数式编程/闭包/闭包内层函数修改外层函数的属性.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-163">
-          <caret line="12" column="22" lean-forward="true" selection-start-line="12" selection-start-column="22" selection-end-line="12" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/加密与解密/psw_encrypt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-70">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/http协议_notes">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="30">
-            <caret line="2" column="35" lean-forward="false" selection-start-line="2" selection-start-column="35" selection-end-line="2" selection-end-column="35" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/可移植性/python版本判断_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="16" lean-forward="false" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/gc垃圾回收">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="27" column="18" lean-forward="true" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/引用计数机制">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="100" column="14" lean-forward="false" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/小整数对象池/小整数对象池">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/大整数对象池/大整数对象池">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/intern机制/intern机制">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-325">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/list_deal_with/列表推导式.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-94">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/list常用函数.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/string判断类型的方法.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/string查找与替换.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/去空白符.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/文本对齐.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/去空白符.png" />
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文本/文本对齐.png" />
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/文件系统/与目录共事/fileinfo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="18" column="3" lean-forward="true" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="3" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1610,7 +1365,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1618,7 +1372,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1626,7 +1379,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1634,7 +1386,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1642,7 +1393,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1650,7 +1400,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="118">
           <caret line="10" column="20" lean-forward="false" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1658,7 +1407,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1666,7 +1414,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="194">
           <caret line="15" column="11" lean-forward="false" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1674,7 +1421,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1682,7 +1428,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="11" column="3" lean-forward="true" selection-start-line="11" selection-start-column="3" selection-end-line="11" selection-end-column="3" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1690,7 +1435,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-26">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1698,7 +1442,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1706,14 +1449,288 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/面向对象(万物皆对象)/何谓对象">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="1" lean-forward="false" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
+        <state relative-caret-position="105">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/god_love/index.html" />
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/1_显示固定页面.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="32" column="11" lean-forward="true" selection-start-line="25" selection-start-column="4" selection-end-line="32" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/http协议_notes">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="142">
+            <caret line="14" column="8" lean-forward="false" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/re/最全的常用正则表达式大全">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-436">
+          <caret line="70" column="22" lean-forward="false" selection-start-line="70" selection-start-column="21" selection-end-line="70" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-241">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle/write_my_name.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-45">
+          <caret line="19" column="21" lean-forward="true" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/图形绘制/turtle/wuziqi_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="21" lean-forward="true" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+          <folding>
+            <element signature="e#101#114#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="116" column="37" lean-forward="false" selection-start-line="116" selection-start-column="37" selection-end-line="116" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/html/index1.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="7" lean-forward="true" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/web_static_server/2_显示需要的页面.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="14" column="24" lean-forward="true" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/Item_Loaders/Item_Loader_notes">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="594">
+            <caret line="102" column="0" lean-forward="true" selection-start-line="102" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="725">
+          <caret line="72" column="34" lean-forward="false" selection-start-line="72" selection-start-column="34" selection-end-line="72" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/spiders/jobbole.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-257">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/articleexporter.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/article.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1275">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/算法/sorts/cocktail_shaker_sort.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/difflib(比较序列差异, 特别是文本行)/difflib_differ.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="62" column="14" lean-forward="false" selection-start-line="62" selection-start-column="14" selection-end-line="62" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/cmath/cmath_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="13" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/爬虫与反爬虫">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="639">
+            <caret line="49" column="18" lean-forward="true" selection-start-line="49" selection-start-column="18" selection-end-line="49" selection-end-column="18" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/Django/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1217">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="28" lean-forward="false" selection-start-line="28" selection-start-column="28" selection-end-line="28" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="3" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="18" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="3" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="3" />
+          <folding>
+            <element signature="e#132#164#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/news/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="16" selection-end-column="1" />
+          <folding>
+            <element signature="e#130#162#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="22" column="0" lean-forward="true" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/mysite_demo/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="0" lean-forward="true" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器的功能">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器的理解">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/装饰器_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="11" lean-forward="true" selection-start-line="24" selection-start-column="11" selection-end-line="24" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/被装饰的函数有参数_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/装饰器/被装饰的函数有不定长参数_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>

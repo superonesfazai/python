@@ -7,31 +7,56 @@
 @connect : superonesfazai@gmail.com
 '''
 
-text1 = """Lorem ipsum dolor sit amet, consectetuer adipiscing
-elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
-pulvinar porttitor tellus. Aliquam venenatis. Donec facilisis
-pharetra tortor.  In nec mauris eget magna consequat
-convalis. Nam sed sem vitae odio pellentesque interdum. Sed
-consequat viverra nisl. Suspendisse arcu metus, blandit quis,
-rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
-molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
-tristique vel, mauris. Curabitur vel lorem id nisl porta
-adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate
-tristique enim. Donec quis lectus a justo imperdiet tempus."""
+# text1 = """Lorem ipsum dolor sit amet, consectetuer adipiscing
+# elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
+# pulvinar porttitor tellus. Aliquam venenatis. Donec facilisis
+# pharetra tortor.  In nec mauris eget magna consequat
+# convalis. Nam sed sem vitae odio pellentesque interdum. Sed
+# consequat viverra nisl. Suspendisse arcu metus, blandit quis,
+# rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
+# molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
+# tristique vel, mauris. Curabitur vel lorem id nisl porta
+# adipiscing. Suspendisse eu lectus. In nunc. Duis vulputate
+# tristique enim. Donec quis lectus a justo imperdiet tempus."""
+
+text1 = r'''
+import cmath
+
+print(cmath.exp(2))     # return the exponential value e**x
+
+print(cmath.sqrt(4))    # 开方
+
+print(cmath.asin(0.5))
+
+print('%.20f' % cmath.pi)
+'''
 
 text1_lines = text1.splitlines()
 
-text2 = """Lorem ipsum dolor sit amet, consectetuer adipiscing
-elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
-pulvinar, porttitor tellus. Aliquam venenatis. Donec facilisis
-pharetra tortor. In nec mauris eget magna consequat
-convalis. Nam cras vitae mi vitae odio pellentesque interdum. Sed
-consequat viverra nisl. Suspendisse arcu metus, blandit quis,
-rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
-molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
-tristique vel, mauris. Curabitur vel lorem id nisl porta
-adipiscing. Duis vulputate tristique enim. Donec quis lectus a
-justo imperdiet tempus.  Suspendisse eu lectus. In nunc."""
+text2 = r'''
+import cmath
+import sys
+
+print(cmath.exp(2))     # return the exponential value e**x
+
+print(cmath.sqrt(4))    # 开方
+
+print(cmath.asin(0.5))
+
+print('%.20f' % cmath.pi)
+'''
+
+# text2 = """Lorem ipsum dolor sit amet, consectetuer adipiscing
+# elit. Integer eu lacus accumsan arcu fermentum euismod. Donec
+# pulvinar, porttitor tellus. Aliquam venenatis. Donec facilisis
+# pharetra tortor. In nec mauris eget magna consequat
+# convalis. Nam cras vitae mi vitae odio pellentesque interdum. Sed
+# consequat viverra nisl. Suspendisse arcu metus, blandit quis,
+# rhoncus ac, pharetra eget, velit. Mauris urna. Morbi nonummy
+# molestie orci. Praesent nisi elit, fringilla ac, suscipit non,
+# tristique vel, mauris. Curabitur vel lorem id nisl porta
+# adipiscing. Duis vulputate tristique enim. Donec quis lectus a
+# justo imperdiet tempus.  Suspendisse eu lectus. In nunc."""
 
 text2_lines = text2.splitlines()
 

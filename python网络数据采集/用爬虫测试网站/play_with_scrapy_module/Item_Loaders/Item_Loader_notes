@@ -1,0 +1,103 @@
+## Item Loaders
+Item Loader提供了一个方便的机制, 用于填充爬取的Items,即使可以使用自己的类似于字典的API来填充项目，Item Loaders可以通过自动化一些常见任务（如解析原始提取的数据）进行分配，从而为爬取过程提供更方便的API。
+
+换句话说，Items提供了数据的容器，而Item Loaders提供了填充该容器的机制
+
+项目装载器旨在提供一种灵活，高效和简单的机制，可以通过蜘蛛或源格式（HTML，XML等）扩展和覆盖不同的现场解析规则，而不会成为维护的噩梦
+
+#### 使用Item Loader来填充项目
+
+要使用项目加载器，您必须首先实例化它。您可以使用类似dict的对象（例如Item或dict）来实例化它，也可以不使用一个对象，在这种情况下，使用ItemLoader.default_item_class 属性中指定的Item类在Item Loader构造函数中自动实例化一个Item 
+
+以下是Spider中使用“ Items”一节中声明的“ Product”项的典型Item Loader用法：
+```python
+from scrapy.loader import ItemLoader
+from myproject.items import Product
+
+def parse(self, response):
+    l = ItemLoader(item=Product(), response=response)
+    l.add_xpath('name', '//div[@class="product_name"]')
+    l.add_xpath('name', '//div[@class="product_title"]')
+    l.add_xpath('price', '//p[@id="price"]')
+    l.add_css('stock', 'p#stock]')
+    l.add_value('last_updated', 'today') # you can also use literal values
+    return l.load_item()
+```
+通过快速查看该代码，我们可以看到该name字段正在从页面中的两个不同XPath位置提取
+```html
+1.//div[@class="product_name"]
+2.//div[@class="product_title"]
+```
+换句话说，使用该add_xpath()方法从两个XPath位置提取数据正在收集数据。这是稍后将分配给该name字段的数据。
+
+之后，类似的调用用于price和stock字段（后者使用带有该add_css()方法的CSS选择器），最后使用不同的方法last_update直接用字面值（today）填充该字段add_value()
+
+最后，收集到的所有数据时，该ItemLoader.load_item()方法被调用，实际上返回填充了先前提取并与收集到的数据的项目add_xpath()， add_css()和add_value()调用。
+
+#### Input and Output处理器
+Item Loader为每个（项目）字段包含一个输入处理器和一个输出处理器。输入处理器只要它接收处理所提取的数据（通过add_xpath()，add_css()或 add_value()方法）和输入处理器的结果被收集和保持在ItemLoader内部。收集所有数据后，ItemLoader.load_item()调用该 方法来填充并获取填充 Item对象。这就是当使用以前收集的数据（并使用输入处理器进行处理）调用输出处理器时。输出处理器的结果是分配给该项目的最终值。
+
+我们来看一个例子来说明如何为特定字段调用输入和输出处理器（同样适用于任何其他字段）：
+```python
+l = ItemLoader(Product(), some_selector)
+l.add_xpath('name', xpath1) # (1)
+l.add_xpath('name', xpath2) # (2)
+l.add_css('name', css) # (3)
+l.add_value('name', 'test') # (4)
+return l.load_item() # (5)
+```
+
+那么会发生什么呢？(处理过程)
+```html
+1. 数据xpath1被提取，并通过该字段的输入处理器name。
+   输入处理器的结果被收集并保存在项目加载器中（但尚未分配给该项目）。
+2. xpath2提取数据，并通过（1）中使用的相同输入处理器。
+   输入处理器的结果附加到（1）（如果有）中收集的数据。
+3. 除了从cssCSS选择器中提取数据，并且通过与（1）和（2）中使用的相同的输入处理器之外，
+   这种情况与之前的情况类似。输入处理器的结果附加到（1）和（2）中收集的数据（如果有的话）。
+4. 这种情况也与之前的情况类似，只是直接分配要收集的值，
+   而不是从XPath表达式或CSS选择器中提取。
+   但是，该值仍然通过输入处理器传递。
+   在这种情况下，由于该值不是可迭代的，
+   因为输入处理器始终接收到迭代，因此将其转换为单个元素的迭代，
+   然后将其传递给输入处理器。
+5. 在步骤收集的数据（1），（2），（3）和（4）通过传送输出处理器的的name字段。
+   输出处理器的结果是分配给name 项目中的字段的值。
+```
+值得注意的是，处理器只是可调用对象，这些对象将被调用用于解析的数据，并返回一个已解析的值。所以您可以使用任何功能作为输入或输出处理器。唯一的要求是它们必须接受一个（只有一个）位置参数，这将是一个迭代器。
+
+```html
+注意:
+
+输入和输出处理器都必须接收迭代器作为第一个参数。
+这些功能的输出可以是任何东西。
+输入处理器的结果将附加到包含收集的值（对于该字段）的内部列表（在Loader中）。
+输出处理器的结果是最终分配给该项目的值。
+```
+您需要记住的另一件事是，输入处理器返回的值在内部（在列表中）收集，然后传递给输出处理器以填充字段
+
+#### declaring Item Loader
+Item Loader像Items一样声名,通过定义为一个class
+下面有一个example:
+```python
+from scrapy.loader import ItemLoader
+from scrapy.loader.processors import TakeFirst, MapCompose, Join
+
+class ProductLoader(ItemLoader):
+
+    default_output_processor = TakeFirst()
+
+    name_in = MapCompose(unicode.title)
+    name_out = Join()
+
+    price_in = MapCompose(unicode.strip)
+
+    # ...
+```
+正如你所见的, 输入处理器被声名使用_in后缀,而输出处理器被声明使用_out后缀, 你也能声名一个默认的输入／输出处理器使用ItemLoader.default_input_processor and ItemLoader.default_output_processor attributes.
+#### 声名一个输入／输出处理器
+正如前面部分所见, 输入和输出处理器能在Item Loader中被声名
+
+这也是比较方便的去声名输入处理器通过这种方式
+
+

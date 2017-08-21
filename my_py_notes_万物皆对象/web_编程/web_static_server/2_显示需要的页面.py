@@ -11,7 +11,7 @@ import socket
 from multiprocessing import Process
 import re
 
-# 这里配置服务器
+# 这里配置服务器, 用户可以访问的html文件的目录
 document_root = './html'
 
 def handle_request(cli_socket):
@@ -21,28 +21,39 @@ def handle_request(cli_socket):
         print(line.decode())
 
     http_request_method_line = request_header_lines[0]
-    get_file_name = re.compile('[^/]+(/[^ ]*)').findall(http_request_method_line.decode())[0]
-    print('file name is ===>{}'.format(get_file_name))
+    # 请求路径只要不是空格就匹配
+    get_file_path = re.compile('[^/]+(/[^ ]*)').findall(http_request_method_line.decode())[0]
+    print('file path is ===>{}'.format(get_file_path))
 
-    if get_file_name == '/':
-        get_file_name = document_root + '/index.html'
+    if get_file_path == '/':
+        get_file_path = document_root + '/index.html'   # 构建到index.html路径
     else:
-        get_file_name = document_root + get_file_name
-    print('file name is ===>2>{}'.format(get_file_name))
+        get_file_path = document_root + get_file_path   # 否则根据用户实际请求的路径进行构造路径
+    print('file path is ===>2>{}'.format(get_file_path))
 
     try:
-        f = open(get_file_name)
-    except IOError:
-        response_header_lines = 'HTTP/1.1 404 not found\\r\\n'
-        response_header_lines += '\\r\\n'
-        response_body = '====sorry, file not found===='
+        f = open(get_file_path, 'rb')   # 用rb 因为有像图片一样的二进制数据
+    except IOError:     # 表示没有成功打开, 则抛出一个IOError
+        response_header_lines = 'HTTP/1.1 404 not found\r\n'
+        response_header_lines += '\r\n'
+        # response_body = '====sorry, file not found===='
+        response_body = b'''
+        <html>
+            <head>
+                <title>404 not found</title>
+            </head>
+            <body>
+                <p>sorry, file not found!</p>
+            </body>
+        </html>
+        '''
     else:
-        response_header_lines = 'HTTP/1.1 200 OK\\r\\n'
-        response_header_lines += '\\r\\n'
+        response_header_lines = 'HTTP/1.1 200 OK\r\n'
+        response_header_lines += '\r\n'
         response_body = f.read()
         f.close()
     finally:
-        response = response_header_lines + response_body
+        response = response_header_lines + response_body.decode()
         cli_socket.send(response.encode())
         cli_socket.close()
 
