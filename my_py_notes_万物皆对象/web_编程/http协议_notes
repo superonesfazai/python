@@ -1,4 +1,8 @@
-####HTTP响应分为Header和Body两部分（Body是可选项），我们在Network中看到的Header最重要的几行如下：
+#### url
+```html
+全局资源定位符(universal resource location)
+```
+#### HTTP响应分为Header和Body两部分（Body是可选项），我们在Network中看到的Header最重要的几行如下：
 
     HTTP/1.1 200 OK
 200表示一个成功的响应，后面的OK是说明。

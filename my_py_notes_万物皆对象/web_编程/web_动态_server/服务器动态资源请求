@@ -3,6 +3,7 @@
 ![](./images/Snip.png)
 
 #### 2. WSGI
+WSGI, Web Server Gateway Interface。WSGI 是Python 对CGI 进行的一种包装，核心使用Python实现，具体实现通常来说也需要使用Python，目前Django 等web框架都实现了WSGI。
 
 怎么在你刚建立的Web服务器上运行一个Django应用和Flask应用，如何不做任何改变而适应不同的web架构呢？
 

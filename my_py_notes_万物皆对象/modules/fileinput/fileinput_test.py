@@ -5,6 +5,6 @@ __author__ = 'super_fazai'
 
 import fileinput
 
-with fileinput.input(files=('避免死锁.txt',)) as f:
+with fileinput.input(files=('test.txt',)) as f:
     for line in f:
-        process(line)
+        print(line, end='')
