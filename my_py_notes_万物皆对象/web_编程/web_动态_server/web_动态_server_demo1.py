@@ -12,6 +12,11 @@ import sys
 from multiprocessing import Process
 import re
 
+server_addr = (HOST, PORT) = '', 7788
+document_root = './html'
+# 设置服务器动态资源的路径(存放wsgi协议程序的路径)
+python_root = './wsgiPy'
+
 class WSGIServer(object):
 
     addr_family = socket.AF_INET
@@ -19,13 +24,9 @@ class WSGIServer(object):
     request_queue_size = 5
 
     def __init__(self, serv_address):
-        #创建一个tcp套接字
         self.listen_socket = socket.socket(self.addr_family, self.socket_type)
-        #允许重复使用上次的套接字绑定的port
         self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        #绑定
         self.listen_socket.bind(serv_address)
-        #变为被动，并制定队列的长度
         self.listen_socket.listen(self.request_queue_size)
 
         self.serv_name = "127.0.0.1"
@@ -34,10 +35,7 @@ class WSGIServer(object):
     def serve_forever(self):
         '循环运行web服务器，等待客户端的链接并为客户端服务'
         while True:
-            #等待新客户端到来
             self.cli_socket, cli_addr = self.listen_socket.accept()
-
-            #方法2，多进程服务器，并发服务器于多个客户端
             new_client_process = Process(target = self.handle_request)
             new_client_process.start()
 
@@ -50,52 +48,89 @@ class WSGIServer(object):
 
     def handle_request(self):
         '用一个新的进程，为一个客户端进行服务'
-        self.recv_data = self.cli_socket.recv(2014)
+        self.recv_data = self.cli_socket.recv(2017)
         request_header_lines = self.recv_data.splitlines()
         for line in request_header_lines:
             print(line.decode())
 
         http_request_method_line = request_header_lines[0]
         get_file_name = re.match("[^/]+(/[^ ]*)", http_request_method_line.decode()).group(1)
-        print("file name is ===>{}".format(get_file_name)) #for test
+        print("file name is ===>{}".format(get_file_name)) # for test
 
-        if get_file_name[-3:] != ".py":
-
+        if get_file_name[-3:] != ".py":     # 如果是假的话就是非动态的程序请求
             if get_file_name == '/':
                 get_file_name = document_root + "/index.html"
             else:
                 get_file_name = document_root + get_file_name
 
-            print("file name is ===2>{}".format(get_file_name)) #for test
+            print("file name is ===2>{}".format(get_file_name)) # for test
 
             try:
                 f = open(get_file_name)
             except IOError:
-                response_header_lines = r"HTTP/1.1 404 not found\r\n"
-                response_header_lines += r"\r\n"
-                response_body = "====sorry ,file not found===="
+                start_line = "HTTP/1.1 404 not found\r\n"
+                start_line += "\r\n"
+                # response_body = "====sorry ,file not found===="
+                response_body = '''
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <meta charset='utf-8'/>
+                        <title>404 not found</title>
+                    </head>
+                    <body>
+                        <p>你访问的页面不存在, 不妨回主页看看</p>
+                        <a href="http://127.0.0.1:7788" target="_blank">
+                            <font size=2><font color="#00ff00">  主页 → </font>
+                        </a>
+                    </body>
+                </html>
+                '''
             else:
-                response_header_lines = r"HTTP/1.1 200 OK\r\n"
-                response_header_lines += r"\r\n"
+                start_line = "HTTP/1.1 200 OK\r\n"
+                start_line += "\r\n"
                 response_body = f.read()
                 f.close()
             finally:
-                response = response_header_lines + response_body
+                response = start_line + response_body.decode()
                 self.cli_socket.send(response.encode())
                 self.cli_socket.close()
-        else:
-
+        else:       # 表示是动态程序请求,调用相应程序
+            # mod_name = get_file_name[1:-3]   # 获取模块名
+            # try:
+            #     # 借助内建函数__import__导入模块, 传入的参数为要导入模块的name, 字符类型
+            #     mod = __import__(mod_name)
+            # except ModuleNotFoundError:     # 用户请求的不存在
+            #     start_line = "HTTP/1.1 404 not found\r\n"
+            #     start_line += "\r\n"
+            #     response_body = '''
+            #     <!DOCTYPE html>
+            #     <html>
+            #         <head>
+            #             <meta charset='utf-8'/>
+            #             <title>404 not found</title>
+            #         </head>
+            #         <body>
+            #             <p>你访问的页面不存在, 不妨回主页看看</p>
+            #             <a href="http://127.0.0.1:7788" target="_blank">
+            #                 <font size=2><font color="#00ff00">  主页 → </font>
+            #             </a>
+            #         </body>
+            #     </html>
+            #     '''
+            #     response = start_line + response_body
+            #     self.cli_socket.send(response.encode())
+            # else: 下面是被包含到else中的
             #根据接收到的请求头构造环境变量字典
             env = {}
 
             #调用应用的相应方法，完成动态数据的获取
-            body_content = self.application(env, self.start_response)
+            body_content = self.application(env, self.start_response)   # 处理状态码和响应头
 
             #组织数据发送给客户端
             self.finish_response(body_content)
 
-
-    def start_response(self, status, response_headers):
+    def start_response(self, status, response_headers):     # 处理状态码和响应头
         server_headers = [
             ('Date', 'Tue, 31 Mar 2016 10:11:12 GMT'),
             ('Server', 'WSGIServer 0.2'),
@@ -105,13 +140,11 @@ class WSGIServer(object):
     def finish_response(self, body_content):
         try:
             status, response_headers = self.headers_set
-            #response的第一行
-            response = r'HTTP/1.1 {status}\r\n'.format(status=status)
+            response = 'HTTP/1.1 {status}\r\n'.format(status=status)
             #response的其他头信息
             for header in response_headers:
-                response += r'{0}: {1}\r\n'.format(*header)
-            #添加一个换行，用来和body进行分开
-            response += r'\r\n'
+                response += '{0}: {1}\r\n'.format(*header)
+            response += '\r\n'
             #添加发送的数据
             for data in body_content:
                 response += data
@@ -119,13 +152,6 @@ class WSGIServer(object):
             self.cli_socket.send(response.encode())
         finally:
             self.cli_socket.close()
-
-#设定服务器的端口
-server_addr = (HOST, PORT) = '', 7788
-#设置服务器静态资源的路径
-document_root = './html'
-#设置服务器动态资源的路径
-python_root = './wsgiPy'
 
 def make_server(server_addr, application):
     server = WSGIServer(server_addr)
@@ -137,16 +163,11 @@ def main():
     if len(sys.argv) < 2:
         sys.exit('请按照要求，指定模块名称:应用名称,例如 module:callable')
 
-    #获取module:callable
-    app_path = sys.argv[1]
-    #根据冒号切割为module和callable
-    module, application = app_path.split(':')
-    #添加路径套sys.path
-    sys.path.insert(0, python_root)
-    #动态导入module变量中指定的模块
-    module = __import__(module)
-    #获取module变量中指定的模块的，application变量指定的属性
-    application = getattr(module, application)
+    app_path = sys.argv[1]                      # 获取module:callable
+    module, application = app_path.split(':')   # 根据冒号切割为module和callable
+    sys.path.insert(0, python_root)             # 添加路径到sys.path
+    module = __import__(module)                 # 动态导入module变量中指定的模块
+    application = getattr(module, application)  # 获取module变量中指定的模块的，application变量指定的属性
     httpd = make_server(server_addr, application)
     print('WSGIServer: Serving HTTP on port {} ...\n'.format(PORT))
     httpd.serve_forever()

@@ -23,7 +23,7 @@ class Person(object):
 
 # 定义一个实例方法
 def run(self, speed):
-    print("%s在移动, 速度是 %d km/h"%(self.name, speed))
+    print("%s在移动, 速度是 %d km/h" % (self.name, speed))
 
 # 定义一个类方法
 @classmethod

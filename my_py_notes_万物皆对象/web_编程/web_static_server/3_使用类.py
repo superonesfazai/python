@@ -19,13 +19,14 @@ document_root = './html'
 class WSGIServer(object):
     addr_family = socket.AF_INET
     socket_type = socket.SOCK_STREAM
-    request_queue_size = 5
+    request_queue_size = 10
 
     def __init__(self, serv_addr):
         self.listen_socket = socket.socket(self.addr_family, self.socket_type)
         self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.listen_socket.bind(serv_addr)
         self.listen_socket.listen(self.request_queue_size)
+        self.error = None   # 用于记录抛出的异常值
 
     def serv_forever(self):
         self.cli_socket, self.cli_addr = self.listen_socket.accept()
@@ -51,20 +52,22 @@ class WSGIServer(object):
         print('file name is ===2>{}'.format(get_file_name))
 
         try:
-            f = open(get_file_name)
+            f = open(get_file_name, 'rb')
 
-        except IOError:
-            response_header_lines = r'HTTP/1.1 404 not found\r\n'
-            response_header_lines += r'\r\n'
-            response_body = '====sorry, file not found===='
-
+        except IOError as e:
+            self.error = e
+            response_header_lines = 'HTTP/1.1 404 not found\r\n'
+            response_header_lines += '\r\n'
+            # response_body = '====sorry, file not found===='
+            with open('./html/404.html', 'rb') as f:
+                response_body = f.read()
         else:
-            response_header_lines = r'HTTP/1.1 200 OK\r\n'
-            response_header_lines += r'\r\n'
+            response_header_lines = 'HTTP/1.1 200 OK\r\n'
+            response_header_lines += '\r\n'
             response_body = f.read()
             f.close()
         finally:
-            response = response_header_lines + response_body
+            response = response_header_lines + response_body.decode()
             self.cli_socket.send(response.encode())
             self.cli_socket.close()
 

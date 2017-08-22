@@ -21,9 +21,10 @@ class Test():
 
 t = Test()      # 切记: Test() == Test.__call__()
 t()     # call me
+Test()()
 
 class Test1(object):
-    def __index__(self, func):
+    def __init__(self, func):
         print('---初始化---')
         print('func name is %s' % func.__name__)
         self.__func = func
@@ -31,7 +32,6 @@ class Test1(object):
     def __call__(self, *args, **kwargs):
         print('---装饰器中的功能---')
         self.__func()
-
 @Test1
 def test():
     print("---避免死锁---")
