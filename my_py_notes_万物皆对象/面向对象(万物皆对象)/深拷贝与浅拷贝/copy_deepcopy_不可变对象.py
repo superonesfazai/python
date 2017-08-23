@@ -19,7 +19,7 @@ print(id(a) == id(d))    # --->  True
 print('')
 
 from copy import copy, deepcopy
-a = (1,2,3,[])
+a = (1, 2, 3, [])
 b = a
 c = copy(b)
 d = deepcopy(a)

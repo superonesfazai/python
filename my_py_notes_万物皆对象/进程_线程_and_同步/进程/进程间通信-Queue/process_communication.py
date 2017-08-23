@@ -7,6 +7,7 @@ import os, time, random
 # 写数据进程执行的代码:
 def write(q):
     print('Process to write: %s' % os.getpid())
+    print(id(q))        # linux/unix下q的id值相同，windows 不同
     for value in ['A', 'B', 'C']:
         print('Put %s to queue...' % value)
         q.put(value)        # put中的block默认为Ture, 为阻塞式
@@ -15,6 +16,7 @@ def write(q):
 # 读数据进程执行的代码:
 def read(q):
     print('Process to read: %s' % os.getpid())
+    print(id(q))
     while True:         # 如果判断条件改为 while not q.empty(): 则由于睡的时间不同, 可能导致读数据提停止
         value = q.get()     # get中的block默认为True， 为阻塞式
         print('Get %s from queue.' % value)

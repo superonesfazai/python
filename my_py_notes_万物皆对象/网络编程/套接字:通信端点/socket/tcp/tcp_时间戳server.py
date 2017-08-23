@@ -15,7 +15,7 @@ TCP用三次握手过程创建一个连接。在连接创建过程中，很多�
 # ss.bind()           # 把地址绑定在套接字上
 # ss.listen()         # 监听连接
 # inf_loop:           # 服务器无线循环
-#     cs = ss.accept()    # 接受客户端连接
+#     c_socket, c_addr = ss.accept()    # 接受客户端连接
 # comm_loop:          # 通信循环
 #     cs.recv()/cs.send()     # 对话(接收与发送)
 # cs.close()          # 关闭客户端套接字

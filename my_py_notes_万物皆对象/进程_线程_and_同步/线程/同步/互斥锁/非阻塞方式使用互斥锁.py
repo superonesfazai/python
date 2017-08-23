@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+非阻塞方式使用互斥锁
+"""
+
 from threading import Thread, Lock
 import time
 

@@ -20,7 +20,7 @@ class FibIterator(object):
         if self.current < self.n:
             num = self.num1
             # 计算下一次迭代要返回的数据
-            self.num1, self.num2 = self.num2, self.num1+self.num2
+            self.num1, self.num2 = self.num2, self.num1 + self.num2
             self.current += 1
             return num
         else:
