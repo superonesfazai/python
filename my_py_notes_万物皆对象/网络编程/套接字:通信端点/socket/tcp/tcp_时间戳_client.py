@@ -13,7 +13,7 @@ from socket import *
 # cs.close()          # 关闭客户端套接字
 
 host = '127.0.0.1'
-port = 8081
+port = 7788
 buf_size = 1024
 addr = (host, port)
 
@@ -29,7 +29,7 @@ try:
         data = tcp_cli_sock.recv(buf_size)
         if not data:
             break
-        print(data.decode())
+        print('收到服务端的回显数据:', data.decode())
 except EOFError as e:
     print('EOFError')
 except KeyError as ek:
