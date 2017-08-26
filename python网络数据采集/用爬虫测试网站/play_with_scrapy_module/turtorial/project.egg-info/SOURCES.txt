@@ -1,0 +1,16 @@
+setup.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
+turtorial/__init__.py
+turtorial/items.py
+turtorial/middlewares.py
+turtorial/pipelines.py
+turtorial/settings.py
+turtorial/spiders/__init__.py
+turtorial/spiders/quote3.py
+turtorial/spiders/quote4.py
+turtorial/spiders/quotes.py
+turtorial/spiders/quotes2.py
