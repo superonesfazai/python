@@ -31,9 +31,9 @@ formdata = {
 
 data = urllib.parse.urlencode(formdata)
 
-request = urllib.request.Request(url, data = data, headers = headers)
+request = urllib.request.Request(url, data = data.encode('utf-8'), headers = headers)
 response = urllib.request.urlopen(request)
-print(response.read().decode())
+print(response.read().decode('utf-8'))
 
 '''
 发送POST请求时，需要特别注意headers的一些属性：
