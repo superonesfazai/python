@@ -1,0 +1,6 @@
+![](./images/httpauth.jpg)
+有些Web服务器（包括HTTP/FTP等）访问时，需要进行用户身份验证，爬虫直接访问会报HTTP 401 错误，表示访问身份未经授权：
+
+urllib2.HTTPError: HTTP Error 401: Unauthorized
+
+如果我们有客户端的用户名和密码，我们可以通过下面的方法去访问爬取：

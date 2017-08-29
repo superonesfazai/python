@@ -1,0 +1,35 @@
+## CSS 选择器：BeautifulSoup4
+和 lxml 一样，Beautiful Soup 也是一个HTML/XML的解析器，主要的功能也是如何解析和提取 HTML/XML 数据
+```html
+lxml 只会局部遍历，而Beautiful Soup 是基于HTML DOM的，会载入整个文档，解析整个DOM树，因此时间和内存开销都会大很多，所以性能要低于lxml。
+
+BeautifulSoup 用来解析 HTML 比较简单，API非常人性化，支持CSS选择器、Python标准库中的HTML解析器，也支持 lxml 的 XML解析器。
+
+Beautiful Soup 3 目前已经停止开发，推荐现在的项目使用Beautiful Soup 4。使用 pip 安装即可：pip install beautifulsoup4
+
+官方文档：http://beautifulsoup.readthedocs.io/zh_CN/v4.4.0
+```
+![](./images/tmp.png)
+
+## 四大对象种类
+Beautiful Soup将复杂HTML文档转换成一个复杂的树形结构,每个节点都是Python对象,所有对象可以归纳为4种:
+```html
+* Tag
+* NavigableString
+* BeautifulSoup
+* Comment
+```
+#### 1. Tag
+Tag 通俗点讲就是 HTML 中的一个个标签，例如：
+```html
+<head><title>The Dormouse's story</title></head>
+<a class="sister" href="http://example.com/elsie" id="link1"><!-- Elsie --></a>
+<p class="title" name="dromouse"><b>The Dormouse's story</b></p>
+```
+上面的 title head a p等等 HTML 标签加上里面包括的内容就是 Tag
+#### 2. NavigableString
+既然我们已经得到了标签的内容，那么问题来了，我们要想获取标签内部的文字怎么办呢？很简单，用 .string 即可
+#### 3. BeautifulSoup
+BeautifulSoup 对象表示的是一个文档的内容。大部分时候,可以把它当作 Tag 对象，是一个特殊的 Tag，我们可以分别获取它的类型，名称，以及属性来感受一下
+#### 4. Comment
+Comment 对象是一个特殊类型的 NavigableString 对象，其输出的内容不包括注释符号。

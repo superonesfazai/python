@@ -247,3 +247,8 @@ for (portfolio, equity) in data:
 ```
 dict.setdefault() 等价于 "get, or set & get". Or "set if necessary, then get". It's especially efficient if your dictionary key is expensive to compute or long to type.
 dict.setdefault()有返回值, 返回的是原先key对应的value
+
+## 在python3中解决打开文件编码报ascii问题(UnicodeEncodeError: 'ascii' codec can't encode characters in position 2-5)
+```python
+my_file = open('./duanzi.txt', 'a+', encoding='utf-8')  # 这样打开能解决报错:UnicodeEncodeError: 'ascii' codec can't encode characters in position 2-5: ordinal not in range(128)
+```

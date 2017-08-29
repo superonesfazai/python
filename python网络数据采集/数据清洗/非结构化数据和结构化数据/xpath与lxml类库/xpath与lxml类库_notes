@@ -1,0 +1,147 @@
+处理html文件很累, 有没有其他的方法？
+
+有, 那就是xpath, 我们可以先将html文件转换成xml文档, 然后用xpath查找html节点或元素
+
+## 什么是XML
+```
+XML 指可扩展标记语言（EXtensible Markup Language）
+XML 是一种标记语言，很类似 HTML
+XML 的设计宗旨是传输数据，而非显示数据
+XML 的标签需要我们自行定义。
+XML 被设计为具有自我描述性。
+XML 是 W3C 的推荐标准
+```
+[W3School官方文档](http://www.w3school.com.cn/xml/index.asp)
+
+## xml和html的区别
+```html
+数据格式	    描述	                                            设计目标
+XML         Extensible Markup Language （可扩展标记语言）	    被设计为传输和存储数据，其焦点是数据的内容。
+HTML        HyperText Markup Language （超文本标记语言）	    显示数据以及如何更好显示数据。
+HTML DOM    Document Object Model for HTML (文档对象模型)	    通过 HTML DOM，可以访问所有的 HTML 元素，连同它们所包含的文本和属性。可以对其中的内容进行修改和删除，同时也可以创建新的元素。
+```
+
+#### XML文档示例
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<bookstore> 
+
+  <book category="cooking"> 
+    <title lang="en">Everyday Italian</title>  
+    <author>Giada De Laurentiis</author>  
+    <year>2005</year>  
+    <price>30.00</price> 
+  </book>  
+
+  <book category="children"> 
+    <title lang="en">Harry Potter</title>  
+    <author>J K. Rowling</author>  
+    <year>2005</year>  
+    <price>29.99</price> 
+  </book>  
+
+  <book category="web"> 
+    <title lang="en">XQuery Kick Start</title>  
+    <author>James McGovern</author>  
+    <author>Per Bothner</author>  
+    <author>Kurt Cagle</author>  
+    <author>James Linn</author>  
+    <author>Vaidyanathan Nagarajan</author>  
+    <year>2003</year>  
+    <price>49.99</price> 
+  </book> 
+
+  <book category="web" cover="paperback"> 
+    <title lang="en">Learning XML</title>  
+    <author>Erik T. Ray</author>  
+    <year>2003</year>  
+    <price>39.95</price> 
+  </book> 
+
+</bookstore>
+```
+## HTML DOM 模型示例
+HTML DOM 定义了访问和操作 HTML 文档的标准方法，以树结构方式表达 HTML 文档
+![](./images/02-htmltree.gif)
+
+## xml的节点关系
+#### 1.父(parent)
+每个元素以及属性都有一个父。
+
+下面是一个简单的XML例子中，book 元素是 title、author、year 以及 price 元素的父：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<book>
+  <title>Harry Potter</title>
+  <author>J K. Rowling</author>
+  <year>2005</year>
+  <price>29.99</price>
+</book>
+```
+#### 2. 子（Children）
+
+元素节点可有零个、一个或多个子。
+
+在下面的例子中，title、author、year 以及 price 元素都是 book 元素的子：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<book>
+  <title>Harry Potter</title>
+  <author>J K. Rowling</author>
+  <year>2005</year>
+  <price>29.99</price>
+</book>
+```
+#### 3. 同胞（Sibling）
+拥有相同的父的节点
+
+在下面的例子中，title、author、year 以及 price 元素都是同胞：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<book>
+  <title>Harry Potter</title>
+  <author>J K. Rowling</author>
+  <year>2005</year>
+  <price>29.99</price>
+</book>
+```
+#### 4. 先辈（Ancestor）
+某节点的父、父的父，等等。
+
+在下面的例子中，title 元素的先辈是 book 元素和 bookstore 元素：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<bookstore>
+
+<book>
+  <title>Harry Potter</title>
+  <author>J K. Rowling</author>
+  <year>2005</year>
+  <price>29.99</price>
+</book>
+
+</bookstore>
+```
+#### 5. 后代（Descendant）
+某个节点的子，子的子，等等。
+
+在下面的例子中，bookstore 的后代是 book、title、author、year 以及 price 元素：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<bookstore>
+
+<book>
+  <title>Harry Potter</title>
+  <author>J K. Rowling</author>
+  <year>2005</year>
+  <price>29.99</price>
+</book>
+
+</bookstore>
+```

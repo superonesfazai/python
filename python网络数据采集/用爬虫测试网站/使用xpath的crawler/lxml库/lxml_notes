@@ -1,0 +1,10 @@
+## lxml库
+```html
+lxml 是 一个HTML/XML的解析器，主要的功能是如何解析和提取 HTML/XML 数据。
+
+lxml和正则一样，也是用 C 实现的，是一款高性能的 Python HTML/XML 解析器，我们可以利用之前学习的XPath语法，来快速的定位特定元素以及节点信息。
+
+lxml python 官方文档：http://lxml.de/index.html
+
+需要安装C语言库，可使用 pip 安装：pip install lxml （或通过wheel方式安装）
+```

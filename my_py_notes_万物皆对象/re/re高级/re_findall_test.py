@@ -9,6 +9,8 @@
 
 import re
 
+# 语法: findall(string[, pos[, endpos]])
+
 # findall()返回的是list类型
 res = re.findall(r"\d+", "python = 9999, c = 7890, c++ = 12345")
 print(res)

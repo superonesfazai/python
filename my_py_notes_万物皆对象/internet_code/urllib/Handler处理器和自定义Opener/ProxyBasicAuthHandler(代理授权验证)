@@ -1,0 +1,9 @@
+如果我们使用之前的代码来使用私密代理，会报 HTTP 407 错误，表示代理没有通过身份验证：
+
+urllib2.HTTPError: HTTP Error 407: Proxy Authentication Required
+
+所以我们需要改写代码，通过：
+```
+1. HTTPPasswordMgrWithDefaultRealm()：来保存私密代理的用户密码
+2. ProxyBasicAuthHandler()：来处理代理的身份验证。
+```

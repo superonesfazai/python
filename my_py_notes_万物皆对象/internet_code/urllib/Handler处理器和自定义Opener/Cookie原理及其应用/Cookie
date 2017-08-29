@@ -1,0 +1,22 @@
+## Cookie
+Cookie 是指某些网站服务器为了辨别用户身份和进行Session跟踪，而储存在用户浏览器上的文本文件，Cookie可以保持登录信息到用户下次与服务器的会话
+
+## Cookie原理
+HTTP是无状态的面向连接的协议, 为了保持连接状态, 引入了Cookie机制 Cookie是http消息头中的一种属性，包括：
+```
+Cookie名字（Name）
+Cookie的值（Value）
+Cookie的过期时间（Expires/Max-Age）
+Cookie作用路径（Path）
+Cookie所在域名（Domain），
+使用Cookie进行安全连接（Secure）。
+
+前两个参数是Cookie应用的必要条件，另外，还包括Cookie大小（Size，不同浏览器对Cookie个数及大小限制是有差异的）。
+```
+Cookie由变量名和值组成，根据 Netscape公司的规定，Cookie格式如下：
+```
+Set－Cookie: NAME=VALUE；Expires=DATE；Path=PATH；Domain=DOMAIN_NAME；SECURE
+```
+
+## Cookie应用
+Cookies在爬虫方面最典型的应用是判定注册用户是否已经登录网站，用户可能会得到提示，是否在下一次进入此网站时保留用户信息以便简化登录手续。

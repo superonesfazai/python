@@ -1,0 +1,27 @@
+#### 在Python处理Cookie，一般是通过cookielib模块和 urllib2模块的HTTPCookieProcessor处理器类一起使用。
+```
+cookielib模块：主要作用是提供用于存储cookie的对象
+
+HTTPCookieProcessor处理器：主要作用是处理这些cookie对象，并构建handler对象
+```
+
+#### cookielib 库
+该模块主要的对象有CookieJar、FileCookieJar、MozillaCookieJar、LWPCookieJar。
+```html
+* CookieJar：管理HTTP cookie值、存储HTTP请求生成的cookie、
+  向传出的HTTP请求添加cookie的对象。整个cookie都存储在内存中，
+  对CookieJar实例进行垃圾回收后cookie也将丢失。
+
+* FileCookieJar (filename,delayload=None,policy=None)：
+  从CookieJar派生而来，用来创建FileCookieJar实例，
+  检索cookie信息并将cookie存储到文件中。filename是存储cookie的文件名。
+  delayload为True时支持延迟访问访问文件，即只有在需要时才读取文件或在文件中存储数据。
+
+* MozillaCookieJar (filename,delayload=None,policy=None)：
+  从FileCookieJar派生而来，创建与Mozilla浏览器 cookies.txt兼容的FileCookieJar实例。
+
+* LWPCookieJar (filename,delayload=None,policy=None)：
+  从FileCookieJar派生而来，创建与libwww-perl标准的 Set-Cookie3 
+  文件格式兼容的FileCookieJar实例
+```
+##### 其实大多数情况下，我们只用CookieJar()，如果需要和本地文件交互，就用 MozillaCookjar() 或 LWPCookieJar()
