@@ -1,104 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/images/httpauth.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/数据清洗/非结构化数据和结构化数据/images/5.1.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/数据清洗/非结构化数据和结构化数据/images/5.2.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/数据清洗/非结构化数据和结构化数据/xpath与lxml类库/images/02-htmltree.gif" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/images/tmp.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/images/tmp1.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/images/tmp2.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/images/tmp3.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/images/tmp4.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/images/xpath.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/代理(proxies参数)/Cookies 和 Session/cookies.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/代理(proxies参数)/Cookies 和 Session/实现人人网登录.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/代理(proxies参数)/web客户端验证/demo.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/代理(proxies参数)/代理.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/代理(proxies参数)/处理https请求 ssl证书请求/demo.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/代理(proxies参数)/私密代理验证(特定格式) 和 Web客户端验证(auth 参数)/私密代理.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/基本get请求(headers参数和params参数)/最基本的get请求可以直接用get方法.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/基本get请求(headers参数和params参数)/添加headers和查询参数.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/基本post请求(data参数)/传入data数据.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/cookie.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/cookiejar_demo1.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/cookiejar_demo2.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/cookiejar_demo3.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/cookielib库 和 HTTPCookieProcessor处理器" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/利用cookiejar和post登录人人网.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/模拟登录要注意的几点" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用/获取一个有登录信息的Cookie模拟登陆.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/HTTPBasicAuthHandler处理器(Web客户端授权验证)" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/HTTPPasswordMgrWithDefaultRealm(保存http请求的相关的用户名和密码)" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Handler处理器和自定义Opener_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/ProxyBasicAuthHandler(代理授权验证)" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/ProxyHandler处理器(代理设置)" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/simple_my_opener.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/urllib_proxy_demo1.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/urllib_proxy_demo2.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/urllib_proxy_web客户端授权验证.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/urllib_proxy_代理授权验证.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib2(py3 urllib.request)的异常错误处理/botherror_改进版.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib2(py3 urllib.request)的异常错误处理/httperror_demo.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib2(py3 urllib.request)的异常错误处理/urlerror_demo.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib2(py3 urllib.request)的异常错误处理/urllib异常错误处理" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_robotparser/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_finditer_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_match_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/正则表达式测试网站" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/数据清洗/非结构化数据和结构化数据/xpath与lxml类库/xpath与lxml类库_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/数据清洗/非结构化数据和结构化数据/正则表达式re" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/数据清洗/非结构化数据和结构化数据/非结构化数据与结构化数据_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/bs4_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/bs4_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/use_bs4_2_get_tags.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/lxml库/hello.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/lxml库/lxml_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/lxml库/lxml_parse.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/lxml库/lxml_test.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/lxml库/xpath_demo.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/xpath_测试贴吧/xpath_tieba.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/xpath的用法_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用正则表达式的crawler/demo/duanzi.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用正则表达式的crawler/demo/duanzi_spider.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/images/12306zhengshu.jpg" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/images/12306zhengshu.jpg" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/post_有道词典翻译_test.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/post_有道词典翻译_test.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/__init__.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/requests:让HTTP服务人类" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_geturl.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_geturl.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_parse_qs.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_parse_qs.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_quote.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_quote.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urldefrag.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urldefrag.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urlencode.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urlencode.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urlencode_doseq.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urlencode_doseq.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urljoin.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urljoin.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urlparse.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urlparse.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urlsplit.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urlsplit.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)/urllib_parse_urlunparse.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_parse(将url拆分为组件)/urllib_parse_urlunparse.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)/User-Agent" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/User-Agent" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)/urllib_request_notes" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib_request_notes" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)/urllib_request_request_header.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib_request_request_header.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)/urllib_request_urlopen.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib_request_urlopen.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)/urllib_request_urlopen_post.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib_request_urlopen_post.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_request(网络资源访问)/urllib_request_user-agent.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib_request_user-agent.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_robotparser/robots" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_robotparser/robots" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_robotparser/urllib_robotparser_longlived.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_robotparser/urllib_robotparser_longlived.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_robotparser/urllib_robotparser_simple.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_robotparser/urllib_robotparser_simple.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_urlencode.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_urlencode.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/为什么有时候post也能在url内看到数据?" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/为什么有时候post也能在url内看到数据?" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/使用ssl证书访问.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/使用ssl证书访问.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/关于CA" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/关于CA" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/处理https请求 SSL证书验证" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/处理https请求 SSL证书验证" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/获取ajax加载的内容.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/获取ajax加载的内容.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/python核心编程日记.md" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/python核心编程日记.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_findall_test.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_findall_test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_sub_test.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级/re_sub_test.py" />
-    </list>
+    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -487,7 +390,7 @@
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
               <first_editor relative-caret-position="234">
-                <caret line="20" column="3" lean-forward="true" selection-start-line="20" selection-start-column="3" selection-end-line="20" selection-end-column="3" />
+                <caret line="20" column="3" lean-forward="false" selection-start-line="20" selection-start-column="3" selection-end-line="20" selection-end-column="3" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -498,8 +401,8 @@
       <file leaf-file-name="use_bs4_2_get_tags.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/use_bs4_2_get_tags.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-572">
-              <caret line="31" column="16" lean-forward="true" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+            <state relative-caret-position="-542">
+              <caret line="31" column="16" lean-forward="false" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -1420,14 +1323,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="584" y="0" width="696" height="800" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2801724" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2801724" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21510673" sideWeight="0.5107034" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21333334" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21333334" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32512316" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1887,7 +1791,7 @@
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="234">
-            <caret line="20" column="3" lean-forward="true" selection-start-line="20" selection-start-column="3" selection-end-line="20" selection-end-column="3" />
+            <caret line="20" column="3" lean-forward="false" selection-start-line="20" selection-start-column="3" selection-end-line="20" selection-end-column="3" />
             <folding />
           </first_editor>
           <second_editor />
@@ -1896,8 +1800,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/use_bs4_2_get_tags.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-572">
-          <caret line="31" column="16" lean-forward="true" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+        <state relative-caret-position="-542">
+          <caret line="31" column="16" lean-forward="false" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
           <folding />
         </state>
       </provider>
