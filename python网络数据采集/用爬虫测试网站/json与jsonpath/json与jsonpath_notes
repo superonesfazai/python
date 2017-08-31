@@ -1,0 +1,87 @@
+## 数据提取之JSON与JsonPATH
+[官方文档](http://docs.python.org/library/json.html)
+[json在线解析网站](http://www.json.cn/#)
+
+## json
+json简单说就是javascript中的对象和数组，所以这两种结构就是对象和数组两种结构，通过这两种结构可以表示各种复杂的结构
+
+```html
+1. 对象：对象在js中表示为{ }括起来的内容，数据结构为 { key：value, key：value, ... }的键值对的结构，
+   在面向对象的语言中，key为对象的属性，value为对应的属性值，所以很容易理解，取值方法为 对象.key 获取属性值，这个属性值的类型可以是数字、字符串、数组、对象这几种。
+
+2. 数组：数组在js中是中括号[ ]括起来的内容，数据结构为 ["Python", "javascript", "C++", ...]，
+   取值方式和所有语言中一样，使用索引获取，字段值的类型可以是 数字、字符串、数组、对象几种。
+```
+### import json
+json模块提供了四个功能: dumps, dump, loads, load, 用于字符串和python数据类型间进行转换
+
+#### 1. json.loads()
+把Json格式字符串解码转换成Python对象 从json到python的类型转化对照如下：
+![](images/json2.png)
+
+#### 2. json.dumps()
+实现python类转换为json字符串, 返回一个str对象 把一个python对象编码转换为json字符串
+
+从python原始类型向json类型转化对照如下：
+![](images/json.png)
+
+#### 3. json.dump()
+将python内置类型序列化为json对象后写入文件
+
+#### 4. json.load()
+读取文件中json形式的字符串元素 转换为python类型
+
+## jsonpath
+JsonPath 是一种信息抽取类库，是从JSON文档中抽取指定信息的工具，提供多种语言实现版本，包括：Javascript, Python， PHP 和 Java。
+
+JsonPath 对于 JSON 来说，相当于 XPATH 对于 XML。
+
+### JsonPath与XPath语法对比：
+Json结构清晰，可读性高，复杂度低，非常容易匹配，下表中对应了XPath的用法。
+![](images/JsonPath与XPath语法对比.png)
+
+
+### 注意事项：
+json.loads() 是把 Json格式字符串解码转换成Python对象，如果在json.loads的时候出错，要注意被解码的Json字符的编码。
+
+如果传入的字符串的编码不是UTF-8的话，需要指定字符编码的参数 encoding
+```html
+dataDict = json.loads(jsonStrGBK);
+```
+* dataJsonStr是JSON字符串，假设其编码本身是非UTF-8的话而是GBK 的，那么上述代码会导致出错，改为对应的：
+```html
+dataDict = json.loads(jsonStrGBK, encoding="GBK");
+```
+* 如果 dataJsonStr通过encoding指定了合适的编码，但是其中又包含了其他编码的字符，则需要先去将dataJsonStr转换为Unicode，然后再指定编码格式调用json.loads()
+```html
+dataJsonStrUni = dataJsonStr.decode("GB2312"); dataDict = json.loads(dataJsonStrUni, encoding="GB2312");
+```
+
+## 字符串编码转换
+这是中国程序员最苦逼的地方，什么乱码之类的几乎都是由汉字引起的。
+其实编码问题很好搞定，只要记住一点：
+####任何平台的任何编码 都能和 Unicode 互相转换
+UTF-8 与 GBK 互相转换，那就先把UTF-8转换成Unicode，再从Unicode转换成GBK，反之同理。
+``` python 
+# 这是一个 UTF-8 编码的字符串
+utf8Str = "你好地球"
+
+# 1. 将 UTF-8 编码的字符串 转换成 Unicode 编码
+unicodeStr = utf8Str.decode("UTF-8")
+
+# 2. 再将 Unicode 编码格式字符串 转换成 GBK 编码
+gbkData = unicodeStr.encode("GBK")
+
+# 1. 再将 GBK 编码格式字符串 转化成 Unicode
+unicodeStr = gbkData.decode("gbk")
+
+# 2. 再将 Unicode 编码格式字符串转换成 UTF-8
+utf8Str = unicodeStr.encode("UTF-8")
+```
+```html
+* decode的作用是将其他编码的字符串转换成 Unicode 编码
+
+* encode的作用是将 Unicode 编码转换成其他编码的字符串
+
+* 一句话：UTF-8是对Unicode字符集进行编码的一种编码方式
+```
