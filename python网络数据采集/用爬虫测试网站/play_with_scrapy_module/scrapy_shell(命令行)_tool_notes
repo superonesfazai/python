@@ -187,7 +187,7 @@ $ scrapy fetch --nolog --headers http://www.example.com/
 $ scrapy view http://www.example.com/some/page.html
 [ ... browser starts ... ]
 ```
-### shell
+### shell   [官方文档](http://scrapy-chs.readthedocs.io/zh_CN/latest/topics/shell.html)
 ```
 句法： scrapy shell [url]
 需要项目：否

@@ -1,0 +1,19 @@
+## 分布式抓取
+Scrapy不提供任何内置的以分布（多服务器）方式运行爬网的功能。但是，有一些方法可以分发爬网，这取决于您计划分发的方式。
+
+如果你有很多蜘蛛，分发负载的明显方法是设置许多Scrapyd实例，并在其中分布蜘蛛运行。
+
+如果您想要通过许多机器运行单个（大）蜘蛛，您通常会做的是分割URL以进行爬网并将其发送到每个单独的蜘蛛。这是一个具体的例子：
+
+首先，您准备要抓取的网址列表，并将其放入单独的文件/网址中：
+```
+http ：// somedomain 。com / urls - to - crawl / spider1 / part1 。列出
+http ：// somedomain 。com / urls - to - crawl / spider1 / part2 。列出
+http ：// somedomain 。com / urls - to - crawl / spider1 / part3 。名单
+```
+然后，您可以在3个不同的Scrapyd服务器上启动一个蜘蛛运行。蜘蛛会收到一个（蜘蛛）参数part，其中要抓取的分区号：
+```
+curl http ：// scrapy1 。myCompany的。com ：6800 / schedule 。json  - d  project = myproject  - d  spider = spider1  - d  part = 1 
+curl  http ：// scrapy2 。myCompany的。com ：6800 / schedule 。json  - d  project = myproject  - d spider = spider1  - d  part = 2 
+curl  http ：// scrapy3 。myCompany的。com ：6800 / schedule 。json  - d  project = myproject  - d  spider = spider1  - d  part = 3
+```

@@ -18,6 +18,11 @@ cat text.txt 即可显示结果。
 ![](./images/tesseract_test.jpg)
 识别结果很准确,不过符号^和*分别被表示成了双引号和单引号。大体上可以让你很舒服地阅读。
 
+# mac的tessdata训练字库位置
+```shell
+/usr/local/share/tessdata
+```
+
 ## 对图片进行阈值过滤和降噪处理
 很多时候我们在网上会看到这样的图片：
 ![](./images/tess2.png)

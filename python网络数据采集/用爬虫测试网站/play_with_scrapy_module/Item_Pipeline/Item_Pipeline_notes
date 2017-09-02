@@ -1,0 +1,12 @@
+## Item Pipline
+当Item在Spider中被收集之后，它将会被传递到Item Pipeline，这些Item Pipeline组件按定义的顺序处理Item。
+
+每个Item Pipeline都是实现了简单方法的Python类，比如决定此Item是丢弃而存储。
+
+以下是item pipeline的一些典型应用：
+```html
+* 验证爬取的数据(检查item包含某些字段，比如说name字段)
+* 查重(并丢弃)
+* 将爬取结果保存到文件或者数据库中
+```
+

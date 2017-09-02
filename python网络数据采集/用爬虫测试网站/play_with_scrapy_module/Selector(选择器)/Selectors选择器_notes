@@ -1,0 +1,17 @@
+## Selectors选择器
+Scrapy Selectors 内置 XPath 和 CSS Selector 表达式机制
+
+Selector有四个基本的方法，最常用的还是xpath:
+```
+xpath(): 传入xpath表达式，返回该表达式所对应的所有节点的selector list列表
+extract(): 序列化该节点为Unicode字符串并返回list
+css(): 传入CSS表达式，返回该表达式所对应的所有节点的selector list列表，语法同 BeautifulSoup4
+re(): 根据传入的正则表达式对数据进行提取，返回Unicode字符串list列表
+```
+## XPath表达式的例子及对应的含义:
+```
+/html/head/title: 选择<HTML>文档中 <head> 标签内的 <title> 元素
+/html/head/title/text(): 选择上面提到的 <title> 元素的文字
+//td: 选择所有的 <td> 元素
+//div[@class="mine"]: 选择所有具有 class="mine" 属性的 div 元素
+```

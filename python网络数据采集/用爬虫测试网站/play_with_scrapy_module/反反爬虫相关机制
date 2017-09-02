@@ -1,0 +1,29 @@
+## 反反爬虫相关机制
+Some websites implement certain measures to prevent bots from crawling them, with varying degrees of sophistication. Getting around those measures can be difficult and tricky, and may sometimes require special infrastructure. Please consider contacting commercial support if in doubt.
+
+#### (有些些网站使用特定的不同程度的复杂性规则防止爬虫访问，绕过这些规则是困难和复杂的，有时可能需要特殊的基础设施，如果有疑问，请联系[商业支持](http://scrapy.org/support/)。)
+
+## 通常防止爬虫被反主要有以下几个策略：
+```html
+* 动态设置User-Agent（随机切换User-Agent，模拟不同用户的浏览器信息）
+
+* 禁用Cookies（也就是不启用cookies middleware，不向Server发送cookies，有些网站通过cookie的使用发现爬虫行为）
+
+* 可以通过COOKIES_ENABLED 控制 CookiesMiddleware 开启或关闭
+* 设置延迟下载（防止访问过于频繁，设置为 2秒 或更高）
+
+* Google Cache 和 Baidu Cache：如果可能的话，使用谷歌/百度等搜索引擎服务器页面缓存获取页面数据。  [Google缓存](http://www.googleguide.com/cached_pages.html)
+
+* 使用IP地址池：VPN和代理IP，现在大部分网站都是根据IP来ban的。例如，免费的Tor项目或付费服务，如ProxyMesh。一个开源的替代方案是scrapoxy，一个超级代理，你可以附加你自己的代理。
+
+* 使用高度分布的下载程序来规避内部禁止，所以您可以专注于解析干净的页面。
+  例如：使用 Crawlera（专用于爬虫的代理组件），正确配置和设置下载中间件后，项目所有的request都是通过crawlera发出
+  DOWNLOADER_MIDDLEWARES = {
+      'scrapy_crawlera.CrawleraMiddleware': 600
+  }
+
+  CRAWLERA_ENABLED = True
+  CRAWLERA_USER = '注册/购买的UserKey'
+  CRAWLERA_PASS = '注册/购买的Password'
+```
+如果您仍然无法阻止您的机器人被禁止，请考虑联系 [商业支持](http://scrapy.org/support/)。
