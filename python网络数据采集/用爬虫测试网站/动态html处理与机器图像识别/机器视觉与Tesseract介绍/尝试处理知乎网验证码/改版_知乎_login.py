@@ -39,18 +39,27 @@ class ZhiHuSelenium(object):
         # 验证码图片下载
         time.sleep(1)
         urlretrieve(very_code, 'very_code_image.jpg')
+
+        # test1: 验证码处理test1
         # tmp = subprocess.Popen(['tesseract', 'very_code_image.png', 'very_code_image_txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # time.sleep(1)
         # f = open('very_code_image_txt.txt', 'r')
         # time.sleep(1)
         # print(f.read())
+
+        # test2: 验证码处理test2
         # image = Image.open('very_code_image.png')
         # text = pytesseract.image_to_string(image)
         # print(text)
-        command = 'convert ~/myFiles/codeDoc/PythonDoc/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/very_code_image.jpg tmp.jpg && tesseract ~/myFiles/codeDoc/PythonDoc/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/very_code_image.jpg tmp -l chi_sim'
-        os.system(command)
-        f = open('tmp.txt', 'r')
-        print(f.read())
+
+        # test3: 验证码处理test3
+        # command = 'convert ~/myFiles/codeDoc/PythonDoc/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/very_code_image.jpg tmp.jpg && tesseract ~/myFiles/codeDoc/PythonDoc/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/very_code_image.jpg tmp -l chi_sim'
+        # os.system(command)
+        # f = open('tmp.txt', 'r')
+        # print(f.read())
+
+        # test4：人工处理....
+
 
 
 if __name__ == '__main__':
