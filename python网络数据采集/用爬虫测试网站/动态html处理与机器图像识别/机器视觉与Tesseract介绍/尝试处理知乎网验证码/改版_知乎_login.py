@@ -31,7 +31,7 @@ class ZhiHuSelenium(object):
         self.driver.save_screenshot('密码login.png')
         # 发送邮箱, 账号
         self.driver.find_element_by_name('account').send_keys('superonesfazai@gmail.com')
-        self.driver.find_element_by_name('password').send_keys('lrf654321')
+        self.driver.find_element_by_name('password').send_keys('lrf123456')
         self.driver.save_screenshot('密码login2.png')
 
         very_code = self.driver.find_element_by_class_name('Captcha-image').get_attribute('src')
@@ -58,7 +58,13 @@ class ZhiHuSelenium(object):
         # f = open('tmp.txt', 'r')
         # print(f.read())
 
-        # test4：人工处理....
+        # test4：人工处理.... 成功！
+        time.sleep(8)
+        self.driver.find_element_by_class_name('sign-button').click()
+        time.sleep(4)
+        self.driver.save_screenshot('成功登录.png')
+
+        # test5：使用已登录的cookies 成功!
 
 
 
