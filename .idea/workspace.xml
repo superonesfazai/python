@@ -5,51 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/images/01-fidder.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/images/01-fidder_allow.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/images/android.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/images/ipconfig.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/images/setting.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/scrapy-redis分布式组件/images/scrapy-redis.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/成功登录.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/密码login.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/密码login2.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/成功登录.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/1_直接post数据.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/2_标准的模拟登录.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/3_直接使用保存在登录状态的cookies模拟登录.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/zhihu_cookies.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/三种模拟登录策略_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/将从浏览器copy的cookies转换为scrapy能适应的dict.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/将从浏览器copy的cookies转换为scrapy能适应的dict.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/MongoDB相关" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/items.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/middlewares.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/pipelines.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/settings.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/spiders/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/spiders/douban.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/scrapy.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/scrapy-redis分布式组件/scrapy-redis_notes" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用Fiddler进行手机抓包" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/scrapy.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/items.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/main.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/middlewares.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/pipelines.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/settings.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/zhihu.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/zhihu_cookies.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/zhihu.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/very_code_image.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/very_code_image.jpg" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/密码login.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/密码login.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/密码login2.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/密码login2.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/dupefilter(scrapy-redis_负责执行request的去重).py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/picklecompat(scrapy-redis).py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/pipelines.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/queue.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/scheduler.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/spider.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/源码总结" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/connection(总之涉及到redis存取的都要使用到这个模块).py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_login.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_login.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -394,72 +359,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="MongoDB相关" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/用pymongo保存数据/douban/douban/MongoDB相关">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="77">
-                <caret line="6" column="13" lean-forward="false" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-                <folding />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="三种模拟登录策略_notes" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/三种模拟登录策略_notes">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="390">
-                <caret line="26" column="3" lean-forward="false" selection-start-line="26" selection-start-column="3" selection-end-line="26" selection-end-column="3" />
-                <folding />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="将从浏览器copy的cookies转换为scrapy能适应的dict.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/将从浏览器copy的cookies转换为scrapy能适应的dict.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="3_直接使用保存在登录状态的cookies模拟登录.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/3_直接使用保存在登录状态的cookies模拟登录.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="41" column="23" lean-forward="true" selection-start-line="41" selection-start-column="23" selection-end-line="41" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="zhihu_cookies.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/zhihu_cookies.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="538">
-              <caret line="37" column="28" lean-forward="false" selection-start-line="37" selection-start-column="28" selection-end-line="37" selection-end-column="28" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="zhihu_cookies.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/zhihu_cookies.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="使用Fiddler进行手机抓包" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用Fiddler进行手机抓包">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
@@ -478,7 +377,7 @@
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
               <first_editor relative-caret-position="42">
-                <caret line="3" column="125" lean-forward="true" selection-start-line="3" selection-start-column="125" selection-end-line="3" selection-end-column="125" />
+                <caret line="3" column="125" lean-forward="false" selection-start-line="3" selection-start-column="125" selection-end-line="3" selection-end-column="125" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -486,11 +385,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="connection(总之涉及到redis存取的都要使用到这个模块).py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py">
+      <file leaf-file-name="connection(总之涉及到redis存取的都要使用到这个模块).py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/connection(总之涉及到redis存取的都要使用到这个模块).py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="37" column="25" lean-forward="true" selection-start-line="37" selection-start-column="25" selection-end-line="37" selection-end-column="25" />
+            <state relative-caret-position="1530">
+              <caret line="102" column="0" lean-forward="true" selection-start-line="102" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
               <folding>
                 <element signature="e#343#355#0" expanded="true" />
               </folding>
@@ -498,12 +397,85 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/main.py">
+      <file leaf-file-name="dupefilter(scrapy-redis_负责执行request的去重).py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/dupefilter(scrapy-redis_负责执行request的去重).py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="42" lean-forward="false" selection-start-line="11" selection-start-column="42" selection-end-line="11" selection-end-column="42" />
+            <state relative-caret-position="463">
+              <caret line="159" column="17" lean-forward="false" selection-start-line="159" selection-start-column="17" selection-end-line="159" selection-end-column="17" />
+              <folding>
+                <element signature="e#327#341#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="picklecompat(scrapy-redis).py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/picklecompat(scrapy-redis).py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pipelines.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/pipelines.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="493">
+              <caret line="66" column="22" lean-forward="true" selection-start-line="66" selection-start-column="22" selection-end-line="66" selection-end-column="22" />
+              <folding>
+                <element signature="e#219#260#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="queue.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/queue.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="24" column="31" lean-forward="true" selection-start-line="24" selection-start-column="31" selection-end-line="24" selection-end-column="31" />
+              <folding>
+                <element signature="e#872#938#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="scheduler.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/scheduler.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="554">
+              <caret line="185" column="26" lean-forward="false" selection-start-line="185" selection-start-column="26" selection-end-line="185" selection-end-column="26" />
+              <folding>
+                <element signature="e#349#365#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="spider.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/spider.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="598">
+              <caret line="158" column="0" lean-forward="false" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
+              <folding>
+                <element signature="e#353#379#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="源码总结" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/源码总结">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SECOND">
+              <first_editor relative-caret-position="15">
+                <caret line="1" column="553" lean-forward="true" selection-start-line="1" selection-start-column="553" selection-end-line="1" selection-end-column="553" />
+                <folding />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -534,13 +506,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/Response部分源码.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/发送POST请求_demo.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/模拟登陆_demo.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/zhihu.com/zhihu/items.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/zhihu.com/zhihu/settings.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/zhihu.com/zhihu/spiders/zhihu_spider.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/分布式抓取" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/反反爬虫相关机制" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/设置下载中间件(Downloader Middlewares)/设置下载中间件(Downloader Middlewares)_notes" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/设置下载中间件(Downloader Middlewares)/middlewares.py" />
@@ -585,6 +550,13 @@
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用Fiddler进行手机抓包" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/scrapy-redis分布式组件/scrapy-redis_notes" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/dupefilter(scrapy-redis_负责执行request的去重).py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/picklecompat.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/pipelines.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/queue.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/scheduler.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/spider.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/源码总结" />
       </list>
     </option>
   </component>
@@ -850,6 +822,15 @@
               <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
               <item name="源码相关" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
+              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
+              <item name="源码相关" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy-redis" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -872,11 +853,11 @@
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis" />
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/手机app抓包爬虫" />
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关" />
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module" />
       <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/腾讯招聘网自动翻页采集/tencent.com/tencent/spiders" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/生成汉字正立或倒立" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -1447,55 +1428,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/items.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="38" lean-forward="false" selection-start-line="17" selection-start-column="38" selection-end-line="17" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/pipelines.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="71" column="7" lean-forward="false" selection-start-line="71" selection-start-column="7" selection-end-line="71" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/spiders/sunwz_crawl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="429">
-          <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/zhihu.com/zhihu/spiders/zhihu_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="15" lean-forward="false" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/spiders/sunwz.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/dg.log">
-      <provider selected="true" editor-type-id="LogFileEditorProvider">
-        <state relative-caret-position="-2913">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/东莞阳关热线问政平台/sunwz/sunwz/sunwz.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="151">
@@ -1782,7 +1714,7 @@
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/三种scrapy模拟登录策略/3_直接使用保存在登录状态的cookies模拟登录.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
-          <caret line="41" column="23" lean-forward="true" selection-start-line="41" selection-start-column="23" selection-end-line="41" selection-end-column="23" />
+          <caret line="41" column="23" lean-forward="false" selection-start-line="41" selection-start-column="23" selection-end-line="41" selection-end-column="23" />
           <folding />
         </state>
       </provider>
@@ -1834,20 +1766,89 @@
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="42">
-            <caret line="3" column="125" lean-forward="true" selection-start-line="3" selection-start-column="125" selection-end-line="3" selection-end-column="125" />
+            <caret line="3" column="125" lean-forward="false" selection-start-line="3" selection-start-column="125" selection-end-line="3" selection-end-column="125" />
             <folding />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/dupefilter(scrapy-redis_负责执行request的去重).py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="37" column="25" lean-forward="true" selection-start-line="37" selection-start-column="25" selection-end-line="37" selection-end-column="25" />
+        <state relative-caret-position="463">
+          <caret line="159" column="17" lean-forward="false" selection-start-line="159" selection-start-column="17" selection-end-line="159" selection-end-column="17" />
+          <folding>
+            <element signature="e#327#341#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/picklecompat(scrapy-redis).py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/connection(总之涉及到redis存取的都要使用到这个模块).py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1530">
+          <caret line="102" column="0" lean-forward="true" selection-start-line="102" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
           <folding>
             <element signature="e#343#355#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/pipelines.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="66" column="22" lean-forward="true" selection-start-line="66" selection-start-column="22" selection-end-line="66" selection-end-column="22" />
+          <folding>
+            <element signature="e#219#260#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/queue.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="31" lean-forward="true" selection-start-line="24" selection-start-column="31" selection-end-line="24" selection-end-column="31" />
+          <folding>
+            <element signature="e#872#938#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/scheduler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="554">
+          <caret line="185" column="26" lean-forward="false" selection-start-line="185" selection-start-column="26" selection-end-line="185" selection-end-column="26" />
+          <folding>
+            <element signature="e#349#365#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="598">
+          <caret line="158" column="0" lean-forward="false" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
+          <folding>
+            <element signature="e#353#379#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/源码总结">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SECOND">
+          <first_editor relative-caret-position="15">
+            <caret line="1" column="553" lean-forward="true" selection-start-line="1" selection-start-column="553" selection-end-line="1" selection-end-column="553" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
