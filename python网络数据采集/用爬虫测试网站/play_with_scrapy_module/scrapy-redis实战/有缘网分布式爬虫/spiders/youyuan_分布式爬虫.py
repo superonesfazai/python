@@ -121,3 +121,16 @@ class YouYuanSpider(RedisCrawlSpider):
         if re.compile(r'[0-9]').match(age):
             return age
         return "0"
+
+'''
+有缘网的数据爬回来了，但是放在Redis里没有处理。
+之前我们配置文件里面没有定制自己的ITEM_PIPELINES，
+而是使用了RedisPipeline，所以现在这些数据都被保存在redis的youyuan:items键中，
+所以我们需要另外做处理。
+
+在scrapy-youyuan目录下可以看到一个process_items.py文件，
+这个文件就是scrapy-redis的example提供的从redis读取item进行处理的模版。
+
+假设我们要把youyuan:items中保存的数据读出来写进MongoDB或者MySQL，
+那么我们可以自己写一个process_youyuan_profile.py文件，然后保持后台运行就可以不停地将爬回来的数据入库了
+'''
