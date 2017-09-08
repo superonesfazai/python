@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
 
 
-driver = webdriver.PhantomJS(executable_path='phantomjs/bin/phantomjs')
+driver = webdriver.PhantomJS()
 driver.get("http://pythonscraping.com/pages/files/form.html")
 
 firstnameField = driver.find_element_by_name("firstname")
