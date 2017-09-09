@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/微信聊天机器人/自定义复杂消息处理.py" afterPath="$PROJECT_DIR$/微信聊天机器人/自定义复杂消息处理.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/日常脚本/auto_git_by_afa.py" afterPath="$PROJECT_DIR$/日常脚本/auto_git_by_afa.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -404,7 +403,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="自定义复杂消息处理.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="自定义复杂消息处理.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/微信聊天机器人/自定义复杂消息处理.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="450">
@@ -412,6 +411,16 @@
               <folding>
                 <element signature="e#135#148#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="auto_git_by_afa.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/日常脚本/auto_git_by_afa.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="210">
+              <caret line="15" column="11" lean-forward="true" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -466,7 +475,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/改版_知乎_scrapy版/zhihu/zhihu/spiders/zhihu_cookies.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用Fiddler进行手机抓包" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/scrapy-redis分布式组件/scrapy-redis_notes" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py" />
@@ -517,6 +525,7 @@
         <option value="$PROJECT_DIR$/微信聊天机器人/接收消息.py" />
         <option value="$PROJECT_DIR$/微信聊天机器人/发送信息.py" />
         <option value="$PROJECT_DIR$/微信聊天机器人/自定义复杂消息处理.py" />
+        <option value="$PROJECT_DIR$/日常脚本/auto_git_by_afa.py" />
       </list>
     </option>
   </component>
@@ -760,6 +769,11 @@
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="微信聊天机器人" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="日常脚本" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1274,7 +1288,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="583" y="0" width="697" height="800" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21510673" sideWeight="0.5107034" order="6" side_tool="true" content_ui="tabs" />
@@ -1282,7 +1295,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26933333" sideWeight="0.48929664" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.324" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25251076" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25251076" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1337,14 +1350,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy-redis实战/scrapyredis-project/scrapy.cfg">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy-redis实战/scrapyredis-project/README.rst">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="80">
@@ -1765,6 +1770,14 @@
           <folding>
             <element signature="e#135#148#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/日常脚本/auto_git_by_afa.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="15" column="11" lean-forward="true" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
+          <folding />
         </state>
       </provider>
     </entry>
