@@ -93,7 +93,7 @@ def web_init():
     payloads = {
         'BaseRequest': baseRequest,
     }
-    
+
     headers = {
         'ContentType': 'application/json; charset=UTF-8'
     }
