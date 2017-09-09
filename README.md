@@ -1,2 +1,2 @@
 # python
-[![](./images/RMB.jpg)]
+![](./images/RMB.jpg)
