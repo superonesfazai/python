@@ -22,7 +22,7 @@ def main():
     auto_git(python_path)
     auto_git(js_path)
     auto_git(jquery)
-    print('\n' + '再接再厉哦!'.center(150, '*'))
+    print('\n' + '再接再厉哦!'.center(100, '*'))
 
 if __name__ == '__main__':
     main()
