@@ -16,7 +16,7 @@ def text_reply(msg):
     reply = '{}: {}'.format(msg['Type'], msg['Text'])
     itchat.send(reply, msg['FromUserName'])
 
-# 如果收到[PICTURE, RECORDING, ATTACHMENT, VIDEO]类的信息，会自动保存
+# 如果收到[PICTURE, RECORDING, ATTACHMENT, VIDEO]类的信息，会自动存档
 @itchat.msg_register([PICTURE, RECORDING, ATTACHMENT, VIDEO])   # 图片, 语音, 文件, 视频
 def download_files(msg):
     msg['Text'](msg['FileName'])
@@ -39,4 +39,4 @@ itchat.auto_login(hotReload=True)
 
 itchat.run()
 
-itchat.logout()     # 安全退出
+# itchat.logout()     # 安全退出
