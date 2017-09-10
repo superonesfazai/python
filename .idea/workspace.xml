@@ -5,10 +5,63 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/技术选型.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/爬虫去重策略.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/爬虫能做什么.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/网站url的结构图.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/utils/__init__.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/css选择器/css选择器.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/css选择器/css选择器2.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/css选择器/css选择器3.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/scrapy_new_project/create_scrapy_project.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/scrapy_new_project/scrapy_shell_url.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/scrapy_new_project/scrapy_shell_url2.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/scrapy_new_project/xpath语法-谓语.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/scrapy_new_project/xpath语法.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/scrapy_new_project/xpath语法2.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/虚拟环境安装与配置/1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/虚拟环境安装与配置/2017-07-03 12-15-55屏幕截图.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/虚拟环境安装与配置/2017-07-03 12-18-54屏幕截图.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/虚拟环境安装与配置/2017-07-03 12-20-26屏幕截图.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/虚拟环境安装与配置/2017-07-03 12-26-35屏幕截图.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/learn_notes/虚拟环境安装与配置/2017-07-03 13-34-34屏幕截图.png" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/.idea/AtricleSpider.iml" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/.idea/AtricleSpider.iml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/.idea/inspectionProfiles/profiles_settings.xml" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/.idea/inspectionProfiles/profiles_settings.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/.idea/misc.xml" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/.idea/misc.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/.idea/modules.xml" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/.idea/modules.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/.idea/workspace.xml" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/.idea/workspace.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/__init__.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/MySQL默认的四个数据库简介" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/1920e6dd8243dc236fa1e8abd1a1fa16a072ff2d.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/1920e6dd8243dc236fa1e8abd1a1fa16a072ff2d.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/1f020353984ba3d88d0e0349f7b5decd4ed6dd8a.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/1f020353984ba3d88d0e0349f7b5decd4ed6dd8a.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/27823440373381b04421fc70634750dfcfca3b30.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/27823440373381b04421fc70634750dfcfca3b30.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/2f774db07a589d09c8c152c0bb471f04c956412e.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/2f774db07a589d09c8c152c0bb471f04c956412e.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/41b4657e9821155bd3325ef1334ebce10189b7f6.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/41b4657e9821155bd3325ef1334ebce10189b7f6.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/4f98c9ecf55b5d6ac63cc8ecc27f2fa194e86ad0.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/4f98c9ecf55b5d6ac63cc8ecc27f2fa194e86ad0.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/55b1132af682daa4944e35728414d9d865d4670f.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/55b1132af682daa4944e35728414d9d865d4670f.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/5b48951660a3dd574009dd9dfb69981fce68b26a.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/5b48951660a3dd574009dd9dfb69981fce68b26a.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/6032d7dc1233f95d17343e58eeaff17e6a49cb23.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/6032d7dc1233f95d17343e58eeaff17e6a49cb23.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/6085acc0af4696f5d49164561c6bc4f9b590fc26.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/6085acc0af4696f5d49164561c6bc4f9b590fc26.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/6a97cfe7f7f14e4e38447a57e0284a25fe3ecdad.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/6a97cfe7f7f14e4e38447a57e0284a25fe3ecdad.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/6fea19912aa975484ea8f1389d4c93135791ba7b.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/6fea19912aa975484ea8f1389d4c93135791ba7b.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/9a8539839727cdcb8492a550ef7b35f838a85f14.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/9a8539839727cdcb8492a550ef7b35f838a85f14.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/a6e095311cee5dbfc6a3b7e5127f63181f1ad769.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/a6e095311cee5dbfc6a3b7e5127f63181f1ad769.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/af2aa7503b9a5a4b73437fab997885a3d7f1ae8e.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/af2aa7503b9a5a4b73437fab997885a3d7f1ae8e.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/b115c033c502899f0a878f54b5a62805b0d233b4.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/b115c033c502899f0a878f54b5a62805b0d233b4.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/bb38d11fb4038702790e0370ed966c50f186ff40.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/bb38d11fb4038702790e0370ed966c50f186ff40.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/cb6856e79b5025e46c895464e60a86e2f6c4e811.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/cb6856e79b5025e46c895464e60a86e2f6c4e811.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/d3d1a5ad957de059084690efae6fdfaa3527e1c3.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/d3d1a5ad957de059084690efae6fdfaa3527e1c3.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/dfa8fff3b99c7011381e1666d2c2ba0015a7c34f.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/dfa8fff3b99c7011381e1666d2c2ba0015a7c34f.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/e4f781fe9bcbb1b14511417240112232bbec89cd.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/e4f781fe9bcbb1b14511417240112232bbec89cd.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/images/full/e56b761fb7600a480f0de3228665bdb07b09a589.jpg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/images/full/e56b761fb7600a480f0de3228665bdb07b09a589.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/items.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/items.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/middlewares.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/middlewares.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/pipelines.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/pipelines.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/settings.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/settings.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/spiders/__init__.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/spiders/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/spiders/jobbole.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/spiders/jobbole.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/utils/__init__.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/数据库设计规范与范式" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/AtricleSpider/utils/common.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/AtricleSpider/utils/common.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/article.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/article.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/articleexporter.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/articleexporter.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/main.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/main.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/_分布式爬虫_scrapy框架_搜索引擎/AtricleSpider/scrapy.cfg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/AtricleSpider/scrapy.cfg" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -360,7 +413,7 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -386,8 +439,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/scrapy-redis分布式组件/scrapy-redis_notes" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/connection(总之涉及到redis存取的都要使用到这个模块).py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/dupefilter(scrapy-redis_负责执行request的去重).py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/picklecompat.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/源码相关/scrapy-redis/pipelines.py" />
@@ -437,6 +488,8 @@
         <option value="$PROJECT_DIR$/微信聊天机器人/自定义复杂消息处理.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/日常脚本/auto_git_by_afa.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/MySQL默认的四个数据库简介" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/数据库设计规范与范式" />
       </list>
     </option>
   </component>
@@ -447,8 +500,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="707" />
-    <option name="y" value="26" />
+    <option name="x" value="706" />
+    <option name="y" value="39" />
     <option name="width" value="557" />
     <option name="height" value="718" />
   </component>
@@ -559,7 +612,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <expand>
@@ -669,12 +721,36 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="db_and_数据持久化" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="db_and_数据持久化" type="462c0819:PsiDirectoryNode" />
+              <item name="mysql" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
@@ -1187,9 +1263,9 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <frame x="568" y="0" width="712" height="800" extended-state="0" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.246875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3392613" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21510673" sideWeight="0.5107034" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1250,21 +1326,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy-redis实战/scrapyredis-project/Dockerfile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy-redis实战/新浪网分类资讯分布式爬虫/docker-compose.yml" />
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy-redis实战/新浪网分类资讯分布式爬虫/sina/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="30" column="17" lean-forward="false" selection-start-line="30" selection-start-column="17" selection-end-line="30" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/scrapy-redis实战/scrapyredis-project/process_items.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -1462,16 +1523,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/bs4_notes">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SECOND">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/微信聊天机器人/QR.jpg">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -1504,7 +1555,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
           <caret line="28" column="49" lean-forward="false" selection-start-line="28" selection-start-column="49" selection-end-line="28" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1522,7 +1572,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="20" column="44" lean-forward="false" selection-start-line="20" selection-start-column="44" selection-end-line="20" selection-end-column="44" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1530,9 +1579,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-          <folding>
-            <element signature="e#135#148#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1540,9 +1586,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="390">
           <caret line="26" column="16" lean-forward="false" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="16" />
-          <folding>
-            <element signature="e#130#143#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1550,7 +1593,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="495">
           <caret line="33" column="22" lean-forward="false" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1558,9 +1600,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="283">
           <caret line="48" column="34" lean-forward="false" selection-start-line="48" selection-start-column="34" selection-end-line="48" selection-end-column="34" />
-          <folding>
-            <element signature="e#140#164#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1568,9 +1607,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="343">
           <caret line="30" column="32" lean-forward="false" selection-start-line="30" selection-start-column="32" selection-end-line="30" selection-end-column="32" />
-          <folding>
-            <element signature="e#136#151#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1578,9 +1614,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="568">
           <caret line="58" column="16" lean-forward="false" selection-start-line="58" selection-start-column="16" selection-end-line="58" selection-end-column="16" />
-          <folding>
-            <element signature="e#130#143#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1588,9 +1621,50 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="463">
           <caret line="35" column="36" lean-forward="false" selection-start-line="35" selection-start-column="36" selection-end-line="35" selection-end-column="36" />
-          <folding>
-            <element signature="e#165#178#0" expanded="true" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/xpath的用法_notes">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="300">
+            <caret line="20" column="19" lean-forward="true" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/bs4_notes">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/数据库设计规范与范式">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="270">
+            <caret line="18" column="12" lean-forward="false" selection-start-line="18" selection-start-column="12" selection-end-line="18" selection-end-column="12" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/MySQL默认的四个数据库简介">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="120">
+            <caret line="8" column="36" lean-forward="false" selection-start-line="8" selection-start-column="36" selection-end-line="8" selection-end-column="36" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
