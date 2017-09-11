@@ -1,0 +1,59 @@
+## 变量
+* 定义语法如下
+```sql
+declare 变量名 类型 [default 默认值](可选);
+例:
+declare x varchar(100);
+```
+* 设置语法如下
+```sql
+set 变量名=值;
+例:
+set x='abc';
+```
+* 使用变量到表达式中，即可获取变量的值
+
+## 存储函数
+* 前面学习了mysql内置的常用函数，mysql也支持自定义函数，完成常用sql语句的封装
+#### 查看
+* 查询mysql.proc表
+* 说明：存储过程与存储函数都存储在proc表中，区别在type字段，func表中无数据
+* 查看指定数据库中的存储过程/函数
+```sql
+select name,type from mysql.proc where db='数据库名称';
+例：
+select name,type from mysql.proc where db='python';
+```
+
+#### 创建
+* 语法如下
+```sql
+delimiter $$
+create function 函数名称(参数列表) returns 返回类型
+begin
+sql语句
+end
+$$
+delimiter ;
+```
+* 例1：创建函数trim，用于删除字符串左右两侧的空格
+* step1：设置分割符
+```sql
+delimiter $$
+```
+* step2：创建函数
+* 注意：函数名称与参数括号之间要有空格
+```sql
+create function trim (str varchar(100)) returns varchar(100)
+begin
+declare x varchar(100);
+set x=ltrim(rtrim(str));
+return x;
+end
+$$
+```
+* step3：还原分割符
+```sql
+delimiter ;
+```
+执行效果图如下

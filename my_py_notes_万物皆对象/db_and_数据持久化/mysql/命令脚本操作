@@ -1,0 +1,332 @@
+## 命令行连接
+```shell
+mysql -u root -p
+```
+
+* 查看版本: 
+```html
+select version();
+```
+* 显示当前时间:
+```shell
+select now();
+```
+
+![](./images/tmp2.png)
+
+## 数据库
+* 查看当前选择的数据库:
+```shell
+selcet database();
+```
+
+* 创建数据库:
+```shell
+create database 数据库 charset=utf8;
+```
+MySQL数据库默认编码是Latin1，如果在创建数据库忘记指定字符集为utf8，可以通过下面方法修改
+
+* 1. 修改数据库 python_0314 的字符集
+```shell
+alter database python charset utf8;
+```
+* 2. 修改表的字符集，以及所有字符列(char, varchar, text等)的字符集为utf8
+```shell
+alter table students covert to charset utf8;
+```
+
+* 删除数据库:
+```shell
+drop database 数据库名;
+```
+
+## 数据表
+* 查看当前数据库中所有表
+```
+show tables;
+```
+* 查看表结构
+```
+desc 表名;
+```
+* 创建表
+```
+auto_increment表示自动增长
+```
+```
+create table 表名(列 类型 约束,...);
+```
+
+例：创建班级表
+```
+create table classes(
+    id int unsigned auto_increment primary key not null,
+    name varchar(10),
+    isdelete bit default 0
+);
+```
+例：创建学生表
+```
+create table students(
+    id int unsigned auto_increment primary key not null,
+    name varchar(10) not null,
+    gender bit default 1,
+    hometown varchar(20),
+    clsid int unsigned,
+    isdelete bit default 0,
+    foreign key(clsid) references classes(id)
+);
+```
+* 修改表-添加字段
+```
+alter table 表名 add 列名 类型;
+```
+```
+alter table students add birthday datetime;
+```
+* 修改表-修改字段：重命名版
+```
+alter table 表名 change 原名 新名 类型及约束;
+```
+```
+alter table students change name name1 varchar(20) not null;
+```
+* 修改表-修改字段：不重命名版
+```
+alter table 表名 modify 列名 类型及约束;
+```
+```
+alter table students modify name1 varchar(10) not null;
+```
+* 修改表-删除字段
+```
+alter table 表名 drop 列名;
+```
+```
+alter table students drop birthday;
+```
+* 删除表
+```
+drop table 表名;
+```
+* 查看表的创建语句
+```
+show create table 表名;
+```
+
+## 查询
+* 查询所有列
+```shell
+select * from 表名;
+```
+* 查询指定列
+可以使用as为列或表指定别名
+```html
+select 列1, 列2, ... from 表名;
+```
+* 消除重复行
+    * 在select 后面呢列前面使用distinct可以消除重复行
+```sql
+select distinct 列1, ... from 表名;
+例:
+select distinct gender from students;
+```
+#### 模糊查询
+* like 
+* %表示任意多个任意字符
+* _表示一个任意字符
+* 例: 查询姓黄的学生
+```sql
+select * from students where sanme like '黄%';
+```
+* 例: 查询姓黄并且名字只有一个字的学生
+```sql
+select * from students where sname like '黄_';
+```
+* 例：查询姓黄或叫靖的学生
+```sql
+select * from students where sname like '黄%' or sname like '%靖';
+```
+#### 范围查询
+* in表示在一个非连续的范围内
+* 例: 查询编号是1或3或8的学生
+```sql
+select * from students where id in(1, 3, 8);
+```
+* between ... and ... 表示在一个连续的范围内
+* 例: 查询学生是3至8的学生
+```sql
+select * from students where id between 3 and 8; 
+```
+* 例: 查询学生是3至8的男生
+```sql
+select * from students where id between 3 and 8 and gender=1;
+```
+#### 空值查询
+* 注意：null与''是不同的
+* 判空is null
+* 例：查询没有填写地址的学生
+```sql
+select * from students where hometown is null;
+```
+* 判非空is not null 
+* 判空is null
+* 例: 查询没有填写地址的学生
+```sql
+select * from students where hometown is not null;
+```
+* 查询填写了地址的女生
+```sql
+select * from students where hometown is not null and gender=0;
+```
+##### 优先级
+优先级由高到低的顺序为：小括号，not，比较运算符，逻辑运算符
+and比or先运算，如果同时出现并希望先算or，需要结合()使用
+
+#### 分组
+* 按照字段分组，表示此字段相同的数据会被放到一个组中
+* 分组后，分组的依据列会显示在结果集中，其他列不会显示在结果集中
+* 可以对分组后的数据进行统计，做聚合运算
+* 语法：
+```sql
+select 列1,列2,聚合... from 表名 group by 列1,列2...
+```
+* 例: 查询男女生总数
+```sql
+select gender as 性别,count(*)
+from students
+group by gender;
+```
+* 例：查询各城市人数
+```sql
+select hometown as 家乡,count(*)
+from students
+group by hometown;
+```
+##### 分组后的数据筛选
+* 语法: 
+```sql
+select 列1, 列2, 聚合... from 表名
+group by 列1, 列2, 列3...
+having 列1, ...聚合...
+```
+* having后面的条件运算符与where的相同
+* 例：查询男生总人数
+```SQL
+方案一
+select count(*)
+from students
+where gender=1;
+-----------------------------------
+方案二：
+select gender as 性别,count(*)
+from students
+group by gender
+having gender=1;
+```
+##### 对比where与having
+* where是对from后面指定的表进行数据筛选，属于对原始数据的筛选
+* having是对group by的结果进行筛选
+##### with rollup
+与 with rollup 一起使用(在表最后加入一个查询的数据的总和行)；
+```SQL
+select hometown as 家乡,count(*)
+from students
+group by hometown
+with rollup;
+```
+
+#### 排序
+* 为了方便查看数据, 可以对数据进行排序
+* 语法: 
+```SQL
+select * from 表名
+order by 列1 asc|desc,列2 asc|desc,...
+```
+* 将行数据按照列1进行排序，如果某些行列1的值相同时，则按照列2排序，以此类推
+* 默认按照列值从小到大排列
+* asc从小到大排列，即升序
+* desc从大到小排序，即降序
+
+#### 分页查询
+* 当数据量过大时, 在一页中查看数据是一件非常麻烦的事
+* 语法：
+```SQL
+select * from 表名
+limit start, count
+```
+* 从start开始，获取count条数据
+* start索引从0开始
+* 例：查询前3行男生信息
+```sql
+select * from students
+where gender=1
+limit 0,3;
+```
+
+## 增加
+```html
+* 说明：主键列是自动增长，但是在全列插入时需要占位，通常使用0，插入成功后以实际数据为准
+```
+* 全列插入：值的顺序与表中字段的顺序对应
+```
+insert into 表名 values(...)
+例：
+insert into students values(0,'郭靖',1,'蒙古','2015-1-2');
+```
+* 部分列插入：值的顺序与给出的列顺序对应
+```
+insert into 表名(列1,...) values(值1,...)
+例：
+insert into students(name,hometown,birthday) values('黄蓉','桃花岛','2015-3-2');
+```
+* 上面的语句一次可以向表中插入一行数据，还可以一次性插入多行数据，这样可以减少与数据库的通信
+* 全列多行插入：值的顺序与给出的列顺序对应
+```
+insert into 表名 values(...),(...)...;
+例：
+insert into classes values(0,'python'),(0,'linux'),(0,'mysql'),(0,'js');
+```
+```
+insert into 表名(列1,...) values(值1,...),(值1,...)...;
+例：
+insert into students(name) values('杨康'),('杨过'),('小龙女');
+```
+## 修改
+```
+update 表名 set 列1=值1,列2=值2... where 条件
+例：
+update students set gender=0,hometown='古墓' where id=5;
+```
+## 删除
+```sql
+delete from 表名 where 条件;
+例:
+delte from students where id=5;
+```
+* 逻辑删除, 本质就是修改操作
+```sql
+update students set isdelete=1 where id=1;
+```
+
+## 备份
+* 运行mysqldump命令
+```shell
+python@ubuntu:~$ mysqldump –uroot –p 数据库名 > ~/Desktop/py.sql;
+按提示输入mysql的密码
+```
+
+## 恢复
+* 连接mysql, 创建数据库
+* 退出连接, 执行下面命令
+```shell
+python@ubuntu:~$ mysql -u root -p 数据库名 < ~/Desktop/py.sql
+根据提示输入mysql密码
+```
+
+## 内置函数
+* 字符串函数
+* 数学函数
+* 日期时间函数
+* 类型转换函数
+* 流程控制

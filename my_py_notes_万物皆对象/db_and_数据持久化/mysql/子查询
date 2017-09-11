@@ -1,0 +1,25 @@
+## 子查询
+* 在一个select语句中，可以嵌套另一个select语句，这种查询语句被称为子查询
+* 子查询主要用到三个位置
+    * 作为select子名
+    * 作为from子句
+    * 作为where子句
+* 例1：查询学生姓名及班级名称
+```SQL
+select stu.name as stuname,
+(select cls.name from classes where cls.id=stu.clsid) as clsname 
+from students as stu;
+```
+* 例2：查询学生与班级对应的信息
+```sql
+select * from 
+(select stu.*,cls.name as clsname from students as stu 
+inner join classes as cls on stu.clsid=cls.id) 
+as t1;
+```
+* 例3：查询班级名称为'python1'的所有学生姓名
+```sql
+select stu.name from students as stu
+where stu.clsid=(select id from classes where name='python1')
+```
+* 说明：发现很多子查询的语句，都是可以使用连接查询实现的，此时推荐使用连接查询，因为连接查询的语句更简洁，逻辑更清晰

@@ -1,0 +1,69 @@
+## 存储过程
+* 存储过程, 是一条或者多条sql语句的集合, 可以视为批处理, 但是其作用不仅仅局限于批处理
+* 这里主要介绍如何创建存储过程, 以及如何调用, 查看，修改, 删除存储过程
+* 存储过程也可以调用其它存储过程
+
+#### 查看
+* 查询mysql.proc表
+* 查看指定数据库的存储过程
+```sql
+select name, type from mysql.proc where db='数据库名称';
+```
+
+#### 创建
+* 语法如下
+* delimiter表示分割符，用于设置当前使用的分割符，mysql中默认使用分号;
+* 默认需要使用分号表示sql语句的结束，所以在操作存储过程时，需要将分割符改为其它值
+```sql
+delimiter //
+create procedure 存储过程名称(参数列表)
+begin
+sql语句
+end
+//
+delimiter;
+```
+* 例1：创建查询过程，查询学生信息
+* step1：设置分割符
+```sql
+delimiter //
+```
+* step2：创建存储过程
+```sql
+create procedure proc_stu()
+begin
+select * from students;
+end
+//
+```
+* step3：还原分割符
+```sql
+delimiter;
+```
+* 执行效果图如下
+![](./images/proc1.png)
+
+#### 调用
+* 语法如下
+```sql
+call 存储过程(参数列表);
+```
+* 例: 调用存储过程proc_stu
+```sql
+call proc_stu();
+```
+#### 删除
+* 语法如下
+```sql
+drop procedure 存储过程名称;
+```
+* 说明：存储过程内部的sql语句无法修改，如果之前创建的存储过程不能满足要求，可以删除后重新创建
+* 例：删除存储过程proc_stu
+```sql
+drop procedure proc_stu;
+```
+* 再次查询则提示无数据
+```sql
+select name from mysql.proc where db='python';
+```
+* 更多存储过程的知识点，可以点击 [存储过程详解](http://blog.sina.com.cn/s/blog_52d20fbf0100ofd5.html) 查看
