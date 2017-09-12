@@ -1,0 +1,154 @@
+## redis配置文件
+在启动redis服务器时, 我们需要为其指定一个配置文件, 缺省情况下配置文件在redis的源码目录下, 文件名:redis.conf
+
+#### 打开配置文件
+```shell
+$ sudo vi /etc/redis/redis.conf
+```
+#### 绑定ip：
+* 如果需要远程访问，可将此行注释；
+* 如果允许指定ip连接，可以指定真实ip
+```
+#bind 127.0.0.1
+```
+#### 是否启用保护模式：
+* 设置为yes表示启用保护模式，设置为no表示禁用保护模式
+    * 如果启用保护模式，则bind的IP可以连接数据库，但不可以做读写操作
+    * 如果禁用保护模式，则bind的IP可以连接数据库，也可以做读写操作
+```
+protected-mode no
+```
+
+#### 端口: 默认为6379
+```shell
+port 6379
+```
+#### 是否以守护进程运行：
+* 设置为yes表示守护进程，设置为no表示非守护进程
+    * 如果以守护进程运行，则不会在命令行阻塞，类似于后台服务
+    * 如果以非守护进程运行，则当前终端被阻塞，并显示服务状态
+```
+daemonize no
+```
+* 磁盘缓存数据文件名
+```
+dbfilename dump.rdb
+```
+* 磁盘缓存数据文件存储路径
+```
+dir /var/lib/redis
+```
+* 日志文件
+```
+logfile /var/log/redis/redis-server.log
+```
+* 指定数据库数量，默认有16个
+```
+database 16
+```
+* Redis 密码认证
+
+在 redis.conf 里配置 requirepass foobared，foobared为默认密码，关闭redis服务后，重新打开。
+```
+python@ubuntu:~$ redis-cli
+127.0.0.1:6379> keys *
+(error) NOAUTH Authentication required.
+127.0.0.1:6379> auth foobared
+OK
+```
+或者在登录时 -a 指定密码：
+```
+redis-cli -h 127.0.0.1 -p 6379 -a foobared
+```
+#### Select 命令
+
+Redis Select 命令用于切换到指定的数据库，数据库索引号 index 用数字值指定，以 0 作为起始索引值。
+```
+python@ubuntu:~$ redis-cli
+127.0.0.1:6379> select 1
+OK
+127.0.0.1:6379[1]> set name 'itcast.cn'
+OK
+
+127.0.0.1:6379[1]> select 2
+OK
+127.0.0.1:6379[2]> set web 'itcast.com'
+OK
+127.0.0.1:6379[2]> get web
+"itcast.com"
+127.0.0.1:6379[2]> get name
+(nil)
+
+127.0.0.1:6379[2]> select 1
+OK
+127.0.0.1:6379[1]> get name
+"itcast.cn"
+127.0.0.1:6379[1]> get web
+(nil)
+```
+#### Shutdown 命令
+
+Redis Shutdown 命令执行以下操作：
+
+    * 停止所有客户端
+    * 如果有至少一个保存点在等待，执行 SAVE 命令
+    * 关闭 redis 服务器(server)
+```
+127.0.0.1:6379> PING
+PONG
+127.0.0.1:6379> SHUTDOWN
+```
+#### Redis Showlog
+
+Redis Showlog 是 Redis 用来记录查询执行时间的日志系统。
+
+查询执行时间指的是不包括像客户端响应(talking)、发送回复等 IO 操作，而单单是执行一个查询命令所耗费的时间。
+
+另外，slow log 保存在内存里面，读写速度非常快，因此你可以放心地使用它，不必担心因为开启 slow log 而损害 Redis 的速度。
+
+语法 redis Showlog 命令基本语法如下：
+```
+redis 127.0.0.1:6379> SLOWLOG subcommand [argument]
+```
+* 查看日志信息：
+```
+redis 127.0.0.1:6379> slowlog get 2
+1) 1) (integer) 14
+   2) (integer) 1309448221
+   3) (integer) 15
+   4) 1) "ping"
+2) 1) (integer) 13
+   2) (integer) 1309448128
+   3) (integer) 30
+   4) 1) "slowlog"
+      2) "get"
+      3) "100"
+```
+```
+每一个Showlog都是由四个字段组成的
+
+慢日志标识符
+
+记录的命令进行处理的Unix时间戳
+
+执行所需的时间，以微秒
+
+命令、参数。
+```
+* 查看当前日志的数量：
+```
+redis 127.0.0.1:6379> SLOWLOG LEN
+(integer) 14
+使用命令 SLOWLOG RESET 可以清空 slow log 。
+
+redis 127.0.0.1:6379> SLOWLOG LEN
+(integer) 14
+
+redis 127.0.0.1:6379> SLOWLOG RESET
+OK
+
+redis 127.0.0.1:6379> SLOWLOG LEN
+(integer) 0
+```
+参考阅读：[Redis 的配置文件](https://github.com/linli8/cnblogs/blob/master/redis%E5%89%AF%E6%9C%AC.conf)
+

@@ -1,0 +1,218 @@
+## zset 有序集合(Sorted Set)
+* Redis 有序集合和集合一样，也是string类型元素的集合，且不允许重复的成员。
+* 不同的是每个元素都会关联一个 double 类型的分数，Redis正是通过分数（权重）来为集合中的成员进行从小到大（升序）的排序。
+* 有序集合的成员是唯一的，但分数(score)却可以重复。
+
+集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。 集合中最大的成员数为 2^32 - 1 (4294967295, 每个集合可存储40多亿个成员)。
+
+说明：没有修改操作
+
+### 1. zadd：增加成员及其分数
+```
+zadd key score1 member1 score2 member2 ...
+```
+将所有指定成员添加到键为key有序集合（sorted set）里面
+```
+127.0.0.1:6379> zadd myzset 1 "one"
+(integer) 1
+127.0.0.1:6379> zadd myzset 1 "eno"
+(integer) 1
+127.0.0.1:6379> 
+127.0.0.1:6379> zadd myzset 2 "two" 3 "three"
+(integer) 2
+```
+### 2. zcount：获取指定区间的score值的成员个数
+```
+zcount key min max
+```
+返回有序集key中，score值在min和max之间(默认包括score值等于min或max)的成员
+```
+# 最小值为1，最大值为3之间的成员个数
+127.0.0.1:6379> zcount myzset 1 3
+(integer) 4
+
+# 最小值为1，最大值为3之间的成员个数（ (1 表示除了score值为1）
+127.0.0.1:6379> zcount myzset (1 3
+(integer) 2
+
+# 最小值 到 最大值之间 所有成员个数
+127.0.0.1:6379> zcount myzset -inf +inf
+(integer) 4
+```
+### 3. zrange：获取指定索引范围的元素
+```
+zrange key start stop [WITHSCORES]
+```
+* 返回指定范围内的元素
+    * start、stop为元素的下标索引
+    * 索引从左侧开始，第一个元素为0
+    * 索引可以是负数，表示从尾部开始计数，如-1表示最后一个元素
+    * withscore 参数还可以返回score值
+```
+127.0.0.1:6379> zrange myzset 0 -1
+1) "eno"
+2) "one"
+3) "two"
+4) "three"
+
+
+127.0.0.1:6379> zrange myzset 0 -1 withscores
+1) "eno"
+2) "1"
+3) "one"
+4) "1"
+5) "two"
+6) "2"
+7) "three"
+8) "3"
+```
+### 4. zrangebyscore：获取指定score大小范围的元素
+```
+zrangebyscore key min max
+```
+```
+127.0.0.1:6379> zrangebyscore myzset 1 2
+1) "eno"
+2) "one"
+3) "two"
+```
+### 5. zscore：返回指定成员的score值
+```
+zscore key member
+```
+```
+127.0.0.1:6379> zscore myzset eno
+"1"
+```
+### 6. zrem: 删除指定元素
+```
+zrem key member1 member2 ...
+```
+```
+127.0.0.1:6379> zrem myzset eno
+(integer) 1
+```
+### 7. zremrangebyscore：删除指定score大小范围的元素
+```
+zremrangebyscore key min max
+```
+```
+127.0.0.1:6379> zremrangebyscore myzset 1 3
+(integer) 3
+127.0.0.1:6379> zrange myzset 0 -1
+(empty list or set)
+```
+### 8. zincrby：增加指定成员的score值
+```
+zincrby key increment member
+```
+为有序集key的成员member的score值加上增量increment
+```
+127.0.0.1:6379> zadd myzset 1 "one" 2 "two" 3 "three"
+(integer) 3
+
+# 成员"one"的score值增加10
+127.0.0.1:6379> zincrby myzset 10 "one"
+"11"
+
+# 成员"two"的score值减少12
+127.0.0.1:6379> zincrby myzset -12 "two"
+"-10"
+
+127.0.0.1:6379> zrange myzset 0 -1 withscores
+1) "two"
+2) "-10"
+3) "three"
+4) "3"
+5) "one"
+6) "11"
+```
+### 9. zrevrange:降序排序
+```
+zrevrange key start stop [WITHSCORES]
+```
+按从大到小排序方式进行排序。
+```
+# 降序
+127.0.0.1:6379> zrevrange myzset 0 -1
+1) "one"
+2) "three"
+3) "two"
+
+127.0.0.1:6379> zrevrange myzset 0 -1 withscores
+1) "one"
+2) "11"
+3) "three"
+4) "3"
+5) "two"
+6) "-8"
+
+# 升序
+127.0.0.1:6379> zrange myzset 0 -1
+1) "two"
+2) "three"
+3) "one"
+
+127.0.0.1:6379> zrange myzset 0 -1 withscores
+1) "two"
+2) "-8"
+3) "three"
+4) "3"
+5) "one"
+6) "11"
+```
+### 应用场景
+1. 排行榜，DOTA天梯榜排名
+2. 带有权重的元素，LOL最强王者哪些玩家
+3. 微博里粉丝量最高的大V
+### 案例
+斗地主大赛排名
+
+    * 初始比赛
+```
+127.0.0.1:6379> zadd doudizhu_rank 0 "player1"
+(integer) 1
+127.0.0.1:6379> zadd doudizhu_rank 0 "player2"
+(integer) 1
+127.0.0.1:6379> zadd doudizhu_rank 0 "player3"
+(integer) 1
+```
+    * 比赛开始，经过n轮比赛，每次统计，类似计算如下所示
+```
+# 玩家3 增加3分
+127.0.0.1:6379> zincrby doudizhu_rank 3 player3
+"3"
+# 玩家2 减少1分
+127.0.0.1:6379> zincrby doudizhu_rank -1 player2
+"-1"
+# 玩家1 减少2分
+127.0.0.1:6379> zincrby doudizhu_rank -2 player1
+"-2"
+```
+    * 比赛结束，进行排名
+```
+# 成员顺序排名
+127.0.0.1:6379> zrange doudizhu_rank 0 -1
+1) "player1"
+2) "player2"
+3) "player3"
+
+# 根据score排名
+127.0.0.1:6379> zrange doudizhu_rank 0 -1 withscores
+1) "player1"
+2) "-2"
+3) "player2"
+4) "-1"
+5) "player3"
+6) "3"
+
+#逆序排序结果
+127.0.0.1:6379> zrevrange doudizhu_rank 0 -1 withscores
+1) "player3"
+2) "3"
+3) "player2"
+4) "-1"
+5) "player1"
+6) "-2"
+127.0.0.1:6379>
+```

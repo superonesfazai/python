@@ -1,0 +1,81 @@
+## 索引
+* 当数据库中数据量很大时，查找数据会变得很慢
+* 索引能提高数据访问性能
+* 主键和唯一索引，都是索引，可以提高查询速度
+* 索引分单列索引和组合索引
+    * 单列索引，即一个索引只包含单个列，一个表可以有多个单列索引
+    * 组合索引，即一个索引包含多个列
+    
+#### 语法
+* 查看索引
+```sql
+show index from table_name;
+```
+* 创建索引
+* 如果指定字段是字符串，需要指定长度，此长度与定义字段时的长度一致
+* 字段类型如果不是字符串，可以不填写长度部分
+```sql
+create index 索引名称 on 表名(字段名称(长度))
+```
+* 删除索引：
+```sql
+drop index 索引名称 on 表名;
+```
+#### 缺点
+* 虽然索引大大提高了查询速度，同时却会降低更新表的速度，如对表进行INSERT、UPDATE和DELETE，因为更新表时，MySQL不仅要保存数据，还要保存一下索引文件
+* 建立索引会占用磁盘空间的索引文件
+
+#### 示例
+* 创建测试表testindex
+```sql
+create table testindex(title varchar(10));
+```
+* 创建存储过程proc_test， 向表中加入十万条数据
+* step1
+```sql
+delimiter //
+```
+* step2
+```sql
+create procedure proc_test()
+begin
+declare i int default 0;
+while i<100000 do
+insert into testindex(title) values(concat('test',i));
+set i=i+1;
+end while;
+end //
+```
+* step3
+```sql
+delimiter ;
+```
+* 执行存储过程proc_test
+```sql
+call proc_test();
+```
+* 开启运行时间监测
+```sql
+set profiling=1;
+```
+* 执行查询语句
+```sql
+select * from testindex where title='test10000';
+```
+* 查看执行时间
+```sql
+show profiles;
+```
+* 为表areas的atitle列创建索引
+```sql
+create index title_index on testindex(title(10));
+```
+* 执行查询语句
+```sql
+select * from testindex where title='test10000';
+```
+* 再次查看执行的时间
+```sql
+show profiles;
+```
+

@@ -1,0 +1,179 @@
+## Set 集合
+Set 就是一个集合,集合的概念就是一堆不重复值的组合。利用 Redis 提供的 Set 数据结构,可以存储一些集合性的数据。
+```
+比如在 微博应用中,可以将一个用户所有的关注人存在一个集合中,将其所有粉丝存在一个集合。
+```
+* 无序集合
+* 元素为string类型
+* 元素具有唯一性，不重复
+* 说明：对于集合没有修改操作
+
+### 1. sadd：创建/添加集合以及成员
+sadd key member [member ...]：添加一个或多个指定的member元素到集合的 key中。
+```
+127.0.0.1:6379> sadd mset "MySQL" "Redis" "MongoDB"
+(integer) 3
+127.0.0.1:6379> sadd mset "Redis"
+(integer) 0
+```
+### 2. scard：查看集合内成员个数
+```
+scard key：返回集合存储的key的基数 (集合元素的数量).
+```
+```
+127.0.0.1:6379> scard mset
+(integer) 3
+```
+### 3. sismember：检查成员是否属于该集合
+```
+sismember(key, member) ：member是否是名称为key的set的元素
+```
+```
+127.0.0.1:6379> sismember mset "Redis"
+(integer) 1
+```
+### 4. srandmember：随机返回集合的一个成员
+```
+srandmember(key [, count]) ：随机返回名称为key的set的count个元素，如不写count则默认1个
+```
+```
+127.0.0.1:6379> srandmember mset 
+"Redis"
+127.0.0.1:6379> srandmember mset 
+"MongoDB"
+
+127.0.0.1:6379> srandmember mset 2
+1) "Redis"
+2) "MongoDB"
+127.0.0.1:6379> srandmember mset 2
+1) "MySQL"
+2) "MongoDB"
+```
+### 5. smembers:获取集合内所有成员
+```
+smembers key：返回key 集合里所有的元素
+```
+```
+127.0.0.1:6379> smembers mset
+1) "MySQL"
+2) "MongoDB"
+3) "Redis"
+```
+### 6. spop(key) :随机删除并返回集合的一个成员
+```
+spop(key) ：随机返回并删除名称为key的set中一个元素
+```
+```
+127.0.0.1:6379> spop mset
+"Redis"
+127.0.0.1:6379> spop mset
+"MongoDB"
+```
+### 7. srem：移除集合内指定成员
+```
+srem key member： 移除 key 内指定的 member 元素
+```
+```
+# member 元素名错误，则移除失败
+127.0.0.1:6379> srem mset "mysql"
+(integer) 0
+127.0.0.1:6379> srem mset "MySQL"
+(integer) 1
+```
+### 8. 集合处理：
+* 求交集：
+    * sinter(key1, key2,…key N) ：求交集（属于key1且属于key2的成员集合）
+    * sinterstore(dstkey, (keys)) ：求交集并将交集保存到dstkey的集合
+
+* 求并集：
+    * sunion(key1, (keys)) ：求并集（属于key1 和属于key2 的成员集合）
+    * sunionstore(dstkey, (keys)) ：求并集并将并集保存到dstkey的集合
+* 求差集:
+    * sdiff(key1, (keys)) ：求差集（属于key1，但不属于key2的成员集合）
+    * sdiffstore(dstkey, (keys)) ：求差集并将差集保存到dstkey的集合
+```
+127.0.0.1:6379> sadd myset1 "a" "b" "c" "d"
+(integer) 4
+127.0.0.1:6379> sadd myset2 "c" "d" "e" "f"
+(integer) 4
+
+# 交集
+127.0.0.1:6379> sinter myset1 myset2
+1) "d"
+2) "c"
+127.0.0.1:6379> sinterstore sinter_set myset1 myset2
+(integer) 2
+127.0.0.1:6379> smembers sinter_set
+1) "d"
+2) "c"
+
+# 并集
+127.0.0.1:6379> sunion myset1 myset2 
+1) "c"
+2) "e"
+3) "b"
+4) "f"
+5) "d"
+6) "a"
+127.0.0.1:6379> sunionstore sunion_set myset1 myset2
+(integer) 6
+127.0.0.1:6379> smembers sunion_set
+1) "c"
+2) "e"
+3) "b"
+4) "f"
+5) "d"
+6) "a"
+
+# 差集
+127.0.0.1:6379> sdiff myset1 myset2
+1) "b"
+2) "a"
+127.0.0.1:6379> sdiff myset2 myset1
+1) "f"
+2) "e"
+
+127.0.0.1:6379> sdiffstore sdiff_set1 myset1 myset2
+(integer) 2
+127.0.0.1:6379> sdiffstore sdiff_set2 myset2 myset1
+(integer) 2
+127.0.0.1:6379> smembers sdiff_set1
+1) "b"
+2) "a"
+127.0.0.1:6379> smembers sdiff_set2
+1) "f"
+2) "e"
+```
+### 应用场景
+1. 利用唯一性,可以统计访问网站的所有独立 IP
+
+2. 共同好友、二度好友
+
+3. 好友推荐的时候,根据 tag 求交集,大于某个 临界值 就可以推荐
+### 示例
+以王宝强和马蓉为例，得出二者共同好友/推荐好友系统:
+```
+# 马蓉的好友
+127.0.0.1:6379> sadd marong_friend 'songdandan' 'wangsicong' 'songzhe'
+(integer) 1
+127.0.0.1:6379> SMEMBERS marong_friend
+1) "songzhe"
+2) "wangsicong"
+3) "songdandan"
+
+# 宝强的好友
+127.0.0.1:6379> sadd wangbaoqiang_friend 'dengchao' 'angelababy' 'songzhe'
+(integer) 1
+
+# 共同好友系统（你有的，我也有的）
+127.0.0.1:6379> sinter marong_friend wangbaoqiang_friend
+1) "songzhe"
+
+# 推荐好友系统（你有的，我没有的 / 我有的，你没有的）
+127.0.0.1:6379> sdiff marong_friend wangbaoqiang_friend
+1) "wangsicong"
+2) "songdandan"
+127.0.0.1:6379> sdiff wangbaoqiang_friend marong_friend
+1) "dengchao"
+2) "angelababy"
+```

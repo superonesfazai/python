@@ -1,0 +1,46 @@
+#### 导入模块
+```python
+from MySQLdb import *
+```
+
+## Connection对象
+* 用于建立与数据库的连接
+* 创建对象: 调用connect()方法
+```python
+conn = connect(参数列表)
+```
+* 参数
+    * host: 连接的mysql主机, 如果本机是'localhost'
+    * port: 连接的mysql主机端口, 默认3306
+    * db: 数据库名称
+    * user: 连接的用户名
+    * password: 连接的密码
+    * charset: 通信采用的编码方式, 推介使用utf-8
+    
+#### 对象的方法
+* close()关闭连接
+* commit()事务, 需要提交才会立即生效
+* rollback事务, 放弃之前的操作
+* cursor()返回Cursor对象, 用于执行sql语句并获得结果
+
+## Cursor对象
+* 执行sql语句
+* 创建对象: 调用Connection对象的cursor()方法
+```python
+cursor1 = conn.cursor()
+```
+
+#### 对象方法
+* close()   关闭
+* execute(operation[, parameters]) 执行语句, 返回受影响的行数, 主要用于执行insert, update, delete语句, 也可以执行create, alter, drop等语句
+* fetchone()    执行查询语句时, 获取查询结果集的第一行数据, 返回一个元组
+* next()    执行查询语句时, 火球当前行的下一行
+* fetchall()    执行查询时, 获取查询结果集的所有行, 一行构成一个元组, 再将这些元组装入一个元组返回
+* scrool(value[, mode]) 将行指针移动到某个位置
+    * mode表示移动的方式
+    * mode的默认值为relative, 表示基于当前行移动到value, value为正则向下移动, value为负则向上移动
+    * mode的值为absolute, 表示基于第一条数据的位置, 第一条数据的位置为0
+    
+#### 对象的属性
+* rowcount只读属性, 表示最近一次execute()执行后受影响的行数
+* connection获取当前连接对象 

@@ -1,0 +1,21 @@
+* 参阅性格测试试题，讨论设计数据表结构
+* 设计好实体、关系后，创建表结构
+* 创建表tests
+```sql
+create table tests(
+id int unsigned primary key auto_increment not null,
+title varchar(50),
+isdelete bit default 0
+);
+```
+* 创建表options
+```sql
+create table options(
+id int unsigned primary key auto_increment not null,
+title varchar(50),
+testid int unsigned,
+score tinyint unsigned,
+isdelete bit default 0
+);
+```
+* 数据维护暂时存入到数据中，后面使用python与mysql交互，再将数据存入表中

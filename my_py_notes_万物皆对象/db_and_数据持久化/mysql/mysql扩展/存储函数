@@ -58,3 +58,90 @@ delimiter ;
 ```
 * 执行效果图如下
 ![](./images/func1.png)
+
+#### 调用
+* 语法如下
+```sql
+select 函数名称(参数列表);
+```
+* 例: 调用函数trim
+```sql
+select trim('a');
+```
+#### 删除
+* 说明: 函数代码无法修改, 如果不能满足要求可以删除后重新创建
+* 语法如下
+```sql
+drop function 函数名称;
+例: 
+drop function trim; 
+```
+## 流程控制
+#### 判断语句
+* 语法如下
+```sql
+if 条件1 then
+语句1;
+elseif 条件2 then
+语句2;
+...
+else
+语句
+end if;
+```
+#### 循环语句
+```sql
+while 条件 do
+语句;
+end while;
+```
+* 退出循环: leave，相当于break
+* 退出本次循环: iterate, 相当于continue
+
+#### 定义函数odd, 输出1-100间的偶数
+* step1: 设置分隔符
+```sql
+delimiter $$
+```
+* step2: 创建函数
+```sql
+create function odd() returns varchar(300)
+begin 
+    declare i int default 1;
+    declare x varchar(300) default '';
+    while i <= 100 do
+      if i % 2 = 0 then
+        set x=concat(x, '', i);
+      end if;
+      set i = i + 1;
+    end while;
+    return x;
+end
+$$
+```
+* step3: 还原分隔符
+```sql
+delimiter;
+```
+* step4: 调用函数
+```sql
+select odd();
+```
+
+## 存储函数与存储过程的区别
+
+* 一、 存储函数有且只有一个返回值，而存储过程不能有返回值。
+
+* 二、 函数只能有输入参数，而且不能带in, 而存储过程可以有多个in,out,inout参数。
+
+* 三、 存储过程中的语句功能更强大，存储过程可以实现很复杂的业务逻辑，而函数有很多限制，如不能在函数中使用insert,update,delete,create等语句；存储函数只完成查询的工作，可接受输入参数并返回一个结果，也就是函数实现的功能针对性比较强。
+
+* 四、 存储过程可以调用存储函数。但函数不能调用存储过程。
+
+* 五、 存储过程一般是作为一个独立的部分来执行(call调用)。而函数可以作为查询语句的一个部分来调用
+
+* 更多韩式知识的学习点击连接查看
+    * [自定义函数1](http://www.cnblogs.com/ljcphper/p/4387645.html)
+    * [自定义函数2](http://www.cnblogs.com/caoruiy/p/4485273.html)
+    * [自定义函数3](http://blog.csdn.net/zjw10wei321/article/details/7838243)
+

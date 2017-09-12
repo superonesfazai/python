@@ -1,0 +1,32 @@
+## 视图
+* 对于复杂的查询，在多个地方被使用后，如果需求发生了改变，需要更改sql语句，则需要在多个地方进行修改，是一件非常麻烦的事情
+* 解决：定义视图，不需要改动原表
+* 视图本质就是对查询的封装
+* 定义视图，建议以v_开头
+```
+1.视图是一种虚拟的表，是从数据库中一个或者多个表中导出来的表。
+2.数据库中只存放了视图的定义，而并没有存放视图中的数据，这些数据存放在原来的表中。
+3.使用视图查询数据时，数据库系统会从原来的表中取出对应的数据。
+4.使操作简便化；提高查询性能；增加数据的安全性；提高表的逻辑独立性；
+```
+```sql
+create view 视图名称 as select语句;
+例：
+create view v_stu_sco as 
+select students.*,scores.score from scores
+inner join students on scores.stuid=students.id;
+```
+* 查看视图：查看表会将所有的视图也列出来
+```sql
+show tables;
+```
+* 删除视图
+```sql
+drop view 视图名称;
+例：
+drop view v_stu_sco;
+```
+* 视图的用途就是查询
+```sql
+select * from v_stu_score;
+```

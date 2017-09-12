@@ -1,0 +1,310 @@
+## list 列表
+Redis列表是简单的字符串列表，按照插入顺序排序。
+```
+可以添加一个元素导列表的头部（左边）或者尾部（右边）
+
+一个列表最多可以包含 2^32 - 1 个元素 (4294967295, 每个列表超过40亿个元素)。
+```
+### 1. lrange：查看列表指定范围的元素
+```
+lrange key start stop
+```
+* 返回列表里指定范围内的元素
+    * start、stop为元素的下标索引
+    * 索引从左侧开始，第一个元素为0
+    * 索引可以是负数，表示从尾部开始计数，如-1表示最后一个元素
+### 2. lpush：创建一个列表，并从头部插入元素
+```
+127.0.0.1:6379> lpush my_llist "mysql" "redis" "mongodb"
+(integer) 3
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "mongodb"
+2) "redis"
+3) "mysql"
+
+127.0.0.1:6379> lpush my_llist "---"
+(integer) 4
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "---"
+2) "mongodb"
+3) "redis"
+4) "mysql"
+```
+### 3. rpush：创建一个列表，从尾部插入元素
+```
+127.0.0.1:6379> rpush my_rlist "mysql" "redis" "mongodb"
+(integer) 3
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+
+127.0.0.1:6379> rpush my_rlist "---"
+(integer) 4
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+4) "---"
+```
+### 4. linsert 在指定元素的前(before) 或 后(after) 插入新元素
+```
+linsert key before或after 现有元素 新元素
+```
+```
+# my_llist
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "---"
+2) "mongodb"
+3) "redis"
+4) "mysql"
+
+127.0.0.1:6379> linsert my_llist before "---" "before"
+(integer) 5
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "before"
+2) "---"
+3) "mongodb"
+4) "redis"
+5) "mysql"
+
+127.0.0.1:6379> linsert my_llist after "---" "after"
+(integer) 6
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "python"
+2) "---"
+3) "after"
+4) "mongodb"
+5) "redis"
+6) "mysql"
+127.0.0.1:6379> 
+
+# my_rlist
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+4) "---"
+
+127.0.0.1:6379> linsert my_rlist before "---" "before"
+(integer) 5
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+4) "before"
+5) "---"
+
+127.0.0.1:6379> linsert my_rlist after "---" "after"
+(integer) 6
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+4) "before"
+5) "---"
+6) "after"
+```
+表明 linsert 插入元素，不受 lpush or rpush的影响。
+
+### 5. lindex：返回指定位置的元素
+lindex(key, index)，返回名称为key的list中index位置的元素，index下标从0开始。
+```
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+4) "before"
+5) "---"
+6) "after"
+
+127.0.0.1:6379> lindex my_rlist 4
+"---"
+```
+### 6. lset：修改指定位置的元素
+```
+lset key index value
+```
+* 修改指定索引位置的元素
+    * 索引从左侧开始，第一个元素为0
+    * 索引可以是负数，表示尾部开始计数，如-1表示最后一个元素
+```
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "python"
+2) "---"
+3) "after"
+4) "mongodb"
+5) "redis"
+6) "mysql"
+
+# 将索引为1的元素 修改为 "+++"
+127.0.0.1:6379> lset my_llist 1 "+++"
+OK
+127.0.0.1:6379> lrange my_llist 0 -1
+1) "python"
+2) "+++"
+3) "after"
+4) "mongodb"
+5) "redis"
+6) "mysql"
+```
+### 7. lrem：移除指定个数的元素
+```
+lrem key count value：
+```
+* 将列表中 前count个 值为value的元素 移除
+    * count > 0: 从头往尾移除
+    * count < 0: 从尾往头移除
+    * count = 0: 移除所有
+```
+127.0.0.1:6379> rpush mylist '0' '1' '2' '1' '0' '1' '2' '3'
+(integer) 8
+
+# 移除列表里 所有的 "1"
+127.0.0.1:6379> lrem mylist 0 "1"
+(integer) 3
+127.0.0.1:6379> lrange mylist 0 -1
+1) "0"
+2) "2"
+3) "0"
+4) "2"
+5) "3"
+
+# 移除列表里 前2个 "0"
+127.0.0.1:6379> lrem mylist 2 "0"
+(integer) 2
+127.0.0.1:6379> lrange mylist 0 -1
+1) "2"
+2) "2"
+3) "3"
+
+# 移除列表里 后10个 "2"
+127.0.0.1:6379> lrem mylist -10 2
+(integer) 2
+127.0.0.1:6379> lrange mylist 0 -1
+1) "3"
+```
+### 8. lpop / rpop：移除并返回列表的第一个元素
+```
+lpop key or rpop key
+```
+* 移除并且返回 key 对应的 list 的第一个元素：
+    * lpop 移除并返回 list头部 的第一个元素
+    * rpop 移除并返回 list尾部 的第一个元素
+```
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "mysql"
+2) "redis"
+3) "mongodb"
+4) "before"
+5) "---"
+6) "after"
+
+# lpop 移除并返回 list头部 的第一个元素： "mysql"
+127.0.0.1:6379> lpop my_rlist
+"mysql"
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "redis"
+2) "mongodb"
+3) "before"
+4) "---"
+5) "after"
+
+# rpop 移除并返回 list尾部 的第一个元素： "after"
+127.0.0.1:6379> rpop my_rlist
+"after"
+127.0.0.1:6379> lrange my_rlist 0 -1
+1) "redis"
+2) "mongodb"
+3) "before"
+4) "---"
+```
+### 9. blpop 和 brpop：阻塞版本的lpop和rpop
+* blpop(key1, key2,… keyN, timeout)：lpop的block(阻塞)版本，可以有多个list key，timeout为可选参数，表示阻塞的超时时限（如果不填写则永久阻塞）。
+* brpop(key1, key2,… keyN, timeout)：rpop的block(阻塞)版本，可以有多个list key，timeout为可选参数，timeout表示阻塞的超时时限（如果不填写则永久阻塞）。
+
+当 BLPOP/BRPOP 被调用时，如果给定 key 内至少有一个非空列表，那么弹出遇到的第一个非空列表的 （blpop为头元素，brpop为尾元素），并和被弹出元素所属的列表的名字 key 一起，组成结果返回给调用者。
+```
+127.0.0.1:6379> rpush lis1 1 2 3 
+(integer) 3
+127.0.0.1:6379> rpush lis2 1 2 3 
+(integer) 3
+127.0.0.1:6379> rpush lis3 1 2 3 
+(integer) 3
+
+# blpop
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+1) "lis1"
+2) "1"
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+1) "lis1"
+2) "2"
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+1) "lis1"
+2) "3"
+
+# 注意 blpop 和 brpop 切换
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+1) "lis2"
+2) "1"
+127.0.0.1:6379> brpop lis1 lis2 lis3 2
+1) "lis2"
+2) "3"
+127.0.0.1:6379> brpop lis1 lis2 lis3 2
+1) "lis2"
+2) "2"
+
+# brpop
+127.0.0.1:6379> brpop lis1 lis2 lis3 2
+1) "lis3"
+2) "3"
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+1) "lis3"
+2) "2"
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+1) "lis3"
+2) "1"
+
+# 当所有key 为空列表时，阻塞2秒；
+# 如果2秒内 key 没有新的元素插入，则执行结束，返回nil和阻塞时间。
+127.0.0.1:6379> blpop lis1 lis2 lis3 2
+(nil)
+(2.05s)
+```
+### 10. ltrim：修剪列表，并保留指定区间的元素
+```
+ltrim key start stop
+```
+* 修剪(trim)一个已存在的 list，这样 list 就会只包含索引从 start 到 stop 之间的元素（包含start和stop本身的元素）。
+* start 和 stop 都是由 0 开始计数的，start 和 end 也可以用负数来表示与表尾的偏移量。
+```
+127.0.0.1:6379> rpush lis 0 1 2 3 4 5 6 7 8 9
+(integer) 9
+127.0.0.1:6379> lrange lis 0 -1
+1) "0"
+2) "1"
+3) "2"
+4) "3"
+5) "4"
+6) "5"
+7) "6"
+8) "7"
+9) "8"
+10) "9"
+
+# 保留索引 4 ~ 7 的元素
+127.0.0.1:6379> ltrim lis 4 7
+OK
+127.0.0.1:6379> lrange lis 0 -1
+1) "4"
+2) "5"
+3) "6"
+4) "7"
+
+# 保留索引 2 ~ -1 的元素
+127.0.0.1:6379> ltrim lis 2 -1
+OK
+127.0.0.1:6379> lrange lis 0 -1
+1) "6"
+2) "7"
+```

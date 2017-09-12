@@ -1,0 +1,158 @@
+## HASH 哈希
+
+Redis hash 是一个String类型的 field 和 value 的映射表，hash特别适合用于存储对象。
+
+Hash 可以包含多个 Field-Value 键值对：
+
+    * Field ：表示一个字段
+    * Value ：表示一个字段对应的值
+    
+在Redis 中，每个 hash 可以存储 2^32 - 1 键值对（40多亿）。
+
+### 命令使用：
+#### 1. hset 
+```
+HSET key field value ­­，设置 key 指定的哈希集中指定字段的值
+```
+```
+127.0.0.1:6379> hset myhash field1 "itcast"
+(integer) 1
+```
+#### 2. hget 
+```
+获取指定的hash field 的 value
+```
+```
+127.0.0.1:6379> hget myhash field1  
+"itcast"
+127.0.0.1:6379> hget myhash field2  
+(nil)
+```
+由于hash表 myhash 里没有field3，所以取到的是一个空值nil.
+
+#### 3. hsetnx
+```
+HSETNX key field value，在指定的哈希集中 不存在指定字段时，设置字段的值。
+    1.如果字段已存在，该操作无效果。
+    2.如果指定的哈希集不存在，会创建一个新的哈希集并与 key 关联。
+```
+```
+127.0.0.1:6379> hsetnx myhash field "itcast"
+(integer) 1
+127.0.0.1:6379> hsetnx myhash field "itcast"
+(integer) 0
+# 第一次执行是成功的，但第二次执行相同的命令失败，原因是field已经存在了。
+
+127.0.0.1:6379> hget myhash field
+"itcast"
+
+127.0.0.1:6379> hsetnx MyHash field "itcast"
+(integer) 1
+127.0.0.1:6379> hget MyHash field
+"itcast"
+```
+#### 4. hmset ­­ 同时设置hash的多个field。
+```
+127.0.0.1:6379> hmset myhash field1 "Hello" field2 "World"
+OK
+```
+#### 5. hmget ­­ 获取指定的hash field。
+```
+127.0.0.1:6379> hmget myhash field1 field2
+1) "Hello"
+2) "World"
+
+127.0.0.1:6379> hmget myhash field1 field2 field3   
+1) "Hello"
+2) "World"
+3) (nil)
+```
+#### 6. hkeys ­­ 返回hash的所有field。
+```
+127.0.0.1:6379> hkeys myhash
+1) "field1"
+2) "field2"
+```
+说明这个hash中有2个field。
+
+#### 7. hvals ­­ 返回hash的所有value。
+```
+127.0.0.1:6379> hvals myhash
+1) "Hello"
+2) "World"
+```
+#### 8. hgetall ­­ 获取某个hash中全部的filed及value。
+```
+127.0.0.1:6379> hgetall myhash
+1) "field1"
+2) "Hello"
+3) "field2"
+4) "World"
+```
+#### 9. hlen ­­ 返回指定hash的field数量。
+```
+127.0.0.1:6379> hlen myhash
+(integer) 2
+```
+说明这个hash中有3个field。
+
+#### 10. hincrby ­­ 指定的hash filed 加上给定整数值。
+```
+127.0.0.1:6379> hset myhash num "100"
+(integer) 1
+127.0.0.1:6379> hget myhash num
+"100"
+
+# value 必须是 整数
+127.0.0.1:6379> hincrby myhash num "10"
+(integer) 110
+127.0.0.1:6379> hget myhash num
+"110"
+```
+#### 11. hincrbyfloat ­­ 指定的hash filed 加上给定浮点数值。
+```
+# value 可以是 整数
+127.0.0.1:6379> hset myhash num "110"
+(integer) 0
+127.0.0.1:6379> hincrbyfloat myhash num "1.11"
+"111.11"
+
+# value 可以是 浮点数
+127.0.0.1:6379> hset myhash num "110.1"
+(integer) 0
+127.0.0.1:6379> hincrbyfloat myhash num "1.01"
+"111.11"
+```
+#### 12. hexists ­­ 测试指定field是否存在。
+```
+127.0.0.1:6379> hexists myhash field1
+(integer) 1
+127.0.0.1:6379> hexists myhash field10
+(integer) 0
+```
+通过上例可以说明field1存在，但field10是不存在的。
+
+#### 13. hdel 从 key 指定的哈希集中移除指定的域
+```
+127.0.0.1:6379> hkeys myhash
+1) "field1"
+2) "field2"
+3) "num"
+
+127.0.0.1:6379> hdel myhash num
+(integer) 1
+127.0.0.1:6379> hkeys myhash
+1) "field1"
+2) "field2"
+```
+#### 14. hstrlen：返回 hash指定field的value的字符串长度
+```
+127.0.0.1:6379> hstrlen myhash field1
+(integer) 5
+127.0.0.1:6379> hstrlen myhash field2
+(integer) 5
+127.0.0.1:6379> hstrlen myhash field3
+(integer) 0
+field3 不存在，返回0
+```
+
