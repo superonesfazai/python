@@ -1,0 +1,197 @@
+## Redis 性能测试
+Redis 性能测试是通过同时执行多个命令实现的。
+
+语法
+
+redis 性能测试的基本命令如下：
+```
+redis-benchmark [option] [option value]
+```
+#### 实例
+* 测试存取大小为100字节的数据包的性能。
+```
+$ redis-benchmark -h 127.0.0.1 -p 6379 -q -d 100
+
+PING_INLINE: 85910.65 requests per second PING_BULK: 123762.38 requests per second SET: 85763.29 requests per second
+GET: 81699.35 requests per second
+INCR: 82372.32 requests per second
+LPUSH: 83472.46 requests per second
+LPOP: 82712.98 requests per second
+SADD: 82236.84 requests per second
+SPOP: 83963.05 requests per second
+LPUSH (needed to benchmark LRANGE): 82850.04 requests per second LRANGE_100 (first 100 elements): 29585.80 requests per second LRANGE_300 (first 300 elements): 9348.42 requests per second LRANGE_500 (first 450 elements): 7562.58 requests per second LRANGE_600 (first 600 elements): 6780.58 requests per second MSET (10 keys): 94428.70 requests per second
+```
+![](./images/01.png)
+![](./images/02.png)
+* 100个并发连接,100000个请求,检测host为localhost 端口为6379的redis服务器性能
+```
+$ redis-benchmark -h 127.0.0.1 -p 6379 -c 100 -n 100000
+
+
+====== PING_INLINE ======
+100000 requests completed in 0.83 seconds 100 parallel clients
+
+3 bytes payload
+keep alive: 1
+98.95% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+120192.30 requests per second
+====== PING_BULK ======
+100000 requests 
+completed in 0.82 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+100.00% <= 0 milliseconds 
+121506.68 requests per second
+====== SET ======
+100000 requests 
+completed in 0.82 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.80% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+122249.38 requests per second
+====== GET ======
+100000 requests 
+completed in 0.81 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.79% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+122699.39 requests per second
+====== INCR ======
+100000 requests 
+completed in 0.81 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.95% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+124223.60 requests per second
+====== LPUSH ======
+100000 requests 
+completed in 0.82 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.82% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+122100.12 requests per second
+====== LPOP ======
+100000 requests 
+completed in 1.30 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.93% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+77160.49 requests per second
+====== SADD ======
+100000 requests 
+completed in 0.88 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.81% <= 1 milliseconds 
+99.97% <= 2 milliseconds 
+100.00% <= 2 milliseconds 
+113895.21 requests per second
+====== SPOP ======
+100000 requests completed in 0.82 seconds 100 parallel clients
+3 bytes payload
+keep alive: 1
+99.78% <= 1 milliseconds 
+100.00% <= 1 milliseconds 
+121802.68 requests per second
+====== LPUSH (needed to benchmark LRANGE) ====== 100000 requests 
+completed in 0.81 seconds
+100 parallel clients
+3 bytes payload
+keep alive: 1
+99.09% <= 1 milliseconds 
+99.94% <= 2 milliseconds 
+100.00% <= 2 milliseconds 
+122850.12 requests per second
+====== LRANGE_100 (first 100 elements) ====== 
+100000 requests 
+completed in 2.13 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+28.64% <= 1 milliseconds 
+99.65% <= 2 milliseconds 
+99.97% <= 3 milliseconds 
+100.00% <= 3 milliseconds 
+47036.69 requests per second
+
+====== LRANGE_300 (first 300 elements) ====== 
+100000 requests completed 
+in 5.46 seconds 100 parallel clients
+3 bytes payload keep alive: 1
+0.01% <= 1 milliseconds 
+0.50% <= 2 milliseconds 
+82.99% <= 3 milliseconds 
+99.11% <= 4 milliseconds 
+99.75% <= 5 milliseconds 
+99.95% <= 6 milliseconds 
+100.00% <= 6 milliseconds 
+18325.09 requests per second
+====== LRANGE_500 (first 450 elements) ====== 
+100000 requests 
+completed in 7.94 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+0.01% <= 1 milliseconds 
+0.10% <= 2 milliseconds 
+3.03% <= 3 milliseconds 
+58.57% <= 4 milliseconds 
+93.27% <= 5 milliseconds 
+99.03% <= 6 milliseconds 
+99.53% <= 7 milliseconds 
+99.72% <= 8 milliseconds 
+99.77% <= 9 milliseconds 
+99.82% <= 10 milliseconds 
+99.85% <= 11 milliseconds 
+99.88% <= 12 milliseconds 
+99.94% <= 13 milliseconds 
+99.97% <= 14 milliseconds 
+99.98% <= 15 milliseconds 
+99.99% <= 16 milliseconds 
+100.00% <= 17 milliseconds 
+100.00% <= 17 milliseconds 
+12600.81 requests per second
+====== LRANGE_600 (first 600 elements) ====== 
+100000 requests 
+completed in 10.34 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+0.00% <= 1 milliseconds 
+0.01% <= 2 milliseconds 
+0.10% <= 3 milliseconds 
+6.40% <= 4 milliseconds 
+45.93% <= 5 milliseconds 
+84.86% <= 6 milliseconds 
+95.54% <= 7 milliseconds 
+99.47% <= 8 milliseconds 
+99.81% <= 9 milliseconds 
+99.94% <= 10 milliseconds 
+99.99% <= 11 milliseconds 
+100.00% <= 11 milliseconds 
+9673.99 requests per second
+====== MSET (10 keys) ======
+100000 requests 
+completed in 1.01 seconds 
+100 parallel clients
+3 bytes payload
+keep alive: 1
+84.16% <= 1 milliseconds 
+99.59% <= 2 milliseconds 
+99.85% <= 3 milliseconds 
+100.00% <= 3 milliseconds 
+99206.34 requests per second
+```

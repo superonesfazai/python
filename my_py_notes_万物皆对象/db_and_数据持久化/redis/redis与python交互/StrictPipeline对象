@@ -1,0 +1,6 @@
+## StrictPipeline对象
+* 继承自BasePipeline, StrictRedis
+* 通过StrictRedis对象的pipeline()方法获得
+* 使用管道的方式进行数据操作，将所有的命令维护在本在内容中，调用execute()方法才与数据库交互，可以减少与服务器的交互次数
+* 方法execute()：返回元素，每个元素是之前执行命令的结果
+* 因为继承自StrictRedis，所以StrictRedis对象的命令，此对象都可以调用

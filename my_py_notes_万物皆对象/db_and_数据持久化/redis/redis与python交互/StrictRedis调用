@@ -1,0 +1,23 @@
+## StrictRedis调用
+* 这里只以string类型的数据操作为例，分别讲解crud功能
+* 快速清空数据库的方法：删除数据文件
+* step1:断开客户端连接
+```
+ctrl+c
+```
+* step2:停止服务器端
+```
+sudo service redis stop
+```
+* step3:删除数据文件
+```
+sudo rm /var/lib/redis/dump.rdb
+```
+* step4:开启服务
+```
+sudo service redis start
+```
+* step5:连接客户端
+```
+redis-cli
+```
