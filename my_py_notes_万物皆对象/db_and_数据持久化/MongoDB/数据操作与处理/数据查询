@@ -1,0 +1,103 @@
+## 数据查询
+### 1. 基本查询
+* 方法find()：查询全部符合条件数据
+
+    * db.集合名称.find({条件文档})
+```
+> db.stu.find({age:18})
+{ "_id" : ObjectId("591b49c29f8ac621f995c911"), "name" : "黄蓉", "hometown" : "桃花岛", "age" : 18, "gender" : false }
+{ "_id" : ObjectId("591b49c29f8ac621f995c912"), "name" : "华筝", "hometown" : "蒙古", "age" : 18, "gender" : false }
+```
+* 方法findOne()：查询，只返回第一个
+
+    * db.集合名称.findOne({条件文档})
+```
+> db.stu.findOne({age:18})
+{
+    "_id" : ObjectId("591b49c29f8ac621f995c911"),
+    "name" : "黄蓉",
+    "hometown" : "桃花岛",
+    "age" : 18,
+    "gender" : false
+}
+>
+```
+* 方法pretty()：将结果格式化
+
+    * db.集合名称.find({条件文档}).pretty()
+```
+> db.stu.find({age:18}).pretty()
+{
+    "_id" : ObjectId("591b49c29f8ac621f995c911"),
+    "name" : "黄蓉",
+    "hometown" : "桃花岛",
+    "age" : 18,
+    "gender" : false
+}
+{
+    "_id" : ObjectId("591b49c29f8ac621f995c912"),
+    "name" : "华筝",
+    "hometown" : "蒙古",
+    "age" : 18,
+    "gender" : false
+}
+>
+```
+### 2. 比较运算符
+    * 等于，默认是等于判断，没有运算符
+    * 小于 $lt
+    * 小于或等于 $lte
+    * 大于 $gt
+    * 大于或等于 $gte
+    * 不等于 $ne
+    
+* 例1：查询名称等于'郭靖'的学生
+```
+db.stu.find({name:'郭靖'})
+```
+* 例2：查询年龄大于或等于18的学生
+```
+db.stu.find({age:{$gte:18}})
+```
+### 3. 逻辑运算符
+* 查询时可以有多个条件，多个条件之间需要通过逻辑运算符连接
+* 逻辑与：默认是逻辑与的关系
+
+* 例3：查询年龄大于或等于18，并且性别为1的学生
+```
+db.stu.find({age:{$gte:18},gender:true})
+```
+* 逻辑或：使用$or
+
+* 例4：查询年龄大于18，或性别为0的学生
+```
+db.stu.find({$or:[{age:{$gt:18}},{gender:true}]})
+```
+* and和or一起使用
+
+* 例5：查询年龄大于18或性别为0的学生，并且学生的姓名为gj
+```
+db.stu.find({$or:[{age:{$gte:18}},{gender:true}],name:'郭靖'})
+```
+### 4. 范围运算符
+* 使用$in，$nin 判断是否在某个范围内
+
+* 例6：查询年龄为18、28的学生
+```
+db.stu.find({age:{$in:[18,28]}})
+```
+### 5. 支持正则表达式
+* 使用/ /或$regex编写正则表达式
+
+* 例7：查询姓黄的学生
+```
+db.stu.find({name:/^黄/})
+db.stu.find({name:{$regex:'^黄'}}})
+```
+### 6. 自定义查询
+* 使用$where后面写一个函数，返回满足条件的数据
+
+* 例7：查询年龄大于20的学生
+```
+db.stu.find({$where : function(){return this.age>20}})
+```

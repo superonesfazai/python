@@ -1,0 +1,97 @@
+## 插入
+* 语法
+```
+> db.集合名称.insert(document)
+```
+* 插入文档时，如果不指定_id参数，MongoDB会为文档分配一个唯一的ObjectId
+* 例1
+```
+> db.stu.insert({name:'gj',gender:1})
+```
+* 例2
+```
+> s1={_id:'20160101',name:'hr'}
+> s1.gender=0
+> db.stu.insert(s1)
+```
+## 简单查询
+* 语法
+```
+db.集合名称.find()
+```
+
+## 更新
+* 语法
+```
+db.集合名称.update(
+   <query>,
+   <update>,
+   {multi: <boolean>}
+)
+```
+    * 参数query:查询条件，类似sql语句update中where部分
+    * 参数update:更新操作符，类似sql语句update中set部分
+    * 参数multi:可选，默认是false，表示只更新找到的第一条记录，值为true表示把满足条件的文档全部更新
+* 例3：全文档更新
+```
+db.stu.update({name:'hr'},{name:'mnc'})
+```
+* 例4：指定属性更新，通过操作符$set
+```
+db.stu.insert({name:'hr',gender:0})
+db.stu.update({name:'hr'},{$set:{name:'hys'}})
+```
+* 例5：修改多条匹配到的数据
+```
+db.stu.update({},{$set:{gender:0}},{multi:true})
+```
+## 保存
+* 语法
+```
+db.集合名称.save(document)
+```
+* 如果文档的_id已经存在则修改，如果文档的_id不存在则添加
+
+* 例6
+```
+db.stu.save({_id:'20160102','name':'yk',gender:1})
+```
+* 例7
+```
+db.stu.save({_id:'20160102','name':'wyk'})
+```
+## 删除
+* 语法
+```
+db.集合名称.remove(
+   <query>,
+   {
+     justOne: <boolean>
+   }
+)
+```
+    * 参数query:可选，删除的文档的条件
+    * 参数justOne:可选，如果设为true或1，则只删除一条，默认false，表示删除多条
+    
+* 例8：只删除匹配到的第一条
+```
+db.stu.remove({gender:0},{justOne:true})
+```
+* 例9：全部删除
+```
+db.stu.remove({})
+```
+
+## 创建示例数据
+
+* 创建集合stu，文档的属性包含：_id、name、hometown、age、gender
+* 示例数据如下：
+```
+db.stu.drop()
+db.stu.insert({name:'郭靖',hometown:'蒙古',age:20,gender:true})
+db.stu.insert({name:'黄蓉',hometown:'桃花岛',age:18,gender:false})
+db.stu.insert({name:'华筝',hometown:'蒙古',age:18,gender:false})
+db.stu.insert({name:'黄药师',hometown:'桃花岛',age:40,gender:true})
+db.stu.insert({name:'段誉',hometown:'大理',age:16,gender:true})
+db.stu.insert({name:'段王爷',hometown:'大理',age:45,gender:true})
+```

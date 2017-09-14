@@ -1,0 +1,5 @@
+## 加入redis
+* 加入redis后登录逻辑如下图, 将图中nosql的位置换位redis即可
+![](./images/login_redis.png)
+* 用户数据存的键为用户名, 值为密码
+* 将原来mysql操作的代码封装到一个方法中

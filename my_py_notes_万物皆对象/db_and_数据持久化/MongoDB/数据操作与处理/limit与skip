@@ -1,0 +1,37 @@
+## Limit
+方法limit()：用于读取指定数量的文档
+
+    * 语法：
+```
+db.集合名称.find().limit(NUMBER)
+```
+* 参数NUMBER表示要获取文档的条数
+* 如果没有指定参数则显示集合中的所有文档
+* 例1：查询2条学生信息
+```
+db.stu.find().limit(2)
+```
+## skip
+方法skip()：用于跳过指定数量的文档
+
+    * 语法：
+```
+db.集合名称.find().skip(NUMBER)
+```
+* 参数NUMBER表示跳过的记录条数，默认值为0
+* 例2：查询从第3条开始的学生信息
+```
+db.stu.find().skip(2)
+```
+## 一起使用
+* 方法limit()和skip()可以一起使用，不分先后顺序
+* 创建数据集
+```
+for(i=0;i<15;i++){db.nums.insert({_id:i})}
+```
+* 查询第5至8条数据
+```
+db.nums.find().limit(4).skip(5)
+或
+db.nums.find().skip(5).limit(4)
+```

@@ -1,0 +1,56 @@
+## 索引
+* mongodb也支持索引,以提高查询速度
+
+#### 步骤一：创建大量数据
+* 执行如下代码，向集合中插入10万条文档
+```html
+for(i=0;i<100000;i++){
+    db.t1.insert({name:'test'+i,age:i})
+}
+```
+#### 步骤二：数据查找性能分析
+* 查找姓名为'test10000'的文档
+```
+db.t1.find({name:'test10000'})
+```
+* 使用explain()命令进行查询性能分析
+```
+db.t1.find({name:'test10000'}).explain('executionStats')
+```
+* 其中的executionStats下的executionTimeMillis表示整体查询时间，单位是毫秒
+* 性能分析结果如下图
+![](./images/index1.png)
+
+#### 步骤三：建立索引
+* 创建索引
+* 1表示升序，-1表示降序
+```
+db.集合.ensureIndex({属性:1})
+如
+db.t1.ensureIndex({name:1})
+```
+#### 步骤四：对索引属性查询
+* 执行上面的同样的查询，并进行查询性能分析
+```
+db.t1.find({name:'test10000'}).explain('executionStats')
+```
+* 性能分析结果如下图
+![](./images/index2.png)
+
+#### 索引的命令
+* 建立唯一索引，实现唯一约束的功能
+```
+db.t1.ensureIndex({"name":1}, {"unique":true})
+```
+* 联合索引，对多个属性建立一个索引，按照find()出现的顺序
+```
+db.t1.ensureIndex({name:1, age:1})
+```
+* 查看文档所有索引
+```
+db.t1.getIndexes()
+```
+* 删除索引
+```
+db.t1.dropIndexes('索引名称')
+```

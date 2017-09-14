@@ -1,0 +1,15 @@
+要获得关于MongoDB的服务器统计，需要在MongoDB客户端键入命令db.stats()。这将显示数据库名称，收集和数据库中的文档信息。输出的命令如下所示
+![](./images/03_mongo_status.png)
+了解下一下各个参数
+```
+"db" : "test" ,表示当前是针对"test"这个数据库的描述。想要查看其他数据库，可以先运行$ use datbasename
+"collections" : 2,表示当前数据库有多少个collections.可以通过运行show collections查看当前数据库具体有哪些collection.
+"objects" : 267,表示当前数据库所有collection总共有多少行数据。显示的数据是一个估计值，并不是非常精确。
+"avgObjSize" : 623.2322097378277,表示每行数据是大小，也是估计值，单位是bytes
+"dataSize" : 16640,表示当前数据库所有数据的总大小，不是指占有磁盘大小。单位是bytes
+"storageSize" : 110592,表示当前数据库占有磁盘大小，单位是bytes,因为mongodb有预分配空间机制，为了防止当有大量数据插入时对磁盘的压力,因此会事先多分配磁盘空间。
+"numExtents" : 0,没有什么真实意义
+"indexes" : 2 ,表示system.indexes表数据行数。
+"indexSize" : 53248,表示索引占有磁盘大小。单位是bytes
+"ok" : 1,表示服务器正常
+```

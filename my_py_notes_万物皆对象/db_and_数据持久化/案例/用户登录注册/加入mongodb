@@ -1,0 +1,5 @@
+## 加入mongodb
+* 加入mongodb后登录逻辑如下图, 将图中nosql的位置换成mongodb即可
+![](./images/login_mongodb.png)
+* 用户数据存储的集合名称为py_users,文档格式为{'uname':'用户名', 'upwd':'密码'}
+* 将原来MySQL操作的代码封装到一个方法中, 代码如下

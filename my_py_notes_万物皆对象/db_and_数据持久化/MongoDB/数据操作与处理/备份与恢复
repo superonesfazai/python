@@ -1,0 +1,25 @@
+## 备份
+* 语法
+```
+mongodump -h dbhost -d dbname -o dbdirectory
+```
+* -h：服务器地址，也可以指定端口号
+* -d：需要备份的数据库名称
+* -o：备份的数据存放位置，此目录中存放着备份出来的数据
+* 例1
+```
+sudo mkdir test1bak
+sudo mongodump -h 192.168.196.128:27017 -d test1 -o ~/Desktop/test1bak
+```
+## 恢复
+* 语法
+```
+mongorestore -h dbhost -d dbname --dir dbdirectory
+```
+* -h：服务器地址
+* -d：需要恢复的数据库实例
+* --dir：备份数据所在位置
+* 例2
+```
+mongorestore -h 192.168.196.128:27017 -d test2 --dir ~/Desktop/test1bak/test1
+```

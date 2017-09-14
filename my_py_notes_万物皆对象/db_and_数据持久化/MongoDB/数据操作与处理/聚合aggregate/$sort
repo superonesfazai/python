@@ -1,0 +1,13 @@
+## $sort
+* 将输出文档排序后输出
+* 例子：查询学生信息, 按年龄升序
+```html
+db.stu.aggregate([{$sort: {age:1}}])
+```
+* 例子：查询男生，女生人数，按人数排序
+```html
+db.stu.aggregate([
+    {$group:{_id:'$gender',counter:{$sum:1}}},
+    {$sort:{counter:-1}}
+])
+```

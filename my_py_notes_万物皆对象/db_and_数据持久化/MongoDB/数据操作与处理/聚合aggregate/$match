@@ -1,0 +1,16 @@
+## $match
+* 用于过滤数据，只输出符合条件的文档
+* 使用mongodb的标准查询操作
+* 例子：查询年龄大于20的学生
+```html
+db.stu.aggregate([
+    {$match:{age:{$gt:20}}}
+])
+```
+* 例子：查询年龄大于20的男生、女生人数
+```
+db.stu.aggregate([
+    {$match:{age:{$gt:20}}},
+    {$group:{_id:'$gender',counter:{$sum:1}}}
+])
+```

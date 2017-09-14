@@ -1,0 +1,22 @@
+## $limit
+* 限制聚合管道返回的文档数
+* 例子: 查询从第3条开始的学生信息
+```
+db.stu.aggregate([{$skip:2}])
+```
+## $skip
+* 跳过指定数量的文档，并返回余下的文档
+* 例2：查询从第3条开始的学生信息
+```
+db.stu.aggregate([{$skip:2}])
+```
+* 例3：统计男生、女生人数，按人数升序，取第二条数据
+
+```
+db.stu.aggregate([
+    {$group:{_id:'$gender', counter:{$sum:1}}},
+    {$sort:{counter:1}},
+    {$skip:1},
+    {$limit:1}
+])
+```

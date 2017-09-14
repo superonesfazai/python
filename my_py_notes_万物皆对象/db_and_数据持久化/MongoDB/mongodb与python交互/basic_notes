@@ -1,0 +1,31 @@
+### MongoClient对象
+* 使用init方法创建连接对象
+```python
+client = MongoClient('主机ip', 端口)
+```
+
+### Database对象
+* 通过client对象获取数据库对象
+```python
+db = client.数据库名称
+```
+
+### Collection对象
+* 通过db对象获取集合对象
+```python
+collection = db.集合名称
+```
+* 主要方法如下
+
+    * insert_one: 加入一条文档对象
+    * insert_many: 加入多条文档对象
+    * find_one: 查找一条文档对像
+    * find: 查找多条文档对象
+    * update_one: 更新一条文档对象
+    * upadate_many: 更新多条文档对象
+    * delete_one: 删除一条文档对象
+    * delete_many: 删除多条文档对象
+    
+### Cursor对象
+* 当调用集合对象的find()方法时, 回返回Cursor对象
+* 结合for...in...遍历cursor对象

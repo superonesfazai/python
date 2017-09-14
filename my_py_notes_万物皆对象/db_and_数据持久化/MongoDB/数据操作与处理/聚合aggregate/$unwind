@@ -1,0 +1,55 @@
+## $unwind
+* 将文档中的某一个数组类型字段拆分成多条，每条包含数组中的一个值
+#### 语法1
+* 对某字段值进行拆分
+```
+db.集合名称.aggregate([{$unwind:'$字段名称'}])
+```
+* 构造数据
+```
+db.t2.insert({_id:1,item:'t-shirt',size:['S','M','L']})
+```
+* 查询
+```
+db.t2.aggregate([{$unwind:'$size'}])
+```
+```html
+执行结果:
+> db.t2.aggregate([{$unwind:'$size'}])
+{ "_id" : 1, "item" : "t-shirt", "size" : "S" }
+{ "_id" : 1, "item" : "t-shirt", "size" : "M" }
+{ "_id" : 1, "item" : "t-shirt", "size" : "L" }
+```
+#### 语法2
+* 对某字段值进行拆分
+* 处理空数组、非数组、无字段、null情况
+```
+db.inventory.aggregate([{
+    $unwind:{
+        path:'$字段名称',
+        preserveNullAndEmptyArrays:<boolean>#防止数据丢失
+    }
+}])
+```
+* 构造数据
+```
+db.t3.insert([
+{ "_id" : 1, "item" : "a", "size": [ "S", "M", "L"] },
+{ "_id" : 2, "item" : "b", "size" : [ ] },
+{ "_id" : 3, "item" : "c", "size": "M" },
+{ "_id" : 4, "item" : "d" },
+{ "_id" : 5, "item" : "e", "size" : null }
+])
+```
+* 使用语法1查询
+```
+db.t3.aggregate([{$unwind:'$size'}])
+```
+* 查看查询结果，发现对于空数组、无字段、null的文档，都被丢弃了
+* 问：如何能不丢弃呢？
+* 答：使用语法2查询
+```
+db.t3.aggregate([{
+    $unwind:{path:'$sizes',preserveNullAndEmptyArrays:true}
+}])
+```

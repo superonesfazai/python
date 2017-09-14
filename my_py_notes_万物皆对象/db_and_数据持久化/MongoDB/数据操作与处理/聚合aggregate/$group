@@ -1,0 +1,51 @@
+## $group
+* 将集合中的文档分组，可用于统计结果
+* _id表示分组的依据, 使用某个字段的格式为'$字段'
+* 例: 统计男生，女生的总人数
+```
+db.stu.aggregate([
+    {$group:
+        {
+            _id:'$gender',
+            counter:{$sum:1}
+        }
+    }
+])
+```
+### Group by null
+* 将集合中所有文档分为一组
+* 例2：求学生总人数、平均年龄
+```
+db.stu.aggregate([
+    {$group:
+        {
+            _id:null,
+            counter:{$sum:1},
+            avgAge:{$avg:'$age'}
+        }
+    }
+])
+```
+### 透视数据
+* 例3：统计学生性别及学生姓名
+```
+db.stu.aggregate([
+    {$group:
+        {
+            _id:'$gender',
+            name:{$push:'$name'}
+        }
+    }
+])
+```
+* 使用$$ROOT可以将文档内容加入到结果集的数组中，代码如下
+```
+db.stu.aggregate([
+    {$group:
+        {
+            _id:'$gender',
+            name:{$push:'$$ROOT'}
+        }
+    }
+])
+```
