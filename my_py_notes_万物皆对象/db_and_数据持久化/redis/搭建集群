@@ -1,0 +1,64 @@
+## 搭建集群
+* 当前拥有两台主机192.168.12.107, 192.168.12.84
+
+### 在192.168.12.107启动3个服务
+* 在192.168.12.107上进入Desktop目录，创建redis_cluster目录，然后再创建7000、7001、7002目录，在各目录下分别创建文件7000.conf、7001.conf、7002.conf，内容如下
+```
+port 7000或7001或7002
+bind 192.168.12.107
+daemonize yes
+pidfile /var/run/redis_7000或7001或7002.pid
+cluster-enabled yes
+cluster-config-file nodes_7000或7001或7002.conf
+cluster-node-timeout 15000
+appendonly yes
+```
+* 使用配置文件启动redis服务
+```
+redis-server 7000/redis.conf
+redis-server 7001/redis.conf
+redis-server 7002/redis.conf
+```
+* 查看进程如下图
+![](./images/p7_1.png)
+
+### 在192.168.12.84启动3个服务
+* 在192.168.12.84上进入Desktop目录，创建redis_cluster目录，然后再创建7003、7004、7005目录，在各目录下分别创建文件7003.conf、7004.conf、7005.conf，内容如下
+```
+port 7003或7004或7004
+bind 192.168.12.84
+daemonize yes
+pidfile /var/run/redis_7003或7004或7005.pid
+cluster-enabled yes
+cluster-config-file nodes_7003或7004或7005.conf
+cluster-node-timeout 15000
+appendonly yes
+```
+* 使用配置文件启动redis服务
+```
+redis-server 7003/redis.conf
+redis-server 7004/redis.conf
+redis-server 7005/redis.conf
+```
+* 查看进程如下图
+![](./images/p7_2.png)
+
+### 创建集群
+* redis的安装包中包含了redis-trib.rb，用于创建集群
+* 接下来的操作在192.168.12.107机器上进行
+* 将命令复制，这样可以在任何目录下调用此命令
+```
+sudo cp /usr/share/doc/redis-tools/examples/redis-trib.rb /usr/local/bin/
+```
+* 安装ruby环境，因为redis-trib.rb是用ruby开发的
+```
+sudo apt-get install ruby
+```
+* 在提示信息处输入y，然后回车继续安装
+![](./images/p7_3.png)
+
+* 运行如下命令创建集群
+```
+redis-trib.rb create --replicas 1 192.168.12.107:7000 192.168.12.107:7001  192.168.12.107:7002 192.168.12.84:7003  192.168.12.84:7004  192.168.12.84:7005
+```
+* 提示完成, 集成搭建成功
