@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_1.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_2.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_3.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_4.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_5.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_6.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_7.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/MongoDB_简介" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建集群" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建集群" />
     </list>
@@ -404,19 +406,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StrictRedis对象" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/StrictRedis对象">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="735">
-                <caret line="49" column="6" lean-forward="false" selection-start-line="49" selection-start-column="6" selection-end-line="49" selection-end-column="6" />
-                <folding />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="StrictPipeline对象" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/StrictPipeline对象">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
@@ -476,12 +465,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="搭建集群" pinned="false" current-in-tab="true">
+      <file leaf-file-name="搭建集群" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建集群">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
-              <first_editor relative-caret-position="84">
-                <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+              <first_editor relative-caret-position="565">
+                <caret line="110" column="8" lean-forward="false" selection-start-line="110" selection-start-column="8" selection-end-line="110" selection-end-column="8" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MongoDB_简介" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/MongoDB_简介">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SECOND">
+              <first_editor relative-caret-position="225">
+                <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -515,7 +517,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/微信聊天机器人/发送信息.py" />
         <option value="$PROJECT_DIR$/微信聊天机器人/自定义复杂消息处理.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/日常脚本/auto_git_by_afa.py" />
@@ -566,6 +567,7 @@
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/简单的redis操作" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建主从" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建集群" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/MongoDB_简介" />
       </list>
     </option>
   </component>
@@ -820,6 +822,13 @@
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
               <item name="db_and_数据持久化" type="462c0819:PsiDirectoryNode" />
+              <item name="MongoDB" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="db_and_数据持久化" type="462c0819:PsiDirectoryNode" />
               <item name="redis" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -876,19 +885,19 @@
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/用爬虫测试网站/使用Fiddler进行手机抓包" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作1" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/实例" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/images" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis订阅发布模式/images" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/images" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作1" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/实例" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -1427,10 +1436,10 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="604" y="0" width="676" height="800" extended-state="0" />
+    <frame x="514" y="0" width="766" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30177516" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24151435" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21510673" sideWeight="0.5107034" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1491,16 +1500,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/内置函数">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="489">
-            <caret line="175" column="17" lean-forward="false" selection-start-line="175" selection-start-column="17" selection-end-line="175" selection-end-column="17" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/聚合函数">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
@@ -1917,8 +1916,8 @@
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建集群">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
-          <first_editor relative-caret-position="84">
-            <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <first_editor relative-caret-position="565">
+            <caret line="110" column="8" lean-forward="false" selection-start-line="110" selection-start-column="8" selection-end-line="110" selection-end-column="8" />
             <folding />
           </first_editor>
           <second_editor />
@@ -1954,6 +1953,17 @@
           <folding>
             <marker date="1501666388000" expanded="true" signature="512:543" ph="select * fro... user" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/MongoDB_简介">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SECOND">
+          <first_editor relative-caret-position="225">
+            <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
