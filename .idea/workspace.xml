@@ -4,10 +4,7 @@
     <bookmark url="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍/尝试处理知乎网验证码/规范文字识别_test.py" line="13" mnemonic="4" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/图片下载器爬虫/coser/coser/spiders/coser.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/图片下载器爬虫/coser/coser/spiders/coser.py" />
-    </list>
+    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -375,7 +372,7 @@
         <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/图片下载器爬虫/coser/coser/spiders/coser.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="480">
-              <caret line="35" column="71" lean-forward="true" selection-start-line="35" selection-start-column="71" selection-end-line="35" selection-end-column="71" />
+              <caret line="35" column="71" lean-forward="false" selection-start-line="35" selection-start-column="71" selection-end-line="35" selection-end-column="71" />
               <folding />
             </state>
           </provider>
@@ -401,12 +398,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sina.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="sina.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/新浪网分类资讯爬虫/sina/sina/spiders/sina.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="226">
-              <caret line="65" column="26" lean-forward="true" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
+              <caret line="65" column="26" lean-forward="false" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bs4_notes" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/bs4_notes">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SECOND">
+              <first_editor relative-caret-position="0">
+                <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -643,65 +653,7 @@
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
               <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="新浪网分类资讯爬虫" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="新浪网分类资讯爬虫" type="462c0819:PsiDirectoryNode" />
-              <item name="sina" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="新浪网分类资讯爬虫" type="462c0819:PsiDirectoryNode" />
-              <item name="sina" type="462c0819:PsiDirectoryNode" />
-              <item name="sina" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="新浪网分类资讯爬虫" type="462c0819:PsiDirectoryNode" />
-              <item name="sina" type="462c0819:PsiDirectoryNode" />
-              <item name="sina" type="462c0819:PsiDirectoryNode" />
-              <item name="spiders" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
-              <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy-redis实战" type="462c0819:PsiDirectoryNode" />
+              <item name="css选择器:BeautifulSoup4" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
@@ -1449,16 +1401,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/StrictRedis调用">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="255">
-            <caret line="17" column="24" lean-forward="false" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/redis_pipeline.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
@@ -1886,7 +1828,7 @@
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/图片下载器爬虫/coser/coser/spiders/coser.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
-          <caret line="35" column="71" lean-forward="true" selection-start-line="35" selection-start-column="71" selection-end-line="35" selection-end-column="71" />
+          <caret line="35" column="71" lean-forward="false" selection-start-line="35" selection-start-column="71" selection-end-line="35" selection-end-column="71" />
           <folding />
         </state>
       </provider>
@@ -1918,8 +1860,19 @@
     <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/新浪网分类资讯爬虫/sina/sina/spiders/sina.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="226">
-          <caret line="65" column="26" lean-forward="true" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
+          <caret line="65" column="26" lean-forward="false" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/css选择器:BeautifulSoup4/bs4_notes">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SECOND">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
