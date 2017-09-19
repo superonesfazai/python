@@ -1,0 +1,37 @@
+## 流程控制
+* 类似于python中的if语句，进行选择判断
+* case语法1：等值判断
+* 说明：当值等于某个比较值的时候，对应的结果会被返回；如果所有的比较值都不相等则返回else的结果；如果没有else并且所有比较值都不相等则返回null
+```sql
+case 值 where 比较值1 then 结果1 when 比较值2 then 结果2 ... else 结果 end
+例：
+select case 1 when 1 then 'one' when 2 then 'two' else 'zero' end as result;
+```
+* case语法2：非等值判断，可以进行>、<、!=等判断
+* 说明：当某个条件返回true时，对应的结果被返回；如果所有的条件都不返回true则返回else的结果；如果没有else并且所有条件都不返回true则返回null
+```sql
+case when 条件1 then 结果1 when 条件2 then 结果2 ... else 结果 end
+例：
+select case when 1>2 then 'part1' when 3>2 then 'part2' else 'part3' end as result;
+```
+* if语句
+* 说明：如果表达式的结果为true，则返回结果1,否则返回结果2
+```sql
+if(表达式,结果1,结果2)
+例：
+select if(1>2,2,3) as result;
+```
+* ifnull语句
+* 说明：如果表达式1不为null，则返回表达式1的结果，否则返回表达式2的结果
+```sql
+ifnull(表达式1,表达式2)
+例：
+select ifnull(1,0) as result;
+```
+* nullif语句
+* 说明：如果表达式1等于表达式2，则返回null，否则返回表达式1的结果
+```sql
+nullif(表达式1,表达式2)
+例：
+select nullif(1,0) as result;
+```

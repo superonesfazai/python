@@ -1,0 +1,39 @@
+## 日期时间函数
+* 获取子值，语法如下
+    * year(date)返回date的年份(范围在1000到9999)
+    * month(date)返回date中的月份数值
+    * day(date)返回date中的日期数值
+    * hour(time)返回time的小时数(范围是0到23)
+    * minute(time)返回time的分钟数(范围是0到59)
+    * second(time)返回time的秒数(范围是0到59)
+```sql
+select year('2017-12-21');
+```
+* 日期计算，使用+-运算符，数字后面的关键字为year、month、day、hour、minute、second
+```sql
+select '2016-12-21'+interval 1 day;
+```
+* 日期格式化date_format(date,format)，format参数可用的值如下
+    * 获取年%Y，返回4位的整数
+        *　获取年%y，返回2位的整数
+        *　获取月%m，值为1-12的整数
+    * 获取日%d，返回整数
+        *　获取时%H，值为0-23的整数
+        *　获取时%h，值为1-12的整数
+        *　获取分%i，值为0-59的整数
+        *　获取秒%s，值为0-59的整数
+```sql
+select date_format('2016-12-21','%Y %m %d');
+```
+* 当前日期current_date()
+```sql
+select current_date();
+```
+* 当前时间current_time()
+```sql
+select current_time();
+```
+* 当前日期时间now()
+```sql
+select now();
+```

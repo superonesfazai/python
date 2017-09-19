@@ -1,0 +1,35 @@
+## 数字函数
+* 求绝对值abs(n)
+```sql
+select abs(-32);
+```
+* 求m除以n的余数mod(m, n), 同运算符%
+```sql
+select mod(10, 3);
+select 10%3;
+```
+* floor(n), 表示不大于n的最大整数
+```sql
+select floor(2.3);
+```
+* ceiling(n), 表示不小于n的最大整数
+```sql
+select ceiling(2.3);
+```
+* 求四舍五入值round(n,d)，n表示原数，d表示小数位置，默认为0
+```sql
+select round(1.6);
+```
+* 求x的y次幂pow(x,y)
+```sql
+select pow(2,3);
+```
+* 获取圆周率PI()
+```sql
+select PI();
+```
+* 随机数rand()，值为0-1.0的浮点数
+```sql
+select rand();
+```
+还有其它很多三角函数，使用时可以查询文档

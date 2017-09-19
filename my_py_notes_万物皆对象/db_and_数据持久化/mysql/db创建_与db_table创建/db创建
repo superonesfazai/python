@@ -1,0 +1,24 @@
+## 数据库
+* 查看当前选择的数据库:
+```sql
+select database();
+```
+
+* 创建数据库:
+```sql
+create database 数据库 charset=utf8;
+```
+MySQL数据库默认编码是Latin1，如果在创建数据库忘记指定字符集为utf8，可以通过下面方法修改
+1. 修改数据库 python_0314 的字符集
+```sql
+alter database python charset utf8;
+```
+2. 修改表的字符集，以及所有字符列(char, varchar, text等)的字符集为utf8
+```sql
+alter table students covert to charset utf8;
+```
+
+* 删除数据库:
+```sql
+drop database 数据库名;
+```

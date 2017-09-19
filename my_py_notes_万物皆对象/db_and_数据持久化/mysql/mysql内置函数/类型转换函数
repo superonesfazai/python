@@ -1,0 +1,23 @@
+## 类型转换函数
+* 有cast和convert两个函数
+* 语法如下
+```sql
+cast(value as type);
+convert(value, type);
+```
+* value表示要转换的值
+* type表示目标类型
+* 目标类型如下：
+    * 二进制binary
+    * 字符型char，可指定字符个数如char(10)
+    * 日期date
+    * 时间time
+    * 日期时间型datetime
+    * 浮点数decimal
+    * 整数signed
+    * 无符号整数unsigned
+* 例
+```sql
+select convert('125.83', signed);
+select cast('125.83', singned);
+```

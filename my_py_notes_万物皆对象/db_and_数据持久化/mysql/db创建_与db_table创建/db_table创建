@@ -1,0 +1,67 @@
+## 数据表
+* 查看当前数据库中所有表
+```sql
+show tables;
+```
+* 查看表结构
+```sql
+desc 表名;
+```
+* 查看创建表的语句
+```sql
+show create table 表名xxx;
+```
+* 创建表
+```sql
+auto_increment表示自动增长
+```
+```sql
+create table 表名(列 类型 约束,...);
+```
+
+例：创建班级表
+```sql
+create table classes(
+    id int unsigned auto_increment primary key not null,
+    name varchar(10),
+    isdelete bit default 0
+);
+```
+例：创建学生表
+```sql
+create table students(
+    id int unsigned auto_increment primary key not null,
+    name varchar(10) not null,
+    gender bit default 1,
+    hometown varchar(20),
+    clsid int unsigned,
+    isdelete bit default 0,
+    foreign key(clsid) references classes(id)
+);
+```
+* 修改表-添加字段
+```sql
+alter table 表名 add 列名 类型;
+```
+* 修改表-修改字段：重命名版
+```sql
+alter table 表名 change 原名 新名 类型及约束;
+```
+```sql
+alter table students change name name1 varchar(20) not null;
+```
+* 修改表-修改字段：不重命名版
+```sql
+alter table 表名 modify 列名 类型及约束;
+```
+```sql
+alter table students modify name1 varchar(10) not null;
+```
+* 修改表-删除字段
+```sql
+alter table 表名 drop 列名;
+```
+* 删除表
+```sql
+drop table 表名;
+```

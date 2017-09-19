@@ -1,0 +1,28 @@
+## 增加
+```html
+* 说明：主键列是自动增长，但是在全列插入时需要占位，通常使用0，插入成功后以实际数据为准
+```
+* 全列插入：值的顺序与表中字段的顺序对应
+```sql
+insert into 表名 values(...)
+例:
+insert into students values(0,'郭靖',1,'蒙古','2015-1-2');
+```
+* 部分列插入：值的顺序与给出的列顺序对应
+```sql
+insert into 表名(列1,...) values(值1,...)
+例：
+insert into students(name,hometown,birthday) values('黄蓉','桃花岛','2015-3-2');
+```
+* 上面的语句一次可以向表中插入一行数据，还可以一次性插入多行数据，这样可以减少与数据库的通信
+* 全列多行插入：值的顺序与给出的列顺序对应
+```sql
+insert into 表名 values(...),(...)...;
+例：
+insert into classes values(0,'python'),(0,'linux'),(0,'mysql'),(0,'js');
+```
+```sql
+insert into 表名(列1,...) values(值1,...),(值1,...)...;
+例：
+insert into students(name) values('杨康'),('杨过'),('小龙女');
+```

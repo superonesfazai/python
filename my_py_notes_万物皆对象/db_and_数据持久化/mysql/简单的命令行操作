@@ -1,0 +1,15 @@
+## 命令行连接
+```shell
+mysql -u root -p
+```
+
+* 查看版本: 
+```sql
+select version();
+```
+* 显示当前时间:
+```sql
+select now();
+```
+
+![](./images/tmp2.png)

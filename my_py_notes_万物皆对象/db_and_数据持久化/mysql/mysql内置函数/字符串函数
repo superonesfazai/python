@@ -1,0 +1,42 @@
+## 字符串函数
+* 查看字符ascii码值ascii(str), str是空串时返回0
+```
+select ascii('a');
+```
+* 查看ascii码值对应的字符char(数字)
+```sql
+select char(97);
+```
+* 拼接字符串contact(str1, str2...)
+```sql
+select contact(12, 34, 'ab');
+```
+* 包含字符个数length(str)
+```sql
+select length('abc');
+```
+* 截取字符串
+    * ltrim(str)返回删除了左空格的字符串str
+    * rtrim(str)返回删除了右空格的字符串str
+    * trim([方向 remstr from str)返回从某侧删除remstr后的字符串str，方向词包括both、leading、trailing，表示两侧、左、右
+    
+```sql
+select trim('  bar   ');
+select trim(leading 'x' FROM 'xxxbarxxx');
+select trim(both 'x' FROM 'xxxbarxxx');
+select trim(trailing 'x' FROM 'xxxbarxxx');
+```
+* 返回由n 个空格字符串组成的一个字符串space(n)
+```sql
+select space(10);
+```
+* 替换字符串replace(str, from_str, to_str)
+```sql
+select replace('abc123', '123', 'def');
+```
+* 大小写替换, 函数如下:
+    * lower(str)
+    * upper(str)
+```sql
+select lower('aBcD');
+```

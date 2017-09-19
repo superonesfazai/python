@@ -1,0 +1,10 @@
+## 删除
+```sql
+delete from 表名 where 条件;
+例:
+delte from students where id=5;
+```
+* 逻辑删除, 本质就是修改操作
+```sql
+update students set isdelete=1 where id=1;
+```

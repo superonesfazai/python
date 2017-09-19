@@ -1,0 +1,6 @@
+## 修改
+```sql
+update 表名 set 列1=值1,列2=值2... where 条件
+例：
+update students set gender=0,hometown='古墓' where id=5;
+```
