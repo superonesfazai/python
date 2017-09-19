@@ -8,11 +8,11 @@ $ wget https://github.com/4rsh/
 """
 
 # Colours
-D  = "\033[0m";  
-W  = "\033[01;37m";  
-O  = "\033[01;33m"; 
-SUCESS = "\033[01;32m";
-FAIL = "\033[01;31m";
+D  = "\033[0m"
+W  = "\033[01;37m"
+O  = "\033[01;33m"
+SUCESS = "\033[01;32m"
+FAIL = "\033[01;31m"
 
 import socket
 import sys
