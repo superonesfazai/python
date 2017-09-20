@@ -144,7 +144,7 @@ $ sudo fdisk -l
 $ sudo mkfs.vfat -F 32 /dev/sdb1即可将u盘格式化为fat32格式
 ```
 
-刻录镜像文件制作U盘启动盘
+* 刻录镜像文件制作U盘启动盘
 ```
 $ dd if=ubuntu-14.04.1-desktop-amd64.iso of=/dev/sdb
 ```
@@ -191,7 +191,7 @@ file_path=$(cd "$(dirname "$0")"; pwd)
 或者
 file_path=$(cd `dirname $0`; pwd)
 ```
-脚本文件的绝对路径存在了环境变量 file_path 中，可以用
+* 脚本文件的绝对路径存在了环境变量 file_path 中，可以用
 ```
 echo $file_path
 ```
@@ -205,11 +205,15 @@ $$: shell脚本的进程号
 $1, $2, $3...：脚本程序的参数
 ```
 
-
-ubuntu shell 终端中以窗口形式打开一个文件夹
+* ubuntu shell 终端中以窗口形式打开一个文件夹
 ```
 $ nautilus
 $ nautilus /tmp
+```
+
+* mac shell 下以窗口形式打开一个文件夹
+```shell
+$ open ~
 ```
 
 可以用 alias 命令来给 nautilus 命令设置别名

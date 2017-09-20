@@ -5,11 +5,112 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/extra/Selenium.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/tmp/fib_迭代器.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/tmp/just_team.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/extra/Docker.md" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/Docker相关/Docker.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/tmp_figpath.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/arr_test.npy" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/arr_zip_test.npz" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/use_pandas_deal_with_datas/pandas_basic/pandas.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/.ipynb_checkpoints/matplotlib_pyplot_demo-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/Haiti.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/macrodata.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/matplotlib_pyplot_demo.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/tips.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/01.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/array_ex.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/array_ex2.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/numpy_basic.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/MySQL默认的四个数据库简介" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/MySQL默认的四个数据库简介" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/db创建_与db_table创建/db_table创建" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/db创建_与db_table创建/db_table创建" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/db创建_与db_table创建/db创建" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/db创建_与db_table创建/db创建" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/01.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/01.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/02.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/02.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/03.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/03.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/04.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/04.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/05.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/05.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/06.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/06.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/07.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/07.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/08.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/08.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/09.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/09.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/create_database2.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/create_database2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/tmp.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/tmp.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/tmp2.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/tmp2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/转储数据库.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/转储数据库.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/images/逻辑删除.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/images/逻辑删除.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql_test_jupyter.ipynb" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql_test_jupyter.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/mysql_test.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/mysql_test.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/mysql与python交互_notes" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/mysql与python交互_notes" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/py_mySQL.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/py_mySQL.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/test_delete.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/test_delete.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/test_insert.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/test_insert.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/test_select.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/test_select.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/案例/tests.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/案例/tests.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互/案例/用户入口.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互/案例/用户入口.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数/内置函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql内置函数/内置函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数/字符串函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql内置函数/字符串函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数/数字函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql内置函数/数字函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数/日期时间函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql内置函数/日期时间函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数/流程控制" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql内置函数/流程控制" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数/类型转换函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql内置函数/类型转换函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql备份与恢复/备份与恢复" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql备份与恢复/备份与恢复" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/images/func1.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/images/func1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/images/proc1.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/images/proc1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/事务" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/事务" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/存储函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/存储函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/存储过程" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/存储过程" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/实例/实例: 性格测试问卷" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/实例/实例: 性格测试问卷" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/简介" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/简介" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/索引" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/索引" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/视图" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/视图" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql扩展/账户管理" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql扩展/账户管理" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql数据类型和约束" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql数据类型和约束" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/修改datas" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/修改datas" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/删除datas" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/删除datas" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/查询datas/子查询" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/查询datas/子查询" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/查询datas/查询datas" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/查询datas/查询datas" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/查询datas/连接查询" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/查询datas/连接查询" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/添加datas" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/添加datas" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/数据库设计规范与范式" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/数据库设计规范与范式" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/简单的命令行操作" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/简单的命令行操作" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/聚合函数" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/聚合函数" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/自关联" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/自关联" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/01.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/01.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/01_app1.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/01_app1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/01_app2.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/01_app2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/01_app3.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/01_app3.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/02.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/02.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_1.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_2.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_3.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_3.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_4.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_4.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_5.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_5.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_6.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_6.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/p7_7.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/p7_7.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images/tmp1.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/images/tmp1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis_notes" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis_notes" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/StrictPipeline对象" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/StrictPipeline对象" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/StrictRedis对象" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/StrictRedis对象" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/StrictRedis调用" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/StrictRedis调用" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/images/05_hashes01.jpg" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/images/05_hashes01.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/redis_demo.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/redis_demo.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/redis_pipeline.py" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/redis_pipeline.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/简单的redis操作" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis与python交互/简单的redis操作" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis事务" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis事务" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis性能测试" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis性能测试" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据备份与恢复" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据备份与恢复" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作/hash" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据类型与操作/hash" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作/list" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据类型与操作/list" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作/redis数据类型与操作" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据类型与操作/redis数据类型与操作" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作/set集合" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据类型与操作/set集合" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作/string" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据类型与操作/string" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis数据类型与操作/zset有序集合(sorted set)" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis数据类型与操作/zset有序集合(sorted set)" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis订阅发布模式/images/04_pub.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis订阅发布模式/images/04_pub.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis订阅发布模式/images/04_pub2.png" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis订阅发布模式/images/04_pub2.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis订阅发布模式/redis订阅发布模式_notes" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis订阅发布模式/redis订阅发布模式_notes" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis配置文件" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis配置文件" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis键命令" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/redis键命令" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建主从" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/搭建主从" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/搭建集群" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Redis/搭建集群" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Linux.md" afterPath="$PROJECT_DIR$/Linux.md" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -228,7 +329,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$cookielib_demo2.coverage" NAME="cookielib_demo2 Coverage Results" MODIFIED="1503908604903" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/Cookie原理及其应用/Cookie应用" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$hello_.coverage" NAME="终端会出现多少次hello? Coverage Results" MODIFIED="1502264928695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$lxml_parse.coverage" NAME="lxml_parse Coverage Results" MODIFIED="1504000505066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/lxml库" />
-    <SUITE FILE_PATH="coverage/PythonDoc$PythonDoc.coverage" NAME="PythonDoc Coverage Results" MODIFIED="1505809135488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PythonDoc$PythonDoc.coverage" NAME="PythonDoc Coverage Results" MODIFIED="1505877161710" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$type.coverage" NAME="使用type创建带有方法的类 Coverage Results" MODIFIED="1502008402726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/动态/动态地创建类/使用type创建类" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$__test.coverage" NAME="静态方法_类方法_test Coverage Results" MODIFIED="1500857363587" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$gettext_test.coverage" NAME="gettext_test Coverage Results" MODIFIED="1501069091029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/gettext" />
@@ -374,24 +475,14 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="misc.xml" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/.idea/misc.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
@@ -411,11 +502,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/limit与skip" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/limit与skip" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/投影" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/排序" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/统计个数" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/去重" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/聚合aggregate" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/聚合aggregate/$group" />
@@ -462,6 +548,11 @@
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/db创建" />
         <option value="$PROJECT_DIR$/web/dnsmap.py" />
         <option value="$PROJECT_DIR$/机器学习/numpy_basic/numpy_basic.ipynb" />
+        <option value="$PROJECT_DIR$/Linux.md" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/删除datas" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/查询datas/查询datas" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/matplotlib_pyplot_demo.ipynb" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/use_pandas_deal_with_datas/pandas_basic/pandas.ipynb" />
       </list>
     </option>
   </component>
@@ -700,6 +791,42 @@
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="画图相关" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="科学计算" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="用爬虫测试网站" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -723,11 +850,11 @@
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql内置函数" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/use_pandas_deal_with_datas/pandas_basic" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/案例/用户登录注册/images" />
       <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/数据操作与处理/images" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/images" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/images" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互/images" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -1292,7 +1419,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.324" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2265625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1348,187 +1475,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/查询datas/查询datas">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="609">
-            <caret line="146" column="3" lean-forward="false" selection-start-line="146" selection-start-column="3" selection-end-line="146" selection-end-column="3" />
-            <folding>
-              <marker date="1505794773000" expanded="true" signature="21:37" ph="select * fro... 表名" />
-              <marker date="1505794773000" expanded="true" signature="73:99" ph="select 列1, 列... " />
-              <marker date="1505794773000" expanded="true" signature="158:189" ph="select disti... " />
-              <marker date="1505794773000" expanded="true" signature="194:230" ph="select disti... students" />
-              <marker date="1505794773000" expanded="true" signature="300:344" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="379:423" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="451:514" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="573:616" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="680:727" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="758:818" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="886:931" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="991:1040" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="1066:1128" ph="select * fro... students" />
-              <marker date="1505794773000" expanded="true" signature="1315:1359" ph="select 列1,列2... " />
-              <marker date="1505794773000" expanded="true" signature="1384:1442" ph="select gende... students" />
-              <marker date="1505794773000" expanded="true" signature="1467:1529" ph="select homet... students" />
-              <marker date="1505794773000" expanded="true" signature="1564:1635" ph="select 列1, 列... " />
-              <marker date="1505794773000" expanded="true" signature="1689:1733" ph="select count... students" />
-              <marker date="1505794773000" expanded="true" signature="1776:1850" ph="select gende... students" />
-              <marker date="1505794773000" expanded="true" signature="2004:2078" ph="select homet... students" />
-              <marker date="1505794773000" expanded="true" signature="2129:2182" ph="select * fro... 表名" />
-              <marker date="1505794773000" expanded="true" signature="2329:2364" ph="select * fro... 表名" />
-              <marker date="1505794773000" expanded="true" signature="2426:2473" ph="select * fro... students" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/查询datas/子查询">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="360">
-            <caret line="24" column="6" lean-forward="true" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="6" />
-            <folding>
-              <marker date="1505133758000" expanded="true" signature="137:251" ph="select stu.n... students" />
-              <marker date="1505133758000" expanded="true" signature="166:217" ph="select cls.n... classes" />
-              <marker date="1505133758000" expanded="true" signature="282:406" ph="select * fro... *" />
-              <marker date="1505133758000" expanded="true" signature="298:398" ph="select stu.*... students" />
-              <marker date="1505133758000" expanded="true" signature="448:546" ph="select stu.n... students" />
-              <marker date="1505133758000" expanded="true" signature="502:545" ph="select id fr... classes" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql的CRUP/查询datas/连接查询">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-            <folding>
-              <marker date="1505131719000" expanded="true" signature="244:298" ph="select * fro... 表1" />
-              <marker date="1505131719000" expanded="true" signature="353:429" ph="select * fro... classes" />
-              <marker date="1505131719000" expanded="true" signature="461:536" ph="select * fro... classes" />
-              <marker date="1505131719000" expanded="true" signature="568:644" ph="select * fro... classes" />
-              <marker date="1505131719000" expanded="true" signature="673:787" ph="select stu.n... classes" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/db创建_与db_table创建/db创建">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="345">
-            <caret line="23" column="3" lean-forward="false" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
-            <folding>
-              <marker date="1505795349000" expanded="true" signature="28:45" ph="select datab... " />
-              <marker date="1505795349000" expanded="true" signature="288:331" ph="alter table students... " />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/db创建_与db_table创建/db_table创建">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="990">
-            <caret line="66" column="3" lean-forward="false" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
-            <folding>
-              <marker date="1505795349000" expanded="true" signature="1001:1014" ph="drop table 表... " />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/简单的命令行操作">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="225">
-            <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-            <folding>
-              <marker date="1505795349000" expanded="true" signature="56:72" ph="select versi... " />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/MySQL默认的四个数据库简介">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="60">
-            <caret line="4" column="12" lean-forward="false" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/数据库设计规范与范式">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="120">
-            <caret line="8" column="0" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/聚合函数">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="195">
-            <caret line="13" column="17" lean-forward="true" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
-            <folding>
-              <marker date="1505125489000" expanded="true" signature="88:117" ph="select count... students" />
-              <marker date="1505125489000" expanded="true" signature="164:207" ph="select max(i... students" />
-              <marker date="1505125489000" expanded="true" signature="256:301" ph="select min(i... students" />
-              <marker date="1505125489000" expanded="true" signature="345:388" ph="select sum(i... students" />
-              <marker date="1505125489000" expanded="true" signature="438:496" ph="select avg(i... students" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/test_save_html.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/pygoogle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="36" column="26" lean-forward="true" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/dnsmap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="21" column="20" lean-forward="true" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/web/awesome-python3-webapp/app.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1731,7 +1677,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#35#0" expanded="true" />
+            <element signature="e#0#35#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1841,11 +1787,165 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Linux.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="-3204">
+            <caret line="238" column="17" lean-forward="true" selection-start-line="238" selection-start-column="17" selection-end-line="238" selection-end-column="17" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/Django/mysite/.idea/misc.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/简单的命令行操作">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="225">
+            <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+            <folding>
+              <marker date="1505795349000" expanded="true" signature="56:72" ph="select versi... " />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/删除datas">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="165">
+            <caret line="11" column="5" lean-forward="false" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
+            <folding>
+              <marker date="1505868869000" expanded="true" signature="13:36" ph="delete from " />
+              <marker date="1505868869000" expanded="true" signature="101:142" ph="update stude... " />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/添加datas">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SECOND">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding>
+              <marker date="1505794773000" expanded="true" signature="93:176" ph="insert into 表名... " />
+              <marker date="1505794773000" expanded="true" signature="211:326" ph="insert into 表名... " />
+              <marker date="1505794773000" expanded="true" signature="410:445" ph="insert into 表名... " />
+              <marker date="1505794773000" expanded="true" signature="534:583" ph="insert into 表名... " />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql备份与恢复/备份与恢复">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SECOND">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql的CRUP/查询datas/查询datas">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="223">
+            <caret line="27" column="1" lean-forward="true" selection-start-line="27" selection-start-column="1" selection-end-line="27" selection-end-column="1" />
+            <folding>
+              <marker date="1505876201000" expanded="true" signature="21:37" ph="select * fro... 表名" />
+              <marker date="1505876201000" expanded="true" signature="73:99" ph="select 列1, 列... " />
+              <marker date="1505876201000" expanded="true" signature="158:189" ph="select disti... " />
+              <marker date="1505876201000" expanded="true" signature="194:230" ph="select disti... students" />
+              <marker date="1505876201000" expanded="true" signature="300:345" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="380:424" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="452:515" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="574:617" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="681:728" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="797:842" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="902:951" ph="select * fro... students" />
+              <marker date="1505876201000" expanded="true" signature="1138:1182" ph="select 列1,列2... " />
+              <marker date="1505876201000" expanded="true" signature="1207:1265" ph="select gende... students" />
+              <marker date="1505876201000" expanded="true" signature="1290:1352" ph="select homet... students" />
+              <marker date="1505876201000" expanded="true" signature="1387:1458" ph="select 列1, 列... " />
+              <marker date="1505876201000" expanded="true" signature="1512:1556" ph="select count... students" />
+              <marker date="1505876201000" expanded="true" signature="1599:1673" ph="select gende... students" />
+              <marker date="1505876201000" expanded="true" signature="1827:1901" ph="select homet... students" />
+              <marker date="1505876201000" expanded="true" signature="1952:2005" ph="select * fro... 表名" />
+              <marker date="1505876201000" expanded="true" signature="2152:2187" ph="select * fro... 表名" />
+              <marker date="1505876201000" expanded="true" signature="2249:2296" ph="select * fro... students" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/数据库设计规范与范式">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SECOND">
+          <first_editor relative-caret-position="120">
+            <caret line="8" column="0" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/matplotlib_pyplot_demo.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/Haiti.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="65" lean-forward="false" selection-start-line="0" selection-start-column="57" selection-end-line="0" selection-end-column="65" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/macrodata.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/画图相关/matplotlib/tips.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="28" lean-forward="false" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules/科学计算/numpy/01.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/data_deal_with/use_pandas_deal_with_datas/pandas_basic/pandas.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
         </state>
       </provider>
     </entry>
