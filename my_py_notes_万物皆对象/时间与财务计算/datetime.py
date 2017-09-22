@@ -8,5 +8,5 @@ print(today)
 # birthday = datetime.date(1996, 8, 24)
 # print(birthday)
 # currenttime = datetime.datetime.now()
-now = datetime.datetime
-print(now)
+# now = datetime.datetime
+# print(now)
