@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+# 测试环境: python2.7 + windows
+
 from urllib2 import Request, urlopen
 from urllib2 import HTTPError
 import json
@@ -55,7 +57,7 @@ class ShanDongEnvir(object):
                 ])
 
             wb.save(save_path + '%s.xls' % file_name.decode('utf-8'))
-            print file_name + '文件保存完毕!'
+            print(file_name + '文件保存完毕!')
 
         else:
             os.mkdir('datas')
@@ -77,11 +79,11 @@ class ShanDongEnvir(object):
         except HTTPError as e:
             self.is_alive = False
 
-            print '无网络连接...无法继续爬取...'
+            print('无网络连接...无法继续爬取...')
             self.sendSMS()
         else:
             if tmp_response == '':
-                print 'response为空值'
+                print('response为空值')
                 self.sendSMS()
             else:
                 city_info_json = json.loads(tmp_response.read())
@@ -103,41 +105,41 @@ class ShanDongEnvir(object):
                     deal_json = json.loads(response.read())
                     # pprint deal_json
                     try:
-                        print city_deal_info_item['subid']   # 用于测试得出官方未提供某数据的subid
+                        print(city_deal_info_item['subid'])   # 用于测试得出官方未提供某数据的subid
                         city_deal_info_item['api'] = deal_json['AQI']
                         city_deal_info_item['pol'] = deal_json['POL'].strip()
                         try:
                             city_deal_info_item['pm25'] = '%.f' % (float(deal_json['PM25']) * 1000)
-                        except Exception, e:
+                        except Exception as e:
                             city_deal_info_item['pm25'] = '官方提供数据为空'
                         try:
                             city_deal_info_item['pm10'] = '%.f' % (float(deal_json['PM10']) * 1000)
-                        except Exception, e:
+                        except Exception as e:
                             city_deal_info_item['pm10'] = '官方提供数据为空'
                         try:
                             city_deal_info_item['so2'] = '%.f' % (float(deal_json['SO2']) * 1000)
-                        except Exception, e:
+                        except Exception as e:
                             city_deal_info_item['so2'] = '官方提供数据为空'
                         try:
                             city_deal_info_item['no2'] = '%.f' % (float(deal_json['NO2']) * 1000)
-                        except Exception, e:
+                        except Exception as e:
                             city_deal_info_item['no2'] = '官方提供数据为空'
                         try:
                             city_deal_info_item['co'] = float(deal_json['CO'])
-                        except Exception, e:
+                        except Exception as e:
                             city_deal_info_item['co'] = '官方提供数据为空'
                         try:
                             city_deal_info_item['o3'] = '%.f' % (float(deal_json['O3']) * 1000)
-                        except Exception, e:
+                        except Exception as e:
                             city_deal_info_item['o3'] = '官方提供数据为空'
 
-                        print city_deal_info_item
+                        print(city_deal_info_item)
 
                         self.city_deal_info_items.append(city_deal_info_item)
 
                     except Exception as e:
-                        print e
-                print '这个点的数据已经爬取完毕'.center(50, '*')
+                        print(e)
+                print('这个点的数据已经爬取完毕'.center(50, '*'))
                 # print self.city_deal_info_items
 
     # def sendSMS(self):
@@ -191,7 +193,7 @@ class ShanDongEnvir(object):
         req = Request(url + '?' + data)
         response = urlopen(req)
         the_page = response.read()
-        print the_page
+        print(the_page)
 
 if __name__ == '__main__':
     envir = ShanDongEnvir()

@@ -16,6 +16,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+'''
+防止注入：避免查询时进行字符串拼接，使用直接传参，如果传入参数比较多的话, 就写成list格式
+'''
+
 from MySQLdb import *
 
 try:
