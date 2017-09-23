@@ -25,7 +25,7 @@ class ShanDongEnvir(object):
         result = self.city_deal_info_items
 
         if os.path.exists('datas'):
-            save_path = os.getcwd() + '/datas/'
+            save_path = os.getcwd() + '\\datas\\'   # 转意
 
             now_year = time.localtime().tm_year
             now_month = time.localtime().tm_mon
@@ -54,7 +54,7 @@ class ShanDongEnvir(object):
                     result[i]['o3']
                 ])
 
-            wb.save(save_path + '%s.xls' % file_name)
+            wb.save(save_path + '%s.xls' % file_name.decode('utf-8'))
             print file_name + '文件保存完毕!'
 
         else:
@@ -165,8 +165,7 @@ class ShanDongEnvir(object):
         下面是吴哥公司短信api,由于我无法测试，还得吴哥自己测试
         :return:
         '''
-
-        import urllib2
+        import urllib
         url = 'http://m.5c.com.cn/api/send/index.php'  # 如连接超时，可能是您服务器不支持域名解析，请将下面连接中的：【m.5c.com.cn】修改为IP：【115.28.23.78】
         user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
         encode = 'UTF-8'  # 页面编码和短信内容编码为GBK。重要说明：如提交短信后收到乱码，请将GBK改为UTF-8测试。如本程序页面为编码格式为：ASCII/GB2312/GBK则该处为GBK。如本页面编码为UTF-8或需要支持繁体，阿拉伯文等Unicode，请将此处写为：UTF-8
@@ -188,9 +187,9 @@ class ShanDongEnvir(object):
             'User-Agent': user_agent
         }
 
-        data = urllib2.parse.urlencode(values)
-        req = urllib2.Request(url + '?' + data)
-        response = urllib2.urlopen(req)
+        data = urllib.urlencode(values)
+        req = Request(url + '?' + data)
+        response = urlopen(req)
         the_page = response.read()
         print the_page
 
