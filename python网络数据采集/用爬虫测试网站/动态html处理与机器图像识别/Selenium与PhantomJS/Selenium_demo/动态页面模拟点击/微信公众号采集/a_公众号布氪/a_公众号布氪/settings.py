@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for get_1000000_微信公众号 project
+# Scrapy settings for a_公众号布氪 project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,17 +9,17 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'get_1000000_微信公众号'
+BOT_NAME = 'a_公众号布氪'
 
-SPIDER_MODULES = ['get_1000000_微信公众号.spiders']
-NEWSPIDER_MODULE = 'get_1000000_微信公众号.spiders'
+SPIDER_MODULES = ['a_公众号布氪.spiders']
+NEWSPIDER_MODULE = 'a_公众号布氪.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'get_1000000_微信公众号 (+http://www.yourdomain.com)'
+#USER_AGENT = 'a_公众号布氪 (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = False  # 这样就能避免索引没有robot.txt, 而爬虫不跑
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -27,13 +27,13 @@ ROBOTSTXT_OBEY = False  # 这样就能避免索引没有robot.txt, 而爬虫不�
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = .5     # 设置延迟
+#DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False     # 禁止cookies也就防止了可能使用cookies识别爬虫轨迹的网站得逞
+#COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -46,17 +46,15 @@ DOWNLOAD_DELAY = .5     # 设置延迟
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-# SPIDER_MIDDLEWARES = {
-#    'get_1000000_微信公众号.middlewares.Get1000000SpiderMiddleware': 543,
-# }
+#SPIDER_MIDDLEWARES = {
+#    'a_公众号布氪.middlewares.ASpiderMiddleware': 543,
+#}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-    # 'get_1000000_微信公众号.middlewares.MyCustomDownloaderMiddleware': None,
-    'get_1000000_微信公众号.middlewares.Get1000000SpiderMiddleware': 5,
-    'get_1000000_微信公众号.middlewares.RandomProxy': 2,
-}
+#DOWNLOADER_MIDDLEWARES = {
+#    'a_公众号布氪.middlewares.MyCustomDownloaderMiddleware': 543,
+#}
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
@@ -66,9 +64,9 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   'get_1000000_微信公众号.pipelines.Get1000000Pipeline': 1,
-}
+#ITEM_PIPELINES = {
+#    'a_公众号布氪.pipelines.APipeline': 300,
+#}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

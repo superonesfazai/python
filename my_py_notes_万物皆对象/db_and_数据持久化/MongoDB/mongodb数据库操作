@@ -11,7 +11,7 @@ MongoDB 将数据存储为一个文档，数据结构由键值(key=>value)对组
 ```html
 {"site":"www.baidu.com"}
 {"site":"www.google.com","name":"Google"}
-{"site":"www.itcast.cn","name":"传智播客","num":100}
+{"site":"www.xxx.cn","name":"xxx","num":100}
 ```
 当第一个文档插入时, 集合就会被创建
 

@@ -28,3 +28,14 @@ expire key 60
 ```
 ttl key
 ```
+
+#### 8. 删除所有Key
+* 删除所有Key，可以使用Redis的flushdb和flushall命令
+//删除当前数据库中的所有Key  
+```
+flushdb  
+```
+* //删除所有数据库中的key  
+```
+flushall  
+```

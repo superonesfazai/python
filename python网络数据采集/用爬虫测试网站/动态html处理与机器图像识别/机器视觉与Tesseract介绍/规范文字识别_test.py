@@ -11,6 +11,7 @@ import pytesseract
 from PIL import Image
 
 image = Image.open('./images/tesseract_test.jpg')
+# image = Image.open('./images/seccode.jpeg')
 text = pytesseract.image_to_string(image)
 
 print(text)
