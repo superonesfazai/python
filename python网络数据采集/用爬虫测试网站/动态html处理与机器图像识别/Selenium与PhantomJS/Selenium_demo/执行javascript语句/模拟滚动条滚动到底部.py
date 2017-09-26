@@ -10,7 +10,7 @@
 from selenium import webdriver
 import time
 
-driver = webdriver.PhantomJS()
+driver = webdriver.PhantomJS('phantomjs')
 driver.get('https://movie.douban.com/typerank?type_name=剧情&type=11&interval_id=100:90&action=')
 
 # 向下滚动10000像素
