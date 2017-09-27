@@ -33,6 +33,7 @@ class BoZhuUserPipeline(object):
 
             if result:
                 print('============| 该nick_name已经存在于mysql中, 存入数据失败! |')
+                pass
             else:
                 print('============| 准备存入mysql........ |')
                 self.insert_into_mysql(item)
@@ -50,12 +51,13 @@ class BoZhuUserPipeline(object):
             cs1.close()
 
             if count is not None:
-                print(str(params) + '成功存入mysql')
+                print('============| ***该博主号成功存入mysql中*** |')
             else:
                 print('微信公众号已经存在于mysql中，插入失败!!')
         except Exception as e:
             cs1.close()
             print('========插入mysql时错误为', e)
+            pass
 
 
     def select_nick_name_is_saved(self, item):
@@ -68,10 +70,10 @@ class BoZhuUserPipeline(object):
 
             cs.close()
             if result:
-                return False
-            else:
                 return True
+            else:
+                return False
         except Exception as e:
             print('========筛选mysql时错误为', e)
             cs.close()
-            return False
+            return True

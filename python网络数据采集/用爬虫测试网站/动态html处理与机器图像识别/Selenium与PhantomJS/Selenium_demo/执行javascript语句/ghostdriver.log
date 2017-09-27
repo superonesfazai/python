@@ -1,5 +1,13 @@
-[INFO  - 2017-09-26T13:30:12.930Z] GhostDriver - Main - running on port 49606
-[INFO  - 2017-09-26T13:30:13.296Z] Session [d36f6b70-a2be-11e7-8720-f71fd9783206] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/538.1","webSecurityEnabled":true}
-[INFO  - 2017-09-26T13:30:13.296Z] Session [d36f6b70-a2be-11e7-8720-f71fd9783206] - page.customHeaders:  - {}
-[INFO  - 2017-09-26T13:30:13.296Z] Session [d36f6b70-a2be-11e7-8720-f71fd9783206] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"}}
-[INFO  - 2017-09-26T13:30:13.296Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: d36f6b70-a2be-11e7-8720-f71fd9783206
+[INFO  - 2017-09-27T13:42:29.464Z] GhostDriver - Main - running on port 50971
+[INFO  - 2017-09-27T13:42:29.668Z] Session [b4c2ecd0-a389-11e7-be1b-eb635abce759] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/538.1","webSecurityEnabled":true}
+[INFO  - 2017-09-27T13:42:29.668Z] Session [b4c2ecd0-a389-11e7-be1b-eb635abce759] - page.customHeaders:  - {}
+[INFO  - 2017-09-27T13:42:29.668Z] Session [b4c2ecd0-a389-11e7-be1b-eb635abce759] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"}}
+[INFO  - 2017-09-27T13:42:29.668Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: b4c2ecd0-a389-11e7-be1b-eb635abce759
+[ERROR - 2017-09-27T13:42:51.319Z] Session [b4c2ecd0-a389-11e7-be1b-eb635abce759] - page.onError - msg: TypeError: undefined is not an object (evaluating 'b.phizData[0]["category"]="默认"')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2017-09-27T13:42:51.320Z] Session [b4c2ecd0-a389-11e7-be1b-eb635abce759] - page.onError - stack:
+  (anonymous function) (https://js.t.sinajs.cn/t6/webim_prime/js/webim.js?v=1506519759991:197)
+  (anonymous function) (https://js2.t.sinajs.cn/t6/webim_prime/js/common/all.js?version=1e75594cf600f845:1)
+
+  phantomjs://platform/console++.js:263 in error

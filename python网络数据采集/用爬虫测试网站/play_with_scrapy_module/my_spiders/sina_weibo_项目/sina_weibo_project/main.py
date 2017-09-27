@@ -9,4 +9,4 @@
 
 from scrapy import cmdline
 
-cmdline.execute("scrapy crawl sina_species_spider".split())
+cmdline.execute("scrapy crawl sina_species_spider_new".split())

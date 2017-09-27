@@ -54,7 +54,7 @@ ROBOTSTXT_OBEY = False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'sina_weibo_project.middlewares.MyCustomDownloaderMiddleware': None,
-    'sina_weibo_project.middlewares.CustomMiddlewares': 100,
+    # 'sina_weibo_project.middlewares.CustomMiddlewares': 100,
     'sina_weibo_project.middlewares.SinaUserAgentMiddleware': 80,
 }
 

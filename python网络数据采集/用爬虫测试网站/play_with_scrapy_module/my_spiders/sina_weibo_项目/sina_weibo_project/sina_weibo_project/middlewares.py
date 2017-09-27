@@ -11,7 +11,7 @@ from scrapy.http import HtmlResponse, Response
 import scrapy
 
 from .downloader import CustomDownloader
-from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
+# from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
 import random
 
 class CustomMiddlewares(object):
@@ -28,7 +28,7 @@ class CustomMiddlewares(object):
             return response
 
 # User-Agent 下载中间件
-class SinaUserAgentMiddleware(UserAgentMiddleware):
+class SinaUserAgentMiddleware(object):      # UserAgentMiddleware
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
