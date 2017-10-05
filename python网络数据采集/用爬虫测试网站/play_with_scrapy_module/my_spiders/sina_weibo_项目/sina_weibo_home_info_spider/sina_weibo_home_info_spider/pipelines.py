@@ -26,17 +26,17 @@ class HomeInfoPipeline(object):
 
     def process_item(self, item, spider):
         if item is None:
-            print('=' * 12 + '| 传入的Item为空! |')
+            print('-' * 60 + '| 传入的Item为空! |')
             pass
         else:
             nick_name = item['nick_name']
             result = self.select_level_is_zero(nick_name)
 
             if result:
-                print('=' * 12 + '| 准备存入mysql中 ...... |')
+                print('-' * 60 + '| 准备存入mysql中 ...... |')
                 self.insert_into_table(item)
             else:
-                print('=' * 12 + '| 该微博号的信息已经存在, 插入失败！|')
+                print('-' * 60 + '| 该微博号的信息已经存在, 插入失败！|')
                 pass
 
     def insert_into_table(self, item):
@@ -61,13 +61,13 @@ class HomeInfoPipeline(object):
             print(count)
             cs.close()
             if count:
-                print('============| ***该博主主页信息成功存入mysql中*** |')
+                print('-' * 60 + '| ***该博主主页信息成功存入mysql中*** |')
             else:
-                print('=' * 12 + '| 修改信息失败, 未能将主页信息存入到mysql中 ! |')
+                print('-' * 60 + '| 修改信息失败, 未能将主页信息存入到mysql中 ! |')
         except Exception as e:
             cs.close()
-            print('=' * 12 + '| 修改信息失败, 未能将主页信息存入到mysql中 |')
-            print('============| 错误如下: ', e)
+            print('-' * 60 + '| 修改信息失败, 未能将主页信息存入到mysql中 |')
+            print('--------------------| 错误如下: ', e)
             pass
 
     def select_level_is_zero(self, nick_name):
@@ -86,6 +86,6 @@ class HomeInfoPipeline(object):
             else:
                 return True
         except Exception as e:
-            print('============| 筛选level时报错：', e)
+            print('--------------------| 筛选level时报错：', e)
             cs.close()
             return False

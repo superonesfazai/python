@@ -9,4 +9,7 @@
 
 from scrapy import cmdline
 
-cmdline.execute("scrapy crawl user_home_info_spider".split())
+# cmdline.execute("scrapy crawl user_home_info_spider".split())
+
+cmdline.execute("scrapy crawl user_home_info_spider --nolog".split())
+

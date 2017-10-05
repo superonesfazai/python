@@ -32,7 +32,6 @@ class UserHomeInfoSpiderSpider(scrapy.Spider):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'd.weibo.com',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
         }
 
         self.cookie = self.stringToDict(COOKIES)
@@ -70,6 +69,11 @@ class UserHomeInfoSpiderSpider(scrapy.Spider):
                 care_number = 0
                 fans_number = 0
                 weibo_number = 0
+
+                home_info['care_number'] = care_number
+                home_info['fans_number'] = fans_number
+                home_info['weibo_number'] = weibo_number
+
             else:
                 care_number = int(tmp[0])
                 fans_number = int(tmp[1])
@@ -77,7 +81,7 @@ class UserHomeInfoSpiderSpider(scrapy.Spider):
 
             tmp_2 = response.css('div.PCD_person_info').extract_first()
             if tmp_2 == []:
-                self.log('=' * 12 + '| 该微博号的未提供认证等级相关信息, 爬虫进入短暂睡眠, 即将继续爬取...... |')
+                self.log('=' * 12 + '| 该微博号的未提供 认证等级 相关信息, 爬虫进入短暂睡眠, 即将继续爬取...... |')
 
                 home_info['nick_name'] = self.user_name_and_url[self.index][0]
                 home_info['verify_type'] = '该微博未提供相关信息'
@@ -107,8 +111,22 @@ class UserHomeInfoSpiderSpider(scrapy.Spider):
                         verify_type = '企业蓝V认证'
 
                 # 微博等级
-                level_before = response.css('div.PCD_person_info a.W_icon_level span::text').extract_first()
-                sina_level = int(re.compile(r'Lv.(\d+)').findall(level_before)[0])
+                try:
+                    level_before = response.css('div.PCD_person_info a.W_icon_level span::text').extract_first()
+                    sina_level = int(re.compile(r'Lv.(\d+)').findall(str(level_before))[0])
+                except Exception as e:
+                    print('-------错误如下：', e)
+                    print('-' * 12 + '| 跳过此微博号, 继续下一个爬取..... |')
+
+                    self.index += 1
+
+                    url = self.user_name_and_url[self.index][1]
+
+                    self.log('\n')
+                    self.log('=' * 12 + '| 即将开始爬取的微博主页的url为 %s |' % (url,))
+
+                    yield scrapy.Request(url, headers=self.header, cookies=self.cookie, callback=self.parse)
+
 
                 # 微博认证文字信息
                 verify_desc = response.css('div.verify_area p.info span::text').extract_first()
@@ -156,7 +174,8 @@ class UserHomeInfoSpiderSpider(scrapy.Spider):
         try:
             cs = self.conn.cursor()
 
-            sql = 'select nick_name, nick_name_url from bozhu_user where weibo_number = 0 and nick_name != \"AC建筑创作\" and nick_name != \"iWeekly周末画报\";'
+            sql = 'select nick_name, nick_name_url from bozhu_user where weibo_number = 0 and nick_name != \"AC建筑创作\" and nick_name != \"iWeekly周末画报\" and nick_name != \"三明中院\" and nick_name != \"中国反邪教\" and nick_name != \"交大有思\" and nick_name != \"今晚80后脱口秀\" and nick_name != \"兰州大学\" and nick_name != \"凤凰周刊\" and nick_name != \"壹读\" and nick_name != \"天气通\" and nick_name != \"太原师范学院微博协会\" and nick_name != \"央广网\" and nick_name != \"山西财经大学微博协会\" and nick_name != \"微博时评\";'
+            # sql = 'select nick_name, nick_name_url from bozhu_user where weibo_number = 0;'
             # 更新所有信息
             # sql = 'select nick_name, nick_name_url from bozhu_user where nick_name != \"AC建筑创作\";'
             cs.execute(sql)

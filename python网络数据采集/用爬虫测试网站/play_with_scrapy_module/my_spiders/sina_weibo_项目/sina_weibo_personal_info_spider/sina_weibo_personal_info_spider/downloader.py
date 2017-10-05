@@ -8,13 +8,8 @@
 '''
 
 import time
-from scrapy.exceptions import IgnoreRequest
-from scrapy.http import HtmlResponse, Response, XmlRpcRequest, Request
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
-from pprint import pprint
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from .settings import COOKIES
 
 

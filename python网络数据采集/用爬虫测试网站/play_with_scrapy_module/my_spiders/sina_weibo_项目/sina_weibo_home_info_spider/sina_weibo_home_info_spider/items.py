@@ -22,3 +22,5 @@ class HomeInfoItem(scrapy.Item):
     sina_level = scrapy.Field()
     verify_desc = scrapy.Field()
     personal_deal_info_url = scrapy.Field()
+
+

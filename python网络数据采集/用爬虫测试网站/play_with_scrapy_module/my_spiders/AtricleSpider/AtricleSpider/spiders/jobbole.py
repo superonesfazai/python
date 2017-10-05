@@ -6,8 +6,8 @@ from scrapy.http import Request
 #from urllib import parse  #python3
 import urlparse  #python2
 
-from AtricleSpider.items import JobBoleArticleItem
-from AtricleSpider.utils.common import get_md5
+from ..items import JobBoleArticleItem
+from ..utils.common import get_md5
 
 class JobboleSpider(scrapy.Spider):
     name = 'jobbole'

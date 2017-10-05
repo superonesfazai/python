@@ -6,6 +6,7 @@ from ..items import BoZhuUserItem
 from scrapy.selector import Selector
 import time
 from random import randint
+from ..settings import COOKIES
 
 class SinaSpeciesSpiderNewSpider(scrapy.Spider):
     name = 'sina_species_spider_new'
@@ -23,7 +24,7 @@ class SinaSpeciesSpiderNewSpider(scrapy.Spider):
             'Connection': 'keep-alive',
             'Host': 'd.weibo.com',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
-            'cookie': 'SINAGLOBAL=1920862274319.4636.1502628639473; httpsupgrade_ab=SSL; __utma=15428400.1070391683.1506563351.1506563351.1506563351.1; __utmz=15428400.1506563351.1.1.utmcsr=verified.weibo.com|utmccn=(referral)|utmcmd=referral|utmcct=/verify; TC-Ugrow-G0=968b70b7bcdc28ac97c8130dd353b55e; TC-V5-G0=52dad2141fc02c292fc30606953e43ef; TC-Page-G0=e2379342ceb6c9c8726a496a5565689e; _s_tentry=login.sina.com.cn; Apache=9131340312967.717.1506609903037; ULV=1506609903208:8:5:2:9131340312967.717.1506609903037:1506498709703; YF-Page-G0=ab26db581320127b3a3450a0429cde69; YF-V5-G0=694581d81c495bd4b6d62b3ba4f9f1c8; login_sid_t=9b45845aa1847e9045ed0dab201cdca2; cross_origin_proto=SSL; WBStorage=9fa115468b6c43a6|undefined; UOR=developer.51cto.com,widget.weibo.com,login.sina.com.cn; SSOLoginState=1506674650; SCF=AluwsnVuuVb8f4iOGi5k7zRy-IBKAxmfDFs-_RbHERcHEOOhEj6-APWydXz03IBKyK-HBIiQ4RwY7O4Udv_ZZSo.; SUB=_2A250yneKDeRhGeNM41sX8ybLzjmIHXVXvu5CrDV8PUNbmtAKLVfWkW8tBcGBwIOOdOrHd25ayHS5IiZK1g..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFLov-n86vP3ShBTANACnLe5JpX5K2hUgL.Fo-E1h.ce0nNSK-2dJLoI7_0UPWLMLvJqPDyIBtt; SUHB=03oFyrPxCsfWs7; ALF=1538210649; un=15661611306; wvr=6; wb_cusLike_5289638755=N'
+            'cookie': COOKIES
         }
 
         self.species = {
@@ -54,11 +55,38 @@ class SinaSpeciesSpiderNewSpider(scrapy.Spider):
         self.pagebar = [0, 1, 2, 3, 4, '']
 
         self.page_range = {
-            1: range(0, 45),
-            2: range(45, 90),
-            3: range(90, 135),
-            4: range(135, 180),
-            5: range(180, 225),
+            1: range(0, 31),
+            2: range(31, 61),
+            3: range(61, 91),
+            4: range(91, 121),
+            5: range(121, 151),
+            6: range(151, 181),
+            7: range(181, 211),
+            8: range(211, 241),
+            9: range(241, 271),
+            10: range(271, 301),
+            # 11: range(301, 331),
+            # 12: range(331, 361),
+            # 13: range(361, 391),
+            # 14: range(391, 421),
+            # 15: range(421, 451),
+            # 16: range(451, 481),
+            # 17: range(481, 511),
+            # 18: range(511, 541),
+            # 19: range(541, 571),
+            # 20: range(571, 601),
+            # 21: range(601, 631),
+            # 22: range(631, 661),
+            # 23: range(661, 691),
+            # 24: range(691, 721),
+            # 25: range(721, 751),
+            # 26: range(751, 781),
+            # 27: range(781, 811),
+            # 28: range(811, 841),
+            # 29: range(871, 901),
+            # 30: range(901, 931),
+            # 31: range(961, 991),
+            # 32: range(991, 1021),
         }
 
     def parse(self, response):
@@ -72,7 +100,7 @@ class SinaSpeciesSpiderNewSpider(scrapy.Spider):
 
             else:
                 time.sleep(10)
-                tmp_number = randint(1, 5)      # 随机一个数，来获取随机爬取范围
+                tmp_number = randint(1, 8)      # 随机一个数，来获取随机爬取范围
                 for i in range(0, 19):    # 控制每个分类的循环
                     bozhu = BoZhuUserItem()
 

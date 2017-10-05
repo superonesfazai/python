@@ -15,11 +15,11 @@ class BoZhuUserPipeline(object):
     def __init__(self):
         super(BoZhuUserPipeline, self).__init__()
         self.conn = connect(
-            host='localhost',
-            port=3306,
-            db='python',
-            user='root',
-            passwd='lrf654321',
+            host='localhost',       # 主机地址
+            port=3306,              # 端口
+            db='python',            # 数据库
+            user='root',            # 用户
+            passwd='lrf654321',     # 密码
             # charset='utf-8',
         )
 
@@ -32,7 +32,7 @@ class BoZhuUserPipeline(object):
             result = self.select_nick_name_is_saved(nick_name)
 
             if result:
-                print('============| 该nick_name已经存在于mysql中, 存入数据失败! |')
+                print('============| 该nick_name已经存在于mysql中, 存入数据失败!(select 时查到同一nick_name存在) |')
                 pass
             else:
                 print('============| 准备存入mysql........ |')
@@ -53,7 +53,7 @@ class BoZhuUserPipeline(object):
             if count is not None:
                 print('============| ***该博主号成功存入mysql中*** |')
             else:
-                print('微信公众号已经存在于mysql中，插入失败!!')
+                print('微信公众号已经存在于mysql中，插入失败!!(insert 时发现重复插入)')
         except Exception as e:
             cs1.close()
             print('========插入mysql时错误为', e)
