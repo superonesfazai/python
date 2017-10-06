@@ -16,6 +16,7 @@ from pprint import pprint
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from .settings import COOKIES
+from .settings import EXECUTABLE_PATH
 
 class CustomDownloader(object):
     cookies = COOKIES
@@ -30,7 +31,8 @@ class CustomDownloader(object):
         cap['phantomjs.page.settings.disk-cache'] = True
         cap['phantomjs.page.customHeaders.Cookie'] = self.cookies
         print('============| phantomjs即将执行 |')
-        self.driver = webdriver.PhantomJS(executable_path='/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs', desired_capabilities=cap)
+        tmp_execute_path = EXECUTABLE_PATH
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
         print('============| phantomjs执行成功 |')
         self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
         wait = ui.WebDriverWait(self.driver, 10)   # 显示等待n秒, 每过0.5检查一次页面是否加载完毕

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>首页</title>
+</head>
+<body>
+    <h1>图书列表</h1>
+    <ul>
+        {#遍历图书列表#}
+        {%for book in booklist%}
+        <li>
+         {#输出图书名称，并设置超链接，链接地址是一个数字#}
+          <a href="{{book.id}}">{{book.btitle}}</a>
+        </li>
+        {%endfor%}
+    </ul>
+</body>
+</html>

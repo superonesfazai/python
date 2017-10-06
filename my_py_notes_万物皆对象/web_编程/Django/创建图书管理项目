@@ -1,0 +1,60 @@
+## 创建图书管理项目
+
+#### 创建项目
+- 创建项目的命令如下
+```html
+django-admin startproject 项目名称
+例：
+django-admin startproject test1
+```
+#### 项目默认目录说明
+- 目录结构如下图：
+![](./images/p3_2.png)
+
+- manage.py是项目运行的入口，指定配置文件路径
+- 与项目同名的目录，此处为test1，包含项目的配置文件
+- init.py是一个空文件，作用是这个目录test1可以被当作包使用
+- settings.py是项目的整体配置文件
+- urls.py是项目的URL配置文件
+- wsgi.py是项目与WSGI兼容的Web服务器入口，详细内容会在part6的布署中讲到
+
+#### 创建应用
+- 使用一个应用开发一个业务模块，此处创建应用名称为booktest，完成图书英雄的信息维护
+- 创建应用的命令如下
+```html
+python manage.py startapp booktest
+```
+![](./images/p3_3.png)
+- init.py是一个空文件，表示当前目录booktest可以当作一个python包使用
+- tests.py文件用于开发测试用例，在实际开发中会有专门的测试人员，这个事情不需要我们来做
+- 其它文件和目录会在稍后的开发中使用到，会逐个讲解
+
+#### 安装应用
+- 应用创建成功后，需要安装才可以使用
+- 在test1/settings.py中INSTALLED_APPS下添加应用的名称就可以完成安装
+- 初始项目的INSTALLED_APPS如下图：
+![](./images/p3_4.png)
+- 在元组中添加一个新的项，当前示例为booktest
+```html
+'booktest',
+```
+
+#### 开发服务器
+- 在开发阶段，为了能够快速预览到开发的效果，django提供了一个纯python编写的轻量级web服务器，仅在开发阶段使用
+- 运行服务器命令如下：
+```html
+python manage.py runserver ip:端口
+例：
+python manage.py runserver
+```
+- 可以不写ip
+- 默认端口为8000
+- 服务器成功启动后如下图
+![](./images/p3_6.png)
+- 在浏览器中输入网址“127.0.0.1:8000”，或者按着ctrl键点击上图中标示出来的地址，可以查看当前站点开发效果
+- 如果增加、修改、删除文件，服务器会自动重启
+- 按ctrl+c停止服务器
+![](./images/p3_7.png)
+
+
+

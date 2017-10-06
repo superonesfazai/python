@@ -1,0 +1,56 @@
+## 视图
+- 后台管理页面做好了，接下来就要做公共访问的页面了
+- 对于django的设计框架MVT，用户在URL中请求的是视图，视图接收请求后进行处理，并将处理的结果返回给请求者
+- 使用视图时需要进行两步操作
+    - 1.定义视图
+    - 2.配置URLconf
+
+### 1.定义视图
+- 视图就是一个Python函数，被定义在views.py中
+- 视图的第一个参数是HttpRequest类型的对象reqeust，包含了所有请求的信息
+- 视图必须返回HttpResponse对象，包含返回给请求者的响应信息
+- 打开booktest/views.py文件，定义视图index如下
+```python
+#coding:utf-8
+from django.http import HttpResponse
+
+def index(request):
+    return HttpResponse("index")
+```
+### 2.配置URLconf
+- 查找视图的过程：请求者在浏览器地址栏中输入url，请求到网站后，获取url信息，然后与编写好的URLconf逐条匹配，如果匹配成功则调用对应的视图，如果所有的URLconf都没有匹配成功，则返回404错误
+- 一条URLconf包括url规则、视图两部分
+    - url规则使用正则表达式定义
+    - 视图就是在views.py中定义的视图
+- 需要两步完成URLconf配置
+    - 1.在应用中定义URLconf
+    - 2.包含到项目的URLconf中
+- 1.在booktest/应用下创建urls.py文件，定义代码如下
+```python
+from django.conf.urls import url
+from . import views
+urlpatterns = [
+    url(r'^$', views.index),
+]
+```
+- 2.包含到项目中：打开test1/urls.py文件，为urlpatterns列表增加项如下
+```python
+url(r'^', include('booktest.urls')),
+```
+- test1/urls.py文件完整代码如下
+```python
+from django.conf.urls import include, url
+from django.contrib import admin
+
+urlpatterns = [
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^', include('booktest.urls')),
+]
+```
+### 请求访问
+- 视图和URLconf都定义好了，接下来在浏览器地址栏中输入网址
+```
+http://127.0.0.1:8000/
+```
+- 网页显示效果如下图，视图被成功执行了
+![](./images/p6_1.png)

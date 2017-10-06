@@ -25,12 +25,11 @@
 还有一个注意每个热门分类里面微博号重复率很高，值筛选出不重复的插入~~
 
 """
-
 from scrapy import cmdline
 
-cmdline.execute("scrapy crawl sina_species_spider_new".split())
+# cmdline.execute("scrapy crawl sina_species_spider_new".split())
 
-# cmdline.execute("scrapy crawl user_home_info_spider".split())
+cmdline.execute("scrapy crawl sina_species_spider_new --nolog".split())
 
 
 '''

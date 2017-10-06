@@ -1,0 +1,69 @@
+## 模型实例方法
+- str：在将对象转换成字符串时会被调用
+- save()：将模型对象保存到数据表中
+- delete()：将模型对象从数据表中删除
+
+### 模型类的属性
+- 属性objects：管理器，是Manager类型的对象，用于与数据库进行交互
+- 当没有为模型类定义管理器时，Django会为模型类生成一个名为objects的管理器，自定义管理器后，Django不再生成默认管理器objects
+- 为模型类BookInfo定义管理器books语法如下
+```python
+class BookInfo(models.Model):
+    ...
+    books = models.Manager()
+```
+
+### 管理器Manager
+- 管理器是Django的模型进行数据库操作的接口，Django应用的每个模型都拥有至少一个管理器
+- Django支持自定义管理器类，继承自models.Manager
+- 自定义管理器类主要用于两种情况
+    - 1.修改原始查询集，重写get_queryset()方法
+    - 2.向管理器类中添加额外的方法，如创建对象
+- 1.修改原始查询集，重写get_queryset()方法
+- 打开booktest/models.py文件，定义类BookInfoManager
+```python
+#图书管理器
+class BookInfoManager(models.Manager):
+    def get_queryset(self):
+        #默认查询未删除的图书信息
+        #调用父类的成员语法为：super(子类型, self).成员
+        return super(BookInfoManager, self).get_queryset().filter(isDelete=False)
+```
+- 在模型类BookInfo中定义管理器
+```python
+class BookInfo(models.Model):
+    ...
+    books = BookInfoManager()
+```
+![](./images/p3_1.png)
+- 2.在管理器类中定义创建对象的方法
+- 当创建模型类对象时，django不会对数据库进行读写操作，调用save()方法才与数据库交互，进行insert或update操作，将数据保存到数据库中
+- 如果模型类的属性比较多，逐个属性赋值很麻烦，推荐使用管理器方式
+- 打开booktest/models.py文件，定义方法create
+```python
+class BookInfoManager(models.Manager):
+    ...
+    #创建模型类，接收参数为属性赋值
+    def create(self, title, pub_date):
+        #创建模型类对象self.model可以获得模型类
+        book = self.model()
+        book.btitle = title
+        book.bpub_date = pub_date
+        book.bread=0
+        book.bcommet=0
+        book.isDelete = False
+        return book
+```
+- 为模型类BookInfo定义管理器books语法如下
+```python
+class BookInfo(models.Model):
+    ...
+    books = BookInfoManager()
+```
+![](./images/2_p3_2.png)
+- 调用语法如下：
+```python
+调用：book=BookInfo.books.create("abc",date(1980,1,1))
+保存：book.save()
+```
+

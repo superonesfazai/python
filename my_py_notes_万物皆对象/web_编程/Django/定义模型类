@@ -1,0 +1,162 @@
+## 定义模型类
+- 模型类被定义在“应用/models.py”文件中，此例中为“booktest/models.py”文件
+- 模型类必须继承自Model类，位于包django.db.models中
+- 提示：对于重要数据使用逻辑删除
+
+### 定义属性
+- Django根据属性的类型确定以下信息：
+    - 当前选择的数据库支持字段的类型
+    - 渲染管理表单时使用的默认html控件
+    - 在管理站点最低限度的验证
+- django会为表创建自动增长的主键列，每个模型只能有一个主键列，如果使用选项设置某属性为主键列后django不会再创建自动增长的主键列
+- 默认创建的主键列属性为id，可以使用pk代替，pk全拼为primary key
+- 属性命名限制
+    - 不能是python的保留关键字
+    - 不允许使用连续的下划线，这是由django的查询方式决定的，在第4节会详细讲解查询
+- 定义属性时需要指定字段类型，通过字段类型的参数指定选项，语法如下：
+```
+属性=models.字段类型(选项)
+```
+- 接下来讲解有哪些字段类型及选项
+
+### 字段类型
+- 使用时需要引入django.db.models包，字段类型如下
+- AutoField：自动增长的IntegerField，通常不用指定，不指定时Django会自动创建属性名为id的自动增长属性
+- BooleanField：布尔字段，值为True或False
+- NullBooleanField：支持Null、True、False三种值
+- CharField(max_length=字符长度)：字符串
+    - 参数max_length表示最大字符个数
+- TextField：大文本字段，一般超过4000个字符时使用
+- IntegerField：整数
+- DecimalField(max_digits=None, decimal_places=None)：十进制浮点数
+    - 参数max_digits表示总位数
+    - 参数decimal_places表示小数位数
+- FloatField：浮点数
+- DateField[auto_now=False, auto_now_add=False])：日期
+    - 参数auto_now表示每次保存对象时，自动设置该字段为当前时间，用于"最后一次修改"的时间戳，它总是使用当前日期，默认为false
+    - 参数auto_now_add表示当对象第一次被创建时自动设置当前时间，用于创建的时间戳，它总是使用当前日期，默认为false
+    - 参数auto_now_add和auto_now是相互排斥的，组合将会发生错误
+- TimeField：时间，参数同DateField
+- DateTimeField：日期时间，参数同DateField
+- FileField：上传文件字段
+- ImageField：继承于FileField，对上传的内容进行校验，确保是有效的图片
+
+### 选项
+- 通过选项实现对字段的约束，选项如下：
+- null：如果为True，表示允许为空，默认值是False
+- blank：如果为True，则该字段允许为空白，默认值是False
+- 对比：null是数据库范畴的概念，blank是表单验证证范畴的
+- db_column：字段的名称，如果未指定，则使用属性的名称
+- db_index：若值为True, 则在表中会为此字段创建索引，默认值是False
+- default：默认值
+- primary_key：若为True，则该字段会成为模型的主键字段，默认值是False，一般作为AutoField的选项使用
+- unique：如果为True, 这个字段在表中必须有唯一值，默认值是False
+
+### 关系字段类型
+- 关系型数据库的关系包括三种类型：
+    - ForeignKey：一对多，将字段定义在多的一端中
+    - ManyToManyField：多对多，将字段定义在两端中
+    - OneToOneField：一对一，将字段定义在任意一端中
+- 可以维护递归的关联关系，使用'self'指定，详见“自关联”
+- 由一到多的访问语法：
+```
+对象.模型类小写_set
+例：
+bookinfo.heroinfo_set
+```
+- 由一到一的访问语法
+```
+对象.模型类小写
+例：
+heroinfo.bookinfo
+```
+- 访问关联对象的id语法
+```
+对象.属性_id
+例：
+heroinfo.book_id
+```
+
+### 元选项
+- 数据表的默认名称为
+```
+<app_name>_<model_name>
+例：
+booktest_bookinfo
+```
+- 在模型类中定义类Meta，用于设置元信息，如使用db_table自定义表的名字
+
+### 示例演示
+- 接下来以“图书-英雄”管理为例进行演示，今天主要讲解模型操作部分
+#### 1.打开booktest/models.py文件，定义模型类如下
+```python
+#coding=utf-8
+from django.db import models
+
+#定义图书模型类BookInfo
+class BookInfo(models.Model):
+    btitle = models.CharField(max_length=20)#图书名称
+    bpub_date = models.DateField()#发布日期
+    bread = models.IntegerField(default=0)#阅读量
+    bcommet = models.IntegerField(default=0)#评论量
+    isDelete = models.BooleanField(default=False)#逻辑删除
+    class Meta:#元信息类
+        db_table='bookinfo'#指定表的名称
+
+#定义英雄模型类HeroInfo
+class HeroInfo(models.Model):
+    hname = models.CharField(max_length=20)#英雄姓名
+    hgender = models.BooleanField(default=True)#英雄性别
+    isDelete = models.BooleanField(default=False)#逻辑删除
+    hcontent = models.CharField(max_length=100)#英雄描述信息
+    hbook = models.ForeignKey('BookInfo')#英雄与图书表的关系为一对多，所以属性定义在英雄模型中
+```
+#### 2.迁移
+- 生成迁移
+```
+python manage.py makemigrations
+```
+- 执行迁移
+```
+python manage.py migrate
+```
+![](./images/p2_1.png)
+- 打开数据库的命令行，查看当前所有表如下图
+![](./images/p2_2.png)
+- 表bookinfo结构如下
+- 默认值并不在数据库层面生效，而是在django创建对象时生效
+![](./images/p2_3.png)
+- 表booktest_heroinfo结构如下
+- 根据关系属性生成一个关系字段，并创建外键约束
+![](./images/p2_4.png)
+
+#### 3.测试数据
+- 在数据库命令行中，复制如下语句执行
+```sql
+insert into bookinfo(btitle,bpub_date,bread,bcommet,isDelete) values
+('射雕英雄传','1980-5-1',12,34,0),
+('天龙八部','1986-7-24',36,40,0),
+('笑傲江湖','1995-12-24',20,80,0),
+('雪山飞狐','1987-11-11',58,24,0);
+```
+- 再复制如下语句执行
+```sql
+insert into booktest_heroinfo(hname,hgender,hbook_id,hcontent,isDelete) values
+('郭靖',1,1,'降龙十八掌',0),
+('黄蓉',0,1,'打狗棍法',0),
+('黄药师',1,1,'弹指神通',0),
+('欧阳锋',1,1,'蛤蟆功',0),
+('梅超风',0,1,'九阴白骨爪',0),
+('乔峰',1,2,'降龙十八掌',0),
+('段誉',1,2,'六脉神剑',0),
+('虚竹',1,2,'天山六阳掌',0),
+('王语嫣',0,2,'神仙姐姐',0),
+('令狐冲',1,3,'独孤九剑',0),
+('任盈盈',0,3,'弹琴',0),
+('岳不群',1,3,'华山剑法',0),
+('东方不败',0,3,'葵花宝典',0),
+('胡斐',1,4,'胡家刀法',0),
+('苗若兰',0,4,'黄衣',0),
+('程灵素',0,4,'医术',0),
+('袁紫衣',0,4,'六合拳',0);
+```

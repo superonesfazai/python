@@ -66,7 +66,7 @@ class ITjuziSpider(RedisCrawlSpider):
             # 标签：//div[@class="tagset dbi c-gray-aset"]/a
             tags = cpy1.find(class_='tagset dbi c-gray-aset').get_text().strip().strip().replace('\n', ',')
 
-        #基本信息：//div[@class="block-inc-info on-edit-hide"]
+        # 基本信息：//div[@class="block-inc-info on-edit-hide"]
         cpy2 = soup.find('div', class_='block-inc-info on-edit-hide')
         if cpy2:
 

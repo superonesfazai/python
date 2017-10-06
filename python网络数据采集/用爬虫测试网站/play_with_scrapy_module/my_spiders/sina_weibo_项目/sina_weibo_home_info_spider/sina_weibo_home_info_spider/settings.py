@@ -94,3 +94,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 COOKIES = 'SINAGLOBAL=1920862274319.4636.1502628639473; __utma=15428400.1070391683.1506563351.1506563351.1506563351.1; __utmz=15428400.1506563351.1.1.utmcsr=verified.weibo.com|utmccn=(referral)|utmcmd=referral|utmcct=/verify; YF-Ugrow-G0=ea90f703b7694b74b62d38420b5273df; YF-V5-G0=3d0866500b190395de868745b0875841; _s_tentry=login.sina.com.cn; Apache=5535716871036.658.1506825662817; ULV=1506825662957:9:1:1:5535716871036.658.1506825662817:1506609903208; YF-Page-G0=b35da6f93109faa87e8c89e98abf1260; TC-V5-G0=ac3bb62966dad84dafa780689a4f7fc3; TC-Page-G0=4c4b51307dd4a2e262171871fe64f295; TC-Ugrow-G0=5e22903358df63c5e3fd2c757419b456; login_sid_t=7512e659ecf2f4cf12080ce37d716b1d; WBtopGlobal_register_version=1844f177002b1566; wb_cusLike_6164884717=N; UOR=developer.51cto.com,widget.weibo.com,login.sina.com.cn; cross_origin_proto=SSL; SSOLoginState=1506927626; SCF=AluwsnVuuVb8f4iOGi5k7zRy-IBKAxmfDFs-_RbHERcHVNDXUCWSXb7k4dX9w_aTiXMYBXSFauMzPysMtlwBk4E.; SUB=_2A2501ZRaDeThGeBP7lsV-SrNyjqIHXVXooKSrDV8PUNbmtAKLUvskW82s2VbEHfX7yToHv0npXd1vkW8mw..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFUyRNpvowEcWG5r5qzeMoo5JpX5K2hUgL.FoqpSK.X1KBpeKq2dJLoIEXLxKqLBoqLBKBLxKnL12BLBK2LxK-LB.eL1h5LxK-L1h-LBoeLxKMLBK-L1-Bt; SUHB=0jBYVAurGFt8GI; ALF=1538463626; un=jf89170747shu@163.com; wvr=6; wb_cusLike_6159494116=N'
+
+
+# 下面这个是phantomjs的绝对路径(在自己电脑上下载这个phantomjs)，配置成自己的
+EXECUTABLE_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'

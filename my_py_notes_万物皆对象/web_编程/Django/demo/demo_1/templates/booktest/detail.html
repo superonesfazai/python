@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>详细页</title>
+</head>
+<body>
+    {#输出图书标题#}
+    <h1>{{book.btitle}}</h1>
+    <ul>
+        {#通过关系找到本图书的所有英雄，并遍历#}
+        {%for hero in book.heroinfo_set.all%}
+        {#输出英雄的姓名及描述#}
+        <li>{{hero.hname}}---{{hero.hcontent}}</li>
+        {%endfor%}
+    </ul>
+</body>
+</html>
