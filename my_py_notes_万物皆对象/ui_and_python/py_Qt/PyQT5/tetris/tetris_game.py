@@ -466,7 +466,6 @@ class Shape(object):
 
         return result
 
-
 if __name__ == '__main__':
     app = QApplication([])
     tetris = Tetris()

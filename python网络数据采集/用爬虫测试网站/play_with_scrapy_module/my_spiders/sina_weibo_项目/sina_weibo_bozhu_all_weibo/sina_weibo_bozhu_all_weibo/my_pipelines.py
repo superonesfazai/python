@@ -48,11 +48,12 @@ class MySinaWeiboReviewsItemPipeline(object):
                 item['is_reply_comment'],
                 item['like_counts'],
                 item['review_pics'],
+                item['by_review_name'],
             ]
 
             # print(params)
             count = cs.execute(
-                'insert into sina_review(review_id, wb_id, username, comment, review_created_at, is_reply_comment, like_counts, review_pics) values(%s, %s, %s, %s, %s, %s, %s, %s)',
+                'insert into sina_review(review_id, wb_id, username, comment, review_created_at, is_reply_comment, like_counts, review_pics, by_review_name) values(%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 params)
             self.conn.commit()
 

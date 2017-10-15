@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : use_bs4_css选择器.py
-@Time    : 2017/8/30 10:08
 @connect : superonesfazai@gmail.com
 '''
 

@@ -38,3 +38,4 @@ class SinaWeiboReviewsItem(scrapy.Item):
     is_reply_comment = Field()          # 判断是否为博主回复内容, 如果是值为True
     like_counts = Field()               # 评论内容点赞数
     review_pics = Field()               # 评论的图片内容
+    by_review_name = Field()            # 被评论者的微博名

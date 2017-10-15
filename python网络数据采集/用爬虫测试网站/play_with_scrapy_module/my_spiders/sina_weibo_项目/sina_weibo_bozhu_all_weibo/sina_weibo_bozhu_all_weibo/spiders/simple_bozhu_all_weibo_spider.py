@@ -104,7 +104,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
         self.headers = HEADERS
         self.cookie = stringToDict(COOKIES)
         self.personal_deal_info_from_db = self.get_nick_name_and_and_nick_name_url_and_personal_deal_info_url()
-        self.index = 1
+        self.index = 2
         self.month = MONTH
 
         self.proxies = self.get_proxy_ip_from_ip_pool()
@@ -207,6 +207,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
                             Reviews_list['review_created_at'] = item['review_created_at']
                             Reviews_list['is_reply_comment'] = item['is_reply_comment']
                             Reviews_list['like_counts'] = item['like_counts']
+                            Reviews_list['by_review_name'] = item['by_review_name']
 
                             tmp_index = 1
                             for tmp_item in item['review_pics']:
@@ -547,6 +548,12 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
                 else:
                     review_pics = ''
 
+                # 从评论内容中获取被评论者的微博名
+                if re.compile(r'^回复').findall(comment) != []:
+                    by_review_name = re.compile(r'^回复.*?@(.*?)</a>:.*?').findall(comment)[0]
+                else:
+                    by_review_name = ''
+
                 review_data = {
                     'is_reply_comment': is_reply_comment,       # 判断是否为博主回复内容, 如果是则为True
                     'review_id': review_id,                     # 评论内容的id
@@ -556,6 +563,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
                     'username': username,                       # 评论者微博号名
                     'comment': comment,                         # 评论的文字内容
                     'review_pics': review_pics,                 # 评论的图片内容
+                    'by_review_name': by_review_name,           # 被评论者的微博名
                 }
 
                 review_data_list.append(review_data)

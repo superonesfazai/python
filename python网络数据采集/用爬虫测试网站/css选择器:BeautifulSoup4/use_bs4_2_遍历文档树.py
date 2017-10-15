@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : use_bs4_2_遍历文档树.py
-@Time    : 2017/8/30 09:09
 @connect : superonesfazai@gmail.com
 '''
 

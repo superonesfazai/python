@@ -358,3 +358,12 @@ print(review_data_list)
 # pprint(response)
 
 # https://m.weibo.cn/api/comments/show?id=4158326294414867
+
+# 从评论内容中获取被评论者的微博名
+# comment = r"回复<a href='https://m.weibo.cn/n/一闪一闪亮今今丶'>@一闪一闪亮今今丶</a>:今天应该可以的"
+comment = '把上期条纹卫衣的货赶紧先发发掉，都已经20多天了<span class="url-icon"><img src="//h5.sinaimg.cn/m/emoticon/icon/default/d_han-4ce3c6bac3.png" style="width:1em;height:1em;" alt="[汗]"></span>'
+if re.compile(r'^回复').findall(comment) != []:
+    by_review_name = re.compile(r'^回复.*?@(.*?)</a>:.*?').findall(comment)
+else:
+    by_review_name = ''
+print(by_review_name)

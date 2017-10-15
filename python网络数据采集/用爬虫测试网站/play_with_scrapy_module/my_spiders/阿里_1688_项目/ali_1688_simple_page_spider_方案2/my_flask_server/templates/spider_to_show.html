@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>甄优爬虫</title>
+		<link rel="stylesheet" type="text/css" href="./static/css/reset.css"/>
+    <style type="text/css">
+			html,
+			body {
+			  width: 100%;
+			  font-size: .16rem;
+			  color: #333333;
+			}
+			html {
+			  font-size: 100px;
+			}    	
+       header{
+        width:100%;
+        height:.8rem;
+        background: #dfdfdf;
+      }
+      .main{
+      	width: 12rem;
+      	height: 10rem;
+      	margin: 0 auto;
+      }   	
+	.collect-info{
+		width: 100%;
+		height: 2.34rem;
+	}
+	.title{
+		height: .44rem;
+		text-align: center;
+		line-height: .44rem;
+	}
+	.grab{
+		width: 10rem;
+		height: .5rem;
+		margin: 0 auto;
+		display: flex;
+		border: 1px solid #ebebeb;
+	}
+	.grab a{
+		display: block;
+		flex: 1;
+		height: .5rem;
+		text-align: center;
+		line-height: .5rem;
+	}
+	.grab .active{
+		color: black;
+	}
+	.goodsLink{
+		width: 8rem;
+		height: .4rem;
+		margin: .2rem auto;
+	}
+	.goodsLink input{
+		width: 8rem;
+		height: .4rem;	
+		border: 1px solid #ebebeb;
+		border-radius: .08rem;
+		text-indent: 10px;
+	}
+	.collect-btn{
+		width: 8rem;
+		height: .3rem;
+		margin: 0 auto;
+		display: flex;
+	}
+	.collect-btn a{
+		display: block;
+		flex: 1;
+		text-align: center;
+	}
+	.collect-content{
+		width: 100%;
+		height: 5.7rem;
+		
+	}
+	.goodsName{
+		width: 100%;
+		height: .36rem;
+	}
+	.collect-main{
+		width: 100%;
+	}
+	.collect-main-left{
+		width: 4rem;
+		height: 5.26rem;
+		float: left;
+	}
+	.bigGoods{
+		width: 4rem;
+		height: 4rem;
+		margin-bottom: .15rem;
+		background: #efaf85;
+	}
+	.smallGoodsList{
+		width: 4rem;
+		height: .6rem;
+		position: relative;			
+	}
+	.smallGoodsList ul{
+		height: .6rem;
+		overflow-x: hidden;	
+	}
+	.smallGoodsList ul li{
+		width: .6rem;
+		height: .6rem;
+		background: #efaf85;
+		float: left;
+		margin-right: .24rem;
+	}
+	.smallGoodsList ul li:last-child{
+		margin: 0;
+	}
+	.smallGoodsList ul li a{
+		display: block;
+		width: .6rem;
+		height: .6rem;
+		background: #efaf85;
+	}		
+	.btn-left{
+		display: block;
+		width: .24rem;
+		height: .6rem;
+		position: absolute;
+		left: 0;
+		top: 0;
+		background: url(./static/images/btn-l.png)no-repeat center;
+		background-size: 100% auto;
+		background-color: #ffffff;
+	}
+	.btn-right{
+		display: block;
+		width: .24rem;
+		height: .6rem;		
+		position: absolute; 
+		right: 0;
+		top: 0;
+		background: url(./static/images/btn-r.png)no-repeat center;
+		background-size: 100% auto;
+		background-color: #ffffff;			
+	}
+	.seller-info{
+		padding-top: .2rem;
+	}
+	.seller-info input{
+		width: 1.1rem;
+		height: .3rem;
+		border: 1px solid #CCCCCC;
+	}
+	.collect-main-right{
+		float: left;
+		width: 7.48rem;
+		height: 5.26rem;
+		margin-left: .2rem;		
+	}
+	.goods-info{
+		width: 100%;
+		height: 1.5rem;
+		background: #ebcebb;
+		border-top: 2px solid #e72d44;
+	}
+	.price,.number{
+		text-align: center;
+		height: .75rem;
+		line-height: .75rem;
+	}
+	.price ul,.number ul{	
+		display: flex;
+	}
+	.price ul li,.number ul li{
+		color: #e72d44;
+		font-size: .3rem;	
+		flex: 1;	
+	}
+	.price ul li:first-child,.number ul li{
+		color: #333333;
+		font-size: .16rem;
+	}
+	.goodsColor{
+		width: 100%;
+		height: .6rem;
+		border-bottom: 1px solid #CCCCCC;
+	}
+	.goodsColor-left,.goodsSize-left{
+		width: 1rem;
+		text-align: center;
+		line-height: .6rem;
+		float: left;
+	}
+	.goodsColor-right{
+		width: 6.48rem;
+		height: .6rem;
+		float: left;
+	}
+	.goodsColor-right ul li{
+		width: .3rem;
+		height: .3rem;
+		margin: .15rem .3rem;
+		float: left;
+	}
+	.goodsColor-right ul .active{
+		border: 1px solid #e72d44;
+	}
+	.white{
+		background: white;
+	}
+	.gray{
+		background: gray;
+	}
+	.black{
+		background: black;
+	}
+	.goodsSize{
+		width: 7.48rem;
+		height: 1.22rem;
+	}
+	.goodsSize-right{
+		width: 6.48rem;
+		height: 1.22rem;
+		float: left;
+	}
+	.goodsSize-right>ul{
+		width: 6.48rem;
+		height: 1.22rem;		
+	}
+	.goodsSize-right>ul li{
+		width: 6.48rem;
+		height: .4rem;	
+		border-bottom: 1px solid #CCCCCC;	
+	}
+	.goodsSize-right>ul li ul{
+		width: 6.48rem;
+		height: .4rem;		
+			
+	}	
+	.goodsSize-right>ul li ul li{
+		width: 1.4rem;
+		float: left;
+		line-height: .4rem;
+	}		
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <div class="main">
+		<div class="collect-info">
+			<div class="title">阿里巴巴商品采集</div>
+			<div class="grab"><a class="active" href="">单个抓取</a><a href="">批量抓取</a></div>
+			<div class="goodsLink"><input type="" name="" id="" value="" placeholder="商品详情链接"/></div>
+			<div class="collect-btn"><a href="">重置</a><a href="">抓取数据</a></div>
+		</div>
+		<div class="collect-content">
+			<div class="goodsName">5663实拍2017羽绒服女网红店主风面包服短款休闲夹克棉服衣女外套</div>
+			<div class="collect-main">
+				<div class="collect-main-left">
+					 <div class="bigGoods"></div>
+					 <div class="smallGoodsList">
+					 	<ul>
+					 		<li><a href=""></a></li>
+					 		<li><a href=""></a></li>
+					 		<li><a href=""></a></li>
+					 		<li><a href=""></a></li>
+					 		<li><a href=""></a></li>
+					 	</ul>
+					 	<a href="" class="btn-left"></a>
+					 	<a href="" class="btn-right"></a>
+					 </div>
+					 <div class="seller-info">
+					 	商铺名称  <input type="text" name="" id="" value=""/>
+					 	旺旺账号  <input type="text" name="" id="" value=""/>
+					 </div>
+				</div>
+				<div class="collect-main-right">
+					<div class="goods-info">
+						<div class="price">
+							<ul>
+								<li>价格</li>
+								<li>¥   119.00</li>
+								<li>¥   101.15</li>
+								<li>¥   89.25</li>
+							</ul>
+						</div>
+						<div class="number">
+							<ul>
+								<li>起批量</li>
+								<li>3-9 件</li>
+								<li>10-99  件</li>
+								<li>≥ 件</li>
+							</ul>
+						</div>
+					</div>
+					<div class="goodsColor">
+						<div class="goodsColor-left">颜色</div>
+						<div class="goodsColor-right">
+							<ul>
+								<li class="active white"></li>
+								<li class="gray"></li>
+								<li class="black"></li>
+							</ul>							
+						</div>
+
+					</div>
+					<div class="goodsSize">
+						<div class="goodsSize-left">尺寸</div>
+						<div class="goodsSize-right">
+							<ul>
+								<li>
+									<ul>
+										<li>L</li>
+										<li><span>119.00</span>元</li>
+										<li><span id="">2000</span>件可售</li>
+									</ul>
+								</li>
+								<li>
+									<ul>
+										<li>XL</li>
+										<li><span>119.00</span>元</li>
+										<li><span id="">2000</span>件可售</li>
+									</ul>									
+								</li>
+								<li>
+									<ul>
+										<li>2XL</li>
+										<li><span>119.00</span>元</li>
+										<li><span id="">2000</span>件可售</li>
+									</ul>									
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+    
+    <script type="text/javascript">
+		/*REM*/
+		~function(){
+			var desW = 1920,
+				winW = document.documentElement.clientWidth||document.body.clientWidth;
+				
+				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
+		}();    	
+    </script>
+  </body>
+</html>

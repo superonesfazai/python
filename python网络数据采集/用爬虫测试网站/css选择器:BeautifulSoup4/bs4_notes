@@ -10,6 +10,9 @@ Beautiful Soup 3 目前已经停止开发，推荐现在的项目使用Beautiful
 官方文档：http://beautifulsoup.readthedocs.io/zh_CN/v4.4.0
 ```
 ![](./images/tmp.png)
+```
+注意：beautifulsoup还能把不规范的html文件进行规范化
+```
 
 ## 四大对象种类
 Beautiful Soup将复杂HTML文档转换成一个复杂的树形结构,每个节点都是Python对象,所有对象可以归纳为4种:

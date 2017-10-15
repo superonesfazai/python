@@ -1,0 +1,24 @@
+# coding:utf-8
+
+'''
+@author = super_fazai
+@File    : cookies_to_dict.py
+@Time    : 2017/9/24 13:55
+@connect : superonesfazai@gmail.com
+'''
+
+from pprint import pprint
+
+def stringToDict(cookies):
+    itemDict = {}
+    items = cookies.split(';')
+    for item in items:
+        key = item.split('=')[0].replace(' ', '')  # 记得去除空格
+        value = item.split('=')[1]
+        itemDict[key] = value
+    return itemDict
+
+
+# cookies = 'SUV=1505446925567125; SMYUV=1505446925568464; UM_distinctid=15e83a1210450f-0767352fad6394-31637e01-fa000-15e83a12105261; ABTEST=0|1506166032|v1; IPLOC=CN1100; SUID=F28867D3232C940A0000000059C64510; SUID=0270820E1F13940A0000000059C64510; weixinIndexVisited=1; SNUID=82F916A3717529A8EF7CE70471D86921; JSESSIONID=aaauZkEn6Jewl6APb-y6v; sct=13'
+cookies = '_uab_collina=150760550070324942244726; ali_apache_track="c_ms=1|c_mid=b2b-2242024317|c_lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA"; UM_distinctid=15f044a495bcc-0354a6150865ee-31657c00-fa000-15f044a495c9b8; ad_prefer="2017/10/10 12:47:15"; JSESSIONID=8L78u3jv1-k4SYnlvV0LpqpGN70A-PNGddXQ-UarP; ali_ab=113.215.177.167.1507605865937.5; cookie2=1aab948501559f4b3605eed3c3111dc8; t=de28003d0ed0d8fe9267742728fa8a56; _tb_token_=50157dce50c8b; __cn_logon__=true; __cn_logon_id__=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; ali_apache_tracktmp="c_w_signed=Y"; cn_tmp="Z28mC+GqtZ2INLnWg2jSa2e3CGk80yHNd0P50kQ54H1LE3aoyIbBLInC65atnrS47Cm8qnjwqH8NnvM/L/PL3M3ckvhJcfAbNgV3+US7GrtkOzFLC/CSF4++rSxHK6Fo/jTlmfORMg2Q79Fnu8gEiBzs0k3Pd5EhGJ7VfNBsq1RzzEGZp0FlxAYus1RNoFYl9hk9857Faqlf1S93Iva1u/2uC+lMOjQAZ3Vhyytvl+8UWn5mTuqIJxD7nt6cWDYx"; _cn_slid_="eEqvacXW%2FQ"; tbsnid=ME9H9ciGVM0gMy572a3vcZazHoeE%2FfhTv2%2BcQQ0LQNQ6sOlEpJKl9g%3D%3D; LoginUmid="3Gp8iah%2F14EIs4b5sIVUyK3juRK3iiENwd0In5yCmXlHKPcCw7TGng%3D%3D"; userID="0eSDLTAmofsL67RXnSBAFwkwpsuwsEP%2BAU5n2L44pVU6sOlEpJKl9g%3D%3D"; last_mid=b2b-2242024317; __last_loginid__="%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA"; _csrf_token=1507647848773; userIDNum=JG1hTHTu5MzRqUsxcJimIg%3D%3D; _nk_=NhOVmlLYn22Ov9IJnn3S0Tqw6USkkqX2; alicnweb=touch_tb_at%3D1507675371593%7Clastlogonid%3D%25E6%2588%2591%25E6%2598%25AF%25E5%25B7%25A5%25E5%258F%25B79527%25E6%259C%25AC%25E4%25BA%25BA; isg=AuXl0CwS0DkJpTTkYfflrM3f9KezMpn4xdsgSOfKnJwr_gVwr3KphHOe_lRz; cna=K15iEs43VRgCAXyga5ql43kH; CNZZDATA1253659577=786969036-1507603880-%7C1507675639; _tmp_ck_0="1bobU%2FQQBazWq9KhE%2BxkP3OXnus7BfMzR4Qw%2BwZxclCIXwsqXqfflFnBTUFwF4dJfmcrGLfJ7Kc60FklwaLLmxo9yJ3DVNnCE3BokxfGZbc242%2BEkyvV3dx3drM%2F92BxlFhI8RLWLv0mL6H3xmabRsUibRgABUwGIZUmRZZwG2D92UVUUe6iM8nEMfvnSVsRBKVn2rJWs6nPgAz47Iezk1VyQYHjBw44KZjgwPjPDS%2FYbmOKP6Hw%2B5UWQqCBD6w7RYzdwt2TAzl8gSrZu3GN4o2%2FVL7W7G52Qzm3XdI4IdttRdNDyaeUTwapXuzTQJ7HDhqxEItDGXPBz6qaMHcPIpvLN9iVbbya78ThBrH3Kg02wZSHOWNSoEfmwFozvxMzax9g03kA5rsonWI6ctxHHM1eXSzj%2FKSOb3S5BPZl%2FZ6y0PYE0UyufDTbYomf6h%2F9pCikMTYvee5PxkeZ5AQqgoZbcehgOX06Eq%2B8R%2BBM%2BZOt4SHGpvcoG9JEz3%2Fdc4Yd1tRxiKACBK%2FNkgsKAolz5Q4Un0EdBUUh"; _umdata=85957DF9A4B3B3E86E12BBB8FE63C0081D64AE1805F13C65ED7DA1D2A0053FAE32B67FF65DEB420ACD43AD3E795C914C8E827AB9F2B91EED4B24459DE3CB643B'
+pprint(stringToDict(cookies))

@@ -44,6 +44,9 @@ try:
     cs1.execute('select * from students')
     result = cs1.fetchall()
     print(result)
+
+    cs1.execute('select username from ali_spider_employee_table where username = "adminss"')
+    print(cs1.fetchone())
     cs1.close()
     conn.close()
 except Exception as e:

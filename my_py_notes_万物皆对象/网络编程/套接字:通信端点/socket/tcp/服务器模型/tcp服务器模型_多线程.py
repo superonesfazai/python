@@ -1,7 +1,5 @@
 import socket
-
 from threading import Thread
-
 
 # 指明服务器的端口号
 PORT = 9000

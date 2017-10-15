@@ -3,7 +3,7 @@
 '''
 @author = super_fazai
 @File    : weixin_spider.py
-@Time    : 2017/9/23 20:25
+@Time    : 2017/1/23 20:25
 @connect : superonesfazai@gmail.com
 '''
 
@@ -19,6 +19,9 @@ import random
 import time
 from pprint import pprint
 
+'''
+给与该公众号的id
+'''
 # gzlist = ['sogaad']
 gzlist = ['superonesfazai']
 # gzlist = ['henizaiyiqisjz']

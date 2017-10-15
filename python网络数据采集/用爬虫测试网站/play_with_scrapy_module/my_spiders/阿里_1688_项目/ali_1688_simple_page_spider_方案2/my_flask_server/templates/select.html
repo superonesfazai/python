@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>甄优爬虫</title>
+		<link rel="stylesheet" type="text/css" href="./static/css/reset.css"/>
+    <style type="text/css">
+			html,
+			body {
+			  width: 100%;
+			  font-size: .16rem;
+			  color: #333333;
+			}
+			html {
+			  font-size: 100px;
+			}    	
+       header{
+        width:100%;
+        height:.8rem;
+        background: #dfdfdf;
+      }
+      .main{
+      	width: 12rem;
+      	height: 10rem;
+      	margin: 0 auto;
+      	position: relative;
+      	background: url(./static/images/bg.png)no-repeat;
+      	background-size: 100% 100%;
+      }   	
+	.passList{
+		width: 100%;
+		height: 1.0rem;
+		padding-top: 1.96rem;
+		display: flex;
+	}
+	.ali,.taob,.tianm{
+		height: 1.0rem;
+		flex: 1;
+		text-align: center;
+	}
+	.ali span,.taob span,.tianm span{
+		display: block;
+		width: 1.0rem;
+		height: 1.0rem;
+		margin: 0 auto;
+		background: url(./static/images/ali.png)no-repeat;
+		background-size: 100% 100%;
+	}
+	.taob span{
+		background: url(./static/images/taob.png)no-repeat;
+		background-size: 100% 100%;			
+	}
+	.tianm span{
+		background: url(./static/images/tianm.png)no-repeat;
+		background-size: 100% 100%;			
+	}	
+	.login{
+		width: 100%;
+		display: flex;
+		margin-top: .3rem;
+	}
+	.login>div{
+		flex: 1;
+	}
+	.scanLogin{
+		width: 2.5rem;
+		height: 3.0rem;
+		position: relative;
+		background: #FFFFFF;
+		margin: 0 auto;
+	}
+	.scanLogin:before{
+		content: url(./static/images/arrow.png);
+		display: block;
+		position: absolute;
+		top: -.1rem;
+		left: 1.2rem;
+	}
+	.scanLogin-head{
+		width: 100%;
+		height: .5rem;
+		text-align: center;
+		line-height: .5rem;
+		border-bottom: 1px solid #cccccc;
+	}
+	.scanLogin-content{
+		width: 100%;
+		height: 1.9rem;
+		
+	}
+	.title{
+		height: .4rem;
+		text-align: center;
+		line-height: .4rem;
+	}
+	.scanArea{
+		width: 1.5rem;
+		height: 1.5rem;
+		background: #ee7323;
+		margin: 0 auto;
+	}
+	.scanLogin-reg{
+		width: 100%;
+		height: .6rem;
+		text-align: right;
+	}
+	.scanLogin-reg a{
+		display: block;
+		margin: .28rem .2rem 0 0;
+		
+	}
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <div class="main">
+    	<div class="passList">
+    		<div class="ali"><span></span></div>
+    		<div class="taob"><span></span></div>
+    		<div class="tianm"><span></span></div>
+    	</div>
+    	<div class="login">
+    		<div>
+	 	    	<div class="scanLogin">
+		    		<div class="scanLogin-head">二维码登录</div>
+		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
+		    			<div class="scanArea"></div>
+		    		</div>
+		    		<div class="scanLogin-reg"><a href="">免费注册</a></div>
+		    	</div>     			
+    		</div>
+	    	<div></div>
+	    	<div></div>
+    	</div>
+
+    </div>
+    
+    <script type="text/javascript">
+		/*REM*/
+		~function(){
+			var desW = 1920,
+				winW = document.documentElement.clientWidth||document.body.clientWidth;
+				
+				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
+		}();    	
+    </script>
+  </body>
+</html>

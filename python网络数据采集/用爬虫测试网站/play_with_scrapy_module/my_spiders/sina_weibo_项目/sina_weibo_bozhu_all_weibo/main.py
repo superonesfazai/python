@@ -96,6 +96,8 @@ create table sina_review(
 	/*是否为博主回复内容*/
 	is_reply_comment varchar(6),
 	/*评论点赞数*/
-	like_counts int
+	like_counts int,
+	/*被评论者的id*/
+	by_review_name varchar(100)
 );
 '''

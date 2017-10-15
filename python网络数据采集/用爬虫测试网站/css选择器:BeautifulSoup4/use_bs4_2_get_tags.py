@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : use_bs4_2_get_tags.py
-@Time    : 2017/8/29 20:28
 @connect : superonesfazai@gmail.com
 '''
 

@@ -38,7 +38,6 @@ class Example(QWidget):
         self.setWindowTitle('Red Rock')
         self.show()
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Example()
