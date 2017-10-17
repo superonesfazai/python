@@ -37,3 +37,25 @@ d = 'https://cbu01.alicdn.com/img/ibank/2017/655/128/4704821556_608602289.60x60.
 
 d = re.compile(r'\.60x60\.').sub('.400x400.', d)
 print(d)
+
+print('-' * 100)
+
+goodLinks = {
+    'goodLinks': ['aa', 'bbb'],
+}
+
+def get_item_from_goodsLinks(goodLinks):
+    for item in goodLinks.get('goodLinks'):
+        tmp = yield item
+
+        # return tmp
+
+a = get_item_from_goodsLinks(goodLinks)
+
+while True:
+    try:
+         print(a.__next__())
+    except StopIteration as e:
+        # print(e, 'this is StopIteration')
+        # print('')
+        break

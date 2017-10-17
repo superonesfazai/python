@@ -68,3 +68,4 @@ try:
     count.__next__()
 except StopIteration as e:
     print(e, 'this is a StopIteration!')
+

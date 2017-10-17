@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>甄优爬虫</title>
-		<link rel="stylesheet" type="text/css" href="./static/css/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
     <style type="text/css">
 			html,
 			body {
@@ -24,13 +24,13 @@
       	height: 10rem;
       	margin: 0 auto;
       	position: relative;
-      	background: url(./static/images/bg.png)no-repeat;
+      	background: url(../static/images/bg.png)no-repeat;
       	background-size: 100% 100%;
       }   	
       .logo{
       	width: 2.46rem;
       	height: .66rem;
-      	background: url(./static/images/logo.png)no-repeat;
+      	background: url(../static/images/logo.png)no-repeat;
       	background-size: 100% 100%;
       	position: absolute;
       	left: 1.0rem;
@@ -64,7 +64,7 @@
  	.smallLogo{
 		width: 1.24rem;
 		height: .3rem;
-		background:url(./static/images/logo.png)no-repeat;
+		background:url(../static/images/logo.png)no-repeat;
 		background-size: 100% 100%;
 		margin: 0 auto;
  	}
@@ -76,7 +76,7 @@
  	.login-content>div{
  		height: .28rem;
  		line-height: .28rem;
- 		margin-bottom: .2rem;
+ 		margin-bottom: .3rem;
  	}
  	.phone,.setPass,.confirmPass,.command{
  		display: block;
@@ -89,13 +89,22 @@
  	}
  	.login-btn{
  		width: 3.0rem;
- 		height:  .4rem;
+ 		height:  .4rem; 		
+ 		margin: 0 auto;
+ 	}
+ 	.login-btn input{
+ 		width: 3.0rem;
+ 		height:  .4rem; 
  		background: #439aeb;
  		color: #ffffff;
  		text-align: center;
  		line-height: .4rem;
  		border-radius: .05rem;
- 		margin: 0 auto;
+
+ 	}
+ 	.wPhone,.wPass{
+ 		text-align: center;
+ 		color: red;
  	}
     </style>
   </head>
@@ -106,25 +115,62 @@
     	<div class="reg">
 			<div class="login">
 				<div class="login-head"><div class="smallLogo"></div></div>
-				<div class="login-content">
-					<div><input type="" name="" class="phone" id="" value="" placeholder="手机号"/></div>
-					<div><input type="" name="" class="setPass"  id="" value="" placeholder="设置密码" /></div>
-					<div><input type="" name="" class="confirmPass"  id="" value="" placeholder="确认密码" /></div>
-					<div><input type="" name="" class="command"  id="" value="" placeholder="内部员工口令" /></div>
+				<div >
+					<form class="login-content" action="http://127.0.0.1:5000/Reg" method="post">
+						<div><input type="text" name="username" class="phone" id="phone" value="" placeholder="手机号"/><div class="wPhone"></div></div>
+						<div><input type="password" name="passwd" class="setPass"  id="setPass" value="" placeholder="设置密码" /><div class=""></div></div>
+						<div><input type="password" name="" class="confirmPass"  id="confirmPass" value="" placeholder="确认密码" /><div class="wPass"></div></div>
+						<div><input type="text" name="inner_pass" class="command"  id="command" value="" placeholder="内部员工口令" /></div>
+						<div class="login-btn"><input id="regBtn" type="submit" value="注册"/></div>
+					</form>
 				</div>
-				<div class="login-btn">注册</div>
 			</div>
     	</div>
     </div>
-    
+    <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
 		/*REM*/
 		~function(){
 			var desW = 1920,
-				winW = document.documentElement.clientWidth||document.body.clientWidth;
-				
+				winW = document.documentElement.clientWidth||document.body.clientWidth;				
 				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
-		}();    	
+		}(); 
+		
+//判断用户输入信息是否符合
+		var isTrue = false;
+		$('#phone').keyup(function(){
+			var curInput = $('#phone').val(),
+					Reg  = /^((\d3)|(\d{3}\-))?[13|15|18][0-9]\d{8}|15[89]\d{8}$/;
+					if(!Reg.test(curInput)||curInput.length!='11'){
+						$('.wPhone').text('您的输入的手机号码不合格');
+						isTrue = false;
+					}else{
+						$('.wPhone').text('');
+						isTrue = true;
+					}			
+		})
+		$('#confirmPass').keyup(function(){
+			var curInput = $('#confirmPass').val(),
+					curPass = $('#setPass').val();
+					
+					if(curInput != curPass){
+						$('.wPass').text('两次密码必须一致');
+						isTrue = false;
+					}else{
+						$('.wPass').text('')
+						isTrue = true;
+					}			
+		})		
+//判断用户信息是否完成然后提交
+		$('.login-btn').click(function(){
+			if($('#phone').val()==''||$('#setPass').val()== ''||$('#comfirmPass').val()== ''||$('#command').val()==''){
+				console.log('1')
+				return false
+			}else{
+				console.log('2')
+				return
+			}
+		})
     </script>
   </body>
 </html>

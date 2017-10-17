@@ -181,6 +181,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
                         Articles_list['attitudes_count'] = item['attitudes_count']
 
                         yield Articles_list
+                    """
                     print('*' * 40 + '| 即将开始爬取该博主的近半年文章对应的所有评论信息 ... |')
 
                     for item in mblog_list:
@@ -219,6 +220,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
                             tmp_review.process_item(dict(Reviews_list))
                         print('-' * 40 + '| 进入短暂休眠, 即将开始继续爬取 ... |')
                         time.sleep(2)
+                    """
                 self.index += 1
 
     def get_right_containerid(self, uid, containerid):
@@ -587,8 +589,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
 
         # 第四种类型
         # https://weibo.com/2918003193/about
-        is_about_url_personal_deal_info_url = re.compile('https://weibo.com/(.*?)/about').findall(
-            personal_deal_info_url)
+        is_about_url_personal_deal_info_url = re.compile('https://weibo.com/(.*?)/about').findall(str(personal_deal_info_url))
         if is_about_url_personal_deal_info_url != []:
             phone_home_url = 'https://m.weibo.cn/' + is_about_url_personal_deal_info_url[0]
             phone_home_json_url = 'https://m.weibo.cn/api/container/getIndex?type=uid&value=' + \
@@ -620,8 +621,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
         phone_home_json_url = ''
         if is_number_url_nick_name_url != []:
             phone_home_url = 'https://m.weibo.cn/' + is_number_url_nick_name_url[0]
-            is_p_url_personal_deal_info_url = re.compile(r'https://weibo.com/p/(.*?)/info\?mod=pedit_more').findall(
-                personal_deal_info_url)
+            is_p_url_personal_deal_info_url = re.compile(r'https://weibo.com/p/(.*?)/info\?mod=pedit_more').findall(str(personal_deal_info_url))
             if is_p_url_personal_deal_info_url != []:
                 get_uid_url = 'https://m.weibo.cn/api/container/getIndex?containerid=' + \
                               is_p_url_personal_deal_info_url[0]
@@ -639,8 +639,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
 
         # 第三种类型
         # https://weibo.com/p/1005053671188734/info?mod=pedit_more
-        is_p_url_personal_deal_info_url = re.compile(r'https://weibo.com/p/(.*?)/info\?mod=pedit_more').findall(
-            personal_deal_info_url)
+        is_p_url_personal_deal_info_url = re.compile(r'https://weibo.com/p/(.*?)/info\?mod=pedit_more').findall(str(personal_deal_info_url))
         if is_p_url_personal_deal_info_url != []:
             get_uid_url = 'https://m.weibo.cn/api/container/getIndex?containerid=' + is_p_url_personal_deal_info_url[0]
             tmp_json_data = requests.get(get_uid_url, headers=self.headers, proxies=tmp_proxies).json()
@@ -667,7 +666,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
 
             # sql = 'select nick_name, personal_deal_info_url from bozhu_user where bozhu_user.nick_name not in (select nick_name from personal_deal_info) and bozhu_user.nick_name not in (select nick_name from company_deal_info) and bozhu_user.nick_name != \"_可口可心\" and bozhu_user.nick_name != \"-_KEI_-\" and bozhu_user.nick_name != \"0511天蝎\";'
             # 下面的字段必须一一对应
-            sql = 'select nick_name, nick_name_url, personal_deal_info_url from bozhu_user;'
+            sql = 'select nick_name, nick_name_url, personal_deal_info_url from bozhu_user where sina_type = \"社会\" and nick_name != \"1018陕广新闻\" and bozhu_user.nick_name not in (select nick_name from sina_wb_article);'
             cs.execute(sql)
 
             result = cs.fetchall()  # return -> 一个 ((), (), ...)

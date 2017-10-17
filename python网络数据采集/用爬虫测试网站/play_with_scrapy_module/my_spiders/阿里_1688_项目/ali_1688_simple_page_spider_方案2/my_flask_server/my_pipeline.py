@@ -28,15 +28,10 @@ class UserItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            params = [
-                item['username'],
-                item['passwd'],
-            ]
+            params = item
 
             # print(params)
-            count = cs.execute(
-                'insert into ali_spider_employee_table(username, passwd) values(%s, %s)',
-                params)
+            count = cs.execute('insert into ali_spider_employee_table(username, passwd) values(%s, %s)', params)
             self.conn.commit()
 
             print(count)

@@ -57,7 +57,8 @@ class LoginAndParse(object):
         self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
         # self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path)
         self.start_url = 'https://login.taobao.com/member/login.jhtml?style=b2b&css_style=b2b&from=b2b&newMini2=true&full_redirect=true&redirect_url=https%3A%2F%2Flogin.1688.com%2Fmember%2Fjump.htm%3Ftarget%3Dhttps%253A%252F%252Flogin.1688.com%252Fmember%252FmarketSigninJump.htm%253FDone%253Dhttp%25253A%25252F%25252Fmember.1688.com%25252Fmember%25252Foperations%25252Fmember_operations_jump_engine.htm%25253Ftracelog%25253Dlogin%252526operSceneId%25253Dafter_pass_from_taobao_new%252526defaultTarget%25253Dhttp%2525253A%2525252F%2525252Fwork.1688.com%2525252F%2525253Ftracelog%2525253Dlogin_target_is_blank_1688&reg=http%3A%2F%2Fmember.1688.com%2Fmember%2Fjoin%2Fenterprise_join.htm%3Flead%3Dhttp%253A%252F%252Fmember.1688.com%252Fmember%252Foperations%252Fmember_operations_jump_engine.htm%253Ftracelog%253Dlogin%2526operSceneId%253Dafter_pass_from_taobao_new%2526defaultTarget%253Dhttp%25253A%25252F%25252Fwork.1688.com%25252F%25253Ftracelog%25253Dlogin_target_is_blank_1688%26leadUrl%3Dhttp%253A%252F%252Fmember.1688.com%252Fmember%252Foperations%252Fmember_operations_jump_engine.htm%253Ftracelog%253Dlogin%2526operSceneId%253Dafter_pass_from_taobao_new%2526defaultTarget%253Dhttp%25253A%25252F%25252Fwork.1688.com%25252F%25253Ftracelog%25253Dlogin_target_is_blank_1688%26tracelog%3Daccount_verify_s_reg'
-        self.img_url = ''       # 用来保存二维码的url
+        self.img_url = ''                   # 用来保存二维码的url
+        self.wait_to_deal_with_url = ''     # 待爬取的url
 
 
     def get_qrcode_url(self):
@@ -89,7 +90,7 @@ class LoginAndParse(object):
         # print(img_url)
         self.img_url = 'http:' + img_url
 
-        print('获取到的验证码的地址为: ', img_url)
+        print('获取到的验证码的地址为: ', self.img_url)
         return self.img_url
 
     def login(self):
@@ -97,38 +98,44 @@ class LoginAndParse(object):
         模拟扫码登陆,并保存cookies到文件
         :return:
         '''
+        """
         print('请稍等正在下载验证码到本地...即将下载完成请稍后')
         # 保存二维码图片
         buf = urlopen(self.img_url)
         with open('qrcode.jpg', 'wb') as f:
             f.write(buf.read())
 
-        """
         # 扫码
         qrcode_img = Image.open('./qrcode.jpg')
         qrcode_img.show()
         # print(img_src)
-        """
 
         before_url = self.driver.current_url
 
         print('正在等待扫码....')
-        sleep(13)
+        sleep(10)
 
         while self.driver.current_url != before_url:
             print('扫码登陆成功!')
             print('-' * 100)
             break
+        """
 
         # 得到并处理保存cookies到cookies.txt
         login_cookies = self.driver.get_cookies()
         # print(login_cookies)
         cookies = self.get_qrcode_cookies(login_cookies)
-        cookies_str = self.cookies_to_str(cookies)
+        print('| 获取到的cookies为: ', cookies)
+        # cookies_str = self.cookies_to_str(cookies)
+
+        if cookies.get('isg') is not None:  # 扫码成功
+            return True
+        else:                               # 扫码失败
+            return False
 
         # 将cookies写入指定文件cookies.txt
-        with open('cookies.txt', 'wb') as f:
-            f.write(cookies_str.encode('utf-8'))
+        # with open('cookies.txt', 'wb') as f:
+        #     f.write(cookies_str.encode('utf-8'))
 
         # with open('cookies.txt', 'rb') as f:
         #     line = f.read().decode('utf-8').strip('\n')
@@ -141,28 +148,29 @@ class LoginAndParse(object):
         '''
         # 遇到一个问题加载很慢，已解决
         # 解决方案直接设置给driver设置时间延迟来终止请求
-        self.driver.set_page_load_timeout(4)
+        self.driver.set_page_load_timeout(5.5)
         try:
-            self.driver.get(wait_to_deal_with_url)
+            print('待爬取的url地址为: ', self.wait_to_deal_with_url)
+            self.driver.get(self.wait_to_deal_with_url)
             self.driver.implicitly_wait(10)     # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div#mod-detail-bd')
             try:
-                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 10, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041    # 未得到div#mod-detail-bd，返回4041
             else:
                 print('div#mod-detail-bd已经加载完毕')
         except Exception as e:       # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 4 seconds when loading page')
+            print('-->>time out after 5.5 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
 
         # 直接包含空格的CSS属性定位大法(可定位带空格的)
         try:
             if self.driver.find_element_by_css_selector('div[id="dt-tab"]>a[class="paging next"]'):
                 self.driver.find_element_by_css_selector('div[id="dt-tab"]>a[class="paging next"]').click()
-                # print('点击完成...')
+                print('示例图片超过5张，点击完成...')
                 sleep(2)
         except Exception as e:
             print('示例图片未超过5张, 无需点击...')
@@ -196,6 +204,7 @@ class LoginAndParse(object):
         通过判断div块 div.obj-content 的数量是否大于三来分类处理价格所在的不同位置
         '''
         is_div_obj_content_lt_2 = list(Selector(text=body).css('div.obj-content').extract())
+        print('is_div_obj_content_lt_2的长度为 %d' % len(is_div_obj_content_lt_2))
 
         if len(is_div_obj_content_lt_2) == 2:   # 如果等于2说明: 只有颜色或者size之一
             if color == []:     # 如果颜色为空则说明该商品没有颜色这个属性选择, 即table.table-sku在size标签里面
@@ -241,6 +250,7 @@ class LoginAndParse(object):
 
         all_img_url = self.deal_with_img_size_60_to_400(all_img_url)
 
+        """
         print('*' * 100)
         print('商品名称: ', title)
         if is_activity_price:
@@ -256,6 +266,7 @@ class LoginAndParse(object):
         print('主图片地址: ', center_img_url)
         print('所有示例图片地址: ', all_img_url)
         print('*' * 100)
+        """
 
         data = {
             'title': title,
@@ -270,15 +281,7 @@ class LoginAndParse(object):
             'all_img_url': all_img_url,
         }
 
-        result = {
-            'reason': 'success',
-            'data': data,
-            'error_code': 0,
-        }
-
-        result_json = json.dumps(result, ensure_ascii=False).encode()
-        # print(result_json.decode())
-        return result_json.decode()
+        return data
 
     def get_qrcode_cookies(self, login_cookies):
         '''
@@ -344,16 +347,25 @@ class LoginAndParse(object):
             tmp_color_img_url.append(tmp_img_url)
         return tmp_color_img_url
 
+    def set_wait_to_deal_with_url(self, wait_to_deal_with_url):
+        '''
+        设置待爬取的url
+        :param wait_to_deal_with_url:
+        :return:
+        '''
+        self.wait_to_deal_with_url = wait_to_deal_with_url
 
-if __name__ == '__main__':
-    login_ali = LoginAndParse()
-    login_ali.get_qrcode_url()
-    login_ali.login()
-
-    while True:
-        wait_to_deal_with_url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-        wait_to_deal_with_url.strip('\n').strip(';')
-        login_ali.deal_with_page_url()
+# if __name__ == '__main__':
+#     login_ali = LoginAndParse()
+#     login_ali.get_qrcode_url()
+#     login_ali.login()
+#
+#     while True:
+#         # wait_to_deal_with_url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
+#         # wait_to_deal_with_url.strip('\n').strip(';')
+#         wait_to_deal_with_url = 'https://detail.1688.com/offer/526362847506.html?spm=b26110380.sw1688.mof001.13.5rHmRl'
+#         login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
+#         login_ali.deal_with_page_url()
 
 # 马桶这个特别特殊
 # https://detail.1688.com/offer/540344060909.html?spm=a260k.635.201611281602.10.JXEQXP
