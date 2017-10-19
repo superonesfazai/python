@@ -7,31 +7,41 @@
 @connect : superonesfazai@gmail.com
 '''
 
-class PageInfoItem(object):
+class MyPageInfoSaveItem(object):
     def __init__(self):
+        # 需要抓取的url
+        self.spider_url = ''
+        # 操作人员的username
+        self.username = ''
+        # 操作的时间
+        self.deal_with_time = ''
+
+        """
+        商品信息
+        """
         # 商品标题
-        title = ''
+        self.title = ''
         # 商品价格
-        price = []
+        self.price = []
         # 商品起批量
-        trade_number = []
+        self.trade_number = []
 
         # 颜色
-        color = []
+        self.color = []
         # 颜色的图片url(需要一一对应)
-        color_img_url = []
+        self.color_img_url = []
 
         # 适合尺寸
-        size_info = []
+        self.size_info = []
 
         # 对应颜色或者尺寸的价格(需要一一对应)
-        detail_price = []
+        self.detail_price = []
 
         # 对应颜色或者尺寸的库存量(需要一一对应)
-        rest_number = []
+        self.rest_number = []
 
         # 主显示的图片url
-        center_img_url = []
+        self.center_img_url = []
 
         # 所有图片url
-        all_img_url = []
+        self.all_img_url = []

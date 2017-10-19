@@ -26,7 +26,9 @@
     )
     请改成你自己的...
 
-爬取的月份去settings.py文件中更改截止月份即可
+切记：
+    爬取的月份去settings.py文件中更改截止月份即可
+    记住先登录微博，把cookies值复制到COOKIES下
 
 然后自己如果要指定要爬取的表的话，得从bozhu_user表中获取信息
 去get_nick_name_and_and_nick_name_url_and_personal_deal_info_url这个函数中改sql语句, 改成你需要爬取的表

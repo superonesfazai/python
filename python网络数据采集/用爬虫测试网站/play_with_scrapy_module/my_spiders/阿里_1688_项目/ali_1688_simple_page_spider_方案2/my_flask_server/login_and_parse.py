@@ -66,18 +66,23 @@ class LoginAndParse(object):
         从官网获取二维码图片url
         :return:
         '''
-        print('请稍等正在获取登录页面中...')
-        # self.driver.set_page_load_timeout(5)
-        self.driver.get(self.start_url)
-        self.driver.implicitly_wait(10)
-        # self.driver.save_screenshot('tmp_login1.png')
-
-        locator = (By.CSS_SELECTOR, 'div.qrcode-img img')
+        print('请稍等正在获取验证码url中...')
+        self.driver.set_page_load_timeout(20)
         try:
-            WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
-        except Exception as e:
-            print('获取验证码时错误: ', e)
-        else:
+            self.driver.get(self.start_url)
+            self.driver.implicitly_wait(15)
+            # self.driver.save_screenshot('tmp_login1.png')
+
+            locator = (By.CSS_SELECTOR, 'div.qrcode-img img')
+            try:
+                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
+            except Exception as e:
+                print('获取验证码时错误: ', e)
+            else:
+                pass
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 20 seconds(当获取验证码时)')
+            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             pass
 
         # 处理并下载二维码
@@ -148,9 +153,9 @@ class LoginAndParse(object):
         '''
         # 遇到一个问题加载很慢，已解决
         # 解决方案直接设置给driver设置时间延迟来终止请求
-        self.driver.set_page_load_timeout(5.5)
+        self.driver.set_page_load_timeout(7.5)
+        print('待爬取的url地址为: ', self.wait_to_deal_with_url)
         try:
-            print('待爬取的url地址为: ', self.wait_to_deal_with_url)
             self.driver.get(self.wait_to_deal_with_url)
             self.driver.implicitly_wait(10)     # 隐式等待和显式等待可以同时使用
 
@@ -163,19 +168,20 @@ class LoginAndParse(object):
             else:
                 print('div#mod-detail-bd已经加载完毕')
         except Exception as e:       # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 5.5 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            print('-->>time out after 7.5 seconds when loading page')
+            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            pass
 
         # 直接包含空格的CSS属性定位大法(可定位带空格的)
         try:
             if self.driver.find_element_by_css_selector('div[id="dt-tab"]>a[class="paging next"]'):
                 self.driver.find_element_by_css_selector('div[id="dt-tab"]>a[class="paging next"]').click()
                 print('示例图片超过5张，点击完成...')
-                sleep(2)
+                sleep(1.7)
         except Exception as e:
             print('示例图片未超过5张, 无需点击...')
 
-        body = self.driver.page_source
+        body = self.driver.page_source      # 不能缩小范围否则抓不到size_info, detail_price
 
         title = str(Selector(text=body).css('h1.d-title::text').extract_first())
 

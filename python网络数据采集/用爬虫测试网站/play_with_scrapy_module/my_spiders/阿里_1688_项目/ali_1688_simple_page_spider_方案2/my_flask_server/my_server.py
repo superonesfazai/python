@@ -13,18 +13,20 @@ sys.path.append(os.getcwd())
 from flask import Flask, render_template, url_for, request,redirect,make_response,session, jsonify, Response
 from flask import send_file
 from flask_login import LoginManager
-from MySQLdb import *
-import base64
 
 from login_and_parse import LoginAndParse
 # from .login_and_parse import LoginAndParse
 from my_pipeline import UserItemPipeline
 # from .my_pipeline import UserItemPipeline
 
+# from my_pipeline import MyPageInfoSaveItemPipeline
+from .my_pipeline import MyPageInfoSaveItemPipeline
+
 import hashlib
 import json
 import time
 import datetime
+import re
 
 from gevent.wsgi import WSGIServer      # 高并发部署
 
@@ -33,23 +35,30 @@ login_ali = LoginAndParse()
 
 app = Flask(__name__, root_path=os.getcwd())
 
-login_manager = LoginManager(app)
+# login_manager = LoginManager(app)
 
-login_manager.session_protection = None
+# login_manager.session_protection = 'basic'
 # 可以设置None,'basic','strong'  以提供不同的安全等级,一般设置strong,如果发现异常会登出用户
 
-login_manager.login_view = "/"
+# login_manager.login_view = "/"
 # 这里填写你的登陆界面的路由
 
-app.config.update(
-    PERMANENT_SESSION_LIFETIME=datetime.timedelta(seconds=12*60*60)
-)
+# login_manager.remember_cookie_duration=datetime.timedelta(days=1)
+
+# app.config.update(
+#     PERMANENT_SESSION_LIFETIME=datetime.timedelta(seconds=12*60*60)
+# )
 
 app.CSRF_ENABLED = True                 # CSRF_ENABLED 配置是为了激活 跨站点请求伪造 保护。在大多数情况下，你需要激活该配置使得你的应用程序更安全些
 app.secret_key = 'fjusfbubvnighwwf'     # SECRET_KEY 配置仅仅当 CSRF 激活的时候才需要，它是用来建立一个加密的令牌，用于验证一个表单
 
 # 内部员工口令
 inner_pass = 'adminss'
+
+# key 用于加密
+key = 15
+
+tmp_wait_to_save_data_list = []
 
 @app.route('/', methods=['GET','POST'])
 def login():
@@ -65,27 +74,22 @@ def login():
                 response = make_response(redirect('select'))    # 重定向到新的页面
 
                 # 加密
-                has_ = hashlib.sha256()
-                has_.update(username.encode())
-                has_username = has_.hexdigest()
-
-                has_ = hashlib.sha256()
-                has_.update(passwd.encode())
-                has_passwd = has_.hexdigest()
+                has_username = encrypt(key, username)
+                has_passwd = encrypt(key, passwd)
 
                 outdate = datetime.datetime.today() + datetime.timedelta(days=1)
 
-                response.set_cookie('username', value=has_username, max_age=400, expires=outdate)    # 延长过期时间(1天)
-                response.set_cookie('passwd', value=has_passwd, max_age=400, expires=outdate)
-                session['islogin'] = '1'      # 设置session的话会有访问的时间限制,故我不设置
-                session.permanent = True        # 切记：前面虽然设置了延时时间，但是只有通过这句话才能让其生效
-                                                # 注意先设置session的permanent为真
-                # 设置session的过期时间为1天(只有设置下面两句话才会生效, 第二句要在请求中才能使用)
-                app.permanent_session_lifetime = datetime.timedelta(seconds=12*60*60)
+                response.set_cookie('username', value=has_username, max_age=60*60*5, expires=outdate)    # 延长过期时间(1天)
+                response.set_cookie('passwd', value=has_passwd, max_age=60*60*5, expires=outdate)
+                # session['islogin'] = '1'      # 设置session的话会有访问的时间限制,故我不设置
+                # session.permanent = True        # 切记：前面虽然设置了延时时间，但是只有通过这句话才能让其生效
+                #                                 # 注意先设置session的permanent为真
+                # # 设置session的过期时间为1天(只有设置下面两句话才会生效, 第二句要在请求中才能使用)
+                # app.permanent_session_lifetime = datetime.timedelta(seconds=12*60*60)
 
                 return response
         else:
-            session['islogin'] = '0'
+            # session['islogin'] = '0'
             print('登录失败!请重新登录')
             return redirect('/')
     else:
@@ -100,9 +104,6 @@ def select():
 
             if is_success_login:        # 扫码成功
                 print('成功获取到cookies')
-
-                # response = make_response(redirect('show'))    # 重定向到新的页面
-                # return response
 
                 return redirect('show')
                 # return make_response(redirect('show'))
@@ -183,6 +184,7 @@ def show_info():
         <html><header></header><body>非法操作!请返回登录页面登录后, 并且成功扫描二维码后，再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
         '''
     else:
+        print('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -194,8 +196,30 @@ def get_all_data():
         if request.form.get('goodsLink'):
             print('正在获取相应数据中...')
 
-            wait_to_deal_with_url = request.form.get('goodsLink')
-            # print('待爬取的url地址为: ', wait_to_deal_with_url)
+            # 解密
+            username = decrypt(key, request.cookies.get('username'))
+            print('发起获取请求的员工的username为: %s' % username)
+
+            goodsLink = request.form.get('goodsLink')
+
+            if goodsLink:
+                tmp_item = re.compile(r'(.*?)\?.*?').findall(goodsLink)  # 过滤筛选出唯一的阿里1688商品链接
+                if tmp_item == []:
+                    wait_to_deal_with_url = goodsLink
+                else:
+                    wait_to_deal_with_url = tmp_item[0]
+            else:
+                print('goodsLink为空值...')
+
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,     # 表示goodsLink为空值
+                }
+
+                result = json.dumps(result)
+                return result
+
             login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
             data = login_ali.deal_with_page_url()   # 如果成功获取的话, 返回的是一个data的dict对象
 
@@ -215,6 +239,13 @@ def get_all_data():
                 'error_code': 0,
             }
 
+            wait_to_save_data = data
+            wait_to_save_data['spider_url'] = wait_to_deal_with_url
+            wait_to_save_data['username'] = username
+            wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+
             result_json = json.dumps(result, ensure_ascii=False).encode()
             print('-->> 下面是爬取到的页面信息: ')
             print(result_json.decode())
@@ -231,6 +262,82 @@ def get_all_data():
         result = json.dumps(result)
         return result
 
+@app.route('/to_save_data', methods=['POST'])
+def to_save_data():
+    '''
+    存储请求存入的每个url对应的信息
+    :return:
+    '''
+    global tmp_wait_to_save_data_list
+    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+        if request.form.getlist('saveData[]'):      # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))   # 一个待存取的url的list
+
+            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            if wait_to_save_data_url_list != []:
+                my_page_info_save_item_pipeline = MyPageInfoSaveItemPipeline()
+                for item in wait_to_save_data_url_list:
+                    tmp_item = re.compile(r'(.*?)\?.*?').findall(item)  # 过滤筛选出唯一的阿里1688商品链接
+                    if tmp_item == []:
+                        wait_to_save_data_url = item
+                    else:
+                        wait_to_save_data_url = tmp_item[0]
+
+                    for index in range(0, len(tmp_wait_to_save_data_list)-1):
+                        if wait_to_save_data_url == tmp_wait_to_save_data_list[index]['spider_url']:
+                            data_list = tmp_wait_to_save_data_list[index]
+                            tmp = {}
+                            tmp['spider_url'] = data_list['spider_url']
+                            tmp['username'] = data_list['username']
+                            tmp['deal_with_time'] = data_list['deal_with_time']
+
+                            tmp['title'] = data_list['title']
+                            tmp['price'] = ';'.join(data_list['price'])
+                            tmp['trade_number'] = ';'.join(data_list['trade_number'])   # list为[], 值就为'', 不为空, 1个就是'xx', 多个就是'xx;yy'
+                            tmp['color'] = ';'.join(data_list['color'])
+                            tmp['color_img_url'] = ';'.join(data_list['color_img_url'])
+                            tmp['size_info'] = ';'.join(data_list['size_info'])
+                            tmp['detail_price'] = ';'.join(data_list['detail_price'])
+                            tmp['rest_number'] = ';'.join(data_list['rest_number'])
+                            tmp['center_img_url'] = ';'.join(data_list['center_img_url'])
+                            tmp['all_img_url'] = ';'.join(data_list['all_img_url'])
+
+                            is_insert_into = my_page_info_save_item_pipeline.insert_into_table(tmp)
+                            if is_insert_into:      # 如果返回值为True
+                                tmp_wait_to_save_data_list.pop(index)
+                            else:
+                                print('插入失败!')
+                                pass
+
+            else:
+                print('saveData为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4043,  # batchGoodsLink为空
+                }
+                result = json.dumps(result)
+                return result
+        else:
+            print('saveData为空!')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4043,  # batchGoodsLink为空
+            }
+            result = json.dumps(result)
+            return result
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+"""
 @app.route("/much_data", methods=['POST'])
 def get_all_muckh_data():
     '''
@@ -238,39 +345,64 @@ def get_all_muckh_data():
     :return:
     '''
     all_data = []
+    print('客户端正在请求批量抓取...')
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
-        if request.form.get('goodsLink'):
+        if request.form.getlist('batchGoodsLink[]'):    # 切记：从客户端获取list数据的方式
             print('正在获取相应数据中...')
-            wait_to_deal_with_url_list = list(request.form.get('goodsLink'))    # 获取到的是一个待爬取的url的list
+            wait_to_deal_with_url_list = list(request.form.getlist('batchGoodsLink[]'))    # 获取到的是一个待爬取的url的list
 
-            for item in wait_to_deal_with_url_list:
-                login_ali.set_wait_to_deal_with_url(item)
-                data = login_ali.deal_with_page_url()  # 如果成功获取的话, 返回的是一个data的json对象
+            print('获取到的待爬取的list为: ', wait_to_deal_with_url_list)
+            if wait_to_deal_with_url_list != []:
+                for item in wait_to_deal_with_url_list:
+                    tmp_item = re.compile(r'(.*?)&.*?').findall(item)  # 过滤筛选出唯一的阿里1688商品链接
+                    if tmp_item == []:
+                        wait_to_deal_with_url = item
+                    else:
+                        wait_to_deal_with_url = tmp_item[0]
 
-                if data is 4041:  # 4041表示给与的待爬取的地址错误, 前端重置输入框，并提示输入的内容非正确网址，请重新输入
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': data,
-                    }
+                    login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
+                    data = login_ali.deal_with_page_url()  # 如果成功获取的话, 返回的是一个data的json对象
 
-                    result = json.dumps(result)
-                    return result
+                    if data is 4041:  # 4041表示给与的待爬取的地址错误, 前端重置输入框，并提示输入的内容非正确网址，请重新输入
+                        result = {
+                            'reason': 'error',
+                            'data': '',
+                            'error_code': data,
+                        }
 
-                all_data.append(data)       # 一个list里面存放的是所有的dict
-            result = {
-                'reason': 'success',
-                'data': all_data,
-                'error_code': 0,
-            }
+                        result = json.dumps(result)
+                        return result
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('-->> 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            return result_json.decode()
+                    print(data)
+                    all_data.append(data)       # 一个list里面存放的是所有的dict
+                result = {
+                    'reason': 'success',
+                    'data': all_data,
+                    'error_code': 0,
+                }
+
+                result_json = json.dumps(result, ensure_ascii=False).encode()
+                print('-->> 下面是爬取到的页面信息: ')
+                print(result_json.decode())
+                return result_json.decode()
+            else:
+                print('batchGoodsLink为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4043,     # batchGoodsLink为空
+                }
+                result = json.dumps(result)
+                return result
         else:
-            print('goodsLink为空!')
-
+            print('batchGoodsLink为空!')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4043,  # batchGoodsLink为空
+            }
+            result = json.dumps(result)
+            return result
     else:
         result = {
             'reason': 'error',
@@ -279,9 +411,65 @@ def get_all_muckh_data():
         }
         result = json.dumps(result)
         return result
+"""
+
+def encrypt(key, s):
+    '''
+    加密算法
+    :param key:
+    :param s:
+    :return:
+    '''
+    b = bytearray(str(s).encode("gbk"))
+    n = len(b) # 求出 b 的字节数
+    c = bytearray(n*2)
+    j = 0
+    for i in range(0, n):
+        b1 = b[i]
+        b2 = b1 ^ key # b1 = b2^ key
+        c1 = b2 % 16
+        c2 = b2 // 16 # b2 = c2*16 + c1
+        c1 = c1 + 65
+        c2 = c2 + 65 # c1,c2都是0~15之间的数,加上65就变成了A-P 的字符的编码
+        c[j] = c1
+        c[j+1] = c2
+        j = j+2
+    return c.decode("gbk")
+
+def decrypt(key, s):
+    '''
+    解密算法
+    :param key:
+    :param s:
+    :return:
+    '''
+    c = bytearray(str(s).encode("gbk"))
+    n = len(c) # 计算 b 的字节数
+    if n % 2 != 0 :
+        return ""
+    n = n // 2
+    b = bytearray(n)
+    j = 0
+    for i in range(0, n):
+        c1 = c[j]
+        c2 = c[j+1]
+        j = j+2
+        c1 = c1 - 65
+        c2 = c2 - 65
+        b2 = c2*16 + c1
+        b1 = b2^ key
+        b[i]= b1
+    try:
+        return b.decode("gbk")
+    except:
+        return "failed"
+
 
 if __name__ == "__main__":
     print('服务器已经启动...等待接入中...')
     print('http://0.0.0.0:5000')
     WSGIServer(('0.0.0.0', 5000), app).serve_forever()      # 采用高并发部署
     # app.run(host= '0.0.0.0', debug=False, port=5000)
+
+    # 简单的多线程
+    # app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)

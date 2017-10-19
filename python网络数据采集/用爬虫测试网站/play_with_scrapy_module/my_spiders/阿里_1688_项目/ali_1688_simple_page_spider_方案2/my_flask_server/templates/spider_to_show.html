@@ -5,6 +5,7 @@
     <title>甄优爬虫</title>
 		<link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
 		<link rel="stylesheet" type="text/css" href="../static/css/swiper-3.4.2.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/animate.min.css"/>
     <style type="text/css">
 			html,
 			body {
@@ -76,8 +77,6 @@
 	}
 	.collect-content{
 		width: 100%;
-		height: 5.7rem;
-		
 	}
 	.goodsName{
 		width: 100%;
@@ -85,6 +84,7 @@
 	}
 	.collect-main{
 		width: 100%;
+		height: 5.3rem;
 	}
 	.collect-main-left{
 		width: 4rem;
@@ -252,9 +252,6 @@
     overflow: hidden;
     margin-right: .3rem;		
 	}	
-	.goodsSize-right>ul li ul li:hover{
-		
-	}		
 	.wLink{
 		width: 100%;
 		height: 100%;
@@ -277,8 +274,115 @@
 		right: 0;
 		bottom: 0;
 		margin: auto;
-		width: 100px;
-		height: 100px;		
+		/*width: 100px;
+		height: 100px;		*/
+	}
+	.batchGrab{
+		width: 100%;
+    margin: 0 auto;
+    display: none;
+	}
+	.batchGrabLink{
+		width: 9.08rem;
+		height: 1rem;
+		margin: 0 auto;
+	}
+	.batchGrabBtn{
+		width: 10rem;
+		height: .4rem;
+		text-align: right;
+		margin: 0 auto;
+	}
+	.batchGrabBtn a{
+		display: inline-block;
+		width: .9rem;
+		height: .3rem;
+		text-align: center;
+		background: #6c89f5;
+		color: #ffffff;
+    line-height: .3rem;
+    margin: .05rem 1rem;		
+	}
+	.batchGrabBtn input{
+		height: .2rem;
+    width: .2rem;
+    vertical-align: top;
+    margin-top: .1rem;
+	}
+	.batchGrabBtn label{
+		display: inline-block;
+    vertical-align: top;
+    margin-top: .1rem;		
+	}
+	.batchGoodsLink{
+		width: 100%;
+		height: .4rem;
+		margin: 0 auto;
+		position: relative;
+	}
+	.batchGoodsLinkContent{
+		width: 8rem;
+		height: .4rem;
+	}
+	.batchGoodsLinkContent input{
+		width: 8rem;
+		height: .36rem;	
+		border: 1px solid #ebebeb;
+		border-radius: .08rem;
+		text-indent: 10px;
+	}	
+	.add{
+		vertical-align: bottom;
+		margin-right: .2rem;
+		cursor: pointer;	
+    position: absolute;
+    left: 0;			
+	}
+	.batchGoodsLinkContent{
+		display: inline-block;
+		vertical-align: bottom;
+		margin-right: .2rem;
+		cursor: pointer;
+		margin-left: 1rem;
+	}
+	.singleSelect{
+		width: .3rem;
+		height: .3rem;
+		display: inline-block;
+		margin: .05rem;
+	}
+	.singleSelect input{
+		width: .3rem;
+		height: .3rem;
+	}
+	.addLinkList{
+		display: none;
+		margin-bottom: .2rem;
+	}
+	.addLink .active{
+		display: block;
+	}
+	.maxLink{
+		display: none;
+		width: 100%;
+		height: .4rem;
+		color: red;
+		text-align: center;
+		line-height: .4rem;
+	}
+	.showGoods{
+		/*float: left;*/
+	  margin: .2rem 0;
+	}
+	.showGoodsLoading{
+		display: none;
+		margin-left: 4rem;
+	}
+	.wGoodsLink{
+		width: 100%;
+		height: 100%;
+		text-align: center;
+		color: red;		
 	}
     </style>
   </head>
@@ -288,11 +392,80 @@
 			<div class="collect-info">
 				<div class="title">阿里巴巴商品采集</div>
 				<div class="grab"><a class="active" href="javascript:" id="singleGrab">单个抓取</a><a href="javascript:" id="batchGrab">批量抓取</a></div>
-				<div class="goodsLink">
+				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
 					<div class="wLink"></div>
+					<div class="collect-btn"><a href="javascript:" id="reset">重置</a><a href="javascript:" id="grab">抓取数据</a></div>					
 				</div>
-				<div class="collect-btn"><a href="javascript:" id="reset">重置</a><a href="javascript:" id="grab">抓取数据</a></div>
+				<div class="batchGrab fadeInLeft animated">
+					<div class="batchGrabBtn"><a href="javascript:" id="batchGrabStart">开始抓取</a><a href="javascript:" id="insertSql">存入数据库</a><input type="checkbox" name="allSelect" id="allSelect" value=""/><label for="allSelect">全部选中</label></div>
+					<div class="batchGoodsLink">
+						<div class="add"><img src="../static/images/add.png"/></div>
+						<ul class="addLink" id="addLink">
+							<li class="addLinkList active">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>	
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>
+							</li>
+							<li class="addLinkList ">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+						</ul>
+						<div class="maxLink">已达到最大搜索量</div>
+					</div>
+				</div>
 			</div>
 			<div class="collect-content">
 				<!--<div class="goodsName">5663实拍2017羽绒服女网红店主风面包服短款休闲夹克棉服衣女外套</div>
@@ -375,7 +548,7 @@
 					</div>
 				</div>-->
 			</div>
-			<div class="mask"><img src="../static/images/5-121204193Q9.gif"/></div>
+			<div class="mask"><img  src="../static/images/5-121204193Q9.gif"/></div>
     </div>
     <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>  
     <script src="../static/js/ejs.js" type="text/javascript" charset="utf-8"></script>
@@ -384,11 +557,11 @@
 			<div class="goodsName"><%=goodsInfo.title%></div>
 			<div class="collect-main">
 				<div class="collect-main-left">
-					 <div class="bigGoods" id="bigImg"><img src="<%=goodsInfo.center_img_url%>"/></div>
+					 <div class="bigGoods bigGoods<%=index%>" ><img src="<%=goodsInfo.center_img_url%>"/></div>
 					 <div class="smallGoodsList swiper-container swiper-container-horizontal">
-					 	<ul id="smallImg" class="swiper-wrapper">
+					 	<ul  class="swiper-wrapper">
 					 		<%for(var i=0;i<goodsInfo.all_img_url.length;i++){%>
-					 			<li class="smallImgList swiper-slide"><img src="<%=goodsInfo.all_img_url[i]%>"/></li>
+					 			<li class="smallImgList smallImgList<%=index%> swiper-slide"><img src="<%=goodsInfo.all_img_url[i]%>"/></li>
 					 		<% }%>
 					 	</ul>
 					 	<a href="" class="btn-left swiper-button-next"></a>
@@ -426,7 +599,7 @@
 									<%for(var i=0;i<goodsInfo.color.length;i++){%>
 										<li>
 											<ul>
-												<li class="goodsColorList" title="<%=goodsInfo.color[i]%>"><img class="goodsColorImg" src="<%=goodsInfo.color_img_url[i]%>"/></li>
+												<li class="goodsColorList goodsColorList<%=index%>" title="<%=goodsInfo.color[i]%>"><img class="goodsColorImg" src="<%=goodsInfo.color_img_url[i]%>"/></li>
 												<li title="<%=goodsInfo.detail_price[i]%>"><span><%=goodsInfo.detail_price[i]%></span>元</li>
 												<li title="<%=goodsInfo.rest_number[i]%>"><span id=""><%=goodsInfo.rest_number[i]%></span>件可售</li>
 											</ul>
@@ -446,7 +619,7 @@
 											<%}%>	
 										<%}else{%>
 											<%for(var i=0;i<goodsInfo.color_img_url.length;i++){%>
-												<li class="goodsColorList"><img src="<%=goodsInfo.color_img_url[i]%>"/></li>
+												<li class="goodsColorList goodsColorList<%=index%>"><img src="<%=goodsInfo.color_img_url[i]%>"/></li>
 											<%}%>	
 									<%}%>	
 								</ul>							
@@ -469,105 +642,340 @@
 							</div>
 						</div>						
 					<% }%>
-
 				</div>
 			</div>
 		</script>    
     <script type="text/javascript">
 	/*REM*/
-		~function(){
-			var desW = 1920,
-				winW = document.documentElement.clientWidth||document.body.clientWidth;				
-				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
-		}();
-
+			~function(){
+				var desW = 1920,
+						winW = document.documentElement.clientWidth||document.body.clientWidth;				
+						document.documentElement.style.fontSize = winW / desW * 100 + 'px';
+			}();
+	//抓取方式切换	
+			(function(){
+				$('#singleGrab').click(function(){
+					$('.collect-content').show();
+					$('.goodsLink').show();
+					$('.batchGrab').hide();
+					$(this).addClass('active').siblings('a').removeClass('active');
+				})	
+				$('#batchGrab').click(function(){
+					$('.goodsLink').hide();
+					$('.collect-content').hide();
+					$('.batchGrab').show();
+					$(this).addClass('active').siblings('a').removeClass('active');
+				})					
+			})()
+	//存入数据库
+			$(function(){
+				//全部选中
+				$('#allSelect').click(function(){
+					console.log(1)
+					$('.singleSelectBtn').attr('checked',true)
+				})
+				$('#insertSql').click(function(){
+					
+				})
+			})
+	//增加输入连接点位
+			$(function(){
+				var n =0;
+				$('.add').click(function(){
+	//判断搜索框的个数					
+					var oUl = document.getElementById('addLink');
+					var oLi = oUl.getElementsByTagName('li');
+					if(n>=5){
+						$('.maxLink').show();
+						setTimeout(()=>{$('.maxLink').hide();},1000)
+						return;
+					}
+					n++;
+					$('.addLinkList').eq(n).addClass('active');
+				})
+			})
 	//	bindHTML
 		
-		var GoodsInfo = (function(){
-			var $goodsInfoTemplate = $('#template'),
-					$goodsInfo = $('.collect-content');
-			
-				function bindHTML(goodsInfo){
+			var GoodsInfo = (function(){
+	
+				
+				function bindHTML(goodsInfo,index,className){
+					
+					console.log(index)
+					var $goodsInfoTemplate = $('#template'),
+							$goodsInfo = $('.className');
 					var template = $goodsInfoTemplate.html();
-					$goodsInfo.html(ejs.render(template,{goodsInfo:goodsInfo}));
+					$(className).eq(index).html(ejs.render(template,{goodsInfo:goodsInfo,index:index}));
 	//swiper
-		var swiper = new Swiper('.swiper-container', {
-		      slidesPerView :'auto',
+				var swiper = new Swiper('.swiper-container', {
+		      	slidesPerView :'auto',
 		        nextButton: '.swiper-button-next',
 		        prevButton: '.swiper-button-prev',
 		        offsetSlidesAfter:1
 		    });			
 	//carousel切换图片
 
-				var bigImg = $('#bigImg'),
-						bigImgPic = bigImg.children('img')[0];
-						smallImg = $('#smallImg'),
-						smallImgList = $('.smallImgList'),
-						goodsColorList = $('.goodsColorList'),
+				var bigImgName = '.bigGoods'+index,
+						smallImgName = '.smallImgList'+index,
+						goodsColorName = '.goodsColorList'+index,
+						bigImg = $(bigImgName),
+						smallImg = $('.swiper-wrapper'),
+						smallImgList = $(smallImgName),
+						goodsColorList = $(goodsColorName),
 						now = null;
+						console.log(bigImg,smallImgList)
 	//点击小图切换					
 						for(var i=0;i<smallImgList.length;i++){
-							smallImgList[i].index = i;
 							smallImgList[i].addEventListener('click',function(e){
-								bigImgPic.src = e.target.src;
+								console.log(index)
+								bigImg.find('img')[0].src = e.target.src;
 							})							
 						}
 	//点击颜色图切换
+						
 						for(var i=0;i<goodsColorList.length;i++){
-							goodsColorList[i].index = i;
 							goodsColorList[i].addEventListener('click',function(e){
+								console.log(e.target.src)
 								if(e.target.src){
-									bigImgPic.src = e.target.src;	
+									bigImg.find('img')[0].src = e.target.src;	
 								}else{
 									return
-								}
-							
+								}							
 							})							
 						}						
-				}
-			
+				}	
+				
 				return {
-					init:function(data){	
-								bindHTML(data);							
+					init:function(data,index,className){	
+								bindHTML(data,index,className);							
 					}
 				}
-			
 		})()
-		
 //重置数据
 		function reset(){
 			$('#goodsLink').val('');
 			$('#goodsLink').focus();
 		}	
 		$('#reset').click(function(){reset()});
+//批量抓取数据
 
-//抓取数据
-		
+		$('#batchGrabStart').click(function(){	
+			$('.showGoodsLoading').show();
+			var p = new Promise(function(resolve,reject){
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(0).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(0).val()
+					},
+					success:function(data){
+                        data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(0).hide();
+								GoodsInfo.init(data.data,0,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(0).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(0).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(0).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(0).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(0).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(0).text('')
+							},3000)					
+					}
+				});	
+				resolve('1')
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:"../static/js/tmp2.json",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '2'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '3'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '4'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '5'
+			})
+
+
+		})
+//单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
 				return
 			}
-//弹出加载层
 			$('.mask').show();
 			$.ajax({
 				type:"post",
 //				url:$('#goodsLink').val(),
-              	url:'/data',
+                url:'/data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()
 				},
 				success:function(data){
-        			data = JSON.parse(data);
+        data = JSON.parse(data);
 					if(data && data.reason == 'success'){
 						console.log('1');
 						setTimeout(function(){
 							$('.mask').hide();
-							GoodsInfo.init(data.data);
+							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
 					}else{
 						reset();
-						$('.wLink').text('您输入的网址有误，请重新输入！或者 登陆的账户已过期，请重新登录！');
+						$('.wLink').text('您输入的网址有误，请重新输入！');
 						setTimeout(function(){
 							$('.mask').hide();
 						},500);
@@ -578,7 +986,7 @@
 				},
 				error:function (){
 						reset();
-						$('.wLink').text('您输入的网址有误，请重新输入！或者 登陆的账户已过期，请重新登录！');
+						$('.wLink').text('您输入的网址有误，请重新输入！');
 						setTimeout(function(){
 							$('.mask').hide();
 						},500);
