@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : login_and_get_cookies2.py
+@File    : real_time_to_update_data_by_admin.py
 @Time    : 2017/10/10 15:31
 @connect : superonesfazai@gmail.com
 '''
@@ -24,6 +24,10 @@ import selenium.webdriver.support.ui as ui
 import os, sys
 sys.path.append(os.getcwd())
 import json
+import datetime
+
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+# from .my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 # from .my_items import PageInfoItem
 
@@ -107,7 +111,7 @@ class LoginAndParse(object):
         模拟扫码登陆,并保存cookies到文件
         :return:
         '''
-        """
+
         print('请稍等正在下载验证码到本地...即将下载完成请稍后')
         # 保存二维码图片
         buf = urlopen(self.img_url)
@@ -128,7 +132,7 @@ class LoginAndParse(object):
             print('扫码登陆成功!')
             print('-' * 100)
             break
-        """
+
         # 得到并处理保存cookies到cookies.txt
         login_cookies = self.driver.get_cookies()
         # print(login_cookies)
@@ -359,6 +363,150 @@ class LoginAndParse(object):
         print('页面解析完毕'.center(20, '#'))
         return data
 
+    def to_right_and_update_data(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['deal_with_time'] = data_list['deal_with_time']  # 操作时间
+
+        tmp['company_name'] = data_list['company_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['link_name'] = data_list['link_name']  # 卖家姓名
+        tmp['link_name_personal_url'] = data_list['link_name_personal_url']  # 卖家私人主页地址
+
+        tmp_price_info = list(zip(data_list['price'], data_list['trade_number']))
+        price_info = []
+        for item in tmp_price_info:
+            tmp_dic = {}
+            tmp_dic['price'] = item[0]
+            tmp_dic['trade_number'] = item[1]
+            price_info.append(tmp_dic)
+        tmp['price_info'] = price_info  # 价格信息
+
+        goods_name = []
+        for item in data_list['goods_name']:
+            tmp_dic = {}
+            tmp_dic['goods_name'] = item
+            goods_name.append(tmp_dic)
+
+        tmp['goods_name'] = goods_name  # 标签属性名称
+
+        # [{'goods_value': '红色|L', 'color_img_url': 'xxx.jpg', 'price': '99', 'stocknum': '1000'}, {…}, …]
+        """
+        处理得到goods_info
+        """
+        goods_info = []
+        if data_list['color'] == []:  # 颜色为空, size必定存在
+            if data_list['size_info'] != []:
+                if data_list['other_size_info'] == []:  # 说明other_size_info不存在, 只有一个size_info
+                    tmp_goods_info = list(
+                        zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                    for item in tmp_goods_info:
+                        tmp_dic = {}
+                        tmp_dic['goods_value'] = item[0]
+                        tmp_dic['color_img_url'] = ''
+                        tmp_dic['detail_price'] = item[1]
+                        tmp_dic['rest_number'] = item[2]
+                        goods_info.append(tmp_dic)
+                    tmp['goods_info'] = goods_info
+                else:  # other_size 存在
+                    tmp_goods_info = list(
+                        zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                    for index in range(0, len(data_list['other_size_info'])):
+                        tmp_dic = {}
+                        tmp_dic['goods_value'] = data_list['other_size_info'][index]
+                        for item in tmp_goods_info:
+                            # print(item[0])
+                            tmp_dic['goods_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
+                            tmp_dic['goods_value'] = data_list['other_size_info'][index]
+                            tmp_dic['goods_value'] += '|' + item[0]
+                            tmp_dic['color_img_url'] = ''
+                            tmp_dic['detail_price'] = item[1]
+                            tmp_dic['rest_number'] = item[2]
+                            goods_info.append(tmp_dic)
+                            # print(tmp_dic['goods_value'])
+                    tmp['goods_info'] = goods_info
+            else:  # 二者都为空，则goods_info = []
+                tmp['goods_info'] = []
+
+        elif data_list['color'] != [] and data_list['color_img_url'] == []:  # 颜色不为空, 但颜色图片为空
+            if data_list['size_info'] == []:  # size为空
+                tmp_goods_info = list(zip(data_list['color'], data_list['detail_price'], data_list['rest_number']))
+                for item in tmp_goods_info:
+                    tmp_dic = {}
+                    tmp_dic['goods_value'] = item[0]
+                    tmp_dic['color_img_url'] = ''
+                    tmp_dic['detail_price'] = item[1]
+                    tmp_dic['rest_number'] = item[2]
+                    goods_info.append(tmp_dic)
+                tmp['goods_info'] = goods_info
+            else:  # size不为空
+                tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                for color in data_list['color']:
+                    tmp_dic = {}
+                    tmp_dic['goods_value'] = color
+                    for item in tmp_goods_info:
+                        tmp_dic['goods_value'] = tmp_dic['goods_value'] + '|' + item[0]
+                        tmp_dic['color_img_url'] = ''
+                        tmp_dic['detail_price'] = item[1]
+                        tmp_dic['rest_number'] = item[2]
+                        goods_info.append(tmp_dic)
+                tmp['goods_info'] = goods_info
+        else:  # 颜色跟颜色图片都不为空
+            if data_list['size_info'] == []:  # size为空
+                tmp_goods_info = list(zip(data_list['color'], data_list['color_img_url'], data_list['detail_price'],
+                                          data_list['rest_number']))
+                for item in tmp_goods_info:
+                    tmp_dic = {}
+                    tmp_dic['goods_value'] = item[0]
+                    tmp_dic['color_img_url'] = item[1]
+                    tmp_dic['detail_price'] = item[2]
+                    tmp_dic['rest_number'] = item[3]
+                    goods_info.append(tmp_dic)
+                tmp['goods_info'] = goods_info
+            else:  # size不为空
+                tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                for index in range(0, len(data_list['color'])):
+                    tmp_dic = {}
+                    tmp_dic['goods_value'] = data_list['color'][index]
+                    color_img_url = data_list['color_img_url'][index]
+                    for item in tmp_goods_info:
+                        # print(item[0])
+                        tmp_dic['goods_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
+                        tmp_dic['goods_value'] = data_list['color'][index]
+                        tmp_dic['goods_value'] += '|' + item[0]
+                        tmp_dic['color_img_url'] = color_img_url
+                        tmp_dic['detail_price'] = item[1]
+                        tmp_dic['rest_number'] = item[2]
+                        goods_info.append(tmp_dic)
+                        # print(tmp_dic['goods_value'])
+                tmp['goods_info'] = goods_info
+
+        tmp['center_img_url'] = data_list['center_img_url']  # 主图片地址
+
+        all_img_url_info = []
+        for index in range(0, len(data_list['all_img_url'])):
+            tmp_dic = {}
+            tmp_dic['img_url'] = data_list['all_img_url'][index]
+            all_img_url_info.append(tmp_dic)
+        tmp['all_img_url_info'] = all_img_url_info  # 所有示例图片地址
+
+        p_info = []
+        tmp_p_info = list(zip(data_list['p_name'], data_list['p_value']))
+        for item in tmp_p_info:
+            tmp_dic = {}
+            tmp_dic['p_name'] = item[0]
+            tmp_dic['p_value'] = item[1]
+            p_info.append(tmp_dic)
+        tmp['p_info'] = p_info  # 详细信息
+
+        # 采集的来源地
+        # tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
+        tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+
+        print('------>>>| 待存储的数据信息为: |', tmp)
+        pipeline.update_table(tmp)
+
     def get_qrcode_cookies(self, login_cookies):
         '''
         处理传入的cookies,从而得到自己需求的cookies
@@ -431,21 +579,50 @@ class LoginAndParse(object):
         '''
         self.wait_to_deal_with_url = wait_to_deal_with_url
 
-# if __name__ == '__main__':
-#     login_ali = LoginAndParse()
-#     login_ali.get_qrcode_url()
-#     login_ali.login()
-#
-#     while True:
-#         wait_to_deal_with_url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-#         wait_to_deal_with_url.strip('\n').strip(';')
-#         # wait_to_deal_with_url = 'https://detail.1688.com/offer/526362847506.html?spm=b26110380.sw1688.mof001.13.5rHmRl'
-#         login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
-#         data = login_ali.deal_with_page_url()
-#         print(data)
+if __name__ == '__main__':
+    # login_ali = LoginAndParse()
+    # login_ali.get_qrcode_url()
+    # login_ali.login()
+    #
+    # while True:
+    #     wait_to_deal_with_url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
+    #     wait_to_deal_with_url.strip('\n').strip(';')
+    #     # wait_to_deal_with_url = 'https://detail.1688.com/offer/526362847506.html?spm=b26110380.sw1688.mof001.13.5rHmRl'
+    #     login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
+    #     data = login_ali.deal_with_page_url()
+    #     print(data)
 
-# 马桶这个特别特殊
-# https://detail.1688.com/offer/540344060909.html?spm=a260k.635.201611281602.10.JXEQXP
+    login_ali = LoginAndParse()
+    login_ali.get_qrcode_url()
+    login_ali.login()
+
+    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+    result = list(tmp_sql_server.select_all_goods_id())
+    print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+    print(result)
+    print('--------------------------------------------------------')
+
+    # while True:
+    print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+    for item in result:     # 实时更新数据
+        tmp_url = 'https://detail.1688.com/offer/' + str(item[0]) + '.html'
+        wait_to_deal_with_url = tmp_url
+        login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
+        data = login_ali.deal_with_page_url()
+        if data:
+            data['goods_id'] = item[0]
+            data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            print('------>>>| 爬取到的数据为: ', data)
+
+            login_ali.to_right_and_update_data(data, pipeline=tmp_sql_server)
+        else:   # 表示返回的data值为空值
+            pass
+
+    print('全部数据更新完毕'.center(100, '#'))
+        # sleep(60*60)
+
+
 
 
 

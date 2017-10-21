@@ -19,8 +19,8 @@ from login_and_parse import LoginAndParse
 from my_pipeline import UserItemPipeline
 # from .my_pipeline import UserItemPipeline
 
-# from my_pipeline import MyPageInfoSaveItemPipeline
-from .my_pipeline import MyPageInfoSaveItemPipeline
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+# from .my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
 import json
@@ -100,6 +100,7 @@ def select():
     print('正在获取选择界面...')
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:   # 判断是否为非法登录
         if request.form.get('confirm_login'):       # 二维码已扫描的ajax请求的处理
+            login_ali = LoginAndParse()
             is_success_login = login_ali.login()
 
             if is_success_login:        # 扫码成功
@@ -162,6 +163,7 @@ def regist():
             is_insert_into = tmp_user.insert_into_table(item)
 
             if is_insert_into:
+                print('用户 %s 注册成功!' % username)
                 return redirect('/')
             else:
                 return "用户注册失败!"
@@ -188,7 +190,8 @@ def show_info():
         if request.method == 'POST':
             pass
         else:
-            return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            return send_file('templates/spider_to_show_and_save2.html')
 
 @app.route("/data", methods=['POST'])
 def get_all_data():
@@ -243,16 +246,26 @@ def get_all_data():
             wait_to_save_data['spider_url'] = wait_to_deal_with_url
             wait_to_save_data['username'] = username
             wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            tmp_goods_id = re.compile(r'.*?/offer/(.*?).html').findall(wait_to_deal_with_url)[0]
+            wait_to_save_data['goods_id'] = tmp_goods_id        # goods_id  官方商品link的商品id
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('-->> 下面是爬取到的页面信息: ')
+            print('------>>> 下面是爬取到的页面信息: ')
             print(result_json.decode())
+            print('-------------------------------')
             return result_json.decode()
         else:
-            print('goodsLink为空!')
+            print('goodsLink为空值...')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4042,  # 表示goodsLink为空值
+            }
 
+            result = json.dumps(result)
+            return result
     else:
         result = {
             'reason': 'error',
@@ -273,41 +286,192 @@ def to_save_data():
         if request.form.getlist('saveData[]'):      # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))   # 一个待存取的url的list
 
+            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                my_page_info_save_item_pipeline = MyPageInfoSaveItemPipeline()
+                tmp_wait_to_save_data_goods_id_list = []
                 for item in wait_to_save_data_url_list:
-                    tmp_item = re.compile(r'(.*?)\?.*?').findall(item)  # 过滤筛选出唯一的阿里1688商品链接
-                    if tmp_item == []:
-                        wait_to_save_data_url = item
+                    if item == '':      # 除去传过来是空值
+                        pass
                     else:
-                        wait_to_save_data_url = tmp_item[0]
+                        tmp_goods_id = re.compile(r'.*?/offer/(.*?).html.*?').findall(item)[0]
+                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
 
-                    for index in range(0, len(tmp_wait_to_save_data_list)-1):
-                        if wait_to_save_data_url == tmp_wait_to_save_data_list[index]['spider_url']:
+                wait_to_save_data_goods_id_list = tmp_wait_to_save_data_goods_id_list       # 待保存的goods_id的list
+                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+
+                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                goods_to_delete = []
+                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
+                    for index in range(0, len(tmp_wait_to_save_data_list)):
+                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
+                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
                             tmp = {}
-                            tmp['spider_url'] = data_list['spider_url']
-                            tmp['username'] = data_list['username']
-                            tmp['deal_with_time'] = data_list['deal_with_time']
+                            tmp['goods_id'] = data_list['goods_id']                                 # 官方商品id
+                            tmp['spider_url'] = data_list['spider_url']                             # 商品地址
+                            tmp['username'] = data_list['username']                                 # 操作人员username
+                            tmp['deal_with_time'] = data_list['deal_with_time']                     # 操作时间
 
-                            tmp['title'] = data_list['title']
-                            tmp['price'] = ';'.join(data_list['price'])
-                            tmp['trade_number'] = ';'.join(data_list['trade_number'])   # list为[], 值就为'', 不为空, 1个就是'xx', 多个就是'xx;yy'
-                            tmp['color'] = ';'.join(data_list['color'])
-                            tmp['color_img_url'] = ';'.join(data_list['color_img_url'])
-                            tmp['size_info'] = ';'.join(data_list['size_info'])
-                            tmp['detail_price'] = ';'.join(data_list['detail_price'])
-                            tmp['rest_number'] = ';'.join(data_list['rest_number'])
-                            tmp['center_img_url'] = ';'.join(data_list['center_img_url'])
-                            tmp['all_img_url'] = ';'.join(data_list['all_img_url'])
+                            tmp['company_name'] = data_list['company_name']                         # 公司名称
+                            tmp['title'] = data_list['title']                                       # 商品名称
+                            tmp['link_name'] = data_list['link_name']                               # 卖家姓名
+                            tmp['link_name_personal_url'] = data_list['link_name_personal_url']     # 卖家私人主页地址
 
+                            tmp_price_info = list(zip(data_list['price'], data_list['trade_number']))
+                            price_info = []
+                            for item in tmp_price_info:
+                                tmp_dic = {}
+                                tmp_dic['price'] = item[0]
+                                tmp_dic['trade_number'] = item[1]
+                                price_info.append(tmp_dic)
+                            tmp['price_info'] = price_info                                          # 价格信息
+
+                            goods_name = []
+                            for item in data_list['goods_name']:
+                                tmp_dic = {}
+                                tmp_dic['goods_name'] = item
+                                goods_name.append(tmp_dic)
+
+                            tmp['goods_name'] = goods_name                                          # 标签属性名称
+
+                            # [{'goods_value': '红色|L', 'color_img_url': 'xxx.jpg', 'price': '99', 'stocknum': '1000'}, {…}, …]
+                            """
+                            处理得到goods_info
+                            """
+                            goods_info = []
+                            if data_list['color'] == []:                                            # 颜色为空, size必定存在
+                                if data_list['size_info'] != []:
+                                    if data_list['other_size_info'] == []:      # 说明other_size_info不存在, 只有一个size_info
+                                        tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                                        for item in tmp_goods_info:
+                                            tmp_dic = {}
+                                            tmp_dic['goods_value'] = item[0]
+                                            tmp_dic['color_img_url'] = ''
+                                            tmp_dic['detail_price'] = item[1]
+                                            tmp_dic['rest_number'] = item[2]
+                                            goods_info.append(tmp_dic)
+                                        tmp['goods_info'] = goods_info
+                                    else:                                       # other_size 存在
+                                        tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                                        for index in range(0, len(data_list['other_size_info'])):
+                                            tmp_dic = {}
+                                            tmp_dic['goods_value'] = data_list['other_size_info'][index]
+                                            for item in tmp_goods_info:
+                                                # print(item[0])
+                                                tmp_dic['goods_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
+                                                tmp_dic['goods_value'] = data_list['other_size_info'][index]
+                                                tmp_dic['goods_value'] += '|' + item[0]
+                                                tmp_dic['color_img_url'] = ''
+                                                tmp_dic['detail_price'] = item[1]
+                                                tmp_dic['rest_number'] = item[2]
+                                                goods_info.append(tmp_dic)
+                                                # print(tmp_dic['goods_value'])
+                                        tmp['goods_info'] = goods_info
+                                else:   # 二者都为空，则goods_info = []
+                                    tmp['goods_info'] = []
+
+                            elif data_list['color'] != [] and data_list['color_img_url'] == []:     # 颜色不为空, 但颜色图片为空
+                                if data_list['size_info'] == []:    # size为空
+                                    tmp_goods_info = list(zip(data_list['color'], data_list['detail_price'], data_list['rest_number']))
+                                    for item in tmp_goods_info:
+                                        tmp_dic = {}
+                                        tmp_dic['goods_value'] = item[0]
+                                        tmp_dic['color_img_url'] = ''
+                                        tmp_dic['detail_price'] = item[1]
+                                        tmp_dic['rest_number'] = item[2]
+                                        goods_info.append(tmp_dic)
+                                    tmp['goods_info'] = goods_info
+                                else:                               # size不为空
+                                    tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                                    for color in data_list['color']:
+                                        tmp_dic = {}
+                                        tmp_dic['goods_value'] = color
+                                        for item in tmp_goods_info:
+                                            tmp_dic['goods_value'] = tmp_dic['goods_value']+ '|' + item[0]
+                                            tmp_dic['color_img_url'] = ''
+                                            tmp_dic['detail_price'] = item[1]
+                                            tmp_dic['rest_number'] = item[2]
+                                            goods_info.append(tmp_dic)
+                                    tmp['goods_info'] = goods_info
+                            else:                                                                   # 颜色跟颜色图片都不为空
+                                if data_list['size_info'] == []:    # size为空
+                                    tmp_goods_info = list(zip(data_list['color'], data_list['color_img_url'], data_list['detail_price'], data_list['rest_number']))
+                                    for item in tmp_goods_info:
+                                        tmp_dic = {}
+                                        tmp_dic['goods_value'] = item[0]
+                                        tmp_dic['color_img_url'] = item[1]
+                                        tmp_dic['detail_price'] = item[2]
+                                        tmp_dic['rest_number'] = item[3]
+                                        goods_info.append(tmp_dic)
+                                    tmp['goods_info'] = goods_info
+                                else:                               # size不为空
+                                    tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
+                                    for index in range(0, len(data_list['color'])):
+                                        tmp_dic = {}
+                                        tmp_dic['goods_value'] = data_list['color'][index]
+                                        color_img_url = data_list['color_img_url'][index]
+                                        for item in tmp_goods_info:
+                                            # print(item[0])
+                                            tmp_dic['goods_value'] = ''                         # 分析后加这两句话就完美解决了在原值上进行加
+                                            tmp_dic['goods_value'] = data_list['color'][index]
+                                            tmp_dic['goods_value'] += '|' + item[0]
+                                            tmp_dic['color_img_url'] = color_img_url
+                                            tmp_dic['detail_price'] = item[1]
+                                            tmp_dic['rest_number'] = item[2]
+                                            goods_info.append(tmp_dic)
+                                            # print(tmp_dic['goods_value'])
+                                    tmp['goods_info'] = goods_info
+
+                            tmp['center_img_url'] = data_list['center_img_url']                     # 主图片地址
+
+                            all_img_url_info = []
+                            for index in range(0, len(data_list['all_img_url'])):
+                                tmp_dic = {}
+                                tmp_dic['img_url'] = data_list['all_img_url'][index]
+                                all_img_url_info.append(tmp_dic)
+                            tmp['all_img_url_info'] = all_img_url_info                              # 所有示例图片地址
+
+                            p_info = []
+                            tmp_p_info = list(zip(data_list['p_name'], data_list['p_value']))
+                            for item in tmp_p_info:
+                                tmp_dic = {}
+                                tmp_dic['p_name'] = item[0]
+                                tmp_dic['p_value'] = item[1]
+                                p_info.append(tmp_dic)
+                            tmp['p_info'] = p_info                                                  # 详细信息
+
+                            # 采集的来源地
+                            tmp['site_id'] = 2                                                      # 采集来源地(阿里1688批发市场)
+                            tmp['is_delete'] = 0                                                    # 逻辑删除, 未删除为0, 删除为1
+
+                            print('------>>> | 待存储的数据信息为: |', tmp)
                             is_insert_into = my_page_info_save_item_pipeline.insert_into_table(tmp)
                             if is_insert_into:      # 如果返回值为True
-                                tmp_wait_to_save_data_list.pop(index)
+                                try:
+                                    goods_to_delete.append(tmp_wait_to_save_data_list[index])   # 避免在遍历时进行删除，会报错，所以建临时数组
+                                except IndexError as e:
+                                    print('索引越界, 此处我设置为跳过')
+                                # tmp_wait_to_save_data_list.pop(index)
+                                finally:
+                                    pass
                             else:
-                                print('插入失败!')
+                                # print('插入失败!')
                                 pass
+                        else:
+                            pass
+
+                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]    # 删除已被插入
+                print('存入完毕'.center(100, '*'))
+
+                # 处理完毕后返回一个处理结果避免报错
+                result = {
+                    'reason': 'success',
+                    'data': '',
+                    'error_code': 11,
+                }
+                result = json.dumps(result)
+                return result
 
             else:
                 print('saveData为空!')
@@ -336,82 +500,6 @@ def to_save_data():
         }
         result = json.dumps(result)
         return result
-
-"""
-@app.route("/much_data", methods=['POST'])
-def get_all_muckh_data():
-    '''
-    批量获取对应网址的info
-    :return:
-    '''
-    all_data = []
-    print('客户端正在请求批量抓取...')
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
-        if request.form.getlist('batchGoodsLink[]'):    # 切记：从客户端获取list数据的方式
-            print('正在获取相应数据中...')
-            wait_to_deal_with_url_list = list(request.form.getlist('batchGoodsLink[]'))    # 获取到的是一个待爬取的url的list
-
-            print('获取到的待爬取的list为: ', wait_to_deal_with_url_list)
-            if wait_to_deal_with_url_list != []:
-                for item in wait_to_deal_with_url_list:
-                    tmp_item = re.compile(r'(.*?)&.*?').findall(item)  # 过滤筛选出唯一的阿里1688商品链接
-                    if tmp_item == []:
-                        wait_to_deal_with_url = item
-                    else:
-                        wait_to_deal_with_url = tmp_item[0]
-
-                    login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
-                    data = login_ali.deal_with_page_url()  # 如果成功获取的话, 返回的是一个data的json对象
-
-                    if data is 4041:  # 4041表示给与的待爬取的地址错误, 前端重置输入框，并提示输入的内容非正确网址，请重新输入
-                        result = {
-                            'reason': 'error',
-                            'data': '',
-                            'error_code': data,
-                        }
-
-                        result = json.dumps(result)
-                        return result
-
-                    print(data)
-                    all_data.append(data)       # 一个list里面存放的是所有的dict
-                result = {
-                    'reason': 'success',
-                    'data': all_data,
-                    'error_code': 0,
-                }
-
-                result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('-->> 下面是爬取到的页面信息: ')
-                print(result_json.decode())
-                return result_json.decode()
-            else:
-                print('batchGoodsLink为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,     # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
-        else:
-            print('batchGoodsLink为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
-    else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
-"""
 
 def encrypt(key, s):
     '''
@@ -468,7 +556,8 @@ def decrypt(key, s):
 if __name__ == "__main__":
     print('服务器已经启动...等待接入中...')
     print('http://0.0.0.0:5000')
-    WSGIServer(('0.0.0.0', 5000), app).serve_forever()      # 采用高并发部署
+
+    WSGIServer(listener=('0.0.0.0', 5000), application=app).serve_forever()      # 采用高并发部署
     # app.run(host= '0.0.0.0', debug=False, port=5000)
 
     # 简单的多线程

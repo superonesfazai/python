@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>甄优爬虫</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/swiper-3.4.2.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/animate.min.css"/>
+    <style type="text/css">
+			html,
+			body {
+			  width: 100%;
+			  font-size: .16rem;
+			  color: #333333;
+			}
+			html {
+			  font-size: 100px;
+			}    	
+       header{
+        width:100%;
+        height:.8rem;
+        background: #dfdfdf;
+      }
+      .main{
+      	width: 12rem;
+      	height: 10rem;
+      	margin: 0 auto;
+      }   	
+	.collect-info{
+		width: 100%;
+		height: 2.34rem;
+	}
+	.title{
+		height: .44rem;
+		text-align: center;
+		line-height: .44rem;
+	}
+	.grab{
+		width: 10rem;
+		height: .5rem;
+		margin: 0 auto;
+		display: flex;
+		border: 1px solid #ebebeb;
+	}
+	.grab a{
+		display: block;
+		flex: 1;
+		height: .5rem;
+		text-align: center;
+		line-height: .5rem;
+	}
+	.grab .active{
+		color: black;
+	}
+	.goodsLink{
+		width: 8rem;
+		height: .4rem;
+		margin: .2rem auto;
+	}
+	.goodsLink input{
+		width: 8rem;
+		height: .4rem;	
+		border: 1px solid #ebebeb;
+		border-radius: .08rem;
+		text-indent: 10px;
+	}
+	.collect-btn{
+		width: 8rem;
+		height: .3rem;
+		margin: 0 auto;
+		display: flex;
+	}
+	.collect-btn a{
+		display: block;
+		flex: 1;
+		text-align: center;
+	}
+	.collect-content{
+		width: 100%;
+	}
+	.goodsName{
+		width: 100%;
+		height: .36rem;
+	}
+	.collect-main{
+		width: 100%;
+		/*height: 5rem;*/
+	}
+	.collect-main-left{
+		width: 4rem;
+		/*height: 5rem;*/
+		float: left;
+	}
+	.bigGoods{
+		width: 4rem;
+		height: 4rem;
+		margin-bottom: .15rem;
+		background: #efaf85;
+	}
+	.bigGoods img{
+		width: 100%;
+		height: 100%;
+	}	
+	.smallGoodsList{
+		width: 4rem;
+		height: .6rem;
+		position: relative;		
+    overflow: hidden;			
+	}
+	.smallGoodsList ul{
+		width: 4rem;
+		height: .6rem;
+	}
+	.smallGoodsList ul li{
+		width: .6rem !important;
+		height: .6rem;
+		margin-right: .24rem;
+		cursor: pointer;
+	}
+	.smallGoodsList ul li:last-child{
+		margin: 0;
+	}
+	.smallGoodsList ul li img{
+		width: 100%;
+		height: 100%;
+	}	
+	.btn-left{
+		display: block;
+		width: .24rem;
+		height: .6rem;
+		position: absolute;
+		left: 0;
+		top: 0;
+		background: url(../static/images/btn-l.png)no-repeat center;
+		background-size: 100% auto;
+		background-color: #ffffff;
+		z-index: 20;
+	}
+	.btn-right{
+		display: block;
+		width: .24rem;
+		height: .6rem;		
+		position: absolute; 
+		right: 0;
+		top: 0;
+		background: url(../static/images/btn-r.png)no-repeat center;
+		background-size: 100% auto;
+		background-color: #ffffff;
+		z-index: 20;			
+	}
+	.seller-info{
+		padding-top: .2rem;
+	}
+	.seller-info input{
+		width: 1.1rem;
+		height: .3rem;
+		border: 1px solid #CCCCCC;
+	}
+	.collect-main-right{
+		float: left;
+		width: 7.48rem;
+		/*height: 5rem;*/
+		margin-left: .2rem;		
+	}
+	.goods-info{
+		width: 100%;
+		height: 1.5rem;
+		background: #ebcebb;
+		border-top: 2px solid #e72d44;
+	}
+	.price,.number{
+		text-align: center;
+		height: .75rem;
+		line-height: .75rem;
+	}
+	.price ul,.number ul{	
+		display: flex;
+	}
+	.price ul li,.number ul li{
+		color: #e72d44;
+		font-size: .3rem;	
+		flex: 1;	
+	}
+	.price ul li:first-child,.number ul li{
+		color: #333333;
+		font-size: .16rem;
+	}
+	.goodsColor{
+		width: 100%;
+		height: .6rem;
+		border-bottom: 1px solid #CCCCCC;
+	}
+	.goodsColor-left,.goodsSize-left{
+		width: 1rem;
+		text-align: center;
+		line-height: .6rem;
+		float: left;
+	}
+	.goodsColor-right{
+		width: 6.48rem;
+		height: .6rem;
+		float: left;
+	}
+	.goodsColor-right ul li{
+		width: .3rem;
+		height: .3rem;
+		line-height: .3rem;
+		margin: .15rem .3rem;
+		float: left;
+		white-space: nowrap;
+	}
+	.goodsColor-right ul li img{
+		width: 100%;
+		height: 100%;
+	}
+	.goodsColor-right ul .active{
+		border: 1px solid #e72d44;
+	}
+	.goodsColorImg{
+		width: .4rem;
+    height: .4rem;
+    margin: 0 auto;
+    display: block;	
+	}
+	.goodsSize{
+		width: 7.48rem;
+		height: 1.24rem;
+	}
+	.goodsSize-right{
+		width: 6.48rem;
+		/*height: 1.24rem;*/
+		float: left;
+		position: relative;
+	}
+	.goodsSize-right>ul{
+		width: 6.48rem;
+		height: 1.24rem;	
+		overflow: hidden;	
+	}
+	.goodsSize-right>ul li{
+		width: 6.48rem;
+		height: .4rem;	
+		border-bottom: 1px solid #CCCCCC;	
+	}
+	.goodsSize-right>ul li ul{
+		width: 6.48rem;
+		height: .4rem;		
+		display: flex;
+	}	
+	.goodsSize-right>ul li ul li{
+		flex: 1;
+		line-height: .4rem;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-right: .3rem;		
+	}	
+	.wLink{
+		width: 100%;
+		height: 100%;
+		text-align: center;
+		color: red;
+	}
+	.mask{
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0,0,0,.4);
+	}
+	.mask img{
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		margin: auto;
+		/*width: 100px;
+		height: 100px;		*/
+	}
+	.batchGrab{
+		width: 100%;
+    margin: 0 auto;
+    display: none;
+	}
+	.batchGrabLink{
+		width: 9.08rem;
+		height: 1rem;
+		margin: 0 auto;
+	}
+	.batchGrabBtn{
+		width: 10rem;
+		height: .4rem;
+		text-align: right;
+		margin: 0 auto;
+	}
+	.batchGrabBtn a{
+		display: inline-block;
+		width: .9rem;
+		height: .3rem;
+		text-align: center;
+		background: #6c89f5;
+		color: #ffffff;
+    line-height: .3rem;
+    margin: .05rem 1rem;	
+    vertical-align: top;	
+	}
+	.batchGrabBtn input{
+		height: .2rem;
+    width: .2rem;
+    vertical-align: top;
+    margin-top: .1rem;
+	}
+	.batchGrabBtn label{
+		display: inline-block;
+    vertical-align: top;
+    margin-top: .1rem;		
+	}
+	.batchGoodsLink{
+		width: 100%;
+		height: .4rem;
+		margin: 0 auto;
+		position: relative;
+	}
+	.batchGoodsLinkContent{
+		width: 8rem;
+		height: .4rem;
+	}
+	.batchGoodsLinkContent input{
+		width: 8rem;
+		height: .36rem;	
+		border: 1px solid #ebebeb;
+		border-radius: .08rem;
+		text-indent: 10px;
+	}	
+	.add{
+		vertical-align: bottom;
+		margin-right: .2rem;
+		cursor: pointer;	
+    position: absolute;
+    left: 0;			
+	}
+	.batchGoodsLinkContent{
+		display: inline-block;
+		vertical-align: bottom;
+		margin-right: .2rem;
+		cursor: pointer;
+		margin-left: 1rem;
+	}
+	.singleSelect{
+		width: .3rem;
+		height: .3rem;
+		display: inline-block;
+		margin: .05rem;
+		margin-left: .8rem;
+	}
+	.singleSelect input{
+		width: .3rem;
+		height: .3rem;
+	}
+	.addLinkList{
+		display: none;
+		margin-bottom: .2rem;
+	}
+	.addLink .active{
+		display: block;
+	}
+	.maxLink{
+		display: none;
+		width: 100%;
+		height: .4rem;
+		color: red;
+		text-align: center;
+		line-height: .4rem;
+	}
+	.showGoods{
+		/*float: left;*/
+	  margin: .2rem 0;
+	  position: relative;
+	}
+	.showGoodsLoading{
+		display: none;
+		margin-left: 4rem;
+	}
+	.wGoodsLink{
+		width: 100%;
+		height: 100%;
+		text-align: center;
+		color: red;		
+	}
+	.goodsDetail{
+		width: 100%;
+		float: left;
+		margin-top: .3rem;
+	}
+	.seller-message{
+		width: 1.9rem;
+		float: left;
+		border: 1px solid #E5E5E5;
+		margin-right: .16rem;
+		margin-bottom: .2rem;
+	}
+	.goodsDetail-message{
+		float: left;
+	}
+	.seller-company{
+		padding: .14rem .13rem;
+    background: #F5F5F5;	
+    max-width: 165px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;	
+    border-bottom: 1px solid #E5E5E5;
+    color: black;
+	}
+	.seller-personal-url{
+		max-width: 165px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;	
+	}
+	.seller-name,.seller-personal-url{
+		width: 100%;
+		/*height: .4rem;*/
+		line-height: .4rem;
+		padding-left: .13rem;
+	}
+	.goodsDetail-message{
+		width: 9.6rem;
+	}
+	.goodsDetail-message-title{
+		width: 100%;
+		height: .4rem;
+		line-height: .4rem;
+		text-indent: .2rem;
+		color: #FF7300;
+		border: 1px solid #E5E5E5;
+	}
+	.de-feature{
+		width: 8%;
+    padding: 14px 14px 0;
+    color: #999;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+	}
+	.de-value{
+		width: 15%;
+    padding: 10px 10px 0 0;
+    /*white-space: nowrap;*/
+    text-overflow: ellipsis;
+	}
+	.goodsDetail-messageList{
+		position: relative;
+	}
+	.obj-content{
+		height: 1.23rem;
+    overflow: hidden;
+    /*position: relative;*/
+    border-bottom: 1px solid #E5E5E5;
+	}
+	.obj-expand{
+    width: .46rem;
+    height: .2rem;
+    position: absolute;
+    right: 1rem;
+    top: 1.23rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 0 0 2px 2px;
+    cursor: pointer;
+    border-top: none;
+	}
+	.obj-expand:hover {
+		border-color: #FF7300;
+	}
+	.obj-expand span{
+		display:block;
+    width:0;
+    height:0;
+    border-width:.1rem .1rem 0;
+    border-style:solid;
+    border-color:#888 transparent transparent;
+    position: absolute;
+    top:0px;
+    left:.13rem;
+	}
+	.obj-expand1{
+    width: .46rem;
+    height: .2rem;
+    position: absolute;
+    right: 1rem;
+    top: 1.23rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 0 0 2px 2px;
+    cursor: pointer;
+    border-top: none;
+	}
+	.obj-expand1:hover {
+		border-color: #FF7300;
+	}
+	.obj-expand1 span{
+		display:block;
+    width:0;
+    height:0;
+    border-width:.1rem .1rem 0;
+    border-style:solid;
+    border-color:#888 transparent transparent;
+    position: absolute;
+    top:0px;
+    left:.13rem;
+	}
+	.again-loading{
+		position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+	}
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <div class="main">
+			<div class="collect-info">
+				<div class="title">阿里巴巴商品采集</div>
+				<div class="grab"><a class="active" href="javascript:" id="singleGrab">单个抓取</a><a href="javascript:" id="batchGrab">批量抓取</a></div>
+				<div class="goodsLink fadeInLeft animated">
+					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
+					<div class="wLink"></div>
+					<div class="collect-btn"><a href="javascript:" id="reset">重置</a><a href="javascript:" id="grab">抓取数据</a><a href="javascript:;" id="insertSqlSingle">存入数据库</a></div>					
+				</div>
+				<div class="batchGrab fadeInLeft animated">
+					<div class="batchGrabBtn"><a href="javascript:" id="batchGrabStart">开始抓取</a><a href="javascript:" id="insertSql">存入数据库</a><a href="javascript:;"id="resetAllLink" >清空输入框</a><input type="checkbox" name="allSelect" id="allSelect" value=""/><label for="allSelect">全部选中</label></div>
+					<div class="batchGoodsLink">
+						<div class="add"><img src="../static/images/add.png"/></div>
+						<ul class="addLink" id="addLink">
+							<li class="addLinkList active">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox"  name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>	
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>
+							</li>
+							<li class="addLinkList ">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect"  class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"  value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList active">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox"  name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>	
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>
+							</li>
+							<li class="addLinkList ">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect"  class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"  value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList active">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox"  name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>	
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>
+							</li>
+							<li class="addLinkList ">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect"  class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"  value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>		
+							<li class="addLinkList active">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox"  name="singleSelect" class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>	
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>
+							</li>
+							<li class="addLinkList ">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect"  class="singleSelectBtn" value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"  value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>			
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>
+							<li class="addLinkList">
+								<div class="batchGoodsLinkContent">
+									<input type="" name="" class="linkContent" value="" placeholder="商品详情链接"/>
+									<div class="wGoodsLink"></div>
+								</div>
+								<div class="singleSelect">
+									<input type="checkbox" name="singleSelect" class="singleSelectBtn"   value=""/><label for="singleSelect"></label>
+								</div>		
+								<div class="showGoods">
+									<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>				
+								</div>								
+							</li>							
+						</ul>
+						<div class="maxLink">已达到最大搜索量</div>
+					</div>
+				</div>
+			</div>
+			<div class="collect-content">
+				<!--<div class="goodsName">5663实拍2017羽绒服女网红店主风面包服短款休闲夹克棉服衣女外套</div>
+				<div class="collect-main">
+					<div class="collect-main-left">
+						 <div class="bigGoods"></div>
+						 <div class="smallGoodsList">
+						 	<ul>
+						 		<li><a href=""></a></li>
+						 		<li><a href=""></a></li>
+						 		<li><a href=""></a></li>
+						 		<li><a href=""></a></li>
+						 		<li><a href=""></a></li>
+						 	</ul>
+						 	<a href="" class="btn-left"></a>
+						 	<a href="" class="btn-right"></a>
+						 </div>
+						 <div class="seller-info">
+						 	商铺名称  <input type="text" name="" id="" value=""/>
+						 	旺旺账号  <input type="text" name="" id="" value=""/>
+						 </div>
+					</div>
+					<div class="collect-main-right">
+						<div class="goods-info">
+							<div class="price">
+								<ul>
+									<li>价格</li>
+									<li>¥ 119.00</li>
+									<li>¥ 101.15</li>
+									<li>¥ 89.25</li>
+								</ul>
+							</div>
+							<div class="number">
+								<ul>
+									<li>起批量</li>
+									<li> <span id="">3-9 </span>件</li>
+									<li> <span id="">10-99 </span> 件</li>
+									<li>≥ 件</li>
+								</ul>
+							</div>
+						</div>
+						<div class="goodsColor">
+							<div class="goodsColor-left">颜色</div>
+							<div class="goodsColor-right">
+								<ul>
+									<li class="active white"></li>
+									<li class="gray"></li>
+									<li class="black"></li>
+								</ul>							
+							</div>
+						</div>
+						<div class="goodsSize">
+							<div class="goodsSize-left">尺寸</div>
+							<div class="goodsSize-right">
+								<ul>
+									<li>
+										<ul>
+											<li>L</li>
+											<li><span>119.00</span>元</li>
+											<li><span id="">2000</span>件可售</li>
+										</ul>
+									</li>
+									<li>
+										<ul>
+											<li>XL</li>
+											<li><span>119.00</span>元</li>
+											<li><span id="">2000</span>件可售</li>
+										</ul>									
+									</li>
+									<li>
+										<ul>
+											<li>2XL</li>
+											<li><span>119.00</span>元</li>
+											<li><span id="">2000</span>件可售</li>
+										</ul>									
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="goodsDetail">
+					<div class="seller-message">
+						<div class="seller-company">深圳市福田区水月镜花服装</div>
+						<div class="seller-name">
+							联系卖家：<span>徐惠湘</span>
+						</div>
+						<div class="seller-personal-url">
+							卖家私人主页：<br /><a href="https://me.1688.com/*xC-i2FIyvmIyvmHLvFvT.html" target="_blank">https://me.1688.com/*xC-i2FIyvmIyvmHLvFvT.html</a>
+						</div>
+					</div>
+					<div class="goodsDetail-message">
+						<div class="goodsDetail-message-title">详细信息</div>
+						<div class="goodsDetail-messageList">
+							<div class="obj-content">
+						    <table>
+						        <tbody>
+						        	<tr>
+						        		<td class="de-feature">货源类别</td>
+						        		<td class="de-value">现货</td>
+						        		<td class="de-feature">产地</td>
+						        		<td class="de-value">其他</td>
+						    				<td class="de-feature">品牌</td>
+						    				<td class="de-value">其他</td>
+						    			</tr>
+						    			<tr>
+						    			 	<td class="de-feature">货号</td>
+						    				<td class="de-value">5663#</td>
+						    				<td class="de-feature">填充物</td>
+						    				<td class="de-value">其他</td>
+						    				<td class="de-feature">衣长</td>
+						    				<td class="de-value">短款(40cm＜衣长≤50cm)</td>
+						    			</tr> 	    			    			  
+						    			<tr>
+						    				<td class="de-feature">风格</td>
+						    				<td class="de-value">OL通勤/正装</td>
+						    				<td class="de-feature">袖长</td>
+						    				<td class="de-value">长袖</td>
+						    				<td class="de-feature">主图来源</td>
+						    				<td class="de-value">其他来源</td>
+						    			</tr>
+						    			<tr>  	    			
+						    				<td class="de-feature">颜色</td>
+						    				<td class="de-value">白色,卡其色,黑色</td>
+						    				<td class="de-feature">尺码</td>
+						    				<td class="de-value">L,XL,2XL</td>
+						    				<td class="de-feature"></td>
+						    			</tr>
+						    		</tbody>
+						    </table>
+							</div>
+						</div>
+					</div>
+				</div>-->
+			</div>
+			<div class="mask"><img  src="../static/images/5-121204193Q9.gif"/></div>
+    </div>
+    <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>  
+    <script src="../static/js/ejs.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../static/js/swiper-3.4.2.min.js" type="text/javascript" charset="utf-8"></script>
+		<script  type="text/template" charset="utf-8" id="template">			
+			<div class="goodsName"><%=goodsInfo.title%></div>
+			<div class="collect-main">
+				<div class="collect-main-left">
+					 <div class="bigGoods bigGoods<%=index%>" ><img src="<%=goodsInfo.center_img_url%>"/></div>
+					 <div class="smallGoodsList swiper-container swiper-container-horizontal">
+					 	<ul  class="swiper-wrapper">
+					 		<%for(var i=0;i<goodsInfo.all_img_url.length;i++){%>
+					 			<li class="smallImgList smallImgList<%=index%> swiper-slide"><img src="<%=goodsInfo.all_img_url[i]%>"/></li>
+					 		<% }%>
+					 	</ul>
+					 	<a href="" class="btn-left swiper-button-next"></a>
+					 	<a href="" class="btn-right swiper-button-prev"></a>
+					 </div>
+					 <!--<div class="seller-info">
+					 	商铺  <input type="text" name="" id="" value=""/>
+					 	旺旺  <input type="text" name="" id="" value=""/>
+					 </div>-->
+				</div>
+				<div class="collect-main-right">
+					<div class="goods-info">
+						<div class="price">
+							<ul >
+								<li>价格</li>
+								<%for(var i=0;i<goodsInfo.price.length;i++){%>
+									<li><%=goodsInfo.price[i]%></li>
+								<%}%>
+							</ul>
+						</div>
+						<div class="number">
+							<ul>
+								<li>起批量</li>
+								<%for(var i=0;i<goodsInfo.trade_number.length;i++){%>
+								<li> <span id=""><%=goodsInfo.trade_number[i]%></span>件</li>
+								<%}%>
+							</ul>
+						</div>
+					</div>
+					<% if(goodsInfo.size_info.length == 0){%>
+						<div class="goodsSize">
+							<div class="goodsSize-left"><%=goodsInfo.goods_name[0]%></div>
+							<div class="goodsSize-right">
+								<ul>
+									<%for(var i=0;i<goodsInfo.color.length;i++){%>
+										<li>
+											<ul>
+												<li class="goodsColorList goodsColorList<%=index%>" title="<%=goodsInfo.color[i]%>"><img class="goodsColorImg" src="<%=goodsInfo.color_img_url[i]%>"/></li>
+												<li title="<%=goodsInfo.detail_price[i]%>"><span><%=goodsInfo.detail_price[i]%></span>元</li>
+												<li title="<%=goodsInfo.rest_number[i]%>"><span id=""><%=goodsInfo.rest_number[i]%></span>件可售</li>
+											</ul>
+										</li>									
+									<%}%>
+								</ul>
+							</div>
+						</div>						
+					<%}else{%>	
+						<div class="goodsColor">
+							<div class="goodsColor-left"><%=goodsInfo.goods_name[0]%></div>
+							<div class="goodsColor-right">
+								<ul>
+										<%if(goodsInfo.color_img_url ==''){%>
+											<%for(var i=0;i<goodsInfo.color.length;i++){%>
+												<li ><%=goodsInfo.color[i]%></li>
+											<%}%>	
+										<%}else{%>
+											<%for(var i=0;i<goodsInfo.color_img_url.length;i++){%>
+												<li class="goodsColorList goodsColorList<%=index%>"><img src="<%=goodsInfo.color_img_url[i]%>"/></li>
+											<%}%>	
+									<%}%>	
+								</ul>							
+							</div>
+						</div>
+						<div class="goodsSize">
+							<div class="goodsSize-left"><%if(goodsInfo.goods_name[1]){%><%=goodsInfo.goods_name[1]%><%}else{%><%=goodsInfo.goods_name[0]%><% } %></div>
+							<div class="goodsSize-right">
+								<ul>
+									<%for(var i=0;i<goodsInfo.size_info.length;i++){%>
+										<li>
+											<ul>
+												<li title="<%=goodsInfo.size_info[i]%>"><%=goodsInfo.size_info[i]%></li>
+												<li title="<%=goodsInfo.detail_price[i]%>"><span><%=goodsInfo.detail_price[i]%></span>元</li>
+												<li title="<%=goodsInfo.rest_number[i]%>"><span id=""><%=goodsInfo.rest_number[i]%></span>件可售</li>
+											</ul>
+										</li>									
+									<%}%>
+								</ul>
+								<div class="obj-expand">
+									<span ></span>
+								</div>
+							</div>
+						</div>						
+					<% }%>
+				</div>
+			</div>
+				<div class="goodsDetail">
+					<div class="seller-message">
+						<div class="seller-company"><%=goodsInfo.company_name%></div>
+						<div class="seller-name">
+							联系卖家：<span><%=goodsInfo.link_name%></span>
+						</div>
+						<div class="seller-personal-url">
+							卖家私人主页：<br /><a href="<%=goodsInfo.link_name_personal_url%>" target="_blank"><%=goodsInfo.link_name_personal_url%></a>
+						</div>
+					</div>
+					<div class="goodsDetail-message">
+						<div class="goodsDetail-message-title">详细信息</div>
+						<div class="goodsDetail-messageList">
+							<div class="obj-content">
+						    <table>
+						        <tbody>
+						        	<tr>
+						        		<td class="de-feature"><%if(goodsInfo.p_name[0]){%><%=goodsInfo.p_name[0]%><%}else{%><% } %></td>
+						        		<td class="de-value"><%if(goodsInfo.p_value[0]){%><%=goodsInfo.p_value[0]%><%}else{%><% } %></td>
+						        		<td class="de-feature"><%if(goodsInfo.p_name[1]){%><%=goodsInfo.p_name[1]%><%}else{%><% } %></td>
+						        		<td class="de-value"><%if(goodsInfo.p_value[1]){%><%=goodsInfo.p_value[1]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[2]){%><%=goodsInfo.p_name[2]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[2]){%><%=goodsInfo.p_value[2]%><%}else{%><% } %></td>
+						    			</tr>
+						    			<tr>
+						    			 	<td class="de-feature"><%if(goodsInfo.p_name[3]){%><%=goodsInfo.p_name[3]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[3]){%><%=goodsInfo.p_value[3]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[4]){%><%=goodsInfo.p_name[4]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[4]){%><%=goodsInfo.p_value[4]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[5]){%><%=goodsInfo.p_name[5]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[5]){%><%=goodsInfo.p_value[5]%><%}else{%><% } %></td>
+						    			</tr> 	    			    			  
+						    			<tr>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[6]){%><%=goodsInfo.p_name[6]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[6]){%><%=goodsInfo.p_value[6]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[7]){%><%=goodsInfo.p_name[7]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[7]){%><%=goodsInfo.p_value[7]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[8]){%><%=goodsInfo.p_name[8]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[8]){%><%=goodsInfo.p_value[8]%><%}else{%><% } %></td>
+						    			</tr>
+						    			<tr>  	    			
+						    				<td class="de-feature"><%if(goodsInfo.p_name[9]){%><%=goodsInfo.p_name[9]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[9]){%><%=goodsInfo.p_value[9]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[10]){%><%=goodsInfo.p_name[10]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[10]){%><%=goodsInfo.p_value[10]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[11]){%><%=goodsInfo.p_name[11]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[11]){%><%=goodsInfo.p_value[11]%><%}else{%><% } %></td>
+						    			</tr>
+						    			<tr>  	    			
+						    				<td class="de-feature"><%if(goodsInfo.p_name[12]){%><%=goodsInfo.p_name[12]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[12]){%><%=goodsInfo.p_value[12]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[13]){%><%=goodsInfo.p_name[13]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[13]){%><%=goodsInfo.p_value[13]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_name[14]){%><%=goodsInfo.p_name[14]%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_value[14]){%><%=goodsInfo.p_value[14]%><%}else{%><% } %></td>
+						    			</tr>
+						    		</tbody>
+						    </table>
+						    <div class="obj-expand1">
+									<span ></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<%if(className =='.showGoods'){%>
+				<div class="again-loading">
+					<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>	
+				</div>					
+				<%}else{%>
+					
+				<%}%>
+		</script>    
+    <script type="text/javascript">
+	/*REM*/
+			~function(){
+				var desW = 1920,
+						winW = document.documentElement.clientWidth||document.body.clientWidth;				
+						document.documentElement.style.fontSize = winW / desW * 100 + 'px';
+			}();
+
+	//抓取方式切换	
+			(function(){
+				$('#singleGrab').click(function(){
+					$('.collect-content').show();
+					$('.goodsLink').show();
+					$('.batchGrab').hide();
+					$(this).addClass('active').siblings('a').removeClass('active');
+				})	
+				$('#batchGrab').click(function(){
+					$('.goodsLink').hide();
+					$('.collect-content').hide();
+					$('.batchGrab').show();
+					$(this).addClass('active').siblings('a').removeClass('active');
+				})					
+			})()
+
+	//批量存入数据库
+			$(function(){
+				var insertData = [];
+				$('.singleSelectBtn').click(function(){
+					 $(this).attr("checked", !$(this).attr("checked"));
+				})
+				$('#allSelect').click(function(){
+					$('.singleSelectBtn').each(function(){
+						this.checked = true
+					})
+				})
+				$('#insertSql').click(function(){
+					for(var i=0;i<$('.singleSelectBtn').length;i++){
+						if($('.singleSelectBtn').eq(i).is(":checked")&&$('.addLinkList').eq(i).hasClass('active')){
+							insertData.push($('.linkContent').eq(i).val())
+						}
+					}
+					if(insertData.length =='0'){
+						alert('未选择需要保存的信息')
+					}else{
+						$.ajax({
+							type:"post",
+							url:"/to_save_data",
+							async:true,
+							data:{
+								saveData:insertData
+							},
+							success:function(){
+								insertData = [];
+							},
+							error:function(){
+								insertData = [];
+							}
+						});
+						alert('已存入数据库')
+					}
+				})
+			})
+	//增加输入连接点位
+			$(function(){
+				var n =0;
+				$('.add').click(function(){
+	//判断搜索框的个数					
+					var oUl = document.getElementById('addLink');
+					var oLi = oUl.getElementsByTagName('li');
+					if(n>=19){
+						$('.maxLink').show();
+						setTimeout(()=>{$('.maxLink').hide();},1000)
+						return;
+					}
+					n++;
+					$('.addLinkList').eq(n).addClass('active');
+				})
+			})
+	//	bindHTML
+		
+			var GoodsInfo = (function(){
+	
+				
+				function bindHTML(goodsInfo,index,className){
+					console.log(index);
+					var $goodsInfoTemplate = $('#template'),
+							$goodsInfo = $('.className');
+					var template = $goodsInfoTemplate.html();
+					$(className).eq(index).html(ejs.render(template,{goodsInfo:goodsInfo,index:index,className:className}));
+	//swiper
+				var swiper = new Swiper('.swiper-container', {
+		      	slidesPerView :'auto',
+		        nextButton: '.swiper-button-next',
+		        prevButton: '.swiper-button-prev',
+		        offsetSlidesAfter:1
+		    });			
+	//carousel切换图片
+
+				var bigImgName = '.bigGoods'+index,
+						smallImgName = '.smallImgList'+index,
+						goodsColorName = '.goodsColorList'+index,
+						bigImg = $(bigImgName),
+						smallImg = $('.swiper-wrapper'),
+						smallImgList = $(smallImgName),
+						goodsColorList = $(goodsColorName),
+						now = null;
+						console.log(bigImg,smallImgList)
+	//点击小图切换					
+						for(var i=0;i<smallImgList.length;i++){
+							smallImgList[i].addEventListener('click',function(e){
+								console.log(index)
+								bigImg.find('img')[0].src = e.target.src;
+							})							
+						}
+	//点击颜色图切换
+						
+						for(var i=0;i<goodsColorList.length;i++){
+							goodsColorList[i].addEventListener('click',function(e){
+								console.log(e.target.src);
+								if(e.target.src){
+									bigImg.find('img')[0].src = e.target.src;	
+								}else{
+									return
+								}							
+							})							
+						}				
+	//点击下拉尺寸列表
+						$(function(){
+							$('.obj-expand').click(function(){
+								$('.goodsSize-right').children('ul').css({height:'100%'});
+								$(this).hide();
+							})
+						});		
+						$(function(){
+							$('.obj-expand1').click(function(){
+								$('.obj-content').css({height:'100%'});
+								$(this).hide();
+							})
+						});
+						
+				}	
+				
+				return {
+					init:function(data,index,className){	
+								bindHTML(data,index,className);							
+					}
+				}
+		})()
+//重置数据
+		function reset(){
+			$('#goodsLink').val('');
+			$('#goodsLink').focus();
+			$('.linkContent').val('');
+		}	
+		$('#reset').click(function(){reset()});
+//批量抓取数据
+//清空批量抓取输入框
+		$('#resetAllLink').click(function(){
+			reset();
+		});
+		$('#batchGrabStart').click(function(){	
+			$('.showGoodsLoading').show();
+			var p = new Promise(function(resolve,reject){
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(0).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(0).val()
+					},
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(0).hide();
+								GoodsInfo.init(data.data,0,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(0).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(0).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(0).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(0).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(0).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(0).text('')
+							},3000)					
+					}
+				});	
+				resolve('1')
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:"../static/js/tmp2.json",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '2'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '3'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}		
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '4'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '5'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '6'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '7'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '8'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '9'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '10'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '11'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '12'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '13'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '14'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '15'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '16'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '17'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '18'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '19'
+			}).then((res)=>{
+				$.ajax({
+					type:"post",
+//					url:$('.linkContent').eq(res).val(),
+					url:'/data',
+					async:true,
+					data:{
+						goodsLink:$('.linkContent').eq(res).val()
+					},					
+					success:function(data){
+					    data = JSON.parse(data);
+						if(data && data.reason == 'success'){
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+								GoodsInfo.init(data.data,res,'.showGoods');
+							}, 500)
+						}else{
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)
+						}						
+					},
+					error:function (){
+							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
+							setTimeout(function(){
+								$('.showGoodsLoading').eq(res).hide();
+							},500);
+							setTimeout(function(){
+								$('.wGoodsLink').eq(res).text('')
+							},3000)					
+					}
+				});	
+				return '20'
+			})
+
+
+		});
+//单个抓取数据
+		$('#grab').click(function(){
+			if($('#goodsLink').val()==''){
+				return
+			}
+
+			$('.mask').show();
+			$.ajax({
+				type:"post",
+//				url:$('#goodsLink').val(),
+                url:'/data',
+				async:true,
+				data:{
+					goodsLink:$('#goodsLink').val()
+				},
+				success:function(data){
+                    data = JSON.parse(data);
+					if(data && data.reason == 'success'){
+						setTimeout(function(){
+							$('.mask').hide();
+							GoodsInfo.init(data.data,0,'.collect-content');
+						}, 500)
+				//单个存入数据库
+							$('#insertSqlSingle').click(function(){
+							    var tmp_list = new Array();     //先转换为数组再存入
+							    tmp_list[0] = $('#goodsLink').val();
+								var insertData = tmp_list;
+									$.ajax({
+										type:"post",
+										url:"/to_save_data",
+										async:true,
+										data:{
+											saveData:insertData
+										},
+										success:function(){
+										},
+										error:function(){
+										}
+									});
+									alert('已存入数据库')
+							})				
+					}else{
+						reset();
+						$('.wLink').text('您输入的网址有误，请重新输入！');
+						setTimeout(function(){
+							$('.mask').hide();
+						},500);
+						setTimeout(function(){
+							$('.wLink').text('')
+						},3000)
+					}
+				},
+				error:function (){
+						reset();
+						$('.wLink').text('您输入的网址有误，请重新输入！');
+						setTimeout(function(){
+							$('.mask').hide();
+						},500);
+						setTimeout(function(){
+							$('.wLink').text('')
+						},3000)					
+				}
+			});
+		})
+    </script>
+  </body>
+</html>
