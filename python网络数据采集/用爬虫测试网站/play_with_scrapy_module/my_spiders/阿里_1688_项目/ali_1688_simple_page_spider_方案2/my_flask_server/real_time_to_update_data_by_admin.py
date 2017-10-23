@@ -25,23 +25,21 @@ import os, sys
 sys.path.append(os.getcwd())
 import json
 import datetime
+import requests
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 # from .my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-# from .my_items import PageInfoItem
+from settings import CHROME_DRIVER_PATH, PHANTOMJS_DRIVER_PATH
+from settings import ALI_1688_COOKIES_FILE_PATH
 
 # chrome驱动地址
-my_chrome_driver_path = '/Users/afa/myFiles/tools/chromedriver'
+my_chrome_driver_path = CHROME_DRIVER_PATH
 username = ''
 pwd = ''
 
 # phantomjs驱动地址
-EXECUTABLE_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
-
-# 要处理并爬取信息的url的地址
-# wait_to_deal_with_url = 'https://detail.1688.com/offer/526362847506.html?spm=b26110380.sw1688.mof001.13.5rHmRl'
-wait_to_deal_with_url = 'https://detail.1688.com/offer/559526148757.html?spm=b26110380.sw1688.mof001.28.sBWF6s'
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 """
 记住不要在翻墙的情况下使用运行，要不然得不到界面的内容
@@ -119,14 +117,14 @@ class LoginAndParse(object):
             f.write(buf.read())
 
         # 扫码
-        qrcode_img = Image.open('./qrcode.jpg')
+        qrcode_img = Image.open('qrcode.jpg')
         qrcode_img.show()
         # print(img_src)
 
         before_url = self.driver.current_url
 
         print('正在等待扫码....')
-        sleep(10)
+        sleep(16)
 
         while self.driver.current_url != before_url:
             print('扫码登陆成功!')
@@ -139,37 +137,36 @@ class LoginAndParse(object):
         cookies = self.get_qrcode_cookies(login_cookies)
         print('| 获取到的cookies为: ', cookies)
 
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000   # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        print('============| phantomjs即将执行 |')
-        tmp_execute_path = EXECUTABLE_PATH
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-        print('============| phantomjs执行成功 |')
-        # self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
-        wait = ui.WebDriverWait(self.driver, 10)   # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-        # cookies_str = self.cookies_to_str(cookies)
-
         if cookies.get('isg') is not None:  # 扫码成功
+            cookies_str = self.cookies_to_str(cookies)
+
+            # 将cookies写入指定文件cookies_ali_1688.txt
+            with open(ALI_1688_COOKIES_FILE_PATH, 'wb') as f:
+                f.write(cookies_str.encode('utf-8'))
             return True
         else:                               # 扫码失败
             return False
 
-        # 将cookies写入指定文件cookies.txt
-        # with open('cookies.txt', 'wb') as f:
-        #     f.write(cookies_str.encode('utf-8'))
-
-        # with open('cookies.txt', 'rb') as f:
-        #     line = f.read().decode('utf-8').strip('\n')
-        #     print(line)
+    def set_self_driver_with_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        cookies_str = self.get_cookies_from_cookies_txt()
+        cookies = self.str_to_dict(cookies_str)
+        # print('从文件中获取到的cookies: ', cookies)
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        # print('============| phantomjs即将执行 |')
+        tmp_execute_path = EXECUTABLE_PATH
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+        # print('============| phantomjs执行成功 |')
+        # self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
+        wait = ui.WebDriverWait(self.driver, 10)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
 
     def deal_with_page_url(self):
         '''
@@ -178,23 +175,23 @@ class LoginAndParse(object):
         '''
         # 遇到一个问题加载很慢，已解决
         # 解决方案直接设置给driver设置时间延迟来终止请求
-        self.driver.set_page_load_timeout(7)
+        self.driver.set_page_load_timeout(5)
         print('待爬取的url地址为: ', self.wait_to_deal_with_url)
         try:
             self.driver.get(self.wait_to_deal_with_url)
             sleep(.8)    # 这里睡眠的目的是为了让color_img_url先加载出来避免图片为空值
-            self.driver.implicitly_wait(10)     # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(7)     # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div#mod-detail-bd')
             try:
-                WebDriverWait(self.driver, 10, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 7, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041    # 未得到div#mod-detail-bd，返回4041
             else:
                 print('div#mod-detail-bd已经加载完毕')
         except Exception as e:       # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 7 seconds when loading page')
+            print('-->>time out after 5 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
 
@@ -322,6 +319,28 @@ class LoginAndParse(object):
         p_name = list(Selector(text=body).css('div.obj-content tbody td.de-feature::text').extract())   # a list
         p_value = list(Selector(text=body).css('div.obj-content tbody td.de-value::text').extract())    # a list
 
+        # 下方所有示例
+        # div.desc-lazyload-container::attr("data-tfs-url")
+        data_tfs_url = str(Selector(text=body).css('div.desc-lazyload-container::attr("data-tfs-url")').extract_first())
+
+        property_info = ''
+        if data_tfs_url != 'None':
+            property_info = self.get_data_tfs_url_div(data_tfs_url)
+        elif data_tfs_url == 'None':
+            tmp_data_tfs_url = list(Selector(text=body).css('div.mod-detail-description::attr("data-mod-config")').extract_first())
+            ### 意外发现返回的是这样格式是单字母list  ['{', '"', 's', 'h', 'o', 'w', 'O', 'n', '"', ':', '[', '"', 'm', 'o', 'd', '-', 'd', 'e', 't', 'a', 'i', 'l', '-', 'd', 'e', 's', 'c', 'r', 'i', 'p', 't', 'i', 'o', 'n', '"', ']', ',', '"', 't', 'i', 't', 'l', 'e', '"', ':', '"', '详', '细', '信', '息', '"', ',', '"', 't', 'a', 'b', 'C', 'o', 'n', 'f', 'i', 'g', '"', ':', '{', '"', 't', 'r', 'a', 'c', 'e', '"', ':', '"', 't', 'a', 'b', 'd', 'e', 't', 'a', 'i', 'l', '"', ',', '"', 's', 'h', 'o', 'w', 'K', 'e', 'y', '"', ':', '"', 'm', 'o', 'd', '-', 'd', 'e', 't', 'a', 'i', 'l', '-', 'd', 'e', 's', 'c', 'r', 'i', 'p', 't', 'i', 'o', 'n', '"', '}', ' ', ',', '"', 'c', 'a', 't', 'a', 'l', 'o', 'g', '"', ':', '[', '{', '"', 'i', 'd', '"', ':', '"', '0', '"', ',', '"', 't', 'i', 't', 'l', 'e', '"', ':', '"', '"', ',', '"', 'c', 'o', 'n', 't', 'e', 'n', 't', 'U', 'r', 'l', '"', ':', '"', 'h', 't', 't', 'p', 's', ':', '/', '/', 'i', 'm', 'g', '.', 'a', 'l', 'i', 'c', 'd', 'n', '.', 'c', 'o', 'm', '/', 't', 'f', 's', 'c', 'o', 'm', '/', 'T', 'B', '1', 'l', 'v', 'i', 'j', 'i', '6', 'q', 'h', 'S', 'K', 'J', 'j', 'S', 's', 'p', 'n', 'X', 'X', 'c', '7', '9', 'X', 'X', 'a', '"', '}', ']', ' ', '}']
+            # print(type(tmp_data_tfs_url))
+            # print(tmp_data_tfs_url)
+            tmp_data_tfs_url = ''.join(tmp_data_tfs_url)        # list -> str
+            tmp_data_tfs_url = json.loads(tmp_data_tfs_url)     # json字符串反序列化dict
+            try:
+                data_tfs_url = tmp_data_tfs_url['catalog'][0]['contentUrl']
+                property_info = self.get_data_tfs_url_div(data_tfs_url)
+            except Exception as e:
+                property_info = ''
+        else:
+            property_info = ''
+
         """
         print('*' * 100)
         print('商品名称: ', title)
@@ -358,9 +377,11 @@ class LoginAndParse(object):
             'all_img_url': all_img_url,                         # 所有示例图片地址
             'p_name': p_name,                                   # 详细信息的标签名
             'p_value': p_value,                                 # 详细信息对应的值
+            'property_info': property_info,                     # 下方详细div块
         }
 
         print('页面解析完毕'.center(20, '#'))
+        # self.driver.quit()      # 每次爬取完一个数据释放一次driver资源
         return data
 
     def to_right_and_update_data(self, data, pipeline):
@@ -425,6 +446,7 @@ class LoginAndParse(object):
                             tmp_dic['rest_number'] = item[2]
                             goods_info.append(tmp_dic)
                             # print(tmp_dic['goods_value'])
+                            tmp_dic = {}  # 注意: 这里重置, 能避免一直为 如2XL
                     tmp['goods_info'] = goods_info
             else:  # 二者都为空，则goods_info = []
                 tmp['goods_info'] = []
@@ -451,6 +473,7 @@ class LoginAndParse(object):
                         tmp_dic['detail_price'] = item[1]
                         tmp_dic['rest_number'] = item[2]
                         goods_info.append(tmp_dic)
+                        tmp_dic = {}  # 注意: 这里重置, 能避免一直为 如2XL
                 tmp['goods_info'] = goods_info
         else:  # 颜色跟颜色图片都不为空
             if data_list['size_info'] == []:  # size为空
@@ -480,6 +503,7 @@ class LoginAndParse(object):
                         tmp_dic['rest_number'] = item[2]
                         goods_info.append(tmp_dic)
                         # print(tmp_dic['goods_value'])
+                        tmp_dic = {}  # 注意: 这里重置, 能避免一直为 如2XL
                 tmp['goods_info'] = goods_info
 
         tmp['center_img_url'] = data_list['center_img_url']  # 主图片地址
@@ -498,14 +522,53 @@ class LoginAndParse(object):
             tmp_dic['p_name'] = item[0]
             tmp_dic['p_value'] = item[1]
             p_info.append(tmp_dic)
-        tmp['p_info'] = p_info  # 详细信息
+        tmp['p_info'] = p_info                              # 详细信息
+        tmp['property_info'] = data_list['property_info']   # 下方div
 
         # 采集的来源地
         # tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
-        tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+        if re.compile(r'.*?下架.*?').findall(tmp['title']) != []:   # 第一步先通过名字里有下架的来设置为已经删除
+            if re.compile(r'.*?待下架.*?').findall(tmp['title']) != [] or re.compile(r'.*?即将下架.*?').findall(tmp['title']) != []:
+                tmp['is_delete'] = 0
+            else:
+                tmp['is_delete'] = 1
+        else:
+            tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
 
         print('------>>>| 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)
+
+    def get_data_tfs_url_div(self, data_tfs_url):
+        '''
+        此处过滤得到data_tfs_url的div块
+        :return:
+        '''
+        property_info = ''
+        data_tfs_url_response = requests.get(data_tfs_url)
+        data_tfs_url_body = data_tfs_url_response.content.decode('gbk')
+        data_tfs_url_body = re.compile(r'\n').sub('', data_tfs_url_body)
+        data_tfs_url_body = re.compile(r'  ').sub('', data_tfs_url_body)
+        # print(body)
+        is_offer_details = re.compile(r'offer_details').findall(data_tfs_url_body)
+        if is_offer_details != []:
+            data_tfs_url_body = re.compile(r'.*?{"content":"(.*?)"};').findall(data_tfs_url_body)
+            # print(body)
+            if data_tfs_url_body != []:
+                property_info = data_tfs_url_body[0]
+                property_info = re.compile(r'\\').sub('', property_info)
+                # print(property_info)
+            else:
+                property_info = ''
+        else:
+            is_desc = re.compile(r'var desc=').findall(data_tfs_url_body)
+            if is_desc != []:
+                desc = re.compile(r'var desc=\'(.*)\';').findall(data_tfs_url_body)
+                if desc != []:
+                    property_info = desc[0]
+                    print(property_info)
+            else:
+                property_info = ''
+        return  property_info
 
     def get_qrcode_cookies(self, login_cookies):
         '''
@@ -539,6 +602,20 @@ class LoginAndParse(object):
 
         cookiestr = ';'.join(item for item in cookie)
         return cookiestr
+
+    def str_to_dict(self, cookies):
+        itemDict = {}
+        items = cookies.split(';')
+        for item in items:
+            key = item.split('=')[0].replace(' ', '')  # 记得去除空格
+            value = item.split('=')[1]
+            itemDict[key] = value
+        return itemDict
+
+    def get_cookies_from_cookies_txt(self):
+        with open(ALI_1688_COOKIES_FILE_PATH, 'rb') as f:
+            line = f.read().decode('utf-8').strip('\n')
+            return line
 
     def deal_with_size_info_remove_null(self, size_info):
         '''
@@ -580,21 +657,10 @@ class LoginAndParse(object):
         self.wait_to_deal_with_url = wait_to_deal_with_url
 
 if __name__ == '__main__':
-    # login_ali = LoginAndParse()
-    # login_ali.get_qrcode_url()
-    # login_ali.login()
-    #
-    # while True:
-    #     wait_to_deal_with_url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-    #     wait_to_deal_with_url.strip('\n').strip(';')
-    #     # wait_to_deal_with_url = 'https://detail.1688.com/offer/526362847506.html?spm=b26110380.sw1688.mof001.13.5rHmRl'
-    #     login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
-    #     data = login_ali.deal_with_page_url()
-    #     print(data)
-
     login_ali = LoginAndParse()
     login_ali.get_qrcode_url()
     login_ali.login()
+    login_ali.set_self_driver_with_phantomjs()      # 不能放在循环内不然会生成很多phantomjs
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
     result = list(tmp_sql_server.select_all_goods_id())
@@ -619,8 +685,7 @@ if __name__ == '__main__':
         else:   # 表示返回的data值为空值
             pass
 
-    print('全部数据更新完毕'.center(100, '#'))
-        # sleep(60*60)
+    print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
 
 
 

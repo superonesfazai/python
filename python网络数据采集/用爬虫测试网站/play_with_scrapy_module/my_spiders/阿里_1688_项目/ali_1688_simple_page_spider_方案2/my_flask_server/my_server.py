@@ -14,13 +14,10 @@ from flask import Flask, render_template, url_for, request,redirect,make_respons
 from flask import send_file
 from flask_login import LoginManager
 
-from login_and_parse import LoginAndParse
-# from .login_and_parse import LoginAndParse
+from ali_1688_login_and_parse import LoginAndParse
 from my_pipeline import UserItemPipeline
-# from .my_pipeline import UserItemPipeline
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-# from .my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
 import json
@@ -29,9 +26,10 @@ import datetime
 import re
 
 from gevent.wsgi import WSGIServer      # 高并发部署
+import gc
 
 # 全局变量
-login_ali = LoginAndParse()
+login_ali_to_get_qrcode_and_cookies = LoginAndParse()     # 这个全局是用于获取验证码和获取cookies的
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -100,12 +98,10 @@ def select():
     print('正在获取选择界面...')
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:   # 判断是否为非法登录
         if request.form.get('confirm_login'):       # 二维码已扫描的ajax请求的处理
-            login_ali = LoginAndParse()
-            is_success_login = login_ali.login()
+            is_success_login = login_ali_to_get_qrcode_and_cookies.login()
 
             if is_success_login:        # 扫码成功
                 print('成功获取到cookies')
-
                 return redirect('show')
                 # return make_response(redirect('show'))
 
@@ -132,8 +128,7 @@ def js_call_qrcode():
     '''
     print(request.form.get('ip'))
     # print("method: " + request.values['method'] + " --- text: " + request.values['text'])
-
-    qrcode_url = login_ali.get_qrcode_url()
+    qrcode_url = login_ali_to_get_qrcode_and_cookies.get_qrcode_url()
 
     # print(qrcode_url)
     data_qrcode_url = {
@@ -223,6 +218,8 @@ def get_all_data():
                 result = json.dumps(result)
                 return result
 
+            login_ali = LoginAndParse()
+            login_ali.set_self_driver_with_phantomjs()
             login_ali.set_wait_to_deal_with_url(wait_to_deal_with_url)
             data = login_ali.deal_with_page_url()   # 如果成功获取的话, 返回的是一个data的dict对象
 
@@ -245,7 +242,7 @@ def get_all_data():
             wait_to_save_data = data
             wait_to_save_data['spider_url'] = wait_to_deal_with_url
             wait_to_save_data['username'] = username
-            wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             tmp_goods_id = re.compile(r'.*?/offer/(.*?).html').findall(wait_to_deal_with_url)[0]
             wait_to_save_data['goods_id'] = tmp_goods_id        # goods_id  官方商品link的商品id
 
@@ -255,9 +252,12 @@ def get_all_data():
             print('------>>> 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
+
+            del login_ali       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            gc.collect()        # 手动回收即可立即释放需要删除的资源
             return result_json.decode()
-        else:
-            print('goodsLink为空值...')
+        else:       # 直接把空值给pass，不打印信息
+            # print('goodsLink为空值...')
             result = {
                 'reason': 'error',
                 'data': '',
@@ -297,13 +297,19 @@ def to_save_data():
                         tmp_goods_id = re.compile(r'.*?/offer/(.*?).html.*?').findall(item)[0]
                         tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
 
-                wait_to_save_data_goods_id_list = tmp_wait_to_save_data_goods_id_list       # 待保存的goods_id的list
+                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))       # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                # list里面的dict去重
+                ll_list = []
+                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
+                tmp_wait_to_save_data_list = ll_list
+                print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+
                 goods_to_delete = []
+                tmp_list = []           # 用来存放筛选出来的数据, 里面一个元素就是一个dict
                 for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):
+                    for index in range(0, len(tmp_wait_to_save_data_list)):      # 先用set去重, 再转为list
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
@@ -311,7 +317,8 @@ def to_save_data():
                             tmp['goods_id'] = data_list['goods_id']                                 # 官方商品id
                             tmp['spider_url'] = data_list['spider_url']                             # 商品地址
                             tmp['username'] = data_list['username']                                 # 操作人员username
-                            tmp['deal_with_time'] = data_list['deal_with_time']                     # 操作时间
+                            now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            tmp['deal_with_time'] = now_time                                        # 操作时间
 
                             tmp['company_name'] = data_list['company_name']                         # 公司名称
                             tmp['title'] = data_list['title']                                       # 商品名称
@@ -367,6 +374,7 @@ def to_save_data():
                                                 tmp_dic['rest_number'] = item[2]
                                                 goods_info.append(tmp_dic)
                                                 # print(tmp_dic['goods_value'])
+                                                tmp_dic = {}  # 注意: 这里重置, 能避免一直为 如2XL
                                         tmp['goods_info'] = goods_info
                                 else:   # 二者都为空，则goods_info = []
                                     tmp['goods_info'] = []
@@ -393,6 +401,7 @@ def to_save_data():
                                             tmp_dic['detail_price'] = item[1]
                                             tmp_dic['rest_number'] = item[2]
                                             goods_info.append(tmp_dic)
+                                            tmp_dic = {}    # 注意: 这里重置, 能避免一直为 如2XL
                                     tmp['goods_info'] = goods_info
                             else:                                                                   # 颜色跟颜色图片都不为空
                                 if data_list['size_info'] == []:    # size为空
@@ -421,8 +430,8 @@ def to_save_data():
                                             tmp_dic['rest_number'] = item[2]
                                             goods_info.append(tmp_dic)
                                             # print(tmp_dic['goods_value'])
+                                            tmp_dic = {}    # 注意: 这里重置, 能避免一直为 如2XL
                                     tmp['goods_info'] = goods_info
-
                             tmp['center_img_url'] = data_list['center_img_url']                     # 主图片地址
 
                             all_img_url_info = []
@@ -440,26 +449,34 @@ def to_save_data():
                                 tmp_dic['p_value'] = item[1]
                                 p_info.append(tmp_dic)
                             tmp['p_info'] = p_info                                                  # 详细信息
+                            tmp['property_info'] = data_list['property_info']                       # 下方div
 
                             # 采集的来源地
                             tmp['site_id'] = 2                                                      # 采集来源地(阿里1688批发市场)
                             tmp['is_delete'] = 0                                                    # 逻辑删除, 未删除为0, 删除为1
 
                             print('------>>> | 待存储的数据信息为: |', tmp)
-                            is_insert_into = my_page_info_save_item_pipeline.insert_into_table(tmp)
-                            if is_insert_into:      # 如果返回值为True
-                                try:
-                                    goods_to_delete.append(tmp_wait_to_save_data_list[index])   # 避免在遍历时进行删除，会报错，所以建临时数组
-                                except IndexError as e:
-                                    print('索引越界, 此处我设置为跳过')
-                                # tmp_wait_to_save_data_list.pop(index)
-                                finally:
-                                    pass
-                            else:
-                                # print('插入失败!')
+                            tmp_list.append(tmp)
+                            try:
+                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
+                            except IndexError as e:
+                                print('索引越界, 此处我设置为跳过')
+                            # tmp_wait_to_save_data_list.pop(index)
+                            finally:
                                 pass
                         else:
                             pass
+
+                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
+                for item in tmp_list:
+                    print('------>>> | 正在存储的数据为: |', item)
+                    is_insert_into = my_page_info_save_item_pipeline.insert_into_table(item)
+                    if is_insert_into:  # 如果返回值为True
+                        pass
+                    else:
+                        # print('插入失败!')
+                        pass
 
                 tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]    # 删除已被插入
                 print('存入完毕'.center(100, '*'))

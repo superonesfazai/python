@@ -11,6 +11,9 @@
 from pymssql import *
 from json import dumps
 
+from settings import HOST, USER, PASSWORD, DATABASE, PORT
+# from .settings import HOST, USER, PASSWORD, DATABASE, PORT
+
 class UserItemPipeline(object):
     """
     用户信息处理管道
@@ -18,11 +21,11 @@ class UserItemPipeline(object):
     def __init__(self):
         super(UserItemPipeline, self).__init__()
         self.conn = connect(
-            host='120.26.142.189',
-            user='caiji',
-            password='test123!@#$',
-            database='spider',
-            port=1433,
+            host=HOST,
+            user=USER,
+            password=PASSWORD,
+            database=DATABASE,
+            port=PORT,
             charset='utf8'
         )
 
@@ -34,7 +37,7 @@ class UserItemPipeline(object):
 
             # print(params)
             # pymssql下的execute执行插入语句成功返回的值也是None, 所以不判断返回的行数
-            cs.execute('insert into ali_spider_employee_table(username, passwd) values(%s, %s)', tuple(params))
+            cs.execute('insert into dbo.ali_spider_employee_table(username, passwd) values(%s, %s)', tuple(params))
             self.conn.commit()
             cs.close()
             print('-' * 60 + '| ***该用户信息成功存入mysql中*** |')
@@ -56,7 +59,7 @@ class UserItemPipeline(object):
                 passwd,
             ]
 
-            cs.execute('select username from ali_spider_employee_table where username = %s and passwd = %s', tuple(params))
+            cs.execute('select username from dbo.ali_spider_employee_table where username = %s and passwd = %s', tuple(params))
             count = cs.fetchone()
 
             self.conn.commit()
@@ -74,6 +77,7 @@ class UserItemPipeline(object):
             cs.close()
             return False
 
+'''
 class MyPageInfoSaveItemPipeline(object):
     """
     页面存储管道
@@ -193,6 +197,7 @@ class MyPageInfoSaveItemPipeline(object):
             print('--------------------| 筛选level时报错：', e)
             cs.close()
             return False
+'''
 
 class SqlServerMyPageInfoSaveItemPipeline(object):
     """
@@ -201,11 +206,11 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def __init__(self):
         super(SqlServerMyPageInfoSaveItemPipeline, self).__init__()
         self.conn = connect(
-            host='120.26.142.189',
-            user='caiji',
-            password='test123!@#$',
-            database='spider',
-            port=1433,
+            host=HOST,
+            user=USER,
+            password=PASSWORD,
+            database=DATABASE,
+            port=PORT,
             charset='utf8'
         )
 
@@ -228,13 +233,15 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['center_img_url'],
                 dumps(item['all_img_url_info'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
+                item['property_info'],
+
                 item['site_id'],
                 item['is_delete'],
             ]
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.ali_spider_page_info_table(goods_id, spider_url, username, deal_with_time, company_name, title, link_name, link_name_personal_url, price_info, goods_name, goods_info, center_img_url, all_img_url_info, p_info, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ShopName, GoodsName, LinkName, LinkNamePersonalUrl, PriceInfo, SKUName, SKUInfo, CenterImgUrl, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -263,13 +270,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['center_img_url'],
                 dumps(item['all_img_url_info'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
+                item['property_info'],
                 item['is_delete'],
 
                 # item['username'],
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.ali_spider_page_info_table set deal_with_time = %s, company_name=%s, title=%s, link_name=%s, link_name_personal_url=%s, price_info=%s, goods_name=%s, goods_info=%s, center_img_url=%s, all_img_url_info=%s, p_info=%s, is_delete=%s where goods_id = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set CreateTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, LinkNamePersonalUrl=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, CenterImgUrl=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -286,7 +294,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select goods_id from dbo.ali_spider_page_info_table')
+            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet')
             # self.conn.commit()
 
             result = cs.fetchall()
