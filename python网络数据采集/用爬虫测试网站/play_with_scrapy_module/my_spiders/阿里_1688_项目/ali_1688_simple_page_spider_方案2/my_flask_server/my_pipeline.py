@@ -227,13 +227,15 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['link_name'],
                 item['link_name_personal_url'],
+                item['price'],
+                item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),        # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['goods_name'], ensure_ascii=False),
+                dumps(item['spec_name'], ensure_ascii=False),
                 dumps(item['goods_info'], ensure_ascii=False),
                 item['center_img_url'],
                 dumps(item['all_img_url_info'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['property_info'],
+                item['property_info'],                          # 存入到DetailInfo
+                dumps(item['p_info'], ensure_ascii=False),      # 存入到PropertyInfo
 
                 item['site_id'],
                 item['is_delete'],
@@ -241,7 +243,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ShopName, GoodsName, LinkName, LinkNamePersonalUrl, PriceInfo, SKUName, SKUInfo, CenterImgUrl, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ShopName, GoodsName, LinkName, LinkNamePersonalUrl, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, CenterImgUrl, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -264,20 +266,21 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['link_name'],
                 item['link_name_personal_url'],
+                item['price'],
+                item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['goods_name'], ensure_ascii=False),
+                dumps(item['spec_name'], ensure_ascii=False),
                 dumps(item['goods_info'], ensure_ascii=False),
                 item['center_img_url'],
                 dumps(item['all_img_url_info'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
                 item['property_info'],
+                dumps(item['p_info'], ensure_ascii=False),
                 item['is_delete'],
 
-                # item['username'],
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set CreateTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, LinkNamePersonalUrl=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, CenterImgUrl=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set CreateTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, LinkNamePersonalUrl=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, CenterImgUrl=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()

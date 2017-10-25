@@ -27,9 +27,9 @@
 """
 from scrapy import cmdline
 
-# cmdline.execute("scrapy crawl sina_species_spider_new".split())
+cmdline.execute("scrapy crawl sina_species_spider_new".split())
 
-cmdline.execute("scrapy crawl sina_species_spider_new --nolog".split())
+# cmdline.execute("scrapy crawl sina_species_spider_new --nolog".split())
 
 
 '''

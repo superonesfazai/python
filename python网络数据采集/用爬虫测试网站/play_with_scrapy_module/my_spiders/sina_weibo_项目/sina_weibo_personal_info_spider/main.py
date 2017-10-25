@@ -33,12 +33,12 @@
 from scrapy import cmdline
 
 # 个人私人信息爬取
-# cmdline.execute("scrapy crawl personal_info_spider".split())
+cmdline.execute("scrapy crawl personal_info_spider".split())
 # cmdline.execute("scrapy crawl personal_info_spider --nolog".split())
 
 # 企业私人信息爬取
 # cmdline.execute('scrapy crawl company_info_spider'.split())     # 带log调试信息
-cmdline.execute('scrapy crawl company_info_spider --nolog'.split())     # 不带log调试信息
+# cmdline.execute('scrapy crawl company_info_spider --nolog'.split())     # 不带log调试信息
 
 
 '''

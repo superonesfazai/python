@@ -23,6 +23,7 @@ from urllib.request import urlopen
 from PIL import Image
 from time import sleep
 from pprint import pprint
+import gc
 
 from settings import CHROME_DRIVER_PATH, PHANTOMJS_DRIVER_PATH
 
@@ -145,7 +146,7 @@ class TaoBaoLoginAndParse():
         '''
         # 遇到一个问题加载很慢，已解决
         # 解决方案直接设置给driver设置时间延迟来终止请求
-        self.driver.set_page_load_timeout(4.5)
+        self.driver.set_page_load_timeout(4.5)      # 同延长页面加载时间, 让其加载完成
         print('待爬取的url地址为: ', self.wait_to_deal_with_url)
         try:
             self.driver.get(self.wait_to_deal_with_url)
@@ -163,6 +164,7 @@ class TaoBaoLoginAndParse():
         except Exception as e:       # 如果超时, 终止加载并继续后续操作
             print('-->>time out after 4.5 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            # 注意此处不停止加载js，因为这样后面会没有下面详情div，所以设置为pass
             # pass
 
         body = self.driver.page_source      # 不能缩小范围否则抓不到size_info, detail_price
@@ -278,6 +280,16 @@ class TaoBaoLoginAndParse():
         p_name = [re.compile(r':.*').sub('', item) for item in tmp_p_name]      # 此处让其为贪婪匹配就能去掉冒号后面的值
         p_value = list(Selector(text=body).css('div.attributes ul li::attr("title")').extract())    # a list
 
+        '''
+        # 下面详细介绍div块 div#description div.content, 研究发现原先的body就有原码只需要把src="//xxx.jpg"前面加上https:即可正常显示
+        '''
+        tmp_body_ss = body
+        tmp_body_ss = re.compile(r'\n').sub('', tmp_body_ss)
+        tmp_body_ss = re.compile(r'\t').sub('', tmp_body_ss)
+        tmp_body_ss = re.compile(r'  ').sub('', tmp_body_ss)
+        print(tmp_body_ss)
+        # div_desc =
+
         """
         print('*' * 100)
         print('商品名称: ', title)
@@ -314,6 +326,7 @@ class TaoBaoLoginAndParse():
 
         print('页面解析完毕'.center(20, '#'))
         self.driver.quit()      # 每次爬取完一个数据释放一次driver资源
+        gc.collect()    # 主动回收一次
         return data
 
     def set_self_driver_with_phantomjs(self):

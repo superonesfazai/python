@@ -106,13 +106,13 @@ HEADERS = {
 """
 ITEM_PIPELINES = {
     # 爬取个人微博信息时，打开，关闭企业管道
-    # 'sina_weibo_personal_info_spider.pipelines.SinaWeiboPersonalInfoSpiderPipeline': 1,
+    'sina_weibo_personal_info_spider.pipelines.SinaWeiboPersonalInfoSpiderPipeline': 1,
     # 爬取企业微博信息时，打开，关闭个人管道
-    'sina_weibo_personal_info_spider.pipelines.SinaWeiboCompanyDealInfoSpiderPipeline': 3,
+    # 'sina_weibo_personal_info_spider.pipelines.SinaWeiboCompanyDealInfoSpiderPipeline': 3,
 }
 
 # 先自己登陆到新浪微博, 然后把cookie值直接拷到下面替换即可(注意把内容用单引号括起来)
-COOKIES = 'SINAGLOBAL=1920862274319.4636.1502628639473; __utma=15428400.1070391683.1506563351.1506563351.1506563351.1; __utmz=15428400.1506563351.1.1.utmcsr=verified.weibo.com|utmccn=(referral)|utmcmd=referral|utmcct=/verify; YF-Ugrow-G0=ea90f703b7694b74b62d38420b5273df; YF-V5-G0=3d0866500b190395de868745b0875841; _s_tentry=login.sina.com.cn; Apache=5535716871036.658.1506825662817; ULV=1506825662957:9:1:1:5535716871036.658.1506825662817:1506609903208; YF-Page-G0=b35da6f93109faa87e8c89e98abf1260; TC-V5-G0=ac3bb62966dad84dafa780689a4f7fc3; TC-Page-G0=4c4b51307dd4a2e262171871fe64f295; TC-Ugrow-G0=5e22903358df63c5e3fd2c757419b456; login_sid_t=7512e659ecf2f4cf12080ce37d716b1d; WBtopGlobal_register_version=1844f177002b1566; cross_origin_proto=SSL; WBStorage=569d22359a08e178|undefined; UOR=developer.51cto.com,widget.weibo.com,login.sina.com.cn; SSOLoginState=1506955740; SCF=AluwsnVuuVb8f4iOGi5k7zRy-IBKAxmfDFs-_RbHERcHlkGjOtoi5z5CIzPuneNNzuK5M9txhLIspSiGhlw36_Y.; SUB=_2A2501iGMDeThGeBP7VYY8SzNwzmIHXVXohRErDV8PUNbmtBeLUTskW8pfqYzGHKrg6QLlWN3T4c8MEF5rw..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFqTWuN4lGrED1Loh_Jr2Gs5JpX5K2hUgL.FoqpSoB4eKzp1h-2dJLoIEQLxKqL1h5L1-BLxK.L1h5LBonLxKqL1h5L1-BLxKnLB.qL1-Sk1hMceKet; SUHB=010WHUxnXZUu4f; ALF=1538491739; un=rlzeam07@163.com; wvr=6; wb_cusLike_6164912185=N; weiboNotfication=1332973884139.1555'
+COOKIES = '_s_tentry=blog.csdn.net; UOR=blog.csdn.net,widget.weibo.com,blog.csdn.net; TC-Ugrow-G0=968b70b7bcdc28ac97c8130dd353b55e; login_sid_t=3b9f325cbcf992283b90354cffbe46c1; TC-V5-G0=40eeee30be4a1418bde327baf365fcc0; WBStorage=d0b15edc6ddab7a4|undefined; Apache=1283790175605.939.1508919226577; SINAGLOBAL=1283790175605.939.1508919226577; ULV=1508919226585:1:1:1:1283790175605.939.1508919226577:; SSOLoginState=1508919300; wvr=6; wb_cusLike_6164884717=N; TC-Page-G0=4c4b51307dd4a2e262171871fe64f295; cross_origin_proto=SSL; WBtopGlobal_register_version=b81eb8e02b10d728; SCF=Aja3CIFGwvx1LASQb6DlJEASKftWgIjXOdptQgofbuxPdEkhIMw2YF44Hf_2KEA83p8GpQxIp4bGaM_8A5a-0xc.; SUB=_2A2509DhoDeThGeBP7VYZ-CrLyjuIHXVXgC6grDV8PUNbmtBeLXT4kW-bcVbg8NW7s9EHDF0hNP9OqYoF7w..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFnCUfIwQh3Usm8xNPAMySy5JpX5K2hUgL.FoqpSoBR1hBNeKM2dJLoIEQLxKML1K-L1h-LxK-LB.qLB-zLxKML1-zLB.eLxKqL1-eL1-ikSozReoqt; SUHB=08Jr6QQxExM0TU; ALF=1509524151; un=jc09893445wei@163.com'
 
 # 下面这个是phantomjs的绝对路径(在自己电脑上下载这个phantomjs)，配置成自己的
 EXECUTABLE_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'

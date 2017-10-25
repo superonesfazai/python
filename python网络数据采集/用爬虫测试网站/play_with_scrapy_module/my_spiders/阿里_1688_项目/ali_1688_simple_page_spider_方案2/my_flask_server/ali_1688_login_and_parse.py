@@ -66,7 +66,6 @@ class LoginAndParse(object):
         self.img_url = ''                   # 用来保存二维码的url
         self.wait_to_deal_with_url = ''     # 待爬取的url
 
-
     def get_qrcode_url(self):
         '''
         从官网获取二维码图片url
@@ -216,7 +215,7 @@ class LoginAndParse(object):
         # div.d-content div.obj-content 标签内容
 
         # 标签名称list
-        goods_name = list(Selector(text=body).css('div.obj-header span.obj-title::text').extract())  # 标签名称list
+        spec_name = list(Selector(text=body).css('div.obj-header span.obj-title::text').extract())  # 标签名称list
 
         other_size_info = []
         size_info = []
@@ -225,9 +224,9 @@ class LoginAndParse(object):
         '''
         通过判断div块 div.obj-content 的数量是否大于三来分类处理价格所在的不同位置
         '''
-        print('goods_name的长度为 %d' % len(goods_name))
+        print('goods_name的长度为 %d' % len(spec_name))
 
-        if len(goods_name) == 1:   # 如果等于2说明: 只有颜色或者size再或者其他属性之一
+        if len(spec_name) == 1:   # 如果等于2说明: 只有颜色或者size再或者其他属性之一
             if color == []:     # 如果颜色为空则说明该商品没有颜色这个属性选择, 即table.table-sku在size标签里面
                 size_info = list(Selector(text=body).css('table.table-sku td.name span::text').extract())
 
@@ -251,7 +250,7 @@ class LoginAndParse(object):
                 detail_price = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 == 0 or index == 0]
                 rest_number = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 != 0 and index != 0]
 
-        elif len(goods_name) == 2:    # 如果大于2, 则说明颜色，规格都有(或者是非颜色是其他属性和规格)
+        elif len(spec_name) == 2:    # 如果大于2, 则说明颜色，规格都有(或者是非颜色是其他属性和规格)
             if color != []:     # 有颜色这个属性
                 size_info = list(Selector(text=body).css('table.table-sku td.name span::text').extract())
 
@@ -275,7 +274,7 @@ class LoginAndParse(object):
                 detail_price = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 == 0 or index == 0]
                 rest_number = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 != 0 and index != 0]
 
-        elif len(goods_name) == 0:      # 没有标签名称这个属性
+        elif len(spec_name) == 0:      # 没有标签名称这个属性
             pass
         else:
             print('无法正确解析, 因为is_div_obj_content_lt_2值未被处理')
@@ -345,7 +344,7 @@ class LoginAndParse(object):
             'link_name_personal_url': link_name_personal_url,   # 卖家个人主页地址
             'price': price,                                     # 商品价格
             'trade_number': trade_number,                       # 对应起批量
-            'goods_name': goods_name,                           # 标签属性名称
+            'goods_name': spec_name,                             # 标签属性名称
             'color': color,                                     # 商品颜色
             'color_img_url': color_img_url,                     # 颜色图片地址
             'other_size_info': other_size_info,                 # 非颜色的属性值

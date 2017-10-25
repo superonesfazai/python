@@ -16,7 +16,7 @@ from flask_login import LoginManager
 
 from ali_1688_login_and_parse import LoginAndParse
 from my_pipeline import UserItemPipeline
-
+from settings import SPIDER_TO_SHOW_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
@@ -24,6 +24,7 @@ import json
 import time
 import datetime
 import re
+from decimal import Decimal
 
 from gevent.wsgi import WSGIServer      # 高并发部署
 import gc
@@ -186,7 +187,7 @@ def show_info():
             pass
         else:
             # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
-            return send_file('templates/spider_to_show_and_save2.html')
+            return send_file(SPIDER_TO_SHOW_PATH)
 
 @app.route("/data", methods=['POST'])
 def get_all_data():
@@ -326,6 +327,21 @@ def to_save_data():
                             tmp['link_name_personal_url'] = data_list['link_name_personal_url']     # 卖家私人主页地址
 
                             tmp_price_info = list(zip(data_list['price'], data_list['trade_number']))
+
+                            # 设置最高价price， 最低价taobao_price
+                            if len(data_list['price']) >= 1:
+                                tmp_price_list = data_list['price']
+                                tmp_price_list2 = []
+                                for ii in tmp_price_list:
+                                    ii = float(ii)
+                                    tmp_price_list2.append(ii)
+
+                                tmp['price'] = Decimal(sorted(tmp_price_list2)[-1]).__round__(2)        # 得到最大值并转换为精度为2的decimal类型
+                                tmp['taobao_price'] = Decimal(sorted(tmp_price_list2)[0]).__round__(2)
+                            else:
+                                tmp['price'] = Decimal(0).__round__(2)
+                                tmp['taobao_price'] = Decimal(0).__round__(2)
+
                             price_info = []
                             for item in tmp_price_info:
                                 tmp_dic = {}
@@ -334,13 +350,13 @@ def to_save_data():
                                 price_info.append(tmp_dic)
                             tmp['price_info'] = price_info                                          # 价格信息
 
-                            goods_name = []
+                            spec_name = []
                             for item in data_list['goods_name']:
                                 tmp_dic = {}
-                                tmp_dic['goods_name'] = item
-                                goods_name.append(tmp_dic)
+                                tmp_dic['spec_name'] = item
+                                spec_name.append(tmp_dic)
 
-                            tmp['goods_name'] = goods_name                                          # 标签属性名称
+                            tmp['spec_name'] = spec_name                                          # 标签属性名称
 
                             # [{'goods_value': '红色|L', 'color_img_url': 'xxx.jpg', 'price': '99', 'stocknum': '1000'}, {…}, …]
                             """
@@ -353,7 +369,7 @@ def to_save_data():
                                         tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                                         for item in tmp_goods_info:
                                             tmp_dic = {}
-                                            tmp_dic['goods_value'] = item[0]
+                                            tmp_dic['spec_value'] = item[0]
                                             tmp_dic['color_img_url'] = ''
                                             tmp_dic['detail_price'] = item[1]
                                             tmp_dic['rest_number'] = item[2]
@@ -363,12 +379,12 @@ def to_save_data():
                                         tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                                         for index in range(0, len(data_list['other_size_info'])):
                                             tmp_dic = {}
-                                            tmp_dic['goods_value'] = data_list['other_size_info'][index]
+                                            tmp_dic['spec_value'] = data_list['other_size_info'][index]
                                             for item in tmp_goods_info:
                                                 # print(item[0])
-                                                tmp_dic['goods_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
-                                                tmp_dic['goods_value'] = data_list['other_size_info'][index]
-                                                tmp_dic['goods_value'] += '|' + item[0]
+                                                tmp_dic['spec_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
+                                                tmp_dic['spec_value'] = data_list['other_size_info'][index]
+                                                tmp_dic['spec_value'] += '|' + item[0]
                                                 tmp_dic['color_img_url'] = ''
                                                 tmp_dic['detail_price'] = item[1]
                                                 tmp_dic['rest_number'] = item[2]
@@ -384,7 +400,7 @@ def to_save_data():
                                     tmp_goods_info = list(zip(data_list['color'], data_list['detail_price'], data_list['rest_number']))
                                     for item in tmp_goods_info:
                                         tmp_dic = {}
-                                        tmp_dic['goods_value'] = item[0]
+                                        tmp_dic['spec_value'] = item[0]
                                         tmp_dic['color_img_url'] = ''
                                         tmp_dic['detail_price'] = item[1]
                                         tmp_dic['rest_number'] = item[2]
@@ -394,9 +410,9 @@ def to_save_data():
                                     tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                                     for color in data_list['color']:
                                         tmp_dic = {}
-                                        tmp_dic['goods_value'] = color
+                                        tmp_dic['spec_value'] = color
                                         for item in tmp_goods_info:
-                                            tmp_dic['goods_value'] = tmp_dic['goods_value']+ '|' + item[0]
+                                            tmp_dic['spec_value'] = tmp_dic['spec_value']+ '|' + item[0]
                                             tmp_dic['color_img_url'] = ''
                                             tmp_dic['detail_price'] = item[1]
                                             tmp_dic['rest_number'] = item[2]
@@ -408,7 +424,7 @@ def to_save_data():
                                     tmp_goods_info = list(zip(data_list['color'], data_list['color_img_url'], data_list['detail_price'], data_list['rest_number']))
                                     for item in tmp_goods_info:
                                         tmp_dic = {}
-                                        tmp_dic['goods_value'] = item[0]
+                                        tmp_dic['spec_value'] = item[0]
                                         tmp_dic['color_img_url'] = item[1]
                                         tmp_dic['detail_price'] = item[2]
                                         tmp_dic['rest_number'] = item[3]
@@ -418,13 +434,13 @@ def to_save_data():
                                     tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                                     for index in range(0, len(data_list['color'])):
                                         tmp_dic = {}
-                                        tmp_dic['goods_value'] = data_list['color'][index]
+                                        tmp_dic['spec_value'] = data_list['color'][index]
                                         color_img_url = data_list['color_img_url'][index]
                                         for item in tmp_goods_info:
                                             # print(item[0])
-                                            tmp_dic['goods_value'] = ''                         # 分析后加这两句话就完美解决了在原值上进行加
-                                            tmp_dic['goods_value'] = data_list['color'][index]
-                                            tmp_dic['goods_value'] += '|' + item[0]
+                                            tmp_dic['spec_value'] = ''                         # 分析后加这两句话就完美解决了在原值上进行加
+                                            tmp_dic['spec_value'] = data_list['color'][index]
+                                            tmp_dic['spec_value'] += '|' + item[0]
                                             tmp_dic['color_img_url'] = color_img_url
                                             tmp_dic['detail_price'] = item[1]
                                             tmp_dic['rest_number'] = item[2]

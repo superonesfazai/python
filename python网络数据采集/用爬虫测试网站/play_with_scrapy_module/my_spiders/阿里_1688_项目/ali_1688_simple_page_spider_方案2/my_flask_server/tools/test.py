@@ -326,3 +326,17 @@ data2 = ''.join(data2)      # str
 data2 = json.loads(data2)   # json字符串反序列化dict
 print(data2['catalog'][0]['contentUrl'])
 
+print('&' * 100)
+from decimal import Decimal
+# rr = ['105.99', '103.00', '100.00']
+rr = ['105.99']
+tmp_price_list = rr
+tmp_price_list2 = []
+for ii in tmp_price_list:
+    ii = float(ii)
+    tmp_price_list2.append(ii)
+
+print(tmp_price_list2)
+print(Decimal(sorted(tmp_price_list2)[0]).__round__(2))
+print(Decimal(0).__round__(2))
+

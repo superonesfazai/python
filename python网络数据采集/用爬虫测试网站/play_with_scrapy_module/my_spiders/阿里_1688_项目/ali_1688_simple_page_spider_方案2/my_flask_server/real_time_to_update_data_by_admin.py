@@ -32,6 +32,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from settings import CHROME_DRIVER_PATH, PHANTOMJS_DRIVER_PATH
 from settings import ALI_1688_COOKIES_FILE_PATH
+from decimal import Decimal
 
 # chrome驱动地址
 my_chrome_driver_path = CHROME_DRIVER_PATH
@@ -175,7 +176,7 @@ class LoginAndParse(object):
         '''
         # 遇到一个问题加载很慢，已解决
         # 解决方案直接设置给driver设置时间延迟来终止请求
-        self.driver.set_page_load_timeout(5)
+        self.driver.set_page_load_timeout(4.5)
         print('待爬取的url地址为: ', self.wait_to_deal_with_url)
         try:
             self.driver.get(self.wait_to_deal_with_url)
@@ -191,7 +192,7 @@ class LoginAndParse(object):
             else:
                 print('div#mod-detail-bd已经加载完毕')
         except Exception as e:       # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 5 seconds when loading page')
+            print('-->>time out after 4.5 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
 
@@ -237,7 +238,7 @@ class LoginAndParse(object):
         # div.d-content div.obj-content 标签内容
 
         # 标签名称list
-        goods_name = list(Selector(text=body).css('div.obj-header span.obj-title::text').extract())  # 标签名称list
+        spec_name = list(Selector(text=body).css('div.obj-header span.obj-title::text').extract())  # 标签名称list
 
         other_size_info = []
         size_info = []
@@ -246,9 +247,9 @@ class LoginAndParse(object):
         '''
         通过判断div块 div.obj-content 的数量是否大于三来分类处理价格所在的不同位置
         '''
-        print('goods_name的长度为 %d' % len(goods_name))
+        print('goods_name的长度为 %d' % len(spec_name))
 
-        if len(goods_name) == 1:   # 如果等于2说明: 只有颜色或者size再或者其他属性之一
+        if len(spec_name) == 1:   # 如果等于2说明: 只有颜色或者size再或者其他属性之一
             if color == []:     # 如果颜色为空则说明该商品没有颜色这个属性选择, 即table.table-sku在size标签里面
                 size_info = list(Selector(text=body).css('table.table-sku td.name span::text').extract())
 
@@ -272,7 +273,7 @@ class LoginAndParse(object):
                 detail_price = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 == 0 or index == 0]
                 rest_number = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 != 0 and index != 0]
 
-        elif len(goods_name) == 2:    # 如果大于2, 则说明颜色，规格都有(或者是非颜色是其他属性和规格)
+        elif len(spec_name) == 2:    # 如果大于2, 则说明颜色，规格都有(或者是非颜色是其他属性和规格)
             if color != []:     # 有颜色这个属性
                 size_info = list(Selector(text=body).css('table.table-sku td.name span::text').extract())
 
@@ -296,7 +297,7 @@ class LoginAndParse(object):
                 detail_price = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 == 0 or index == 0]
                 rest_number = [tmp_em[index] for index in range(0, len(tmp_em)) if index % 2 != 0 and index != 0]
 
-        elif len(goods_name) == 0:      # 没有标签名称这个属性
+        elif len(spec_name) == 0:      # 没有标签名称这个属性
             pass
         else:
             print('无法正确解析, 因为is_div_obj_content_lt_2值未被处理')
@@ -366,7 +367,7 @@ class LoginAndParse(object):
             'link_name_personal_url': link_name_personal_url,   # 卖家个人主页地址
             'price': price,                                     # 商品价格
             'trade_number': trade_number,                       # 对应起批量
-            'goods_name': goods_name,                           # 标签属性名称
+            'goods_name': spec_name,                             # 标签属性名称
             'color': color,                                     # 商品颜色
             'color_img_url': color_img_url,                     # 颜色图片地址
             'other_size_info': other_size_info,                 # 非颜色的属性值
@@ -388,7 +389,8 @@ class LoginAndParse(object):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['deal_with_time'] = data_list['deal_with_time']  # 操作时间
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        tmp['deal_with_time'] = now_time  # 操作时间
 
         tmp['company_name'] = data_list['company_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
@@ -396,6 +398,21 @@ class LoginAndParse(object):
         tmp['link_name_personal_url'] = data_list['link_name_personal_url']  # 卖家私人主页地址
 
         tmp_price_info = list(zip(data_list['price'], data_list['trade_number']))
+
+        # 设置最高价price， 最低价taobao_price
+        if len(data_list['price']) >= 1:
+            tmp_price_list = data_list['price']
+            tmp_price_list2 = []
+            for ii in tmp_price_list:
+                ii = float(ii)
+                tmp_price_list2.append(ii)
+
+            tmp['price'] = Decimal(sorted(tmp_price_list2)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+            tmp['taobao_price'] = Decimal(sorted(tmp_price_list2)[0]).__round__(2)
+        else:
+            tmp['price'] = Decimal(0).__round__(2)
+            tmp['taobao_price'] = Decimal(0).__round__(2)
+
         price_info = []
         for item in tmp_price_info:
             tmp_dic = {}
@@ -404,13 +421,13 @@ class LoginAndParse(object):
             price_info.append(tmp_dic)
         tmp['price_info'] = price_info  # 价格信息
 
-        goods_name = []
+        spec_name = []
         for item in data_list['goods_name']:
             tmp_dic = {}
-            tmp_dic['goods_name'] = item
-            goods_name.append(tmp_dic)
+            tmp_dic['spec_name'] = item
+            spec_name.append(tmp_dic)
 
-        tmp['goods_name'] = goods_name  # 标签属性名称
+        tmp['spec_name'] = spec_name  # 标签属性名称
 
         # [{'goods_value': '红色|L', 'color_img_url': 'xxx.jpg', 'price': '99', 'stocknum': '1000'}, {…}, …]
         """
@@ -424,7 +441,7 @@ class LoginAndParse(object):
                         zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                     for item in tmp_goods_info:
                         tmp_dic = {}
-                        tmp_dic['goods_value'] = item[0]
+                        tmp_dic['spec_value'] = item[0]
                         tmp_dic['color_img_url'] = ''
                         tmp_dic['detail_price'] = item[1]
                         tmp_dic['rest_number'] = item[2]
@@ -435,12 +452,12 @@ class LoginAndParse(object):
                         zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                     for index in range(0, len(data_list['other_size_info'])):
                         tmp_dic = {}
-                        tmp_dic['goods_value'] = data_list['other_size_info'][index]
+                        tmp_dic['spec_value'] = data_list['other_size_info'][index]
                         for item in tmp_goods_info:
                             # print(item[0])
-                            tmp_dic['goods_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
-                            tmp_dic['goods_value'] = data_list['other_size_info'][index]
-                            tmp_dic['goods_value'] += '|' + item[0]
+                            tmp_dic['spec_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
+                            tmp_dic['spec_value'] = data_list['other_size_info'][index]
+                            tmp_dic['spec_value'] += '|' + item[0]
                             tmp_dic['color_img_url'] = ''
                             tmp_dic['detail_price'] = item[1]
                             tmp_dic['rest_number'] = item[2]
@@ -456,7 +473,7 @@ class LoginAndParse(object):
                 tmp_goods_info = list(zip(data_list['color'], data_list['detail_price'], data_list['rest_number']))
                 for item in tmp_goods_info:
                     tmp_dic = {}
-                    tmp_dic['goods_value'] = item[0]
+                    tmp_dic['spec_value'] = item[0]
                     tmp_dic['color_img_url'] = ''
                     tmp_dic['detail_price'] = item[1]
                     tmp_dic['rest_number'] = item[2]
@@ -466,9 +483,9 @@ class LoginAndParse(object):
                 tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                 for color in data_list['color']:
                     tmp_dic = {}
-                    tmp_dic['goods_value'] = color
+                    tmp_dic['spec_value'] = color
                     for item in tmp_goods_info:
-                        tmp_dic['goods_value'] = tmp_dic['goods_value'] + '|' + item[0]
+                        tmp_dic['spec_value'] = tmp_dic['spec_value'] + '|' + item[0]
                         tmp_dic['color_img_url'] = ''
                         tmp_dic['detail_price'] = item[1]
                         tmp_dic['rest_number'] = item[2]
@@ -481,7 +498,7 @@ class LoginAndParse(object):
                                           data_list['rest_number']))
                 for item in tmp_goods_info:
                     tmp_dic = {}
-                    tmp_dic['goods_value'] = item[0]
+                    tmp_dic['spec_value'] = item[0]
                     tmp_dic['color_img_url'] = item[1]
                     tmp_dic['detail_price'] = item[2]
                     tmp_dic['rest_number'] = item[3]
@@ -491,13 +508,13 @@ class LoginAndParse(object):
                 tmp_goods_info = list(zip(data_list['size_info'], data_list['detail_price'], data_list['rest_number']))
                 for index in range(0, len(data_list['color'])):
                     tmp_dic = {}
-                    tmp_dic['goods_value'] = data_list['color'][index]
+                    tmp_dic['spec_value'] = data_list['color'][index]
                     color_img_url = data_list['color_img_url'][index]
                     for item in tmp_goods_info:
                         # print(item[0])
-                        tmp_dic['goods_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
-                        tmp_dic['goods_value'] = data_list['color'][index]
-                        tmp_dic['goods_value'] += '|' + item[0]
+                        tmp_dic['spec_value'] = ''  # 分析后加这两句话就完美解决了在原值上进行加
+                        tmp_dic['spec_value'] = data_list['color'][index]
+                        tmp_dic['spec_value'] += '|' + item[0]
                         tmp_dic['color_img_url'] = color_img_url
                         tmp_dic['detail_price'] = item[1]
                         tmp_dic['rest_number'] = item[2]
@@ -505,7 +522,6 @@ class LoginAndParse(object):
                         # print(tmp_dic['goods_value'])
                         tmp_dic = {}  # 注意: 这里重置, 能避免一直为 如2XL
                 tmp['goods_info'] = goods_info
-
         tmp['center_img_url'] = data_list['center_img_url']  # 主图片地址
 
         all_img_url_info = []
@@ -522,18 +538,12 @@ class LoginAndParse(object):
             tmp_dic['p_name'] = item[0]
             tmp_dic['p_value'] = item[1]
             p_info.append(tmp_dic)
-        tmp['p_info'] = p_info                              # 详细信息
-        tmp['property_info'] = data_list['property_info']   # 下方div
+        tmp['p_info'] = p_info  # 详细信息
+        tmp['property_info'] = data_list['property_info']  # 下方div
 
         # 采集的来源地
-        # tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
-        if re.compile(r'.*?下架.*?').findall(tmp['title']) != []:   # 第一步先通过名字里有下架的来设置为已经删除
-            if re.compile(r'.*?待下架.*?').findall(tmp['title']) != [] or re.compile(r'.*?即将下架.*?').findall(tmp['title']) != []:
-                tmp['is_delete'] = 0
-            else:
-                tmp['is_delete'] = 1
-        else:
-            tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+        tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
+        tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
 
         print('------>>>| 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)
