@@ -25,13 +25,10 @@ from PIL import Image
 from time import sleep
 import gc
 
-from settings import CHROME_DRIVER_PATH, PHANTOMJS_DRIVER_PATH, TAOBAO_COOKIES_FILE_PATH, HEADERS
+from settings import CHROME_DRIVER_PATH, TAOBAO_COOKIES_FILE_PATH, HEADERS
 
 # chrome驱动地址
 my_chrome_driver_path = CHROME_DRIVER_PATH
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class TaoBaoLoginAndParse(object):
     def __init__(self):
@@ -52,94 +49,14 @@ class TaoBaoLoginAndParse(object):
 
         # 注意：测试发现还是得设置成加载图片要不然就无法得到超5张的示例图片完整地址
         # 设置chrome不加载图片
-        # prefs = {
-        #     'profile.managed_default_content_settings.images': 2,
-        # }
-        # chrome_options.add_experimental_option('prefs', prefs)
+        prefs = {
+            'profile.managed_default_content_settings.images': 2,
+        }
+        chrome_options.add_experimental_option('prefs', prefs)
 
         self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
         self.start_url = 'https://login.taobao.com/member/login.jhtml?spm=2013.1.1997563269.1.793cab65Edp2ty&full_redirect=true&redirect_url=https://www.taobao.com'
         self.img_url = ''  # 用来保存二维码的url
-
-    def get_qrcode_url(self):
-        '''
-        从官网获取二维码图片url
-        :return:
-        '''
-        print('请稍等正在获取验证码url中...')
-        self.driver.set_page_load_timeout(25)
-        try:
-            self.driver.get(self.start_url)
-            self.driver.implicitly_wait(15)
-            # self.driver.save_screenshot('tmp_login1.png')
-
-            locator = (By.CSS_SELECTOR, 'div.qrcode-img img')
-            try:
-                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
-            except Exception as e:
-                print('获取验证码时错误: ', e)
-            else:
-                pass
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 20 seconds(当获取验证码时)')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-
-        # 处理并下载二维码
-        img = list(Selector(text=self.driver.page_source).css('div.qrcode-img img').extract())[0]
-        # print(img)
-        img_url = re.compile('<img src=\"(.*?)\">').findall(str(img))[0]
-        # print(img_url)
-        self.img_url = 'http:' + img_url
-
-        print('获取到的验证码的地址为: ', self.img_url)
-        return self.img_url
-
-    def login(self):
-        '''
-        模拟扫码登陆,并保存cookies到文件
-        :return:
-        '''
-
-        print('请稍等正在下载验证码到本地...即将下载完成请稍后')
-        # 保存二维码图片
-        buf = urlopen(self.img_url)
-        with open('qrcode.jpg', 'wb') as f:
-            f.write(buf.read())
-
-        # 扫码
-        qrcode_img = Image.open('qrcode.jpg')
-        qrcode_img.show()
-        # print(img_src)
-
-        before_url = self.driver.current_url
-
-        print('正在等待扫码....')
-        sleep(18)
-
-        while self.driver.current_url != before_url:
-            print('扫码登陆成功!')
-            print('-' * 100)
-            break
-
-        # 得到并处理保存cookies到cookies.txt
-        login_cookies = self.driver.get_cookies()
-        # print(login_cookies)
-        cookies = self.get_qrcode_cookies(login_cookies)
-        print('| 获取到的cookies为: ', cookies)
-
-        cookies_str = self.cookies_to_str(cookies)
-        '''
-        这里不能用isg来判断因为前后都有
-        '''
-        if cookies.get('existShop') is not None:  # 扫码成功
-            # 将cookies写入指定文件cookies_taobao.txt (用于高并发)
-            with open(PHANTOMJS_DRIVER_PATH, 'wb') as f:
-                f.write(cookies_str.encode('utf-8'))
-            # self.driver.quit()      # 释放原先的driver占用的资源
-            return True
-        else:                               # 扫码失败
-            return False
 
     def get_goods_data(self, goods_id):
         '''
@@ -251,6 +168,7 @@ class TaoBaoLoginAndParse(object):
             title = data['item']['title']
             # 子标题
             sub_title = data['item']['subtitle']
+            sub_title = re.compile(r'\n').sub('', sub_title)
             # 店铺主页地址
             shop_name_url = 'https:' + data['seller']['taoShopUrl']
             # 商品价格
@@ -260,14 +178,17 @@ class TaoBaoLoginAndParse(object):
             # print(tmp_taobao_price)
             if len(tmp_taobao_price) == 1:
                 # 商品最高价
-                price = Decimal(tmp_taobao_price[0]).__round__(2)
+                # price = Decimal(tmp_taobao_price[0]).__round__(2)     # json不能处理decimal所以后期存的时候再处理
+                price = tmp_taobao_price[0]
                 # 商品最低价
                 taobao_price = price
                 # print(price)
                 # print(taobao_price)
             else:
-                price = Decimal(tmp_taobao_price[1]).__round__(2)
-                taobao_price = Decimal(tmp_taobao_price[0]).__round__(2)
+                # price = Decimal(tmp_taobao_price[1]).__round__(2)
+                # taobao_price = Decimal(tmp_taobao_price[0]).__round__(2)
+                price = tmp_taobao_price[1]
+                taobao_price = tmp_taobao_price[0]
                 # print(price)
                 # print(taobao_price)
 
@@ -323,11 +244,11 @@ class TaoBaoLoginAndParse(object):
 
                 tmp_prop_path_list[0]['sku_price'] = sku2_info[key]['price']['priceText']
                 tmp_prop_path_list[0]['quantity'] = sku2_info[key]['quantity']
-                tmp['sku_id'] = tmp_prop_path_list[0]['skuId']
+                # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
                 # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
-                tmp['prop_path'] = prop_path
-                tmp['sku_price'] = tmp_prop_path_list[0]['sku_price']       # 每个规格对应的价格
-                tmp['quantity'] = tmp_prop_path_list[0]['quantity']         # 每个规格对应的库存量
+                tmp['spec_value'] = prop_path
+                tmp['detail_price'] = tmp_prop_path_list[0]['sku_price']       # 每个规格对应的价格
+                tmp['rest_number'] = tmp_prop_path_list[0]['quantity']         # 每个规格对应的库存量
                 prop_path_list.append(tmp)
             # pprint(prop_path_list)                  # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
             price_info_list = prop_path_list
@@ -344,39 +265,20 @@ class TaoBaoLoginAndParse(object):
             p_info = data['props']['groupProps'][0]['基本信息']
             # print(p_info)
 
-            # 下方div图片文字介绍区
+            '''
+            下方div图片文字介绍区
+            '''
             # 手机端描述地址
             phone_div_url = 'https:' + data['item']['taobaoDescUrl']
             # div.des
-
-            self.driver.set_page_load_timeout(5)
-            try:
-                self.driver.get(phone_div_url)
-                self.driver.implicitly_wait(8)
-                # self.driver.save_screenshot('tmp_login1.png')
-
-                locator = (By.CSS_SELECTOR, 'div.des')
-                try:
-                    WebDriverWait(self.driver, 8, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    print('获取验证码时错误: ', e)
-                else:
-                    print('div.des加载完毕...')
-                    pass
-            except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                print('-->>time out after 5 seconds(当获取验证码时)')
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                # pass
-
-            # time.sleep(4)
-            self.driver.save_screenshot('tmp_login1.png')
-            body = self.driver.page_source
-            print(body)
 
             # pc端描述地址
             pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
             # print(phone_div_url)
             # print(pc_div_url)
+
+            div_desc = self.deal_with_div(pc_div_url)
+            # print(div_desc)
 
             self.driver.quit()
             gc.collect()
@@ -415,12 +317,62 @@ class TaoBaoLoginAndParse(object):
                 'p_info': p_info,                                   # 详细信息标签名对应属性
                 'phone_div_url': phone_div_url,                     # 手机端描述地址
                 'pc_div_url': pc_div_url,                           # pc端描述地址
+                'div_desc': div_desc,                               # div_desc
             }
             pprint(result)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
             return result
         else:
             print('待处理的data为空的dict')
             return {}
+
+    def deal_with_div(self, url):
+        self.driver.set_page_load_timeout(5)
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(8)
+            # self.driver.save_screenshot('tmp_login1.png')
+
+            locator = (By.CSS_SELECTOR, 'div.des')
+            try:
+                WebDriverWait(self.driver, 8, 0.5).until(EC.presence_of_element_located(locator))
+            except Exception as e:
+                print('获取验证码时错误: ', e)
+            else:
+                print('div.des加载完毕...')
+                pass
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 5 seconds(当获取验证码时)')
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            # pass
+
+        # time.sleep(1.5)
+        # self.driver.save_screenshot('tmp_login1.png')
+        body = self.driver.page_source
+
+        # 过滤
+        body = re.compile(r'\n').sub('', body)
+        body = re.compile(r'\t').sub('', body)
+        body = re.compile(r'  ').sub('', body)
+        # print(body)
+
+        body = re.compile(r'<div class="des" id="J_des">.*</div></div>').findall(body)[0]
+        body = re.compile(r'src="data:image/png;.*?"').sub('', body)
+        body = re.compile(r'data-img').sub('src', body)
+        body = re.compile(r'https:').sub('', body)
+        body = re.compile(r'src="').sub('src=\"https:', body)
+
+        body = re.compile(r'<table.*?>.*?</table>').sub('', body)   # 防止字段太长
+        body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">.*</div>').sub('', body)
+        # body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">')
+
+        return body
 
     def get_goods_id_from_url(self, taobao_url):
         # https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
@@ -433,57 +385,8 @@ class TaoBaoLoginAndParse(object):
             print('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
 
-    def get_qrcode_cookies(self, login_cookies):
-        '''
-        处理传入的cookies,从而得到自己需求的cookies
-        :param login_cookies:
-        :return:
-        '''
-        cookies = {}
-        tmp_key = ''
-        tmp_value = ''
-        for item in login_cookies:
-            for key in item.keys():
-                if 'name' == key:
-                    # print(item[key])
-                    tmp_key = item[key]
-                if 'value' == key:
-                    tmp_value = item[key]
-
-                if tmp_key != '' and tmp_value != '':
-                    cookies[tmp_key] = tmp_value
-        return cookies
-
-    def cookies_to_str(self, cookies):
-        '''
-        将字典类型的cookies转换为str类型的cookies
-        :param cookies:
-        :return:
-        '''
-        cookie = [str(key) + "=" + str(value) for key, value in cookies.items()]
-        # print cookie
-
-        cookiestr = ';'.join(item for item in cookie)
-        return cookiestr
-
-    def get_cookies_from_cookies_txt(self):
-        with open(TAOBAO_COOKIES_FILE_PATH, 'rb') as f:
-            line = f.read().decode('utf-8').strip('\n')
-            return line
-
-    def str_to_dict(self, cookies):
-        itemDict = {}
-        items = cookies.split(';')
-        for item in items:
-            key = item.split('=')[0].replace(' ', '')  # 记得去除空格
-            value = item.split('=')[1]
-            itemDict[key] = value
-        return itemDict
-
 if __name__ == '__main__':
     login_taobao = TaoBaoLoginAndParse()
-    login_taobao.get_qrcode_url()
-    login_taobao.login()
     # taobao_url = 'https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop'
     taobao_url = 'https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V'
     # taobao_url = 'https://item.taobao.com/item.htm?id=41439519931&ali_trackid=2:mm_16523910_13792193_55526825:1508736405_285_336954940&spm=a21bo.7925826.192013.3.581a6bcdrBLQjt'
@@ -493,4 +396,8 @@ if __name__ == '__main__':
     data = login_taobao.get_goods_data(goods_id=goods_id)
     login_taobao.deal_with_data()
     # pprint(data)
+
+
+
+
 

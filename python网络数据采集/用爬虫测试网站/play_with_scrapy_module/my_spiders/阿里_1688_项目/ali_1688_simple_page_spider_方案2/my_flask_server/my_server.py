@@ -534,6 +534,14 @@ def to_save_data():
         result = json.dumps(result)
         return result
 
+@app.route('/taobao_data', methods=['POST'])
+def get_taobao_data():
+    pass
+
+@app.route('/taobao_to_save_data', methods=['POST'])
+def taobao_to_save_data():
+    pass
+
 def encrypt(key, s):
     '''
     加密算法
