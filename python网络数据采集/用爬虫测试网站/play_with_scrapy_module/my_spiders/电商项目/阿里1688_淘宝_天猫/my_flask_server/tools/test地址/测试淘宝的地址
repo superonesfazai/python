@@ -1,0 +1,41 @@
+# 淘宝
+金牌卖家
+https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop
+任天堂
+https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
+云南
+https://item.taobao.com/item.htm?id=41439519931&ali_trackid=2:mm_16523910_13792193_55526825:1508736405_285_336954940&spm=a21bo.7925826.192013.3.581a6bcdrBLQjt
+长白山人参
+https://item.taobao.com/item.htm?id=522044402412&ali_trackid=2:mm_16523910_13792193_55526825:1508736264_229_1864701805&spm=a21bo.7925826.192013.3.1d5ab615yQXQIF
+17ss男士
+https://item.taobao.com/item.htm?id=549846696040&ali_trackid=2:mm_48525015_12518028_47312096:1508736194_214_2068600458&spm=a21bo.7925826.192013.3.4635adf6ynfTsn
+原点蓝牙键盘
+https://item.taobao.com/item.htm?id=542022399141&ali_trackid=2:mm_55678658_12502097_47308190:1508679867_237_2040095806&spm=a21bo.7925826.192013.3.64336a46QXTShg
+钱夫人
+https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17224945007.1.4ce05564PrcnUf&id=560249078162&scene=taobao_shop
+台灯
+https://item.taobao.com/item.htm?id=555627919837&ali_refid=a3_430584_1006:1122877644:N:%E5%8F%B0%E7%81%AF:c2defae819d907295d8901192239e748&ali_trackid=1_c2defae819d907295d8901192239e748&spm=a219r.lm5704.14.1#detail
+ANNA
+https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop
+
+# 淘宝接口上下架时间
+http://www.taocece.com/Handler/GetItemListTime.ashx?id=539014349859&refresh=falsec&_=1508553856444
+
+示例下架商品:
+https://item.taobao.com/item.htm?id=546818961702&_u=m1gk2qpt8bba
+
+https://item.taobao.com/auction/noitem.htm?itemid=553604625466&catid=50012010&_u=m1gk2qpt89bf
+
+
+https://rate.taobao.com/detailCommon.htm?userNumId=1098077780&amp;auctionNumId=41439519931&amp;siteID=4&amp;spuId=0
+
+# 获取商品对应价格
+https://detailskip.taobao.com/service/getData/1/p1/item/detail/sib.htm?itemId=546756179626&sellerId=2905054708&modules=dynStock,qrcode,viewer,price,duty,xmpPromotion,delivery,activity,fqg,zjys,couponActivity,soldQuantity,originalPrice,tradeContract&callback=onSibRequestSuccess
+
+
+# 手机版
+https://item.taobao.com/item.htm?id=560164926470
+
+https://item.taobao.com/item.htm?id=558722253574
+
+https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508852656200&sign=24b2e987fce9c84d2fc0cebd44be49ef&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22558722253574%5C%22%2C%5C%22ali_trackid%5C%22%3A%5C%222%3Amm_103377966_12504150_47318124%3A1508852150_348_1168669354%5C%22%2C%5C%22spm%5C%22%3A%5C%22a3145.8183741.1.id558722253574%5C%22%2C%5C%22e%5C%22%3A%5C%22fRr_ET7d3Tx76dzr1za1jmU2OsBpQQtBU6BwbTrggWiEcBupLLJRFy_IAR7ok-npGtZYij25ERjBnG-T_Ndt1BakgVc6i1DDLo0nGD27QSPyaVHJGv0cvWSFatuabcoup7-KiODD93LlC0BlL2LLY3O4cSMzCSAFUD-4jMAaherx5SCReQ1jJwo5h4XpPi-KRerZkbgJIVQgpPIJRlJds_pbdVeC1AMtC9mw9d7zBv1T3slBGJ2d9MaRzg-l95YfaYNdMH-gY5mbsmX3Tm38gPzMtjdtihtuEh5lfNoHrQM4a3ITlE1jqKm2f1NjvLH3TJ2BLCpTJE8%5C%22%2C%5C%22type%5C%22%3A%5C%222%5C%22%7D%22%2C%22itemNumId%22%3A%22558722253574%22%7D

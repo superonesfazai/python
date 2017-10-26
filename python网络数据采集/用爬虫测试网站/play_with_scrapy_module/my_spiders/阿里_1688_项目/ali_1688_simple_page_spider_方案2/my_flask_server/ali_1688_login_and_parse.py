@@ -344,7 +344,7 @@ class LoginAndParse(object):
             'link_name_personal_url': link_name_personal_url,   # 卖家个人主页地址
             'price': price,                                     # 商品价格
             'trade_number': trade_number,                       # 对应起批量
-            'goods_name': spec_name,                             # 标签属性名称
+            'goods_name': spec_name,                            # 标签属性名称
             'color': color,                                     # 商品颜色
             'color_img_url': color_img_url,                     # 颜色图片地址
             'other_size_info': other_size_info,                 # 非颜色的属性值
