@@ -44,9 +44,9 @@ TAOBAO_COOKIES_FILE_PATH = './cookies/cookies_taobao.txt'
 spider_to_show.html页面path
 """
 # linux/mac
-SPIDER_TO_SHOW_PATH = 'templates/spider_to_show_and_save2.html'
+ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show.html'
 # windows
-# SPIDER_TO_SHOW_PATH = r'.\templates\spider_to_show_and_save2.html'
+# ALi_SPIDER_TO_SHOW_PATH = r'.\templates\ali_spider_to_show.html'
 
 """
 headers

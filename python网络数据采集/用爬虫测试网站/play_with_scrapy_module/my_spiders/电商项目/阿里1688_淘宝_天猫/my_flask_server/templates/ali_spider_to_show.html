@@ -531,7 +531,7 @@
 					<div class="collect-btn"><a href="javascript:" id="reset">重置</a><a href="javascript:" id="grab">抓取数据</a><a href="javascript:;" id="insertSqlSingle">存入数据库</a></div>					
 				</div>
 				<div class="batchGrab fadeInLeft animated">
-					<div class="batchGrabBtn"><a href="javascript:" id="batchGrabStart">开始抓取</a><a href="javascript:" id="insertSql">存入数据库</a><a href="javascript:;"id="resetAllLink" >清空输入框</a><input type="checkbox" name="allSelect" id="allSelect" value=""/><label for="allSelect">全部选中</label></div>
+					<div class="batchGrabBtn"><a href="javascript:" id="batchGrabStart">开始抓取</a><a href="javascript:" id="insertSql">存入数据库</a><a href="javascript:;" id="resetAllLink">清空输入框</a><input type="checkbox" name="allSelect" id="allSelect" value=""/><label for="allSelect">全部选中</label></div>
 					<div class="batchGoodsLink">
 						<div class="add"><img src="../static/images/add.png"/></div>
 						<ul class="addLink" id="addLink">
@@ -923,11 +923,11 @@
 			<div class="goodsName"><%=goodsInfo.title%></div>
 			<div class="collect-main">
 				<div class="collect-main-left">
-					 <div class="bigGoods bigGoods<%=index%>" ><img src="<%=goodsInfo.center_img_url%>"/></div>
+					 <div class="bigGoods bigGoods<%=index%>" ><img src="<%=goodsInfo.all_img_url[0].img_url%>"/></div>
 					 <div class="smallGoodsList swiper-container swiper-container-horizontal">
 					 	<ul  class="swiper-wrapper">
 					 		<%for(var i=0;i<goodsInfo.all_img_url.length;i++){%>
-					 			<li class="smallImgList smallImgList<%=index%> swiper-slide"><img src="<%=goodsInfo.all_img_url[i]%>"/></li>
+					 			<li class="smallImgList smallImgList<%=index%> swiper-slide"><img src="<%=goodsInfo.all_img_url[i].img_url%>"/></li>
 					 		<% }%>
 					 	</ul>
 					 	<a href="" class="btn-left swiper-button-next"></a>
@@ -943,64 +943,67 @@
 						<div class="price">
 							<ul >
 								<li>价格</li>
-								<%for(var i=0;i<goodsInfo.price.length;i++){%>
-									<li><%=goodsInfo.price[i]%></li>
+								<%for(var i=0;i<goodsInfo.price_info.length;i++){%>
+									<li><%=goodsInfo.price_info[i].price%></li>
 								<%}%>
 							</ul>
 						</div>
 						<div class="number">
 							<ul>
 								<li>起批量</li>
-								<%for(var i=0;i<goodsInfo.trade_number.length;i++){%>
-								<li> <span id=""><%=goodsInfo.trade_number[i]%></span>件</li>
+								<%for(var i=0;i<goodsInfo.price_info.length;i++){%>
+								<li> <span id=""><%=goodsInfo.price_info[i].begin%></span>件</li>
 								<%}%>
 							</ul>
 						</div>
 					</div>
-					<% if(goodsInfo.size_info.length == 0){%>
-						<div class="goodsSize">
-							<div class="goodsSize-left"><%=goodsInfo.goods_name[0]%></div>
+					<% if(goodsInfo.sku_props[1] == null){%>
+							<div class="goodsSize">
+							<div class="goodsSize-left"><%if(goodsInfo.sku_props[1]){%><%=goodsInfo.sku_props[1].prop%><%}else{%><%=goodsInfo.sku_props[0].prop%><% } %></div>
 							<div class="goodsSize-right">
 								<ul>
-									<%for(var i=0;i<goodsInfo.color.length;i++){%>
+									<%for(var i=0;i<goodsInfo.sku_map.length;i++){%>
 										<li>
 											<ul>
-												<li class="goodsColorList goodsColorList<%=index%>" title="<%=goodsInfo.color[i]%>"><img class="goodsColorImg" src="<%=goodsInfo.color_img_url[i]%>"/></li>
-												<li title="<%=goodsInfo.detail_price[i]%>"><span><%=goodsInfo.detail_price[i]%></span>元</li>
-												<li title="<%=goodsInfo.rest_number[i]%>"><span id=""><%=goodsInfo.rest_number[i]%></span>件可售</li>
+												<li title="<%=goodsInfo.sku_map[i].spec_type%>"><%=goodsInfo.sku_map[i].spec_type%></li>
+												<li title="<%=goodsInfo.sku_map[i].spec_value.discountPrice%>"><span><%=goodsInfo.sku_map[i].spec_value.discountPrice%></span>元</li>
+												<li title="<%=goodsInfo.sku_map[i].spec_value.canBookeCount%>"><span id=""><%=goodsInfo.sku_map[i].spec_value.canBookCount%></span>件可售</li>
 											</ul>
 										</li>									
 									<%}%>
 								</ul>
+								<div class="obj-expand">
+									<span ></span>
+								</div>
 							</div>
 						</div>						
 					<%}else{%>	
 						<div class="goodsColor">
-							<div class="goodsColor-left"><%=goodsInfo.goods_name[0]%></div>
+							<div class="goodsColor-left"><%=goodsInfo.sku_props[0].prop%></div>
 							<div class="goodsColor-right">
 								<ul>
-										<%if(goodsInfo.color_img_url ==''){%>
-											<%for(var i=0;i<goodsInfo.color.length;i++){%>
-												<li ><%=goodsInfo.color[i]%></li>
+										<%if(goodsInfo.sku_props[0].value[0].imageUrl == null){%>
+											<%for(var i=0;i<goodsInfo.sku_props[0].value.length;i++){%>
+												<li ><%=goodsInfo.sku_props[0].value[i].name%></li>
 											<%}%>	
 										<%}else{%>
-											<%for(var i=0;i<goodsInfo.color_img_url.length;i++){%>
-												<li class="goodsColorList goodsColorList<%=index%>"><img src="<%=goodsInfo.color_img_url[i]%>"/></li>
+											<%for(var i=0;i<goodsInfo.sku_props[0].value.length;i++){%>
+												<li class="goodsColorList goodsColorList<%=index%>"><img src="<%=goodsInfo.sku_props[0].value[i].imageUrl%>"/></li>
 											<%}%>	
 									<%}%>	
 								</ul>							
 							</div>
 						</div>
 						<div class="goodsSize">
-							<div class="goodsSize-left"><%if(goodsInfo.goods_name[1]){%><%=goodsInfo.goods_name[1]%><%}else{%><%=goodsInfo.goods_name[0]%><% } %></div>
+							<div class="goodsSize-left"><%if(goodsInfo.sku_props[1]){%><%=goodsInfo.sku_props[1].prop%><%}else{%><%=goodsInfo.sku_props[0].prop%><% } %></div>
 							<div class="goodsSize-right">
 								<ul>
-									<%for(var i=0;i<goodsInfo.size_info.length;i++){%>
+									<%for(var i=0;i<goodsInfo.sku_map.length;i++){%>
 										<li>
 											<ul>
-												<li title="<%=goodsInfo.size_info[i]%>"><%=goodsInfo.size_info[i]%></li>
-												<li title="<%=goodsInfo.detail_price[i]%>"><span><%=goodsInfo.detail_price[i]%></span>元</li>
-												<li title="<%=goodsInfo.rest_number[i]%>"><span id=""><%=goodsInfo.rest_number[i]%></span>件可售</li>
+												<li title="<%=goodsInfo.sku_map[i].spec_type%>"><%=goodsInfo.sku_map[i].spec_type%></li>
+												<li title="<%=goodsInfo.sku_map[i].spec_value.discountPrice%>"><span><%=goodsInfo.sku_map[i].spec_value.discountPrice%></span>元</li>
+												<li title="<%=goodsInfo.sku_map[i].spec_value.canBookeCount%>"><span id=""><%=goodsInfo.sku_map[i].spec_value.canBookCount%></span>件可售</li>
 											</ul>
 										</li>									
 									<%}%>
@@ -1017,10 +1020,12 @@
 					<div class="seller-message">
 						<div class="seller-company"><%=goodsInfo.company_name%></div>
 						<div class="seller-name">
-							联系卖家：<span><%=goodsInfo.link_name%></span>
+							联系卖家：
+							<!--<span><%=goodsInfo.link_name%></span>-->
 						</div>
 						<div class="seller-personal-url">
-							卖家私人主页：<br /><a href="<%=goodsInfo.link_name_personal_url%>" target="_blank"><%=goodsInfo.link_name_personal_url%></a>
+							卖家私人主页：<br />
+							<!--<a href="<%=goodsInfo.link_name_personal_url%>" target="_blank"><%=goodsInfo.link_name_personal_url%></a>-->
 						</div>
 					</div>
 					<div class="goodsDetail-message">
@@ -1030,44 +1035,44 @@
 						    <table>
 						        <tbody>
 						        	<tr>
-						        		<td class="de-feature"><%if(goodsInfo.p_name[0]){%><%=goodsInfo.p_name[0]%><%}else{%><% } %></td>
-						        		<td class="de-value"><%if(goodsInfo.p_value[0]){%><%=goodsInfo.p_value[0]%><%}else{%><% } %></td>
-						        		<td class="de-feature"><%if(goodsInfo.p_name[1]){%><%=goodsInfo.p_name[1]%><%}else{%><% } %></td>
-						        		<td class="de-value"><%if(goodsInfo.p_value[1]){%><%=goodsInfo.p_value[1]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[2]){%><%=goodsInfo.p_name[2]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[2]){%><%=goodsInfo.p_value[2]%><%}else{%><% } %></td>
+						        		<td class="de-feature"><%if(goodsInfo.property_info[0].name){%><%=goodsInfo.property_info[0].name%><%}else{%><% } %></td>
+						        		<td class="de-value"><%if(goodsInfo.property_info[0]){%><%=goodsInfo.property_info[0].value%><%}else{%><% } %></td>
+						        		<td class="de-feature"><%if(goodsInfo.property_info[1]){%><%=goodsInfo.property_info[1].name%><%}else{%><% } %></td>
+						        		<td class="de-value"><%if(goodsInfo.property_info[1]){%><%=goodsInfo.property_info[1].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[2]){%><%=goodsInfo.property_info[2].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[2]){%><%=goodsInfo.property_info[2].name%><%}else{%><% } %></td>
 						    			</tr>
 						    			<tr>
-						    			 	<td class="de-feature"><%if(goodsInfo.p_name[3]){%><%=goodsInfo.p_name[3]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[3]){%><%=goodsInfo.p_value[3]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[4]){%><%=goodsInfo.p_name[4]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[4]){%><%=goodsInfo.p_value[4]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[5]){%><%=goodsInfo.p_name[5]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[5]){%><%=goodsInfo.p_value[5]%><%}else{%><% } %></td>
+						    			 	<td class="de-feature"><%if(goodsInfo.property_info[3]){%><%=goodsInfo.property_info[3].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[3]){%><%=goodsInfo.property_info[3].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[4]){%><%=goodsInfo.property_info[4].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[4]){%><%=goodsInfo.property_info[4].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[5]){%><%=goodsInfo.property_info[5].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[5]){%><%=goodsInfo.property_info[5].value%><%}else{%><% } %></td>
 						    			</tr> 	    			    			  
 						    			<tr>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[6]){%><%=goodsInfo.p_name[6]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[6]){%><%=goodsInfo.p_value[6]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[7]){%><%=goodsInfo.p_name[7]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[7]){%><%=goodsInfo.p_value[7]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[8]){%><%=goodsInfo.p_name[8]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[8]){%><%=goodsInfo.p_value[8]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[6]){%><%=goodsInfo.property_info[6].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[6]){%><%=goodsInfo.property_info[6].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[7]){%><%=goodsInfo.property_info[7].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[7]){%><%=goodsInfo.property_info[7].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[8]){%><%=goodsInfo.property_info[8].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[8]){%><%=goodsInfo.property_info[8].value%><%}else{%><% } %></td>
 						    			</tr>
 						    			<tr>  	    			
-						    				<td class="de-feature"><%if(goodsInfo.p_name[9]){%><%=goodsInfo.p_name[9]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[9]){%><%=goodsInfo.p_value[9]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[10]){%><%=goodsInfo.p_name[10]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[10]){%><%=goodsInfo.p_value[10]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[11]){%><%=goodsInfo.p_name[11]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[11]){%><%=goodsInfo.p_value[11]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[9]){%><%=goodsInfo.property_info[9].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[9]){%><%=goodsInfo.property_info[9].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[10]){%><%=goodsInfo.property_info[10].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[10]){%><%=goodsInfo.property_info[10].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[11]){%><%=goodsInfo.property_info[11].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[11]){%><%=goodsInfo.property_info[11].value%><%}else{%><% } %></td>
 						    			</tr>
 						    			<tr>  	    			
-						    				<td class="de-feature"><%if(goodsInfo.p_name[12]){%><%=goodsInfo.p_name[12]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[12]){%><%=goodsInfo.p_value[12]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[13]){%><%=goodsInfo.p_name[13]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[13]){%><%=goodsInfo.p_value[13]%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.p_name[14]){%><%=goodsInfo.p_name[14]%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.p_value[14]){%><%=goodsInfo.p_value[14]%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[12]){%><%=goodsInfo.property_info[12].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[12]){%><%=goodsInfo.property_info[12].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[13]){%><%=goodsInfo.property_info[13].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[13]){%><%=goodsInfo.property_info[13].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.property_info[14]){%><%=goodsInfo.property_info[14].name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.property_info[14]){%><%=goodsInfo.property_info[14].value%><%}else{%><% } %></td>
 						    			</tr>
 						    		</tbody>
 						    </table>
@@ -1170,7 +1175,8 @@
 	
 				
 				function bindHTML(goodsInfo,index,className){
-					console.log(index);
+					
+				
 					var $goodsInfoTemplate = $('#template'),
 							$goodsInfo = $('.className');
 					var template = $goodsInfoTemplate.html();
@@ -1204,7 +1210,7 @@
 						
 						for(var i=0;i<goodsColorList.length;i++){
 							goodsColorList[i].addEventListener('click',function(e){
-								console.log(e.target.src);
+								console.log(e.target.src)
 								if(e.target.src){
 									bigImg.find('img')[0].src = e.target.src;	
 								}else{
@@ -1242,10 +1248,10 @@
 		}	
 		$('#reset').click(function(){reset()});
 //批量抓取数据
-//清空批量抓取输入框
+		//清空输入框
 		$('#resetAllLink').click(function(){
 			reset();
-		});
+		})
 		$('#batchGrabStart').click(function(){	
 			$('.showGoodsLoading').show();
 			var p = new Promise(function(resolve,reject){
@@ -1326,12 +1332,13 @@
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1347,7 +1354,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}		
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1356,19 +1363,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '3'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1384,7 +1392,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}		
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1393,19 +1401,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '4'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1421,7 +1430,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1430,19 +1439,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '5'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1458,7 +1468,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1467,19 +1477,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '6'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1495,7 +1506,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1504,19 +1515,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '7'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1532,7 +1544,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1541,19 +1553,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '8'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1569,7 +1582,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1578,19 +1591,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '9'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1606,7 +1620,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1615,19 +1629,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '10'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1643,7 +1658,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1652,19 +1667,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '11'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1680,7 +1696,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1689,19 +1705,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '12'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1717,7 +1734,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1726,19 +1743,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '13'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1754,7 +1772,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1763,19 +1781,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '14'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1791,7 +1810,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1800,19 +1819,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '15'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1828,7 +1848,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1837,19 +1857,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '16'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1865,7 +1886,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1874,19 +1895,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '17'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1902,7 +1924,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1911,19 +1933,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '18'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1939,7 +1962,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1948,19 +1971,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '19'
 			}).then((res)=>{
 				$.ajax({
 					type:"post",
+//					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(res).val()
-					},					
+					},
 					success:function(data){
 					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
@@ -1976,7 +2000,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}						
+						}
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1985,41 +2009,80 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)					
+							},3000)
 					}
-				});	
+				});
 				return '20'
 			})
-
-
 		});
+//公共方法
+		function test(arr) {
+			
+			var indexArr = new Array();
+			for(var i = 0; i < arr.length; i++) {
+				var b = arr[i]['spec_type'].slice(0,arr[i]['spec_type'].indexOf("|"))
+				indexArr.push(b);
+			}
+			//去重后的数组
+			indexArr = indexArr.unique1();
+			console.log(indexArr);
+			var arr3 = new Array();
+			for(var j = 0;j<indexArr.length;j++){
+				var arr2 = new Array();
+				for(var k = 0;k<arr.length;k++){
+					if(indexArr[j] === arr[k]['spec_type'].slice(0,arr[k]['spec_type'].indexOf("|"))){
+						arr2.push(arr[k])
+					};
+				}
+				arr3 = arr3.concat(arr2);
+				
+			}
+			return arr3;
+		}
+		//数组去重
+		Array.prototype.unique1 = function() {
+			var res = [this[0]];
+			for(var i = 1; i < this.length; i++) {
+				var repeat = false;
+				for(var j = 0; j < res.length; j++) {
+					if(this[i] == res[j]) {
+						repeat = true;
+						break;
+					}
+				}
+				if(!repeat) {
+					res.push(this[i]);
+				}
+			}
+			return res;
+		}
+		
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
 				return
 			}
-
 			$('.mask').show();
 			$.ajax({
 				type:"post",
 //				url:$('#goodsLink').val(),
-                url:'/data',
+              	url:'/data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()
 				},
 				success:function(data){
-                    data = JSON.parse(data);
+        			data = JSON.parse(data);
 					if(data && data.reason == 'success'){
+						data.data.sku_map = test(data.data.sku_map);
+						console.log(data.data);
 						setTimeout(function(){
 							$('.mask').hide();
 							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
 				//单个存入数据库
 							$('#insertSqlSingle').click(function(){
-							    var tmp_list = new Array();     //先转换为数组再存入
-							    tmp_list[0] = $('#goodsLink').val();
-								var insertData = tmp_list;
+								var insertData = $('#goodsLink').val();
 									$.ajax({
 										type:"post",
 										url:"/to_save_data",

@@ -45,6 +45,7 @@
 		margin: 0 auto;
 		background: url(../static/images/ali.png)no-repeat;
 		background-size: 100% 100%;
+		cursor: pointer;
 	}
 	.taob span{
 		background: url(../static/images/taob.png)no-repeat;	
@@ -54,7 +55,25 @@
 		background: url(../static/images/tianm.png)no-repeat;	
 		background-size: 100% 100%;			
 	}	
-	.login{
+	.ali span:hover .login-btn{
+		display: block;
+	}
+	.taob span:hover .login-btn{
+		display: block;
+	}
+	.tianm span:hover .login-btn{
+		display: block;
+	}
+	.login-btn{
+		display: none;
+		width: 1rem;
+		height: 1rem;
+		text-align: center;
+		line-height: 1rem;
+		color: #FFFFFF;
+		background: rgba(0,0,0,.5);
+	}
+	/*.login{
 		width: 100%;
 		display: flex;
 		margin-top: .3rem;
@@ -95,7 +114,6 @@
 	}
 	.scanArea{
 		width: 1.5rem;
-		height: 1.5rem;
 		margin: 0 auto;
 	}
 	.scanArea img{
@@ -130,7 +148,7 @@
     color: #ffffff;
     border-radius: 5px;
     margin: 0 auto;
-	}
+	}*/
     </style>
   </head>
   <body>
@@ -138,15 +156,30 @@
     <div class="main">
     	<span id="keleyivisitorip" style="display: none;"></span>
     	<div class="passList" id="passList">
-    		<div class="ali passListItem"><span></span></div>
-    		<div class="taob passListItem"><span></span></div>
-    		<div class="tianm passListItem"><span></span></div>
+    		<div class="ali passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_ali" target="_blank">
+						请点击登录
+    				</a>
+    			</span>
+    		</div>
+    		<div class="taob passListItem"><span>
+    			    				<a class="login-btn">
+    					请点击登录
+    				</a>
+    		</span></div>
+    		<div class="tianm passListItem"><span>
+    			    				<a class="login-btn">
+    					请点击登录
+    				</a>
+    		</span></div>
     	</div>
-    	<ul class="login" id="login">
+    	<!--<ul class="login" id="login">
     		<li class="loginList">
 	 	    	<div class="scanLogin">
-		    		<div class="scanLogin-head">请用手机端旺信App扫码登录</div>
+		    		<div class="scanLogin-head">二维码登录</div>
 		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
 		    			<div class="scanArea"><img class="diCode" src="../static/images/5-121204193Q9.gif"/></div>
 		    		</div>
 		    	</div>     			
@@ -155,6 +188,7 @@
 	 	    	<div class="scanLogin">
 		    		<div class="scanLogin-head">二维码登录</div>
 		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
 		    			<div class="scanArea"><img class="diCode" src="../static/images/5-121204193Q9.gif"/></div>
 		    		</div>
 		    	</div>   	    		
@@ -163,14 +197,15 @@
 	 	    	<div class="scanLogin">
 		    		<div class="scanLogin-head">二维码登录</div>
 		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
 		    			<div class="scanArea"><img class="diCode" src="../static/images/5-121204193Q9.gif"/></div>
 		    		</div>
 		    	</div>   	    		
 	    	</li>
-    	</ul>
-      <div class="confirm_login">
-	    	<a href="/show" id="confirmLogin" target="_blank">扫码完毕, 请点击</a>
-    	</div>  	
+    	</ul>-->
+      <!--<div class="confirm_login">
+	    	<a href="javascript:" id="confirmLogin">已扫码完毕请点击</a>
+    	</div>  	-->
     </div>
 
     <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
@@ -185,59 +220,72 @@
 		}(); 
 //鼠标经过事件
 			var passList = document.getElementById('passList'),
-					passListItem = passList.getElementsByTagName('div'),
-					login = document.getElementById('login'),
-					loginList = login.getElementsByTagName('li'),
-					now =0;
-			
-			for(var i=0;i<passListItem.length;i++){
-				passListItem[i].index = i;
-				passListItem[i].onmouseover=function(){
-					now = this.index;
-					startMove(loginList[now],{opacity:100});
-//请求二维码
+					passListItem = passList.getElementsByTagName('div');
+				
+				$('.login-btn').eq(0).click(function(){
 					$.ajax({
 						type:"post",
-						url:"/js_call_qrcode",
+						url:"",
 						async:true,
 						data:{
-							ip:$('#keleyivisitorip').html(),
-							text:"success for ajax"
-						},
-						success:function(data){
-						    data = JSON.parse(data);
-//							var data = 'http://img.alicdn.com/tfscom/TB1Fx5thvBNTKJjSszbwu1FrFXa.png';
-							bindCode(data.qrcode_url);
+							confirm_login:'ali_login'
 						}
 					});
-//展示获取的二维码
-					function bindCode(url){
-						var oImg = new Image();
-						oImg.src = url;
-						oImg.onload=function(){
-							setTimeout(function(){
-									$('.diCode').attr('src',oImg.src)
-									$('.diCodeInfo').show()
-							}, 500);
+				})
+				$('.login-btn').eq(1).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'taob_login'
 						}
-					}
-				};
-				passListItem[i].onmouseout=function(){
-					now = this.index;			
-					startMove(loginList[now],{opacity:0});
-				}				
-			}
-//confirmLogin
-			$('#confirmLogin').click(function(){
-				$.ajax({
-					type:"post",
-					url:"/select",
-					async:true,
-					data:{
-						confirm_login:'confirm_login'
-					}
-				});
-			})
+					});
+				})
+				$('.login-btn').eq(2).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'tianm_login'
+						}
+					});
+				})	
+//			for(var i=0;i<passListItem.length;i++){
+//				passListItem[i].index = i;
+//				passListItem[i].onmouseover=function(){
+//					now = this.index;
+//					startMove(loginList[now],{opacity:100});
+//					$.ajax({
+//						type:"post",
+//						url:"/js_call_qrcode",
+//						async:true,
+//						data:{
+//							ip:$('#keleyivisitorip').html(),
+//							text:"success for ajax"
+//						},
+//						success:function(data){
+//							bindCode(data.qrcode_url);
+//						}
+//					});
+//					function bindCode(url){
+//						var oImg = new Image();
+//						oImg.src = url;
+//						oImg.onload=function(){
+//							setTimeout(function(){
+//									$('.diCode').attr('src',oImg.src)
+//									$('.diCodeInfo').show()
+//							},500);
+//						}
+//					}
+//				}
+//				passListItem[i].onmouseout=function(){
+//					now = this.index;			
+//					startMove(loginList[now],{opacity:0});
+//				}				
+//			}
+
     </script>
     <script type="text/javascript" src="http://tool.keleyi.com/ip/visitoriphost/"></script>
   </body>

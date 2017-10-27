@@ -14,9 +14,9 @@ from flask import Flask, render_template, url_for, request,redirect,make_respons
 from flask import send_file
 from flask_login import LoginManager
 
-from .ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
+from ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
 from my_pipeline import UserItemPipeline
-from settings import SPIDER_TO_SHOW_PATH
+from settings import ALi_SPIDER_TO_SHOW_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
@@ -95,8 +95,21 @@ def login():
 def select():
     print('正在获取选择界面...')
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:   # 判断是否为非法登录
-        if request.form.get('confirm_login'):       # 二维码已扫描的ajax请求的处理
-            pass
+        if request.form.get('confirm_login'):       # 根据ajax请求类型的分别处理
+            ajax_request = request.form.get('confirm_login')
+            if ajax_request == 'ali_login':
+                # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+                # return send_file(SPIDER_TO_SHOW_PATH)
+                response = make_response(redirect('show_ali'))    # 重定向到新的页面
+                return response
+            elif ajax_request == 'taob_login':
+                pass
+            elif ajax_request == 'tianm_login':
+                pass
+            else:
+                return '''
+                <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+                '''
         else:
             return render_template('select.html')
     else:   # 非法登录显示错误网页
@@ -136,15 +149,34 @@ def regist():
         #request.args['username']
         return render_template('Reg.html')
 
-@app.route('/show', methods=['GET', 'POST'])
-def show_info():
+@app.route('/show_ali', methods=['GET', 'POST'])
+def show_ali_info():
     '''
-    扫码成功后显示的爬取页面
+    点击后成功后显示的爬取页面
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:     # request.cookies -> return a dict
         return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后, 并且成功扫描二维码后，再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+        '''
+    else:
+        print('正在获取爬取页面...')
+        if request.method == 'POST':
+            pass        # 让前端发个post请求, 重置页面
+        else:
+            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            return send_file(ALi_SPIDER_TO_SHOW_PATH)
+
+@app.route('/show_taobao', methods=['GET', 'POST'])
+def show_taobao_info():
+    '''
+    点击后成功后显示的爬取页面
+    :return:
+    '''
+    if request.cookies.get('username') is None or request.cookies.get(
+            'passwd') is None:  # request.cookies -> return a dict
+        return '''
+        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
         '''
     else:
         print('正在获取爬取页面...')
@@ -152,7 +184,26 @@ def show_info():
             pass
         else:
             # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
-            return send_file(SPIDER_TO_SHOW_PATH)
+            return send_file(ALi_SPIDER_TO_SHOW_PATH)
+
+@app.route('/show_tmall', methods=['GET', 'POST'])
+def show_tmall_info():
+    '''
+    点击后成功后显示的爬取页面
+    :return:
+    '''
+    if request.cookies.get('username') is None or request.cookies.get(
+            'passwd') is None:  # request.cookies -> return a dict
+        return '''
+        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+        '''
+    else:
+        print('正在获取爬取页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            return send_file(ALi_SPIDER_TO_SHOW_PATH)
 
 ######################################################
 
@@ -320,16 +371,29 @@ def to_save_data():
                             tmp['link_name'] = data_list['link_name']                               # 卖家姓名
 
                             # 设置最高价price， 最低价taobao_price
-                            tmp_ali_price = []
-                            for item in data_list['price_info']:
-                                tmp_ali_price.append(float(item.get('price')))
+                            if len(data_list['price_info']) > 1:
+                                tmp_ali_price = []
+                                for item in data_list['price_info']:
+                                    tmp_ali_price.append(float(item.get('price')))
 
-                            if tmp_ali_price == []:
+                                if tmp_ali_price == []:
+                                    tmp['price'] = Decimal(0).__round__(2)
+                                    tmp['taobao_price'] = Decimal(0).__round__(2)
+                                else:
+                                    tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)          # 得到最大值并转换为精度为2的decimal类型
+                                    tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
+                            elif len(data_list['price_info']) == 1:         # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
+                                if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
+                                    tmp_price_range = data_list['price_info'][0].get('price')
+                                    tmp_price_range = tmp_price_range.split('-')
+                                    tmp['price'] = tmp_price_range[1]
+                                    tmp['taobao_price'] = tmp_price_range[0]
+                                else:
+                                    tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                                    tmp['taobao_price'] = tmp['price']
+                            else:   # 少于1
                                 tmp['price'] = Decimal(0).__round__(2)
                                 tmp['taobao_price'] = Decimal(0).__round__(2)
-                            else:
-                                tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)          # 得到最大值并转换为精度为2的decimal类型
-                                tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
 
                             tmp['price_info'] = data_list['price_info']                             # 价格信息
 

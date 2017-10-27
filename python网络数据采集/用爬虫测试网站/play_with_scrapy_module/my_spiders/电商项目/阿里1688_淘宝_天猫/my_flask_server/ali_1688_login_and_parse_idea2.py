@@ -15,22 +15,84 @@ from time import sleep
 import json
 import datetime
 from decimal import Decimal
+from random import randint
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import selenium.webdriver.support.ui as ui
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from settings import PHANTOMJS_DRIVER_PATH
+from settings import HEADERS
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
         super().__init__()
+        self.headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            # 'Accept-Encoding:': 'gzip',
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Host': 'acs.m.taobao.com',
+            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+        }
         self.result_data = {}
         self.is_activity_goods = False
+
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被天猫服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        tmp_execute_path = EXECUTABLE_PATH
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+        # self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
+        wait = ui.WebDriverWait(self.driver, 6)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
 
     def get_ali_1688_data(self, goods_id):
         # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
-        print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
-        response = requests.get(wait_to_deal_with_url)
 
-        body = response.content.decode('utf-8')
+        print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
+        # response = requests.get(wait_to_deal_with_url, headers=self.headers)
+        # body = response.content.decode('utf-8')
+
+        self.driver.set_page_load_timeout(4)
+        try:
+            self.driver.get(wait_to_deal_with_url)
+            self.driver.implicitly_wait(7)  # 隐式等待和显式等待可以同时使用
+
+            locator = (By.CSS_SELECTOR, 'div.d-content')
+            try:
+                WebDriverWait(self.driver, 7, 0.5).until(EC.presence_of_element_located(locator))
+            except Exception as e:
+                print('遇到错误: ', e)
+                return 4041  # 未得到div.d-content，返回4041
+            else:
+                print('div.d-content已经加载完毕')
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 4 seconds when loading page')
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            # pass
+        body = self.driver.page_source
+
+        # print(body)
         body = re.compile(r'\n').sub('', body)
         body = re.compile(r'\t').sub('', body)
         body = re.compile(r'  ').sub('', body)
@@ -122,14 +184,20 @@ class ALi1688LoginAndParse(object):
                 tmp['price'] = tmp_trade_number
                 price_info.append(tmp)
             else:   # 常规商品处理
-                price_info = data.get('discountPriceRanges')
-                for item in price_info:
-                    try:
-                        item.pop('convertPrice')
-                    except KeyError:
-                        # print('KeyError, [convertPrice], 此处跳过')
-                        pass
-                # print(price_info)
+                if data.get('isLimitedTimePromotion') == 'false':  # isLimitedTimePromotion 限时优惠, 'true'表示限时优惠价, 'flase'表示非限时优惠
+                    price_info = data.get('discountPriceRanges')
+                    for item in price_info:
+                        try:
+                            item.pop('convertPrice')
+                        except KeyError:
+                            pass
+                    # print(price_info)
+                else:   # 限时优惠
+                    tmp = {
+                        'begin': data.get('beginAmount', ''),
+                        'price': data.get('skuDiscountPrice', '')
+                    }
+                    price_info.append(tmp)
 
             # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
             sku_props = data.get('skuProps')
@@ -167,8 +235,11 @@ class ALi1688LoginAndParse(object):
                         if self.is_activity_goods:
                             pass
                         else:
-                            if float(value.get('discountPrice')) < float(price_info[0].get('price')):
-                                value['discountPrice'] = price_info[0].get('price')
+                            if data.get('isLimitedTimePromotion') == 'false':
+                                if float(value.get('discountPrice')) < float(price_info[0].get('price')):
+                                    value['discountPrice'] = price_info[0].get('price')
+                                else:
+                                    pass
                             else:
                                 pass
                     try:
@@ -243,6 +314,7 @@ class ALi1688LoginAndParse(object):
             # 下方详细div块
             detail_info_url = data.get('detailUrl')
             if detail_info_url is not None:
+                # print(detail_info_url)
                 detail_info = self.get_detail_info_url_div(detail_info_url)
             else:
                 detail_info = ''
@@ -260,7 +332,7 @@ class ALi1688LoginAndParse(object):
                 'detail_info': detail_info,                 # 下方详细div块
             }
             # pprint(result)
-            # print(('------>>>| 爬到goods_id(%s)对应的数据: |') % goods_id, result)
+            # print('------>>>| 爬到goods_id(%s)对应的数据: |', result)
             # print()
 
             # wait_to_send_data = {
@@ -291,16 +363,29 @@ class ALi1688LoginAndParse(object):
         tmp['link_name'] = data_list['link_name']  # 卖家姓名
 
         # 设置最高价price， 最低价taobao_price
-        tmp_ali_price = []
-        for item in data_list['price_info']:
-            tmp_ali_price.append(float(item.get('price')))
+        if len(data_list['price_info']) > 1:
+            tmp_ali_price = []
+            for item in data_list['price_info']:
+                tmp_ali_price.append(float(item.get('price')))
 
-        if tmp_ali_price == []:
+            if tmp_ali_price == []:
+                tmp['price'] = Decimal(0).__round__(2)
+                tmp['taobao_price'] = Decimal(0).__round__(2)
+            else:
+                tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
+        elif len(data_list['price_info']) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
+            if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
+                tmp_price_range = data_list['price_info'][0].get('price')
+                tmp_price_range = tmp_price_range.split('-')
+                tmp['price'] = tmp_price_range[1]
+                tmp['taobao_price'] = tmp_price_range[0]
+            else:
+                tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                tmp['taobao_price'] = tmp['price']
+        else:  # 少于1
             tmp['price'] = Decimal(0).__round__(2)
             tmp['taobao_price'] = Decimal(0).__round__(2)
-        else:
-            tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-            tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
 
         tmp['price_info'] = data_list['price_info']  # 价格信息
 
@@ -345,8 +430,11 @@ class ALi1688LoginAndParse(object):
             detail_info_url = 'https:' + detail_info_url
         else:
             pass
-        data_tfs_url_response = requests.get(detail_info_url)
-        data_tfs_url_body = data_tfs_url_response.content.decode('gbk')
+        # data_tfs_url_response = requests.get(detail_info_url, headers=self.headers)
+        # data_tfs_url_body = data_tfs_url_response.content.decode('gbk')
+
+        self.driver.get(detail_info_url)
+        data_tfs_url_body = self.driver.page_source
         data_tfs_url_body = re.compile(r'\n').sub('', data_tfs_url_body)
         data_tfs_url_body = re.compile(r'\t').sub('', data_tfs_url_body)
         data_tfs_url_body = re.compile(r'  ').sub('', data_tfs_url_body)
@@ -358,6 +446,8 @@ class ALi1688LoginAndParse(object):
             if data_tfs_url_body != []:
                 detail_info = data_tfs_url_body[0]
                 detail_info = re.compile(r'\\').sub('', detail_info)
+                detail_info = re.compile(r'&lt;').sub('<', detail_info)     # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+                detail_info = re.compile(r'&gt;').sub('>', detail_info)
             else:
                 detail_info = ''
         else:
@@ -366,6 +456,10 @@ class ALi1688LoginAndParse(object):
                 desc = re.compile(r'var desc=\'(.*)\';').findall(data_tfs_url_body)
                 if desc != []:
                     detail_info = desc[0]
+                    detail_info = re.compile(r'&lt;').sub('<', detail_info)
+                    detail_info = re.compile(r'&gt;').sub('>', detail_info)
+                    detail_info = re.compile(r'src=\"https:').sub('src=\"', detail_info)     # 先替换部分带有https的
+                    detail_info = re.compile(r'src="').sub('src=\"https:', detail_info)     # 再把所欲的换成https的
             else:
                 detail_info = ''
         # print(detail_info)
@@ -383,39 +477,43 @@ class ALi1688LoginAndParse(object):
             print('阿里1688商品url错误, 非正规的url, 请参照格式(https://detail.1688.com/offer/)开头的...')
             return ''
 
-if __name__ == '__main__':
-    # ali_1688 = ALi1688LoginAndParse()
-    # while True:
-    #     url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-    #     url.strip('\n').strip(';')
-    #     goods_id = ali_1688.get_goods_id_from_url(url)
-    #     ali_1688.get_ali_1688_data(goods_id=goods_id)
-    #     ali_1688.deal_with_data()
-    #     gc.collect()
+    def __del__(self):
+        self.driver.quit()
+        gc.collect()
 
-    ##### 实时更新数据
-    ali_1688 = ALi1688LoginAndParse()
-
-    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-    result = list(tmp_sql_server.select_all_goods_id())
-    print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-    print(result)
-    print('--------------------------------------------------------')
-
-    print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-    for item in result:  # 实时更新数据
-        ali_1688.get_ali_1688_data(item[0])
-        data = ali_1688.deal_with_data()
-        if data != []:
-            data['goods_id'] = item[0]
-
-            print('------>>>| 爬取到的数据为: ', data)
-
-            ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
-        else:  # 表示返回的data值为空值
-            pass
-
-    gc.collect()
-    print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+# if __name__ == '__main__':
+#     # ali_1688 = ALi1688LoginAndParse()
+#     # while True:
+#     #     url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
+#     #     url.strip('\n').strip(';')
+#     #     goods_id = ali_1688.get_goods_id_from_url(url)
+#     #     ali_1688.get_ali_1688_data(goods_id=goods_id)
+#     #     ali_1688.deal_with_data()
+#     #     gc.collect()
+#
+#     ##### 实时更新数据
+#     ali_1688 = ALi1688LoginAndParse()
+#
+#     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+#     result = list(tmp_sql_server.select_all_goods_id())
+#     print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+#     print(result)
+#     print('--------------------------------------------------------')
+#
+#     print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+#     for item in result:  # 实时更新数据
+#         ali_1688.get_ali_1688_data(item[0])
+#         data = ali_1688.deal_with_data()
+#         if data != []:
+#             data['goods_id'] = item[0]
+#
+#             print('------>>>| 爬取到的数据为: ', data)
+#
+#             ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
+#         else:  # 表示返回的data值为空值
+#             pass
+#
+#     gc.collect()
+#     print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
 
 

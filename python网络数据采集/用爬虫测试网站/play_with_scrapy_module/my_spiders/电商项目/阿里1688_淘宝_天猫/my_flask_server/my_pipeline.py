@@ -289,6 +289,9 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
 
+    def update_table_taobao(self, item):
+        pass
+
     def select_all_goods_id(self):
         try:
             cs = self.conn.cursor()
