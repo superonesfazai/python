@@ -15,6 +15,10 @@ CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
 # phantomjs驱动
 PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
 
+# 我自己服务器上的地址
+# CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
+# PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+
 """
 数据库相关
 """

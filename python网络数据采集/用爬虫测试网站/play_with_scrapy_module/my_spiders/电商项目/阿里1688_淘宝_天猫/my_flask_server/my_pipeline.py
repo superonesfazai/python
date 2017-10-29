@@ -205,14 +205,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     """
     def __init__(self):
         super(SqlServerMyPageInfoSaveItemPipeline, self).__init__()
-        self.conn = connect(
-            host=HOST,
-            user=USER,
-            password=PASSWORD,
-            database=DATABASE,
-            port=PORT,
-            charset='utf8'
-        )
+        try:
+            self.conn = connect(
+                host=HOST,
+                user=USER,
+                password=PASSWORD,
+                database=DATABASE,
+                port=PORT,
+                charset='utf8'
+            )
+        except Exception as e:
+            print('数据库连接失败!!')
 
     def insert_into_table(self, item):
         try:
@@ -248,7 +251,10 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-' * 25 + '| ***该页面信息成功存入mysql中*** |')
             return True
         except Exception as e:
-            cs.close()
+            try:
+                cs.close()
+            except Exception:
+                pass
             print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
@@ -283,7 +289,10 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
             return True
         except Exception as e:
-            cs.close()
+            try:
+                cs.close()
+            except Exception:
+                pass
             print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
@@ -292,11 +301,11 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def update_table_taobao(self, item):
         pass
 
-    def select_all_goods_id(self):
+    def select_ali_1688_all_goods_id(self):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet')
+            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -305,7 +314,10 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return result
         except Exception as e:
             print('--------------------| 筛选level时报错：', e)
-            cs.close()
+            try:
+                cs.close()
+            except Exception:
+                pass
             return None
 
 

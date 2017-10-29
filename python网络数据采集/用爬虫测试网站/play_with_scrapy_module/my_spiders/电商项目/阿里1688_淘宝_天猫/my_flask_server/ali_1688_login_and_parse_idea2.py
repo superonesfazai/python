@@ -21,14 +21,20 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.proxy import Proxy
+from selenium.webdriver.common.proxy import ProxyType
 import selenium.webdriver.support.ui as ui
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import PHANTOMJS_DRIVER_PATH
+from settings import CHROME_DRIVER_PATH
 from settings import HEADERS
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+
+# chrome驱动地址
+my_chrome_driver_path = CHROME_DRIVER_PATH
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -50,7 +56,7 @@ class ALi1688LoginAndParse(object):
         """
         '''
         研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被天猫服务器过滤, 并返回请求过于频繁的无用页面
+        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
         '''
         print('--->>>初始化phantomjs驱动中<<<---')
         cap = webdriver.DesiredCapabilities.PHANTOMJS
@@ -60,9 +66,10 @@ class ALi1688LoginAndParse(object):
         cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
         tmp_execute_path = EXECUTABLE_PATH
+
         self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-        # self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
-        wait = ui.WebDriverWait(self.driver, 6)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+
+        wait = ui.WebDriverWait(self.driver, 10)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
 
     def get_ali_1688_data(self, goods_id):
@@ -73,21 +80,23 @@ class ALi1688LoginAndParse(object):
         # response = requests.get(wait_to_deal_with_url, headers=self.headers)
         # body = response.content.decode('utf-8')
 
-        self.driver.set_page_load_timeout(4)
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+
+        self.driver.set_page_load_timeout(6)
         try:
             self.driver.get(wait_to_deal_with_url)
-            self.driver.implicitly_wait(7)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(8)  # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div.d-content')
             try:
-                WebDriverWait(self.driver, 7, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 8, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041  # 未得到div.d-content，返回4041
             else:
                 print('div.d-content已经加载完毕')
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 4 seconds when loading page')
+            print('-->>time out after 6 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
         body = self.driver.page_source
@@ -126,7 +135,7 @@ class ALi1688LoginAndParse(object):
                 print('data为空!')
                 return {}
         else:
-            print('解析错误, 该商品可能正在参与火拼, 此处为火拼价, 为短期价格, 对应爬取失败, 此处我设为跳过!')
+            print('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
             body = re.compile(r'{"activityId"(.*?)</script></div></div>').findall(tmp_body)
             if body != []:
                 body = body[0]
@@ -198,6 +207,7 @@ class ALi1688LoginAndParse(object):
                         'price': data.get('skuDiscountPrice', '')
                     }
                     price_info.append(tmp)
+            # print(price_info)
 
             # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
             sku_props = data.get('skuProps')
@@ -417,7 +427,28 @@ class ALi1688LoginAndParse(object):
             tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
 
         print('------>>> | 待存储的数据信息为: |', tmp)
-        tmp_sql_server.update_table(tmp)
+        pipeline.update_table(tmp)
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
 
     def get_detail_info_url_div(self, detail_info_url):
         '''
@@ -466,6 +497,23 @@ class ALi1688LoginAndParse(object):
 
         return  detail_info
 
+    def get_proxy_ip_from_ip_pool(self):
+        '''
+        从代理ip池中获取到对应ip
+        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
+        '''
+        base_url = 'http://127.0.0.1:8000'
+        result = requests.get(base_url).json()
+
+        result_ip_list = {}
+        result_ip_list['http'] = []
+        for item in result:
+            tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+            result_ip_list['http'].append(tmp_url)
+        # pprint(result_ip_list)
+
+        return result_ip_list
+
     def get_goods_id_from_url(self, ali_1688_url):
         # https://detail.1688.com/offer/559526148757.html?spm=b26110380.sw1688.mof001.28.sBWF6s
         is_ali_1688_url = re.compile(r'https://detail.1688.com/offer/.*?').findall(ali_1688_url)
@@ -482,38 +530,13 @@ class ALi1688LoginAndParse(object):
         gc.collect()
 
 # if __name__ == '__main__':
-#     # ali_1688 = ALi1688LoginAndParse()
-#     # while True:
-#     #     url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-#     #     url.strip('\n').strip(';')
-#     #     goods_id = ali_1688.get_goods_id_from_url(url)
-#     #     ali_1688.get_ali_1688_data(goods_id=goods_id)
-#     #     ali_1688.deal_with_data()
-#     #     gc.collect()
-#
-#     ##### 实时更新数据
 #     ali_1688 = ALi1688LoginAndParse()
-#
-#     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-#     result = list(tmp_sql_server.select_all_goods_id())
-#     print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-#     print(result)
-#     print('--------------------------------------------------------')
-#
-#     print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-#     for item in result:  # 实时更新数据
-#         ali_1688.get_ali_1688_data(item[0])
-#         data = ali_1688.deal_with_data()
-#         if data != []:
-#             data['goods_id'] = item[0]
-#
-#             print('------>>>| 爬取到的数据为: ', data)
-#
-#             ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
-#         else:  # 表示返回的data值为空值
-#             pass
-#
-#     gc.collect()
-#     print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+#     while True:
+#         url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
+#         url.strip('\n').strip(';')
+#         goods_id = ali_1688.get_goods_id_from_url(url)
+#         ali_1688.get_ali_1688_data(goods_id=goods_id)
+#         ali_1688.deal_with_data()
+#         gc.collect()
 
 

@@ -673,7 +673,7 @@ if __name__ == '__main__':
     login_ali.set_self_driver_with_phantomjs()      # 不能放在循环内不然会生成很多phantomjs
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-    result = list(tmp_sql_server.select_all_goods_id())
+    result = list(tmp_sql_server.select_ali_1688_all_goods_id())
     print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
     print(result)
     print('--------------------------------------------------------')

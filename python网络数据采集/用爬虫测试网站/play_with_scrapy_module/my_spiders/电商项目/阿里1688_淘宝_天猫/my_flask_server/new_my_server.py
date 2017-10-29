@@ -248,6 +248,8 @@ def get_all_data():
                     'error_code': 4042,  # 表示goodsLink为空值
                 }
 
+                del login_ali       # 每次都回收一下
+                gc.collect()
                 result = json.dumps(result)
                 return result
 
@@ -261,6 +263,8 @@ def get_all_data():
                     'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
                 }
 
+                del login_ali
+                gc.collect()
                 result = json.dumps(result)
                 return result
 
@@ -274,6 +278,8 @@ def get_all_data():
                     'error_code': 444,  # 表示能获取到goods_id，无法正确解析
                 }
 
+                del login_ali
+                gc.collect()
                 result = json.dumps(result)
                 return result
 
@@ -541,7 +547,6 @@ def decrypt(key, s):
         return b.decode("gbk")
     except:
         return "failed"
-
 
 if __name__ == "__main__":
     print('服务器已经启动...等待接入中...')
