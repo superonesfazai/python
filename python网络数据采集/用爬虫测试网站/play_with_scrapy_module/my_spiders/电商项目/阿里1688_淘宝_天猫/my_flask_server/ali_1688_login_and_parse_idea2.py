@@ -69,7 +69,7 @@ class ALi1688LoginAndParse(object):
 
         self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
 
-        wait = ui.WebDriverWait(self.driver, 10)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        wait = ui.WebDriverWait(self.driver, 12)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
 
     def get_ali_1688_data(self, goods_id):
@@ -82,21 +82,21 @@ class ALi1688LoginAndParse(object):
 
         self.from_ip_pool_set_proxy_ip_to_phantomjs()
 
-        self.driver.set_page_load_timeout(6)
+        self.driver.set_page_load_timeout(12)       # 设置成10秒避免数据出错
         try:
             self.driver.get(wait_to_deal_with_url)
-            self.driver.implicitly_wait(8)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(15)  # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div.d-content')
             try:
-                WebDriverWait(self.driver, 8, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041  # 未得到div.d-content，返回4041
             else:
                 print('div.d-content已经加载完毕')
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 6 seconds when loading page')
+            print('-->>time out after 12 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
         body = self.driver.page_source
@@ -316,6 +316,8 @@ class ALi1688LoginAndParse(object):
                     except KeyError:
                         # print('KeyError, [unit], 此处设置为跳过')
                         pass
+                    item['id'] = '0'
+
                 property_info = tmp_property_info
             else:
                 property_info = []
@@ -426,11 +428,12 @@ class ALi1688LoginAndParse(object):
         else:
             tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
 
-        print('------>>> | 待存储的数据信息为: |', tmp)
+        # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
         ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
         except Exception:
@@ -508,8 +511,11 @@ class ALi1688LoginAndParse(object):
         result_ip_list = {}
         result_ip_list['http'] = []
         for item in result:
-            tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-            result_ip_list['http'].append(tmp_url)
+            if item[2] > 7:
+                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+                result_ip_list['http'].append(tmp_url)
+            else:
+                pass
         # pprint(result_ip_list)
 
         return result_ip_list

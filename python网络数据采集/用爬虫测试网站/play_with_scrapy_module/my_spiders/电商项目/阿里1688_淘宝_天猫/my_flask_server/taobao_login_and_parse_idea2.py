@@ -18,13 +18,18 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import selenium.webdriver.support.ui as ui
 from scrapy import Selector
 from urllib.request import urlopen
 from PIL import Image
 from time import sleep
 import gc
 
-from settings import CHROME_DRIVER_PATH, TAOBAO_COOKIES_FILE_PATH, HEADERS
+from settings import TAOBAO_COOKIES_FILE_PATH, HEADERS
+from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 # chrome驱动地址
 my_chrome_driver_path = CHROME_DRIVER_PATH
@@ -92,10 +97,19 @@ class TaoBaoLoginAndParse(object):
         tmp_url = "https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey={}&t={}&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1".format(
             appKey, t
         )
-        response = requests.get(tmp_url, headers=self.headers, params=params)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()     # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies)-1)]
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
         # print(last_url)
-        response = requests.get(last_url, headers=self.headers)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         data = response.content.decode('utf-8')
         # print(data)
         data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
@@ -258,6 +272,7 @@ class TaoBaoLoginAndParse(object):
             for item in tmp_all_img_url:
                 item = 'https:' + item
                 all_img_url.append(item)
+            all_img_url = [{'img_url': item} for item in all_img_url]
             # print(all_img_url)
 
             # 详细信息p_info
@@ -289,6 +304,7 @@ class TaoBaoLoginAndParse(object):
                 # print(pc_div_url)
 
                 self.init_chrome_driver()
+                # self.from_ip_pool_set_proxy_ip_to_chrome_driver()
                 div_desc = self.deal_with_div(pc_div_url)
                 # print(div_desc)
 
@@ -304,7 +320,7 @@ class TaoBaoLoginAndParse(object):
             tmp = []
             tmp_1 = []
             # 后期处理detail_name_list, detail_value_list
-            detail_name_list = [i[0] for i in detail_name_list]
+            detail_name_list = [{'spec_name': i[0]} for i in detail_name_list]
 
             # 商品标签属性对应的值, 及其对应id值
             tmp_detail_value_list = [item['values'] for item in data['skuBase']['props']]
@@ -334,21 +350,29 @@ class TaoBaoLoginAndParse(object):
                 'pc_div_url': pc_div_url,                           # pc端描述地址
                 'div_desc': div_desc,                               # div_desc
             }
-            print(result)
-            # wait_to_send_data = {
-            #     'reason': 'success',
-            #     'data': result,
-            #     'code': 1
-            # }
-            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # print(json_data)
+            # print(result)
+            wait_to_send_data = {
+                'reason': 'success',
+                'data': result,
+                'code': 1
+            }
+            json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            print(json_data)
             return result
         else:
             print('待处理的data为空的dict')
             return {}
 
+    def to_right_and_update_data(self, data, pipeline):
+        pass
+
     def init_chrome_driver(self):
-        # 设置无运行界面版chrome
+        '''
+        初始化chromedriver驱动
+        :return:
+        '''
+        # 设置无运行界面版chrome, 测试发现淘宝过滤了phantomjs, 所有此处不用
+        print('--->>>初始化chromedriver驱动中<<<---')
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--headless')
 
@@ -358,8 +382,61 @@ class TaoBaoLoginAndParse(object):
             'profile.managed_default_content_settings.images': 2,
         }
         chrome_options.add_experimental_option('prefs', prefs)
+        # chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
 
         self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
+        print('--->>>初始化化完毕<<<---')
+        # self.driver.get('http://httpbin.org/ip')
+        # print(self.driver.page_source)
+
+        # print('--->>>初始化phantomjs驱动中<<<---')
+        # cap = webdriver.DesiredCapabilities.PHANTOMJS
+        # cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        # cap['phantomjs.page.settings.loadImages'] = False
+        # cap['phantomjs.page.settings.disk-cache'] = True
+        # cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        # tmp_execute_path = EXECUTABLE_PATH
+        #
+        # self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+        #
+        # wait = ui.WebDriverWait(self.driver, 10)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        # print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_chrome_driver(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        print('------>>>| chromedriver正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+
+        try:
+            tmp_js = r'''
+            function setProxy(tmp_proxy){
+                var FindProxyForUrl = function(url, host) {
+                        return 'PROXY' + tmp_proxy};
+                }
+                var pac = FindProxyForUrl
+                var config = {
+                    mode: "pac_script",
+                    pacScript: {
+                        data: pac
+                    }
+                }
+                chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
+            }
+            setProxy(%s);
+            ''' % proxy_ip
+            print(tmp_js)
+            self.driver.execute_script(tmp_js)
+            self.driver.get('http://httpbin.org/ip')
+            print(self.driver.page_source)
+        except Exception:
+            print('动态切换ip失败')
+            pass
 
     def deal_with_div(self, url):
         self.driver.set_page_load_timeout(5)
@@ -401,13 +478,34 @@ class TaoBaoLoginAndParse(object):
 
         return body
 
+    def get_proxy_ip_from_ip_pool(self):
+        '''
+        从代理ip池中获取到对应ip
+        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
+        '''
+        base_url = 'http://127.0.0.1:8000'
+        result = requests.get(base_url).json()
+
+        result_ip_list = {}
+        result_ip_list['http'] = []
+        for item in result:
+            if item[2] > 7:
+                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+                result_ip_list['http'].append(tmp_url)
+            else:
+                pass
+        # pprint(result_ip_list)
+
+        return result_ip_list
+
     def get_goods_id_from_url(self, taobao_url):
         # https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
         is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(taobao_url)
         if is_taobao_url != []:
             tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(.*?)&.*?').findall(taobao_url)[0]
+            # print(tmp_taobao_url)
             if tmp_taobao_url != []:
-                goods_id = tmp_taobao_url[0]
+                goods_id = tmp_taobao_url
             else:
                 taobao_url = re.compile(r';').sub('', taobao_url)
                 goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(.+)').findall(taobao_url)[0]
@@ -416,6 +514,10 @@ class TaoBaoLoginAndParse(object):
         else:
             print('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
+
+    def __del__(self):
+        self.driver.quit()
+        gc.collect()
 
 if __name__ == '__main__':
     login_taobao = TaoBaoLoginAndParse()

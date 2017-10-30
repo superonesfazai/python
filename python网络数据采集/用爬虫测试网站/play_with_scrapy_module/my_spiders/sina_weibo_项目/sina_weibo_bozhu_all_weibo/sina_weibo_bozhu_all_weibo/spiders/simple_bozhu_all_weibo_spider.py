@@ -671,7 +671,7 @@ class SimpleBozhuAllWeiboSpiderSpider(scrapy.Spider):
 
             # sql = 'select nick_name, personal_deal_info_url from bozhu_user where bozhu_user.nick_name not in (select nick_name from personal_deal_info) and bozhu_user.nick_name not in (select nick_name from company_deal_info) and bozhu_user.nick_name != \"_可口可心\" and bozhu_user.nick_name != \"-_KEI_-\" and bozhu_user.nick_name != \"0511天蝎\";'
             # 下面的字段必须一一对应(根据需求改sql语句进行相应爬取)
-            sql = 'select nick_name, nick_name_url, personal_deal_info_url from bozhu_user where sina_type = \"社会\" and personal_deal_info_url != \"\" and nick_name != \"1018陕广新闻\" and nick_name != \"1074交通台\" and bozhu_user.nick_name not in (select nick_name from sina_wb_article);'
+            sql = 'select nick_name, nick_name_url, personal_deal_info_url from bozhu_user where sina_type = \"国际\" and personal_deal_info_url != \"\" and nick_name != \"1018陕广新闻\" and nick_name != \"1074交通台\" and bozhu_user.nick_name not in (select nick_name from sina_wb_article);'
             cs.execute(sql)
 
             result = cs.fetchall()  # return -> 一个 ((), (), ...)

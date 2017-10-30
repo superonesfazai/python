@@ -2082,7 +2082,9 @@
 						}, 500)
 				//单个存入数据库
 							$('#insertSqlSingle').click(function(){
-								var insertData = $('#goodsLink').val();
+							    var insertData = new Array();
+							    insertData[0] = $('#goodsLink').val();
+//								var insertData = $('#goodsLink').val();
 									$.ajax({
 										type:"post",
 										url:"/to_save_data",

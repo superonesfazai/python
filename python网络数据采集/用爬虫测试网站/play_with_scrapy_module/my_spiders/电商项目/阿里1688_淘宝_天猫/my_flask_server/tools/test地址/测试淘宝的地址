@@ -18,6 +18,29 @@ https://item.taobao.com/item.htm?id=555627919837&ali_refid=a3_430584_1006:112287
 ANNA
 https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop
 
+# 聚划算
+pc端
+https://detail.ju.taobao.com/home.htm?item_id=44445349558
+
+phone
+https://ju.taobao.com/m/jusp/alone/detailwap/mtp.htm?item_id=44445349558
+https://ju.taobao.com/m/jusp/alone/detailwap/mtp.htm?item_id=559669891619
+
+构造地址的参数:
+api:mtop.taobao.detail.getdetail
+ttid:2017@taobao_h5_6.6.0
+data:{"itemNumId":"44445349558"}
+appKey:12574478
+dataType:jsonp
+type:jsonp
+callback:define
+v:6.0
+完整地址:
+https://unszacs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?api=mtop.taobao.detail.getdetail&ttid=2017%40taobao_h5_6.6.0&data=%7B%22itemNumId%22%3A%2244445349558%22%7D&appKey=12574478&dataType=jsonp&type=jsonp&callback=define&v=6.0
+
+startTime
+endTime
+
 # 淘宝接口上下架时间
 http://www.taocece.com/Handler/GetItemListTime.ashx?id=539014349859&refresh=falsec&_=1508553856444
 

@@ -170,5 +170,13 @@ data = get_goods_data(goods_id=goods_id)
 
 # https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508852656200&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data='{"exParams": "{\"id\": \"546756179626\"}", "itemNumId": "546756179626"}'
 
+goodsLink = 'https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop'
+if goodsLink:
+    tmp_item = re.compile(r'(.*?)\?.*?').findall(goodsLink)  # 过滤筛选出唯一的阿里1688商品链接
+    if tmp_item == []:
+        wait_to_deal_with_url = goodsLink
+    else:
+        wait_to_deal_with_url = tmp_item[0]
+
 
 

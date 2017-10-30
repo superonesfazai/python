@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+tmall爬虫能对应爬取解析对象为: (天猫, 天猫超市, 天猫国际)
+"""
+
 import time
 from random import randint
 import json
@@ -286,15 +290,32 @@ class TmallParse(object):
             # pprint(all_img_url)
 
             # 详细信息标签名对应属性
-            tmp_p_info = data['props'].get('groupProps')[0].get('基本信息')
-            p_info = []
-            for item in tmp_p_info:
-                # print(item)
-                tmp = {}
-                tmp['name'] = list(item.keys())[0]
-                tmp['value'] = list(item.values())[0]
-                p_info.append(tmp)
-            # pprint(p_info)
+            is_groupprops = data['props'].get('groupProps')
+            if is_groupprops is not None:
+                tmp_p_info = data['props'].get('groupProps')[0].get('基本信息')
+                p_info = []
+                for item in tmp_p_info:
+                    # print(item)
+                    tmp = {}
+                    tmp['name'] = list(item.keys())[0]
+                    tmp['value'] = list(item.values())[0]
+                    p_info.append(tmp)
+                # pprint(p_info)
+            else:   # 是props->propsList->[0]->baseProps
+                is_propslist = data['props'].get('propsList')
+                if is_propslist is not None:
+                    tmp_p_info = data['props'].get('propsList')[0].get('baseProps')
+                    p_info = []
+                    for item in tmp_p_info:
+                        # print(item)
+                        tmp = {}
+                        tmp['name'] = ''.join(list(item.get('key')))
+                        tmp['value'] = ''.join(list(item.get('value')))
+                        p_info.append(tmp)
+                    # pprint(p_info)
+                else:
+                    print('无法正确解析标签名和标签值')
+                    p_info = []
 
             # pc端描述地址
             pc_div_url = data['item'].get('tmallDescUrl')
@@ -386,7 +407,7 @@ class TmallParse(object):
 
     def get_goods_id_from_url(self, tmall_url):
         is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(tmall_url)
-        if is_tmall_url != []:
+        if is_tmall_url != []:                  # 天猫常规商品
             tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(.*?)&.*?').findall(tmall_url)
             if tmp_tmall_url != []:
                 goods_id = tmp_tmall_url[0]
@@ -396,8 +417,31 @@ class TmallParse(object):
             print('------>>>| 得到的天猫商品id为:', goods_id)
             return goods_id
         else:
-            print('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
-            return ''
+            is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(tmall_url)
+            if is_tmall_supermarket != []:      # 天猫超市
+                tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(.*?)&.*?').findall(tmall_url)
+                if tmp_tmall_url != []:
+                    goods_id = tmp_tmall_url[0]
+                else:
+                    tmall_url = re.compile(r';').sub('', tmall_url)
+                    goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(.+)').findall(tmall_url)[0]
+                print('------>>>| 得到的天猫商品id为:', goods_id)
+                return goods_id
+            else:
+                is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)      # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
+                if is_tmall_hk != []:           # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
+                    tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(.*?)&.*?').findall(tmall_url)
+                    if tmp_tmall_url != []:
+                        goods_id = tmp_tmall_url[0]
+                    else:
+                        tmall_url = re.compile(r';').sub('', tmall_url)
+                        goods_id = \
+                        re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(.+)').findall(tmall_url)[0]
+                    print('------>>>| 得到的天猫商品id为:', goods_id)
+                    return goods_id
+                else:
+                    print('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
+                    return ''
 
     def __del__(self):
         self.driver.quit()

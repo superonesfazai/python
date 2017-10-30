@@ -340,3 +340,29 @@ print(tmp_price_list2)
 print(Decimal(sorted(tmp_price_list2)[0]).__round__(2))
 print(Decimal(0).__round__(2))
 
+
+print('|' * 100)
+
+
+def get_proxy_ip_from_ip_pool():
+    '''
+    从代理ip池中获取到对应ip
+    :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
+    '''
+    base_url = 'http://127.0.0.1:8000'
+    result = requests.get(base_url).json()
+
+    result_ip_list = {}
+    result_ip_list['http'] = []
+    for item in result:
+        if item[2] > 7:
+            tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+            result_ip_list['http'].append(tmp_url)
+        else:
+            pass
+    # pprint(result_ip_list)
+
+    return result_ip_list
+
+yy = get_proxy_ip_from_ip_pool()
+pprint(yy)
