@@ -45,7 +45,6 @@ spider_to_show.html页面path
 """
 # linux/mac
 ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show.html'
-# ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show_2.html'
 TAOBAO_SPIDER_TO_SHWO_PATH = 'templates/taobao_spider_to_show.html'
 
 """

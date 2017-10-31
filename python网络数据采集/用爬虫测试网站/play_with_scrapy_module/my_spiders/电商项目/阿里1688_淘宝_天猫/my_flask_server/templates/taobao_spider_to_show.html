@@ -1966,27 +1966,28 @@
 			}
 			$('.mask').show();
 			$.ajax({
-				type:"get",
-				url:$('#goodsLink').val(),
-//              url:'/data',
+				type:"post",
+//				url:$('#goodsLink').val(),
+              	url:'/taobao_data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()
 				},
 				success:function(data){
-//        data = JSON.parse(data);
+        			data = JSON.parse(data);
 					if(data && data.reason == 'success'){
-						console.log('ok',data.data)
+						console.log('ok',data.data);
 						setTimeout(function(){
 							$('.mask').hide();
 							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
 				//单个存入数据库
 							$('#insertSqlSingle').click(function(){
-								var insertData = $('#goodsLink').val();
+							    var insertData = new Array();
+							    insertData[0] = $('#goodsLink').val();
 									$.ajax({
 										type:"post",
-										url:"/to_save_data",
+										url:"/taobao_to_save_data",
 										async:true,
 										data:{
 											saveData:insertData

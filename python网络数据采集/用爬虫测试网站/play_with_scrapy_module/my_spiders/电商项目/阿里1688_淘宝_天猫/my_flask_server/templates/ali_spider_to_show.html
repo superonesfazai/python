@@ -66,11 +66,17 @@
 	}
 	.collect-btn{
 		width: 8rem;
-		height: .3rem;
 		margin: 0 auto;
 		display: flex;
 	}
-	.collect-btn a{
+	.collect-btn-any{
+		width: 8rem;
+		height: .8rem;
+		line-height: .8rem;
+		margin: 0 auto;
+		display: flex;		
+	}
+	.collect-btn a,.collect-btn-any a{
 		display: block;
 		flex: 1;
 		text-align: center;
@@ -260,6 +266,12 @@
 		text-align: center;
 		color: red;
 	}
+	.nLink{
+		width: 100%;
+		height: .6rem;
+		text-align: center;
+		color: red;
+	}
 	.mask{
 		display: none;
 		position: fixed;
@@ -316,6 +328,9 @@
 		display: inline-block;
     vertical-align: top;
     margin-top: .1rem;		
+	}
+	.anyGrab{
+		display: none;
 	}
 	.batchGoodsLink{
 		width: 100%;
@@ -375,7 +390,7 @@
 		line-height: .4rem;
 	}
 	.showGoods{
-		/*float: left;*/
+		float: left;
 	  margin: .2rem 0;
 	  position: relative;
 	}
@@ -517,6 +532,68 @@
     bottom: 0;
     margin: auto;
 	}
+	.goods-Details{
+		margin-top: 8rem;
+	}
+	.grabLoading{
+		display: none;
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0,0,0,.5);
+	}
+	.grabLoading-box{
+		height: .06rem;
+    width: 6rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -3px;
+    margin-left: -300px;
+		background-image: -webkit-linear-gradient(left, #5bd8ff, #ff0000);
+	}
+	.grabLoading-box.done:after {
+    background: red;
+	}
+	.grabLoading-box:after{
+		content: "";
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    margin-top: -0.5em;
+    margin-right: -1em;
+ 	  background-image: -webkit-linear-gradient(top, #000000, #212121);
+    background-image: -moz-linear-gradient(top, #000000, #212121);
+    background-image: -o-linear-gradient(top, #000000, #212121);
+    background-image: -ms-linear-gradient(top, #000000, #212121);
+    background-image: linear-gradient(top, #000000, #212121);  
+	}
+	.grabLoading-list{
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: black;
+		float: right;
+	}
+	.meter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 2em;
+  margin-top: .3em;
+  color: #ff0000;
+  animation: meter 10s linear;
+  text-shadow: 0 -1px 0 #333333;
+}
+.meter:after {
+  content: "%";
+}
     </style>
   </head>
   <body>
@@ -524,7 +601,7 @@
     <div class="main">
 			<div class="collect-info">
 				<div class="title">阿里巴巴商品采集</div>
-				<div class="grab"><a class="active" href="javascript:" id="singleGrab">单个抓取</a><a href="javascript:" id="batchGrab">批量抓取</a></div>
+				<div class="grab"><a class="active" href="javascript:;" id="singleGrab">单个抓取</a><a href="javascript:;" id="batchGrab">批量抓取</a><a href="javascript:;" id="anyGrab">一顿乱输</a></div>
 				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
 					<div class="wLink"></div>
@@ -779,6 +856,17 @@
 						<div class="maxLink">已达到最大搜索量</div>
 					</div>
 				</div>
+				<div class="anyGrab fadeInLeft animated">
+					<div class="collect-btn-any"><a href="javascript:" id="anyGrabStart">抓取数据</a><a href="javascript:;" id="insertSqlAny">存入数据库</a></div>					
+					<div class="nLink"></div>
+					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100"></textarea>
+					<div class="grabLoading">
+						<div class="grabLoading-box">
+							<div class="meter">0</div>
+							<span class="grabLoading-list"></span>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="collect-content">
 				<!--<div class="goodsName">5663实拍2017羽绒服女网红店主风面包服短款休闲夹克棉服衣女外套</div>
@@ -915,7 +1003,7 @@
 				</div>-->
 			</div>
 			<div class="mask"><img  src="../static/images/5-121204193Q9.gif"/></div>
-    </div>
+   </div>
     <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>  
     <script src="../static/js/ejs.js" type="text/javascript" charset="utf-8"></script>
     <script src="../static/js/swiper-3.4.2.min.js" type="text/javascript" charset="utf-8"></script>
@@ -1084,11 +1172,13 @@
 					</div>
 				</div>
 				<%if(className =='.showGoods'){%>
-				<div class="again-loading">
+				<!--<div class="again-loading">
 					<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>	
-				</div>					
+				</div>	-->
 				<%}else{%>
-					
+				<div class="goods-Details">
+					<%-goodsInfo.detail_info%>
+				</div>
 				<%}%>
 		</script>    
     <script type="text/javascript">
@@ -1097,7 +1187,7 @@
 				var desW = 1920,
 						winW = document.documentElement.clientWidth||document.body.clientWidth;				
 						document.documentElement.style.fontSize = winW / desW * 100 + 'px';
-			}();
+				}();
 
 	//抓取方式切换	
 			(function(){
@@ -1105,54 +1195,26 @@
 					$('.collect-content').show();
 					$('.goodsLink').show();
 					$('.batchGrab').hide();
+					$('.anyGrab').hide();
 					$(this).addClass('active').siblings('a').removeClass('active');
 				})	
 				$('#batchGrab').click(function(){
 					$('.goodsLink').hide();
 					$('.collect-content').hide();
+					$('.anyGrab').hide();
 					$('.batchGrab').show();
 					$(this).addClass('active').siblings('a').removeClass('active');
-				})					
+				})		
+				$('#anyGrab').click(function(){
+					$('.goodsLink').hide();
+					$('.collect-content').hide();
+					$('.anyGrab').show();
+					$('.batchGrab').hide();
+					$(this).addClass('active').siblings('a').removeClass('active');
+				})						
 			})()
 
-	//批量存入数据库
-			$(function(){
-				var insertData = [];
-				$('.singleSelectBtn').click(function(){
-					 $(this).attr("checked", !$(this).attr("checked"));
-				})
-				$('#allSelect').click(function(){
-					$('.singleSelectBtn').each(function(){
-						this.checked = true
-					})
-				})
-				$('#insertSql').click(function(){
-					for(var i=0;i<$('.singleSelectBtn').length;i++){
-						if($('.singleSelectBtn').eq(i).is(":checked")&&$('.addLinkList').eq(i).hasClass('active')){
-							insertData.push($('.linkContent').eq(i).val())
-						}
-					}
-					if(insertData.length =='0'){
-						alert('未选择需要保存的信息')
-					}else{
-						$.ajax({
-							type:"post",
-							url:"/to_save_data",
-							async:true,
-							data:{
-								saveData:insertData
-							},
-							success:function(){
-								insertData = [];
-							},
-							error:function(){
-								insertData = [];
-							}
-						});
-						alert('已存入数据库')
-					}
-				})
-			})
+
 	//增加输入连接点位
 			$(function(){
 				var n =0;
@@ -1198,11 +1260,11 @@
 						smallImgList = $(smallImgName),
 						goodsColorList = $(goodsColorName),
 						now = null;
-						console.log(bigImg,smallImgList)
+						console.log(bigImg,smallImgList);
 	//点击小图切换					
 						for(var i=0;i<smallImgList.length;i++){
 							smallImgList[i].addEventListener('click',function(e){
-								console.log(index)
+								console.log(index);
 								bigImg.find('img')[0].src = e.target.src;
 							})							
 						}
@@ -1210,7 +1272,7 @@
 						
 						for(var i=0;i<goodsColorList.length;i++){
 							goodsColorList[i].addEventListener('click',function(e){
-								console.log(e.target.src)
+								console.log(e.target.src);
 								if(e.target.src){
 									bigImg.find('img')[0].src = e.target.src;	
 								}else{
@@ -1251,13 +1313,16 @@
 		//清空输入框
 		$('#resetAllLink').click(function(){
 			reset();
-			$('.showGoods').html('');
-		});
+			$('.showGoods').html('<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>');
+//            location.reload();
+		})
 		$('#batchGrabStart').click(function(){	
+			alert('按钮已点击!已经开始抓取');
 			$('.showGoodsLoading').show();
 			var p = new Promise(function(resolve,reject){
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:$('.linkContent').eq(0).val(),
 					url:'/data',
 					async:true,
@@ -1265,8 +1330,9 @@
 						goodsLink:$('.linkContent').eq(0).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(0).hide();
 								GoodsInfo.init(data.data,0,'.showGoods');
@@ -1294,7 +1360,8 @@
 				resolve('1')
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1303,8 +1370,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},					
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1332,7 +1400,8 @@
 				return '2'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1341,8 +1410,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1370,7 +1440,8 @@
 				return '3'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1379,8 +1450,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1408,7 +1480,8 @@
 				return '4'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1417,8 +1490,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1446,7 +1520,8 @@
 				return '5'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1455,8 +1530,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1484,7 +1560,8 @@
 				return '6'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1493,8 +1570,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1522,7 +1600,8 @@
 				return '7'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1531,8 +1610,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1560,7 +1640,8 @@
 				return '8'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1569,8 +1650,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1598,7 +1680,8 @@
 				return '9'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1607,8 +1690,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1636,7 +1720,8 @@
 				return '10'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1645,8 +1730,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1674,7 +1760,8 @@
 				return '11'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1683,8 +1770,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1712,7 +1800,8 @@
 				return '12'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1721,8 +1810,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1750,7 +1840,8 @@
 				return '13'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1759,8 +1850,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1788,7 +1880,8 @@
 				return '14'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1797,8 +1890,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1826,7 +1920,8 @@
 				return '15'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1835,8 +1930,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1864,7 +1960,8 @@
 				return '16'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1873,8 +1970,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1902,7 +2000,8 @@
 				return '17'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1911,8 +2010,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1940,7 +2040,8 @@
 				return '18'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1949,8 +2050,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1978,7 +2080,8 @@
 				return '19'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+                    type:"post",
+//					type:"get",
 //					url:"../static/js/tmp2.json",
 //					url:$('.linkContent').eq(res).val(),
 					url:'/data',
@@ -1987,8 +2090,9 @@
 						goodsLink:$('.linkContent').eq(res).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
+                        data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -2016,12 +2120,50 @@
 				return '20'
 			})
 		});
+	//批量存入数据库
+			$(function(){
+				var insertData = [];
+				$('.singleSelectBtn').click(function(){
+					 $(this).attr("checked", !$(this).attr("checked"));
+				})
+				$('#allSelect').click(function(){
+					$('.singleSelectBtn').each(function(){
+						this.checked = true
+					})
+				})
+				$('#insertSql').click(function(){
+					for(var i=0;i<$('.singleSelectBtn').length;i++){
+						if($('.singleSelectBtn').eq(i).is(":checked")&&$('.addLinkList').eq(i).hasClass('active')){
+							insertData.push($('.linkContent').eq(i).val())
+						}
+					}
+					if(insertData.length =='0'){
+						alert('未选择需要保存的信息')
+					}else{
+						$.ajax({
+							type:"post",
+							url:"/to_save_data",
+							async:true,
+							data:{
+								saveData:insertData
+							},
+							success:function(){
+								insertData = [];
+							},
+							error:function(){
+								insertData = [];
+							}
+						});
+						alert('已存入数据库')
+					}
+				})
+			});
 //公共方法
 		function test(arr) {
 			
 			var indexArr = new Array();
 			for(var i = 0; i < arr.length; i++) {
-				var b = arr[i]['spec_type'].slice(0,arr[i]['spec_type'].indexOf("|"))
+				var b = arr[i]['spec_type'].slice(0,arr[i]['spec_type'].indexOf("|"));
 				indexArr.push(b);
 			}
 			//去重后的数组
@@ -2057,7 +2199,75 @@
 			}
 			return res;
 		}
-		
+//一顿乱搜
+		$('#anyGrabStart').click(function(){
+			var anyLinks = $('.anyGrabContent').val().split(";");
+			var num =0,
+				per = 0;
+			$('.grabLoading').show();
+			console.log(anyLinks);
+			for(var i=0;i<anyLinks.length;i++){
+				if(anyLinks[i].length<40){
+					anyLinks.splice(i, 1);
+				    anyLinks.length-=1;
+				}else{
+					console.log(anyLinks);
+					$.ajax({
+						type:"post",
+//						url:anyLinks[i],
+                        url:"/data",
+						async:true,
+                        data:{
+                            goodsLink:anyLinks[i]
+                        },
+						success:function(data){
+						  data = JSON.parse(data);
+							num+=1;
+							console.log(num, anyLinks.length);
+							per = num/anyLinks.length;
+							$('.meter').html(per*100);
+							$('.grabLoading-list').animate({
+								'width':100-per*100+'%'
+							},300);
+							if(per>=1){
+								$('.grabLoading-box').addClass('done');
+								$('.grabLoading').hide();
+							}
+							$('.nLink').text('总共获取到'+num+'条信息');
+							setTimeout(function(){
+								$('.nLink').text('');
+							},1000)
+						},
+						error:function(){
+							console.log('ddd')
+						}
+					});
+				}
+			}
+			var timer = setTimeout(function(){
+					if(per>=1){
+						clearTimeout(timer)
+					}else{
+						$('.grabLoading').hide();
+					}
+				},100000);
+			$('#insertSqlAny').click(function(){
+				$.ajax({
+						type:"post",
+						url:"/to_save_data",
+						async:true,
+						data:{
+							saveData:anyLinks
+						},
+						success:function(){
+							alert('总共'+num+'条信息存入数据库')
+						},
+						error:function(){
+						}
+				});
+					
+			})
+		})
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
@@ -2067,15 +2277,17 @@
 			$.ajax({
 				type:"post",
 //				url:$('#goodsLink').val(),
-              	url:'/data',
+                url:'/data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()
 				},
 				success:function(data){
-        			data = JSON.parse(data);
+                    data = JSON.parse(data);
+                    console.log(data);
 					if(data && data.reason == 'success'){
 						data.data.sku_map = test(data.data.sku_map);
+						data.data.detail_info = data.data.detail_info.replace("\\","");
 						console.log(data.data);
 						setTimeout(function(){
 							$('.mask').hide();
@@ -2083,9 +2295,8 @@
 						}, 500)
 				//单个存入数据库
 							$('#insertSqlSingle').click(function(){
-							    var insertData = new Array();
-							    insertData[0] = $('#goodsLink').val();
-//								var insertData = $('#goodsLink').val();
+								var insertData = new Array();
+								insertData[0] = $('#goodsLink').val();
 									$.ajax({
 										type:"post",
 										url:"/to_save_data",

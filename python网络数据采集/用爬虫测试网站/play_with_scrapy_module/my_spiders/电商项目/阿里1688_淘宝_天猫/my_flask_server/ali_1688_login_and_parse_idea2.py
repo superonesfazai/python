@@ -484,6 +484,8 @@ class ALi1688LoginAndParse(object):
                 detail_info = re.compile(r'\\').sub('', detail_info)
                 detail_info = re.compile(r'&lt;').sub('<', detail_info)     # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
                 detail_info = re.compile(r'&gt;').sub('>', detail_info)
+                detail_info = re.compile(r'&amp;').sub('&', detail_info)
+                detail_info = re.compile(r'&nbsp;').sub(' ', detail_info)
             else:
                 detail_info = ''
         else:
@@ -494,6 +496,8 @@ class ALi1688LoginAndParse(object):
                     detail_info = desc[0]
                     detail_info = re.compile(r'&lt;').sub('<', detail_info)
                     detail_info = re.compile(r'&gt;').sub('>', detail_info)
+                    detail_info = re.compile(r'&amp;').sub('&', detail_info)
+                    detail_info = re.compile(r'&nbsp;').sub(' ', detail_info)
                     detail_info = re.compile(r'src=\"https:').sub('src=\"', detail_info)     # 先替换部分带有https的
                     detail_info = re.compile(r'src="').sub('src=\"https:', detail_info)     # 再把所欲的换成https的
             else:
@@ -545,7 +549,7 @@ if __name__ == '__main__':
         url.strip('\n').strip(';')
         goods_id = ali_1688.get_goods_id_from_url(url)
         ali_1688.get_ali_1688_data(goods_id=goods_id)
-        data = ali_1688.deal_with_data()
+        ali_1688.deal_with_data()
 
         # data['goods_id'] = '528260257065'
         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
