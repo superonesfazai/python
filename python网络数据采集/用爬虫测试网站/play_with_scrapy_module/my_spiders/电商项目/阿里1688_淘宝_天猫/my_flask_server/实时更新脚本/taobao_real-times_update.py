@@ -34,7 +34,7 @@ if __name__ == '__main__':
         for item in result:  # 实时更新数据
             taobao.get_goods_data(item[0])
             data = taobao.deal_with_data()
-            if data != []:
+            if data != {}:
                 data['goods_id'] = item[0]
 
                 print('------>>>| 爬取到的数据为: ', data)

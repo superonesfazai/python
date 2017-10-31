@@ -227,7 +227,7 @@
 		height: 1.24rem;
 	}
 	.goodsSize-right{
-		width: 6.48rem;
+		/*width: 6.48rem;*/
 		/*height: 1.24rem;*/
 		float: left;
 		position: relative;
@@ -517,13 +517,35 @@
     bottom: 0;
     margin: auto;
 	}
+	.goodsColor-right .taob-type{
+		width: 7.48rem;
+		height: .6rem;
+		display: flex;
+	}
+	.goodsColor-right .taob-type>li{
+		flex: 1;
+		text-align: center;
+	}
+	.goodsSize-right .taob-type-list{
+		width: 7.48rem;
+	}
+	.goodsSize-right .taob-type-list>li{
+		width:7.48rem;
+	}
+	.goodsSize-right .taob-type-list>li ul{
+		width: 7.48rem;
+	}
+	.goodsSize-right .taob-type-list>li ul li{
+		margin-right: 0;
+		text-align: center;
+	}
     </style>
   </head>
   <body>
     <header></header>
     <div class="main">
 			<div class="collect-info">
-				<div class="title">阿里巴巴商品采集</div>
+				<div class="title">淘宝商品采集</div>
 				<div class="grab"><a class="active" href="javascript:" id="singleGrab">单个抓取</a><a href="javascript:" id="batchGrab">批量抓取</a></div>
 				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
@@ -805,54 +827,50 @@
 						<div class="goods-info">
 							<div class="price">
 								<ul>
-									<li>价格</li>
+									<li>最低价</li>
 									<li>¥ 119.00</li>
-									<li>¥ 101.15</li>
-									<li>¥ 89.25</li>
 								</ul>
-							</div>
-							<div class="number">
 								<ul>
-									<li>起批量</li>
-									<li> <span id="">3-9 </span>件</li>
-									<li> <span id="">10-99 </span> 件</li>
-									<li>≥ 件</li>
-								</ul>
+									<li>最高价</li>
+									<li>¥ 119.00</li>
+								</ul>								
 							</div>
 						</div>
 						<div class="goodsColor">
-							<div class="goodsColor-left">颜色</div>
 							<div class="goodsColor-right">
-								<ul>
-									<li class="active white"></li>
-									<li class="gray"></li>
-									<li class="black"></li>
+								<ul class="taob-type">
+									<li class="">内存容量</li>
+									<li class="">颜色分类</li>
+									<li class="">套餐</li>
+									<li>版本类型</li>
 								</ul>							
 							</div>
 						</div>
 						<div class="goodsSize">
-							<div class="goodsSize-left">尺寸</div>
 							<div class="goodsSize-right">
-								<ul>
+								<ul class="taob-type-list">
 									<li>
 										<ul>
-											<li>L</li>
-											<li><span>119.00</span>元</li>
-											<li><span id="">2000</span>件可售</li>
+											<li>32GB</li>
+											<li>【黑色主机】【灰 /  灰 手柄】</li>
+											<li>单机标配</li>
+											<li>欧版</li>
 										</ul>
 									</li>
 									<li>
 										<ul>
-											<li>XL</li>
-											<li><span>119.00</span>元</li>
-											<li><span id="">2000</span>件可售</li>
+											<li>32GB</li>
+											<li>【黑色主机】【红 /  蓝 手柄】</li>
+											<li>套餐一</li>
+											<li>欧版</li>
 										</ul>									
 									</li>
 									<li>
 										<ul>
-											<li>2XL</li>
-											<li><span>119.00</span>元</li>
-											<li><span id="">2000</span>件可售</li>
+											<li>32GB</li>
+											<li>黑色【灰/灰 柄】+ 塞尔达传说</li>
+											<li>套餐二</li>
+											<li>港版</li>
 										</ul>									
 									</li>
 								</ul>
@@ -933,100 +951,62 @@
 					 	<a href="" class="btn-left swiper-button-next"></a>
 					 	<a href="" class="btn-right swiper-button-prev"></a>
 					 </div>
-					 <!--<div class="seller-info">
-					 	商铺  <input type="text" name="" id="" value=""/>
-					 	旺旺  <input type="text" name="" id="" value=""/>
-					 </div>-->
 				</div>
 				<div class="collect-main-right">
 					<div class="goods-info">
 						<div class="price">
-							<ul >
-								<li>价格</li>
-								<%for(var i=0;i<goodsInfo.price_info.length;i++){%>
-									<li><%=goodsInfo.price_info[i].price%></li>
-								<%}%>
-							</ul>
-						</div>
-						<div class="number">
 							<ul>
-								<li>起批量</li>
-								<%for(var i=0;i<goodsInfo.price_info.length;i++){%>
-								<li> <span id=""><%=goodsInfo.price_info[i].begin%></span>件</li>
-								<%}%>
+								<li>最低价</li>
+								<li><%=goodsInfo.taobao_price%></li>
 							</ul>
+							<ul>
+								<li>最高价</li>
+								<li><%=goodsInfo.price%></li>
+							</ul>								
 						</div>
 					</div>
-					<% if(goodsInfo.sku_props[1] == null){%>
-							<div class="goodsSize">
-							<div class="goodsSize-left"><%if(goodsInfo.sku_props[1]){%><%=goodsInfo.sku_props[1].prop%><%}else{%><%=goodsInfo.sku_props[0].prop%><% } %></div>
-							<div class="goodsSize-right">
-								<ul>
-									<%for(var i=0;i<goodsInfo.sku_map.length;i++){%>
-										<li>
-											<ul>
-												<li title="<%=goodsInfo.sku_map[i].spec_type%>"><%=goodsInfo.sku_map[i].spec_type%></li>
-												<li title="<%=goodsInfo.sku_map[i].spec_value.discountPrice%>"><span><%=goodsInfo.sku_map[i].spec_value.discountPrice%></span>元</li>
-												<li title="<%=goodsInfo.sku_map[i].spec_value.canBookeCount%>"><span id=""><%=goodsInfo.sku_map[i].spec_value.canBookCount%></span>件可售</li>
-											</ul>
-										</li>									
-									<%}%>
-								</ul>
-								<div class="obj-expand">
-									<span ></span>
-								</div>
-							</div>
-						</div>						
-					<%}else{%>	
-						<div class="goodsColor">
-							<div class="goodsColor-left"><%=goodsInfo.sku_props[0].prop%></div>
-							<div class="goodsColor-right">
-								<ul>
-										<%if(goodsInfo.sku_props[0].value[0].imageUrl == null){%>
-											<%for(var i=0;i<goodsInfo.sku_props[0].value.length;i++){%>
-												<li ><%=goodsInfo.sku_props[0].value[i].name%></li>
-											<%}%>	
-										<%}else{%>
-											<%for(var i=0;i<goodsInfo.sku_props[0].value.length;i++){%>
-												<li class="goodsColorList goodsColorList<%=index%>"><img src="<%=goodsInfo.sku_props[0].value[i].imageUrl%>"/></li>
-											<%}%>	
-									<%}%>	
-								</ul>							
-							</div>
+					<div class="goodsColor">
+						<div class="goodsColor-right">
+							<ul class="taob-type">
+								<% for(var i=0;i<goodsInfo.detail_name_list.length;i++){%>
+								<li class=""><%=goodsInfo.detail_name_list[i].spec_name%></li>
+								<% } %>
+								<li>价格</li>
+								<li>库存</li>
+							</ul>							
 						</div>
-						<div class="goodsSize">
-							<div class="goodsSize-left"><%if(goodsInfo.sku_props[1]){%><%=goodsInfo.sku_props[1].prop%><%}else{%><%=goodsInfo.sku_props[0].prop%><% } %></div>
-							<div class="goodsSize-right">
-								<ul>
-									<%for(var i=0;i<goodsInfo.sku_map.length;i++){%>
-										<li>
-											<ul>
-												<li title="<%=goodsInfo.sku_map[i].spec_type%>"><%=goodsInfo.sku_map[i].spec_type%></li>
-												<li title="<%=goodsInfo.sku_map[i].spec_value.discountPrice%>"><span><%=goodsInfo.sku_map[i].spec_value.discountPrice%></span>元</li>
-												<li title="<%=goodsInfo.sku_map[i].spec_value.canBookeCount%>"><span id=""><%=goodsInfo.sku_map[i].spec_value.canBookCount%></span>件可售</li>
-											</ul>
-										</li>									
-									<%}%>
-								</ul>
-								<div class="obj-expand">
+					</div>
+					<div class="goodsSize">
+						<div class="goodsSize-right">
+							<ul class="taob-type-list">
+								<% for(var i=0;i<goodsInfo.price_info_list.length;i++){%>
+								<li>
+									<ul>
+										<%for(var j=0;j<goodsInfo.detail_value_list.length;j++){%>
+										<li><%=goodsInfo.price_info_list[i].spec_value.split("|")[j]%></li>
+										<%}%>
+										<li><%=goodsInfo.price_info_list[i].detail_price%></li>
+										<li><%=goodsInfo.price_info_list[i].rest_number%></li>
+									</ul>
+								</li> 
+								<%}%>
+							</ul>
+							<div class="obj-expand">
 									<span ></span>
 								</div>
-							</div>
-						</div>						
-					<% }%>
+						</div>
+					</div>
 				</div>
 			</div>
 				<div class="goodsDetail">
 					<div class="seller-message">
-						<div class="seller-company"><%=goodsInfo.company_name%></div>
-						<!--<div class="seller-name">-->
-							<!--联系卖家：-->
-							<!--&lt;!&ndash;<span><%=goodsInfo.link_name%></span>&ndash;&gt;-->
-						<!--</div>-->
-						<!--<div class="seller-personal-url">-->
-							<!--卖家私人主页：<br />-->
-							<!--&lt;!&ndash;<a href="<%=goodsInfo.link_name_personal_url%>" target="_blank"><%=goodsInfo.link_name_personal_url%></a>&ndash;&gt;-->
-						<!--</div>-->
+						<div class="seller-company"><%=goodsInfo.shop_name%></div>
+						<div class="seller-name">
+							联系卖家：<span><%=goodsInfo.account%></span>
+						</div>
+						<div class="seller-personal-url">
+							卖家私人主页：<br /><a href="<%=goodsInfo.shop_name_url%>" target="_blank"><%=goodsInfo.shop_name_url%></a>
+						</div>
 					</div>
 					<div class="goodsDetail-message">
 						<div class="goodsDetail-message-title">详细信息</div>
@@ -1035,44 +1015,44 @@
 						    <table>
 						        <tbody>
 						        	<tr>
-						        		<td class="de-feature"><%if(goodsInfo.property_info[0].name){%><%=goodsInfo.property_info[0].name%><%}else{%><% } %></td>
-						        		<td class="de-value"><%if(goodsInfo.property_info[0]){%><%=goodsInfo.property_info[0].value%><%}else{%><% } %></td>
-						        		<td class="de-feature"><%if(goodsInfo.property_info[1]){%><%=goodsInfo.property_info[1].name%><%}else{%><% } %></td>
-						        		<td class="de-value"><%if(goodsInfo.property_info[1]){%><%=goodsInfo.property_info[1].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[2]){%><%=goodsInfo.property_info[2].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[2]){%><%=goodsInfo.property_info[2].name%><%}else{%><% } %></td>
+						        		<td class="de-feature"><%if(goodsInfo.p_info[0]){%><%=goodsInfo.p_info[0].p_name%><%}else{%><% } %></td>
+						        		<td class="de-value"><%if(goodsInfo.p_info[0]){%><%=goodsInfo.p_info[0].p_value%><%}else{%><% } %></td>
+						        		<td class="de-feature"><%if(goodsInfo.p_info[1]){%><%=goodsInfo.p_info[1].p_name%><%}else{%><% } %></td>
+						        		<td class="de-value"><%if(goodsInfo.p_info[1]){%><%=goodsInfo.p_info[1].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[2]){%><%=goodsInfo.p_info[2].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[2]){%><%=goodsInfo.p_info[2].p_value%><%}else{%><% } %></td>
 						    			</tr>
 						    			<tr>
-						    			 	<td class="de-feature"><%if(goodsInfo.property_info[3]){%><%=goodsInfo.property_info[3].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[3]){%><%=goodsInfo.property_info[3].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[4]){%><%=goodsInfo.property_info[4].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[4]){%><%=goodsInfo.property_info[4].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[5]){%><%=goodsInfo.property_info[5].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[5]){%><%=goodsInfo.property_info[5].value%><%}else{%><% } %></td>
+						    			 	<td class="de-feature"><%if(goodsInfo.p_info[3]){%><%=goodsInfo.p_info[3].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[3]){%><%=goodsInfo.p_info[3].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[4]){%><%=goodsInfo.p_info[4].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[4]){%><%=goodsInfo.p_info[4].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[5]){%><%=goodsInfo.p_info[5].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[5]){%><%=goodsInfo.p_info[5].p_value%><%}else{%><% } %></td>
 						    			</tr> 	    			    			  
 						    			<tr>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[6]){%><%=goodsInfo.property_info[6].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[6]){%><%=goodsInfo.property_info[6].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[7]){%><%=goodsInfo.property_info[7].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[7]){%><%=goodsInfo.property_info[7].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[8]){%><%=goodsInfo.property_info[8].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[8]){%><%=goodsInfo.property_info[8].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[6]){%><%=goodsInfo.p_info[6].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[6]){%><%=goodsInfo.p_info[6].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[7]){%><%=goodsInfo.p_info[7].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[7]){%><%=goodsInfo.p_info[7].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[8]){%><%=goodsInfo.p_info[8].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[8]){%><%=goodsInfo.p_info[8].p_value%><%}else{%><% } %></td>
 						    			</tr>
 						    			<tr>  	    			
-						    				<td class="de-feature"><%if(goodsInfo.property_info[9]){%><%=goodsInfo.property_info[9].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[9]){%><%=goodsInfo.property_info[9].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[10]){%><%=goodsInfo.property_info[10].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[10]){%><%=goodsInfo.property_info[10].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[11]){%><%=goodsInfo.property_info[11].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[11]){%><%=goodsInfo.property_info[11].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[9]){%><%=goodsInfo.p_info[9].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[9]){%><%=goodsInfo.p_info[9].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[10]){%><%=goodsInfo.p_info[10].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[10]){%><%=goodsInfo.p_info[10].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[11]){%><%=goodsInfo.p_info[11].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[11]){%><%=goodsInfo.p_info[11].p_value%><%}else{%><% } %></td>
 						    			</tr>
 						    			<tr>  	    			
-						    				<td class="de-feature"><%if(goodsInfo.property_info[12]){%><%=goodsInfo.property_info[12].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[12]){%><%=goodsInfo.property_info[12].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[13]){%><%=goodsInfo.property_info[13].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[13]){%><%=goodsInfo.property_info[13].value%><%}else{%><% } %></td>
-						    				<td class="de-feature"><%if(goodsInfo.property_info[14]){%><%=goodsInfo.property_info[14].name%><%}else{%><% } %></td>
-						    				<td class="de-value"><%if(goodsInfo.property_info[14]){%><%=goodsInfo.property_info[14].value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[12]){%><%=goodsInfo.p_info[12].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[12]){%><%=goodsInfo.p_info[12].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[13]){%><%=goodsInfo.p_info[13].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[13]){%><%=goodsInfo.p_info[13].p_value%><%}else{%><% } %></td>
+						    				<td class="de-feature"><%if(goodsInfo.p_info[14]){%><%=goodsInfo.p_info[14].p_name%><%}else{%><% } %></td>
+						    				<td class="de-value"><%if(goodsInfo.p_info[14]){%><%=goodsInfo.p_info[14].p_value%><%}else{%><% } %></td>
 						    			</tr>
 						    		</tbody>
 						    </table>
@@ -1251,21 +1231,19 @@
 		//清空输入框
 		$('#resetAllLink').click(function(){
 			reset();
-			$('.showGoods').html('');
-		});
+		})
 		$('#batchGrabStart').click(function(){	
 			$('.showGoodsLoading').show();
 			var p = new Promise(function(resolve,reject){
 				$.ajax({
-					type:"post",
-//					url:$('.linkContent').eq(0).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(0).val(),
+//					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(0).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(0).hide();
@@ -1294,16 +1272,15 @@
 				resolve('1')
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+					type:"get",
 //					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
+						goodsLink:$('.linkContent').eq(0).val()
 					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1332,16 +1309,14 @@
 				return '2'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1355,7 +1330,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}		
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1364,22 +1339,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '3'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1393,7 +1366,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}		
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1402,22 +1375,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '4'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1431,7 +1402,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1440,22 +1411,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '5'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1469,7 +1438,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1478,22 +1447,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '6'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1507,7 +1474,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1516,22 +1483,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '7'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1545,7 +1510,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1554,22 +1519,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '8'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1583,7 +1546,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1592,22 +1555,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '9'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1621,7 +1582,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1630,22 +1591,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '10'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1659,7 +1618,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1668,22 +1627,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '11'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1697,7 +1654,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1706,22 +1663,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '12'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1735,7 +1690,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1744,22 +1699,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '13'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1773,7 +1726,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1782,22 +1735,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '14'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1811,7 +1762,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1820,22 +1771,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '15'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1849,7 +1798,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1858,22 +1807,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '16'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1887,7 +1834,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1896,22 +1843,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '17'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1925,7 +1870,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1934,22 +1879,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '18'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -1963,7 +1906,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1972,22 +1915,20 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '19'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
@@ -2001,7 +1942,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -2010,54 +1951,14 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '20'
 			})
-		});
-//公共方法
-		function test(arr) {
-			
-			var indexArr = new Array();
-			for(var i = 0; i < arr.length; i++) {
-				var b = arr[i]['spec_type'].slice(0,arr[i]['spec_type'].indexOf("|"))
-				indexArr.push(b);
-			}
-			//去重后的数组
-			indexArr = indexArr.unique1();
-			console.log(indexArr);
-			var arr3 = new Array();
-			for(var j = 0;j<indexArr.length;j++){
-				var arr2 = new Array();
-				for(var k = 0;k<arr.length;k++){
-					if(indexArr[j] === arr[k]['spec_type'].slice(0,arr[k]['spec_type'].indexOf("|"))){
-						arr2.push(arr[k])
-					};
-				}
-				arr3 = arr3.concat(arr2);
-				
-			}
-			return arr3;
-		}
-		//数组去重
-		Array.prototype.unique1 = function() {
-			var res = [this[0]];
-			for(var i = 1; i < this.length; i++) {
-				var repeat = false;
-				for(var j = 0; j < res.length; j++) {
-					if(this[i] == res[j]) {
-						repeat = true;
-						break;
-					}
-				}
-				if(!repeat) {
-					res.push(this[i]);
-				}
-			}
-			return res;
-		}
-		
+
+
+		})
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
@@ -2065,27 +1966,24 @@
 			}
 			$('.mask').show();
 			$.ajax({
-				type:"post",
-//				url:$('#goodsLink').val(),
-              	url:'/data',
+				type:"get",
+				url:$('#goodsLink').val(),
+//              url:'/data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()
 				},
 				success:function(data){
-        			data = JSON.parse(data);
+//        data = JSON.parse(data);
 					if(data && data.reason == 'success'){
-						data.data.sku_map = test(data.data.sku_map);
-						console.log(data.data);
+						console.log('ok',data.data)
 						setTimeout(function(){
 							$('.mask').hide();
 							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
 				//单个存入数据库
 							$('#insertSqlSingle').click(function(){
-							    var insertData = new Array();
-							    insertData[0] = $('#goodsLink').val();
-//								var insertData = $('#goodsLink').val();
+								var insertData = $('#goodsLink').val();
 									$.ajax({
 										type:"post",
 										url:"/to_save_data",

@@ -66,11 +66,17 @@
 	}
 	.collect-btn{
 		width: 8rem;
-		height: .3rem;
 		margin: 0 auto;
 		display: flex;
 	}
-	.collect-btn a{
+	.collect-btn-any{
+		width: 8rem;
+		height: .8rem;
+		line-height: .8rem;
+		margin: 0 auto;
+		display: flex;		
+	}
+	.collect-btn a,.collect-btn-any a{
 		display: block;
 		flex: 1;
 		text-align: center;
@@ -260,6 +266,12 @@
 		text-align: center;
 		color: red;
 	}
+	.nLink{
+		width: 100%;
+		height: .6rem;
+		text-align: center;
+		color: red;
+	}
 	.mask{
 		display: none;
 		position: fixed;
@@ -316,6 +328,9 @@
 		display: inline-block;
     vertical-align: top;
     margin-top: .1rem;		
+	}
+	.anyGrab{
+		display: none;
 	}
 	.batchGoodsLink{
 		width: 100%;
@@ -375,7 +390,7 @@
 		line-height: .4rem;
 	}
 	.showGoods{
-		/*float: left;*/
+		float: left;
 	  margin: .2rem 0;
 	  position: relative;
 	}
@@ -517,6 +532,68 @@
     bottom: 0;
     margin: auto;
 	}
+	.goods-Details{
+		margin-top: 8rem;
+	}
+	.grabLoading{
+		display: none;
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0,0,0,.5);
+	}
+	.grabLoading-box{
+		height: .06rem;
+    width: 6rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -3px;
+    margin-left: -300px;
+		background-image: -webkit-linear-gradient(left, #5bd8ff, #ff0000);
+	}
+	.grabLoading-box.done:after {
+    background: red;
+	}
+	.grabLoading-box:after{
+		content: "";
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    margin-top: -0.5em;
+    margin-right: -1em;
+ 	  background-image: -webkit-linear-gradient(top, #000000, #212121);
+    background-image: -moz-linear-gradient(top, #000000, #212121);
+    background-image: -o-linear-gradient(top, #000000, #212121);
+    background-image: -ms-linear-gradient(top, #000000, #212121);
+    background-image: linear-gradient(top, #000000, #212121);  
+	}
+	.grabLoading-list{
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: black;
+		float: right;
+	}
+	.meter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 2em;
+  margin-top: .3em;
+  color: #ff0000;
+  animation: meter 10s linear;
+  text-shadow: 0 -1px 0 #333333;
+}
+.meter:after {
+  content: "%";
+}
     </style>
   </head>
   <body>
@@ -524,7 +601,7 @@
     <div class="main">
 			<div class="collect-info">
 				<div class="title">阿里巴巴商品采集</div>
-				<div class="grab"><a class="active" href="javascript:" id="singleGrab">单个抓取</a><a href="javascript:" id="batchGrab">批量抓取</a></div>
+				<div class="grab"><a class="active" href="javascript:;" id="singleGrab">单个抓取</a><a href="javascript:;" id="batchGrab">批量抓取</a><a href="javascript:;" id="anyGrab">一顿乱输</a></div>
 				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
 					<div class="wLink"></div>
@@ -779,6 +856,17 @@
 						<div class="maxLink">已达到最大搜索量</div>
 					</div>
 				</div>
+				<div class="anyGrab fadeInLeft animated">
+					<div class="collect-btn-any"><a href="javascript:" id="anyGrabStart">抓取数据</a><a href="javascript:;" id="insertSqlAny">存入数据库</a></div>					
+					<div class="nLink"></div>
+					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100"></textarea>
+					<div class="grabLoading">
+						<div class="grabLoading-box">
+							<div class="meter">0</div>
+							<span class="grabLoading-list"></span>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="collect-content">
 				<!--<div class="goodsName">5663实拍2017羽绒服女网红店主风面包服短款休闲夹克棉服衣女外套</div>
@@ -915,7 +1003,7 @@
 				</div>-->
 			</div>
 			<div class="mask"><img  src="../static/images/5-121204193Q9.gif"/></div>
-    </div>
+   </div>
     <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>  
     <script src="../static/js/ejs.js" type="text/javascript" charset="utf-8"></script>
     <script src="../static/js/swiper-3.4.2.min.js" type="text/javascript" charset="utf-8"></script>
@@ -1019,14 +1107,14 @@
 				<div class="goodsDetail">
 					<div class="seller-message">
 						<div class="seller-company"><%=goodsInfo.company_name%></div>
-						<!--<div class="seller-name">-->
-							<!--联系卖家：-->
-							<!--&lt;!&ndash;<span><%=goodsInfo.link_name%></span>&ndash;&gt;-->
-						<!--</div>-->
-						<!--<div class="seller-personal-url">-->
-							<!--卖家私人主页：<br />-->
-							<!--&lt;!&ndash;<a href="<%=goodsInfo.link_name_personal_url%>" target="_blank"><%=goodsInfo.link_name_personal_url%></a>&ndash;&gt;-->
-						<!--</div>-->
+						<div class="seller-name">
+							联系卖家：
+							<!--<span><%=goodsInfo.link_name%></span>-->
+						</div>
+						<div class="seller-personal-url">
+							卖家私人主页：<br />
+							<!--<a href="<%=goodsInfo.link_name_personal_url%>" target="_blank"><%=goodsInfo.link_name_personal_url%></a>-->
+						</div>
 					</div>
 					<div class="goodsDetail-message">
 						<div class="goodsDetail-message-title">详细信息</div>
@@ -1084,11 +1172,13 @@
 					</div>
 				</div>
 				<%if(className =='.showGoods'){%>
-				<div class="again-loading">
+				<!--<div class="again-loading">
 					<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>	
-				</div>					
+				</div>	-->
 				<%}else{%>
-					
+				<div class="goods-Details">
+					<%-goodsInfo.detail_info%>
+				</div>
 				<%}%>
 		</script>    
     <script type="text/javascript">
@@ -1097,7 +1187,7 @@
 				var desW = 1920,
 						winW = document.documentElement.clientWidth||document.body.clientWidth;				
 						document.documentElement.style.fontSize = winW / desW * 100 + 'px';
-			}();
+				}();
 
 	//抓取方式切换	
 			(function(){
@@ -1105,54 +1195,26 @@
 					$('.collect-content').show();
 					$('.goodsLink').show();
 					$('.batchGrab').hide();
+					$('.anyGrab').hide();
 					$(this).addClass('active').siblings('a').removeClass('active');
 				})	
 				$('#batchGrab').click(function(){
 					$('.goodsLink').hide();
 					$('.collect-content').hide();
+					$('.anyGrab').hide();
 					$('.batchGrab').show();
 					$(this).addClass('active').siblings('a').removeClass('active');
-				})					
+				})		
+				$('#anyGrab').click(function(){
+					$('.goodsLink').hide();
+					$('.collect-content').hide();
+					$('.anyGrab').show();
+					$('.batchGrab').hide();
+					$(this).addClass('active').siblings('a').removeClass('active');
+				})						
 			})()
 
-	//批量存入数据库
-			$(function(){
-				var insertData = [];
-				$('.singleSelectBtn').click(function(){
-					 $(this).attr("checked", !$(this).attr("checked"));
-				})
-				$('#allSelect').click(function(){
-					$('.singleSelectBtn').each(function(){
-						this.checked = true
-					})
-				})
-				$('#insertSql').click(function(){
-					for(var i=0;i<$('.singleSelectBtn').length;i++){
-						if($('.singleSelectBtn').eq(i).is(":checked")&&$('.addLinkList').eq(i).hasClass('active')){
-							insertData.push($('.linkContent').eq(i).val())
-						}
-					}
-					if(insertData.length =='0'){
-						alert('未选择需要保存的信息')
-					}else{
-						$.ajax({
-							type:"post",
-							url:"/to_save_data",
-							async:true,
-							data:{
-								saveData:insertData
-							},
-							success:function(){
-								insertData = [];
-							},
-							error:function(){
-								insertData = [];
-							}
-						});
-						alert('已存入数据库')
-					}
-				})
-			})
+
 	//增加输入连接点位
 			$(function(){
 				var n =0;
@@ -1252,21 +1314,22 @@
 		$('#resetAllLink').click(function(){
 			reset();
 			$('.showGoods').html('');
-		});
+		})
 		$('#batchGrabStart').click(function(){	
+			
 			$('.showGoodsLoading').show();
 			var p = new Promise(function(resolve,reject){
 				$.ajax({
-					type:"post",
-//					url:$('.linkContent').eq(0).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(0).val(),
+//					url:'/data',
 					async:true,
 					data:{
 						goodsLink:$('.linkContent').eq(0).val()
 					},
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(0).hide();
 								GoodsInfo.init(data.data,0,'.showGoods');
@@ -1294,17 +1357,17 @@
 				resolve('1')
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
+					type:"get",
 //					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
+						goodsLink:$('.linkContent').eq(0).val()
 					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1332,17 +1395,16 @@
 				return '2'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1355,7 +1417,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}		
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1364,23 +1426,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '3'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1393,7 +1454,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}		
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1402,23 +1463,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '4'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1431,7 +1491,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1440,23 +1500,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '5'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1469,7 +1528,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1478,23 +1537,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '6'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1507,7 +1565,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1516,23 +1574,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '7'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1545,7 +1602,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1554,23 +1611,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '8'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1583,7 +1639,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1592,23 +1648,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '9'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1621,7 +1676,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1630,23 +1685,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '10'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1659,7 +1713,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1668,23 +1722,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '11'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1697,7 +1750,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1706,23 +1759,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '12'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1735,7 +1787,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1744,23 +1796,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '13'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1773,7 +1824,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1782,23 +1833,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '14'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1811,7 +1861,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1820,23 +1870,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '15'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1849,7 +1898,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1858,23 +1907,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '16'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1887,7 +1935,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1896,23 +1944,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '17'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1925,7 +1972,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1934,23 +1981,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '18'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -1963,7 +2009,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -1972,23 +2018,22 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '19'
 			}).then((res)=>{
 				$.ajax({
-					type:"post",
-//					url:"../static/js/tmp2.json",
-//					url:$('.linkContent').eq(res).val(),
-					url:'/data',
+					type:"get",
+					url:$('.linkContent').eq(res).val(),
+//					url:'/data',
 					async:true,
 					data:{
-						goodsLink:$('.linkContent').eq(res).val()
-					},
+						goodsLink:$('.linkContent').eq(0).val()
+					},					
 					success:function(data){
-					    data = JSON.parse(data);
 						if(data && data.reason == 'success'){
+							data.data.sku_map = test(data.data.sku_map);
 							setTimeout(function(){
 								$('.showGoodsLoading').eq(res).hide();
 								GoodsInfo.init(data.data,res,'.showGoods');
@@ -2001,7 +2046,7 @@
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
 							},3000)
-						}
+						}						
 					},
 					error:function (){
 							$('.wGoodsLink').eq(res).text('您输入的网址有误，请重新输入！');
@@ -2010,12 +2055,50 @@
 							},500);
 							setTimeout(function(){
 								$('.wGoodsLink').eq(res).text('')
-							},3000)
+							},3000)					
 					}
-				});
+				});	
 				return '20'
 			})
-		});
+	//批量存入数据库
+			
+				var insertData = [];
+				$('.singleSelectBtn').click(function(){
+					 $(this).attr("checked", !$(this).attr("checked"));
+				})
+				$('#allSelect').click(function(){
+					$('.singleSelectBtn').each(function(){
+						this.checked = true
+					})
+				})
+				$('#insertSql').click(function(){
+					for(var i=0;i<$('.singleSelectBtn').length;i++){
+						if($('.singleSelectBtn').eq(i).is(":checked")&&$('.addLinkList').eq(i).hasClass('active')){
+							insertData.push($('.linkContent').eq(i).val())
+						}
+					}
+					if(insertData.length =='0'){
+						alert('未选择需要保存的信息')
+					}else{
+						$.ajax({
+							type:"post",
+							url:"/to_save_data",
+							async:true,
+							data:{
+								saveData:insertData
+							},
+							success:function(){
+								insertData = [];
+							},
+							error:function(){
+								insertData = [];
+							}
+						});
+						alert('已存入数据库')
+					}
+				})
+			
+		})
 //公共方法
 		function test(arr) {
 			
@@ -2057,7 +2140,62 @@
 			}
 			return res;
 		}
-		
+//一顿乱搜
+		$('#anyGrabStart').click(function(){
+			var anyLinks = $('.anyGrabContent').val().split(";");
+			var num =0;
+			$('.grabLoading').show();
+			for(var i=0;i<anyLinks.length;i++){
+				if(anyLinks[i].length <10){
+					anyLinks.splice(i,1)
+				}else{
+					$.ajax({
+						type:"post",
+//						url:anyLinks[i],
+                        url:"/data",
+						async:true,
+                        data:{
+                            goodsLink:anyLinks[i]
+                        },
+						success:function(data){
+						    data = JSON.parse(data);
+							num+=1;
+							var per = num/anyLinks.length;
+							$('.grabLoading-list').css({
+								'width':1-per+'%'
+							})
+							$('.meter').html(per*100);
+							if(per>=1){
+								$('.grabLoading-box').addClass('done');
+							}
+							$('.nLink').text('总共获取到'+num+'条信息');
+							setTimeout(function(){
+								$('.nLink').text('');
+							},1000)
+						},
+						error:function(){
+							console.log('ddd')
+						}
+					});
+				}
+			}			
+			$('#insertSqlAny').click(function(){
+				$.ajax({
+						type:"post",
+						url:"/to_save_data",
+						async:true,
+						data:{
+							saveData:anyLinks
+						},
+						success:function(){
+							alert('总共'+num+'条信息存入数据库')
+						},
+						error:function(){
+						}
+				});
+					
+			})
+		})
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
@@ -2065,27 +2203,27 @@
 			}
 			$('.mask').show();
 			$.ajax({
-				type:"post",
-//				url:$('#goodsLink').val(),
-              	url:'/data',
+				type:"get",
+				url:$('#goodsLink').val(),
+//              url:'/data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()
 				},
 				success:function(data){
-        			data = JSON.parse(data);
+//        data = JSON.parse(data);
 					if(data && data.reason == 'success'){
 						data.data.sku_map = test(data.data.sku_map);
-						console.log(data.data);
+						data.data.detail_info = data.data.detail_info.replace("\\","");
+						console.log(data.data)
 						setTimeout(function(){
 							$('.mask').hide();
 							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
 				//单个存入数据库
 							$('#insertSqlSingle').click(function(){
-							    var insertData = new Array();
-							    insertData[0] = $('#goodsLink').val();
-//								var insertData = $('#goodsLink').val();
+								var insertData = new Array();
+								insertData[0] = $('#goodsLink').val();
 									$.ajax({
 										type:"post",
 										url:"/to_save_data",

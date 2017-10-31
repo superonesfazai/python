@@ -400,6 +400,8 @@ class ALi1688LoginAndParse(object):
             tmp['taobao_price'] = Decimal(0).__round__(2)
 
         tmp['price_info'] = data_list['price_info']  # 价格信息
+        # print(tmp['price'], print(tmp['taobao_price']))
+        # print(tmp['price_info'])
 
         spec_name = []
         for item in data_list['sku_props']:
@@ -515,7 +517,8 @@ class ALi1688LoginAndParse(object):
                 tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
                 result_ip_list['http'].append(tmp_url)
             else:
-                pass
+                delete_url = 'http://127.0.0.1:8000/delete?ip='
+                delete_info = requests.get(delete_url + item[0])
         # pprint(result_ip_list)
 
         return result_ip_list
@@ -535,14 +538,19 @@ class ALi1688LoginAndParse(object):
         self.driver.quit()
         gc.collect()
 
-# if __name__ == '__main__':
-#     ali_1688 = ALi1688LoginAndParse()
-#     while True:
-#         url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-#         url.strip('\n').strip(';')
-#         goods_id = ali_1688.get_goods_id_from_url(url)
-#         ali_1688.get_ali_1688_data(goods_id=goods_id)
-#         ali_1688.deal_with_data()
-#         gc.collect()
+if __name__ == '__main__':
+    ali_1688 = ALi1688LoginAndParse()
+    while True:
+        url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
+        url.strip('\n').strip(';')
+        goods_id = ali_1688.get_goods_id_from_url(url)
+        ali_1688.get_ali_1688_data(goods_id=goods_id)
+        data = ali_1688.deal_with_data()
+
+        # data['goods_id'] = '528260257065'
+        # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        # ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
+
+        gc.collect()
 
 

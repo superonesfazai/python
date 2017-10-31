@@ -17,7 +17,7 @@ from flask_login import LoginManager
 from ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
 from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
 from my_pipeline import UserItemPipeline
-from settings import ALi_SPIDER_TO_SHOW_PATH
+from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
@@ -103,8 +103,11 @@ def select():
                 # return send_file(SPIDER_TO_SHOW_PATH)
                 response = make_response(redirect('show_ali'))    # 重定向到新的页面
                 return response
+
             elif ajax_request == 'taob_login':
-                pass
+                response = make_response(redirect('show_taobao'))  # 重定向到新的页面
+                return response
+
             elif ajax_request == 'tianm_login':
                 pass
             else:
@@ -174,8 +177,7 @@ def show_taobao_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get(
-            'passwd') is None:  # request.cookies -> return a dict
+    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return '''
         <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
         '''
@@ -185,7 +187,7 @@ def show_taobao_info():
             pass
         else:
             # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
-            return send_file(ALi_SPIDER_TO_SHOW_PATH)
+            return send_file(TAOBAO_SPIDER_TO_SHWO_PATH)
 
 @app.route('/show_tmall', methods=['GET', 'POST'])
 def show_tmall_info():

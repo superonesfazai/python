@@ -40,17 +40,13 @@ PORT = 1433
 ALI_1688_COOKIES_FILE_PATH = './cookies/cookies_ali_1688.txt'
 TAOBAO_COOKIES_FILE_PATH = './cookies/cookies_taobao.txt'
 
-# windows环境的路径(用'\'代替'/')
-# ALI_1688_COOKIES_FILE_PATH = r'.\cookies\cookies_ali_1688.txt'
-# TAOBAO_COOKIES_FILE_PATH = r'.\cookies\cookies_taobao.txt'
-
 """
 spider_to_show.html页面path
 """
 # linux/mac
 ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show.html'
-# windows
-# ALi_SPIDER_TO_SHOW_PATH = r'.\templates\ali_spider_to_show.html'
+# ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show_2.html'
+TAOBAO_SPIDER_TO_SHWO_PATH = 'templates/taobao_spider_to_show.html'
 
 """
 headers
