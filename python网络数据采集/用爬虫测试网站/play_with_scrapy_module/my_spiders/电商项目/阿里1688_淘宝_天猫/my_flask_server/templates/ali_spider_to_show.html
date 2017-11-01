@@ -601,7 +601,7 @@
     <div class="main">
 			<div class="collect-info">
 				<div class="title">阿里巴巴商品采集</div>
-				<div class="grab"><a class="active" href="javascript:;" id="singleGrab">单个抓取</a><a href="javascript:;" id="batchGrab">批量抓取</a><a href="javascript:;" id="anyGrab">一顿乱输</a></div>
+				<div class="grab"><a class="active" href="javascript:;" id="singleGrab">单个抓取</a><a href="javascript:;" id="batchGrab">批量抓取</a><a href="javascript:;" id="anyGrab">一顿狂抓</a></div>
 				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
 					<div class="wLink"></div>
@@ -859,7 +859,7 @@
 				<div class="anyGrab fadeInLeft animated">
 					<div class="collect-btn-any"><a href="javascript:" id="anyGrabStart">抓取数据</a><a href="javascript:;" id="insertSqlAny">存入数据库</a></div>					
 					<div class="nLink"></div>
-					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100"></textarea>
+					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100" placeholder="每个链接以分号';'结尾&#xA如下:&#xAhttps://detail.1688.com/offer/545542934417.html?spm=a26239.8271513.j0nc9ruj.22.8A2McT&sk=consign;&#xAhttps://detail.1688.com/offer/555633308643.html?spm=a26239.8271513.j0nc9ruj.2.8A2McT&sk=consign;&#xAhttps://detail.1688.com/offer/543445630235.html?spm=a261y.7663282.0.0.3246dbfamo5VGT;&#xAhttps://detail.1688.com/offer/545542934417.html?spm=a26239.8271513.j0nc9ruj.22.8A2McT&sk=consign;"></textarea>
 					<div class="grabLoading">
 						<div class="grabLoading-box">
 							<div class="meter">0</div>
@@ -2199,27 +2199,41 @@
 			}
 			return res;
 		}
+//公共方法二
+		function split(str){
+			var arr=str.split(';');
+				var n = [];
+				for(var i=0;i<arr.length;i++){
+					if(arr[i].length<50){
+					n.push(arr[i])
+					}
+				}
+				for(var j=0;j<n.length;j++){
+					for(var i=0;i<arr.length;i++){
+						if(arr[i]==n[j]){
+							arr.splice(i,1)
+						}
+					}
+				}
+				return arr;
+		}
+
 //一顿乱搜
 		$('#anyGrabStart').click(function(){
-			var anyLinks = $('.anyGrabContent').val().split(";");
+			var anyLinks = split($('.anyGrabContent').val());
 			var num =0,
-				per = 0;
+          per = 0;
 			$('.grabLoading').show();
-			console.log(anyLinks);
 			for(var i=0;i<anyLinks.length;i++){
-				if(anyLinks[i].length<40){
-					anyLinks.splice(i, 1);
-				    anyLinks.length-=1;
-				}else{
 					console.log(anyLinks);
 					$.ajax({
 						type:"post",
 //						url:anyLinks[i],
-                        url:"/data",
+            url:"/data",
 						async:true,
-                        data:{
-                            goodsLink:anyLinks[i]
-                        },
+            data:{
+                goodsLink:anyLinks[i]
+            },
 						success:function(data){
 						  data = JSON.parse(data);
 							num+=1;
@@ -2242,7 +2256,7 @@
 							console.log('ddd')
 						}
 					});
-				}
+
 			}
 			var timer = setTimeout(function(){
 					if(per>=1){
@@ -2265,9 +2279,9 @@
 						error:function(){
 						}
 				});
-					
+
 			})
-		})
+		});
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){

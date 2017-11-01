@@ -19,6 +19,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import selenium.webdriver.support.ui as ui
+from selenium.webdriver.common.proxy import Proxy
+from selenium.webdriver.common.proxy import ProxyType
 from scrapy import Selector
 from urllib.request import urlopen
 from PIL import Image
@@ -167,7 +169,7 @@ class TaoBaoLoginAndParse(object):
             # 商品名称
             title = data['item']['title']
             # 子标题
-            sub_title = data['item']['subtitle']
+            sub_title = data['item'].get('subtitle', '')
             sub_title = re.compile(r'\n').sub('', sub_title)
             # 店铺主页地址
             # shop_name_url = 'https:' + data['seller']['taoShopUrl']
@@ -175,7 +177,7 @@ class TaoBaoLoginAndParse(object):
 
             # 商品价格
             # price = data['apiStack'][0]['value']['price']['extraPrices'][0]['priceText']
-            tmp_taobao_price = data['apiStack'][0]['value']['price']['price']['priceText']
+            tmp_taobao_price = data['apiStack'][0].get('value', '').get('price').get('price').get('priceText', '')
             tmp_taobao_price = tmp_taobao_price.split('-')     # 如果是区间的话，分割成两个，单个价格就是一个
             # print(tmp_taobao_price)
             if len(tmp_taobao_price) == 1:
@@ -228,16 +230,19 @@ class TaoBaoLoginAndParse(object):
             '''
             if data.get('skuBase').get('skus') is not None:
                 skus = data['skuBase']['skus']      # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
-                sku2_info = data['apiStack'][0]['value']['skuCore']['sku2info']
-                sku2_info.pop('0')      # 此处删除总库存的值
+                sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
+                try:
+                    sku2_info.pop('0')      # 此处删除总库存的值
+                except Exception:
+                    pass
                 # pprint(sku2_info)
                 prop_path_list = []     # 要存储的每个标签对应规格的价格及其库存
                 for key in sku2_info:
                     tmp = {}
-                    tmp_prop_path_list = [item for item in skus if item['skuId'] == key]    # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
+                    tmp_prop_path_list = [item for item in skus if item.get('skuId') == key]    # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
 
                     # 处理propPath得到可识别的文字
-                    prop_path = tmp_prop_path_list[0]['propPath']
+                    prop_path = tmp_prop_path_list[0].get('propPath')
                     prop_path = prop_path.split(';')
                     prop_path = [i.split(':') for i in prop_path]
                     prop_path = [j[1] for j in prop_path]           # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
@@ -276,13 +281,14 @@ class TaoBaoLoginAndParse(object):
             # print(all_img_url)
 
             # 详细信息p_info
-            tmp_p_info = data['props']['groupProps'][0]['基本信息']     # 一个list [{'内存容量': '32GB'}, ...]
+            tmp_p_info = data.get('props').get('groupProps')[0].get('基本信息', [])     # 一个list [{'内存容量': '32GB'}, ...]
             p_info = []
             for item in tmp_p_info:
                 for key, value in item.items():
                     tmp = {}
                     tmp['p_name'] = key
                     tmp['p_value'] = value
+                    tmp['id'] = '0'
                     p_info.append(tmp)
             # print(p_info)
 
@@ -323,14 +329,17 @@ class TaoBaoLoginAndParse(object):
             detail_name_list = [{'spec_name': i[0]} for i in detail_name_list]
 
             # 商品标签属性对应的值, 及其对应id值
-            tmp_detail_value_list = [item['values'] for item in data['skuBase']['props']]
-            # print(tmp_detail_value_list)
-            detail_value_list = []
-            for item in tmp_detail_value_list:
-                tmp = [i['name'] for i in item]
-                # print(tmp)
-                detail_value_list.append(tmp)  # 商品标签属性对应的值
-                # pprint(detail_value_list)
+            if data.get('skuBase').get('props') is None:
+                pass
+            else:
+                tmp_detail_value_list = [item['values'] for item in data.get('skuBase', '').get('props', '')]
+                # print(tmp_detail_value_list)
+                detail_value_list = []
+                for item in tmp_detail_value_list:
+                    tmp = [i['name'] for i in item]
+                    # print(tmp)
+                    detail_value_list.append(tmp)  # 商品标签属性对应的值
+                    # pprint(detail_value_list)
 
             result = {
                 'shop_name': shop_name,                             # 店铺名称
@@ -350,14 +359,14 @@ class TaoBaoLoginAndParse(object):
                 'pc_div_url': pc_div_url,                           # pc端描述地址
                 'div_desc': div_desc,                               # div_desc
             }
-            # print(result)
-            wait_to_send_data = {
-                'reason': 'success',
-                'data': result,
-                'code': 1
-            }
-            json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            print(json_data)
+            pprint(result)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
             return result
         else:
             print('待处理的data为空的dict')
@@ -374,7 +383,7 @@ class TaoBaoLoginAndParse(object):
         # 设置无运行界面版chrome, 测试发现淘宝过滤了phantomjs, 所有此处不用
         print('--->>>初始化chromedriver驱动中<<<---')
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--headless')
 
         # 注意：测试发现还是得设置成加载图片要不然就无法得到超5张的示例图片完整地址
         # 设置chrome不加载图片
@@ -382,12 +391,14 @@ class TaoBaoLoginAndParse(object):
             'profile.managed_default_content_settings.images': 2,
         }
         chrome_options.add_experimental_option('prefs', prefs)
-        # chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
+        chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
 
         self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
+
         print('--->>>初始化化完毕<<<---')
-        # self.driver.get('http://httpbin.org/ip')
-        # print(self.driver.page_source)
+        self.driver.get('http://httpbin.org/ip')
+        print(self.driver.page_source)
+        self.driver.get('https://www.baidu.com')
 
         # print('--->>>初始化phantomjs驱动中<<<---')
         # cap = webdriver.DesiredCapabilities.PHANTOMJS
@@ -439,22 +450,22 @@ class TaoBaoLoginAndParse(object):
             pass
 
     def deal_with_div(self, url):
-        self.driver.set_page_load_timeout(5)
+        self.driver.set_page_load_timeout(12)
         try:
             self.driver.get(url)
-            self.driver.implicitly_wait(8)
+            self.driver.implicitly_wait(12)
             # self.driver.save_screenshot('tmp_login1.png')
 
             locator = (By.CSS_SELECTOR, 'div.des')
             try:
-                WebDriverWait(self.driver, 8, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 12, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('获取div.des错误: ', e)
             else:
                 print('div.des加载完毕...')
                 pass
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 5 seconds(当获取div.des时)')
+            print('-->>time out after 12 seconds(当获取div.des时)')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
 
@@ -466,16 +477,19 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'  ').sub('', body)
         # print(body)
 
-        body = re.compile(r'<div class="des" id="J_des">.*</div></div>').findall(body)[0]
-        body = re.compile(r'src="data:image/png;.*?"').sub('', body)
-        body = re.compile(r'data-img').sub('src', body)
-        body = re.compile(r'https:').sub('', body)
-        body = re.compile(r'src="').sub('src=\"https:', body)
+        body = re.compile(r'<div class="des" id="J_des">.*<div class="page_box">.*?</div></div>').findall(body)
+        if body != []:
+            body = body[0]
+            body = re.compile(r'src="data:image/png;.*?"').sub('', body)
+            body = re.compile(r'data-img').sub('src', body)
+            body = re.compile(r'https:').sub('', body)
+            body = re.compile(r'src="').sub('src=\"https:', body)
 
-        body = re.compile(r'<table.*?>.*?</table>').sub('', body)   # 防止字段太长
-        body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">.*</div>').sub('', body)
-        # body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">')
-
+            body = re.compile(r'<table.*?>.*?</table>').sub('', body)   # 防止字段太长
+            body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">.*</div>').sub('', body)
+            # body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">')
+        else:
+            body = ''
         return body
 
     def get_proxy_ip_from_ip_pool(self):
@@ -496,7 +510,6 @@ class TaoBaoLoginAndParse(object):
                 delete_url = 'http://127.0.0.1:8000/delete?ip='
                 delete_info = requests.get(delete_url + item[0])
         # pprint(result_ip_list)
-
         return result_ip_list
 
     def get_goods_id_from_url(self, taobao_url):
