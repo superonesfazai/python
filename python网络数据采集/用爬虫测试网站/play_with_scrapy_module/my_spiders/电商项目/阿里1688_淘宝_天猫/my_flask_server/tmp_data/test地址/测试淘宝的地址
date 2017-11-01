@@ -1,4 +1,5 @@
 # 淘宝
+## pc
 金牌卖家
 https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop
 任天堂
@@ -17,6 +18,16 @@ https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17224945007.1.4ce05564Prc
 https://item.taobao.com/item.htm?id=555627919837&ali_refid=a3_430584_1006:1122877644:N:%E5%8F%B0%E7%81%AF:c2defae819d907295d8901192239e748&ali_trackid=1_c2defae819d907295d8901192239e748&spm=a219r.lm5704.14.1#detail
 ANNA
 https://item.taobao.com/item.htm?spm=a1z10.1-c-s.w5003-17214421641.7.18523e33avyJ0I&id=560164926470&scene=taobao_shop
+
+https://item.taobao.com/item.htm?id=556220770392&ali_refid=a3_430585_1006:1102326693:N:%E8%B4%A7%E6%9E%B6%E5%B1%95%E7%A4%BA%E6%9E%B6%E5%B1%95%E7%A4%BA%E6%9F%9C:7e45e85fdbd02a1d204c023f05a9e877&ali_trackid=1_7e45e85fdbd02a1d204c023f05a9e877&spm=a230r.1.14.1#detail
+https://item.taobao.com/item.htm?spm=a230r.1.14.28.4ab760c73GBcUj&id=557266638436&ns=1&abbucket=1#detail
+https://item.taobao.com/item.htm?spm=a230r.1.14.99.4ab760c73GBcUj&id=557074181780&ns=1&abbucket=1#detail
+https://item.taobao.com/item.htm?spm=a219r.lm5693.14.1.547bd70bj4b2ae&id=521769861778&ns=1&abbucket=1#detail
+https://item.taobao.com/item.htm?spm=a230r.1.14.1.698997earpNQK0&id=557581120885&ns=1&abbucket=1#detail
+
+
+## 淘宝手机端
+https://h5.m.taobao.com/awp/core/detail.htm?id=560164926470
 
 # 聚划算
 pc端
@@ -45,11 +56,24 @@ endTime
 http://www.taocece.com/Handler/GetItemListTime.ashx?id=539014349859&refresh=falsec&_=1508553856444
 
 https://item.taobao.com/auction/noitem.htm?itemid=36415593978&catid=0&spm=a217z.7279617.2167782-0.1.43885eed9angVc&scm=13003.1.5851000.2e66a2fcafb511743e74e66f7829566d
-示例下架商品:
+## 示例下架商品:
+页面存在, 但是商品已经下架
 https://item.taobao.com/item.htm?id=546818961702&_u=m1gk2qpt8bba
+https://item.taobao.com/item.htm?ut_sk=1.Vw%2Boxjc4PlIDABm/Iefl4GjH_21380790_1509521686064.TaoPassword-Weixin.1&id=547114919824&sourceType=item&price=99&suid=720D578F-CE85-48C7-980C-AEC3A554D7C7&cpp=1&shareurl=true&spm=a313p.22.1pn.75883150309&short_name=h.vXJkZu&app=chrome
+https://item.taobao.com/item.htm?ut_sk=1.Vw%2Boxjc4PlIDABm/Iefl4GjH_21380790_1509521686064.TaoPassword-Weixin.1&id=557486316068&sourceType=item&price=85&origin_price=142&suid=560152EC-3C9D-4923-9AF4-4EFCCC490799&cpp=1&shareurl=true&spm=a313p.22.12t.75882057114&short_name=h.vXq4d2&app=chrome
+https://item.taobao.com/item.htm?ut_sk=1.Vw%2Boxjc4PlIDABm/Iefl4GjH_21380790_1509521686064.TaoPassword-Weixin.1&id=556146716467&sourceType=item&price=59&origin_price=147.5&suid=B63265AE-A763-4490-A2EE-15BB1BCB87AC&cpp=1&shareurl=true&spm=a313p.22.1vm.75882449351&short_name=h.vXqQ0s&app=chrome
 
+商品下架, 页面不存在
+https://item.taobao.com/item.htm?id=553604625466
 https://item.taobao.com/auction/noitem.htm?itemid=553604625466&catid=50012010&_u=m1gk2qpt89bf
 
+## 淘大象淘宝下架查询
+https://www.taodaxiang.com/shelf/index/get
+参数:
+pattern:1
+wwid:
+goodid:542022399141
+page:1
 
 https://rate.taobao.com/detailCommon.htm?userNumId=1098077780&amp;auctionNumId=41439519931&amp;siteID=4&amp;spuId=0
 

@@ -550,7 +550,7 @@ def get_taobao_data():
                 result = json.dumps(result)
                 return result
 
-            data = login_taobao.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
+            data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
                 print('获取到的data为空!')
@@ -685,7 +685,7 @@ def taobao_to_save_data():
 
                             # 采集的来源地
                             tmp['site_id'] = 1      # 采集来源地(淘宝)
-                            tmp['is_delete'] = 0    # 逻辑删除, 未删除为0, 删除为1
+                            tmp['is_delete'] = data_list.get('is_delete')    # 逻辑删除, 未删除为0, 删除为1
 
                             print('------>>> | 待存储的数据信息为: |', tmp)
                             tmp_list.append(tmp)

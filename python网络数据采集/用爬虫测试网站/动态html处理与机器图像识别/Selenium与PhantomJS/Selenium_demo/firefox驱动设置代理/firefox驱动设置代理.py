@@ -19,7 +19,7 @@ from selenium import webdriver
 FIRFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 
 proxy = '183.136.218.253'
-proxy_port = '80'
+proxy_port = 80         # 注意此处得是int类型，才有效
 
 profile = webdriver.FirefoxProfile()
 profile.set_preference('network.proxy.type', 1)  # 默认值0，就是直接连接；1就是手工配置代理。
@@ -33,6 +33,6 @@ driver = webdriver.Firefox(executable_path=FIRFOX_DRIVER_PATH, firefox_profile=p
 driver.get('http://httpbin.org/ip')
 print(driver.page_source)
 
-# driver.get('https://www.baidu.com')
+driver.get('http://www.taobao.com')
 
 # driver.quit()

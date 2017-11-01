@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+可爬取淘宝，全球购
+"""
+
 import time
 from random import randint
 import json
@@ -114,12 +118,20 @@ class TaoBaoLoginAndParse(object):
         response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         data = response.content.decode('utf-8')
         # print(data)
-        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
-        data = json.loads(data)
+        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
         if data != []:
-            data['data']['rate'] = ''  # 这是宝贝评价
-            data['data']['resource'] = ''  # 买家询问别人
-            data['data']['vertical'] = ''  # 也是问和回答
+            data = data[0]
+            data = json.loads(data)
+            # pprint(data)
+
+            # 处理商品被转移或者下架导致页面不存在的商品
+            if data.get('data').get('seller', {}).get('evaluates') is None:
+                print('data为空, 地址被重定向, 该商品可能已经被转移或下架')
+                return {}
+
+            data['data']['rate'] = ''           # 这是宝贝评价
+            data['data']['resource'] = ''       # 买家询问别人
+            data['data']['vertical'] = ''       # 也是问和回答
             data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
             result_data = data['data']
 
@@ -127,6 +139,7 @@ class TaoBaoLoginAndParse(object):
             # print(result_data['apiStack'][0]['value'])
             result_data_apiStack_value = result_data['apiStack'][0]['value']
             result_data_apiStack_value = json.loads(result_data_apiStack_value)
+
             result_data_apiStack_value['vertical'] = ''
             result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
             result_data_apiStack_value['feature'] = ''
@@ -146,6 +159,9 @@ class TaoBaoLoginAndParse(object):
             # pprint(mock_data)
             result_data['mockData'] = mock_data
 
+            result_data['trade'] = result_data['apiStack'][0]['value'].get('trade', {})     # 用于判断该商品是否已经下架的参数
+            # pprint(result_data['trade'])
+
             self.result_data = result_data
             # pprint(self.result_data)
             return result_data
@@ -153,7 +169,7 @@ class TaoBaoLoginAndParse(object):
             print('data为空!')
             return {}
 
-    def deal_with_data(self):
+    def deal_with_data(self, goods_id):
         '''
         处理result_data, 返回需要的信息
         :return: 字典类型
@@ -161,7 +177,7 @@ class TaoBaoLoginAndParse(object):
         data = self.result_data
         if data != {}:
             # 店铺名称
-            shop_name = data['seller']['shopName']
+            shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
 
             # 掌柜
             account = data['seller']['sellerNick']
@@ -201,7 +217,7 @@ class TaoBaoLoginAndParse(object):
             # taobao_price = Decimal(taobao_price).__round__(2)
 
             # 商品库存
-            goods_stock = data['apiStack'][0]['value'].get('skuCore', '').get('sku2info', '').get('0', '').get('quantity', '')
+            goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
 
             # 商品标签属性名称,及其对应id值
             if data.get('skuBase') is not None:
@@ -281,18 +297,20 @@ class TaoBaoLoginAndParse(object):
             # print(all_img_url)
 
             # 详细信息p_info
-            tmp_p_info = data.get('props').get('groupProps')[0].get('基本信息', [])     # 一个list [{'内存容量': '32GB'}, ...]
-            p_info = []
-            for item in tmp_p_info:
-                for key, value in item.items():
-                    tmp = {}
-                    tmp['p_name'] = key
-                    tmp['p_value'] = value
-                    tmp['id'] = '0'
-                    p_info.append(tmp)
-            # print(p_info)
-
-            # print(p_info)
+            tmp_p_info = data.get('props').get('groupProps')     # 一个list [{'内存容量': '32GB'}, ...]
+            if tmp_p_info is not None:
+                tmp_p_info = tmp_p_info[0].get('基本信息', [])
+                p_info = []
+                for item in tmp_p_info:
+                    for key, value in item.items():
+                        tmp = {}
+                        tmp['p_name'] = key
+                        tmp['p_value'] = value
+                        tmp['id'] = '0'
+                        p_info.append(tmp)
+                # print(p_info)
+            else:
+                p_info = []
 
             '''
             下方div图片文字介绍区
@@ -309,12 +327,13 @@ class TaoBaoLoginAndParse(object):
                 # print(phone_div_url)
                 # print(pc_div_url)
 
-                self.init_chrome_driver()
+                # self.init_chrome_driver()
                 # self.from_ip_pool_set_proxy_ip_to_chrome_driver()
-                div_desc = self.deal_with_div(pc_div_url)
+                # div_desc = self.deal_with_div(pc_div_url)
+                div_desc = self.get_div_from_pc_div_url(pc_div_url, goods_id)
                 # print(div_desc)
 
-                self.driver.quit()
+                # self.driver.quit()
                 gc.collect()
             else:
                 pc_div_url = ''
@@ -341,6 +360,28 @@ class TaoBaoLoginAndParse(object):
                     detail_value_list.append(tmp)  # 商品标签属性对应的值
                     # pprint(detail_value_list)
 
+            # 1. 先通过buyEnable字段来判断商品是否已经下架
+            if data['trade'] != {}:
+                is_buy_enable = data.get('trade').get('buyEnable')
+                if is_buy_enable == 'true':
+                    is_delete = 0
+                else:
+                    is_delete = 1
+            else:
+                pass
+
+            # 2. 此处再考虑名字中显示下架的商品
+            if re.compile(r'下架').findall(title) != []:
+                if re.compile(r'待下架').findall(title) != []:
+                    is_delete = 0
+                elif re.compile(r'自动下架').findall(title) != []:
+                    is_delete = 0
+                else:
+                    is_delete = 1
+            else:
+                is_delete = 0  # 用于判断商品是否已经下架, 未下架为0, 下架为1
+
+            print('is_delete = %d' % is_delete)
             result = {
                 'shop_name': shop_name,                             # 店铺名称
                 'account': account,                                 # 掌柜
@@ -358,8 +399,9 @@ class TaoBaoLoginAndParse(object):
                 'phone_div_url': phone_div_url,                     # 手机端描述地址
                 'pc_div_url': pc_div_url,                           # pc端描述地址
                 'div_desc': div_desc,                               # div_desc
+                'is_delete': is_delete                              # 用于判断商品是否已经下架
             }
-            pprint(result)
+            print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -369,12 +411,81 @@ class TaoBaoLoginAndParse(object):
             # print(json_data)
             return result
         else:
-            print('待处理的data为空的dict')
+            print('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            # return {
+            #     'is_delete': 1,
+            # }
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
         pass
 
+    def get_div_from_pc_div_url(self, url, goods_id):
+        '''
+        根据pc描述的url模拟请求获取描述的div
+        :return: str
+        '''
+        '''
+        appKey:12574478
+        t:1509513791232
+        api:mtop.taobao.detail.getdesc
+        v:6.0
+        type:jsonp
+        dataType:jsonp
+        timeout:20000
+        callback:mtopjsonp1
+        data:{"id":"546818961702","type":"1"}
+        '''
+        appKey = '12574478'
+        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+
+        '''
+        下面是构造params
+        '''
+        goods_id = goods_id
+        # print(goods_id)
+        params_data_1 = {
+            'id': goods_id,
+            'type': '1',
+        }
+
+        # print(params_data_2)
+        params = {
+            'data': json.dumps(params_data_1)  # 每层里面的字典都要先转换成json
+        }
+
+        tmp_url = 'https://api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/?appKey={}&t={}&api=mtop.taobao.detail.getdesc&v=6.0&type=jsonp&dataType=jsonp&timeout=20000&callback=mtopjsonp1'.format(
+            appKey, t
+        )
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
+        # print(last_url)
+        response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        data = response.content.decode('utf-8')
+        # print(data)
+        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
+        if data != []:
+            data = data[0]
+            data = json.loads(data)
+
+            if data != []:
+                div = data.get('data', '').get('pcDescContent', '')
+                div = self.deal_with_div(div)
+                # print(div)
+            else:
+                div = ''
+        else:
+            div = ''
+
+        return div
+
+    """
     def init_chrome_driver(self):
         '''
         初始化chromedriver驱动
@@ -391,7 +502,7 @@ class TaoBaoLoginAndParse(object):
             'profile.managed_default_content_settings.images': 2,
         }
         chrome_options.add_experimental_option('prefs', prefs)
-        chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
+        # chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
 
         self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
 
@@ -413,63 +524,10 @@ class TaoBaoLoginAndParse(object):
         #
         # wait = ui.WebDriverWait(self.driver, 10)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         # print('------->>>初始化完毕<<<-------')
+    """
 
-    def from_ip_pool_set_proxy_ip_to_chrome_driver(self):
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        print('------>>>| chromedriver正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-
-        try:
-            tmp_js = r'''
-            function setProxy(tmp_proxy){
-                var FindProxyForUrl = function(url, host) {
-                        return 'PROXY' + tmp_proxy};
-                }
-                var pac = FindProxyForUrl
-                var config = {
-                    mode: "pac_script",
-                    pacScript: {
-                        data: pac
-                    }
-                }
-                chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
-            }
-            setProxy(%s);
-            ''' % proxy_ip
-            print(tmp_js)
-            self.driver.execute_script(tmp_js)
-            self.driver.get('http://httpbin.org/ip')
-            print(self.driver.page_source)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
-    def deal_with_div(self, url):
-        self.driver.set_page_load_timeout(12)
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(12)
-            # self.driver.save_screenshot('tmp_login1.png')
-
-            locator = (By.CSS_SELECTOR, 'div.des')
-            try:
-                WebDriverWait(self.driver, 12, 0.5).until(EC.presence_of_element_located(locator))
-            except Exception as e:
-                print('获取div.des错误: ', e)
-            else:
-                print('div.des加载完毕...')
-                pass
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 12 seconds(当获取div.des时)')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-
-        body = self.driver.page_source
+    def deal_with_div(self, div):
+        body = div
 
         # 过滤
         body = re.compile(r'\n').sub('', body)
@@ -477,19 +535,11 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'  ').sub('', body)
         # print(body)
 
-        body = re.compile(r'<div class="des" id="J_des">.*<div class="page_box">.*?</div></div>').findall(body)
-        if body != []:
-            body = body[0]
-            body = re.compile(r'src="data:image/png;.*?"').sub('', body)
-            body = re.compile(r'data-img').sub('src', body)
-            body = re.compile(r'https:').sub('', body)
-            body = re.compile(r'src="').sub('src=\"https:', body)
+        body = re.compile(r'src="data:image/png;.*?"').sub('', body)
+        body = re.compile(r'data-img').sub('src', body)
+        body = re.compile(r'https:').sub('', body)
+        body = re.compile(r'src="').sub('src=\"https:', body)
 
-            body = re.compile(r'<table.*?>.*?</table>').sub('', body)   # 防止字段太长
-            body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">.*</div>').sub('', body)
-            # body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">')
-        else:
-            body = ''
         return body
 
     def get_proxy_ip_from_ip_pool(self):
@@ -516,21 +566,29 @@ class TaoBaoLoginAndParse(object):
         # https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
         is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(taobao_url)
         if is_taobao_url != []:
-            tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(.*?)&.*?').findall(taobao_url)[0]
-            # print(tmp_taobao_url)
-            if tmp_taobao_url != []:
-                goods_id = tmp_taobao_url
-            else:
+            'https://item.taobao.com/item.htm?spm=a217h.1099669.1998016581-3.3.e41f863HQ0ZQz&id=559409690662'
+            if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url) != []:
+                tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
+                # print(tmp_taobao_url)
+                if tmp_taobao_url != []:
+                    goods_id = tmp_taobao_url
+                else:
+                    taobao_url = re.compile(r';').sub('', taobao_url)
+                    goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(.+)').findall(taobao_url)[0]
+                print('------>>>| 得到的淘宝商品id为:', goods_id)
+                return goods_id
+            else:       # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
+                print('9999')
                 taobao_url = re.compile(r';').sub('', taobao_url)
-                goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(.+)').findall(taobao_url)[0]
-            print('------>>>| 得到的淘宝商品id为:', goods_id)
-            return goods_id
+                goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(.+)&{0,20}.*?').findall(taobao_url)[0]
+                print('------>>>| 得到的淘宝商品id为:', goods_id)
+                return goods_id
         else:
             print('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
 
     def __del__(self):
-        self.driver.quit()
+        # self.driver.quit()
         gc.collect()
 
 if __name__ == '__main__':
@@ -540,7 +598,7 @@ if __name__ == '__main__':
         taobao_url.strip('\n').strip(';')
         goods_id = login_taobao.get_goods_id_from_url(taobao_url)
         data = login_taobao.get_goods_data(goods_id=goods_id)
-        login_taobao.deal_with_data()
+        login_taobao.deal_with_data(goods_id=goods_id)
         # pprint(data)
 
 

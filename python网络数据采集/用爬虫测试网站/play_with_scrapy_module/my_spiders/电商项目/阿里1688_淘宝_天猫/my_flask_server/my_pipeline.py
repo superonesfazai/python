@@ -308,6 +308,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['username'],
                 item['deal_with_time'],
                 item['shop_name'],
+                item['account'],
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
@@ -326,7 +327,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ShopName, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -349,6 +350,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             params = [
                 item['deal_with_time'],
                 item['shop_name'],
+                item['account'],
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
@@ -365,7 +367,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set CreateTime = %s, ShopName=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set CreateTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()

@@ -408,12 +408,12 @@ class TmallParse(object):
     def get_goods_id_from_url(self, tmall_url):
         is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(tmall_url)
         if is_tmall_url != []:                  # 天猫常规商品
-            tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(.*?)&.*?').findall(tmall_url)
+            tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(tmall_url)
             if tmp_tmall_url != []:
                 goods_id = tmp_tmall_url[0]
             else:
                 tmall_url = re.compile(r';').sub('', tmall_url)
-                goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(.+)').findall(tmall_url)[0]
+                goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
             print('------>>>| 得到的天猫商品id为:', goods_id)
             return goods_id
         else:
