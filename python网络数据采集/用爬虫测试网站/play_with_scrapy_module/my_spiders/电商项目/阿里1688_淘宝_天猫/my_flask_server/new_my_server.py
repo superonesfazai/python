@@ -373,6 +373,8 @@ def to_save_data():
                             now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             tmp['deal_with_time'] = now_time                                        # 操作时间
 
+                            tmp['modfiy_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 修改时间
+
                             tmp['company_name'] = data_list['company_name']                         # 公司名称
                             tmp['title'] = data_list['title']                                       # 商品名称
                             tmp['link_name'] = data_list['link_name']                               # 卖家姓名
@@ -663,6 +665,8 @@ def taobao_to_save_data():
                             tmp['username'] = data_list['username']             # 操作人员username
                             now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             tmp['deal_with_time'] = now_time                    # 操作时间
+
+                            tmp['modfiy_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 修改时间
 
                             tmp['shop_name'] = data_list['shop_name']           # 公司名称
                             tmp['title'] = data_list['title']                   # 商品名称

@@ -47,7 +47,7 @@ if __name__ == '__main__':
                 else:  # 表示返回的data值为空值
                     pass
                 index += 1
-                sleep(.4)
+                sleep(.3)
                 del ali_1688
                 gc.collect()
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)

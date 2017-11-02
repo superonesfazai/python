@@ -113,13 +113,19 @@ class TaoBaoLoginAndParse(object):
         }
         print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
-        response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-        last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
-        # print(last_url)
-        response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-        data = response.content.decode('utf-8')
-        # print(data)
-        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
+        try:
+            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=8)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
+            # print(last_url)
+            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=8)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            data = response.content.decode('utf-8')
+            # print(data)
+            data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
+        except Exception:
+            print('requests.get()请求超时....')
+            print('data为空!')
+            return {}
+
         if data != []:
             data = data[0]
             data = json.loads(data)
@@ -138,7 +144,7 @@ class TaoBaoLoginAndParse(object):
 
             # 处理result_data['apiStack'][0]['value']
             # print(result_data.get('apiStack', [])[0].get('value', ''))
-            result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', '')
+            result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
             try:
                 result_data_apiStack_value = json.loads(result_data_apiStack_value)
 
@@ -165,8 +171,14 @@ class TaoBaoLoginAndParse(object):
             # pprint(mock_data)
             result_data['mockData'] = mock_data
 
-            result_data['trade'] = result_data['apiStack'][0]['value'].get('trade', {})     # 用于判断该商品是否已经下架的参数
-            # pprint(result_data['trade'])
+            # print(result_data.get('apiStack', [])[0])   # 可能会有{'name': 'esi', 'value': ''}的情况
+            if result_data.get('apiStack', [])[0].get('value', '') == '':
+                print("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
+                result_data['trade'] = {}
+                return {}
+            else:
+                result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
+                # pprint(result_data['trade'])
 
             self.result_data = result_data
             # pprint(self.result_data)
@@ -374,6 +386,7 @@ class TaoBaoLoginAndParse(object):
                 else:
                     is_delete = 1
             else:
+                is_delete = 0
                 pass
 
             # 2. 此处再考虑名字中显示下架的商品
@@ -435,6 +448,7 @@ class TaoBaoLoginAndParse(object):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
@@ -584,6 +598,7 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'data-img').sub('src', body)
         body = re.compile(r'https:').sub('', body)
         body = re.compile(r'src="').sub('src=\"https:', body)
+        body = re.compile(r'&nbsp;').sub(' ', body)
 
         return body
 

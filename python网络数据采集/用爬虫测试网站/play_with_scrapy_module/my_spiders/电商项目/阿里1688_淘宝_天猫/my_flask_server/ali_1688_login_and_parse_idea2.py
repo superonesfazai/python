@@ -369,6 +369,7 @@ class ALi1688LoginAndParse(object):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 修改时间
 
         tmp['company_name'] = data_list['company_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
