@@ -314,8 +314,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['link_name'],
                 item['price'],
                 item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),        # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
                 dumps(item['price_info_list'], ensure_ascii=False),
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo

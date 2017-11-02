@@ -621,19 +621,23 @@ def taobao_to_save_data():
                     if item == '':  # 除去传过来是空值
                         pass
                     else:
-                        # tmp_goods_id = re.compile(r'.*?/offer/(.*?).html.*?').findall(item)[0]
                         is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(item)
                         if is_taobao_url != []:
-                            tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(.*?)&.*?').findall(item)[0]
-                            # print(tmp_taobao_url)
-                            if tmp_taobao_url != []:
-                                goods_id = tmp_taobao_url
-                            else:
+                            if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item) != []:
+                                tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)[0]
+                                # print(tmp_taobao_url)
+                                if tmp_taobao_url != []:
+                                    goods_id = tmp_taobao_url
+                                else:
+                                    item = re.compile(r';').sub('', item)
+                                    goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(item)[0]
+                            else:  # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
+                                # print('9999')
                                 item = re.compile(r';').sub('', item)
-                                goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(.+)').findall(item)[0]
+                                goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(item)[0]
+                                # print('------>>>| 得到的淘宝商品id为:', goods_id)
                             tmp_goods_id = goods_id
                             tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                            # print('------>>>| 得到的淘宝商品id为:', goods_id)
                         else:
                             print('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
 
@@ -710,8 +714,7 @@ def taobao_to_save_data():
                         # print('插入失败!')
                         pass
 
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if
-                                              i not in goods_to_delete]  # 删除已被插入
+                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
                 print('存入完毕'.center(100, '*'))
                 del my_page_info_save_item_pipeline
                 gc.collect()

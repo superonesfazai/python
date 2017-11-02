@@ -1315,7 +1315,7 @@
 			reset();
 			$('.showGoods').html('<img class="showGoodsLoading" src="../static/images/5-121204193Q9.gif"/>');
 //            location.reload();
-		})
+		});
 		$('#batchGrabStart').click(function(){	
 //			alert('按钮已点击!已经开始抓取');
 			$('.showGoodsLoading').show();
@@ -2222,18 +2222,18 @@
 		$('#anyGrabStart').click(function(){
 			var anyLinks = split($('.anyGrabContent').val());
 			var num =0,
-          per = 0;
+            per = 0;
 			$('.grabLoading').show();
 			for(var i=0;i<anyLinks.length;i++){
 					console.log(anyLinks);
 					$.ajax({
 						type:"post",
 //						url:anyLinks[i],
-            url:"/data",
+                        url:"/data",
 						async:true,
-            data:{
-                goodsLink:anyLinks[i]
-            },
+                        data:{
+                            goodsLink:anyLinks[i]
+                        },
 						success:function(data){
 						  data = JSON.parse(data);
 							num+=1;
@@ -2256,7 +2256,6 @@
 							console.log('ddd')
 						}
 					});
-
 			}
 			var timer = setTimeout(function(){
 					if(per>=1){
@@ -2274,7 +2273,11 @@
 							saveData:anyLinks
 						},
 						success:function(){
-							alert('总共'+num+'条信息存入数据库')
+//							alert('总共'+num+'条信息存入数据库')
+                            $('.nLink').text('总共'+num+'条信息存入数据库');
+							setTimeout(function(){
+								$('.nLink').text('');
+							},1000)
 						},
 						error:function(){
 						}
@@ -2282,6 +2285,30 @@
 
 			})
 		});
+//单个存入数据库
+            var insertData = new Array();
+            $('#insertSqlSingle').click(function(){
+//                console.log(insertData);
+                if(insertData[0]==''){
+                    return;
+                }else {
+                    $.ajax({
+                        type: "post",
+                        url: "/to_save_data",
+                        async: true,
+                        data: {
+                            saveData: insertData
+                        },
+                        success: function () {
+                        },
+                        error: function () {
+                        }
+                    });
+                    alert('已存入数据库')
+                }
+                insertData = [];
+            });
+
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
@@ -2300,6 +2327,7 @@
                     data = JSON.parse(data);
                     console.log(data);
 					if(data && data.reason == 'success'){
+					    insertData[0] = $('#goodsLink').val();
 						data.data.sku_map = test(data.data.sku_map);
 						data.data.detail_info = data.data.detail_info.replace("\\","");
 						console.log(data.data);
@@ -2307,24 +2335,7 @@
 							$('.mask').hide();
 							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
-				//单个存入数据库
-							$('#insertSqlSingle').click(function(){
-								var insertData = new Array();
-								insertData[0] = $('#goodsLink').val();
-									$.ajax({
-										type:"post",
-										url:"/to_save_data",
-										async:true,
-										data:{
-											saveData:insertData
-										},
-										success:function(){
-										},
-										error:function(){
-										}
-									});
-									alert('已存入数据库')
-							})				
+
 					}else{
 						reset();
 						$('.wLink').text('您输入的网址有误，请重新输入！');

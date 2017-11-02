@@ -539,7 +539,11 @@ class ALi1688LoginAndParse(object):
             return ''
 
     def __del__(self):
-        self.driver.quit()
+        try:
+            self.driver.quit()
+        except Exception:
+            print("'ALi1688LoginAndParse'对象没有'driver'这个属性, 此处我设置为跳过!")
+            pass
         gc.collect()
 
 # if __name__ == '__main__':

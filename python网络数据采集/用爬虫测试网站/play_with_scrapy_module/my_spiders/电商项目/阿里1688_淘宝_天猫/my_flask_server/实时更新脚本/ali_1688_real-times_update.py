@@ -17,7 +17,6 @@ from time import sleep
 if __name__ == '__main__':
     while True:
         #### 实时更新数据
-
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
             result = list(tmp_sql_server.select_ali_1688_all_goods_id())
@@ -42,7 +41,6 @@ if __name__ == '__main__':
                 data = ali_1688.deal_with_data()
                 if data != {}:
                     data['goods_id'] = item[0]
-
                     # print('------>>>| 爬取到的数据为: ', data)
 
                     ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)

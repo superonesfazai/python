@@ -29,6 +29,7 @@ from scrapy import Selector
 from urllib.request import urlopen
 from PIL import Image
 from time import sleep
+import datetime
 import gc
 
 from settings import TAOBAO_COOKIES_FILE_PATH, HEADERS
@@ -136,18 +137,23 @@ class TaoBaoLoginAndParse(object):
             result_data = data['data']
 
             # 处理result_data['apiStack'][0]['value']
-            # print(result_data['apiStack'][0]['value'])
-            result_data_apiStack_value = result_data['apiStack'][0]['value']
-            result_data_apiStack_value = json.loads(result_data_apiStack_value)
+            # print(result_data.get('apiStack', [])[0].get('value', ''))
+            result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', '')
+            try:
+                result_data_apiStack_value = json.loads(result_data_apiStack_value)
 
-            result_data_apiStack_value['vertical'] = ''
-            result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
-            result_data_apiStack_value['feature'] = ''
-            result_data_apiStack_value['layout'] = ''
-            result_data_apiStack_value['delivery'] = ''     # 发货地到收到地
-            result_data_apiStack_value['resource'] = ''     # 优惠券
-            result_data_apiStack_value['item'] = ''
-            # pprint(result_data_apiStack_value)
+                result_data_apiStack_value['vertical'] = ''
+                result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
+                result_data_apiStack_value['feature'] = ''
+                result_data_apiStack_value['layout'] = ''
+                result_data_apiStack_value['delivery'] = ''     # 发货地到收到地
+                result_data_apiStack_value['resource'] = ''     # 优惠券
+                result_data_apiStack_value['item'] = ''
+                # pprint(result_data_apiStack_value)
+            except Exception:
+                print("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过")
+                result_data_apiStack_value = ''
+                pass
 
             # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
             result_data['apiStack'][0]['value'] = result_data_apiStack_value
@@ -381,7 +387,7 @@ class TaoBaoLoginAndParse(object):
             else:
                 is_delete = 0  # 用于判断商品是否已经下架, 未下架为0, 下架为1
 
-            print('is_delete = %d' % is_delete)
+            # print('is_delete = %d' % is_delete)
             result = {
                 'shop_name': shop_name,                             # 店铺名称
                 'account': account,                                 # 掌柜
@@ -401,7 +407,7 @@ class TaoBaoLoginAndParse(object):
                 'div_desc': div_desc,                               # div_desc
                 'is_delete': is_delete                              # 用于判断商品是否已经下架
             }
-            print(result)
+            # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -418,7 +424,46 @@ class TaoBaoLoginAndParse(object):
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
-        pass
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        tmp['deal_with_time'] = now_time  # 操作时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        # 采集的来源地
+        # tmp['site_id'] = 1  # 采集来源地(淘宝)
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+
+        pipeline.update_taobao_table(tmp)
 
     def get_div_from_pc_div_url(self, url, goods_id):
         '''
@@ -566,7 +611,6 @@ class TaoBaoLoginAndParse(object):
         # https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
         is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(taobao_url)
         if is_taobao_url != []:
-            'https://item.taobao.com/item.htm?spm=a217h.1099669.1998016581-3.3.e41f863HQ0ZQz&id=559409690662'
             if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url) != []:
                 tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
                 # print(tmp_taobao_url)
@@ -574,13 +618,13 @@ class TaoBaoLoginAndParse(object):
                     goods_id = tmp_taobao_url
                 else:
                     taobao_url = re.compile(r';').sub('', taobao_url)
-                    goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(.+)').findall(taobao_url)[0]
+                    goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(taobao_url)[0]
                 print('------>>>| 得到的淘宝商品id为:', goods_id)
                 return goods_id
             else:       # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
                 print('9999')
                 taobao_url = re.compile(r';').sub('', taobao_url)
-                goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(.+)&{0,20}.*?').findall(taobao_url)[0]
+                goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
                 print('------>>>| 得到的淘宝商品id为:', goods_id)
                 return goods_id
         else:
