@@ -385,8 +385,8 @@ class TaoBaoLoginAndParse(object):
                     # pprint(detail_value_list)
 
             # 1. 先通过buyEnable字段来判断商品是否已经下架
-            if data['trade'] != {}:
-                is_buy_enable = data.get('trade').get('buyEnable')
+            if data.get('trade', {}) != {}:
+                is_buy_enable = data.get('trade', {}).get('buyEnable')
                 if is_buy_enable == 'true':
                     is_delete = 0
                 else:
@@ -403,8 +403,8 @@ class TaoBaoLoginAndParse(object):
                     is_delete = 0
                 else:
                     is_delete = 1
-
             print('is_delete = %d' % is_delete)
+
             result = {
                 'shop_name': shop_name,                             # 店铺名称
                 'account': account,                                 # 掌柜

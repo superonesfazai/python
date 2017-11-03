@@ -792,8 +792,8 @@ def get_tmall_data():
 
             login_tmall = TmallParse()
 
-            goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
-            if goods_id == '':      # 如果得不到goods_id, 则return error
+            goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
+            if goods_id == []:      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
                 result = {
                     'reason': 'error',
@@ -805,9 +805,15 @@ def get_tmall_data():
                 gc.collect()
                 result = json.dumps(result)
                 return result
+
             # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
             #####################################################
-            wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
+            if goods_id[0] == 0:        # [0, '1111']
+                wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]   # 构造成标准干净的淘宝商品地址
+            elif goods_id[0] == 1:      # [1, '1111']
+                wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
+            elif goods_id[0] == 2:      # [2, '1111', 'https://xxxxx']
+                wait_to_deal_with_url = str(goods_id[2]) + goods_id[1]
             tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
             time.sleep(2)
             if tmp_result == {}:
@@ -818,12 +824,12 @@ def get_tmall_data():
                     'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
                 }
 
-                del login_taobao
+                del login_tmall
                 gc.collect()
                 result = json.dumps(result)
                 return result
 
-            data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
+            data = login_tmall.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
                 print('获取到的data为空!')
@@ -833,7 +839,7 @@ def get_tmall_data():
                     'error_code': 444,  # 表示能获取到goods_id，无法正确解析
                 }
 
-                del login_taobao
+                del login_tmall
                 gc.collect()
                 result = json.dumps(result)
                 return result
@@ -847,8 +853,7 @@ def get_tmall_data():
             wait_to_save_data = data
             wait_to_save_data['spider_url'] = wait_to_deal_with_url
             wait_to_save_data['username'] = username
-            # wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            wait_to_save_data['goods_id'] = goods_id        # goods_id  官方商品link的商品id
+            wait_to_save_data['goods_id'] = goods_id[1]        # goods_id  官方商品link的商品id
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -857,7 +862,7 @@ def get_tmall_data():
             print(result_json.decode())
             print('-------------------------------')
 
-            del login_taobao       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            del login_tmall       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             gc.collect()        # 手动回收即可立即释放需要删除的资源
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息

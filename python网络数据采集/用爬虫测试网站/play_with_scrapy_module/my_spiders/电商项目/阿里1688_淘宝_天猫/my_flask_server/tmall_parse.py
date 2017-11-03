@@ -64,8 +64,8 @@ class TmallParse(object):
         :param goods_id:
         :return: data   类型dict
         '''
-        type = list(goods_id.keys())[0]             # 天猫类型
-        goods_id = list(goods_id.values())[0]       # 天猫goods_id
+        type = goods_id[0]             # 天猫类型
+        goods_id = goods_id[1]       # 天猫goods_id
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         print('------>>>| 得到的移动端地址为: ', tmp_url)
 
@@ -165,48 +165,45 @@ class TmallParse(object):
             price_1 = data.get('extra_data', {}).get('price', {}).get('extraPrices', '')    # 原价
             price_2 = data.get('extra_data', {}).get('price', {}).get('price', {}).get('priceText', '')     # 促销价
             if price_1 != '':
-                print('price_1 = ', price_1[0].get('priceText', ''))
+                # print('price_1 = ', price_1[0].get('priceText', ''))
+                pass
             else:
                 price_1 = ''
-                print('price_1 = ', price_1, type(price_1))
-            print('price_2 = ', price_2)
+                # print('price_1 = ', price_1)
+                pass
+            # print('price_2 = ', price_2)
+
+            '''
+            最高价和淘宝价处理
+            '''
             # 判断是否有促销价
-            if price_2 != '':     # 有促销价的情况
-                tmp_price = price_2
-                if tmp_price != '':
-                    ss_price = tmp_price
+            if price_2 != '':       # 有促销价的情况
+                # print(type(ss_price))
+                ss_price = price_2.split('-')
+                # print(type(ss_price))
+                if len(ss_price) > 1:
+                    price = '%.2f' % float(ss_price[1])
+                    taobao_price = '%.2f' % float(ss_price[0])
+                else:               # 单个
+                    price = '%.2f' % float(ss_price[0])
+                    taobao_price = price
+            else:                   # 没有促销价只是原价
+                if price_1 != '':
+                    ss_price = price_1[0].get('priceText', '')
                     if ss_price != '':
-                        # print(type(ss_price))
-                        ss_price.split('-')
-                        # print(type(ss_price))
+                        ss_price = ss_price.split('-')
                         if len(ss_price) > 1:
-                            price = round(float(ss_price[1]), 2)
-                            taobao_price = round(float(ss_price[0]), 2)
-                        else:  # 单个
-                            price = round(float(ss_price[0]), 2)
+                            price = '%.2f' %float(ss_price[1])
+                            taobao_price = '%.2f' % float(ss_price[0])
+                        else:       # 单个
+                            price = '%.2f' % float(ss_price[0])
                             taobao_price = price
                     else:
                         return {}
                 else:
                     return {}
-            else:   # 没有促销价只是原价
-                tmp_price = price_1
-                if tmp_price != '':
-                    ss_price = tmp_price[0].get('priceText', '')
-                    if ss_price != '':
-                        ss_price.split('-')
-                        if len(ss_price) > 1:
-                            price = round(float(ss_price[1]), 2)
-                            taobao_price = round(float(ss_price[0]), 2)
-                        else:  # 单个
-                            price = round(float(ss_price[0]), 2)
-                            taobao_price = price
-                    else:
-                        return {}
-                else:
-                    return {}
-            print('price=', price)
-            print('taobao_price=', taobao_price)
+            # print('price=', price)
+            # print('taobao_price=', taobao_price)
 
             # 商品库存  int类型
             goods_stock = data['extra_data'].get('skuCore').get('sku2info').get('0').get('quantity')
@@ -397,7 +394,36 @@ class TmallParse(object):
             '''
             是否下架判断
             '''
-            is_delete = 0
+            # 1. 先通过buyEnable字段来判断商品是否已经下架
+            ## 天猫常规商品，天猫国际, 天猫超市都测试通过
+            if data.get('extra_data', {}).get('trade', {}) != {}:
+                is_buy_enable = str(data.get('extra_data', {}).get('trade', {}).get('buyEnable'))
+                if is_buy_enable == 'True':
+                    is_delete = 0
+                else:
+                    is_delete = 1
+            else:
+                is_delete = 0
+                pass
+
+            # 分析数据发现，天猫超市的有效buyEnable在data['mock']里
+            if type == 1:   # 单独处理天猫超市的商品
+                if data.get('mock', {}).get('trade', {}) != {}:
+                    is_buy_enable = str(data.get('mock', {}).get('trade', {}).get('buyEnable'))
+                    if is_buy_enable == 'True':
+                        is_delete = 0
+                    else:
+                        is_delete = 1
+
+            # 2. 此处再考虑名字中显示下架的商品
+            if re.compile(r'下架').findall(title) != []:
+                if re.compile(r'待下架').findall(title) != []:
+                    is_delete = 0
+                elif re.compile(r'自动下架').findall(title) != []:
+                    is_delete = 0
+                else:
+                    is_delete = 1
+            # print('is_delete = %d' % is_delete)
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -418,6 +444,7 @@ class TmallParse(object):
                 'type': type,                           # 天猫类型
             }
             # pprint(result)
+            print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -476,7 +503,7 @@ class TmallParse(object):
         '''
         得到合法url的goods_id
         :param tmall_url:
-        :return: dict {0:'1111111'}  0:表示天猫常规商品, 1:表示天猫超市, 2:表示天猫国际, 返回为{}表示解析错误
+        :return: a list [0, '1111111'] [2, '1111111', 'https://ssss'] 0:表示天猫常规商品, 1:表示天猫超市, 2:表示天猫国际, 返回为[]表示解析错误
         '''
         is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(tmall_url)
         if is_tmall_url != []:                  # 天猫常规商品
@@ -487,9 +514,7 @@ class TmallParse(object):
                 tmall_url = re.compile(r';').sub('', tmall_url)
                 goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
             print('------>>>| 得到的天猫商品id为:', goods_id)
-            return {
-                0: goods_id
-            }
+            return [0, goods_id]
         else:
             is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(tmall_url)
             if is_tmall_supermarket != []:      # 天猫超市
@@ -500,9 +525,7 @@ class TmallParse(object):
                     tmall_url = re.compile(r';').sub('', tmall_url)
                     goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
                 print('------>>>| 得到的天猫商品id为:', goods_id)
-                return {
-                    1: goods_id
-                }
+                return [1, goods_id]
             else:
                 is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)      # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
                 if is_tmall_hk != []:           # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
@@ -512,13 +535,12 @@ class TmallParse(object):
                     else:
                         tmall_url = re.compile(r';').sub('', tmall_url)
                         goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                    before_url = re.compile(r'https://detail.tmall.hk/.*?item.htm').findall(tmall_url)[0]
                     print('------>>>| 得到的天猫商品id为:', goods_id)
-                    return {
-                        2: goods_id
-                    }
+                    return [2, goods_id, before_url]
                 else:
                     print('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
-                    return {}
+                    return []
 
     def __del__(self):
         self.driver.quit()
@@ -530,7 +552,7 @@ if __name__ == '__main__':
         tmall_url = input('请输入待爬取的天猫商品地址: ')
         tmall_url.strip('\n').strip(';')
         goods_id = tmall.get_goods_id_from_url(tmall_url)   # 返回一个dict类型
-        if goods_id != {}:
+        if goods_id != []:
             data = tmall.get_goods_data(goods_id=goods_id)
             result = tmall.deal_with_data()
             # pprint(result)
