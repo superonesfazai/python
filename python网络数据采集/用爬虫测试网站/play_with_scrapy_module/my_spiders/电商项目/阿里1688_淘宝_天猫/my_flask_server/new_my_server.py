@@ -16,6 +16,7 @@ from flask_login import LoginManager
 
 from ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
 from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
+from .tmall_parse import TmallParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -765,7 +766,118 @@ def taobao_to_save_data():
 # tmall
 @app.route('/tmall_data', methods=['POST'])
 def get_tmall_data():
-    pass
+    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            print('正在获取相应数据中...')
+
+            # 解密
+            username = decrypt(key, request.cookies.get('username'))
+            print('发起获取请求的员工的username为: %s' % username)
+
+            goodsLink = request.form.get('goodsLink')
+
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                print('goodsLink为空值...')
+
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,     # 表示goodsLink为空值
+                }
+
+                result = json.dumps(result)
+                return result
+
+            login_tmall = TmallParse()
+
+            goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
+            if goods_id == '':      # 如果得不到goods_id, 则return error
+                print('获取到的goods_id为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,  # 表示goodsLink为空值
+                }
+
+                del login_tmall       # 每次都回收一下
+                gc.collect()
+                result = json.dumps(result)
+                return result
+            # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
+            #####################################################
+            wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
+            tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
+            time.sleep(2)
+            if tmp_result == {}:
+                print('获取到的data为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
+                }
+
+                del login_taobao
+                gc.collect()
+                result = json.dumps(result)
+                return result
+
+            data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
+
+            if data == {}:
+                print('获取到的data为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
+                }
+
+                del login_taobao
+                gc.collect()
+                result = json.dumps(result)
+                return result
+
+            result = {
+                'reason': 'success',
+                'data': data,
+                'error_code': 0,
+            }
+
+            wait_to_save_data = data
+            wait_to_save_data['spider_url'] = wait_to_deal_with_url
+            wait_to_save_data['username'] = username
+            # wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            wait_to_save_data['goods_id'] = goods_id        # goods_id  官方商品link的商品id
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+
+            result_json = json.dumps(result, ensure_ascii=False).encode()
+            print('------>>> 下面是爬取到的页面信息: ')
+            print(result_json.decode())
+            print('-------------------------------')
+
+            del login_taobao       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            gc.collect()        # 手动回收即可立即释放需要删除的资源
+            return result_json.decode()
+        else:       # 直接把空值给pass，不打印信息
+            # print('goodsLink为空值...')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4042,  # 表示goodsLink为空值
+            }
+
+            result = json.dumps(result)
+            return result
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
 
 @app.route('/tmall_to_save_data', methods=['POST'])
 def tmall_to_save_data():

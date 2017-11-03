@@ -64,24 +64,27 @@ class TmallParse(object):
         :param goods_id:
         :return: data   类型dict
         '''
+        type = list(goods_id.keys())[0]             # 天猫类型
+        goods_id = list(goods_id.values())[0]       # 天猫goods_id
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         print('------>>>| 得到的移动端地址为: ', tmp_url)
+
         # response = requests.get(tmp_url, headers=self.headers)
-        self.driver.set_page_load_timeout(4)
+        self.driver.set_page_load_timeout(12)
         try:
             self.driver.get(tmp_url)
-            self.driver.implicitly_wait(7)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(12)  # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div#J_mod4')
             try:
-                WebDriverWait(self.driver, 7, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 12, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041  # 未得到div#mod-detail-bd，返回4041
             else:
                 print('div#mod-detail-bd已经加载完毕')
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 4 seconds when loading page')
+            print('-->>time out after 12 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
         body = self.driver.page_source
@@ -122,6 +125,7 @@ class TmallParse(object):
             else:
                 data_2 = {}
             data['extra_data'] = data_2
+            data['type'] = type             # 天猫类型
             # pprint(data)
             self.result_data = data
             return data
@@ -136,7 +140,10 @@ class TmallParse(object):
         :return: 字典类型
         '''
         data = self.result_data
-        if data != []:
+        if data != {}:
+            # 天猫类型
+            type = data.get('type', 33)     # 33用于表示无法正确获取
+
             # 店铺名称
             shop_name = data.get('seller', {}).get('shopName', '')
 
@@ -155,14 +162,51 @@ class TmallParse(object):
             # shop_name_url = re.compile(r'.m.').sub('.', shop_name_url)
 
             # 商品价格
-            tmp_price = data['extra_data'].get('price', '').get('extraPrices', '')
-            if tmp_price != '':
-                price = tmp_price[0].get('priceText', '')
+            price_1 = data.get('extra_data', {}).get('price', {}).get('extraPrices', '')    # 原价
+            price_2 = data.get('extra_data', {}).get('price', {}).get('price', {}).get('priceText', '')     # 促销价
+            if price_1 != '':
+                print('price_1 = ', price_1[0].get('priceText', ''))
             else:
-                price = ''
-
-            # 淘宝价
-            taobao_price = data['extra_data'].get('price', '').get('price', '').get('priceText', '')
+                price_1 = ''
+                print('price_1 = ', price_1, type(price_1))
+            print('price_2 = ', price_2)
+            # 判断是否有促销价
+            if price_2 != '':     # 有促销价的情况
+                tmp_price = price_2
+                if tmp_price != '':
+                    ss_price = tmp_price
+                    if ss_price != '':
+                        # print(type(ss_price))
+                        ss_price.split('-')
+                        # print(type(ss_price))
+                        if len(ss_price) > 1:
+                            price = round(float(ss_price[1]), 2)
+                            taobao_price = round(float(ss_price[0]), 2)
+                        else:  # 单个
+                            price = round(float(ss_price[0]), 2)
+                            taobao_price = price
+                    else:
+                        return {}
+                else:
+                    return {}
+            else:   # 没有促销价只是原价
+                tmp_price = price_1
+                if tmp_price != '':
+                    ss_price = tmp_price[0].get('priceText', '')
+                    if ss_price != '':
+                        ss_price.split('-')
+                        if len(ss_price) > 1:
+                            price = round(float(ss_price[1]), 2)
+                            taobao_price = round(float(ss_price[0]), 2)
+                        else:  # 单个
+                            price = round(float(ss_price[0]), 2)
+                            taobao_price = price
+                    else:
+                        return {}
+                else:
+                    return {}
+            print('price=', price)
+            print('taobao_price=', taobao_price)
 
             # 商品库存  int类型
             goods_stock = data['extra_data'].get('skuCore').get('sku2info').get('0').get('quantity')
@@ -289,8 +333,10 @@ class TmallParse(object):
             all_img_url = []
             if tmp_all_img_url != []:
                 for item in tmp_all_img_url:
+                    tmp = {}
                     i = 'https:' + item
-                    all_img_url.append(i)
+                    tmp['img_url'] = i
+                    all_img_url.append(tmp)
                 # pprint(all_img_url)
             else:
                 pass
@@ -305,6 +351,7 @@ class TmallParse(object):
                     tmp = {}
                     tmp['name'] = list(item.keys())[0]
                     tmp['value'] = list(item.values())[0]
+                    tmp['id'] = '0'
                     p_info.append(tmp)
                 # pprint(p_info)
             else:   # 是props->propsList->[0]->baseProps
@@ -317,6 +364,7 @@ class TmallParse(object):
                         tmp = {}
                         tmp['name'] = ''.join(list(item.get('key')))
                         tmp['value'] = ''.join(list(item.get('value')))
+                        tmp['id'] = '0'
                         p_info.append(tmp)
                     # pprint(p_info)
                 else:
@@ -324,7 +372,7 @@ class TmallParse(object):
                     p_info = []
 
             # pc端描述地址
-            pc_div_url = data['item'].get('tmallDescUrl')
+            pc_div_url = data.get('item', {}).get('tmallDescUrl')
 
             # div_desc
             div_desc = self.deal_with_div(pc_div_url)
@@ -366,16 +414,17 @@ class TmallParse(object):
                 'p_info': p_info,                       # 详细信息标签名对应属性
                 'pc_div_url': pc_div_url,               # pc端描述地址
                 'div_desc': div_desc,                   # div_desc
-                'is_delete': is_delete                  # 是否下架判断
+                'is_delete': is_delete,                 # 是否下架判断
+                'type': type,                           # 天猫类型
             }
-            # print(result)
-            wait_to_send_data = {
-                'reason': 'success',
-                'data': result,
-                'code': 1
-            }
-            json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            print(json_data)
+            # pprint(result)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
             gc.collect()
             return result
 
@@ -424,6 +473,11 @@ class TmallParse(object):
         return body
 
     def get_goods_id_from_url(self, tmall_url):
+        '''
+        得到合法url的goods_id
+        :param tmall_url:
+        :return: dict {0:'1111111'}  0:表示天猫常规商品, 1:表示天猫超市, 2:表示天猫国际, 返回为{}表示解析错误
+        '''
         is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(tmall_url)
         if is_tmall_url != []:                  # 天猫常规商品
             tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(tmall_url)
@@ -433,7 +487,9 @@ class TmallParse(object):
                 tmall_url = re.compile(r';').sub('', tmall_url)
                 goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
             print('------>>>| 得到的天猫商品id为:', goods_id)
-            return goods_id
+            return {
+                0: goods_id
+            }
         else:
             is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(tmall_url)
             if is_tmall_supermarket != []:      # 天猫超市
@@ -444,7 +500,9 @@ class TmallParse(object):
                     tmall_url = re.compile(r';').sub('', tmall_url)
                     goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
                 print('------>>>| 得到的天猫商品id为:', goods_id)
-                return goods_id
+                return {
+                    1: goods_id
+                }
             else:
                 is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)      # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
                 if is_tmall_hk != []:           # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
@@ -455,10 +513,12 @@ class TmallParse(object):
                         tmall_url = re.compile(r';').sub('', tmall_url)
                         goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
                     print('------>>>| 得到的天猫商品id为:', goods_id)
-                    return goods_id
+                    return {
+                        2: goods_id
+                    }
                 else:
                     print('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
-                    return ''
+                    return {}
 
     def __del__(self):
         self.driver.quit()
@@ -469,11 +529,14 @@ if __name__ == '__main__':
     while True:
         tmall_url = input('请输入待爬取的天猫商品地址: ')
         tmall_url.strip('\n').strip(';')
-        goods_id = tmall.get_goods_id_from_url(tmall_url)
-        data = tmall.get_goods_data(goods_id=goods_id)
-        result = tmall.deal_with_data()
-        # pprint(result)
-        gc.collect()
+        goods_id = tmall.get_goods_id_from_url(tmall_url)   # 返回一个dict类型
+        if goods_id != {}:
+            data = tmall.get_goods_data(goods_id=goods_id)
+            result = tmall.deal_with_data()
+            # pprint(result)
+            gc.collect()
+        else:
+            print('获取到的天猫商品地址无法解析，地址错误')
     del tmall
     gc.collect()
 
