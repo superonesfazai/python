@@ -138,16 +138,16 @@ class TmallParse(object):
         data = self.result_data
         if data != []:
             # 店铺名称
-            shop_name = data['seller']['shopName']
+            shop_name = data.get('seller', {}).get('shopName', '')
 
             # 掌柜
-            account = data['seller']['sellerNick']
+            account = data.get('seller', {}).get('sellerNick', '')
 
             # 商品名称
-            title = data['item']['title']
+            title = data.get('item', {}).get('title', '')
 
             # 子标题
-            sub_title = data['item'].get('subtitle', '')
+            sub_title = data.get('item', {}).get('subtitle', '')
             sub_title = re.compile(r'\n').sub('', sub_title)
 
             # 店铺主页地址
@@ -229,8 +229,11 @@ class TmallParse(object):
                 skus = sku_base.get('skus')
                 # print(skus)
                 if skus is not None:
-                    sku2_info = data['extra_data']['skuCore']['sku2info']
-                    sku2_info.pop('0')  # 此处删除总库存的值
+                    sku2_info = data.get('extra_data', {}).get('skuCore', {}).get('sku2info', {})
+                    try:
+                        sku2_info.pop('0')  # 此处删除总库存的值
+                    except Exception:
+                        pass
                     prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
 
                     for key in sku2_info:
@@ -282,15 +285,18 @@ class TmallParse(object):
             # pprint(price_info_list)
 
             # 所有示例图片地址
-            tmp_all_img_url = data['item']['images']
+            tmp_all_img_url = data.get('item', {}).get('images', [])
             all_img_url = []
-            for item in tmp_all_img_url:
-                i = 'https:' + item
-                all_img_url.append(i)
-            # pprint(all_img_url)
+            if tmp_all_img_url != []:
+                for item in tmp_all_img_url:
+                    i = 'https:' + item
+                    all_img_url.append(i)
+                # pprint(all_img_url)
+            else:
+                pass
 
             # 详细信息标签名对应属性
-            is_groupprops = data['props'].get('groupProps')
+            is_groupprops = data.get('props', {}).get('groupProps')
             if is_groupprops is not None:
                 tmp_p_info = data['props'].get('groupProps')[0].get('基本信息')
                 p_info = []
@@ -340,24 +346,36 @@ class TmallParse(object):
                         except KeyError:
                             pass
 
+            '''
+            是否下架判断
+            '''
+            is_delete = 0
 
             result = {
-                'shop_name': shop_name,  # 店铺名称
-                'account': account,  # 掌柜
-                'title': title,  # 商品名称
-                'sub_title': sub_title,  # 子标题
-                'price': price,  # 商品价格
-                'taobao_price': taobao_price,  # 淘宝价
-                'goods_stock': goods_stock,  # 商品库存
-                'detail_name_list': detail_name_list,  # 商品标签属性名称
-                'detail_value_list': detail_value_list,  # 商品标签属性对应的值
-                'price_info_list': price_info_list,  # 要存储的每个标签对应规格的价格及其库存
-                'all_img_url': all_img_url,  # 所有示例图片地址
-                'p_info': p_info,  # 详细信息标签名对应属性
-                'pc_div_url': pc_div_url,  # pc端描述地址
-                'div_desc': div_desc,  # div_desc
+                'shop_name': shop_name,                 # 店铺名称
+                'account': account,                     # 掌柜
+                'title': title,                         # 商品名称
+                'sub_title': sub_title,                 # 子标题
+                'price': price,                         # 商品价格
+                'taobao_price': taobao_price,           # 淘宝价
+                'goods_stock': goods_stock,             # 商品库存
+                'detail_name_list': detail_name_list,   # 商品标签属性名称
+                'detail_value_list': detail_value_list, # 商品标签属性对应的值
+                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
+                'all_img_url': all_img_url,             # 所有示例图片地址
+                'p_info': p_info,                       # 详细信息标签名对应属性
+                'pc_div_url': pc_div_url,               # pc端描述地址
+                'div_desc': div_desc,                   # div_desc
+                'is_delete': is_delete                  # 是否下架判断
             }
-
+            # print(result)
+            wait_to_send_data = {
+                'reason': 'success',
+                'data': result,
+                'code': 1
+            }
+            json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            print(json_data)
             gc.collect()
             return result
 
@@ -366,22 +384,22 @@ class TmallParse(object):
             return {}
 
     def deal_with_div(self, url):
-        self.driver.set_page_load_timeout(5)
+        self.driver.set_page_load_timeout(12)
         try:
             self.driver.get(url)
-            self.driver.implicitly_wait(8)
+            self.driver.implicitly_wait(12)
             # self.driver.save_screenshot('tmp_login1.png')
 
             locator = (By.CSS_SELECTOR, 'div#description')
             try:
-                WebDriverWait(self.driver, 8, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 12, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('获取div#description错误: ', e)
             else:
                 print('div#description加载完毕...')
                 pass
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 5 seconds(当获取div#description时)')
+            print('-->>time out after 12 seconds(当获取div#description时)')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
 
@@ -419,24 +437,23 @@ class TmallParse(object):
         else:
             is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(tmall_url)
             if is_tmall_supermarket != []:      # 天猫超市
-                tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(.*?)&.*?').findall(tmall_url)
+                tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)&.*?').findall(tmall_url)
                 if tmp_tmall_url != []:
                     goods_id = tmp_tmall_url[0]
                 else:
                     tmall_url = re.compile(r';').sub('', tmall_url)
-                    goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(.+)').findall(tmall_url)[0]
+                    goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
                 print('------>>>| 得到的天猫商品id为:', goods_id)
                 return goods_id
             else:
                 is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)      # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
                 if is_tmall_hk != []:           # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
-                    tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(.*?)&.*?').findall(tmall_url)
+                    tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)&.*?').findall(tmall_url)
                     if tmp_tmall_url != []:
                         goods_id = tmp_tmall_url[0]
                     else:
                         tmall_url = re.compile(r';').sub('', tmall_url)
-                        goods_id = \
-                        re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(.+)').findall(tmall_url)[0]
+                        goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
                     print('------>>>| 得到的天猫商品id为:', goods_id)
                     return goods_id
                 else:
@@ -455,7 +472,8 @@ if __name__ == '__main__':
         goods_id = tmall.get_goods_id_from_url(tmall_url)
         data = tmall.get_goods_data(goods_id=goods_id)
         result = tmall.deal_with_data()
-        pprint(result)
+        # pprint(result)
+        gc.collect()
     del tmall
     gc.collect()
 

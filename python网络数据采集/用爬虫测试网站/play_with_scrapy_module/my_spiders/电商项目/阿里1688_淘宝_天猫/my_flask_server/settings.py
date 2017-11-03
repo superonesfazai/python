@@ -11,13 +11,13 @@
 驱动相关设置
 """
 # chrome驱动
-# CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
+CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
 # phantomjs驱动
-# PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
+PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
 
 # 我自己服务器上的地址
-CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
-PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+# CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
+# PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
 
 """
 数据库相关
@@ -25,13 +25,24 @@ PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_6
 # sql_server服务器地址
 HOST = '120.26.142.189'
 # 用户名
-USER = 'caiji'
+USER = 'caiji2'
 # 密码
-PASSWORD = 'test123!@#$'
+PASSWORD = 'zy118ZY118'
 # 数据库名称
 DATABASE = 'Gather'
 # 端口号
 PORT = 1433
+
+# # sql_server服务器地址
+# HOST = '121.41.49.42'
+# # 用户名
+# USER = 'sa'
+# # 密码
+# PASSWORD = 'test123!@#'
+# # 数据库名称
+# DATABASE = 'GaTher'
+# # 端口号
+# PORT = 1433
 
 """
 保存的对应cookies文件路径

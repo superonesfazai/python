@@ -18,19 +18,23 @@ import requests
 import re
 from pprint import pprint
 from decimal import Decimal
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.proxy import Proxy
-from selenium.webdriver.common.proxy import ProxyType
-from scrapy import Selector
-from urllib.request import urlopen
-from PIL import Image
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.support.wait import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# import selenium.webdriver.support.ui as ui
+# from selenium.webdriver.common.proxy import Proxy
+# from selenium.webdriver.common.proxy import ProxyType
+# from scrapy import Selector
+# from urllib.request import urlopen
+# from PIL import Image
 from time import sleep
 import datetime
 import gc
+# import pycurl
+# from io import StringIO
+# import traceback
+# from io import BytesIO
 
 from settings import TAOBAO_COOKIES_FILE_PATH, HEADERS
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
@@ -108,10 +112,11 @@ class TaoBaoLoginAndParse(object):
         # 设置代理ip
         self.proxies = self.get_proxy_ip_from_ip_pool()     # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies)-1)]
+
         tmp_proxies = {
             'http': self.proxy,
         }
-        print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         try:
             response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=8)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
@@ -121,6 +126,7 @@ class TaoBaoLoginAndParse(object):
             data = response.content.decode('utf-8')
             # print(data)
             data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
+            # print(data)
         except Exception:
             print('requests.get()请求超时....')
             print('data为空!')
@@ -397,10 +403,8 @@ class TaoBaoLoginAndParse(object):
                     is_delete = 0
                 else:
                     is_delete = 1
-            else:
-                is_delete = 0  # 用于判断商品是否已经下架, 未下架为0, 下架为1
 
-            # print('is_delete = %d' % is_delete)
+            print('is_delete = %d' % is_delete)
             result = {
                 'shop_name': shop_name,                             # 店铺名称
                 'account': account,                                 # 掌柜
@@ -523,9 +527,11 @@ class TaoBaoLoginAndParse(object):
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+
         last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
         # print(last_url)
         response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+
         data = response.content.decode('utf-8')
         # print(data)
         data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
@@ -543,7 +549,6 @@ class TaoBaoLoginAndParse(object):
             div = ''
 
         return div
-
     """
     def init_chrome_driver(self):
         '''
@@ -553,7 +558,7 @@ class TaoBaoLoginAndParse(object):
         # 设置无运行界面版chrome, 测试发现淘宝过滤了phantomjs, 所有此处不用
         print('--->>>初始化chromedriver驱动中<<<---')
         chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--headless')
 
         # 注意：测试发现还是得设置成加载图片要不然就无法得到超5张的示例图片完整地址
         # 设置chrome不加载图片
@@ -566,9 +571,9 @@ class TaoBaoLoginAndParse(object):
         self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
 
         print('--->>>初始化化完毕<<<---')
-        self.driver.get('http://httpbin.org/ip')
-        print(self.driver.page_source)
-        self.driver.get('https://www.baidu.com')
+        # self.driver.get('http://httpbin.org/ip')
+        # print(self.driver.page_source)
+        # self.driver.get('https://www.baidu.com')
 
         # print('--->>>初始化phantomjs驱动中<<<---')
         # cap = webdriver.DesiredCapabilities.PHANTOMJS

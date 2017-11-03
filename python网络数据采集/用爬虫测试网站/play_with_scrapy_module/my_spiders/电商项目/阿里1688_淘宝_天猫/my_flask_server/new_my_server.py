@@ -23,6 +23,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import hashlib
 import json
 import time
+from time import sleep
 import datetime
 import re
 from decimal import Decimal
@@ -538,7 +539,7 @@ def get_taobao_data():
 
             wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
             tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
-
+            time.sleep(2)
             if tmp_result == {}:
                 print('获取到的data为空!')
                 result = {

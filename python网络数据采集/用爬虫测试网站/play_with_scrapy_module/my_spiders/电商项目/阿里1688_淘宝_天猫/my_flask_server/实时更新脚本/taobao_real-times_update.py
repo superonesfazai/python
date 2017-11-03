@@ -6,6 +6,11 @@
 @Time    : 2017/10/28 07:24
 @connect : superonesfazai@gmail.com
 '''
+
+"""
+我们需要两台服务器一台拿来专门更新数据，一台拿来专门处理客服入信息
+"""
+
 import sys
 sys.path.append('..')
 
@@ -46,11 +51,11 @@ if __name__ == '__main__':
                 else:  # 表示返回的data值为空值
                     pass
                 index += 1
-                sleep(.2)
+                sleep(2)        # 不能太频繁，与用户请求错开尽量
                 del taobao
                 gc.collect()
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        sleep(2)
+        sleep(6)
         del tmp_sql_server
         del result
         gc.collect()

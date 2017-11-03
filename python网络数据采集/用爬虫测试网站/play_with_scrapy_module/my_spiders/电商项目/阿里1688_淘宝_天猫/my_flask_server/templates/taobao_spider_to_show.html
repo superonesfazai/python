@@ -1065,6 +1065,7 @@
 							</ul>
 						</div>
 					</div>
+					<% if(goodsInfo.is_delete==0){%>
 					<div class="goodsColor">
 						<div class="goodsColor-right">
 							<ul class="taob-type">
@@ -1096,6 +1097,9 @@
 								</div>
 						</div>
 					</div>
+					<%}else{%>
+					此商品已下架！
+					<% } %>	
 				</div>
 			</div>
 				<div class="goodsDetail">
