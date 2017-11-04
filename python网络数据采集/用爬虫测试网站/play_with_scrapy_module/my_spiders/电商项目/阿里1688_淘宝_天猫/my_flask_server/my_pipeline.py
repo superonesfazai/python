@@ -205,6 +205,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     """
     def __init__(self):
         super(SqlServerMyPageInfoSaveItemPipeline, self).__init__()
+        self.is_connect_success = True
         try:
             self.conn = connect(
                 host=HOST,
@@ -216,6 +217,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             )
         except Exception as e:
             print('数据库连接失败!!')
+            self.is_connect_success = False
 
     def insert_into_table(self, item):
         try:
@@ -429,5 +431,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return None
 
-
-
+    def __del__(self):
+        try:
+            self.conn.close()
+        except:
+            pass

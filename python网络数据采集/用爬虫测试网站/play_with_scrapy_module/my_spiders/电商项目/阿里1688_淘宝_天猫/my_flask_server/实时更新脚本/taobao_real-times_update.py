@@ -40,24 +40,45 @@ if __name__ == '__main__':
             for item in result:  # 实时更新数据
                 data = {}
                 taobao = TaoBaoLoginAndParse()
-                print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                taobao.get_goods_data(item[0])
-                data = taobao.deal_with_data(goods_id=item[0])
-                if data != {}:
-                    data['goods_id'] = item[0]
-                    # print('------>>>| 爬取到的数据为: ', data)
+                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
+                    try:
+                        del tmp_sql_server
+                    except:
+                        pass
+                    gc.collect()
+                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
 
-                    taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                if tmp_sql_server.is_connect_success:
+                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                    taobao.get_goods_data(item[0])
+                    data = taobao.deal_with_data(goods_id=item[0])
+                    if data != {}:
+                        data['goods_id'] = item[0]
+                        # print('------>>>| 爬取到的数据为: ', data)
+                        taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                    else:
+                        pass
                 else:  # 表示返回的data值为空值
+                    print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                sleep(2)        # 不能太频繁，与用户请求错开尽量
-                del taobao
+                try:
+                    del taobao
+                except:
+                    pass
                 gc.collect()
+                # 国外服务器上可以缩短时间, 可以设置为1s
+                sleep(2)  # 不能太频繁，与用户请求错开尽量
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         sleep(6)
-        del tmp_sql_server
-        del result
+        try:
+            del tmp_sql_server
+        except:
+            pass
+        try:
+            del result
+        except:
+            pass
         gc.collect()
 
 

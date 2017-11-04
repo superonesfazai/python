@@ -16,7 +16,7 @@ from flask_login import LoginManager
 
 from ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
 from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
-from .tmall_parse import TmallParse
+from tmall_parse import TmallParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -429,6 +429,7 @@ def to_save_data():
                             # 采集的来源地
                             tmp['site_id'] = 2                                                      # 采集来源地(阿里1688批发市场)
                             tmp['is_delete'] = 0                                                    # 逻辑删除, 未删除为0, 删除为1
+                            # tmp['is_modfiy'] = 0                                                    # 表示是否已修改，0未修改
 
                             print('------>>> | 待存储的数据信息为: |', tmp)
                             tmp_list.append(tmp)
@@ -540,7 +541,7 @@ def get_taobao_data():
 
             wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
             tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
-            time.sleep(2)
+            time.sleep(1.4)
             if tmp_result == {}:
                 print('获取到的data为空!')
                 result = {
@@ -854,6 +855,7 @@ def get_tmall_data():
             wait_to_save_data['spider_url'] = wait_to_deal_with_url
             wait_to_save_data['username'] = username
             wait_to_save_data['goods_id'] = goods_id[1]        # goods_id  官方商品link的商品id
+            wait_to_save_data['is_delete'] = goods_id[0]
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 

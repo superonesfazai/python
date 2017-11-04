@@ -119,10 +119,10 @@ class TaoBaoLoginAndParse(object):
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         try:
-            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=8)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
             # print(last_url)
-            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=8)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             data = response.content.decode('utf-8')
             # print(data)
             data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
@@ -526,11 +526,31 @@ class TaoBaoLoginAndParse(object):
         }
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
-        response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        # 设置2层避免报错退出
+        try:
+            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        except Exception:
+            # 设置代理ip
+            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+            tmp_proxies = {
+                'http': self.proxy,
+            }
+            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
 
         last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
         # print(last_url)
-        response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        try:
+            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+        except Exception:
+            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+            tmp_proxies = {
+                'http': self.proxy,
+            }
+            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
 
         data = response.content.decode('utf-8')
         # print(data)

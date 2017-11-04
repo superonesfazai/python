@@ -36,6 +36,15 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class TmallParse(object):
     def __init__(self):
+        self.headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            # 'Accept-Encoding:': 'gzip',
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Host': 'acs.m.taobao.com',
+            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+        }
         self.result_data = {}
 
         """
@@ -64,6 +73,8 @@ class TmallParse(object):
         :param goods_id:
         :return: data   类型dict
         '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+
         type = goods_id[0]             # 天猫类型
         goods_id = goods_id[1]       # 天猫goods_id
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
@@ -370,9 +381,16 @@ class TmallParse(object):
 
             # pc端描述地址
             pc_div_url = data.get('item', {}).get('tmallDescUrl')
+            # print(pc_div_url)
 
             # div_desc
-            div_desc = self.deal_with_div(pc_div_url)
+            tmp_goods_id = re.compile(r'id=(\d+)').findall(pc_div_url)
+            if tmp_goods_id != []:
+                tmp_goods_id = tmp_goods_id[0]
+                div_desc = self.deal_with_div(tmp_goods_id)
+            else:
+                div_desc = ''
+            # print(div_desc)
 
             '''
             后期处理
@@ -444,7 +462,7 @@ class TmallParse(object):
                 'type': type,                           # 天猫类型
             }
             # pprint(result)
-            print(result)
+            # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -459,45 +477,91 @@ class TmallParse(object):
             print('待处理的data为空的dict')
             return {}
 
-    def deal_with_div(self, url):
-        self.driver.set_page_load_timeout(12)
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(12)
-            # self.driver.save_screenshot('tmp_login1.png')
+    def deal_with_div(self, goods_id):
+        # 研究分析发现要获取描述div只需要通过下面地址即可
+        # https://hws.m.taobao.com/cache/desc/5.0?callback=backToDesc&type=1&id=
+        url = 'https://hws.m.taobao.com/cache/desc/5.0?callback=backToDesc&type=1&id=' + str(goods_id)
+        print(url)
 
-            locator = (By.CSS_SELECTOR, 'div#description')
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        try:
+            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            self.driver.get(url)
+        except Exception:
             try:
-                WebDriverWait(self.driver, 12, 0.5).until(EC.presence_of_element_located(locator))
-            except Exception as e:
-                print('获取div#description错误: ', e)
-            else:
-                print('div#description加载完毕...')
-                pass
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 12 seconds(当获取div#description时)')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
+                self.from_ip_pool_set_proxy_ip_to_phantomjs()
+                self.driver.get(url)
+            except Exception:
+                self.from_ip_pool_set_proxy_ip_to_phantomjs()
+                self.driver.get(url)
 
         body = self.driver.page_source
-
-        # 过滤
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
         # print(body)
+        body = re.compile(r'backToDesc\((.*)\)').findall(body)[0]
+        try:
+            body = json.loads(body)
+        except Exception:
+            print('999')
+            return ''
 
-        body = re.compile(r'<div id="description".*?>.*</body>').findall(body)[0]
-        body = re.compile(r'src="data:image/png;.*?"').sub('', body)
-        body = re.compile(r'data-ks-lazyload').sub('src', body)
-        body = re.compile(r'https:').sub('', body)
-        body = re.compile(r'src="').sub('src=\"https:', body)
-
-        body = re.compile(r'<table.*?>.*?</table>').sub('', body)  # 防止字段太长
-        body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">.*</div>').sub('', body)
-        # body = re.compile(r'<div class="rmsp rmsp-bl rmsp-bl">')
+        body = body.get('pcDescContent', '')
+        body = re.compile(r'&lt;').sub('<', body)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+        body = re.compile(r'&gt;').sub('>', body)
+        body = re.compile(r'&amp;').sub('&', body)
+        body = re.compile(r'&nbsp;').sub(' ', body)
+        body = re.compile(r'src=\"https:').sub('src=\"', body)  # 先替换部分带有https的
+        body = re.compile(r'src="').sub('src=\"https:', body)  # 再把所欲的换成https的
+        print(body)
 
         return body
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
+
+    def get_proxy_ip_from_ip_pool(self):
+        '''
+        从代理ip池中获取到对应ip
+        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
+        '''
+        base_url = 'http://127.0.0.1:8000'
+        result = requests.get(base_url).json()
+
+        result_ip_list = {}
+        result_ip_list['http'] = []
+        for item in result:
+            if item[2] > 7:
+                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+                result_ip_list['http'].append(tmp_url)
+            else:
+                delete_url = 'http://127.0.0.1:8000/delete?ip='
+                delete_info = requests.get(delete_url + item[0])
+        # pprint(result_ip_list)
+        return result_ip_list
 
     def get_goods_id_from_url(self, tmall_url):
         '''

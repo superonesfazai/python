@@ -82,21 +82,21 @@ class ALi1688LoginAndParse(object):
 
         self.from_ip_pool_set_proxy_ip_to_phantomjs()
 
-        self.driver.set_page_load_timeout(12)       # 设置成10秒避免数据出错
+        self.driver.set_page_load_timeout(20)       # 设置成10秒避免数据出错
         try:
             self.driver.get(wait_to_deal_with_url)
-            self.driver.implicitly_wait(15)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div.d-content')
             try:
-                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041  # 未得到div.d-content，返回4041
             else:
                 print('div.d-content已经加载完毕')
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 12 seconds when loading page')
+            print('-->>time out after 20 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
         body = self.driver.page_source
