@@ -33,16 +33,16 @@ DATABASE = 'Gather'
 # 端口号
 PORT = 1433
 
-# # sql_server服务器地址
-# HOST = '121.41.49.42'
-# # 用户名
-# USER = 'sa'
-# # 密码
-# PASSWORD = 'test123!@#'
-# # 数据库名称
-# DATABASE = 'GaTher'
-# # 端口号
-# PORT = 1433
+# sql_server服务器地址
+HOST_2 = '121.41.49.42'
+# 用户名
+USER_2 = 'sa'
+# 密码
+PASSWORD_2 = 'test123!@#'
+# 数据库名称
+DATABASE_2 = 'uubaoku'
+# 端口号
+PORT_2 = 1433
 
 """
 保存的对应cookies文件路径

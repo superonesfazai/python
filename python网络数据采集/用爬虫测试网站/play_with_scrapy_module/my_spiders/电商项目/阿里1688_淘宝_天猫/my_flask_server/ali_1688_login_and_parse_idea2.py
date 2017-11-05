@@ -69,14 +69,14 @@ class ALi1688LoginAndParse(object):
 
         self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
 
-        wait = ui.WebDriverWait(self.driver, 12)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
 
     def get_ali_1688_data(self, goods_id):
         # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
 
-        print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
+        # print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
         # response = requests.get(wait_to_deal_with_url, headers=self.headers)
         # body = response.content.decode('utf-8')
 

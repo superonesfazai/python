@@ -36,25 +36,39 @@ if __name__ == '__main__':
                 data = {}
                 # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
                 ali_1688 = ALi1688LoginAndParse()
-                print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                ali_1688.get_ali_1688_data(item[0])
-                data = ali_1688.deal_with_data()
-                if data != {}:
-                    data['goods_id'] = item[0]
-                    # print('------>>>| 爬取到的数据为: ', data)
+                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
+                    print('正在重置，并与数据库建立新连接中...')
+                    # try:
+                    #     del tmp_sql_server
+                    # except:
+                    #     pass
+                    # gc.collect()
+                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                    print('与数据库的新连接成功建立...')
 
-                    ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                if tmp_sql_server.is_connect_success:
+                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                    ali_1688.get_ali_1688_data(item[0])
+                    data = ali_1688.deal_with_data()
+                    if data != {}:
+                        data['goods_id'] = item[0]
+                        # print('------>>>| 爬取到的数据为: ', data)
+                        ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                    else:  # 表示返回的data值为空值
+                        pass
                 else:  # 表示返回的data值为空值
+                    print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                sleep(.3)
-                del ali_1688
+                try:
+                    del ali_1688
+                except:
+                    pass
                 gc.collect()
+                sleep(.2)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        sleep(10)
+        sleep(5)
         # del ali_1688
-        del tmp_sql_server
-        del result
         gc.collect()
 
 

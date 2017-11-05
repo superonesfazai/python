@@ -10,8 +10,11 @@
 # from MySQLdb import *
 from pymssql import *
 from json import dumps
+import gc
+from sqlalchemy import create_engine
 
 from settings import HOST, USER, PASSWORD, DATABASE, PORT
+from settings import HOST_2, USER_2, PASSWORD_2, DATABASE_2, PORT_2
 # from .settings import HOST, USER, PASSWORD, DATABASE, PORT
 
 class UserItemPipeline(object):
@@ -436,3 +439,125 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             self.conn.close()
         except:
             pass
+        gc.collect()
+
+class SqlPools(object):
+    def __init__(self):
+        super(SqlPools, self).__init__()
+        self.is_connect_success = True
+        try:
+            self.engine = create_engine('mssql+pymssql://%s:%s@%s:%d/%s' % (USER, PASSWORD, HOST, PORT, DATABASE), pool_recycle=3600)
+            self.conn = self.engine.connect()
+        except Exception as e:
+            print('数据库连接失败!!')
+            self.is_connect_success = False
+
+    def update_taobao_table(self, item):
+        self.engine.begin()
+        self.conn = self.engine.connect()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['is_delete'],
+
+                item['goods_id'],
+            ]
+
+            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s where GoodsID = %s',
+                tuple(params))
+            # self.engine.commit()
+            print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
+            return True
+        except Exception as e:
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+        finally:
+            self.conn.close()
+
+    def select_taobao_all_goods_id(self):
+        self.engine.begin()
+        self.conn = self.engine.connect()
+        try:
+            result = list(self.conn.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=1'))
+            # self.conn.commit()
+            self.conn.close()
+            # print(result)
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            self.conn.close()
+            return None
+
+class OtherDb(object):
+    def __int__(self):
+        super(OtherDb, self).__init__()
+        self.is_connect_success = True
+        try:
+            print('连接数据库成功!')
+
+            self.conn = connect(
+                host=HOST_2,
+                user=USER_2,
+                password=PASSWORD_2,
+                database=DATABASE_2,
+                port=PORT_2,
+                charset='utf8'
+            )
+            print('连接数据库成功!')
+        except Exception as e:
+            print(e)
+            print('数据库连接失败!!')
+            self.is_connect_success = False
+
+    def select_other_db_goods_id(self):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def select_other_db_goods_url(self):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select GoodsUrl from dbo.GoodsInfoAutoGet where SiteID=1')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None

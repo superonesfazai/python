@@ -15,16 +15,19 @@ import sys
 sys.path.append('..')
 
 from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 import gc
 from time import sleep
 
 if __name__ == '__main__':
     #### 实时更新数据
     while True:
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        tmp_sql_server = SqlPools()     # 使用sqlalchemy管理数据库连接池
         try:
-            result = list(tmp_sql_server.select_taobao_all_goods_id())
+            # result = list(tmp_sql_server.select_taobao_all_goods_id())
+            result = tmp_sql_server.select_taobao_all_goods_id()
+
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -41,12 +44,16 @@ if __name__ == '__main__':
                 data = {}
                 taobao = TaoBaoLoginAndParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    try:
-                        del tmp_sql_server
-                    except:
-                        pass
-                    gc.collect()
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                    print('正在重置，并与数据库建立新连接中...')
+                    # try:
+                    #     del tmp_sql_server
+                    # except:
+                    #     pass
+                    # gc.collect()
+                    # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                    tmp_sql_server = SqlPools()
+
+                    print('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
                     print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
@@ -67,18 +74,9 @@ if __name__ == '__main__':
                 except:
                     pass
                 gc.collect()
-                # 国外服务器上可以缩短时间, 可以设置为1s
+                # 国外服务器上可以缩短时间, 可以设置为0s
                 sleep(2)  # 不能太频繁，与用户请求错开尽量
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        sleep(6)
-        try:
-            del tmp_sql_server
-        except:
-            pass
-        try:
-            del result
-        except:
-            pass
+        sleep(5)
         gc.collect()
-
 
