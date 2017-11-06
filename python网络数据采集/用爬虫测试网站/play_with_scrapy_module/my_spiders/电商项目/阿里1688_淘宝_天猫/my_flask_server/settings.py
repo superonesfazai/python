@@ -11,13 +11,13 @@
 驱动相关设置
 """
 # chrome驱动
-# CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
+CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
 # phantomjs驱动
-# PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
+PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
 
 # 我自己服务器上的地址
-CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
-PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+# CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
+# PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
 
 """
 数据库相关
@@ -57,6 +57,7 @@ spider_to_show.html页面path
 # linux/mac
 ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show.html'
 TAOBAO_SPIDER_TO_SHWO_PATH = 'templates/taobao_spider_to_show.html'
+TMALL_SPIDER_TO_SHOW_PATH = 'templates/tmall_spider_to_show.html'
 
 """
 headers

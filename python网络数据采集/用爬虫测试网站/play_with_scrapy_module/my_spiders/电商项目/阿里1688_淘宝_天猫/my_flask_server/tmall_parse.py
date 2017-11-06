@@ -30,6 +30,7 @@ from time import sleep
 import gc
 
 from settings import PHANTOMJS_DRIVER_PATH, HEADERS
+import pytz, datetime
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -76,6 +77,7 @@ class TmallParse(object):
         self.from_ip_pool_set_proxy_ip_to_phantomjs()
 
         type = goods_id[0]             # 天猫类型
+        # print(type)
         goods_id = goods_id[1]       # 天猫goods_id
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         print('------>>>| 得到的移动端地址为: ', tmp_url)
@@ -153,7 +155,8 @@ class TmallParse(object):
         data = self.result_data
         if data != {}:
             # 天猫类型
-            type = data.get('type', 33)     # 33用于表示无法正确获取
+            tmall_type = data.get('type', 33)     # 33用于表示无法正确获取
+            # print(tmall_type)
 
             # 店铺名称
             shop_name = data.get('seller', {}).get('shopName', '')
@@ -311,9 +314,14 @@ class TmallParse(object):
                         # 3986333 | 75366304
 
                         uu = []
+                        # print(prop_path)
+                        # print(value_and_vid_list)
                         for i in prop_path:
                             hh = ''
-                            hh = str([item[0] for item in value_and_vid_list if i == item[1]][0])
+                            try:
+                                hh = str([item[0] for item in value_and_vid_list if i == item[1]][0])
+                            except IndexError:      # 处理单个套餐里的
+                                hh = str([item[0] for item in value_and_vid_list][0])
                             uu.append(hh)
                         # print(uu)       # ['淡粉色', '50mL']
 
@@ -371,7 +379,10 @@ class TmallParse(object):
                         # print(item)
                         tmp = {}
                         tmp['name'] = ''.join(list(item.get('key')))
-                        tmp['value'] = ''.join(list(item.get('value')))
+                        try:    # 处理如生产日期，如https://detail.tmall.hk/hk/item.htm?spm=a222r.10469719.4349468587.5.3b840acbv5B2iG&acm=lb-zebra-273428-2784923.1003.4.2447078&id=555548214750&scm=1003.4.lb-zebra-273428-2784923.ITEM_555548214750_2447078&skuId=3429065976919
+                            tmp['value'] = ''.join(list(item.get('value')))
+                        except TypeError:
+                            tmp['value'] = ''
                         tmp['id'] = '0'
                         p_info.append(tmp)
                     # pprint(p_info)
@@ -419,19 +430,25 @@ class TmallParse(object):
                 if is_buy_enable == 'True':
                     is_delete = 0
                 else:
+                    # print(is_buy_enable)
                     is_delete = 1
             else:
                 is_delete = 0
-                pass
 
             # 分析数据发现，天猫超市的有效buyEnable在data['mock']里
-            if type == 1:   # 单独处理天猫超市的商品
+            if tmall_type == 1:   # 单独处理天猫超市的商品
                 if data.get('mock', {}).get('trade', {}) != {}:
+                    # print('888')
                     is_buy_enable = str(data.get('mock', {}).get('trade', {}).get('buyEnable'))
+                    # print(is_buy_enable)
                     if is_buy_enable == 'True':
+                        # print('11')
                         is_delete = 0
                     else:
+                        # print('22')
                         is_delete = 1
+
+            #
 
             # 2. 此处再考虑名字中显示下架的商品
             if re.compile(r'下架').findall(title) != []:
@@ -441,7 +458,7 @@ class TmallParse(object):
                     is_delete = 0
                 else:
                     is_delete = 1
-            # print('is_delete = %d' % is_delete)
+            print('is_delete = %d' % is_delete)
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -459,7 +476,7 @@ class TmallParse(object):
                 'pc_div_url': pc_div_url,               # pc端描述地址
                 'div_desc': div_desc,                   # div_desc
                 'is_delete': is_delete,                 # 是否下架判断
-                'type': type,                           # 天猫类型
+                'type': tmall_type,                     # 天猫类型
             }
             # pprint(result)
             # print(result)
@@ -481,7 +498,7 @@ class TmallParse(object):
         # 研究分析发现要获取描述div只需要通过下面地址即可
         # https://hws.m.taobao.com/cache/desc/5.0?callback=backToDesc&type=1&id=
         url = 'https://hws.m.taobao.com/cache/desc/5.0?callback=backToDesc&type=1&id=' + str(goods_id)
-        print(url)
+        # print(url)
 
         # 设置代理ip
         self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
@@ -517,9 +534,67 @@ class TmallParse(object):
         body = re.compile(r'&nbsp;').sub(' ', body)
         body = re.compile(r'src=\"https:').sub('src=\"', body)  # 先替换部分带有https的
         body = re.compile(r'src="').sub('src=\"https:', body)  # 再把所欲的换成https的
-        print(body)
+        # print(body)
 
         return body
+
+    def to_right_and_update_data(self, data, pipeline):
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        # tmp['spider_url'] = data_list['spider_url']  # 商品地址
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        # tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        # # 采集的来源地
+        # if data_list.get('type') == 0:
+        #     tmp['site_id'] = 3  # 采集来源地(天猫)
+        # elif data_list.get('type') == 1:
+        #     tmp['site_id'] = 4  # 采集来源地(天猫超市)
+        # elif data_list.get('type') == 2:
+        #     tmp['site_id'] = 6  # 采集来源地(天猫国际)
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+
+        pipeline.update_tmall_table(tmp)
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
         ip_list = self.get_proxy_ip_from_ip_pool().get('http')

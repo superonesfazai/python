@@ -18,7 +18,7 @@ from ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
 from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
 from tmall_parse import TmallParse
 from my_pipeline import UserItemPipeline
-from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH
+from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
@@ -209,7 +209,7 @@ def show_tmall_info():
             pass
         else:
             # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
-            return send_file(ALi_SPIDER_TO_SHOW_PATH)
+            return send_file(TMALL_SPIDER_TO_SHOW_PATH)
 
 ######################################################
 # ali_1688
@@ -360,7 +360,7 @@ def to_save_data():
                 ll_list = []
                 [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
                 tmp_wait_to_save_data_list = ll_list
-                print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
 
                 goods_to_delete = []
                 tmp_list = []           # 用来存放筛选出来的数据, 里面一个元素就是一个dict
@@ -442,7 +442,9 @@ def to_save_data():
                             tmp['is_delete'] = 0                                                    # 逻辑删除, 未删除为0, 删除为1
                             # tmp['is_modfiy'] = 0                                                    # 表示是否已修改，0未修改
 
-                            print('------>>> | 待存储的数据信息为: |', tmp)
+                            # print('------>>> | 待存储的数据信息为: |', tmp)
+                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
@@ -457,7 +459,9 @@ def to_save_data():
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
                 for item in tmp_list:
-                    print('------>>> | 正在存储的数据为: |', item)
+                    # print('------>>> | 正在存储的数据为: |', item)
+                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+
                     is_insert_into = my_page_info_save_item_pipeline.insert_into_table(item)
                     if is_insert_into:  # 如果返回值为True
                         pass
@@ -552,7 +556,7 @@ def get_taobao_data():
 
             wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
             tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
-            time.sleep(1.4)
+            time.sleep(1.4)     # 这个在服务器里面可以注释掉为.5s
             if tmp_result == {}:
                 print('获取到的data为空!')
                 result = {
@@ -664,7 +668,7 @@ def taobao_to_save_data():
                 ll_list = []
                 [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
                 tmp_wait_to_save_data_list = ll_list
-                print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
 
                 goods_to_delete = []
                 tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
@@ -720,7 +724,9 @@ def taobao_to_save_data():
                             tmp['site_id'] = 1      # 采集来源地(淘宝)
                             tmp['is_delete'] = data_list.get('is_delete')    # 逻辑删除, 未删除为0, 删除为1
 
-                            print('------>>> | 待存储的数据信息为: |', tmp)
+                            # print('------>>> | 待存储的数据信息为: |', tmp)
+                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
@@ -735,7 +741,9 @@ def taobao_to_save_data():
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
                 for item in tmp_list:
-                    print('------>>> | 正在存储的数据为: |', item)
+                    # print('------>>> | 正在存储的数据为: |', item)
+                    print('------>>> | 正在存储的数据为: |', item.get('id'))
+
                     is_insert_into = my_page_info_save_item_pipeline.insert_into_taobao_table(item)
                     if is_insert_into:  # 如果返回值为True
                         pass
@@ -838,7 +846,6 @@ def get_tmall_data():
             elif goods_id[0] == 2:      # [2, '1111', 'https://xxxxx']
                 wait_to_deal_with_url = str(goods_id[2]) + goods_id[1]
             tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
-            time.sleep(2)
             if tmp_result == {}:
                 print('获取到的data为空!')
                 result = {
@@ -877,7 +884,6 @@ def get_tmall_data():
             wait_to_save_data['spider_url'] = wait_to_deal_with_url
             wait_to_save_data['username'] = username
             wait_to_save_data['goods_id'] = goods_id[1]        # goods_id  官方商品link的商品id
-            wait_to_save_data['is_delete'] = goods_id[0]
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -911,7 +917,191 @@ def get_tmall_data():
 @app.route('/tmall_to_save_data', methods=['POST'])
 def tmall_to_save_data():
     ## 此处注意保存的类型是天猫(3)，还是天猫超市(4)，还是天猫国际(6)
-    pass
+    global tmp_wait_to_save_data_list
+    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+        if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
+
+            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            if wait_to_save_data_url_list != []:
+                tmp_wait_to_save_data_goods_id_list = []
+                for item in wait_to_save_data_url_list:
+                    if item == '':  # 除去传过来是空值
+                        pass
+                    else:
+                        is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(item)
+                        if is_tmall_url != []:  # 天猫常规商品
+                            tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)
+                            if tmp_tmall_url != []:
+                                goods_id = tmp_tmall_url[0]
+                            else:
+                                tmall_url = re.compile(r';').sub('', item)
+                                goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                            tmp_goods_id = goods_id
+                            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                        else:
+                            is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(item)
+                            if is_tmall_supermarket != []:  # 天猫超市
+                                tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)&.*?').findall(item)
+                                if tmp_tmall_url != []:
+                                    goods_id = tmp_tmall_url[0]
+                                else:
+                                    tmall_url = re.compile(r';').sub('', item)
+                                    goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                                tmp_goods_id = goods_id
+                                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                            else:
+                                is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(item)  # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
+                                if is_tmall_hk != []:  # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
+                                    tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)&.*?').findall(item)
+                                    if tmp_tmall_url != []:
+                                        goods_id = tmp_tmall_url[0]
+                                    else:
+                                        tmall_url = re.compile(r';').sub('', item)
+                                        goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                                    # before_url = re.compile(r'https://detail.tmall.hk/.*?item.htm').findall(item)[0]
+                                    tmp_goods_id = goods_id
+                                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                                else:       # 非正确的天猫商品url
+                                    print('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
+                                    pass
+
+                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
+                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+
+                # list里面的dict去重
+                ll_list = []
+                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
+                tmp_wait_to_save_data_list = ll_list
+                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+
+                goods_to_delete = []
+                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
+                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
+                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
+                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
+                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
+                            data_list = tmp_wait_to_save_data_list[index]
+                            tmp = {}
+                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
+                            tmp['username'] = data_list['username']  # 操作人员username
+                            # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            '''
+                            时区处理，时间处理到上海时间
+                            '''
+                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+                            now_time = datetime.datetime.now(tz)
+                            # 处理为精确到秒位，删除时区信息
+                            now_time = re.compile(r'\..*').sub('', str(now_time))
+                            # 将字符串类型转换为datetime类型
+                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+                            tmp['deal_with_time'] = now_time            # 操作时间
+                            tmp['modfiy_time'] = now_time               # 修改时间
+
+                            tmp['shop_name'] = data_list['shop_name']   # 公司名称
+                            tmp['title'] = data_list['title']  # 商品名称
+                            tmp['sub_title'] = data_list['sub_title']   # 商品子标题
+                            tmp['link_name'] = ''  # 卖家姓名
+                            tmp['account'] = data_list['account']  # 掌柜名称
+
+                            # 设置最高价price， 最低价taobao_price
+                            tmp['price'] = Decimal(data_list['price']).__round__(2)
+                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+                            tmp['price_info'] = []  # 价格信息
+
+                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+                            """
+                            得到sku_map
+                            """
+                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
+                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+                            # 采集的来源地
+                            if data_list.get('type') == 0:
+                                tmp['site_id'] = 3                  # 采集来源地(天猫)
+                            elif data_list.get('type') == 1:
+                                tmp['site_id'] = 4                  # 采集来源地(天猫超市)
+                            elif data_list.get('type') == 2:
+                                tmp['site_id'] = 6                  # 采集来源地(天猫国际)
+                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+                            # print('is_delete=', tmp['is_delete'])
+
+                            # print('------>>> | 待存储的数据信息为: |', tmp)
+                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
+                            tmp_list.append(tmp)
+                            try:
+                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
+                            except IndexError as e:
+                                print('索引越界, 此处我设置为跳过')
+                            # tmp_wait_to_save_data_list.pop(index)
+                            finally:
+                                pass
+                        else:
+                            pass
+
+                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
+                for item in tmp_list:
+                    # print('------>>> | 正在存储的数据为: |', item)
+                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+
+                    is_insert_into = my_page_info_save_item_pipeline.insert_into_tmall_table(item)
+                    if is_insert_into:  # 如果返回值为True
+                        pass
+                    else:
+                        # print('插入失败!')
+                        pass
+
+                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
+                print('存入完毕'.center(100, '*'))
+                del my_page_info_save_item_pipeline
+                gc.collect()
+
+                # 处理完毕后返回一个处理结果避免报错
+                result = {
+                    'reason': 'success',
+                    'data': '',
+                    'error_code': 11,
+                }
+                result = json.dumps(result)
+                return result
+
+            else:
+                print('saveData为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4043,  # batchGoodsLink为空
+                }
+                result = json.dumps(result)
+                return result
+        else:
+            print('saveData为空!')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4043,  # batchGoodsLink为空
+            }
+            result = json.dumps(result)
+            return result
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
 
 ######################################################
 
