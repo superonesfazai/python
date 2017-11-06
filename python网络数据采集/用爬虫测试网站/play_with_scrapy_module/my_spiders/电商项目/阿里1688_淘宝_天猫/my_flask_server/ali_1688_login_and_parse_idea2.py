@@ -29,6 +29,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import PHANTOMJS_DRIVER_PATH
 from settings import CHROME_DRIVER_PATH
 from settings import HEADERS
+import pytz
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -367,9 +368,20 @@ class ALi1688LoginAndParse(object):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 修改时间
+        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        # tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time                   # 修改时间
 
         tmp['company_name'] = data_list['company_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
