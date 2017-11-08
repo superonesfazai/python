@@ -892,7 +892,7 @@
 				<div class="anyGrab fadeInLeft animated">
 					<div class="collect-btn-any"><a href="javascript:" id="anyGrabStart">抓取数据</a><a href="javascript:;" id="insertSqlAny">存入数据库</a></div>					
 					<div class="nLink"></div>
-					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100"></textarea>
+					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100" placeholder="每个链接以分号';'结尾&#xA如下:&#xAhttps://detail.tmall.com/item.htm?id=42613920441&spm=875.7931836/B.2017077.6.2ab01748SsrYrx&scm=1007.12144.81309.73263_0&pvid=fb3f4272-47b8-49d8-a6d2-d7df20ab6bca&skuId=3244069064656;&#xAhttps://chaoshi.detail.tmall.com/item.htm?spm=a3204.7084713.2996785438.8.SZaWBy&abtest=_AB-LR744-PR744&pos=3&abbucket=_AB-M744_B2&acm=201506250-3.1003.2.700741&id=36627255831&scm=1003.2.201506250-3.ITEM_36627255831_700741;&#xAhttps://detail.tmall.hk/item.htm?spm=a220m.1000858.1000725.1.30cb9cfcr3Mk0A&id=523251647394&skuId=3115188205098&standard=1&user_id=1919417699&cat_id=55934001&is_b=1&rn=141a541c55fde98ea88f73958954ea91;&#xAhttps://detail.tmall.hk/hk/item.htm?spm=a2231.7718719.7391270447.18.2a49aadavem3Uf&acm=lb-zebra-5074-103933.1003.4.297139&id=544864793683&scm=1003.4.lb-zebra-5074-103933.ITEM_544864793683_297139&skuId=3638918574582;&#xA"></textarea>
 					<div class="grabLoading">
 						<div class="grabLoading-box">
 							<div class="meter">0</div>
@@ -2276,6 +2276,29 @@
 				});
 			})
 		});
+//单个存入数据库
+        var insertData = new Array();
+        $('#insertSqlSingle').click(function(){
+            if(insertData[0]==''){
+                return;
+            }else{
+                $.ajax({
+                    type:"post",
+                    url:"/tmall_to_save_data",
+                    async:true,
+                    data:{
+                        saveData:insertData
+                    },
+                    success:function(){
+                    },
+                    error:function(){
+                    }
+                });
+                alert('已存入数据库')
+            }
+            insertData = [];
+        });
+
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){
@@ -2294,30 +2317,13 @@
 				success:function(data){
                     data = JSON.parse(data);
 					if(data && data.reason == 'success'){
+					    insertData[0] = $('#goodsLink').val();
 						console.log('ok',data.data);
 						data.data.div_desc = data.data.div_desc.replace("\\","");
 						setTimeout(function(){
 							$('.mask').hide();
 							GoodsInfo.init(data.data,0,'.collect-content');
 						}, 500)
-				//单个存入数据库
-							$('#insertSqlSingle').click(function(){
-								var insertData = new Array();
-                                insertData[0] =$('#goodsLink').val();
-                                $.ajax({
-                                    type:"post",
-                                    url:"/tmall_to_save_data",
-                                    async:true,
-                                    data:{
-                                        saveData:insertData
-                                    },
-                                    success:function(){
-                                    },
-                                    error:function(){
-                                    }
-                                });
-                                alert('已存入数据库')
-							})				
 					}else{
 						reset();
 						$('.wLink').text('您输入的网址有误，请重新输入！');

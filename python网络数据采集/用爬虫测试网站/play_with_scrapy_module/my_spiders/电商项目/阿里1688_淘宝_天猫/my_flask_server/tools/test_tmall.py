@@ -62,10 +62,16 @@ class test():
         self.driver.quit()
         gc.collect()
         return body
+#
+# a = test()
+#
+# tmall_url = input('请输入待爬取的天猫商品地址: ')
+# tmall_url.strip('\n').strip(';')
+# body = a.deal_with_div(tmall_url)
+# print(body)
 
-a = test()
+print('9' * 100)
 
-tmall_url = input('请输入待爬取的天猫商品地址: ')
-tmall_url.strip('\n').strip(';')
-body = a.deal_with_div(tmall_url)
-print(body)
+tmp = '//h5api.m.taobao.com/h5/mtop.relationrecommend.wirelessrecommend.recommend/2.0/?jsv=2.4.4&amp;appKey=12574478&amp;t=1510026132370&amp;sign=3c26382438c3932cf35b42afb035bf12&amp;api=mtop.relationrecommend.WirelessRecommend.recommend&amp;v=2.0&amp;type=jsonp&amp;dataType=jsonp&amp;callback=mtopjsonp4&amp;data=%7B%22appId%22%3A%22766%22%2C%22params%22%3A%22%7B%5C%22itemid%5C%22%3A%20%5C%2242613920441%5C%22%2C%5C%22sellerid%5C%22%3A%20%5C%22113773411%5C%22%7D%22%7D'
+tmp = re.compile(r'&amp;').sub('&', tmp)
+print(tmp)

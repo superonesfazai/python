@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>甄优爬虫</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
+    <style type="text/css">
+			html,
+			body {
+			  width: 100%;
+			  font-size: .16rem;
+			  color: #333333;
+			}
+			html {
+			  font-size: 100px;
+			}    	
+       header{
+        width:100%;
+        height:.8rem;
+        background: #dfdfdf;
+      }
+      .main{
+      	width: 12rem;
+      	height: 10rem;
+      	margin: 0 auto;
+      	position: relative;
+      	background: url(../static/images/bg.png)no-repeat;
+      	background-size: 100% 100%;
+      }   	
+	.passList{
+		width: 100%;
+		height: 1.0rem;
+		padding-top: 1.96rem;
+		display: flex;
+	}
+	.ali,.taob,.tianm{
+		height: 1.0rem;
+		flex: 1;
+		text-align: center;
+	}
+	.ali span,.taob span,.tianm span{
+		display: block;
+		width: 1.0rem;
+		height: 1.0rem;
+		margin: 0 auto;
+		background: url(../static/images/ali.png)no-repeat;
+		background-size: 100% 100%;
+		cursor: pointer;
+	}
+	.taob span{
+		background: url(../static/images/taob.png)no-repeat;	
+		background-size: 100% 100%;			
+	}
+	.tianm span{
+		background: url(../static/images/tianm.png)no-repeat;	
+		background-size: 100% 100%;			
+	}	
+	.ali span:hover .login-btn{
+		display: block;
+	}
+	.taob span:hover .login-btn{
+		display: block;
+	}
+	.tianm span:hover .login-btn{
+		display: block;
+	}
+	.login-btn{
+		display: none;
+		width: 1rem;
+		height: 1rem;
+		text-align: center;
+		line-height: 1rem;
+		color: #FFFFFF;
+		background: rgba(0,0,0,.5);
+	}
+	/*.login{
+		width: 100%;
+		display: flex;
+		margin-top: .3rem;
+	}
+	.login>li{
+		flex: 1;
+	}
+	.scanLogin{
+		width: 2.5rem;
+		height: 3.0rem;
+		position: relative;
+		background: #FFFFFF;
+		margin: 0 auto;
+	}
+	.scanLogin:before{
+		content: url(../static/images/arrow.png);
+		display: block;
+		position: absolute;
+		top: -.1rem;
+		left: 1.2rem;
+	}
+	.scanLogin-head{
+		width: 100%;
+		height: .5rem;
+		text-align: center;
+		line-height: .5rem;
+		border-bottom: 1px solid #cccccc;
+	}
+	.scanLogin-content{
+		width: 100%;
+		height: 1.9rem;
+		
+	}
+	.title{
+		height: .4rem;
+		text-align: center;
+		line-height: .4rem;
+	}
+	.scanArea{
+		width: 1.5rem;
+		margin: 0 auto;
+	}
+	.scanArea img{
+		width: 100%;
+		height: 100%;
+		text-align: center;
+	}	
+	.scanLogin-reg{
+		width: 100%;
+		height: .6rem;
+		text-align: right;
+	}
+	.scanLogin-reg a{
+		display: block;
+		margin: .28rem .2rem 0 0;		
+	}
+	.loginList{
+		opacity: 0;
+		filter: alpha(opacity:0);
+	}
+	.confirm_login{
+		width: 100%;
+		height: 100%;
+	}
+	.confirm_login a{
+		display: block;
+    background: red;
+    width: 1.6rem;
+    height: .5rem;
+    text-align: center;
+    line-height: .5rem;
+    color: #ffffff;
+    border-radius: 5px;
+    margin: 0 auto;
+	}*/
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <div class="main">
+    	<span id="keleyivisitorip" style="display: none;"></span>
+    	<div class="passList" id="passList">
+    		<!--<div class="ali passListItem">-->
+    			<!--<span>-->
+    				<!--<a class="login-btn" href="/show_ali" target="_blank">-->
+						<!--请点击登录-->
+    				<!--</a>-->
+    			<!--</span>-->
+    		<!--</div>-->
+    		<div class="taob passListItem"><span>
+					<a class="login-btn" href="/show_taobao" target="_blank">
+    					请点击登录
+    				</a>
+    		</span></div>
+    		<!--<div class="tianm passListItem"><span>-->
+					<!--<a class="login-btn" href="/show_tmall" target="_blank">-->
+    					<!--请点击登录-->
+    				<!--</a>-->
+    		<!--</span></div>-->
+    	</div>
+    	<!--<ul class="login" id="login">
+    		<li class="loginList">
+	 	    	<div class="scanLogin">
+		    		<div class="scanLogin-head">二维码登录</div>
+		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
+		    			<div class="scanArea"><img class="diCode" src="../static/images/5-121204193Q9.gif"/></div>
+		    		</div>
+		    	</div>     			
+    		</li>
+	    	<li class="loginList">
+	 	    	<div class="scanLogin">
+		    		<div class="scanLogin-head">二维码登录</div>
+		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
+		    			<div class="scanArea"><img class="diCode" src="../static/images/5-121204193Q9.gif"/></div>
+		    		</div>
+		    	</div>   	    		
+	    	</li>
+	    	<li class="loginList">
+	 	    	<div class="scanLogin">
+		    		<div class="scanLogin-head">二维码登录</div>
+		    		<div class="scanLogin-content">
+		    			<div class="title">扫码登录</div>
+		    			<div class="scanArea"><img class="diCode" src="../static/images/5-121204193Q9.gif"/></div>
+		    		</div>
+		    	</div>   	    		
+	    	</li>
+    	</ul>-->
+      <!--<div class="confirm_login">
+	    	<a href="javascript:" id="confirmLogin">已扫码完毕请点击</a>
+    	</div>  	-->
+    </div>
+
+    <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../static/js/duogongneng.js" type="text/javascript" charset="utf-8"></script> 
+    <script type="text/javascript">
+/*REM*/
+		~function(){
+			var desW = 1920,
+				winW = document.documentElement.clientWidth||document.body.clientWidth;
+				
+				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
+		}(); 
+//鼠标经过事件
+			var passList = document.getElementById('passList'),
+					passListItem = passList.getElementsByTagName('div');
+				
+				$('.login-btn').eq(0).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'ali_login'
+						}
+					});
+				})
+				$('.login-btn').eq(1).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'taob_login'
+						}
+					});
+				})
+				$('.login-btn').eq(2).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'tianm_login'
+						}
+					});
+				})	
+//			for(var i=0;i<passListItem.length;i++){
+//				passListItem[i].index = i;
+//				passListItem[i].onmouseover=function(){
+//					now = this.index;
+//					startMove(loginList[now],{opacity:100});
+//					$.ajax({
+//						type:"post",
+//						url:"/js_call_qrcode",
+//						async:true,
+//						data:{
+//							ip:$('#keleyivisitorip').html(),
+//							text:"success for ajax"
+//						},
+//						success:function(data){
+//							bindCode(data.qrcode_url);
+//						}
+//					});
+//					function bindCode(url){
+//						var oImg = new Image();
+//						oImg.src = url;
+//						oImg.onload=function(){
+//							setTimeout(function(){
+//									$('.diCode').attr('src',oImg.src)
+//									$('.diCodeInfo').show()
+//							},500);
+//						}
+//					}
+//				}
+//				passListItem[i].onmouseout=function(){
+//					now = this.index;			
+//					startMove(loginList[now],{opacity:0});
+//				}				
+//			}
+
+    </script>
+    <script type="text/javascript" src="http://tool.keleyi.com/ip/visitoriphost/"></script>
+  </body>
+</html>

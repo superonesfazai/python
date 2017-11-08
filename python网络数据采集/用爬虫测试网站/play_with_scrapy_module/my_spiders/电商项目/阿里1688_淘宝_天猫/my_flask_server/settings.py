@@ -20,6 +20,12 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 # PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
 
 """
+超级管理员
+"""
+ADMIN_NAME = 'yiuxiu_admin'
+ADMIN_PASSWD = 'yiuxiu_zy118!'
+
+"""
 数据库相关
 """
 # sql_server服务器地址
@@ -34,15 +40,17 @@ DATABASE = 'Gather'
 PORT = 1433
 
 # sql_server服务器地址
-HOST_2 = '121.41.49.42'
+HOST_2 = ''
 # 用户名
-USER_2 = 'sa'
+USER_2 = ''
 # 密码
-PASSWORD_2 = 'test123!@#'
+PASSWORD_2 = ''
 # 数据库名称
-DATABASE_2 = 'uubaoku'
+DATABASE_2 = ''
 # 端口号
 PORT_2 = 1433
+
+INIT_PASSWD = 'zy118zy118'
 
 """
 保存的对应cookies文件路径

@@ -23,11 +23,11 @@ import os
 def run_forever():
     #### 实时更新数据
     while True:
-        # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
+        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        # tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
         try:
-            # result = list(tmp_sql_server.select_taobao_all_goods_id())
-            result = tmp_sql_server.select_taobao_all_goods_id()
+            result = list(tmp_sql_server.select_taobao_all_goods_id())
+            # result = tmp_sql_server.select_taobao_all_goods_id()
 
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
@@ -51,8 +51,8 @@ def run_forever():
                     # except:
                     #     pass
                     # gc.collect()
-                    # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    tmp_sql_server = SqlPools()
+                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                    # tmp_sql_server = SqlPools()
 
                     print('与数据库的新连接成功建立...')
 
@@ -76,7 +76,7 @@ def run_forever():
                 #     pass
                 gc.collect()
                 # 国外服务器上可以缩短时间, 可以设置为0s
-                sleep(2)  # 不能太频繁，与用户请求错开尽量
+                sleep(1.8)  # 不能太频繁，与用户请求错开尽量
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         sleep(5)
         gc.collect()

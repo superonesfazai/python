@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>管理员列表</title>
+		<link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../static/css/animate.min.css"/>
+	</head>
+	<style type="text/css">
+			html,
+			body {
+			  width: 100%;
+			  font-size: .16rem;
+			  color: #333333;
+			}
+			html {
+			  font-size: 100px;
+			} 
+			.main{
+				width: 12rem;
+				height: auto;
+				margin: 0 auto;
+			}  		
+			.header{
+				width: 100%;
+				height: 1.14rem;
+			}
+			.title{
+				width: 100%;
+				height: .56rem;
+				line-height: .56rem;
+				background: #cae3fb;
+			}
+			.title>div{
+				float: left;
+				text-indent: .2rem;
+			}
+			.title .add{
+				float: right;
+				width: 1.2rem;
+				background: url(../static/images/add1.png)no-repeat 0% 50%;
+				text-indent: .6rem;
+				color: #2581c9;
+				cursor: pointer;
+				font-size: .2rem;
+			}
+			.seach{
+				width: 100%;
+				height: .58rem;
+				line-height: .58rem;
+			}
+			.seach-content{
+				display: inline-block;
+				width: 2.9rem;
+				height: .32rem;
+			}
+			.seach-content input{
+				width: 100%;
+				height: 100%;
+				border: 1px solid #ebebeb;
+				border-radius: 8px;
+				text-indent: .3rem;
+				outline: none;
+			}
+			.seach-content input:focus{
+				border-color: #2581c9;
+			}
+			.seach-btn{
+				display: inline-block;
+			}
+			.seach-btn a{
+				display: inline-block;
+				color: #2581c9;
+			}
+			.getlist{
+				margin-left: .4rem;
+			}
+			.t-header{
+				width: 100%;
+				height: .6rem;
+				color: #FFFFFF;
+				
+			}
+			.table-striped>tbody>tr:nth-child(odd):first-child{
+				background-color: #3a8fdc;
+			}
+			table tr,table th{
+				text-align: center;
+				height: .46rem;
+			}
+			.resetPass{
+				display: inline-block;
+				margin-right: .2rem;
+			}
+			.box{
+				display: inline-block;
+				width: .2rem;
+				height: .2rem;
+				vertical-align: bottom;
+			}
+			.allDelete{
+				display: inline-block;
+				width: .8rem;
+				height: .3rem;
+				line-height: .3rem;
+				background: #FFFFFF;
+				border-radius: .08rem;
+				text-decoration: none!important;
+			}
+	</style>
+	<body>
+		<div class="main">
+			<div class="header">
+				<div class="title">
+					<div>客服管理</div>
+					<!--<div class="add">添加</div>-->
+				</div>
+				<div class="seach">
+					<div class="seach-content">
+						<input type="text" name="seachName" id="seachName" value=""placeholder="请输入您要查找的用户名或手机号" />
+					</div>
+					<div class="seach-btn"><a class="find" href="javascript:;">查找</a><a class="getlist" href="javascript:;">点击查看当前所有客服信息</a></div>
+				</div>
+			</div>
+			<div class="content">
+				<table class="table table-striped table-bordered table-hover" border="" cellspacing="" cellpadding="">
+					<tr class="t-header">
+						<th>真实姓名</th>
+						<th>手机号</th>
+						<th>密码</th>
+						<th>部门</th>
+						<th>创建时间</th>
+						<th>管理 <a class="allDelete" href="javascript:;">批量删除</a></th>
+					</tr>
+					<!-- <tr class="userList">
+						<td>
+							<input type="checkbox" name="name" class="box" value=""/>老黄
+						</td>
+						<td name='username'>1</td>
+						<td>456465</td>
+						<td>464</td>
+						<td>Data</td>
+						<td>
+							<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
+						</td>
+					</tr>
+					<tr  class="userList">
+						<td>
+							<input type="checkbox" name="name" class="box" value=""/>老黄
+						</td>
+						<td  name='username'>2</td>
+						<td>456465</td>
+						<td>464</td>
+						<td>Data</td>
+						<td>
+							<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
+						</td>
+					</tr>	
+					<tr  class="userList">
+						<td>
+							<input type="checkbox" name="name" class="box" value=""/>老黄
+						</td>
+						<td  name='username'>3</td>
+						<td>456465</td>
+						<td>464</td>
+						<td>Data</td>
+						<td>
+							<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
+						</td>
+					</tr> -->
+				</table>
+			</div>
+		</div>
+		<script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../static/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../static/js/ejs.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/template" id="temp" charset="utf-8">
+			<tbody>
+			<tr class="t-header">
+				<th>真实姓名</th>
+				<th>手机号</th>
+				<th>密码</th>
+				<th>部门</th>
+				<th>创建时间</th>
+				<th>管理 <a class="allDelete" href="javascript:;">批量删除</a></th>
+			</tr>
+			<% for(var i=0;i<data.length;i++){%>
+			<tr class="userList">
+				<td>
+					<input type="checkbox" name="name" class="box" value=""/><%=data[i].realnane%>
+				</td>
+				<td name='username'><%=data[i].username%></td>
+				<td><%=data[i].passwd%></td>
+				<td><%=data[i].department%></td>
+				<td><%=data[i].createtime%></td>
+				<td>
+					<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
+				</td>
+			</tr>
+			<% } %>
+			</tbody>
+		</script>
+		<script type="text/javascript">
+					/*REM*/
+		~function(){
+			var desW = 1920,
+				winW = document.documentElement.clientWidth||document.body.clientWidth;
+				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
+		}();   
+		//bindhtml
+		$(function () {
+
+            function bind(data) {
+                console.log(data);
+                var $tmp = $('#temp').html();
+                var $tar = $('.table');
+                $tar.html(ejs.render($tmp, {data: data}));
+                 //重置密码
+            $('.resetPass').click(function () {
+                var updateTar = $(this).parent().siblings().eq(1).html();
+                $.ajax({
+                    type: 'post',
+                    url: '/admin',
+                    async: true,
+                    data: {
+                        update: updateTar
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        bind(data.data)
+                    }
+                })
+            })
+            //批量删除
+            $('.allDelete').click(function () {
+                var deleteArr = new Array();
+                var waitArr = new Array();
+                for (var i = 0; i < $('.box').length; i++) {
+                    if (($('.box').eq(i).is(":checked"))) {
+                        deleteArr.push($('.box').eq(i).parent().siblings().eq(0).html());
+                        waitArr.push(i);
+                    }
+                }
+                $.ajax({
+                    type: 'post',
+                    url: '/admin',
+                    async: true,
+                    data: {
+                        user_to_delete_list: deleteArr
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        if (data.reason == 'success') {
+                            alert('删除成功');
+                            for (var j = 0; j < waitArr.length; j++) {
+                                $('.userList').eq(waitArr[j]).addClass(' fadeOutLeft animated').hide(200);
+                            }
+                        } else {
+                            alert('删除失败')
+                        }
+                    },
+                    error: function () {
+                        alert('删除失败')
+                    }
+                })
+            })
+            //删除用户
+            $('.delete').click(function () {
+
+                _this = this;
+                var deleteTar = $(this).parent().siblings().eq(1).html();
+                var arr = new Array();
+                arr[0] = deleteTar;
+                console.log(arr);
+                $.ajax({
+                    type: 'post',
+                    url: '/admin',
+                    async: true,
+                    data: {
+                        user_to_delete_list: arr
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        if (data.reason == 'success') {
+                            alert('删除成功')
+                            $(_this).parents('tr').addClass(' fadeOutLeft animated').hide(500);
+                        } else {
+                            alert('删除失败')
+
+                        }
+                    },
+                    error: function () {
+                        alert('删除失败')
+                    }
+                });
+
+
+            })
+            }
+
+            //获取所有员工数据
+            $('.getlist').click(function () {
+                $.ajax({
+                    type: "post",
+                    url: "/admin",
+                    async: true,
+                    data: {
+                        check_all_users: 'True'
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        bind(data.data)
+                    }
+                });
+            });
+            //查找员工数据
+            $('.find').click(function () {
+                var findTar = $('#seachName').val();
+                $.ajax({
+                    type: 'post',
+                    url: '/admin',
+                    async: true,
+                    data: {
+                        find_name: findTar
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        bind(data.data)
+                    }
+                })
+            })
+
+        })
+		</script>
+	</body>
+</html>

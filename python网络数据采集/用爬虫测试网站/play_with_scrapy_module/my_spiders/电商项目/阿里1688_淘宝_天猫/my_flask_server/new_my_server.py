@@ -19,6 +19,7 @@ from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
 from tmall_parse import TmallParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH
+from settings import ADMIN_NAME, ADMIN_PASSWD
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
@@ -60,38 +61,63 @@ key = 21
 
 tmp_wait_to_save_data_list = []
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = str(request.form.get('username'))
-        passwd = str(request.form.get('passwd'))
-        print(username + ' : ' + passwd)
-
-        tmp_user = UserItemPipeline()
-        is_have_user = tmp_user.select_is_had_username(username, passwd)
-
-        if is_have_user:
-                response = make_response(redirect('select'))    # 重定向到新的页面
-
-                # 加密
-                has_username = encrypt(key, username)
-                has_passwd = encrypt(key, passwd)
-
-                outdate = datetime.datetime.today() + datetime.timedelta(days=1)
-
-                response.set_cookie('username', value=has_username, max_age=60*60*5, expires=outdate)    # 延长过期时间(1天)
-                response.set_cookie('passwd', value=has_passwd, max_age=60*60*5, expires=outdate)
-                # session['islogin'] = '1'      # 设置session的话会有访问的时间限制,故我不设置
-                # session.permanent = True        # 切记：前面虽然设置了延时时间，但是只有通过这句话才能让其生效
-                #                                 # 注意先设置session的permanent为真
-                # # 设置session的过期时间为1天(只有设置下面两句话才会生效, 第二句要在请求中才能使用)
-                # app.permanent_session_lifetime = datetime.timedelta(seconds=12*60*60)
-
-                return response
+        if request.form.get('username', '') != '' and request.form.get('passwd', '') != '':
+            username = str(request.form.get('username'))
+            passwd = str(request.form.get('passwd'))
+            print(username + ' : ' + passwd)
         else:
-            # session['islogin'] = '0'
-            print('登录失败!请重新登录')
-            return redirect('/')
+            username, passwd = ('', '',)
+
+        if request.form.get('superUser', '') != '' and request.form.get('superPass', '') != '':
+            super_name = str(request.form.get('superUser', ''))
+            super_passwd = str(request.form.get('superPass', ''))
+            # print('super_name:', super_name, ' ', 'super_passwd:', super_passwd)
+        else:
+            super_name, super_passwd = ('', '',)
+
+        if super_name == ADMIN_NAME and super_passwd == ADMIN_PASSWD:   # 先判断是否为admin，如果是转向管理员管理界面
+            print('超级管理员密码匹配正确')
+            response = make_response(redirect('admin'))    # 重定向到新的页面
+
+            # 加密
+            has_super_name = encrypt(key, super_name)
+            has_super_passwd = encrypt(key, super_passwd)
+
+            outdate = datetime.datetime.today() + datetime.timedelta(days=1)
+
+            response.set_cookie('super_name', value=has_super_name, max_age=60 * 60 * 5, expires=outdate)  # 延长过期时间(1天)
+            response.set_cookie('super_passwd', value=has_super_passwd, max_age=60 * 60 * 5, expires=outdate)
+            return response
+
+        else:                   # 否则为普通用户，进入选择页面
+            tmp_user = UserItemPipeline()
+            is_have_user = tmp_user.select_is_had_username(username, passwd)
+
+            if is_have_user:
+                    response = make_response(redirect('select'))    # 重定向到新的页面
+
+                    # 加密
+                    has_username = encrypt(key, username)
+                    has_passwd = encrypt(key, passwd)
+
+                    outdate = datetime.datetime.today() + datetime.timedelta(days=1)
+
+                    response.set_cookie('username', value=has_username, max_age=60*60*5, expires=outdate)    # 延长过期时间(1天)
+                    response.set_cookie('passwd', value=has_passwd, max_age=60*60*5, expires=outdate)
+                    # session['islogin'] = '1'      # 设置session的话会有访问的时间限制,故我不设置
+                    # session.permanent = True        # 切记：前面虽然设置了延时时间，但是只有通过这句话才能让其生效
+                    #                                 # 注意先设置session的permanent为真
+                    # # 设置session的过期时间为1天(只有设置下面两句话才会生效, 第二句要在请求中才能使用)
+                    # app.permanent_session_lifetime = datetime.timedelta(seconds=12*60*60)
+
+                    return response
+            else:
+                # session['islogin'] = '0'
+                print('登录失败!请重新登录')
+                return redirect('/')
     else:
         return render_template('login.html')
 
@@ -112,13 +138,204 @@ def select():
                 return response
 
             elif ajax_request == 'tianm_login':
-                pass
+                response = make_response(redirect('show_tmall'))  # 重定向到新的页面
+                return response
             else:
                 return '''
                 <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
                 '''
         else:
             return render_template('select.html')
+    else:   # 非法登录显示错误网页
+        return '''
+        <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+        '''
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    '''
+    管理员页面
+    :return:
+    '''
+    # print('正在获取登录界面...')
+    if request.cookies.get('super_name', '') == encrypt(key, ADMIN_NAME) and request.cookies.get('super_passwd', '') == encrypt(key, ADMIN_PASSWD):   # 判断是否为非法登录
+        if request.method == 'POST':
+            tmp_user = UserItemPipeline()
+
+            # 查找
+            if request.form.get('find_name', '') != '':
+                find_name = request.form.get('find_name', '')
+
+                if len(find_name) == 11 and re.compile(r'^1').findall(find_name) != []:                            # 根据手机号查找
+                    result = tmp_user.find_user_by_username(username=find_name)
+                    if result != []:
+                        print('查找成功!')
+                        # print(result)     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
+                        data = [{
+                            'username': result[0],
+                            'passwd': encrypt(key, result[1]),
+                            'createtime': str(result[2]),    # datetime类型转换为字符串 .strftime('%Y-%m-%d %H:%M:%S')
+                            'department': result[3],
+                            'realnane': result[4]}]
+                        result = {
+                            'reason': 'success',
+                            'data': data,
+                            'error_code': 1,
+                        }
+                        result = json.dumps(result, ensure_ascii=False).encode()
+                        return result.decode()
+
+                    else:
+                        print('查找失败!')
+                        result = {
+                            'reason': 'error',
+                            'data': [],
+                            'error_code': 0,  # 表示goodsLink为空值
+                        }
+                        result = json.dumps(result)
+                        return result
+
+                elif len(find_name) > 1 and len(find_name) <= 4:     # 根据用户名查找
+                    result = tmp_user.find_user_by_real_name(name=find_name)
+                    print(result)
+                    if result != []:
+                        print('查找成功!')
+                        data = [{
+                            'username': item[0],
+                            'passwd': encrypt(key, item[1]),
+                            'createtime': str(item[2]),
+                            'department': item[3],
+                            'realnane': item[4]} for item in result]
+                        result = {
+                            'reason': 'success',
+                            'data': data,
+                            'error_code': 1,
+                        }
+                        result = json.dumps(result, ensure_ascii=False).encode()
+                        return result.decode()
+
+                    else:
+                        print('查找失败!')
+                        result = {
+                            'reason': 'error',
+                            'data': [],
+                            'error_code': 0,  # 表示goodsLink为空值
+                        }
+
+                        result = json.dumps(result)
+                        return result
+                else:
+                    print('find_name非法!')
+                    result = {
+                        'reason': 'error',
+                        'data': [],
+                        'error_code': 0,  # 表示goodsLink为空值
+                    }
+                    result = json.dumps(result)
+                    return result
+
+            # 重置
+            elif request.form.get('update', '') != '':
+                update_name = request.form.get('update', '')
+                result = tmp_user.init_user_passwd(username=update_name)
+                if result:
+                    print('重置密码成功!')
+                    # 返回所有数据
+                    result = tmp_user.select_all_info()
+                    data = [{
+                        'username': item[0],
+                        'passwd': encrypt(key, item[1]),
+                        'createtime': str(item[2]),
+                        'department': item[3],
+                        'realnane': item[4]} for item in result]
+                    result = {
+                        'reason': 'error',
+                        'data': data,
+                        'error_code': 1,
+                    }
+                    result = json.dumps(result, ensure_ascii=False).encode()
+                    return result.decode()
+
+                else:
+                    print('重置密码失败!')
+                    result = tmp_user.select_all_info()
+                    data = [{
+                        'username': item[0],
+                        'passwd': encrypt(key, item[1]),
+                        'createtime': str(item[2]),
+                        'department': item[3],
+                        'realnane': item[4]} for item in result]
+                    result = {
+                        'reason': 'error',
+                        'data': data,
+                        'error_code': 1,
+                    }
+                    result = json.dumps(result, ensure_ascii=False).encode()
+                    return result.decode()
+
+            # 删除
+            elif request.form.getlist('user_to_delete_list[]') != []:
+                user_to_delete_list = list(request.form.getlist('user_to_delete_list[]'))
+                result = tmp_user.delete_users(item=user_to_delete_list)
+                if result:
+                    print('删除成功!')
+                    result = tmp_user.select_all_info()
+                    data = [{
+                        'username': item[0],
+                        'passwd': encrypt(key, item[1]),
+                        'createtime': str(item[2]),
+                        'department': item[3],
+                        'realnane': item[4]} for item in result]
+                    result = {
+                        'reason': 'success',
+                        'data': data,
+                        'error_code': 1,
+                    }
+                    result = json.dumps(result, ensure_ascii=False).encode()
+                    return result.decode()
+
+                else:       # 删除失败(删除失败也返回数据库中所有注册员工的数据)，让前端提醒下，数据库异常，删除失败
+                    print('删除失败!')
+                    result = tmp_user.select_all_info()
+                    data = [{
+                        'username': item[0],
+                        'passwd': encrypt(key, item[1]),
+                        'createtime': str(item[2]),
+                        'department': item[3],
+                        'realnane': item[4]} for item in result]
+                    result = {
+                        'reason': 'error',
+                        'data': data,
+                        'error_code': 1,
+                    }
+                    result = json.dumps(result, ensure_ascii=False).encode()
+                    return result.decode()
+
+            # 查看现有所有用户数据
+            elif request.form.get('check_all_users', '') == 'True':
+                print('返回所有注册员工信息!')
+                result = tmp_user.select_all_info()
+                data = [{
+                    'username': item[0],
+                    'passwd': encrypt(key, item[1]),
+                    'createtime': str(item[2]),
+                    'department': item[3],
+                    'realnane': item[4]} for item in result]
+                result = {
+                    'reason': 'success',
+                    'data': data,
+                    'error_code': 1,
+                }
+                result = json.dumps(result, ensure_ascii=False).encode()
+                return result.decode()
+
+            else:
+                pass
+
+        else:
+            # return render_template('admin.html')
+            return send_file('templates/admin.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+
     else:   # 非法登录显示错误网页
         return '''
         <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
@@ -131,15 +348,39 @@ def regist():
     :return:
     '''
     if request.method == 'POST':
-        username = request.form['username']
-        passwd = request.form['passwd']
-        tmp_inner_pass = request.form['inner_pass']
+        username = request.form.get('username', '')
+        passwd = request.form.get('passwd', '')
+
+        real_name = request.form.get('ralenane', '')
+        department = request.form.get('department', '')
+        tmp_inner_pass = request.form.get('inner_pass', '')
+
+        if real_name == '' or department == '' or username == '' or passwd == '':
+            return '''
+            <html><header></header><body>(真实姓名,所属部门,手机号,密码)皆不能为空，请返回注册页面继续进行相关注册操作!<a href="/Reg"></br></br>返回注册页面</a></body></html>
+            '''
 
         if tmp_inner_pass == inner_pass:    # 正确输入员工口令
             tmp_user = UserItemPipeline()
+
+            '''
+            时区处理，时间处理到上海时间
+            '''
+            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+            now_time = datetime.datetime.now(tz)
+
+            # 处理为精确到秒位，删除时区信息
+            now_time = re.compile(r'\..*').sub('', str(now_time))
+            # 将字符串类型转换为datetime类型
+            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+            create_time = now_time
+
             item = [
                 str(username),
-                passwd,
+                str(passwd),
+                create_time,
+                str(department),
+                str(real_name),
             ]
             is_insert_into = tmp_user.insert_into_table(item)
 
@@ -153,7 +394,6 @@ def regist():
             return "内部员工口令错误, 请返回重新注册!"
 
     else:
-        #request.args['username']
         return render_template('Reg.html')
 
 @app.route('/show_ali', methods=['GET', 'POST'])
@@ -740,9 +980,10 @@ def taobao_to_save_data():
 
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
+                # print(tmp_list)
                 for item in tmp_list:
                     # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('id'))
+                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
                     is_insert_into = my_page_info_save_item_pipeline.insert_into_taobao_table(item)
                     if is_insert_into:  # 如果返回值为True
@@ -934,7 +1175,11 @@ def tmall_to_save_data():
                         if is_tmall_url != []:  # 天猫常规商品
                             tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)
                             if tmp_tmall_url != []:
-                                goods_id = tmp_tmall_url[0]
+                                is_tmp_tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?&id=(\d+)&{0,20}.*?').findall(item)
+                                if is_tmp_tmp_tmall_url != []:
+                                    goods_id = is_tmp_tmp_tmall_url[0]
+                                else:
+                                    goods_id = tmp_tmall_url[0]
                             else:
                                 tmall_url = re.compile(r';').sub('', item)
                                 goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]

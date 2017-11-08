@@ -14,8 +14,8 @@ import gc
 from sqlalchemy import create_engine
 
 from settings import HOST, USER, PASSWORD, DATABASE, PORT
+from settings import INIT_PASSWD
 from settings import HOST_2, USER_2, PASSWORD_2, DATABASE_2, PORT_2
-# from .settings import HOST, USER, PASSWORD, DATABASE, PORT
 
 class UserItemPipeline(object):
     """
@@ -23,14 +23,19 @@ class UserItemPipeline(object):
     """
     def __init__(self):
         super(UserItemPipeline, self).__init__()
-        self.conn = connect(
-            host=HOST,
-            user=USER,
-            password=PASSWORD,
-            database=DATABASE,
-            port=PORT,
-            charset='utf8'
-        )
+        self.is_connect_success = True
+        try:
+            self.conn = connect(
+                host=HOST,
+                user=USER,
+                password=PASSWORD,
+                database=DATABASE,
+                port=PORT,
+                charset='utf8'
+            )
+        except Exception as e:
+            print('数据库连接失败!!')
+            self.is_connect_success = False
 
     def insert_into_table(self, item):
         try:
@@ -40,7 +45,7 @@ class UserItemPipeline(object):
 
             # print(params)
             # pymssql下的execute执行插入语句成功返回的值也是None, 所以不判断返回的行数
-            cs.execute('insert into dbo.ali_spider_employee_table(username, passwd) values(%s, %s)', tuple(params))
+            cs.execute('insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)', tuple(params))
             self.conn.commit()
             cs.close()
             print('-' * 60 + '| ***该用户信息成功存入mysql中*** |')
@@ -52,6 +57,88 @@ class UserItemPipeline(object):
             print('--------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             pass
 
+    def select_all_info(self):
+        try:
+            cs = self.conn.cursor()
+            cs.execute('select * from dbo.ali_spider_employee_table')
+            result = list(cs.fetchall())
+            self.conn.commit()
+
+            if result != []:
+                cs.close()
+                # print(result)
+                return result
+            else:
+                cs.close()
+                return []
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return []
+
+    def find_user_by_username(self, username):
+        try:
+            cs = self.conn.cursor()
+            cs.execute('select * from dbo.ali_spider_employee_table where username=%s', tuple([username,]))
+            result = list(cs.fetchone())
+            self.conn.commit()
+
+            if result != []:
+                cs.close()
+                # print(result)
+                return result
+            else:
+                cs.close()
+                return []
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return []
+
+    def find_user_by_real_name(self, name):
+        try:
+            cs = self.conn.cursor()
+            cs.execute('select * from dbo.ali_spider_employee_table where realnane=%s', tuple([name,]))
+            result = list(cs.fetchall())
+            self.conn.commit()
+
+            if result != []:
+                cs.close()
+                # print(result)
+                return result
+            else:
+                cs.close()
+                return []
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return []
+
+    def init_user_passwd(self, username):
+        try:
+            cs = self.conn.cursor()
+            cs.execute('update dbo.ali_spider_employee_table set passwd=%s where username=%s', tuple([INIT_PASSWD, username]))
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return False
+
+    def delete_users(self, item):
+        try:
+            cs = self.conn.cursor()
+
+            for i in item:
+                cs.execute('delete from dbo.ali_spider_employee_table where username=%s', tuple([i]))
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return False
 
     def select_is_had_username(self, username, passwd):
         try:
@@ -536,7 +623,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def __del__(self):
         try:
             self.conn.close()
-        except:
+        except Exception:
             pass
         gc.collect()
 
@@ -660,3 +747,4 @@ class OtherDb(object):
             except Exception:
                 pass
             return None
+

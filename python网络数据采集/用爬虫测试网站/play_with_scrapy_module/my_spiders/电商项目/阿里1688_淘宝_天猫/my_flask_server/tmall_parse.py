@@ -65,7 +65,7 @@ class TmallParse(object):
         tmp_execute_path = EXECUTABLE_PATH
         self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
         # self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
-        wait = ui.WebDriverWait(self.driver, 6)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        wait = ui.WebDriverWait(self.driver, 15)       # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
 
     def get_goods_data(self, goods_id):
@@ -83,21 +83,25 @@ class TmallParse(object):
         print('------>>>| 得到的移动端地址为: ', tmp_url)
 
         # response = requests.get(tmp_url, headers=self.headers)
-        self.driver.set_page_load_timeout(12)
+        self.driver.set_page_load_timeout(15)
         try:
+            # print('444')
             self.driver.get(tmp_url)
-            self.driver.implicitly_wait(12)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(15)  # 隐式等待和显式等待可以同时使用
 
             locator = (By.CSS_SELECTOR, 'div#J_mod4')
             try:
-                WebDriverWait(self.driver, 12, 0.5).until(EC.presence_of_element_located(locator))
+                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
                 return 4041  # 未得到div#mod-detail-bd，返回4041
             else:
                 print('div#mod-detail-bd已经加载完毕')
+            # print('div#mod-detail-bd已经加载完毕')
+            # self.driver.save_screenshot('tmp.png')
+
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 12 seconds when loading page')
+            print('-->>time out after 15 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
         body = self.driver.page_source
@@ -458,7 +462,7 @@ class TmallParse(object):
                     is_delete = 0
                 else:
                     is_delete = 1
-            print('is_delete = %d' % is_delete)
+            # print('is_delete = %d' % is_delete)
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -624,6 +628,7 @@ class TmallParse(object):
         :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
         '''
         base_url = 'http://127.0.0.1:8000'
+        # base_url = 'http://127.0.0.1:8000/?types=0&count=5&country=国内'
         result = requests.get(base_url).json()
 
         result_ip_list = {}
@@ -648,7 +653,11 @@ class TmallParse(object):
         if is_tmall_url != []:                  # 天猫常规商品
             tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(tmall_url)
             if tmp_tmall_url != []:
-                goods_id = tmp_tmall_url[0]
+                is_tmp_tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?&id=(\d+)&{0,20}.*?').findall(tmall_url)
+                if is_tmp_tmp_tmall_url != []:
+                    goods_id = is_tmp_tmp_tmall_url[0]
+                else:
+                    goods_id = tmp_tmall_url[0]
             else:
                 tmall_url = re.compile(r';').sub('', tmall_url)
                 goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
@@ -682,7 +691,10 @@ class TmallParse(object):
                     return []
 
     def __del__(self):
-        self.driver.quit()
+        try:
+            self.driver.quit()
+        except:
+            pass
         gc.collect()
 
 if __name__ == '__main__':
@@ -695,6 +707,7 @@ if __name__ == '__main__':
             data = tmall.get_goods_data(goods_id=goods_id)
             result = tmall.deal_with_data()
             # pprint(result)
+            # print(result)
             gc.collect()
         else:
             print('获取到的天猫商品地址无法解析，地址错误')

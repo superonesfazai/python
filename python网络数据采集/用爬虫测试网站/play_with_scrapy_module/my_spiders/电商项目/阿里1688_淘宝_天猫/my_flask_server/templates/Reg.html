@@ -76,9 +76,9 @@
  	.login-content>div{
  		height: .28rem;
  		line-height: .28rem;
- 		margin-bottom: .3rem;
+ 		margin-bottom: .2rem;
  	}
- 	.phone,.setPass,.confirmPass,.command{
+ 	.phone,.setPass,.confirmPass,.command,.ralenane,.department{
  		display: block;
  		width: 3.0rem;
  		height: .28rem;
@@ -117,10 +117,12 @@
 				<div class="login-head"><div class="smallLogo"></div></div>
 				<div >
 					<form class="login-content" action="/Reg" method="post">
+						<div><input type="text" name="ralenane" class="ralenane" id="ralenane" value="" placeholder="真实姓名"/></div>
+						<div><input type="text" name="department" class="department" id="department" value="" placeholder="部门"/></div>
 						<div><input type="text" name="username" class="phone" id="phone" value="" placeholder="手机号"/><div class="wPhone"></div></div>
 						<div><input type="password" name="passwd" class="setPass"  id="setPass" value="" placeholder="设置密码" /><div class=""></div></div>
 						<div><input type="password" name="" class="confirmPass"  id="confirmPass" value="" placeholder="确认密码" /><div class="wPass"></div></div>
-						<div><input type="text" name="inner_pass" class="command"  id="command" value="" placeholder="内部员工口令" /></div>
+						<div><input type="text" name="inner_pass" class="command"  id="command" value="" placeholder="内部员工口令" /></div>								
 						<div class="login-btn"><input id="regBtn" type="submit" value="注册"/></div>
 					</form>
 				</div>
@@ -148,7 +150,7 @@
 						$('.wPhone').text('');
 						isTrue = true;
 					}			
-		});
+		})
 		$('#confirmPass').keyup(function(){
 			var curInput = $('#confirmPass').val(),
 					curPass = $('#setPass').val();
@@ -157,17 +159,17 @@
 						$('.wPass').text('两次密码必须一致');
 						isTrue = false;
 					}else{
-						$('.wPass').text('');
+						$('.wPass').text('')
 						isTrue = true;
 					}			
-		});
+		})		
 //判断用户信息是否完成然后提交
 		$('.login-btn').click(function(){
 			if($('#phone').val()==''||$('#setPass').val()== ''||$('#comfirmPass').val()== ''||$('#command').val()==''){
-				console.log('1');
+				console.log('1')
 				return false
 			}else{
-				console.log('2');
+				console.log('2')
 				return
 			}
 		})

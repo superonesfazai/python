@@ -112,6 +112,53 @@
       .login-bottom a{
       	margin-right: .3rem;
       }
+      .super-dialog{
+      	position: fixed;
+      	left: 0;
+      	right: 0;
+      	top: 0;
+      	bottom: 0;
+      	margin: auto;
+      	background: rgba(0,0,0,.5);
+      	display: none;
+      }
+      .super-dialog-content{
+      	width:7.2rem;
+      	height: 2.8rem;
+      	margin: 2rem auto;
+      	background: #ffffff;
+      	border-radius: 5px;
+      }
+      .super-dialog-content form{
+      	width: 100%;
+      	height: 100%;
+      }
+      .super-user,.super-pass{
+      	height: .8rem;
+      	line-height: .8rem;
+      	padding: 0 1rem;
+      }
+      .super-user input,.super-pass input{
+      	display: inline-block;
+      	width: 4rem;
+      	height: .4rem;
+      	border: 1px solid #CCCCCC;
+      	border-radius: 6px;
+      }
+      .subBtn{
+      	display: block;
+      	width: 1rem;
+      	height: .4rem;
+      	margin: .2rem auto;
+      	background: none;
+      	border: 1px solid #CCCCCC;
+      	border-radius: 4px;
+      	cursor: pointer;
+      }
+      .subBtn :hover{
+      	background: #CCCCCC;
+      	color: #FFFFFF;
+      }
     </style>
   </head>
   <body>
@@ -132,19 +179,31 @@
     			</form>
     		</div>
     		<div class="login-bottom">
-    			<a href="/Reg">注册</a><a href="">忘记密码</a>
+    			<a href="/Reg">注册</a><a id="superAdmin" href="javascript:;">超级管理员入口</a>
     		</div>
     	</div>
     </div>
+    <div class="super-dialog">
+	    <div class="super-dialog-content">
+	    	<form action="" method="post">
+	    		<div class="super-user">超级管理员账号：<input type="text" name="superUser" id="superUser" value="" /></div>
+	    		<div class="super-pass">超级管理员密码：<input type="password" name="superPass" id="superPass" value="" /></div>
+	    		<input class="subBtn" type="submit" value="登录"/>
+	    	</form>
+	    </div>    	
+    </div>
+
     
     <script type="text/javascript">
 		/*REM*/
 		~function(){
 			var desW = 1920,
 				winW = document.documentElement.clientWidth||document.body.clientWidth;
-				
 				document.documentElement.style.fontSize = winW / desW * 100 + 'px';
-		}();    	
+		}();    
+		document.getElementById('superAdmin').onclick=function(){
+			document.querySelector('.super-dialog').style.display = 'block';
+		}
     </script>
   </body>
 </html>
