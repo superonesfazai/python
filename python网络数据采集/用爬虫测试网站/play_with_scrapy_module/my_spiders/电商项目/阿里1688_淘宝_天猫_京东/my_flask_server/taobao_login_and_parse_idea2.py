@@ -205,7 +205,7 @@ class TaoBaoLoginAndParse(object):
             shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
 
             # 掌柜
-            account = data['seller']['sellerNick']
+            account = data['seller'].get('sellerNick', '')
 
             # 商品名称
             title = data['item']['title']

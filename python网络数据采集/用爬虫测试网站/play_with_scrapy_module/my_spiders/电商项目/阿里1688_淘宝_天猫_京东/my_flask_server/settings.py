@@ -20,7 +20,12 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 # PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
 
 """
-超级管理员
+服务器运行端口
+"""
+SERVER_PORT = 5000
+
+"""
+超级管理员账户名密码
 """
 ADMIN_NAME = 'yiuxiu_admin'
 ADMIN_PASSWD = 'yiuxiu_zy118!'

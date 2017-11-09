@@ -2,30 +2,100 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.eot" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.ttf" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.woff" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ju_taobao_parse.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/css/bootstrap.min.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.svg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/bootstrap.min.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/admin.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_ali_tmall.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_taobao.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/jd_parse.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/ju_taobao_parse.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试京东地址" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_jd_data" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ju_taobao_parse.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/__init__.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/__init__.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ali_1688_login_and_parse_idea2.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/ali_1688_login_and_parse_idea2.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/cookies/cookies_ali_1688.txt" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/cookies/cookies_ali_1688.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/cookies/cookies_taobao.txt" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/cookies/cookies_taobao.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/from_old_db_to_get_goods_id_to_save/ali.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/from_old_db_to_get_goods_id_to_save/ali.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/ghostdriver.log" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/my_pipeline.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/my_pipeline.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/new_my_server.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/new_my_server.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/settings.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/css/animate.min.css" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/css/animate.min.css" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/css/bootstrap.min.css" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/css/bootstrap.min.css" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/css/reset.css" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/css/reset.css" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/css/swiper-3.4.2.min.css" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/css/swiper-3.4.2.min.css" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.eot" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/fonts/glyphicons-halflings-regular.eot" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.svg" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/fonts/glyphicons-halflings-regular.svg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.ttf" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/fonts/glyphicons-halflings-regular.ttf" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/fonts/glyphicons-halflings-regular.woff" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/fonts/glyphicons-halflings-regular.woff" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/5-121204193Q9.gif" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/5-121204193Q9.gif" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/add.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/add.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/ali.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/ali.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/arrow.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/arrow.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/bg.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/bg.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/btn-l.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/btn-l.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/btn-r.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/btn-r.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/lock.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/lock.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/logo.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/logo.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/person.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/person.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/taob.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/taob.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/tianm.png" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/tianm.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/bootstrap.min.js" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/bootstrap.min.js" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/duogongneng.js" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/duogongneng.js" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/ejs.js" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/ejs.js" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/jquery-2.0.0.min.js" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/jquery-2.0.0.min.js" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/moves.js" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/moves.js" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/swiper-3.4.2.min.js" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/swiper-3.4.2.min.js" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/tmp.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/tmp.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/taobao_login_and_parse_idea2.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/taobao_login_and_parse_idea2.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/Reg.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/Reg.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/admin.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/admin.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/ali_spider_to_show.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/ali_spider_to_show.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/login.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/login.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/select.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_ali_tmall.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/select_ali_tmall.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_taobao.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/select_taobao.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/taobao_spider_to_show.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/taobao_spider_to_show.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/tmall_spider_to_show.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/tmall_spider_to_show.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmall_parse.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmall_parse.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/ali_1688/tmp.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/ali_1688/tmp.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/ali_1688/tmp1.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/ali_1688/tmp1.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/ali_1688/tmp2.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/ali_1688/tmp2.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/ali_1688/tmp3.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/ali_1688/tmp3.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/ali_1688/tmp4.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/ali_1688/tmp4.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/taobao/tmp.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp1.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/taobao/tmp1.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp2.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/taobao/tmp2.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp3.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/taobao/tmp3.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp4.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/taobao/tmp4.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp5.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/taobao/tmp5.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试天猫的地址" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试天猫的地址" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试淘宝的地址" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试淘宝的地址" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试阿里1688的地址" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试阿里1688的地址" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp1.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp1.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp2.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp2.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp3.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp3.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp4.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp4.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp5.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp5.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp6.json" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp6.json" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmp_ali_1688_data" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_ali_1688_data" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmp_taobao_data" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_taobao_data" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmp_tmall_data" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_tmall_data" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/__init__.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/cookies.txt" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/cookies.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/cookies_to_dict.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/cookies_to_dict.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_sqlserver.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test_sqlserver.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_taobao.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test_taobao.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_taobao3.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test_taobao3.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_taobao_2.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test_taobao_2.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_tmall.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test_tmall.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/从实时ip池里获取可用ip.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/从实时ip池里获取可用ip.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/__init__.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/ali_1688_real-times_update.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/ali_1688_real-times_update.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/ghostdriver.log" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/taobao_real-times_update.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/taobao_real-times_update.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/tmall_real-time_update.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/tmall_real-time_update.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ghostdriver.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/my_pipeline.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/my_pipeline.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/new_my_server.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/new_my_server.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/Reg.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/Reg.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/login.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/login.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/taobao_spider_to_show.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/taobao_spider_to_show.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/tmall_spider_to_show.html" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/tmall_spider_to_show.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmall_parse.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmall_parse.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试天猫的地址" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试天猫的地址" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_tmall.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_tmall.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/taobao_real-times_update.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/taobao_real-times_update.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/tmall_real-time_update.py" afterPath="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/tmall_real-time_update.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -108,6 +178,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$xpath_tieba.coverage" NAME="xpath_tieba Coverage Results" MODIFIED="1504006529629" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/xpath_测试贴吧" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$turtle_test.coverage" NAME="turtle_test Coverage Results" MODIFIED="1501720776006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$_test__1_.coverage" NAME="直线运动_test (1) Coverage Results" MODIFIED="1501227026949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/py_games/动画制作/直线运动" />
+    <SUITE FILE_PATH="coverage/PythonDoc$jd_parse.coverage" NAME="jd_parse Coverage Results" MODIFIED="1510230719182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$mongodb_update_demo.coverage" NAME="mongodb_update_demo Coverage Results" MODIFIED="1505383145581" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/MongoDB/mongodb与python交互/修改" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$lxml_parse.coverage" NAME="lxml_parse Coverage Results" MODIFIED="1504000505066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/lxml库" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$login_and_get_cookies.coverage" NAME="login_and_get_cookies Coverage Results" MODIFIED="1507620511882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/阿里_1688_项目/ali_1688_simple_page_spider/ali_1688_simple_page_spider" />
@@ -217,7 +288,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$center_window_on_the_screen.coverage" NAME="center_window_on_the_screen Coverage Results" MODIFIED="1502704226128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$datetime.coverage" NAME="datetime Coverage Results" MODIFIED="1502932197944" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/时间与财务计算" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$_test.coverage" NAME="规范文字识别_test Coverage Results" MODIFIED="1504233001181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍" />
-    <SUITE FILE_PATH="coverage/PythonDoc$new_my_server.coverage" NAME="new_my_server Coverage Results" MODIFIED="1510144243096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server" />
+    <SUITE FILE_PATH="coverage/PythonDoc$new_my_server.coverage" NAME="new_my_server Coverage Results" MODIFIED="1510146848857" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$lianjia_login.coverage" NAME="lianjia_login Coverage Results" MODIFIED="1506150311471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/案例/链家爬虫" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$set_test.coverage" NAME="set_test Coverage Results" MODIFIED="1502094088360" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$zip_test.coverage" NAME="zip_test Coverage Results" MODIFIED="1501841598942" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
@@ -308,6 +379,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$finally.coverage" NAME="在流产语句finally块 Coverage Results" MODIFIED="1503063349476" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/规范化与异常捕获" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$char_unicode.coverage" NAME="char_判断unicode是否为某一类型 Coverage Results" MODIFIED="1502503747019" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/文本" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1501069475616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp/a" />
+    <SUITE FILE_PATH="coverage/PythonDoc$ju_taobao_parse.coverage" NAME="ju_taobao_parse Coverage Results" MODIFIED="1510191957166" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$sys_argv_test.coverage" NAME="sys_argv_test Coverage Results" MODIFIED="1502175025033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/system_manage" />
     <SUITE FILE_PATH="coverage/PythonDoc$a.coverage" NAME="a Coverage Results" MODIFIED="1509147945802" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/多级导包/tmp/a" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$botherror_.coverage" NAME="botherror_改进版 Coverage Results" MODIFIED="1503913408337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib2(py3 urllib.request)的异常错误处理" />
@@ -492,83 +564,40 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="new_my_server.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/new_my_server.py">
+      <file leaf-file-name="jd_parse.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/jd_parse.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="322">
-              <caret line="231" column="56" lean-forward="false" selection-start-line="231" selection-start-column="56" selection-end-line="231" selection-end-column="56" />
+            <state relative-caret-position="467">
+              <caret line="282" column="0" lean-forward="false" selection-start-line="282" selection-start-column="0" selection-end-line="282" selection-end-column="0" />
               <folding>
-                <element signature="e#3142#4389#0" expanded="false" />
-                <element signature="e#4511#5810#0" expanded="false" />
-                <element signature="e#13929#15581#0" expanded="false" />
-                <element signature="e#15657#16258#0" expanded="false" />
-                <element signature="e#16340#16914#0" expanded="false" />
-                <element signature="e#16994#17582#0" expanded="false" />
-                <element signature="e#17710#21777#0" expanded="false" />
-                <element signature="e#31309#35251#0" expanded="false" />
-                <element signature="e#35337#43856#0" expanded="false" />
-                <element signature="e#43989#48227#0" expanded="false" />
-                <element signature="e#48311#58834#0" expanded="false" />
-                <element signature="e#58915#59380#0" expanded="false" />
-                <element signature="e#59407#59881#0" expanded="false" />
+                <element signature="e#133#161#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
-              <folding />
+      <file leaf-file-name="tmp_jd_data" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_jd_data">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="-1394">
+                <caret line="355" column="29" lean-forward="false" selection-start-line="355" selection-start-column="29" selection-end-line="355" selection-end-column="29" />
+                <folding />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="my_pipeline.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/my_pipeline.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="118" column="35" lean-forward="false" selection-start-line="118" selection-start-column="35" selection-end-line="118" selection-end-column="35" />
-              <folding>
-                <element signature="e#161#182#0" expanded="true" />
-                <element signature="e#5058#9164#1" expanded="false" />
-                <element signature="e#9771#11696#0" expanded="false" />
-                <element signature="e#11740#13216#0" expanded="false" />
-                <element signature="e#13272#15281#0" expanded="false" />
-                <element signature="e#15332#16898#0" expanded="false" />
-                <element signature="e#16953#18962#0" expanded="false" />
-                <element signature="e#19012#20578#0" expanded="false" />
-                <element signature="e#20632#21109#0" expanded="false" />
-                <element signature="e#21161#21638#0" expanded="false" />
-                <element signature="e#21693#22202#0" expanded="false" />
-                <element signature="e#22363#24834#0" expanded="false" />
-                <element signature="e#24863#26456#0" expanded="false" />
-                <marker date="1510143556000" expanded="true" signature="1165:1285" ph="insert into dbo.ali_spider_employee_table... " />
-                <marker date="1510143556000" expanded="true" signature="1801:1844" ph="select * fro... ali_spider_employee_table" />
-                <marker date="1510143556000" expanded="true" signature="2364:2425" ph="select * fro... ali_spider_employee_table" />
-                <marker date="1510143556000" expanded="true" signature="2962:3023" ph="select * fro... ali_spider_employee_table" />
-                <marker date="1510143556000" expanded="true" signature="3554:3622" ph="update table... " />
-                <marker date="1510143556000" expanded="true" signature="3982:4041" ph="delete from " />
-                <marker date="1510143556000" expanded="true" signature="4460:4546" ph="select usern... ali_spider_employee_table" />
-                <marker date="1510143556000" expanded="true" signature="10842:11140" ph="insert into dbo.GoodsInfoAutoGet... " />
-                <marker date="1510143556000" expanded="true" signature="12481:12709" ph="update dbo.G... " />
-                <marker date="1510143556000" expanded="true" signature="14400:14725" ph="insert into dbo.GoodsInfoAutoGet... " />
-                <marker date="1510143556000" expanded="true" signature="16138:16391" ph="update dbo.G... " />
-                <marker date="1510143556000" expanded="true" signature="18081:18406" ph="insert into dbo.GoodsInfoAutoGet... " />
-                <marker date="1510143556000" expanded="true" signature="19818:20071" ph="update dbo.G... " />
-                <marker date="1510143556000" expanded="true" signature="20698:20753" ph="select Goods... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="21227:21282" ph="select Goods... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="21759:21846" ph="select SiteI... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="21781:21821" ph="select Goods... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="21781:21846" ph="select SiteI... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="23658:23911" ph="update dbo.G... " />
-                <marker date="1510143556000" expanded="true" signature="24516:24571" ph="select Goods... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="25516:25571" ph="select Goods... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="26044:26099" ph="select Goods... GoodsInfoAutoGet" />
-                <marker date="1510143556000" expanded="true" signature="26044:26100" ph="select Goods... GoodsInfoAutoGet" />
-              </folding>
+      <file leaf-file-name="测试京东地址" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试京东地址">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="120">
+                <caret line="8" column="32" lean-forward="true" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="32" />
+                <folding />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -586,28 +615,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>to_right_and_update_data</find>
-      <find>/show</find>
-      <find>p_info</find>
-      <find>Site</find>
-      <find>site_id</find>
-      <find>清空</find>
-      <find>is_de</find>
-      <find>type</find>
-      <find>所有待存储的数据</find>
-      <find>is_delete</find>
-      <find>抓取方式切换</find>
-      <find>抓取方式</find>
-      <find>此商品已下架</find>
-      <find>单个</find>
-      <find>goods_id</find>
-      <find>get_goods_data</find>
-      <find>save_screenshot</find>
-      <find>_DATA_Detail</find>
-      <find>texta</find>
-      <find>一顿</find>
-      <find>/data</find>
-      <find>super-</find>
       <find>del</find>
       <find>__na</find>
       <find>bindHTML</find>
@@ -616,12 +623,35 @@
       <find>重置密码</find>
       <find>删除用户</find>
       <find>用户名</find>
+      <find>trade</find>
+      <find>title</find>
+      <find>item</find>
+      <find>apiStack</find>
+      <find>999</find>
+      <find>priceText</find>
+      <find>淘宝</find>
+      <find>阿里1688</find>
+      <find>get_proxy_ip_from_ip_pool</find>
+      <find>get_goods</find>
+      <find>28</find>
+      <find>afterServiceList</find>
+      <find>sid</find>
+      <find>price</find>
+      <find>newYanBaoInfo</find>
+      <find>wareId</find>
+      <find>skuColorSize</find>
+      <find>shopInfo</find>
+      <find>3785642</find>
+      <find>wdis</find>
+      <find>price_data</find>
+      <find>deal_with</find>
     </findStrings>
     <replaceStrings>
       <replace>/to_save_taobao_data</replace>
       <replace>/taobao_to_save_data</replace>
       <replace>bind</replace>
       <replace>delete</replace>
+      <replace>京东</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -635,11 +665,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test地址/测试阿里1688的地址" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmp_ali_1688_data" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/ali_spider_to_show_2.html" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/Selenium与PhantomJS/Selenium_demo/firefox驱动设置代理/firefox驱动设置代理.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/Selenium与PhantomJS/Selenium_demo/chrome驱动设置代理/chrome驱动设置代理.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/Selenium与PhantomJS/Selenium_demo/phantomjs_selenium_动态修改代理/test.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp.json" />
@@ -648,7 +673,6 @@
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp3.json" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp4.json" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/taobao/tmp5.json" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试淘宝的地址" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/pycurl/demo.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/从实时ip池里获取可用ip.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select.html" />
@@ -664,7 +688,6 @@
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/from_old_db_to_get_goods_id_to_save/ali.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/时间与财务计算/time_datetime_string的转换.py" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/时间与财务计算/pytz/demo.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/taobao_login_and_parse_idea2.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ali_1688_login_and_parse_idea2.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/ali_spider_to_show.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/ali_1688_real-times_update.py" />
@@ -679,13 +702,20 @@
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_tmall.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_taobao.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/taobao_real-times_update.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ju_taobao_parse.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/Reg.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/my_pipeline.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/admin.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/new_my_server.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/login.html" />
-        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/admin.html" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/taobao_login_and_parse_idea2.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ju_taobao_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试淘宝的地址" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/taobao_login_and_parse_idea2.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_jd_data" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test.html" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/jd_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试京东地址" />
       </list>
     </option>
   </component>
@@ -703,7 +733,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="606" />
+    <option name="width" value="1280" />
     <option name="height" value="800" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -881,7 +911,7 @@
               <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
               <item name="电商项目" type="462c0819:PsiDirectoryNode" />
-              <item name="阿里1688_淘宝_天猫" type="462c0819:PsiDirectoryNode" />
+              <item name="阿里1688_淘宝_天猫_京东" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
@@ -891,7 +921,7 @@
               <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
               <item name="电商项目" type="462c0819:PsiDirectoryNode" />
-              <item name="阿里1688_淘宝_天猫" type="462c0819:PsiDirectoryNode" />
+              <item name="阿里1688_淘宝_天猫_京东" type="462c0819:PsiDirectoryNode" />
               <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -902,9 +932,9 @@
               <item name="play_with_scrapy_module" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
               <item name="电商项目" type="462c0819:PsiDirectoryNode" />
-              <item name="阿里1688_淘宝_天猫" type="462c0819:PsiDirectoryNode" />
+              <item name="阿里1688_淘宝_天猫_京东" type="462c0819:PsiDirectoryNode" />
               <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1059,7 +1089,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.new_my_server">
+  <component name="RunManager" selected="Python.jd_parse">
     <configuration name="PythonDoc" type="Python.Ipnb" factoryName="Jupyter Notebook">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1242,6 +1272,42 @@
       <option name="_new_target" value="&quot;.&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
+    </configuration>
+    <configuration name="jd_parse" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/jd_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="ju_taobao_parse" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ju_taobao_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
     <configuration name="lianjia_login" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -1460,42 +1526,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="test_tmall" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_tmall.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="tmall_parse" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmall_parse.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
     <configuration name="turtle_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1526,19 +1556,19 @@
       <item index="8" class="java.lang.String" itemvalue="Python.turtle_test" />
       <item index="9" class="java.lang.String" itemvalue="Python.queue_test" />
       <item index="10" class="java.lang.String" itemvalue="Python.shandong_envir_24h_py2" />
-      <item index="11" class="java.lang.String" itemvalue="Python.tmall_parse" />
-      <item index="12" class="java.lang.String" itemvalue="Python.new_my_server" />
-      <item index="13" class="java.lang.String" itemvalue="Python.test_tmall" />
-      <item index="14" class="java.lang.String" itemvalue="Python.my_pipeline" />
-      <item index="15" class="java.lang.String" itemvalue="Python.taobao_real-times_update" />
+      <item index="11" class="java.lang.String" itemvalue="Python.new_my_server" />
+      <item index="12" class="java.lang.String" itemvalue="Python.my_pipeline" />
+      <item index="13" class="java.lang.String" itemvalue="Python.taobao_real-times_update" />
+      <item index="14" class="java.lang.String" itemvalue="Python.ju_taobao_parse" />
+      <item index="15" class="java.lang.String" itemvalue="Python.jd_parse" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.new_my_server" />
-        <item index="1" class="java.lang.String" itemvalue="Python.taobao_real-times_update" />
-        <item index="2" class="java.lang.String" itemvalue="Python.my_pipeline" />
-        <item index="3" class="java.lang.String" itemvalue="Python.tmall_parse" />
-        <item index="4" class="java.lang.String" itemvalue="Python.test_tmall" />
+        <item index="0" class="java.lang.String" itemvalue="Python.jd_parse" />
+        <item index="1" class="java.lang.String" itemvalue="Python.ju_taobao_parse" />
+        <item index="2" class="java.lang.String" itemvalue="Python.new_my_server" />
+        <item index="3" class="java.lang.String" itemvalue="Python.taobao_real-times_update" />
+        <item index="4" class="java.lang.String" itemvalue="Python.my_pipeline" />
       </list>
     </recent_temporary>
   </component>
@@ -1613,9 +1643,9 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5466667" sideWeight="0.5328125" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32933334" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33866668" sideWeight="0.4671875" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.408" sideWeight="0.4671875" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32266667" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1015625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16015625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31866667" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1716,73 +1746,49 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/pycurl/demo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="12" column="60" lean-forward="true" selection-start-line="12" selection-start-column="60" selection-end-line="12" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/从实时ip池里获取可用ip.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="34" column="21" lean-forward="false" selection-start-line="34" selection-start-column="21" selection-end-line="34" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp.jpg" />
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/python_stubs/-1625016946/builtins.py" />
-    <entry file="file:///usr/local/lib/python3.6/site-packages/selenium/webdriver/remote/webdriver.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="881" column="0" lean-forward="false" selection-start-line="881" selection-start-column="0" selection-end-line="881" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp6.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp6.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="0" column="768" lean-forward="false" selection-start-line="0" selection-start-column="768" selection-end-line="0" selection-end-column="768" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp5.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp5.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="4414" lean-forward="false" selection-start-line="0" selection-start-column="4414" selection-end-line="0" selection-end-column="4414" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp4.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp4.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
           <caret line="0" column="4537" lean-forward="false" selection-start-line="0" selection-start-column="4537" selection-end-line="0" selection-end-column="4537" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp3.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp3.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="3501" lean-forward="false" selection-start-line="0" selection-start-column="3501" selection-end-line="0" selection-end-column="3501" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp2.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp2.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="35289" lean-forward="false" selection-start-line="0" selection-start-column="35289" selection-end-line="0" selection-end-column="35289" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp1.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp1.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="6964" lean-forward="false" selection-start-line="0" selection-start-column="6964" selection-end-line="0" selection-end-column="6964" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/ghostdriver.log">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/ghostdriver.log">
       <provider selected="true" editor-type-id="LogFileEditorProvider">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1797,7 +1803,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/from_old_db_to_get_goods_id_to_save/ali.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/from_old_db_to_get_goods_id_to_save/ali.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="19" column="18" lean-forward="true" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
@@ -1811,24 +1817,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ali_1688_login_and_parse_idea2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="383" column="56" lean-forward="false" selection-start-line="383" selection-start-column="56" selection-end-line="383" selection-end-column="56" />
-          <folding>
-            <element signature="e#17311#18223#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmall/tmp.json">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmall/tmp.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="552">
           <caret line="0" column="10161" lean-forward="false" selection-start-line="0" selection-start-column="10161" selection-end-line="0" selection-end-column="10161" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/tmp_tmall_data">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_tmall_data">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="154">
@@ -1870,7 +1866,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/ali_spider_to_show.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/ali_spider_to_show.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="279">
           <caret line="2282" column="53" lean-forward="true" selection-start-line="2282" selection-start-column="53" selection-end-line="2282" selection-end-column="53" />
@@ -1886,7 +1882,7 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test_tmall.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test_tmall.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="819">
           <caret line="65" column="0" lean-forward="false" selection-start-line="65" selection-start-column="0" selection-end-line="70" selection-end-column="13" />
@@ -1894,20 +1890,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools/test.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="7" lean-forward="true" selection-start-line="10" selection-start-column="7" selection-end-line="10" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/images/bg.png">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/images/bg.png">
       <provider selected="true" editor-type-id="images">
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/taobao_spider_to_show.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/taobao_spider_to_show.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="232">
           <caret line="893" column="276" lean-forward="false" selection-start-line="893" selection-start-column="276" selection-end-line="893" selection-end-column="280" />
@@ -1917,19 +1905,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmall_parse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="650" column="11" lean-forward="true" selection-start-line="650" selection-start-column="11" selection-end-line="650" selection-end-column="11" />
-          <folding>
-            <element signature="e#20572#22195#0" expanded="false" />
-            <element signature="e#24294#25206#0" expanded="false" />
-            <element signature="e#25257#25985#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/tmall_spider_to_show.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/tmall_spider_to_show.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="206">
           <caret line="2222" column="28" lean-forward="true" selection-start-line="2222" selection-start-column="28" selection-end-line="2222" selection-end-column="28" />
@@ -1940,7 +1916,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/select.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
           <caret line="169" column="25" lean-forward="false" selection-start-line="169" selection-start-column="25" selection-end-line="169" selection-end-column="25" />
@@ -1948,7 +1924,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_ali_tmall.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/select_ali_tmall.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="76">
           <caret line="157" column="44" lean-forward="true" selection-start-line="157" selection-start-column="44" selection-end-line="157" selection-end-column="44" />
@@ -1956,7 +1932,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试阿里1688的地址">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试阿里1688的地址">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="75">
@@ -1967,7 +1943,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/select_taobao.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/select_taobao.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
           <caret line="162" column="31" lean-forward="false" selection-start-line="162" selection-start-column="31" selection-end-line="162" selection-end-column="31" />
@@ -1975,18 +1951,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试淘宝的地址">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="56">
-            <caret line="5" column="101" lean-forward="true" selection-start-line="5" selection-start-column="101" selection-end-line="5" selection-end-column="101" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tmp_data/test地址/测试天猫的地址">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试天猫的地址">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
           <first_editor relative-caret-position="225">
@@ -1997,7 +1962,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/ali_1688_real-times_update.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/ali_1688_real-times_update.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
           <caret line="66" column="26" lean-forward="true" selection-start-line="66" selection-start-column="26" selection-end-line="66" selection-end-column="26" />
@@ -2008,7 +1973,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/tmall_real-time_update.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/tmall_real-time_update.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-497">
           <caret line="63" column="50" lean-forward="true" selection-start-line="63" selection-start-column="50" selection-end-line="63" selection-end-column="50" />
@@ -2016,7 +1981,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/实时更新脚本/taobao_real-times_update.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/实时更新脚本/taobao_real-times_update.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="499">
           <caret line="51" column="30" lean-forward="true" selection-start-line="51" selection-start-column="30" selection-end-line="51" selection-end-column="30" />
@@ -2027,7 +1992,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/css/bootstrap.min.css">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/css/bootstrap.min.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
           <caret line="4" column="322" lean-forward="false" selection-start-line="4" selection-start-column="322" selection-end-line="4" selection-end-column="322" />
@@ -2035,36 +2000,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/ju_taobao_parse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="321">
-          <caret line="89" column="15" lean-forward="false" selection-start-line="89" selection-start-column="15" selection-end-line="89" selection-end-column="15" />
-          <folding>
-            <element signature="e#140#151#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/taobao_login_and_parse_idea2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="664" column="31" lean-forward="true" selection-start-line="664" selection-start-column="31" selection-end-line="664" selection-end-column="31" />
-          <folding>
-            <element signature="e#21362#21616#1" expanded="false" />
-            <element signature="e#24288#25944#1" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/static/js/bootstrap.min.js">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/static/js/bootstrap.min.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -2072,7 +2008,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/Reg.html">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/Reg.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="138">
           <caret line="120" column="66" lean-forward="false" selection-start-line="120" selection-start-column="66" selection-end-line="120" selection-end-column="66" />
@@ -2080,13 +2016,95 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/my_pipeline.py">
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/admin.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="118" column="35" lean-forward="false" selection-start-line="118" selection-start-column="35" selection-end-line="118" selection-end-column="35" />
+        <state relative-caret-position="260">
+          <caret line="128" column="37" lean-forward="true" selection-start-line="128" selection-start-column="37" selection-end-line="128" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/时间与财务计算/time_datetime_string的转换.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="28" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/templates/login.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="170" column="46" lean-forward="true" selection-start-line="170" selection-start-column="46" selection-end-line="170" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试淘宝的地址">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="135">
+            <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/new_my_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="567">
+          <caret line="1406" column="0" lean-forward="true" selection-start-line="1406" selection-start-column="0" selection-end-line="1406" selection-end-column="0" />
+          <folding>
+            <element signature="e#1719#4457#0" expanded="false" />
+            <element signature="e#3155#4402#0" expanded="false" />
+            <element signature="e#4524#5823#0" expanded="false" />
+            <element signature="e#5888#13878#0" expanded="false" />
+            <element signature="e#13942#15594#0" expanded="false" />
+            <element signature="e#15670#16271#0" expanded="false" />
+            <element signature="e#16353#16927#0" expanded="false" />
+            <element signature="e#17007#17595#0" expanded="false" />
+            <element signature="e#17723#21790#0" expanded="false" />
+            <element signature="e#21862#31186#0" expanded="false" />
+            <element signature="e#31322#35264#0" expanded="false" />
+            <element signature="e#35350#43869#0" expanded="false" />
+            <element signature="e#44002#48240#0" expanded="false" />
+            <element signature="e#48324#58847#0" expanded="false" />
+            <element signature="e#58928#59393#0" expanded="false" />
+            <element signature="e#59420#59894#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/my_pipeline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="31" lean-forward="false" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="31" />
           <folding>
             <element signature="e#161#182#0" expanded="true" />
+            <element signature="e#450#5056#0" expanded="false" />
+            <element signature="e#507#934#0" expanded="false" />
+            <element signature="e#983#1695#0" expanded="false" />
+            <element signature="e#1736#2242#0" expanded="false" />
+            <element signature="e#2299#2843#0" expanded="false" />
+            <element signature="e#2897#3437#0" expanded="false" />
+            <element signature="e#3489#3841#0" expanded="false" />
+            <element signature="e#3885#4240#0" expanded="false" />
+            <element signature="e#4306#5056#0" expanded="false" />
             <element signature="e#5058#9164#1" expanded="false" />
+            <element signature="e#9221#22333#0" expanded="false" />
+            <element signature="e#9276#9722#0" expanded="false" />
             <element signature="e#9771#11696#0" expanded="false" />
             <element signature="e#11740#13216#0" expanded="false" />
             <element signature="e#13272#15281#0" expanded="false" />
@@ -2125,59 +2143,108 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/re/re_notes">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/ju_taobao_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="108" column="15" lean-forward="false" selection-start-line="108" selection-start-column="15" selection-end-line="108" selection-end-column="15" />
+          <folding>
+            <element signature="e#8465#9120#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-397">
+          <caret line="27" column="10" lean-forward="false" selection-start-line="27" selection-start-column="10" selection-end-line="27" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/ali_1688_login_and_parse_idea2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="479">
+          <caret line="535" column="17" lean-forward="true" selection-start-line="535" selection-start-column="17" selection-end-line="535" selection-end-column="17" />
+          <folding>
+            <element signature="e#17311#18223#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/json/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="143">
+          <caret line="347" column="0" lean-forward="false" selection-start-line="347" selection-start-column="0" selection-end-line="347" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/阿里_1688_项目/ali_1688_simple_page_spider_方案2/my_flask_server/ali_1688_login_and_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/tmp_jd_data">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="-1394">
+            <caret line="355" column="29" lean-forward="false" selection-start-line="355" selection-start-column="29" selection-end-line="355" selection-end-column="29" />
             <folding />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/login.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="186" column="42" lean-forward="true" selection-start-line="186" selection-start-column="42" selection-end-line="186" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/templates/admin.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="128" column="37" lean-forward="true" selection-start-line="128" selection-start-column="37" selection-end-line="128" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/时间与财务计算/time_datetime_string的转换.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmall_parse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
-          <caret line="17" column="28" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="28" />
+          <caret line="540" column="21" lean-forward="true" selection-start-line="534" selection-start-column="8" selection-end-line="540" selection-end-column="21" />
+          <folding>
+            <element signature="e#24294#25206#0" expanded="false" />
+            <element signature="e#25257#25985#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tools/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/new_my_server.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/taobao_login_and_parse_idea2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="231" column="56" lean-forward="false" selection-start-line="231" selection-start-column="56" selection-end-line="231" selection-end-column="56" />
+        <state relative-caret-position="86">
+          <caret line="626" column="0" lean-forward="false" selection-start-line="626" selection-start-column="0" selection-end-line="626" selection-end-column="0" />
           <folding>
-            <element signature="e#3142#4389#0" expanded="false" />
-            <element signature="e#4511#5810#0" expanded="false" />
-            <element signature="e#13929#15581#0" expanded="false" />
-            <element signature="e#15657#16258#0" expanded="false" />
-            <element signature="e#16340#16914#0" expanded="false" />
-            <element signature="e#16994#17582#0" expanded="false" />
-            <element signature="e#17710#21777#0" expanded="false" />
-            <element signature="e#31309#35251#0" expanded="false" />
-            <element signature="e#35337#43856#0" expanded="false" />
-            <element signature="e#43989#48227#0" expanded="false" />
-            <element signature="e#48311#58834#0" expanded="false" />
-            <element signature="e#58915#59380#0" expanded="false" />
-            <element signature="e#59407#59881#0" expanded="false" />
+            <element signature="e#21370#21624#1" expanded="false" />
+            <element signature="e#24296#25952#1" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/tmp_data/test地址/测试京东地址">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="120">
+            <caret line="8" column="32" lean-forward="true" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="32" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫_京东/my_flask_server/jd_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="467">
+          <caret line="282" column="0" lean-forward="false" selection-start-line="282" selection-start-column="0" selection-end-line="282" selection-end-column="0" />
+          <folding>
+            <element signature="e#133#161#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -19,7 +19,7 @@ from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
 from tmall_parse import TmallParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH
-from settings import ADMIN_NAME, ADMIN_PASSWD
+from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import hashlib
@@ -1403,10 +1403,9 @@ def decrypt(key, s):
 
 if __name__ == "__main__":
     print('服务器已经启动...等待接入中...')
-    print('http://0.0.0.0:5000')
+    print('http://0.0.0.0:{}'.format(str(SERVER_PORT),))
 
-    WSGIServer(listener=('0.0.0.0', 5000), application=app).serve_forever()      # 采用高并发部署
-    # app.run(host= '0.0.0.0', debug=False, port=5000)
+    WSGIServer(listener=('0.0.0.0', SERVER_PORT), application=app).serve_forever()      # 采用高并发部署
 
     # 简单的多线程
     # app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
