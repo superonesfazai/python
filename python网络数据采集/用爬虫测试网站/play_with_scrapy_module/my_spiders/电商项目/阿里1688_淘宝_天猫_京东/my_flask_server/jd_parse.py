@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+可对应爬取京东常规商品，京东超市，京东秒杀
+"""
+
 from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH
 
@@ -126,26 +130,6 @@ class JdParse(object):
         处理result_data, 返回需要的信息
         :return: 字典类型
         '''
-        """
-        result = {
-            'shop_name': shop_name,                 # 店铺名称
-            'account': account,                     # 掌柜
-            'title': title,                         # 商品名称
-            'sub_title': sub_title,                 # 子标题
-            'price': price,                         # 商品价格
-            'taobao_price': taobao_price,           # 淘宝价
-            'goods_stock': goods_stock,             # 商品库存
-            'detail_name_list': detail_name_list,   # 商品标签属性名称
-            'detail_value_list': detail_value_list, # 商品标签属性对应的值
-            'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
-            'all_img_url': all_img_url,             # 所有示例图片地址
-            'p_info': p_info,                       # 详细信息标签名对应属性
-            'pc_div_url': pc_div_url,               # pc端描述地址
-            'div_desc': div_desc,                   # div_desc
-            'is_delete': is_delete,                 # 是否下架判断
-            'type': tmall_type,                     # 天猫类型
-        }
-        """
         data = self.result_data
         if data != {}:
             # 店铺名称
@@ -281,11 +265,39 @@ class JdParse(object):
             div_desc = wdis
             # print(div_desc)
 
-
             '''
             是否下架判断
             '''
-            pass
+            is_delete = 0
+
+            result = {
+                'shop_name': shop_name,                 # 店铺名称
+                'account': account,                     # 掌柜
+                'title': title,                         # 商品名称
+                'sub_title': sub_title,                 # 子标题
+                'price': price,                         # 商品价格
+                'taobao_price': taobao_price,           # 淘宝价
+                # 'goods_stock': goods_stock,             # 商品库存
+                'detail_name_list': detail_name_list,   # 商品标签属性名称
+                # 'detail_value_list': detail_value_list, # 商品标签属性对应的值
+                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存(京东隐藏库存无法爬取，只能能买或不能买)
+                'all_img_url': all_img_url,             # 所有示例图片地址
+                'p_info': p_info,                       # 详细信息标签名对应属性
+                # 'pc_div_url': pc_div_url,  # pc端描述地址
+                'div_desc': div_desc,  # div_desc
+                'is_delete': is_delete,  # 是否下架判断
+            }
+            pprint(result)
+            # print(result)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
+            gc.collect()
+            return result
 
         else:
             print('待处理的data为空的dict')
