@@ -8,7 +8,7 @@
 '''
 
 """
-可对应爬取京东常规商品，京东超市，京东秒杀
+可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀
 """
 
 from settings import HEADERS
@@ -37,8 +37,8 @@ class JdParse(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'acs.m.taobao.com',
-            'User-Agent': HEADERS[randint(0, 34)]      # 随机一个请求头
+            'Host': 'jd.com;jd.hk',
+            'User-Agent': HEADERS[randint(0, 34)],      # 随机一个请求头
         }
         self.result_data = {}
 
@@ -69,61 +69,98 @@ class JdParse(object):
         :param goods_id:
         :return: data   类型dict
         '''
-        phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id)
-        print('------>>>| 得到的移动端地址为: ', phone_url)
+        if goods_id == []:
+            print('goods_id为空list')
+            return {}
+        else:
+            tmp_url = ''
+            if goods_id[0] == 0:    # 表示为京东常规商品
+                phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id[1])
+                print('------>>>| 得到的移动端地址为: ', phone_url)
+                # 用于得到常规信息
+                tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id[1])
 
-        # 用于得到常规信息
-        tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id)
-
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
-
-        try:
-            self.driver.get(tmp_url)
-            self.driver.implicitly_wait(15)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-        body = self.driver.page_source
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
-        # print(body)
-
-        body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
-        if body_1 != []:
-            data = body_1[0]
-            data = json.loads(data)
-            # pprint(data)
-            wdis = data.get('wdis', '') # 图文描述
-            data = data.get('ware', {})
-            try:
-                data.pop('wdisHtml')
-                data.get('wi', {})['afterServiceList'] = []
-            except Exception:
-                pass
-
-            # 处理'wi' 'code'
-            code = data.get('wi', {}).get('code', '')
-            if code != '':
-                code = json.loads(code)
-                data.get('wi', {})['code'] = code
-
-            # 处理wdis
-            data['wdis'] = wdis
-
-            if data != {}:
-                self.result_data = data
-                # pprint(data)
-                return data
-            else:
-                print('获取到的data的key值ware为空!')
+            elif goods_id[0] == 1:  # 表示为京东全球购商品 (此处由于进口关税无法计算先不处理京东全球购)
+                phone_url = 'https://mitem.jd.hk/ware/view.action?wareId=' + str(goods_id[1])
+                print('------>>>| 得到的移动端地址为: ', phone_url)
+                tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
+                print('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
                 return {}
 
-        else:
-            print('获取到的data为空!')
-            return {}
+            elif goods_id[0] == 2:  # 表示京东大药房商品
+                phone_url = 'https://m.yiyaojd.com/ware/view.action?wareId=' + str(goods_id[1])
+                print('------>>>| 得到的移动端地址为: ', phone_url)
+                tmp_url = 'https://m.yiyaojd.com/ware/detail.json?wareId=' + str(goods_id[1])
+
+            # print(tmp_url)
+            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
+
+            if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
+                try:
+                    # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
+                    self.driver.get('https://mitem.jd.hk/cart/cartNum.json')
+                    self.driver.implicitly_wait(15)
+                except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                    print('-->>time out after 15 seconds when loading page')
+                    self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                    # pass
+            elif goods_id[0] == 2:
+                try:
+                    # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
+                    self.driver.get('https://m.yiyaojd.com/cart/cartNum.json')
+                    self.driver.implicitly_wait(15)
+                except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                    print('-->>time out after 15 seconds when loading page')
+                    self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                    # pass
+
+            try:
+                self.driver.get(tmp_url)
+                self.driver.implicitly_wait(15)
+            except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                print('-->>time out after 15 seconds when loading page')
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                # pass
+            body = self.driver.page_source
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+            # print(body)
+
+            body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
+            if body_1 != []:
+                data = body_1[0]
+                data = json.loads(data)
+                # pprint(data)
+                wdis = data.get('wdis', '') # 图文描述
+                data = data.get('ware', {})
+                try:
+                    data.pop('wdisHtml')
+                    data.get('wi', {})['afterServiceList'] = []
+                except Exception:
+                    pass
+
+                # 处理'wi' 'code'
+                code = data.get('wi', {}).get('code', '')
+                if code != '':
+                    code = json.loads(code)
+                    data.get('wi', {})['code'] = code
+
+                # 处理wdis
+                data['wdis'] = wdis
+
+                if data != {}:
+                    self.result_data = data
+                    # pprint(data)
+                    return data
+                else:
+                    print('获取到的data的key值ware为空!')
+                    return {}
+
+            else:
+                print('获取到的data为空!')
+                return {}
 
     def deal_with_data(self, goods_id):
         '''
@@ -189,12 +226,23 @@ class JdParse(object):
 
                         sku_id = item.get('skuId')
                         # 对每个sku_id就行一次请求，来获得对应sku_id的价格数据
-                        ware_price = self.from_ware_id_get_price_info(ware_id=sku_id)
+                        if goods_id[0] == 0:
+                            sku_id = [0, sku_id]
+                        elif goods_id[0] == 1:
+                            sku_id = [1, sku_id]
+                        elif goods_id[0] == 2:
+                            sku_id = [2, sku_id]
+                        ware_price_and_main_img_url_list = self.from_ware_id_get_price_info(ware_id=sku_id)
 
                         tmp['spec_value'] = tmp_spec_value
-                        tmp['detail_price'] = ware_price
+                        if ware_price_and_main_img_url_list != []:
+                            tmp['detail_price'] = ware_price_and_main_img_url_list[0]
+                            tmp['img'] = ware_price_and_main_img_url_list[1]
+                        else:
+                            tmp['detail_price'] = ''
+                            tmp['img'] = ''
+
                         tmp['rest_number'] = ''
-                        tmp['img'] = item.get('image')
                         price_info_list.append(tmp)
             # pprint(price_info_list)
 
@@ -203,7 +251,7 @@ class JdParse(object):
             最高价和最低价处理   从已经获取到的规格对应价格中筛选最高价和最低价即可
             '''
             if detail_name_list == []:  # 说明没有规格，所有价格只能根据当前的goods_id来获取
-                price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)), 2)
+                price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
                 taobao_price = price
             else:
                 tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
@@ -266,6 +314,22 @@ class JdParse(object):
             # print(div_desc)
 
             '''
+            判断是否是京东商品类型
+            '''
+            # print(data.get('isJdMarket'))
+            if data.get('isJdMarket'):      # False不是京东超市
+                print('该链接为京东超市')
+                jd_type = 8                 # 7为京东常规商品, 8表示京东超市, 9表示京东全球购, 10表示京东大药房
+            elif goods_id[0] == 1:
+                print('该链接为京东全球购')
+                jd_type = 9
+            elif goods_id[0] == 2:
+                print('该链接为京东大药房')
+                jd_type = 10
+            else:
+                jd_type = 7
+            # print('jd_type为: ', jd_type)
+            '''
             是否下架判断
             '''
             is_delete = 0
@@ -283,9 +347,10 @@ class JdParse(object):
                 'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存(京东隐藏库存无法爬取，只能能买或不能买)
                 'all_img_url': all_img_url,             # 所有示例图片地址
                 'p_info': p_info,                       # 详细信息标签名对应属性
-                # 'pc_div_url': pc_div_url,  # pc端描述地址
-                'div_desc': div_desc,  # div_desc
-                'is_delete': is_delete,  # 是否下架判断
+                # 'pc_div_url': pc_div_url,               # pc端描述地址
+                'div_desc': div_desc,                   # div_desc
+                'is_delete': is_delete,                 # 是否下架判断
+                'jd_type': jd_type,                     # 京东类型，(京东常规商品为7,京东超市为8)
             }
             pprint(result)
             # print(result)
@@ -307,7 +372,15 @@ class JdParse(object):
         '''
         得到价格信息，由于过滤了requests所以用phantomjs
         '''
-        price_url = 'https://item.m.jd.com/ware/getSpecInfo.json?wareId=' + str(ware_id)
+        price_url = ''
+        if ware_id[0] == 0:    # 表示为京东常规商品
+            price_url = 'https://item.m.jd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
+
+        elif ware_id[0] == 1:  # 表示为京东全球购商品
+            price_url = 'https://mitem.jd.hk/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
+
+        elif ware_id[0] == 2:  # 表示京东大药房商品
+            price_url = 'https://m.yiyaojd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
 
         self.from_ip_pool_set_proxy_ip_to_phantomjs()   # 每次都动态换代理ip比较危险感觉，容易跑死, 但是也不可能拿裸机ip进行爬取，京东有点坑哦，嘿嘿！
         self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
@@ -364,10 +437,19 @@ class JdParse(object):
                 price_data['allSizeSet'] = all_size_set
 
             # pprint(price_data)
-            return price_data.get('warePrice', '')
+            if price_data.get('wareMainImageUrl') is not None:
+                main_image_url = price_data.get('wareMainImageUrl')
+            else:
+                main_image_url = ''
+
+            return [
+                price_data.get('warePrice', ''),    # 价格
+                main_image_url,                     # 主图地址
+            ]
+
         else:
             # print('获取到的price_data为空!')
-            return ''
+            return []
 
     def get_proxy_ip_from_ip_pool(self):
         '''
@@ -417,10 +499,22 @@ class JdParse(object):
         if is_jd_url != []:
             goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(jd_url)[0]
             print('------>>>| 得到的京东商品id为:', goods_id)
-            return goods_id
+            return [0, goods_id]            # 0表示京东常规商品
         else:
-            print('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)开头的...')
-            return ''
+            is_jd_hk_url = re.compile(r'https://item.jd.hk/.*?').findall(jd_url)
+            if is_jd_hk_url != []:
+                goods_id = re.compile(r'https://item.jd.hk/(.*?).html.*?').findall(jd_url)[0]
+                print('------>>>| 得到的京东全球购商品id为:', goods_id)
+                return [1, goods_id]        # 1表示京东全球购商品
+            else:
+                is_yiyao_jd_url = re.compile(r'https://item.yiyaojd.com/.*?').findall(jd_url)
+                if is_yiyao_jd_url != []:
+                    goods_id = re.compile(r'https://item.yiyaojd.com/(.*?).html.*?').findall(jd_url)[0]
+                    print('------>>>| 得到的京东大药房商品id为:', goods_id)
+                    return [2, goods_id]    # 2表示京东大药房
+                else:
+                    print('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
+                    return []
 
     def __del__(self):
         try:

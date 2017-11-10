@@ -563,6 +563,92 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
 
+    def insert_into_jd_table(self, item):
+        try:
+            cs = self.conn.cursor()
+
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['username'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],                          # 存入到DetailInfo
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+                       tuple(params))   # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入mysql中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
+
+    def update_jd_table(self, item):
+        try:
+            cs = self.conn.cursor()
+
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['is_delete'],
+
+                item['goods_id'],
+            ]
+
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s where GoodsID = %s',
+                       tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+
     def select_ali_1688_all_goods_id(self):
         try:
             cs = self.conn.cursor()

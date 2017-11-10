@@ -108,13 +108,69 @@
 				border-radius: .08rem;
 				text-decoration: none!important;
 			}
+ 	.adduser{
+ 		display: none;
+ 		position: fixed;
+ 		left: 0;
+ 		top: 0;
+ 		right: 0;
+ 		bottom: 0;
+ 		margin: auto;
+ 		background: rgba(0,0,0,.4);
+ 	}
+ 	.login-content{
+    width: 5rem;
+    height: 4rem;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    background: #FFFFFF;
+    padding-top: .4rem;
+    border-radius: 5px;
+ 	}
+ 	.login-content>div{
+ 		height: .28rem;
+ 		line-height: .28rem;
+ 		margin-bottom: .2rem;
+ 	}
+ 	.phone,.setPass,.confirmPass,.command,.ralenane,.department{
+ 		display: block;
+ 		width: 3.0rem;
+ 		height: .28rem;
+ 		border: .01rem solid #CCCCCC;
+ 		border-radius: .05rem;
+ 		margin: 0 auto;
+ 		text-indent: 5px;
+ 	}
+ 	.login-btn{
+ 		width: 3.0rem;
+ 		height:  .4rem; 		
+ 		margin: 0 auto;
+ 	}
+ 	.login-btn input{
+ 		width: 3.0rem;
+ 		height:  .4rem; 
+ 		background: #439aeb;
+ 		color: #ffffff;
+ 		text-align: center;
+ 		line-height: .4rem;
+ 		border-radius: .05rem;
+
+ 	}
+ 	.wPhone,.wPass{
+ 		text-align: center;
+ 		color: red;
+ 	}			
 	</style>
 	<body>
 		<div class="main">
 			<div class="header">
 				<div class="title">
 					<div>客服管理</div>
-					<!--<div class="add">添加</div>-->
+					<div class="add">添加</div>
 				</div>
 				<div class="seach">
 					<div class="seach-content">
@@ -123,7 +179,7 @@
 					<div class="seach-btn"><a class="find" href="javascript:;">查找</a><a class="getlist" href="javascript:;">点击查看当前所有客服信息</a></div>
 				</div>
 			</div>
-			<div class="content">
+			<div class="login content">
 				<table class="table table-striped table-bordered table-hover" border="" cellspacing="" cellpadding="">
 					<tr class="t-header">
 						<th>真实姓名</th>
@@ -133,44 +189,19 @@
 						<th>创建时间</th>
 						<th>管理 <a class="allDelete" href="javascript:;">批量删除</a></th>
 					</tr>
-					<!-- <tr class="userList">
-						<td>
-							<input type="checkbox" name="name" class="box" value=""/>老黄
-						</td>
-						<td name='username'>1</td>
-						<td>456465</td>
-						<td>464</td>
-						<td>Data</td>
-						<td>
-							<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
-						</td>
-					</tr>
-					<tr  class="userList">
-						<td>
-							<input type="checkbox" name="name" class="box" value=""/>老黄
-						</td>
-						<td  name='username'>2</td>
-						<td>456465</td>
-						<td>464</td>
-						<td>Data</td>
-						<td>
-							<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
-						</td>
-					</tr>	
-					<tr  class="userList">
-						<td>
-							<input type="checkbox" name="name" class="box" value=""/>老黄
-						</td>
-						<td  name='username'>3</td>
-						<td>456465</td>
-						<td>464</td>
-						<td>Data</td>
-						<td>
-							<a href="javascript:;" class="resetPass">reset</a><a class="delete" href="javascript:;">delete</a>
-						</td>
-					</tr> -->
 				</table>
 			</div>
+		</div>
+		<div class="adduser">
+			<form class="login-content" action="" method="post">
+				<div><input type="text" name="ralenane" class="ralenane" id="ralenane" value="" placeholder="真实姓名"/></div>
+				<div><input type="text" name="department" class="department" id="department" value="" placeholder="部门"/></div>
+				<div><input type="text" name="username" class="phone" id="phone" value="" placeholder="手机号"/><div class="wPhone"></div></div>
+				<div><input type="password" name="passwd" class="setPass"  id="setPass" value="" placeholder="设置密码" /><div class=""></div></div>
+				<div><input type="password" name="" class="confirmPass"  id="confirmPass" value="" placeholder="确认密码" /><div class="wPass"></div></div>
+				<!--<div><input type="text" name="inner_pass" class="command"  id="command" value="" placeholder="内部员工口令" /></div>								-->
+				<div class="login-btn"><input id="regBtn" type="submit" value="注册"/></div>
+			</form>
 		</div>
 		<script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../static/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
@@ -330,8 +361,47 @@
                     }
                 })
             })
-
+            //添加
+            $('.add').click(function(){
+            	$('.adduser').show();
+            })
+//判断用户输入信息是否符合
+		var isTrue = false;
+		$('#phone').keyup(function(){
+			var curInput = $('#phone').val(),
+					Reg  = /^((\d3)|(\d{3}\-))?[13|15|18][0-9]\d{8}|15[89]\d{8}$/;
+					if(!Reg.test(curInput)||curInput.length!='11'){
+						$('.wPhone').text('您的输入的手机号码不合格');
+						isTrue = false;
+					}else{
+						$('.wPhone').text('');
+						isTrue = true;
+					}			
+		})
+		$('#confirmPass').keyup(function(){
+			var curInput = $('#confirmPass').val(),
+					curPass = $('#setPass').val();
+					
+					if(curInput != curPass){
+						$('.wPass').text('两次密码必须一致');
+						isTrue = false;
+					}else{
+						$('.wPass').text('')
+						isTrue = true;
+					}			
+		})		
+//判断用户信息是否完成然后提交
+		$('.login-btn').click(function(){
+			if($('#phone').val()==''||$('#setPass').val()== ''||$('#comfirmPass').val()== ''||$('#command').val()==''||$('.ralenane').val()==''||$('.department').val()==''){
+				console.log('1')
+				return false
+			}else{
+				console.log('2')
+				return
+			}
+		})
         })
+		
 		</script>
 	</body>
 </html>
