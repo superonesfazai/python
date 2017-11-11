@@ -14,7 +14,7 @@ from tmall_parse import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
-import os
+import os, re, pytz, datetime
 
 def run_forever():
     while True:
@@ -77,10 +77,26 @@ def run_forever():
                 gc.collect()
                 # sleep(1)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        sleep(5)
+        if get_shanghai_time_hour() == 0:   # 0点以后不更新
+            sleep(60*60*5.5)
+        else:
+            sleep(5)
         # del ali_1688
         gc.collect()
 
+def get_shanghai_time_hour():
+    '''
+    时区处理，时间处理到上海时间
+    '''
+    tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+    now_time = datetime.datetime.now(tz)
+
+    # 处理为精确到秒位，删除时区信息
+    now_time = re.compile(r'\..*').sub('', str(now_time))
+    # 将字符串类型转换为datetime类型
+    now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+    return now_time.hour
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''

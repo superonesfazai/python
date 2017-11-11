@@ -14,20 +14,20 @@
 import sys
 sys.path.append('..')
 
-from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
+from taobao_parse import TaoBaoLoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 import gc
 from time import sleep
-import os
+import os, re, pytz, datetime
 
 def run_forever():
     #### 实时更新数据
     while True:
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        # tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
+        # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
         try:
-            result = list(tmp_sql_server.select_taobao_all_goods_id())
-            # result = tmp_sql_server.select_taobao_all_goods_id()
+            # result = list(tmp_sql_server.select_taobao_all_goods_id())
+            result = tmp_sql_server.select_taobao_all_goods_id()
 
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
@@ -51,8 +51,8 @@ def run_forever():
                     # except:
                     #     pass
                     # gc.collect()
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    # tmp_sql_server = SqlPools()
+                    # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                    tmp_sql_server = SqlPools()
 
                     print('与数据库的新连接成功建立...')
 
@@ -78,9 +78,25 @@ def run_forever():
                 # 国外服务器上可以缩短时间, 可以设置为0s
                 sleep(1.8)  # 不能太频繁，与用户请求错开尽量
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        sleep(5)
+        if get_shanghai_time_hour() == 0:   # 0点以后不更新
+            sleep(60*60*5.5)
+        else:
+            sleep(5)
         gc.collect()
 
+def get_shanghai_time_hour():
+    '''
+    时区处理，时间处理到上海时间
+    '''
+    tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+    now_time = datetime.datetime.now(tz)
+
+    # 处理为精确到秒位，删除时区信息
+    now_time = re.compile(r'\..*').sub('', str(now_time))
+    # 将字符串类型转换为datetime类型
+    now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+    return now_time.hour
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''

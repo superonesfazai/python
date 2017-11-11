@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : test_ali_1688_phone.py
+@File    : ali_1688_parse.py
 @Time    : 2017/10/26 11:01
 @connect : superonesfazai@gmail.com
 '''

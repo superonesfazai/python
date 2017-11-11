@@ -8,7 +8,7 @@
 '''
 
 """
-可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀
+可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀('miaosha'字段)，京东闪购
 """
 
 from settings import HEADERS
@@ -246,13 +246,22 @@ class JdParse(object):
                         price_info_list.append(tmp)
             # pprint(price_info_list)
 
+            '''
+            是否下架判断
+            '''
+            is_delete = 0
+
             # 商品价格
             '''
             最高价和最低价处理   从已经获取到的规格对应价格中筛选最高价和最低价即可
             '''
             if detail_name_list == []:  # 说明没有规格，所有价格只能根据当前的goods_id来获取
-                price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
-                taobao_price = price
+                if self.from_ware_id_get_price_info(ware_id=goods_id)[0] == '暂无报价':
+                    is_delete = 1       # 说明已经下架
+                    price, taobao_price = (0, 0,)
+                else:
+                    price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
+                    taobao_price = price
             else:
                 tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
                 # print(tmp_price_list)
@@ -276,12 +285,24 @@ class JdParse(object):
 
             # 详细信息标签名对应属性
             tmp_p_info = data.get('wi', {}).get('code')
+            # pprint(tmp_p_info)
             p_info = []
             if tmp_p_info is not None:
                 for item in tmp_p_info:
                     tmp = {}
                     tmp['p_name'] = list(item.keys())[0]
-                    tmp['p_value'] = list(item.values())[0]
+                    tmp_p_value = list(item.values())[0]
+                    tmp_p_value_2 = []
+                    if isinstance(tmp_p_value, list):
+                        for i in tmp_p_value:
+                            tmp_2 = {}
+                            tmp_2['name'] = list(i.keys())[0]
+                            tmp_2['value'] = list(i.values())[0]
+                            tmp_p_value_2.append(tmp_2)
+                        tmp['p_value'] = tmp_p_value_2
+                    else:
+                        tmp['p_value'] = tmp_p_value
+
                     p_info.append(tmp)
             else:
                 p_info = []
@@ -295,11 +316,11 @@ class JdParse(object):
             if data.get('popWareDetailWebViewMap') is not None:
                 if data.get('popWareDetailWebViewMap').get('cssContent') is not None:
                     wdis = data.get('popWareDetailWebViewMap', {}).get('cssContent', '')
-                    wdis = re.compile(r'&lt;').sub('<',
-                                                   wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+                    wdis = re.compile(r'&lt;').sub('<', wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
                     wdis = re.compile(r'&gt;').sub('>', wdis)
                     wdis = re.compile(r'&amp;').sub('&', wdis)
                     wdis = re.compile(r'&nbsp;').sub(' ', wdis)
+                    wdis = re.compile(r'\n').sub('', wdis)
                     wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
                     wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
 
@@ -308,6 +329,7 @@ class JdParse(object):
             wdis = re.compile(r'&gt;').sub('>', wdis)
             wdis = re.compile(r'&amp;').sub('&', wdis)
             wdis = re.compile(r'&nbsp;').sub(' ', wdis)
+            wdis = re.compile(r'\n').sub('', wdis)
             wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
             wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
             div_desc = wdis
@@ -329,10 +351,6 @@ class JdParse(object):
             else:
                 jd_type = 7
             # print('jd_type为: ', jd_type)
-            '''
-            是否下架判断
-            '''
-            is_delete = 0
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -352,8 +370,8 @@ class JdParse(object):
                 'is_delete': is_delete,                 # 是否下架判断
                 'jd_type': jd_type,                     # 京东类型，(京东常规商品为7,京东超市为8)
             }
-            pprint(result)
-            # print(result)
+            # pprint(result)
+            print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,

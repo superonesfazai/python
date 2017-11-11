@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : taobao_login_and_parse_idea2.py
+@File    : taobao_parse.py
 @Time    : 2017/10/25 07:40
 @connect : superonesfazai@gmail.com
 '''

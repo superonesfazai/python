@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm{
+	.ali,.taob,.tianm,.jd{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span{
+	.ali span,.taob span,.tianm span,.jd span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -55,6 +55,10 @@
 		background: url(../static/images/tianm.png)no-repeat;	
 		background-size: 100% 100%;			
 	}	
+	.jd span{
+		background: url(../static/images/jd.jpg)no-repeat;	
+		background-size: 100% 100%;			
+	}		
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -64,6 +68,9 @@
 	.tianm span:hover .login-btn{
 		display: block;
 	}
+	.jd span:hover .login-btn{
+		display: block;
+	}	
 	.login-btn{
 		display: none;
 		width: 1rem;
@@ -173,6 +180,11 @@
     					<!--请点击登录-->
     				<!--</a>-->
     		<!--</span></div>-->
+    		<!--<div class="jd passListItem"><span>-->
+					<!--<a class="login-btn" href="/show_jd" target="_blank">-->
+    					<!--请点击登录-->
+    				<!--</a>-->
+    		<!--</span></div>    		-->
     	</div>
     	<!--<ul class="login" id="login">
     		<li class="loginList">
@@ -251,7 +263,17 @@
 							confirm_login:'tianm_login'
 						}
 					});
-				})	
+				})
+				$('.login-btn').eq(3).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'jd_login'
+						}
+					});
+				})
 //			for(var i=0;i<passListItem.length;i++){
 //				passListItem[i].index = i;
 //				passListItem[i].onmouseover=function(){

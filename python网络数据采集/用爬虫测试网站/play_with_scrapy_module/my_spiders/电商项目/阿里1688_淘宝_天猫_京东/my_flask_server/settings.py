@@ -71,6 +71,7 @@ spider_to_show.html页面path
 ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show.html'
 TAOBAO_SPIDER_TO_SHWO_PATH = 'templates/taobao_spider_to_show.html'
 TMALL_SPIDER_TO_SHOW_PATH = 'templates/tmall_spider_to_show.html'
+JD_SPIDER_TO_SHOW_PATH = 'templates/jd_spider_to_show.html'
 
 """
 headers

@@ -11,36 +11,20 @@ from selenium import webdriver
 import requests
 from time import sleep
 from pprint import pprint
+import pytz
+import datetime
+import re
 
-headers = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    # 'Accept-Encoding:': 'gzip',
-    'Accept-Language': 'zh-CN,zh;q=0.8',
-    'Cache-Control': 'max-age=0',
-    'Connection': 'keep-alive',
-    'Host': 'mitem.jd.hk',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',      # 随机一个请求头
-}
+'''
+时区处理，时间处理到上海时间
+'''
+tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+now_time = datetime.datetime.now(tz)
 
-# cookies = 'sid=e744b6e8ba5d52a15fdbb98afffb04d3'
-print('--->>>初始化phantomjs驱动中<<<---')
-cap = webdriver.DesiredCapabilities.PHANTOMJS
-cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-cap['phantomjs.page.settings.loadImages'] = False
-cap['phantomjs.page.settings.disk-cache'] = True
-cap['phantomjs.page.settings.userAgent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'  # 随机一个请求头
-# cap['phantomjs.page.customHeaders.Cookie'] = cookies
-tmp_execute_path = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
+# 处理为精确到秒位，删除时区信息
+now_time = re.compile(r'\..*').sub('', str(now_time))
+# 将字符串类型转换为datetime类型
+now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
 
-driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-print('--->>>初始化phantomjs完毕<<<---')
-url = 'https://mitem.jd.hk/cart/cartNum.json'
-driver.get(url)
-pprint(driver.get_cookie(name='sid'))
-if driver.get_cookie(name='sid') is None:
-    driver.get(url)
-url = 'https://mitem.jd.hk/ware/detail.json?wareId=2443358'
-driver.get(url)
-print(driver.page_source)
-driver.quit()
+print(type(now_time.hour))
 

@@ -14,12 +14,12 @@ from flask import Flask, render_template, url_for, request,redirect,make_respons
 from flask import send_file
 from flask_login import LoginManager
 
-from ali_1688_login_and_parse_idea2 import ALi1688LoginAndParse
-from taobao_login_and_parse_idea2 import TaoBaoLoginAndParse
+from ali_1688_parse import ALi1688LoginAndParse
+from taobao_parse import TaoBaoLoginAndParse
 from tmall_parse import TmallParse
-from .jd_parse import JdParse
+from jd_parse import JdParse
 from my_pipeline import UserItemPipeline
-from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH
+from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -141,6 +141,11 @@ def select():
             elif ajax_request == 'tianm_login':
                 response = make_response(redirect('show_tmall'))  # 重定向到新的页面
                 return response
+
+            elif ajax_request == 'jd_login':
+                response = make_response(redirect('show_jd'))
+                return response
+
             else:
                 return '''
                 <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
@@ -486,6 +491,24 @@ def show_tmall_info():
         else:
             # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(TMALL_SPIDER_TO_SHOW_PATH)
+
+@app.route('/show_jd', methods=['GET', 'POST'])
+def show_jd_info():
+    '''
+    点击后成功后显示的爬取页面
+    :return:
+    '''
+    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+        return '''
+        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+        '''
+    else:
+        print('正在获取爬取页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            return send_file(JD_SPIDER_TO_SHOW_PATH)
 
 ######################################################
 # ali_1688
