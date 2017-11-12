@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import datetime
+import time
 
 # 把datetime转成字符串
 def datetime_toString(dt):
@@ -25,9 +27,12 @@ def string_toTimestamp(strTime):
 
 # 把时间戳转成字符串形式
 def timestamp_toString(stamp):
-    return time.strftime("%Y-%m-%d-%H", tiem.localtime(stamp))
+    return time.strftime("%Y-%m-%d-%H", time.localtime(stamp))
 
 
 # 把datetime类型转外时间戳形式
 def datetime_toTimestamp(dateTim):
     return time.mktime(dateTim.timetuple())
+
+now_time = time.time()
+print(timestamp_toString(now_time))

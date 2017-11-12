@@ -452,8 +452,6 @@ class TmallParse(object):
                         # print('22')
                         is_delete = 1
 
-            #
-
             # 2. 此处再考虑名字中显示下架的商品
             if re.compile(r'下架').findall(title) != []:
                 if re.compile(r'待下架').findall(title) != []:
@@ -552,7 +550,6 @@ class TmallParse(object):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        # tmp['spider_url'] = data_list['spider_url']  # 商品地址
         '''
         时区处理，时间处理到上海时间
         '''
@@ -563,7 +560,6 @@ class TmallParse(object):
         # 将字符串类型转换为datetime类型
         now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
 
-        # tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称

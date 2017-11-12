@@ -706,6 +706,25 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return None
 
+    def select_jd_all_goods_id_url(self):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select SiteID, GoodsID from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
     def __del__(self):
         try:
             self.conn.close()

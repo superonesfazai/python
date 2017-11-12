@@ -371,7 +371,7 @@ class JdParse(object):
                 'jd_type': jd_type,                     # 京东类型，(京东常规商品为7,京东超市为8)
             }
             # pprint(result)
-            print(result)
+            # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -403,6 +403,7 @@ class JdParse(object):
         self.from_ip_pool_set_proxy_ip_to_phantomjs()   # 每次都动态换代理ip比较危险感觉，容易跑死, 但是也不可能拿裸机ip进行爬取，京东有点坑哦，嘿嘿！
         self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
 
+        # print(price_url)
         try:
             self.driver.get(price_url)
             self.driver.implicitly_wait(12)
@@ -468,6 +469,65 @@ class JdParse(object):
         else:
             # print('获取到的price_data为空!')
             return []
+
+    def to_right_and_update_data(self, data, pipeline):
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        # # 采集的来源地
+        # if data_list.get('jd_type') == 7:
+        #     tmp['site_id'] = 7  # 采集来源地(京东)
+        # elif data_list.get('jd_type') == 8:
+        #     tmp['site_id'] = 8  # 采集来源地(京东超市)
+        # elif data_list.get('jd_type') == 9:
+        #     tmp['site_id'] = 9  # 采集来源地(京东全球购)
+        # elif data_list.get('jd_type') == 10:
+        #     tmp['site_id'] = 10  # 采集来源地(京东大药房)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+
+        pipeline.update_jd_table(tmp)
 
     def get_proxy_ip_from_ip_pool(self):
         '''
