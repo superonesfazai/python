@@ -341,14 +341,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入mysql中*** |')
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
@@ -379,14 +379,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
@@ -425,14 +425,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入mysql中*** |')
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
@@ -465,14 +465,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
@@ -511,14 +511,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入mysql中*** |')
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
@@ -551,14 +551,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
@@ -597,14 +597,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入mysql中*** |')
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
@@ -637,14 +637,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入mysql中*** |')
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass

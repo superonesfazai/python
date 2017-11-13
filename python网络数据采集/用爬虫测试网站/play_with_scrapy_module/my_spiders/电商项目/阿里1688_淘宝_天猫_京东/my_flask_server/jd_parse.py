@@ -8,7 +8,7 @@
 '''
 
 """
-可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀('miaosha'字段)，京东闪购
+可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀('miaosha'字段)，京东闪购, 京东大药房(在本地测试通过, 服务器data为空)
 """
 
 from settings import HEADERS
@@ -143,9 +143,15 @@ class JdParse(object):
 
                 # 处理'wi' 'code'
                 code = data.get('wi', {}).get('code', '')
+                # print('wi,code的为: ', code)
                 if code != '':
-                    code = json.loads(code)
-                    data.get('wi', {})['code'] = code
+                    try:
+                        code = json.loads(code)
+                        data.get('wi', {})['code'] = code
+                    except Exception as e:  # 对应p_info解析错误的, 换方法解析
+                        print('wi中的code对应json解析错误, 为:', e)
+                        code = data.get('wi', {}).get('wareQD', '')
+                        data.get('wi', {})['code'] = code
 
                 # 处理wdis
                 data['wdis'] = wdis
@@ -263,7 +269,11 @@ class JdParse(object):
                     price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
                     taobao_price = price
             else:
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+                try:
+                    tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+                except ValueError:
+                    print('tmp_price_list的ValueError，此处设置为跳过')
+                    return {}
                 # print(tmp_price_list)
                 if tmp_price_list != []:
                     price = tmp_price_list[-1]
@@ -288,22 +298,27 @@ class JdParse(object):
             # pprint(tmp_p_info)
             p_info = []
             if tmp_p_info is not None:
-                for item in tmp_p_info:
-                    tmp = {}
-                    tmp['p_name'] = list(item.keys())[0]
-                    tmp_p_value = list(item.values())[0]
-                    tmp_p_value_2 = []
-                    if isinstance(tmp_p_value, list):
-                        for i in tmp_p_value:
-                            tmp_2 = {}
-                            tmp_2['name'] = list(i.keys())[0]
-                            tmp_2['value'] = list(i.values())[0]
-                            tmp_p_value_2.append(tmp_2)
-                        tmp['p_value'] = tmp_p_value_2
-                    else:
-                        tmp['p_value'] = tmp_p_value
+                if isinstance(tmp_p_info, str):
+                    p_info = [{'p_name': '规格和包装', 'p_value': tmp_p_info}]
+                elif isinstance(tmp_p_info, list):
+                    for item in tmp_p_info:
+                        tmp = {}
+                        tmp['p_name'] = list(item.keys())[0]
+                        tmp_p_value = list(item.values())[0]
+                        tmp_p_value_2 = []
+                        if isinstance(tmp_p_value, list):
+                            for i in tmp_p_value:
+                                tmp_2 = {}
+                                tmp_2['name'] = list(i.keys())[0]
+                                tmp_2['value'] = list(i.values())[0]
+                                tmp_p_value_2.append(tmp_2)
+                            tmp['p_value'] = tmp_p_value_2
+                        else:
+                            tmp['p_value'] = tmp_p_value
 
-                    p_info.append(tmp)
+                        p_info.append(tmp)
+                else:
+                    p_info = []
             else:
                 p_info = []
             # pprint(p_info)      # 爬取是手机端的所以没有第一行的，就是手机端的规格

@@ -36,7 +36,7 @@ import gc
 # import traceback
 # from io import BytesIO
 
-from settings import TAOBAO_COOKIES_FILE_PATH, HEADERS
+from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
 import pytz
 
@@ -581,6 +581,7 @@ class TaoBaoLoginAndParse(object):
             div = ''
 
         return div
+
     """
     def init_chrome_driver(self):
         '''
@@ -666,7 +667,7 @@ class TaoBaoLoginAndParse(object):
             if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url) != []:
                 tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
                 # print(tmp_taobao_url)
-                if tmp_taobao_url != []:
+                if tmp_taobao_url != '':
                     goods_id = tmp_taobao_url
                 else:
                     taobao_url = re.compile(r';').sub('', taobao_url)
@@ -674,7 +675,7 @@ class TaoBaoLoginAndParse(object):
                 print('------>>>| 得到的淘宝商品id为:', goods_id)
                 return goods_id
             else:       # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
-                print('9999')
+                # print('9999')
                 taobao_url = re.compile(r';').sub('', taobao_url)
                 goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
                 print('------>>>| 得到的淘宝商品id为:', goods_id)
