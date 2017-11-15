@@ -22,6 +22,9 @@ from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from settings import BASIC_APP_KEY
+from settings import TAOBAO_SLEEP_TIME
+from settings import SELECT_HTML_NAME
 
 import hashlib
 import json
@@ -151,7 +154,7 @@ def select():
                 <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
                 '''
         else:
-            return render_template('select.html')
+            return render_template(SELECT_HTML_NAME)
     else:   # 非法登录显示错误网页
         return '''
         <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
@@ -855,7 +858,7 @@ def get_taobao_data():
 
             wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
             tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
-            time.sleep(1.4)     # 这个在服务器里面可以注释掉为.5s
+            time.sleep(TAOBAO_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
             if tmp_result == {}:
                 print('获取到的data为空!')
                 result = {
@@ -1001,6 +1004,7 @@ def taobao_to_save_data():
                             tmp['sub_title'] = data_list['sub_title']           # 商品子标题
                             tmp['link_name'] = ''                               # 卖家姓名
                             tmp['account'] = data_list['account']               # 掌柜名称
+                            tmp['month_sell_count'] = data_list['sell_count']   # 月销量
 
                             # 设置最高价price， 最低价taobao_price
                             tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -1310,6 +1314,7 @@ def tmall_to_save_data():
                             tmp['sub_title'] = data_list['sub_title']   # 商品子标题
                             tmp['link_name'] = ''  # 卖家姓名
                             tmp['account'] = data_list['account']  # 掌柜名称
+                            tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
                             # 设置最高价price， 最低价taobao_price
                             tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -1606,6 +1611,7 @@ def jd_to_save_data():
                             tmp['sub_title'] = data_list['sub_title']  # 商品子标题
                             tmp['link_name'] = ''  # 卖家姓名
                             tmp['account'] = data_list['account']  # 掌柜名称
+                            tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
 
                             # 设置最高价price， 最低价taobao_price
                             tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -1707,6 +1713,285 @@ def jd_to_save_data():
         return result
 
 ######################################################
+
+@app.route('/basic_data', methods=['POST'])
+def get_basic_data():
+    '''
+    返回一个商品地址的基本信息
+    :return: 一个json
+    '''
+    if request.form.get('basic_app_key') is not None and request.form.get('basic_app_key') == BASIC_APP_KEY:  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            print('正在获取相应数据中...')
+
+            goodsLink = request.form.get('goodsLink')
+
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                print('goodsLink为空值...')
+
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,  # 表示goodsLink为空值
+                }
+
+                result = json.dumps(result)
+                return result
+
+            if re.compile(r'https://item.taobao.com/item.htm.*?').findall(wait_to_deal_with_url) != []:
+                basic_taobao = TaoBaoLoginAndParse()
+
+                goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
+                if goods_id == '':  # 如果得不到goods_id, 则return error
+                    print('获取到的goods_id为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 4042,  # 表示goodsLink为空值
+                    }
+
+                    del basic_taobao  # 每次都回收一下
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
+                tmp_result = basic_taobao.get_goods_data(goods_id=goods_id)
+                time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
+                if tmp_result == {}:
+                    print('获取到的data为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
+                    }
+
+                    del basic_taobao
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                data = basic_taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
+
+                if data == {}:
+                    print('获取到的data为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 444,  # 表示能获取到goods_id，无法正确解析
+                    }
+
+                    del basic_taobao
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                data = {
+                    'title': data.get('title'),
+                    'price': data.get('taobao_price'),
+                    'month_sell_count': data.get('sell_count'),     # 月销量
+                    'img_url': [data.get('all_img_url')[0]],
+                    'spider_url': wait_to_deal_with_url,
+                    'goods_id': goods_id,
+                }
+
+                result = {
+                    'reason': 'success',
+                    'data': data,
+                    'error_code': 0,
+                }
+
+                result_json = json.dumps(result, ensure_ascii=False).encode()
+                print('------>>> 下面是爬取到的页面信息: ')
+                print(result_json.decode())
+                print('-------------------------------')
+
+                del basic_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+                gc.collect()  # 手动回收即可立即释放需要删除的资源
+                return result_json.decode()
+
+            if re.compile(r'https://detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
+                or re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
+                or re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(wait_to_deal_with_url) != []:
+
+                basic_tmall = TmallParse()
+
+                goods_id = basic_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+                if goods_id == []:  # 如果得不到goods_id, 则return error
+                    print('获取到的goods_id为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 4042,  # 表示goodsLink为空值
+                    }
+
+                    del basic_tmall  # 每次都回收一下
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
+                #####################################################
+                if goods_id[0] == 0:  # [0, '1111']
+                    wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]  # 构造成标准干净的淘宝商品地址
+                elif goods_id[0] == 1:  # [1, '1111']
+                    wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
+                elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
+                    wait_to_deal_with_url = str(goods_id[2]) + goods_id[1]
+                tmp_result = basic_tmall.get_goods_data(goods_id=goods_id)
+                if tmp_result == {}:
+                    print('获取到的data为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
+                    }
+
+                    del basic_tmall
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                data = basic_tmall.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
+
+                if data == {}:
+                    print('获取到的data为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 444,  # 表示能获取到goods_id，无法正确解析
+                    }
+
+                    del basic_tmall
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                data = {
+                    'title': data.get('title'),
+                    'price': data.get('taobao_price'),
+                    'month_sell_count': data.get('sell_count'),     # 月销量
+                    'img_url': [data.get('all_img_url')[0]],
+                    'spider_url': wait_to_deal_with_url,
+                    'goods_id': goods_id[1],
+                }
+
+                result = {
+                    'reason': 'success',
+                    'data': data,
+                    'error_code': 0,
+                }
+
+                result_json = json.dumps(result, ensure_ascii=False).encode()
+                print('------>>> 下面是爬取到的页面信息: ')
+                print(result_json.decode())
+                print('-------------------------------')
+
+                del basic_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+                gc.collect()  # 手动回收即可立即释放需要删除的资源
+                return result_json.decode()
+
+            if re.compile(r'https://item.jd.com/.*?').findall(wait_to_deal_with_url) != [] \
+                or re.compile(r'https://item.jd.hk/.*?').findall(wait_to_deal_with_url) != [] \
+                or re.compile(r'https://item.yiyaojd.com/.*?').findall(wait_to_deal_with_url) != []:
+
+                jd = JdParse()
+
+                goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+                if goods_id == []:  # 如果得不到goods_id, 则return error
+                    print('获取到的goods_id为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 4042,  # 表示goodsLink为空值
+                    }
+
+                    del jd  # 每次都回收一下
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
+                #####################################################
+                if goods_id[0] == 0:  # [0, '1111']
+                    wait_to_deal_with_url = 'https://item.jd.com/' + goods_id[1] + '.html'  # 构造成标准干净的淘宝商品地址
+                elif goods_id[0] == 1:  # [1, '1111']
+                    wait_to_deal_with_url = 'https://item.jd.hk/' + goods_id[1] + '.html'
+                elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
+                    wait_to_deal_with_url = 'https://item.yiyaojd.com/' + goods_id[1] + '.html'
+                tmp_result = jd.get_goods_data(goods_id=goods_id)
+                if tmp_result == {}:
+                    print('获取到的data为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
+                    }
+
+                    del jd
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                data = jd.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
+
+                if data == {}:
+                    print('获取到的data为空!')
+                    result = {
+                        'reason': 'error',
+                        'data': '',
+                        'error_code': 444,  # 表示能获取到goods_id，无法正确解析
+                    }
+
+                    del jd
+                    gc.collect()
+                    result = json.dumps(result)
+                    return result
+
+                data = {
+                    'title': data.get('title'),
+                    'price': str(data.get('taobao_price')),
+                    'all_sell_count': data.get('all_sell_count'),  # 月销量
+                    'img_url': [data.get('all_img_url')[0]],
+                    'spider_url': wait_to_deal_with_url,
+                    'goods_id': goods_id[1],
+                }
+
+                result = {
+                    'reason': 'success',
+                    'data': data,
+                    'error_code': 0,
+                }
+
+                result_json = json.dumps(result, ensure_ascii=False).encode()
+                print('------>>> 下面是爬取到的页面信息: ')
+                print(result_json.decode())
+                print('-------------------------------')
+
+                del jd  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+                gc.collect()  # 手动回收即可立即释放需要删除的资源
+                return result_json.decode()
+
+            # 直接把空值给pass，不打印信息
+            # print('goodsLink为空值...')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4042,  # 表示goodsLink为空值
+            }
+
+            result = json.dumps(result)
+            return result
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
 
 def encrypt(key, s):
     '''

@@ -74,16 +74,19 @@ class JdParse(object):
             return {}
         else:
             tmp_url = ''
+            comment_url = ''
             if goods_id[0] == 0:    # 表示为京东常规商品
                 phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id[1])
                 print('------>>>| 得到的移动端地址为: ', phone_url)
                 # 用于得到常规信息
                 tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id[1])
+                comment_url = 'https://item.m.jd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
             elif goods_id[0] == 1:  # 表示为京东全球购商品 (此处由于进口关税无法计算先不处理京东全球购)
                 phone_url = 'https://mitem.jd.hk/ware/view.action?wareId=' + str(goods_id[1])
                 print('------>>>| 得到的移动端地址为: ', phone_url)
                 tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
+                comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
                 print('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
                 return {}
 
@@ -91,6 +94,7 @@ class JdParse(object):
                 phone_url = 'https://m.yiyaojd.com/ware/view.action?wareId=' + str(goods_id[1])
                 print('------>>>| 得到的移动端地址为: ', phone_url)
                 tmp_url = 'https://m.yiyaojd.com/ware/detail.json?wareId=' + str(goods_id[1])
+                comment_url = 'https://m.yiyaojd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
             # print(tmp_url)
             self.from_ip_pool_set_proxy_ip_to_phantomjs()
@@ -114,6 +118,31 @@ class JdParse(object):
                     print('-->>time out after 15 seconds when loading page')
                     self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
                     # pass
+
+            # 得到总销售量
+            try:
+                self.driver.get(comment_url)
+                self.driver.implicitly_wait(15)
+            except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                print('-->>time out after 15 seconds when loading page')
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                # pass
+            comment_body = self.driver.page_source
+            comment_body = re.compile(r'\n').sub('', comment_body)
+            comment_body = re.compile(r'\t').sub('', comment_body)
+            comment_body = re.compile(r'  ').sub('', comment_body)
+
+            comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
+            all_sell_count = '0'
+            if comment_body_1 != []:
+                comment_data = comment_body_1[0]
+                comment_data = json.loads(comment_data)
+                # pprint(comment_data)
+                all_sell_count = comment_data.get('wareDetailComment', {}).get('allCnt', '0')
+
+            else:
+                print('获取到的comment的销售量data为空!')
+                return {}
 
             try:
                 self.driver.get(tmp_url)
@@ -155,6 +184,9 @@ class JdParse(object):
 
                 # 处理wdis
                 data['wdis'] = wdis
+
+                # 商品总销售量
+                data['all_sell_count'] = all_sell_count
 
                 if data != {}:
                     self.result_data = data
@@ -367,6 +399,10 @@ class JdParse(object):
                 jd_type = 7
             # print('jd_type为: ', jd_type)
 
+            # 商品总销售量
+            all_sell_count = str(data.get('all_sell_count', '0'))
+            # print(all_sell_count)
+
             result = {
                 'shop_name': shop_name,                 # 店铺名称
                 'account': account,                     # 掌柜
@@ -384,6 +420,7 @@ class JdParse(object):
                 'div_desc': div_desc,                   # div_desc
                 'is_delete': is_delete,                 # 是否下架判断
                 'jd_type': jd_type,                     # 京东类型，(京东常规商品为7,京东超市为8)
+                'all_sell_count': all_sell_count,       # 商品总销售量
             }
             # pprint(result)
             # print(result)
@@ -512,6 +549,7 @@ class JdParse(object):
         tmp['sub_title'] = data_list['sub_title']  # 商品子标题
         tmp['link_name'] = ''  # 卖家姓名
         tmp['account'] = data_list['account']  # 掌柜名称
+        tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
 
         # 设置最高价price， 最低价taobao_price
         tmp['price'] = Decimal(data_list['price']).__round__(2)

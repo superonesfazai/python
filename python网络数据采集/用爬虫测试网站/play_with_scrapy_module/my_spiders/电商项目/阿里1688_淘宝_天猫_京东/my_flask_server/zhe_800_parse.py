@@ -313,7 +313,7 @@ class Zhe800Parse(object):
                     data['schedule'] = schedule
                     data['stock'] = stock
 
-                    pprint(data)
+                    # pprint(data)
                     self.result_data = data
                     return data
 
@@ -353,43 +353,89 @@ class Zhe800Parse(object):
         if data != {}:
             # 店铺名称
             shop_name = data.get('shop_name', '')
+            # print(shop_name)
 
             # 掌柜
             account = ''
 
             # 商品名称
             title = data.get('/app/detail/product/base', {}).get('title', '')
+            # print(title)
 
             # 子标题
             sub_title = ''
 
-            # 商品价格
-            # 淘宝价
-
-
             # 商品库存
-
-
             # 商品标签属性对应的值
 
             # 要存储的每个标签对应规格的价格及其库存
             tmp_price_info_list = data.get('/app/detail/product/sku', {}).get('items')
             # pprint(tmp_price_info_list)
-            if tmp_price_info_list is None:     # 说明没有规格属性
-                detail_name_list = []
-                price_info_list = []
+            detail_name_list = []   # 初始化
+            price_info_list = []
+            price = ''              # 先初始化
+            taobao_price = ''
+            # pprint(tmp_price_info_list)
+            if len(tmp_price_info_list) == 1:     # 说明没有规格属性, 只有价格
+                is_spec = False
+                if tmp_price_info_list[0].get('curPrice', '') != '':
+                    # 商品价格
+                    # 淘宝价
+                    price = tmp_price_info_list[0].get('curPrice', '')
+                    taobao_price = price
+                else:
+                    price = tmp_price_info_list[0].get('orgPrice', '')
+                    taobao_price = price
             else:                               # 有规格属性
-                for index in range(1, len(tmp_price_info_list)-1):
+                is_spec = True
+                stock_items = data.get('stock', {}).get('stockItems')   # [{'count': 100, 'lockCount': 0, 'skuNum': '1-1001:2-1121'}, ...]
+                # pprint(stock_items)
+                for index in range(1, len(tmp_price_info_list)):
                     # 商品标签属性名称
                     detail_name_list = [{'spec_name': item.split('-')[0]} for item in tmp_price_info_list[index].get('propertyName').split(':')]
+                    tmp_spec_value_1 = [str(item.split('-')[1]) for item in tmp_price_info_list[index].get('propertyName').split(':')]  # ['红格', 'S']
+                    tmp_spec_value_2 = '|'.join(tmp_spec_value_1)   # '红格|S'
+                    # print(tmp_spec_value_2)
                     property_num = tmp_price_info_list[index].get('propertyNum', '')
-                    stock_items = data.get('stock', {}).get('stockItems')
-                    if stock_items is None:
-                        pass
-                    else:
-                        pass
+                    picture = tmp_price_info_list[index].get('vPictureBig', '')
+                    if stock_items is None:     # 没有规格时, price,taobao_price值的设定
+                        is_spec = False
+                        price_info_list = []
+                        if tmp_price_info_list[0].get('curPrice', '') != '':
+                            price = tmp_price_info_list[0].get('curPrice', '')
+                            taobao_price = price
+                        else:
+                            price = tmp_price_info_list[0].get('orgPrice', '')
+                            taobao_price = price
+                    else:   # 有规格的情况
+                        is_spec = True
+                        # 每个规格对应的库存量
+                        count = [item.get('count', 0) for item in stock_items if property_num == item.get('skuNum', '')][0]
+                        if tmp_price_info_list[index].get('curPrice', '') != '':    # 促销价不为空
+                            tmp = {
+                                'spec_value': tmp_spec_value_2,
+                                'detail_price': tmp_price_info_list[index].get('curPrice', ''),
+                                'rest_number': count,
+                                'img_url': picture,
+                            }
+                        else:   # 促销价为空值
+                            tmp = {
+                                'spec_value': tmp_spec_value_2,
+                                'detail_price': tmp_price_info_list[index].get('orgPrice', ''),
+                                'rest_number': count,
+                                'img_url': picture,
+                            }
+                        price_info_list.append(tmp)
 
+            if is_spec:     # 得到有规格时的最高价和最低价
+                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+                price = tmp_price_list[-1]          # 商品价格
+                taobao_price = tmp_price_list[0]    # 淘宝价
+
+            # print('最高价为: ', price)
+            # print('最低价为: ', taobao_price)
             # print(detail_name_list)
+            # pprint(price_info_list)
 
             # 所有示例图片地址
             tmp_all_img_url = data.get('/app/detail/product/base', {}).get('images', [])
@@ -409,7 +455,46 @@ class Zhe800Parse(object):
 
             # 用于判断商品是否已经下架
             is_delete = 0
+            schedule = data.get('schedule')
+            # pprint(schedule)
+            if schedule is None:
+                is_delete = 1       # 没有活动时间就表示已经下架
+                schedule = []
+            else:   # 开始的和未开始的都是能拿到时间的，所以没问题，嘿嘿-_-!!
+                schedule = [{
+                    'begin_time': schedule.get('beginTime', ''),
+                    'end_time': schedule.get('endTime', '')
+                }]
+            # pprint(schedule)
 
+            result = {
+                'shop_name': shop_name,                     # 店铺名称
+                'account': account,                         # 掌柜
+                'title': title,                             # 商品名称
+                'sub_title': sub_title,                     # 子标题
+                # 'shop_name_url': shop_name_url,            # 店铺主页地址
+                'price': price,                             # 商品价格
+                'taobao_price': taobao_price,               # 淘宝价
+                # 'goods_stock': goods_stock,                # 商品库存
+                'detail_name_list': detail_name_list,       # 商品标签属性名称
+                # 'detail_value_list': detail_value_list,    # 商品标签属性对应的值
+                'price_info_list': price_info_list,         # 要存储的每个标签对应规格的价格及其库存
+                'all_img_url': all_img_url,                 # 所有示例图片地址
+                'p_info': p_info,                           # 详细信息标签名对应属性
+                'div_desc': div_desc,                       # div_desc
+                'schedule': schedule,                       # 商品开卖时间和结束开卖时间
+                'is_delete': is_delete                      # 用于判断商品是否已经下架
+            }
+            # pprint(result)
+            # print(result)
+            wait_to_send_data = {
+                'reason': 'success',
+                'data': result,
+                'code': 1
+            }
+            json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            print(json_data)
+            return result
 
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
@@ -456,8 +541,29 @@ class Zhe800Parse(object):
                 print('------>>>| 得到的折800商品id为:', goods_id)
                 return goods_id
         else:
-            print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
-            return ''
+            is_miao_sha_url = re.compile(r'https://miao.zhe800.com/products/.*?').findall(zhe_800_url)
+            if is_miao_sha_url != []:   # 先不处理这种链接的情况
+                if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url) != []:
+                    tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+                    if tmp_zhe_800_url != '':
+                        goods_id = tmp_zhe_800_url
+                    else:
+                        zhe_800_url = re.compile(r';').sub('', zhe_800_url)
+                        goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+                    print('------>>>| 得到的限时秒杀折800商品id为:', goods_id)
+                    print('由于这种商品开头的量少, 此处先不处理这种开头的')
+                    # return goods_id
+                    return ''
+                else:  # 处理从数据库中取出的数据
+                    zhe_800_url = re.compile(r';').sub('', zhe_800_url)
+                    goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
+                    print('------>>>| 得到的限时秒杀折800商品id为:', goods_id)
+                    print('由于这种商品开头的量少, 此处先不处理这种开头的')
+                    # return goods_id
+                    return ''
+            else:
+                print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
+                return ''
 
     def __del__(self):
         gc.collect()
@@ -470,5 +576,4 @@ if __name__ == '__main__':
         goods_id = zhe_800.get_goods_id_from_url(zhe_800_url)
         data = zhe_800.get_goods_data(goods_id=goods_id)
         zhe_800.deal_with_data()
-        # pprint(data)
 

@@ -134,7 +134,7 @@ class TmallParse(object):
                 data_2['modules'] = ''
                 data_2['vertical'] = ''
                 data_2['weappData'] = ''
-                data_2['item'] = ''
+                # data_2['item'] = ''       # 不能注释，注释了就拿不来月销量
                 data_2['otherInfo'] = ''
                 data_2['price']['shopProm'] = ''
                 data_2['resource'] = ''
@@ -462,6 +462,13 @@ class TmallParse(object):
                     is_delete = 1
             # print('is_delete = %d' % is_delete)
 
+            # 月销量
+            try:
+                sell_count = str(data.get('extra_data', {}).get('item', {}).get('sellCount', '0'))
+            except:
+                sell_count = '0'
+            # print(sell_count)
+
             result = {
                 'shop_name': shop_name,                 # 店铺名称
                 'account': account,                     # 掌柜
@@ -477,6 +484,7 @@ class TmallParse(object):
                 'p_info': p_info,                       # 详细信息标签名对应属性
                 'pc_div_url': pc_div_url,               # pc端描述地址
                 'div_desc': div_desc,                   # div_desc
+                'sell_count': sell_count,               # 月销量
                 'is_delete': is_delete,                 # 是否下架判断
                 'type': tmall_type,                     # 天猫类型
             }
@@ -567,6 +575,7 @@ class TmallParse(object):
         tmp['sub_title'] = data_list['sub_title']  # 商品子标题
         tmp['link_name'] = ''  # 卖家姓名
         tmp['account'] = data_list['account']  # 掌柜名称
+        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
         tmp['price'] = Decimal(data_list['price']).__round__(2)

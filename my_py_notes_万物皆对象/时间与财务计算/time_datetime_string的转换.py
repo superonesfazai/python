@@ -34,5 +34,4 @@ def timestamp_toString(stamp):
 def datetime_toTimestamp(dateTim):
     return time.mktime(dateTim.timetuple())
 
-now_time = time.time()
-print(timestamp_toString(now_time))
+print(timestamp_toString(1510704000))

@@ -31,7 +31,7 @@ print(tmp2)
 '''
 # 利用localtime()函数将时间戳转化成localtime的格式
 # 利用strftime()函数重新格式化时间
-timestamp = 1509411599
+timestamp = 1510704000
 
 #转换成localtime
 time_local = time.localtime(timestamp)

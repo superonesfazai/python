@@ -80,6 +80,7 @@ class TaoBaoLoginAndParse(object):
         type = 'jsonp'
         callback = 'mtopjsonp1'
         """
+        print('------>>>| 对应的手机端地址为: ', 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + goods_id)
 
         appKey = '12574478'
         t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
@@ -161,7 +162,7 @@ class TaoBaoLoginAndParse(object):
                 result_data_apiStack_value['layout'] = ''
                 result_data_apiStack_value['delivery'] = ''     # 发货地到收到地
                 result_data_apiStack_value['resource'] = ''     # 优惠券
-                result_data_apiStack_value['item'] = ''
+                # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
                 # pprint(result_data_apiStack_value)
             except Exception:
                 print("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过")
@@ -404,7 +405,14 @@ class TaoBaoLoginAndParse(object):
                     is_delete = 0
                 else:
                     is_delete = 1
-            print('is_delete = %d' % is_delete)
+            # print('is_delete = %d' % is_delete)
+
+            # 月销量
+            try:
+                sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
+            except:
+                sell_count = '0'
+            # print(sell_count)
 
             result = {
                 'shop_name': shop_name,                             # 店铺名称
@@ -423,7 +431,8 @@ class TaoBaoLoginAndParse(object):
                 'phone_div_url': phone_div_url,                     # 手机端描述地址
                 'pc_div_url': pc_div_url,                           # pc端描述地址
                 'div_desc': div_desc,                               # div_desc
-                'is_delete': is_delete                              # 用于判断商品是否已经下架
+                'sell_count': sell_count,                           # 月销量
+                'is_delete': is_delete,                             # 用于判断商品是否已经下架
             }
             # print(result)
             # wait_to_send_data = {
@@ -471,6 +480,7 @@ class TaoBaoLoginAndParse(object):
         tmp['sub_title'] = data_list['sub_title']  # 商品子标题
         tmp['link_name'] = ''  # 卖家姓名
         tmp['account'] = data_list['account']  # 掌柜名称
+        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
         tmp['price'] = Decimal(data_list['price']).__round__(2)

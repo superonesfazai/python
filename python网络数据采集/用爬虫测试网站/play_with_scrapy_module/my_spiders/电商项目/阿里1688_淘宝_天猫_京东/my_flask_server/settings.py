@@ -24,11 +24,26 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 """
 SERVER_PORT = 5000
 
+'''
+淘宝requests间接请求时间
+'''
+TAOBAO_SLEEP_TIME = 1.4     # 这个在服务器里面可以注释掉为.5s
+
+'''
+select.html的name
+'''
+SELECT_HTML_NAME = 'select.html'
+
 """
 超级管理员账户名密码
 """
 ADMIN_NAME = 'yiuxiu_admin'
 ADMIN_PASSWD = 'yiuxiu_zy118!'
+
+'''
+basic_app_key
+'''
+BASIC_APP_KEY = 'yiuxiu6688'
 
 """
 数据库相关

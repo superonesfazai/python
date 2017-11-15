@@ -4,7 +4,20 @@ beginTime
 endTime
 https://m.zhe800.com/gateway/app/detail/status?productId=ze171101161844064937
 
+https://shop.zhe800.com/products/ze160822195104091184?jump_source=1&qd_key=qyOwt6Jn
+https://shop.zhe800.com/products/ze171102191323071151?jump_source=1&qd_key=qyOwt6Jn
+https://shop.zhe800.com/products/ze160412154356446202?jump_source=1&qd_key=qyOwt6Jn
+https://shop.zhe800.com/products/ze171108115616089965
 https://shop.zhe800.com/products/ze171026120345031230
+https://shop.zhe800.com/products/ze171101161844064937
+https://shop.zhe800.com/products/ze170515142955340855?jump_source=1&qd_key=qyOwt6Jn
 
 # 下架商品
 https://shop.zhe800.com/products/ze171102191323071151?jump_source=1&qd_key=qyOwt6Jn
+
+## 折800限时秒杀返回的数据地址   (单页面有显示限制)
+https://pina.m.zhe800.com/cns/list/time_grab_list.json?curPage=1&perPage=20&flashSaleDate=2017-11-15&flashSaleHours=3
+
+
+## 折800淘宝天猫折扣商品
+https://zapi.zhe800.com/zhe800_n_api/xsq/get?sessionId=14500&page=1&per_page=1000

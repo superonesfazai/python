@@ -7,8 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import requests
-
 # 最基本的post方法
 # response = requests.post("http://www.baidu.com/", data = data)
 
