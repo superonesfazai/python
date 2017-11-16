@@ -122,7 +122,13 @@ class Zhe800Parse(object):
                 data['/app/detail/product/sku'] = sku
 
                 # 得到手机版地址
-                phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
+                phone_url = ''
+                try:
+                    phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
+                except AttributeError:
+                    print('获取手机版地址失败，此处跳过')
+                    return {}
+
                 print('------>>>| 得到商品手机版地址为: ', phone_url)
                 print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
@@ -214,7 +220,12 @@ class Zhe800Parse(object):
 
                             if size_data != []:
                                 size_data = size_data[0]
-                                size_data = json.loads(size_data)
+                                try:
+                                    size_data = json.loads(size_data)
+                                except Exception:
+                                    print('json.loads(size_data)出错, 此处跳过')
+                                    return {}
+
                                 # pprint(size_data)
 
                                 tmp_div_desc_2 = ''
@@ -270,7 +281,12 @@ class Zhe800Parse(object):
 
                     if seller_info != []:
                         seller_info = seller_info[0]
-                        seller_info = json.loads(seller_info)
+                        try:
+                            seller_info = json.loads(seller_info)
+                        except Exception:
+                            print('卖家信息在转换时出现错误, 此处跳过')
+                            return {}
+
                         # pprint(seller_info)
                         shop_name = seller_info.get('sellerInfo', {}).get('nickName', '')
                     else:
@@ -294,7 +310,11 @@ class Zhe800Parse(object):
 
                     if schedule_and_stock_info != []:
                         schedule_and_stock_info = schedule_and_stock_info[0]
-                        schedule_and_stock_info = json.loads(schedule_and_stock_info)
+                        try:
+                            schedule_and_stock_info = json.loads(schedule_and_stock_info)
+                        except Exception:
+                            print('得到秒杀开始时间和结束时间时错误, 此处跳过')
+                            return {}
 
                         schedule = schedule_and_stock_info.get('/app/detail/status/schedule')
                         if schedule is None:
@@ -430,7 +450,13 @@ class Zhe800Parse(object):
             # pprint(all_img_url)
 
             # 详细信息标签名对应属性
-            profiles = data.get('/app/detail/product/profiles', {}).get('profiles')
+            try:
+                profiles = data.get('/app/detail/product/profiles', {}).get('profiles')
+            except AttributeError as e:
+                print('AttributeError属性报错，为: ', e)
+                print("data.get('/app/detail/product/profiles', {}).get('profiles')获取失败, 此处跳过")
+                return {}
+
             if profiles is None:
                 p_info = []
             else:
@@ -512,6 +538,60 @@ class Zhe800Parse(object):
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
         tmp['title'] = data_list['title']          # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+        tmp['stock_info'] = data_list.get('stock_info')
+        tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['session_id'] = data_list.get('session_id')
+
+        # 采集的来源地
+        tmp['site_id'] = 1  # 采集来源地(折800常规商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.insert_into_zhe_800_xianshimiaosha_table(tmp)
+
+    def to_update_zhe_800_xianshimiaosha_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']          # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
 
         # 设置最高价price， 最低价taobao_price
         tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -533,16 +613,13 @@ class Zhe800Parse(object):
         tmp['stock_info'] = data_list.get('stock_info')
         tmp['miaosha_time'] = data_list.get('miaosha_time')
 
-        # 采集的来源地
-        tmp['site_id'] = 1  # 采集来源地(折800常规商品)
-
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.insert_into_zhe_800_xianshimiaosha_table(tmp)
+        pipeline.update_zhe_800_xianshimiaosha_table(tmp)
 
     def get_proxy_ip_from_ip_pool(self):
         '''

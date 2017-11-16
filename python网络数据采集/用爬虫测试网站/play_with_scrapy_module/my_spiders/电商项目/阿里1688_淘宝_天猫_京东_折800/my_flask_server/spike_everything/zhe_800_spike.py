@@ -42,30 +42,11 @@ class Zhe800Spike(object):
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
 
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
+        self.init_phantomjs()   # 初始化phantomjs
 
     def get_spike_hour_goods_info(self):
         '''
-        模拟构造得到data的url
+        模拟构造得到data的url，得到近期所有的限时秒杀商品信息
         :return:
         '''
         base_session_id = 13680
@@ -75,21 +56,7 @@ class Zhe800Spike(object):
                 str(base_session_id),
             )
 
-            self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
-
-            try:
-                self.driver.get(tmp_url)
-                self.driver.implicitly_wait(15)
-            except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                print('-->>time out after 15 seconds when loading page')
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                # pass
-            body = self.driver.page_source
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
+            body = self.get_url_body(url=tmp_url)
 
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
             if body_1 != []:
@@ -109,26 +76,7 @@ class Zhe800Spike(object):
                     if self.is_recent_time(timestamp=begin_times_timestamp):    # 说明秒杀日期合法
                         data = data.get('jsons', [])
                         if data != []:  # 否则说明里面有数据
-                            miaosha_goods_list = []
-                            for item in data:
-                                tmp = {}
-                                # 秒杀开始时间和结束时间
-                                tmp['miaosha_time'] = {
-                                    'miaosha_begin_time': self.timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
-                                    'miaosha_end_time': self.timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
-                                }
-
-                                # 折800商品地址
-                                tmp['zid'] = item.get('zid')
-                                # 是否包邮
-                                # tmp['is_baoyou'] = item.get('is_baoyou', 0)
-                                # 限时秒杀的库存信息
-                                tmp['stock_info'] = {
-                                    'activity_stock': item.get('xianshi', {}).get('activity_stock', 0), # activity_stock为限时抢的剩余数量
-                                    'stock': item.get('xianshi', {}).get('stock', 0),                   # stock为限时秒杀的总库存
-                                }
-                                miaosha_goods_list.append(tmp)
-                            # pprint(miaosha_goods_list)
+                            miaosha_goods_list = self.get_miaoshao_goods_info_list(data=data)
 
                             zhe_800 = Zhe800Parse()
                             my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
@@ -139,16 +87,24 @@ class Zhe800Spike(object):
 
                                     zhe_800.get_goods_data(goods_id=goods_id)
                                     goods_data = zhe_800.deal_with_data()
-                                    goods_data['stock_info'] = item.get('stock_info')
-                                    goods_data['goods_id'] = str(item.get('zid'))
-                                    goods_data['spider_url'] = tmp_url
-                                    goods_data['username'] = '18698570079'
-                                    # goods_data['is_baoyou'] = item.get('is_baoyou')
-                                    goods_data['miaosha_time'] = item.get('miaosha_time')
 
-                                    # print(goods_data)
-                                    zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                                    sleep(.8)   # 放慢速度
+                                    if goods_data == {}:    # 返回的data为空则跳过
+                                        pass
+                                    else:       # 否则就解析并且插入
+                                        goods_data['stock_info'] = item.get('stock_info')
+                                        goods_data['goods_id'] = str(item.get('zid'))
+                                        goods_data['spider_url'] = tmp_url
+                                        goods_data['username'] = '18698570079'
+                                        goods_data['price'] = item.get('price')
+                                        goods_data['taobao_price'] = item.get('taobao_price')
+                                        goods_data['sub_title'] = item.get('sub_title')
+                                        # goods_data['is_baoyou'] = item.get('is_baoyou')
+                                        goods_data['miaosha_time'] = item.get('miaosha_time')
+                                        goods_data['session_id'] = str(base_session_id)
+
+                                        # print(goods_data)
+                                        zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                                        sleep(.7)   # 放慢速度
 
                                 sleep(5)
                             else:
@@ -171,6 +127,88 @@ class Zhe800Spike(object):
                 # return {}
                 pass
             base_session_id += 2
+
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        tmp_execute_path = EXECUTABLE_PATH
+
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def get_url_body(self, url):
+        '''
+        返回url的html代码
+        :param url: 待抓取的url
+        :return: str
+        '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
+
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(15)
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 15 seconds when loading page')
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            # pass
+        body = self.driver.page_source
+        body = re.compile(r'\n').sub('', body)
+        body = re.compile(r'\t').sub('', body)
+        body = re.compile(r'  ').sub('', body)
+        # print(body)
+
+        return body
+
+    def get_miaoshao_goods_info_list(self, data):
+        '''
+        得到秒杀商品有用信息
+        :param data: 待解析的data
+        :return: 有用信息list
+        '''
+        miaosha_goods_list = []
+        for item in data:
+            # pprint(item)
+            tmp = {}
+            # 秒杀开始时间和结束时间
+            tmp['miaosha_time'] = {
+                'miaosha_begin_time': self.timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
+                'miaosha_end_time': self.timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
+            }
+
+            # 折800商品地址
+            tmp['zid'] = item.get('zid')
+            # 是否包邮
+            # tmp['is_baoyou'] = item.get('is_baoyou', 0)
+            # 限时秒杀的库存信息
+            tmp['stock_info'] = {
+                'activity_stock': item.get('xianshi', {}).get('activity_stock', 0),  # activity_stock为限时抢的剩余数量
+                'stock': item.get('xianshi', {}).get('stock', 0),  # stock为限时秒杀的总库存
+            }
+            # 原始价格
+            tmp['price'] = item.get('xianshi', {}).get('list_price')
+            # 秒杀的价格, float类型
+            tmp['taobao_price'] = item.get('xianshi', {}).get('price')
+            # 子标题
+            tmp['sub_title'] = item.get('xianshi', {}).get('description', '')
+            miaosha_goods_list.append(tmp)
+            # pprint(miaosha_goods_list)
+
+        return miaosha_goods_list
 
     def is_recent_time(self, timestamp):
         '''
@@ -269,8 +307,3 @@ class Zhe800Spike(object):
 if __name__ == '__main__':
     zhe_800_spike = Zhe800Spike()
     zhe_800_spike.get_spike_hour_goods_info()
-    # zhe_800_url = input('请输入待爬取的折800商品地址: ')
-    # zhe_800_url.strip('\n').strip(';')
-    # goods_id = zhe_800_spike.get_goods_id_from_url(zhe_800_url)
-    # data = zhe_800_spike.get_goods_data(goods_id=goods_id)
-    # zhe_800_spike.deal_with_data()
