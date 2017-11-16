@@ -16,6 +16,7 @@ sys.path.append('..')
 
 from taobao_parse import TaoBaoLoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
+from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 import gc
 from time import sleep
 import os, re, pytz, datetime
@@ -76,7 +77,7 @@ def run_forever():
                 #     pass
                 gc.collect()
                 # 国外服务器上可以缩短时间, 可以设置为0s
-                sleep(1.8)  # 不能太频繁，与用户请求错开尽量
+                sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 不能太频繁，与用户请求错开尽量
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time_hour() == 0:   # 0点以后不更新
             sleep(60*60*5.5)

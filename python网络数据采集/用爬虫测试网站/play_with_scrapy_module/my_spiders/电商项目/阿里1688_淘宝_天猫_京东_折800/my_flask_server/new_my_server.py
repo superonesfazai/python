@@ -18,6 +18,7 @@ from ali_1688_parse import ALi1688LoginAndParse
 from taobao_parse import TaoBaoLoginAndParse
 from tmall_parse import TmallParse
 from jd_parse import JdParse
+from .zhe_800_parse import Zhe800Parse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
@@ -1413,7 +1414,7 @@ def tmall_to_save_data():
         return result
 
 ######################################################
-
+# jd
 @app.route('/jd_data', methods=['POST'])
 def get_jd_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
@@ -1532,8 +1533,6 @@ def get_jd_data():
         }
         result = json.dumps(result)
         return result
-
-######################################################
 
 @app.route('/jd_to_save_data', methods=['POST'])
 def jd_to_save_data():
@@ -1664,6 +1663,307 @@ def jd_to_save_data():
                     print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
                     is_insert_into = my_page_info_save_item_pipeline.insert_into_jd_table(item)
+                    if is_insert_into:  # 如果返回值为True
+                        pass
+                    else:
+                        # print('插入失败!')
+                        pass
+
+                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
+                print('存入完毕'.center(100, '*'))
+                del my_page_info_save_item_pipeline
+                gc.collect()
+
+                # 处理完毕后返回一个处理结果避免报错
+                result = {
+                    'reason': 'success',
+                    'data': '',
+                    'error_code': 11,
+                }
+                result = json.dumps(result)
+                return result
+
+            else:
+                print('saveData为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4043,  # batchGoodsLink为空
+                }
+                result = json.dumps(result)
+                return result
+        else:
+            print('saveData为空!')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4043,  # batchGoodsLink为空
+            }
+            result = json.dumps(result)
+            return result
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+######################################################
+# 折800
+@app.route('/zhe_800_data',  methods=['POST'])
+def get_zhe_800_data():
+    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            print('正在获取相应数据中...')
+
+            # 解密
+            username = decrypt(key, request.cookies.get('username'))
+            print('发起获取请求的员工的username为: %s' % username)
+
+            goodsLink = request.form.get('goodsLink')
+
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                print('goodsLink为空值...')
+
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,     # 表示goodsLink为空值
+                }
+
+                result = json.dumps(result)
+                return result
+
+            zhe_800 = Zhe800Parse()
+
+            goods_id = zhe_800.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
+            if goods_id == '':      # 如果得不到goods_id, 则return error
+                print('获取到的goods_id为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,  # 表示goodsLink为空值
+                }
+
+                del zhe_800       # 每次都回收一下
+                gc.collect()
+                result = json.dumps(result)
+                return result
+
+            #####################################################
+            wait_to_deal_with_url = 'https://shop.zhe800.com/products/' + str(goods_id)
+
+            tmp_result = zhe_800.get_goods_data(goods_id=goods_id)
+            if tmp_result == {}:
+                print('获取到的data为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
+                }
+
+                del zhe_800
+                gc.collect()
+                result = json.dumps(result)
+                return result
+
+            data = zhe_800.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
+
+            if data == {}:
+                print('获取到的data为空!')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
+                }
+
+                del zhe_800
+                gc.collect()
+                result = json.dumps(result)
+                return result
+
+            result = {
+                'reason': 'success',
+                'data': data,
+                'error_code': 0,
+            }
+
+            wait_to_save_data = data
+            wait_to_save_data['spider_url'] = wait_to_deal_with_url
+            wait_to_save_data['username'] = username
+            wait_to_save_data['goods_id'] = str(goods_id)        # goods_id  官方商品link的商品id
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+
+            result_json = json.dumps(result, ensure_ascii=False).encode()
+            print('------>>> 下面是爬取到的页面信息: ')
+            print(result_json.decode())
+            print('-------------------------------')
+
+            del zhe_800       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            gc.collect()        # 手动回收即可立即释放需要删除的资源
+            return result_json.decode()
+        else:       # 直接把空值给pass，不打印信息
+            # print('goodsLink为空值...')
+            result = {
+                'reason': 'error',
+                'data': '',
+                'error_code': 4042,  # 表示goodsLink为空值
+            }
+
+            result = json.dumps(result)
+            return result
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+@app.route('/zhe_800_to_save_data', methods=['POST'])
+def zhe_800_to_save_data():
+    ## 此处注意保存的类型是折800常规商品(11)，限时秒杀商品(12)
+    global tmp_wait_to_save_data_list
+    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+        if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
+
+            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            if wait_to_save_data_url_list != []:
+                tmp_wait_to_save_data_goods_id_list = []
+                for item in wait_to_save_data_url_list:
+                    if item == '':  # 除去传过来是空值
+                        pass
+                    else:
+                        is_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/.*?').findall(item)
+                        if is_zhe_800_url != []:
+                            if re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
+                                tmp_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
+                                if tmp_zhe_800_url != '':
+                                    goods_id = tmp_zhe_800_url
+                                else:
+                                    zhe_800_url = re.compile(r';').sub('', item)
+                                    goods_id = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+                            else:  # 处理从数据库中取出的数据
+                                zhe_800_url = re.compile(r';').sub('', item)
+                                goods_id = re.compile(r'https://shop.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
+                            tmp_goods_id = goods_id
+                            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+
+                        else:
+                            is_miao_sha_url = re.compile(r'https://miao.zhe800.com/products/.*?').findall(item)
+                            if is_miao_sha_url != []:  # 先不处理这种链接的情况
+                                if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
+                                    tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
+                                    if tmp_zhe_800_url != '':
+                                        goods_id = tmp_zhe_800_url
+                                    else:
+                                        zhe_800_url = re.compile(r';').sub('', item)
+                                        goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+
+                                else:  # 处理从数据库中取出的数据
+                                    zhe_800_url = re.compile(r';').sub('', item)
+                                    goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
+                                pass    # 不处理
+                            else:
+                                print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
+                                pass    # 不处理
+
+                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
+                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+
+                # list里面的dict去重
+                ll_list = []
+                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
+                tmp_wait_to_save_data_list = ll_list
+                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+
+                goods_to_delete = []
+                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
+                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
+                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
+                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
+                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
+                            data_list = tmp_wait_to_save_data_list[index]
+                            tmp = {}
+                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
+                            tmp['username'] = data_list['username']  # 操作人员username
+
+                            '''
+                            时区处理，时间处理到上海时间
+                            '''
+                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+                            now_time = datetime.datetime.now(tz)
+                            # 处理为精确到秒位，删除时区信息
+                            now_time = re.compile(r'\..*').sub('', str(now_time))
+                            # 将字符串类型转换为datetime类型
+                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+                            tmp['deal_with_time'] = now_time  # 操作时间
+                            tmp['modfiy_time'] = now_time  # 修改时间
+
+                            tmp['shop_name'] = data_list['shop_name']  # 公司名称
+                            tmp['title'] = data_list['title']  # 商品名称
+                            tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+                            tmp['link_name'] = ''  # 卖家姓名
+                            tmp['account'] = data_list['account']  # 掌柜名称
+                            # tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
+
+                            # 设置最高价price， 最低价taobao_price
+                            tmp['price'] = Decimal(data_list['price']).__round__(2)
+                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+                            tmp['price_info'] = []  # 价格信息
+
+                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+                            """
+                            得到sku_map
+                            """
+                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
+                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+                            tmp['schedule'] = data_list.get('schedule')
+
+                            # 采集的来源地
+                            tmp['site_id'] = 11  # 采集来源地(折800常规商品)
+
+                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+                            # print('is_delete=', tmp['is_delete'])
+
+                            # print('------>>> | 待存储的数据信息为: |', tmp)
+                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
+                            tmp_list.append(tmp)
+                            try:
+                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
+                            except IndexError as e:
+                                print('索引越界, 此处我设置为跳过')
+                            # tmp_wait_to_save_data_list.pop(index)
+                            finally:
+                                pass
+                        else:
+                            pass
+
+                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
+                for item in tmp_list:
+                    # print('------>>> | 正在存储的数据为: |', item)
+                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+
+                    is_insert_into = my_page_info_save_item_pipeline.insert_into_zhe_800_table(item)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:

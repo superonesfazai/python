@@ -330,25 +330,6 @@ class Zhe800Parse(object):
         处理result_data, 返回需要的信息
         :return: 字典类型
         '''
-        """
-        result = {
-            'shop_name': shop_name,                             # 店铺名称
-            'account': account,                                 # 掌柜
-            'title': title,                                     # 商品名称
-            'sub_title': sub_title,                             # 子标题
-            # 'shop_name_url': shop_name_url,                     # 店铺主页地址
-            'price': price,                                     # 商品价格
-            'taobao_price': taobao_price,                       # 淘宝价
-            'goods_stock': goods_stock,                         # 商品库存
-            'detail_name_list': detail_name_list,               # 商品标签属性名称
-            'detail_value_list': detail_value_list,             # 商品标签属性对应的值
-            'price_info_list': price_info_list,                 # 要存储的每个标签对应规格的价格及其库存
-            'all_img_url': all_img_url,                         # 所有示例图片地址
-            'p_info': p_info,                                   # 详细信息标签名对应属性
-            'div_desc': div_desc,                               # div_desc
-            'is_delete': is_delete                              # 用于判断商品是否已经下架
-        }
-        """
         data = self.result_data
         if data != {}:
             # 店铺名称
@@ -369,7 +350,13 @@ class Zhe800Parse(object):
             # 商品标签属性对应的值
 
             # 要存储的每个标签对应规格的价格及其库存
-            tmp_price_info_list = data.get('/app/detail/product/sku', {}).get('items')
+            try:
+                tmp_price_info_list = data.get('/app/detail/product/sku', {}).get('items')
+            except AttributeError as e:     # 表示获取失败
+                print('AttributeError属性报错，为: ', e)
+                print("data.get('/app/detail/product/sku', {}).get('items')获取失败, 此处跳过")
+                return {}
+
             # pprint(tmp_price_info_list)
             detail_name_list = []   # 初始化
             price_info_list = []
@@ -381,10 +368,10 @@ class Zhe800Parse(object):
                 if tmp_price_info_list[0].get('curPrice', '') != '':
                     # 商品价格
                     # 淘宝价
-                    price = tmp_price_info_list[0].get('curPrice', '')
+                    price = round(float(tmp_price_info_list[0].get('curPrice', '')), 2)
                     taobao_price = price
                 else:
-                    price = tmp_price_info_list[0].get('orgPrice', '')
+                    price = round(float(tmp_price_info_list[0].get('orgPrice', '')), 2)
                     taobao_price = price
             else:                               # 有规格属性
                 is_spec = True
@@ -487,13 +474,13 @@ class Zhe800Parse(object):
             }
             # pprint(result)
             # print(result)
-            wait_to_send_data = {
-                'reason': 'success',
-                'data': result,
-                'code': 1
-            }
-            json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            print(json_data)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
             return result
 
         else:
@@ -502,6 +489,60 @@ class Zhe800Parse(object):
             #     'is_delete': 1,
             # }
             return {}
+
+    def insert_into_zhe_800_xianshimiaosha_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['spider_url']  # 商品地址
+        tmp['username'] = data_list['username']  # 操作人员username
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']          # 商品名称
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+        tmp['stock_info'] = data_list.get('stock_info')
+        tmp['miaosha_time'] = data_list.get('miaosha_time')
+
+        # 采集的来源地
+        tmp['site_id'] = 1  # 采集来源地(折800常规商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.insert_into_zhe_800_xianshimiaosha_table(tmp)
 
     def get_proxy_ip_from_ip_pool(self):
         '''
@@ -524,6 +565,11 @@ class Zhe800Parse(object):
         return result_ip_list
 
     def get_goods_id_from_url(self, zhe_800_url):
+        '''
+        得到goods_id
+        :param zhe_800_url:
+        :return: goods_id (类型str)
+        '''
         is_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/.*?').findall(zhe_800_url)
         if is_zhe_800_url != []:
             if re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url) != []:

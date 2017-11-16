@@ -31,7 +31,7 @@ print(tmp2)
 '''
 # 利用localtime()函数将时间戳转化成localtime的格式
 # 利用strftime()函数重新格式化时间
-timestamp = 1510704000
+timestamp = 1508748392
 
 #转换成localtime
 time_local = time.localtime(timestamp)
@@ -40,3 +40,10 @@ dt = time.strftime("%Y-%m-%d %H:%M:%S",time_local)
 
 print(dt)
 
+
+'''
+将时间字符串转换为时间戳
+'''
+a = "2017-10-11 09:00:00"
+# b = time.mktime(time.strptime(a, '%Y-%m-%d %H:%M:%S'))
+# print(b)
