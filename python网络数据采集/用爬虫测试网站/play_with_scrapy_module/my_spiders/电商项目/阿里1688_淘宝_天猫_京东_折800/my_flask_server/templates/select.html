@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd{
+	.ali,.taob,.tianm,.jd,.zhe_800{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -58,6 +58,10 @@
 	.jd span{
 		background: url(../static/images/jd.jpg)no-repeat;	
 		background-size: 100% 100%;			
+	}	
+	.zhe_800 span{
+		background: url(../static/images/83.jpg)no-repeat;	
+		background-size: 100% 100%;			
 	}		
 	.ali span:hover .login-btn{
 		display: block;
@@ -71,6 +75,9 @@
 	.jd span:hover .login-btn{
 		display: block;
 	}	
+	.zhe_800 span:hover .login-btn{
+		display: block;
+	}
 	.login-btn{
 		display: none;
 		width: 1rem;
@@ -184,7 +191,12 @@
 					<a class="login-btn" href="/show_jd" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>    		
+    		</span></div>   
+    		<div class="zhe_800 passListItem"><span>
+					<a class="login-btn" href="/show_zhe_800" target="_blank">
+    					请点击登录
+    				</a>
+    		</span></div>      		
     	</div>
     	<!--<ul class="login" id="login">
     		<li class="loginList">
@@ -245,7 +257,7 @@
 							confirm_login:'ali_login'
 						}
 					});
-				})
+				});
 				$('.login-btn').eq(1).click(function(){
 					$.ajax({
 						type:"post",
@@ -255,7 +267,7 @@
 							confirm_login:'taob_login'
 						}
 					});
-				})
+				});
 				$('.login-btn').eq(2).click(function(){
 					$.ajax({
 						type:"post",
@@ -265,7 +277,7 @@
 							confirm_login:'tianm_login'
 						}
 					});
-				})
+				});
 				$('.login-btn').eq(3).click(function(){
 					$.ajax({
 						type:"post",
@@ -273,6 +285,16 @@
 						async:true,
 						data:{
 							confirm_login:'jd_login'
+						}
+					});
+				});
+	            $('.login-btn').eq(4).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'zhe_800_login'
 						}
 					});
 				})

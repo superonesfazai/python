@@ -18,9 +18,9 @@ from ali_1688_parse import ALi1688LoginAndParse
 from taobao_parse import TaoBaoLoginAndParse
 from tmall_parse import TmallParse
 from jd_parse import JdParse
-from .zhe_800_parse import Zhe800Parse
+from zhe_800_parse import Zhe800Parse
 from my_pipeline import UserItemPipeline
-from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH
+from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import BASIC_APP_KEY
@@ -148,6 +148,10 @@ def select():
 
             elif ajax_request == 'jd_login':
                 response = make_response(redirect('show_jd'))
+                return response
+
+            elif ajax_request == 'zhe_800_login':
+                response = make_response(redirect('show_zhe_800'))
                 return response
 
             else:
@@ -513,6 +517,24 @@ def show_jd_info():
         else:
             # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(JD_SPIDER_TO_SHOW_PATH)
+
+@app.route('/show_zhe_800', methods=['GET', 'POST'])
+def show_zhe_800_info():
+    '''
+    点击后成功后显示的爬取页面
+    :return:
+    '''
+    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+        return '''
+            <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+            '''
+    else:
+        print('正在获取爬取页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            return send_file(ZHE_800_SPIDER_TO_SHOW_PATH)
 
 ######################################################
 # ali_1688

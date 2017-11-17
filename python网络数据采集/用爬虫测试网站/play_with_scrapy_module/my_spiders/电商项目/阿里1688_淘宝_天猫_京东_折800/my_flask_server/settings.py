@@ -39,6 +39,12 @@ SELECT_HTML_NAME = 'select.html'
 '''
 TAOBAO_REAL_TIMES_SLEEP_TIME = 1.8
 
+'''
+折800 session_id相关
+'''
+BASE_SESSION_ID = 13600     # 起始session_id
+MAX_SESSION_ID = 15000      # 截止的session_id
+
 """
 超级管理员账户名密码
 """
@@ -92,6 +98,7 @@ ALi_SPIDER_TO_SHOW_PATH = 'templates/ali_spider_to_show.html'
 TAOBAO_SPIDER_TO_SHWO_PATH = 'templates/taobao_spider_to_show.html'
 TMALL_SPIDER_TO_SHOW_PATH = 'templates/tmall_spider_to_show.html'
 JD_SPIDER_TO_SHOW_PATH = 'templates/jd_spider_to_show.html'
+ZHE_800_SPIDER_TO_SHOW_PATH = 'templates/zhe_800_spider_to_show.html'
 
 """
 headers

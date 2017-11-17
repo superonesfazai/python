@@ -22,7 +22,7 @@ from time import sleep
 import sys
 sys.path.append('..')
 
-from settings import HEADERS
+from settings import HEADERS, BASE_SESSION_ID, MAX_SESSION_ID
 from settings import PHANTOMJS_DRIVER_PATH
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -49,8 +49,8 @@ class Zhe800Spike(object):
         模拟构造得到data的url，得到近期所有的限时秒杀商品信息
         :return:
         '''
-        base_session_id = 13680
-        while base_session_id < 15000:
+        base_session_id = BASE_SESSION_ID
+        while base_session_id < MAX_SESSION_ID:
             print('待抓取的session_id为: ', base_session_id)
             tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/get?sessionId={0}&page=1&per_page=1000'.format(
                 str(base_session_id),
@@ -81,30 +81,35 @@ class Zhe800Spike(object):
                             zhe_800 = Zhe800Parse()
                             my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                             if my_pipeline.is_connect_success:
+                                db_goods_id_list = [item[0] for item in list(my_pipeline.select_zhe_800_xianshimiaosha_all_goods_id())]
                                 for item in miaosha_goods_list:
-                                    tmp_url = 'https://shop.zhe800.com/products/' + str(item.get('zid', ''))
-                                    goods_id = zhe_800.get_goods_id_from_url(tmp_url)
-
-                                    zhe_800.get_goods_data(goods_id=goods_id)
-                                    goods_data = zhe_800.deal_with_data()
-
-                                    if goods_data == {}:    # 返回的data为空则跳过
+                                    if item.get('zid', '') in db_goods_id_list:
+                                        print('该goods_id已经存在于数据库中, 此处跳过')
                                         pass
-                                    else:       # 否则就解析并且插入
-                                        goods_data['stock_info'] = item.get('stock_info')
-                                        goods_data['goods_id'] = str(item.get('zid'))
-                                        goods_data['spider_url'] = tmp_url
-                                        goods_data['username'] = '18698570079'
-                                        goods_data['price'] = item.get('price')
-                                        goods_data['taobao_price'] = item.get('taobao_price')
-                                        goods_data['sub_title'] = item.get('sub_title')
-                                        # goods_data['is_baoyou'] = item.get('is_baoyou')
-                                        goods_data['miaosha_time'] = item.get('miaosha_time')
-                                        goods_data['session_id'] = str(base_session_id)
+                                    else:
+                                        tmp_url = 'https://shop.zhe800.com/products/' + str(item.get('zid', ''))
+                                        goods_id = zhe_800.get_goods_id_from_url(tmp_url)
 
-                                        # print(goods_data)
-                                        zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                                        sleep(.7)   # 放慢速度
+                                        zhe_800.get_goods_data(goods_id=goods_id)
+                                        goods_data = zhe_800.deal_with_data()
+
+                                        if goods_data == {}:    # 返回的data为空则跳过
+                                            pass
+                                        else:       # 否则就解析并且插入
+                                            goods_data['stock_info'] = item.get('stock_info')
+                                            goods_data['goods_id'] = str(item.get('zid'))
+                                            goods_data['spider_url'] = tmp_url
+                                            goods_data['username'] = '18698570079'
+                                            goods_data['price'] = item.get('price')
+                                            goods_data['taobao_price'] = item.get('taobao_price')
+                                            goods_data['sub_title'] = item.get('sub_title')
+                                            # goods_data['is_baoyou'] = item.get('is_baoyou')
+                                            goods_data['miaosha_time'] = item.get('miaosha_time')
+                                            goods_data['session_id'] = str(base_session_id)
+
+                                            # print(goods_data)
+                                            zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                                            sleep(.7)   # 放慢速度
 
                                 sleep(5)
                             else:
@@ -212,7 +217,7 @@ class Zhe800Spike(object):
 
     def is_recent_time(self, timestamp):
         '''
-        返回是否在指定的日期差内
+        判断是否在指定的日期差内
         :param timestamp: 时间戳
         :return: True or False
         '''
@@ -222,7 +227,7 @@ class Zhe800Spike(object):
         time_2 = time.localtime(time_2)
         if time_1.tm_year == time_2.tm_year:
             if time_1.tm_mon >= time_2.tm_mon:  # 如果目标时间的月份时间 >= 当前月份(月份合法, 表示是当前月份或者是今年其他月份)
-                if time_1.tm_mday >= time_2.tm_mday:
+                if time_1.tm_mday >= time_2.tm_mday-2:  # 这样能抓到今天的前两天的信息
                     if time_1.tm_hour >= 8 and time_1.tm_hour <= 16:    # 规定到8点到16点的商品信息
                         print('合法时间')
                         # diff_days = abs(time_1.tm_mday - time_2.tm_mday)

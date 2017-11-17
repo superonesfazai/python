@@ -130,7 +130,7 @@ class Zhe800Parse(object):
                     return {}
 
                 print('------>>>| 得到商品手机版地址为: ', phone_url)
-                print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+                # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
                 # 得到并处理detail(即图文详情显示信息)
                 # http://m.zhe800.com/gateway/app/detail/graph?productId=
