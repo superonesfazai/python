@@ -448,7 +448,6 @@
 		width: 100%;
 		/*height: .4rem;*/
 		line-height: .4rem;
-		padding-left: .13rem;
 	}
 	.goodsDetail-message{
 		width: 9.6rem;
@@ -565,7 +564,9 @@
 	}
 	.goods-Details{
 		margin-top: 8rem;
-		text-align: center;
+		/*text-align: center;*/
+		width:9.6rem;
+		margin-left:1.9rem;
 	}
 	.grabLoading{
 		display: none;
@@ -892,7 +893,7 @@
 				<div class="anyGrab fadeInLeft animated">
 					<div class="collect-btn-any"><a href="javascript:" id="anyGrabStart">抓取数据</a><a href="javascript:;" id="insertSqlAny">存入数据库</a></div>					
 					<div class="nLink"></div>
-					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100" placeholder="每个链接以分号';'结尾&#xA如下:&#xAhttps://detail.tmall.com/item.htm?id=42613920441&spm=875.7931836/B.2017077.6.2ab01748SsrYrx&scm=1007.12144.81309.73263_0&pvid=fb3f4272-47b8-49d8-a6d2-d7df20ab6bca&skuId=3244069064656;&#xAhttps://chaoshi.detail.tmall.com/item.htm?spm=a3204.7084713.2996785438.8.SZaWBy&abtest=_AB-LR744-PR744&pos=3&abbucket=_AB-M744_B2&acm=201506250-3.1003.2.700741&id=36627255831&scm=1003.2.201506250-3.ITEM_36627255831_700741;&#xAhttps://detail.tmall.hk/item.htm?spm=a220m.1000858.1000725.1.30cb9cfcr3Mk0A&id=523251647394&skuId=3115188205098&standard=1&user_id=1919417699&cat_id=55934001&is_b=1&rn=141a541c55fde98ea88f73958954ea91;&#xAhttps://detail.tmall.hk/hk/item.htm?spm=a2231.7718719.7391270447.18.2a49aadavem3Uf&acm=lb-zebra-5074-103933.1003.4.297139&id=544864793683&scm=1003.4.lb-zebra-5074-103933.ITEM_544864793683_297139&skuId=3638918574582;&#xA"></textarea>
+					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100" placeholder="每个链接以分号';'结尾&#xA如下:&#xAhttps://shop.zhe800.com/products/ze160822195104091184?jump_source=1&qd_key=qyOwt6Jn;&#xAhttps://shop.zhe800.com/products/ze171108115616089965;"></textarea>
 					<div class="grabLoading">
 						<div class="grabLoading-box">
 							<div class="meter">0</div>
@@ -1100,7 +1101,7 @@
 								</div>
 						</div>
 						<% }else{ %>
-							此商品已下架！或者 在当前页面无法正法正常购买！
+							此商品已下架！
 						<% } %>
 					</div>
 				</div>
@@ -1108,10 +1109,13 @@
 				<div class="goodsDetail">
 					<div class="seller-message">
 						<div class="seller-company"><%=goodsInfo.shop_name%></div>
-						<div class="seller-name">
-							商品上架时间：<br /><span style="color: red;"><%=goodsInfo.schedule[0].begin_time%></span><br />
-							商品下架时间：<br /><span style="color: red;"><%=goodsInfo.schedule[0].end_time%></span>
-						</div>
+						<% if(goodsInfo.schedule.length>0){%>
+							<div class="seller-name">
+								商品上架时间：<br /><span style="color: red;"><%=goodsInfo.schedule[0].begin_time%></span><br />
+								商品下架时间：<br /><span style="color: red;"><%=goodsInfo.schedule[0].end_time%></span>
+							</div>							
+						<%}%>
+
 						<!--<div class="seller-personal-url">
 							卖家私人主页：<br /><a href="<%=goodsInfo.shop_name_url%>" target="_blank"><%=goodsInfo.shop_name_url%></a>
 						</div>-->

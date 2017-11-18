@@ -136,7 +136,10 @@ class TaoBaoLoginAndParse(object):
 
         if data != []:
             data = data[0]
-            data = json.loads(data)
+            try:
+                data = json.loads(data)
+            except Exception:
+                return {}
             # pprint(data)
 
             # 处理商品被转移或者下架导致页面不存在的商品
@@ -174,7 +177,10 @@ class TaoBaoLoginAndParse(object):
 
             # 处理mockData
             mock_data = result_data['mockData']
-            mock_data = json.loads(mock_data)
+            try:
+                mock_data = json.loads(mock_data)
+            except Exception:
+                return {}
             mock_data['feature'] = ''
             # pprint(mock_data)
             result_data['mockData'] = mock_data

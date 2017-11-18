@@ -61,7 +61,7 @@ class Zhe800Parse(object):
             # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
             try:
-                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                 data = response.content.decode('utf-8')
                 # print(data)
                 data = re.compile(r'(.*)').findall(data)  # 贪婪匹配匹配所有
@@ -73,7 +73,10 @@ class Zhe800Parse(object):
 
             if data != []:
                 data = data[0]
-                data = json.loads(data)
+                try:
+                    data = json.loads(data)
+                except Exception:
+                    return {}
                 # pprint(data)
 
                 # 处理base
@@ -136,7 +139,7 @@ class Zhe800Parse(object):
                 # http://m.zhe800.com/gateway/app/detail/graph?productId=
                 tmp_detail_url = 'http://m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
                 try:
-                    response = requests.get(tmp_detail_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                    response = requests.get(tmp_detail_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                     detail_data = response.content.decode('utf-8')
                     # print(detail_data)
                     detail_data = re.compile(r'(.*)').findall(detail_data)  # 贪婪匹配匹配所有
@@ -148,7 +151,11 @@ class Zhe800Parse(object):
 
                 if detail_data != []:
                     detail_data = detail_data[0]
-                    detail_data = json.loads(detail_data)
+                    try:
+                        detail_data = json.loads(detail_data)
+                    except Exception:
+                        print('json.loads(detail_data)时报错, 此处跳过')
+                        return {}
                     # pprint(detail_data)
 
                     detail = detail_data.get('/app/detail/graph/detail', '')
@@ -175,9 +182,8 @@ class Zhe800Parse(object):
                                 tmp_big = item.get('big', '')
                                 tmp_height = item.get('height', 0)
                                 tmp_width = item.get('width', 0)
-                                tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(
-                                    tmp_big, tmp_height, tmp_width
-                                )
+                                # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_big, tmp_height, tmp_width)
+                                tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_big)
                                 tmp_div_desc += tmp
 
                         if detail.get('noticeImage') is not None:
@@ -187,9 +193,8 @@ class Zhe800Parse(object):
                                 tmp_image = item.get('image', '')
                                 tmp_height = item.get('height', 0)
                                 tmp_width = item.get('width', 0)
-                                tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(
-                                    tmp_image, tmp_height, tmp_width
-                                )
+                                # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_image, tmp_height, tmp_width)
+                                tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_image)
                                 tmp_div_desc += tmp
                             elif isinstance(detail.get('noticeImage'), list):
                                 for item in detail.get('noticeImage', []):
@@ -197,9 +202,8 @@ class Zhe800Parse(object):
                                     tmp_image = item.get('image', '')
                                     tmp_height = item.get('height', 0)
                                     tmp_width = item.get('width', 0)
-                                    tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(
-                                        tmp_image, tmp_height, tmp_width
-                                    )
+                                    # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_image, tmp_height, tmp_width)
+                                    tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_image)
                                     tmp_div_desc += tmp
                             else:
                                 pass
@@ -209,7 +213,7 @@ class Zhe800Parse(object):
                             '''
                             tmp_size_url = 'https://m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
                             try:
-                                response = requests.get(tmp_size_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                                response = requests.get(tmp_size_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                                 size_data = response.content.decode('utf-8')
                                 size_data = re.compile(r'(.*)').findall(size_data)  # 贪婪匹配匹配所有
                                 # print(size_data)
@@ -242,12 +246,12 @@ class Zhe800Parse(object):
                                             for i in item2:              # i为一个dict
                                                 # print(i)
                                                 data_value = i.get('value', '')
-                                                tmp_1 = '<td style="vertical-align:inherit;display:table-cell;font-size:12px;color:#666;">{}</td>'.format(data_value)
+                                                tmp_1 = '<td style="vertical-align:inherit;display:table-cell;font-size:12px;color:#666;border:#666 1px solid;">{}</td>'.format(data_value)
                                                 charts_item += tmp_1
-                                            charts_item = '<tr style="border-bottom:#333 1px solid;">' + charts_item + '</tr>'
+                                            charts_item = '<tr style="border:#666 1px solid;">' + charts_item + '</tr>'
                                             # print(charts_item)
                                             tmp += charts_item
-                                        tmp = '<div>' + '<strong style="color:#666;">'+ title + '</strong>' + '<table style="border-color:grey;border-collapse:collapse;text-align:center;line-height:25px;background:#fff;border-spacing:0;" border="1"><tbody>' + tmp + '</tbody></table></div><br>'
+                                        tmp = '<div>' + '<strong style="color:#666;">'+ title + '</strong>' + '<table style="border-color:grey;border-collapse:collapse;text-align:center;line-height:25px;background:#fff;border-spacing:0;border:#666 1px solid;"><tbody style="border:#666 1px solid;">' + tmp + '</tbody></table></div><br>'
                                         tmp_div_desc_2 += tmp
                                     # print(tmp_div_desc_2)
                                 else:
@@ -270,7 +274,7 @@ class Zhe800Parse(object):
                     tmp_seller_id_url = 'https://m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
 
                     try:
-                        response = requests.get(tmp_seller_id_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                        response = requests.get(tmp_seller_id_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                         seller_info = response.content.decode('utf-8')
                         seller_info = re.compile(r'(.*)').findall(seller_info)  # 贪婪匹配匹配所有
                         # print(seller_info)
@@ -299,7 +303,7 @@ class Zhe800Parse(object):
                     '''
                     schedule_and_stock_url = 'https://m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
                     try:
-                        response = requests.get(schedule_and_stock_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                        response = requests.get(schedule_and_stock_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                         schedule_and_stock_info = response.content.decode('utf-8')
                         schedule_and_stock_info = re.compile(r'(.*)').findall(schedule_and_stock_info)  # 贪婪匹配匹配所有
                         # print(schedule_and_stock_info)
@@ -320,13 +324,19 @@ class Zhe800Parse(object):
                         if schedule is None:
                             schedule = {}
                         else:
-                            schedule = json.loads(schedule)
+                            try:
+                                schedule = json.loads(schedule)
+                            except:
+                                schedule = {}
 
                         stock = schedule_and_stock_info.get('/app/detail/status/stock')
                         if stock is None:
                             stock = {}
                         else:
-                            stock = json.loads(stock)
+                            try:
+                                stock = json.loads(stock)
+                            except:
+                                stock = {}
                     else:
                         schedule = {}
                         stock = {}

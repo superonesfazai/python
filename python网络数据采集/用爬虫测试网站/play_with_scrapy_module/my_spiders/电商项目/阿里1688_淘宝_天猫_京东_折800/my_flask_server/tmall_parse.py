@@ -85,6 +85,7 @@ class TmallParse(object):
             print('-->>time out after 15 seconds when loading page')
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
+
         body = self.driver.page_source
         body = re.compile(r'\n').sub('', body)
         body = re.compile(r'\t').sub('', body)
@@ -95,7 +96,12 @@ class TmallParse(object):
         body_2 = re.compile(r'{"addressData"(.*?)</script>').findall(body)
         if body_1 != []:
             data = body_1[0]
-            data = json.loads(data)
+            try:
+                data = json.loads(data)
+            except Exception:
+                print(r'json.loads(data)时报错, 此处返回data为{}')
+                return {}
+
             data['detailDesc'] = ''
             data['modules'] = ''
             data['seller']['evaluates'] = ''
@@ -107,7 +113,11 @@ class TmallParse(object):
 
             if body_2 != []:
                 data_2 = '{"addressData"' + body_2[0]
-                data_2 = json.loads(data_2)
+                try:
+                    data_2 = json.loads(data_2)
+                except Exception:
+                    print(r'json.loads(data_2)时为空, 此处赋值data_2为{}')
+                    data_2 = {}
                 data_2['delivery'] = ''
                 data_2['consumerProtection'] = ''
                 data_2['feature'] = ''

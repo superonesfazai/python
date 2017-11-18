@@ -140,7 +140,11 @@ class JdParse(object):
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
             if body_1 != []:
                 data = body_1[0]
-                data = json.loads(data)
+                try:
+                    data = json.loads(data)
+                except Exception:
+                    print(r'json.loads(data)时为空, 此处直接返回data为{}')
+                    return {}
                 # pprint(data)
                 wdis = data.get('wdis', '') # 图文描述
                 data = data.get('ware', {})

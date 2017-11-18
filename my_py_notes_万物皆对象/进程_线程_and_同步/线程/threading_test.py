@@ -16,7 +16,6 @@ def loop():
         time.sleep(1)
     print('thread %s ended.' % threading.current_thread().name)
 
-
 if __name__ == '__main__':
     # 多线程实例 启动一个线程就是把一个函数传入并创建Thread实例，然后调用start()开始执行
     print(time.ctime())

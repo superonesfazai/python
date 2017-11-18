@@ -18,11 +18,12 @@ import pytz
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from time import sleep
+import os
 
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, BASE_SESSION_ID, MAX_SESSION_ID
+from settings import HEADERS, BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR, SPIDER_END_HOUR, ZHE_800_SPIKE_SLEEP_TIME
 from settings import PHANTOMJS_DRIVER_PATH
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -109,9 +110,9 @@ class Zhe800Spike(object):
 
                                             # print(goods_data)
                                             zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                                            sleep(.7)   # 放慢速度
+                                            sleep(ZHE_800_SPIKE_SLEEP_TIME)   # 放慢速度
 
-                                sleep(5)
+                                # sleep(2)
                             else:
                                 pass
                             try:
@@ -228,12 +229,12 @@ class Zhe800Spike(object):
         if time_1.tm_year == time_2.tm_year:
             if time_1.tm_mon >= time_2.tm_mon:  # 如果目标时间的月份时间 >= 当前月份(月份合法, 表示是当前月份或者是今年其他月份)
                 if time_1.tm_mday >= time_2.tm_mday-2:  # 这样能抓到今天的前两天的信息
-                    if time_1.tm_hour >= 8 and time_1.tm_hour <= 16:    # 规定到8点到16点的商品信息
+                    if time_1.tm_hour >= SPIDER_START_HOUR and time_1.tm_hour <= SPIDER_END_HOUR:    # 规定到SPIDER_START_HOUR点到SPIDER_END_HOUR点的商品信息
                         print('合法时间')
                         # diff_days = abs(time_1.tm_mday - time_2.tm_mday)
                         return True
                     else:
-                        print('该小时在8点到16点以外，此处不处理跳过')
+                        print('该小时在{0}点到{1}点以外，此处不处理跳过'.format(SPIDER_START_HOUR, SPIDER_END_HOUR))
                         return False
                 else:
                     print('该日时间已过期, 此处跳过')
@@ -309,6 +310,65 @@ class Zhe800Spike(object):
             pass
         gc.collect()
 
+def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+    '''
+    杀掉父进程，独立子进程
+    :param stdin:
+    :param stdout:
+    :param stderr:
+    :return:
+    '''
+    sys.stdin = open(stdin, 'r')
+    sys.stdout = open(stdout, 'a+')
+    sys.stderr = open(stderr, 'a+')
+    try:
+        pid = os.fork()
+        if pid > 0:     # 父进程
+            os._exit(0)
+    except OSError as e:
+        sys.stderr.write("first fork failed!!" + e.strerror)
+        os._exit(1)
+
+    # 子进程， 由于父进程已经退出，所以子进程变为孤儿进程，由init收养
+    '''setsid使子进程成为新的会话首进程，和进程组的组长，与原来的进程组、控制终端和登录会话脱离。'''
+    os.setsid()
+    '''防止在类似于临时挂载的文件系统下运行，例如/mnt文件夹下，这样守护进程一旦运行，临时挂载的文件系统就无法卸载了，这里我们推荐把当前工作目录切换到根目录下'''
+    os.chdir("/")
+    '''设置用户创建文件的默认权限，设置的是权限“补码”，这里将文件权限掩码设为0，使得用户创建的文件具有最大的权限。否则，默认权限是从父进程继承得来的'''
+    os.umask(0)
+
+    try:
+        pid = os.fork()  # 第二次进行fork,为了防止会话首进程意外获得控制终端
+        if pid > 0:
+            os._exit(0)  # 父进程退出
+    except OSError as e:
+        sys.stderr.write("second fork failed!!" + e.strerror)
+        os._exit(1)
+
+    # 孙进程
+    #   for i in range(3, 64):  # 关闭所有可能打开的不需要的文件，UNP中这样处理，但是发现在python中实现不需要。
+    #       os.close(i)
+    sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
+    sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
+
+def just_fuck_run():
+    while True:
+        print('一次大抓取即将开始'.center(30, '-'))
+        zhe_800_spike = Zhe800Spike()
+        zhe_800_spike.get_spike_hour_goods_info()
+        print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+
+def main():
+    '''
+    这里的思想是将其转换为孤儿进程，然后在后台运行
+    :return:
+    '''
+    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('--->>>| 孤儿进程成功被init回收成为单独进程!')
+    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
+    just_fuck_run()
+
 if __name__ == '__main__':
-    zhe_800_spike = Zhe800Spike()
-    zhe_800_spike.get_spike_hour_goods_info()
+    # main()
+    just_fuck_run()

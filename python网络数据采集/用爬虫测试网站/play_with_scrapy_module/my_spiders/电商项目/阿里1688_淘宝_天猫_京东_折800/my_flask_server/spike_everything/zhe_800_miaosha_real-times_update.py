@@ -208,9 +208,9 @@ class Zhe_800_MIAOSHA_REAL_TIME_UPDATE(object):
         time_2 = int(time.time())  # 当前的时间戳
 
         diff_time = time_1 - time_2
-        if diff_time < -172800:     # 48个小时
+        if diff_time < -172800:     # 48个小时, 只需要跟新过去48小时和对与当前时间的未来2小时的商品信息
             return 0    # 已过期恢复原价的
-        elif diff_time > -172800 and diff_time < 172800:
+        elif diff_time > -172800 and diff_time < 7200:
             return 1    # 表示是昨天跟今天的也就是待更新的
         else:
             return 2    # 未来时间的暂时不用更新
@@ -393,6 +393,13 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
     sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
+def just_fuck_run():
+    while True:
+        print('一次大更新即将开始'.center(30, '-'))
+        tmp = Zhe_800_MIAOSHA_REAL_TIME_UPDATE()
+        tmp.run_forever()
+        print('一次大更新完毕'.center(30, '-'))
+
 def main():
     '''
     这里的思想是将其转换为孤儿进程，然后在后台运行
@@ -402,9 +409,8 @@ def main():
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
-    run_forever()
+    just_fuck_run()
 
 if __name__ == '__main__':
     # main()
-    tmp = Zhe_800_MIAOSHA_REAL_TIME_UPDATE()
-    tmp.run_forever()
+    just_fuck_run()
