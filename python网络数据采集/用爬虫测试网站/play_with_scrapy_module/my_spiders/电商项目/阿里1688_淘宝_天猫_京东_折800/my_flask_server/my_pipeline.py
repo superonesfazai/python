@@ -722,14 +722,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
-                item['all_sell_count'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -894,6 +893,25 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs = self.conn.cursor()
 
             cs.execute('select SiteID, GoodsID from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def select_zhe_800_all_goods_id(self):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=11')
             # self.conn.commit()
 
             result = cs.fetchall()

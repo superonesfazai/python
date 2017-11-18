@@ -412,5 +412,5 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    # main()
-    just_fuck_run()
+    main()
+    # just_fuck_run()
