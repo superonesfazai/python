@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -62,7 +62,11 @@
 	.zhe_800 span{
 		background: url(../static/images/83.jpg)no-repeat;	
 		background-size: 100% 100%;			
-	}		
+	}	
+	.juanpi span{
+		background: url(../static/images/jp.jpg)no-repeat;	
+		background-size: 100% 100%;			
+	}				
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -78,6 +82,9 @@
 	.zhe_800 span:hover .login-btn{
 		display: block;
 	}
+	.juanpi span:hover .login-btn{
+		display: block;
+	}	
 	.login-btn{
 		display: none;
 		width: 1rem;
@@ -186,18 +193,28 @@
 					<a class="login-btn" href="/show_tmall" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="jd passListItem"><span>
-					<a class="login-btn" href="/show_jd" target="_blank">
-    					请点击登录
+    		</span></div>  		
+    	</div>
+    	<div class="passList" id="passList">
+    		<div class="jd passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_jd" target="_blank">
+						请点击登录
     				</a>
-    		</span></div>   
+    			</span>
+    		</div>
     		<div class="zhe_800 passListItem"><span>
 					<a class="login-btn" href="/show_zhe_800" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>      		
-    	</div>
+    		</span></div>
+    		<div class="juanpi passListItem"><span>
+					<a class="login-btn" href="/show_juanpi" target="_blank">
+    					请点击登录
+    				</a>
+    		</span></div>
+    		</div>      		
+    	</div>    	
     	<!--<ul class="login" id="login">
     		<li class="loginList">
 	 	    	<div class="scanLogin">
@@ -295,6 +312,16 @@
 						async:true,
 						data:{
 							confirm_login:'zhe_800_login'
+						}
+					});
+				});
+                $('.login-btn').eq(5).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'juanpi_login'
 						}
 					});
 				})

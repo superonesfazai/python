@@ -13,7 +13,6 @@ def auto_git(path):
     time.sleep(2)
     now_time = str(datetime.datetime.now())
     now_time = str(re.compile(r'\..*').sub('', now_time))
-    print(now_time)
     os.system('cd {0} && git commit -m "{1}"'.format(path, now_time))
     time.sleep(2)
     os.system('cd {0} && git push -u origin master'.format(path))

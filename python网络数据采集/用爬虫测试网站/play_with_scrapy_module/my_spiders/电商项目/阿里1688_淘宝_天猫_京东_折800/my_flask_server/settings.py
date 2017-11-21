@@ -102,6 +102,7 @@ TAOBAO_SPIDER_TO_SHWO_PATH = 'templates/taobao_spider_to_show.html'
 TMALL_SPIDER_TO_SHOW_PATH = 'templates/tmall_spider_to_show.html'
 JD_SPIDER_TO_SHOW_PATH = 'templates/jd_spider_to_show.html'
 ZHE_800_SPIDER_TO_SHOW_PATH = 'templates/zhe_800_spider_to_show.html'
+JUANPI_SPIDER_TO_SHOW_PATH = 'templates/juanpi_spider_to_show.html'
 
 """
 headers
