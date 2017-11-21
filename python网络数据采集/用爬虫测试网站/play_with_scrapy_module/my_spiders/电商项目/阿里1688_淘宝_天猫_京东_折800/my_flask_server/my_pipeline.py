@@ -1156,6 +1156,22 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return None
 
+    def delete_juanpi_expired_goods_id(self, goods_id):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('delete from dbo.juanpi_xianshimiaosha where goods_id=%s', tuple([goods_id]))
+            self.conn.commit()
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 删除对应goods_id记录时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+
     def __del__(self):
         try:
             self.conn.close()

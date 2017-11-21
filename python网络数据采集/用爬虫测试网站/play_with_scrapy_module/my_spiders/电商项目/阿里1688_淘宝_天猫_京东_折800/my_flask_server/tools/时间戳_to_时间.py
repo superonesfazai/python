@@ -24,7 +24,7 @@ def timestamp_to_regulartime(timestamp):
 
     return dt
 
-timestamp = 1511265600
+timestamp = 1511143200
 dt = timestamp_to_regulartime(timestamp)
 print(dt)
 

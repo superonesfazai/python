@@ -27,7 +27,7 @@ import requests
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
-class Zhe_800_MIAOSHA_REAL_TIME_UPDATE(object):
+class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -65,7 +65,7 @@ class Zhe_800_MIAOSHA_REAL_TIME_UPDATE(object):
 
     def run_forever(self):
         '''
-        这个实时更新的想法是只更新当天上架商品的信息，未来信息价格(全为原价)暂不更新
+        这个实时更新的想法是只更新当天前天未来两小时的上架商品的信息，再未来信息价格(全为原价)暂不更新
         :return:
         '''
         while True:
@@ -101,7 +101,7 @@ class Zhe_800_MIAOSHA_REAL_TIME_UPDATE(object):
                     if tmp_sql_server.is_connect_success:
                         if self.is_recent_time(miaosha_begin_time) == 0:
                             tmp_sql_server.delete_zhe_800_expired_goods_id(goods_id=item[0])
-                            print('过期的goods_id为(%s)', item[0], ', 限时秒杀开始时间为(%s), 删除成功!', json.loads(item[1]).get('miaosha_begin_time'))
+                            print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                         elif self.is_recent_time(miaosha_begin_time) == 2:
                             break       # 跳出循环
@@ -142,7 +142,7 @@ class Zhe_800_MIAOSHA_REAL_TIME_UPDATE(object):
                                             if item[0] not in miaosha_goods_all_goods_id:   # 内部已经下架的
                                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                                 tmp_sql_server.delete_zhe_800_expired_goods_id(goods_id=item[0])
-                                                print('下架的goods_id为(%s)', item[0], ', 删除成功!')
+                                                print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                                 pass
 
                                             else:   # 未下架的
@@ -172,7 +172,7 @@ class Zhe_800_MIAOSHA_REAL_TIME_UPDATE(object):
                                             print('该sessionid没有相关key为jsons的数据')
                                             # return {}
                                             tmp_sql_server.delete_zhe_800_expired_goods_id(goods_id=item[0])
-                                            print('过期的goods_id为(%s)', item[0], ', 限时秒杀开始时间为(%s), 删除成功!', json.loads(item[1]).get('miaosha_begin_time'))
+                                            print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
                                             pass
                                 else:
                                     print('获取到的data为空!')
@@ -396,7 +396,7 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 def just_fuck_run():
     while True:
         print('一次大更新即将开始'.center(30, '-'))
-        tmp = Zhe_800_MIAOSHA_REAL_TIME_UPDATE()
+        tmp = Zhe_800_Miaosha_Real_Time_Update()
         tmp.run_forever()
         print('一次大更新完毕'.center(30, '-'))
 
