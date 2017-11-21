@@ -17,14 +17,14 @@ def timestamp_to_regulartime(timestamp):
     # 利用strftime()函数重新格式化时间
 
     # 转换成localtime
-    time_local = time.localtime(timestamp)
+    time_local = time.localtime(int(timestamp))
     # print(time_local)
     # 转换成新的时间格式(2016-05-05 20:28:54)
     dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
 
     return dt
 
-timestamp = 1510826400
+timestamp = 1511265600
 dt = timestamp_to_regulartime(timestamp)
 print(dt)
 
@@ -59,6 +59,6 @@ def is_recent_time(timestamp):
         print('非本年度的限时秒杀时间，此处跳过')
         return False
 
-while True:
-    timestamp = input('请输入要判断的时间戳: ')
-    print(is_recent_time(timestamp))
+# while True:
+#     timestamp = input('请输入要判断的时间戳: ')
+#     print(is_recent_time(timestamp))

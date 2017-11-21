@@ -621,7 +621,7 @@ class Zhe800Parse(object):
         tmp['session_id'] = data_list.get('session_id')
 
         # 采集的来源地
-        tmp['site_id'] = 1  # 采集来源地(折800常规商品)
+        tmp['site_id'] = 1  # 采集来源地(折800秒杀商品)
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])

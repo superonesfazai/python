@@ -560,19 +560,15 @@ class ALi1688LoginAndParse(object):
             pass
         gc.collect()
 
-# if __name__ == '__main__':
-#     ali_1688 = ALi1688LoginAndParse()
-#     while True:
-#         url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
-#         url.strip('\n').strip(';')
-#         goods_id = ali_1688.get_goods_id_from_url(url)
-#         ali_1688.get_ali_1688_data(goods_id=goods_id)
-#         ali_1688.deal_with_data()
-#
-#         # data['goods_id'] = '528260257065'
-#         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-#         # ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
-#
-#         gc.collect()
+if __name__ == '__main__':
+    ali_1688 = ALi1688LoginAndParse()
+    while True:
+        url = input('请输入要爬取的商品界面地址(以英文分号结束): ')
+        url.strip('\n').strip(';')
+        goods_id = ali_1688.get_goods_id_from_url(url)
+        ali_1688.get_ali_1688_data(goods_id=goods_id)
+        ali_1688.deal_with_data()
+
+        gc.collect()
 
 

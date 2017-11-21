@@ -1,5 +1,32 @@
-# 卷皮web端地址
+# 卷皮pc端地址
 http://shop.juanpi.com/deal/69634302
+http://shop.juanpi.com/deal/60493061
+http://shop.juanpi.com/deal/58197008
+http://shop.juanpi.com/deal/64614031
+http://shop.juanpi.com/deal/64524785
+http://shop.juanpi.com/deal/65624785
+http://shop.juanpi.com/deal/61024993
+http://shop.juanpi.com/deal/52418467
+
+## 已下架的商品地址
+http://shop.juanpi.com/deal/66124552
+http://shop.juanpi.com/deal/65124882
+http://shop.juanpi.com/deal/63024272
 
 # 卷皮手机端地址
 https://web.juanpi.com/pintuan/shop/62733788
+
+# 卷皮限时秒杀的地址
+https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id=22&page=1
+
+* tab_id的规律是
+
+tab_id = 11     代表开始时间为昨日10点, 结束时间为昨日14点
+tab_id = 12     代表开始时间为昨日14点, 结束时间为昨日20点
+tab_id = 13     代表开始时间为昨日20点, 结束时间为今日10点
+tab_id = 21     代表开始时间为今日10点, 结束时间为今日14点
+tab_id = 22     代表开始时间为今日14点, 结束时间为今日20点
+tab_id = 23     代表开始时间为今日20点, 结束时间为明日10点
+tab_id = 31     代表开始时间为明日10点, 结束时间为明日14点
+tab_id = 32     代表开始时间为明日14点, 结束时间为明日20点
+tab_id = 33     代表开始时间为明日20点, 结束时间为null值
