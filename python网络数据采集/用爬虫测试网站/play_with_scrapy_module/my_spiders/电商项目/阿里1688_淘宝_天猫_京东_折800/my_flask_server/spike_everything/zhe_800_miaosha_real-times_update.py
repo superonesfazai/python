@@ -154,8 +154,11 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                                                         goods_data['stock_info'] = item_1.get('stock_info')
                                                         goods_data['goods_id'] = str(item_1.get('zid'))
                                                         # goods_data['username'] = '18698570079'
-                                                        goods_data['price'] = item_1.get('price')
-                                                        goods_data['taobao_price'] = item_1.get('taobao_price')
+                                                        if item_1.get('stock_info').get('activity_stock') > 0:
+                                                            goods_data['price'] = item_1.get('price')
+                                                            goods_data['taobao_price'] = item_1.get('taobao_price')
+                                                        else:
+                                                            pass
                                                         goods_data['sub_title'] = item_1.get('sub_title')
                                                         goods_data['miaosha_time'] = item_1.get('miaosha_time')
 

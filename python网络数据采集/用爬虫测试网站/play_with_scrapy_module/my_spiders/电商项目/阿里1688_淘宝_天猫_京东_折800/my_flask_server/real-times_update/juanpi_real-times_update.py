@@ -2,15 +2,15 @@
 
 '''
 @author = super_fazai
-@File    : zhe_800_real-times_update.py
-@Time    : 2017/11/18 16:00
+@File    : juanpi_real-times_update.py
+@Time    : 2017/11/22 17:03
 @connect : superonesfazai@gmail.com
 '''
 
 import sys
 sys.path.append('..')
 
-from zhe_800_parse import Zhe800Parse
+from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
@@ -21,7 +21,7 @@ def run_forever():
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            result = list(tmp_sql_server.select_zhe_800_all_goods_id())
+            result = list(tmp_sql_server.select_juanpi_all_goods_id())
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -37,7 +37,7 @@ def run_forever():
             for item in result:  # 实时更新数据
                 data = {}
                 # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                zhe_800 = Zhe800Parse()
+                juanpi = JuanPiParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     # try:
@@ -50,12 +50,12 @@ def run_forever():
 
                 if tmp_sql_server.is_connect_success:
                     print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                    zhe_800.get_goods_data(goods_id=item[0])
-                    data = zhe_800.deal_with_data()
+                    juanpi.get_goods_data(goods_id=item[0])
+                    data = juanpi.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[0]
                         # print('------>>>| 爬取到的数据为: ', data)
-                        zhe_800.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                        juanpi.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         pass
                 else:  # 表示返回的data值为空值

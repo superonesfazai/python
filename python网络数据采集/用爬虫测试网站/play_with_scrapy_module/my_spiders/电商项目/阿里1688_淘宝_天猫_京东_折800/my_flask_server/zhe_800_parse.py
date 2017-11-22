@@ -600,8 +600,12 @@ class Zhe800Parse(object):
         tmp['sub_title'] = data_list['sub_title']
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:     # 此处抓到的可能是折800秒杀券所以跳过
+            print('此处抓到的可能是折800秒杀券所以跳过')
+            return None
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
 

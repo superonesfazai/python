@@ -24,6 +24,10 @@ from random import randint
 from settings import HEADERS
 import requests
 
+'''
+实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
+'''
+
 class Juanpi_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self.headers = {
@@ -128,9 +132,8 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                     miaosha_goods_all_goods_id = [i.get('goods_id') for i in miaosha_goods_list]
 
                                     if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
-                                        print('该商品已被下架限时秒杀活动，此处将其删除')
                                         tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
-                                        print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
+                                        print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
                                         pass
 
                                     else:       # 未下架的
@@ -145,8 +148,11 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                                     goods_data['stock_info'] = item_1.get('stock_info')
                                                     goods_data['goods_id'] = item_1.get('goods_id')
                                                     # goods_data['username'] = '18698570079'
-                                                    goods_data['price'] = item_1.get('price')  # 秒杀前的原特价
-                                                    goods_data['taobao_price'] = item_1.get('taobao_price')  # 秒杀价
+                                                    if item_1.get('stock_info').get('activity_stock') > 0:
+                                                        goods_data['price'] = item_1.get('price')  # 秒杀前的原特价
+                                                        goods_data['taobao_price'] = item_1.get('taobao_price')  # 秒杀价
+                                                    else:
+                                                        pass
                                                     goods_data['sub_title'] = item_1.get('sub_title', '')
                                                     goods_data['miaosha_time'] = item_1.get('miaosha_time')
 
