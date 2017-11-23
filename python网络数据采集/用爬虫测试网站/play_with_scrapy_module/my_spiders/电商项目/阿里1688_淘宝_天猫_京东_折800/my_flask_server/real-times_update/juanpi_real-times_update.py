@@ -143,5 +143,5 @@ def main():
     run_forever()
 
 if __name__ == '__main__':
-    # main()
-    run_forever()
+    main()
+    # run_forever()

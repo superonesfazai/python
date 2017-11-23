@@ -38,6 +38,16 @@ class JuanPiParse(object):
             'Host': 'web.juanpi.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
+
+        self.skudata_headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            # 'Accept-Encoding:': 'gzip',
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Host': 'webservice.juanpi.com',
+            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+        }
         self.result_data = {}
 
     def get_goods_data(self, goods_id):
@@ -72,6 +82,38 @@ class JuanPiParse(object):
                 print('data为空!')
                 return {}
 
+            # 得到skudata
+            skudata_url = 'https://webservice.juanpi.com/api/getOtherInfo?goods_id=' + str(goods_id)
+            try:
+                response = requests.get(skudata_url, headers=self.skudata_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                skudata = response.content.decode('utf-8')
+                # print(skudata)
+                skudata = re.compile(r'(.*)').findall(skudata)  # 贪婪匹配匹配所有
+                # print(skudata)
+            except Exception:
+                print('requests.get()请求超时....')
+                print('skudata为空!')
+                return {}
+
+            if skudata != []:
+                skudata = skudata[0]
+                try:
+                    skudata = json.loads(skudata)
+                except:
+                    return {}
+                skudata = skudata.get('skudata', {})
+                # pprint(skudata)
+                if skudata.get('info') is not None:
+                    pass    # 说明得到正确的skudata
+
+                else:       # 否则跳出
+                    print('skudata中info的key为None, 返回空dict')
+                    return {}
+
+            else:
+                print('skudata为空!')
+                return {}
+
             if data != []:
                 data = data[0]
                 try:
@@ -96,6 +138,7 @@ class JuanPiParse(object):
                     except:
                         pass
 
+                    data['skudata'] = skudata
                     # pprint(data)
                     # print(data)
                     self.result_data = data
@@ -250,6 +293,8 @@ class JuanPiParse(object):
             # print(div_desc)
 
             # 商品销售时间段
+            # print(data.get('skudata', {}).get('info', {}))
+            # print(data.get('skudata', {}))
             begin_time = data.get('skudata', {}).get('info', {}).get('start_time')  # 取这个时间段才是正确的销售时间, 之前baseInfo是虚假的
             end_time = data.get('skudata', {}).get('info', {}).get('end_time')
             if begin_time is None or end_time is None:
@@ -263,9 +308,24 @@ class JuanPiParse(object):
 
             # 是否下架判断
             # 结束时间戳小于当前时间戳则表示已经删除无法购买, 另外每个规格卖光也不显示is_delete=1(在上面已经判断, 这个就跟销售时间段没关系了)
-            if float(end_time) < time.time():
-                is_delete = 1
-            # print(is_delete)
+            if schedule != []:
+                if data.get('baseInfo', {}).get('end_time') is not None:
+                    '''
+                    先判断如果baseInfo中的end_time=='0'表示已经下架
+                    '''
+                    base_info_end_time = data.get('baseInfo', {}).get('end_time')
+                    # print(base_info_end_time)
+                    if base_info_end_time == '0':
+                        is_delete = 1
+
+                if float(end_time) < time.time():
+                    '''
+                    再判断日期过期的
+                    '''
+                    is_delete = 1
+                # print(is_delete)
+            else:
+                pass
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称

@@ -1030,7 +1030,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=1')
+            cs.execute('select GoodsID, IsDelete from dbo.GoodsInfoAutoGet where SiteID=1')
             # self.conn.commit()
 
             result = cs.fetchall()

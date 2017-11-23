@@ -104,7 +104,8 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                             print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                         elif self.is_recent_time(miaosha_begin_time) == 2:
-                            break       # 跳出循环
+                            # break       # 跳出循环
+                            pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                         else:   # 返回1，表示在待更新区间内
                             print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))

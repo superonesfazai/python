@@ -80,7 +80,8 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                             print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                         elif self.is_recent_time(miaosha_begin_time) == 2:
-                            break       # 跳出循环
+                            # break       # 跳出循环
+                            pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺讯的
 
                         else:  # 返回1，表示在待更新区间内
                             print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
@@ -118,6 +119,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                             if data.get('goodslist') == []:
                                 print('tab_id={0}, page={1}的goodslist为[], 此处跳过'.format(item[2], item[3]))
                                 pass
+
                             else:
                                 data = data.get('goodslist', [])
                                 # print(data)
@@ -130,8 +132,12 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                                     # 该tab_id, page中现有的所有goods_id的list
                                     miaosha_goods_all_goods_id = [i.get('goods_id') for i in miaosha_goods_list]
+                                    # print(miaosha_goods_all_goods_id)
 
                                     if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
+                                        '''
+                                        表示该tab_id，page中没有了该goods_id
+                                        '''
                                         tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
                                         print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
                                         pass

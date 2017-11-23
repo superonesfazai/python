@@ -690,6 +690,7 @@ def to_save_data():
         if request.form.getlist('saveData[]'):      # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))   # 一个待存取的url的list
 
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
@@ -981,6 +982,7 @@ def taobao_to_save_data():
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
@@ -1272,6 +1274,7 @@ def tmall_to_save_data():
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
@@ -1587,6 +1590,7 @@ def jd_to_save_data():
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
@@ -1880,6 +1884,7 @@ def zhe_800_to_save_data():
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
@@ -2180,6 +2185,7 @@ def juanpi_to_save_data():
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
