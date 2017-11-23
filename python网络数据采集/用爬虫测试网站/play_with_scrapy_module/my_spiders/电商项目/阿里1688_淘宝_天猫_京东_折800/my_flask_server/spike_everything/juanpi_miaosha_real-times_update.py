@@ -23,6 +23,7 @@ import selenium.webdriver.support.ui as ui
 from random import randint
 from settings import HEADERS
 import requests
+from settings import IS_BACKGROUND_RUNNING
 
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
@@ -334,5 +335,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    # main()
-    just_fuck_run()
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        just_fuck_run()

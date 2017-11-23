@@ -594,6 +594,8 @@ class TmallParse(object):
         #     tmp['site_id'] = 6  # 采集来源地(天猫国际)
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+
         pipeline.update_tmall_table(tmp)
 
     def init_phantomjs(self):

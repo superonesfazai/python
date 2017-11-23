@@ -572,6 +572,7 @@ class Zhe800Parse(object):
         # tmp['site_id'] = 11  # 采集来源地(折800常规商品)
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
 
         pipeline.update_zhe_800_table(item=tmp)
 

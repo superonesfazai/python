@@ -26,6 +26,7 @@ sys.path.append('..')
 from settings import HEADERS
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from settings import IS_BACKGROUND_RUNNING
 
 class JuanPiSpike(object):
     def __init__(self):
@@ -261,5 +262,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    main()
-    # just_fuck_run()
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        just_fuck_run()

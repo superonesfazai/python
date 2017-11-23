@@ -25,6 +25,11 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 SERVER_PORT = 5000
 
 '''
+是否为后台运行
+'''
+IS_BACKGROUND_RUNNING = False
+
+'''
 淘宝requests间接请求时间
 '''
 TAOBAO_SLEEP_TIME = 1.4     # 这个在服务器里面可以注释掉为.5s

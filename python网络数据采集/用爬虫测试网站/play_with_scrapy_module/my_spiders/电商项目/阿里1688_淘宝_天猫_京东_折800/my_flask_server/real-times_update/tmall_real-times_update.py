@@ -15,6 +15,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
 import os, re, pytz, datetime
+import json
+from settings import IS_BACKGROUND_RUNNING
 
 def run_forever():
     while True:
@@ -62,6 +64,35 @@ def run_forever():
                     data = tmall.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[1]
+
+                        '''
+                        设置最后刷新的商品状态上下架时间
+                        '''
+                        # 1.is_delete由0->1 为下架时间down_time  2. is_delete由1->0 为上架时间shelf_time
+                        my_shelf_and_down_time = {
+                            'shelf_time': '',
+                            'down_time': '',
+                        }
+                        if data['is_delete'] != item[2]:
+                            if data['is_delete'] == 0 and item[2] == 1:
+                                # is_delete由0->1 表示商品状态上架变为下架
+                                my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
+                            else:
+                                # is_delete由1->0 表示商品状态下架变为上架
+                                my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
+                        else:
+                            if item[3] is None or item[3] == '{"shelf_time": "", "down_time": ""}' or len(item[3]) == 35:  # 35就是那串初始str
+                                if data['is_delete'] == 0:  # 上架的状态
+                                    my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
+                                else:  # 下架的状态
+                                    my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
+                            else:
+                                # 否则保存原始值不变
+                                tmp_shelf_and_down_time = item[3]
+                                my_shelf_and_down_time = json.loads(tmp_shelf_and_down_time)  # 先转换为dict
+                        data['my_shelf_and_down_time'] = my_shelf_and_down_time
+                        # print(my_shlef_and_down_time)
+
                         # print('------>>>| 爬取到的数据为: ', data)
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
@@ -77,14 +108,14 @@ def run_forever():
                 gc.collect()
                 # sleep(1)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        if get_shanghai_time_hour() == 0:   # 0点以后不更新
+        if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
             sleep(5)
         # del ali_1688
         gc.collect()
 
-def get_shanghai_time_hour():
+def get_shanghai_time():
     '''
     时区处理，时间处理到上海时间
     '''
@@ -96,7 +127,7 @@ def get_shanghai_time_hour():
     # 将字符串类型转换为datetime类型
     now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
 
-    return now_time.hour
+    return now_time
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''
@@ -151,5 +182,7 @@ def main():
     run_forever()
 
 if __name__ == '__main__':
-    main()
-    # run_forever()
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        run_forever()

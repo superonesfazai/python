@@ -21,7 +21,7 @@ import time
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from random import randint
-from settings import HEADERS, PHANTOMJS_DRIVER_PATH
+from settings import HEADERS, PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING
 import requests
 
 # phantomjs驱动地址
@@ -411,5 +411,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    main()
-    # just_fuck_run()
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        just_fuck_run()

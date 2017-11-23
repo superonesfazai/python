@@ -564,6 +564,8 @@ class JdParse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+
         pipeline.update_jd_table(tmp)
 
     def init_phantomjs(self):

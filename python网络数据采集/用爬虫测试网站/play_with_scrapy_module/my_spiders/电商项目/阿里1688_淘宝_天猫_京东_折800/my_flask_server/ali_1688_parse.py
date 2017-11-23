@@ -312,6 +312,14 @@ class ALi1688LoginAndParse(object):
                 detail_info = ''
             # print(detail_info)
 
+            if re.compile(r'下架').findall(title) != []:
+                if re.compile(r'待下架').findall(title) != []:
+                    is_delete = 0
+                else:
+                    is_delete = 1
+            else:
+                is_delete = 0  # 逻辑删除, 未删除为0, 删除为1
+
             result = {
                 'company_name': company_name,               # 公司名称
                 'title': title,                             # 商品名称
@@ -322,6 +330,7 @@ class ALi1688LoginAndParse(object):
                 'all_img_url': all_img_url,                 # 所有示例图片地址
                 'property_info': property_info,             # 详细信息的标签名, 及其对应的值
                 'detail_info': detail_info,                 # 下方详细div块
+                'is_delete': is_delete,                     # 判断是否下架
             }
             # pprint(result)
             # print('------>>>| 爬到goods_id(%s)对应的数据: |', result)
@@ -413,7 +422,6 @@ class ALi1688LoginAndParse(object):
         tmp['property_info'] = data_list.get('property_info')  # 详细信息
         tmp['detail_info'] = data_list.get('detail_info')  # 下方div
 
-        # 采集的来源地
         if re.compile(r'下架').findall(tmp['title']) != []:
             if re.compile(r'待下架').findall(tmp['title']) != []:
                 tmp['is_delete'] = 0
@@ -421,6 +429,8 @@ class ALi1688LoginAndParse(object):
                 tmp['is_delete'] = 1
         else:
             tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)

@@ -509,6 +509,8 @@ class TaoBaoLoginAndParse(object):
         # tmp['site_id'] = 1  # 采集来源地(淘宝)
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+
         pipeline.update_taobao_table(tmp)
 
     def get_div_from_pc_div_url(self, url, goods_id):

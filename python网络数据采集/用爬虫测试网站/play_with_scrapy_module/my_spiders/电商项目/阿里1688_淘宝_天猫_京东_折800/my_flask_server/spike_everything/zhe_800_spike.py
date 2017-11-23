@@ -27,6 +27,7 @@ from settings import HEADERS, BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR
 from settings import PHANTOMJS_DRIVER_PATH
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from settings import IS_BACKGROUND_RUNNING
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -370,5 +371,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    main()
-    # just_fuck_run()
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        just_fuck_run()

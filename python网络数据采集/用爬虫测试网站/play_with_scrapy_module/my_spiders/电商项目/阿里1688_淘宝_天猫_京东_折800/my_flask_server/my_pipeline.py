@@ -370,12 +370,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url_info'], ensure_ascii=False),
                 item['detail_info'],
                 dumps(item['property_info'], ensure_ascii=False),
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -458,13 +459,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 item['month_sell_count'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
 
                 item['goods_id'],
             ]
-            print(item['month_sell_count'])
+            # print(item['month_sell_count'])
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s where GoodsID=%s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID=%s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -547,12 +549,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 item['month_sell_count'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -635,12 +638,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 item['all_sell_count'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -722,13 +726,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -897,13 +902,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -1011,7 +1017,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=2')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1030,7 +1036,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID, IsDelete from dbo.GoodsInfoAutoGet where SiteID=1')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1049,7 +1055,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select SiteID, GoodsID from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6')
+            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1068,7 +1074,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select SiteID, GoodsID from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
+            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1087,7 +1093,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=11')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=11')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1141,7 +1147,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=12')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=12')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1229,12 +1235,13 @@ class SqlPools(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 item['month_sell_count'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s where GoodsID = %s',
+            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
                 tuple(params))
             # self.engine.commit()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1251,7 +1258,7 @@ class SqlPools(object):
         self.engine.begin()
         self.conn = self.engine.connect()
         try:
-            result = list(self.conn.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=1'))
+            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1'))
             # self.conn.commit()
             self.conn.close()
             # print(result)
