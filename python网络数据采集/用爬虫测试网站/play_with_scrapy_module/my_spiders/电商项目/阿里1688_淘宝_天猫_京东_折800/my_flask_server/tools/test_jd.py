@@ -14,17 +14,27 @@ from pprint import pprint
 import pytz
 import datetime
 import re
+import requests
 
-'''
-时区处理，时间处理到上海时间
-'''
-tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-now_time = datetime.datetime.now(tz)
+goods_id = '17983261076'
+# url = 'https://item.m.jd.com/ware/detail.json?wareId=' + goods_id
+# url = 'https://mitem.jd.hk/cart/cartNum.json'
+url = 'https://m.yiyaojd.com/ware/getSpecInfo.json?wareId='
 
-# 处理为精确到秒位，删除时区信息
-now_time = re.compile(r'\..*').sub('', str(now_time))
-# 将字符串类型转换为datetime类型
-now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+headers = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    # 'Accept-Encoding:': 'gzip',
+    'Accept-Language': 'zh-CN,zh;q=0.8',
+    'Cache-Control': 'max-age=0',
+    'Connection': 'keep-alive',
+    # 'Host': 'item.m.jd.com',
+    # 'Host': 'mitem.jd.hk',
+    'Host': 'm.yiyaojd.com',
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',      # 随机一个请求头
+}
 
-print(type(now_time.hour))
+response = requests.get(url, headers=headers)
+pprint(response.content.decode('utf-8'))
+# print(str(response.cookies.get('sid')))
+
 

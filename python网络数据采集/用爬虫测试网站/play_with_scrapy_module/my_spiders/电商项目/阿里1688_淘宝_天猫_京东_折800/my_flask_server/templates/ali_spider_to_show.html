@@ -1045,6 +1045,8 @@
 							</ul>
 						</div>
 					</div>
+                    <%if(goodsInfo.sku_props.length==0){%>
+                    <%}else{%>
 					<% if(goodsInfo.sku_props[1] == null){%>
 							<div class="goodsSize">
 							<div class="goodsSize-left"><%if(goodsInfo.sku_props[1]){%><%=goodsInfo.sku_props[1].prop%><%}else{%><%=goodsInfo.sku_props[0].prop%><% } %></div>
@@ -1102,6 +1104,7 @@
 							</div>
 						</div>
 					<% }%>
+                    <% }%>
 				</div>
 			</div>
 				<div class="goodsDetail">

@@ -124,7 +124,7 @@ class JuanPiSpike(object):
 
                                         # print(goods_data)
                                         juanpi.insert_into_juanpi_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                            sleep(.3)
+                            sleep(.4)
                         else:
                             pass
                         try:

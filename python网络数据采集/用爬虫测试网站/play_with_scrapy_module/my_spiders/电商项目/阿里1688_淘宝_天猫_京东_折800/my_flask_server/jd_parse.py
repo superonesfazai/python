@@ -138,6 +138,14 @@ class JdParse(object):
             # print(body)
 
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
+
+            ## ** 起初是拿phantomjs来进行url请求的，本来想着用requests来优化，但是改动有点大，就先暂时不改动 **
+            # body_1 = self.get_requests_body(tmp_url=tmp_url, my_headers=self.headers)
+            # # print(body_1)
+            #
+            # if body_1 == []:
+            #     return {}
+
             if body_1 != []:
                 data = body_1[0]
                 try:
@@ -282,8 +290,12 @@ class JdParse(object):
                     is_delete = 1       # 说明已经下架
                     price, taobao_price = (0, 0,)
                 else:
-                    price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
-                    taobao_price = price
+                    try:
+                        price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
+                        taobao_price = price
+                    except TypeError:
+                        is_delete = 1  # 说明该商品暂无报价
+                        price, taobao_price = (0, 0,)
             else:
                 try:
                     tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
@@ -421,6 +433,40 @@ class JdParse(object):
         else:
             print('待处理的data为空的dict')
             return {}
+
+    def get_requests_body(self, tmp_url, my_headers):
+        '''
+        根据url和请求头返回body
+        :param tmp_url: 待请求的url
+        :param my_headers: 请求头
+        :return: list   ['xxxx']
+        '''
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        tmp_headers = my_headers
+        tmp_host = re.compile(r'https://(.*?)/.*').findall(tmp_url)[0]  # 得到host地址
+        # print(tmp_host)
+        tmp_headers['Host'] = str(tmp_host)
+        try:
+            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            data = response.content.decode('utf-8')
+            # print(data)
+            data = re.compile(r'(.*)').findall(data)  # 贪婪匹配匹配所有
+            # print(data)
+
+        except Exception:
+            print('requests.get()请求超时....')
+            print('data为空!')
+            return []
+
+        return data
 
     def from_ware_id_get_price_info(self, ware_id):
         '''

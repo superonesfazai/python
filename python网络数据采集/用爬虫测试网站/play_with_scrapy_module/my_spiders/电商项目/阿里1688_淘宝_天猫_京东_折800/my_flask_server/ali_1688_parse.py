@@ -46,7 +46,7 @@ class ALi1688LoginAndParse(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'acs.m.taobao.com',
+            'Host': '1688.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
         self.result_data = {}
@@ -58,8 +58,6 @@ class ALi1688LoginAndParse(object):
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
 
         # print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
-        # response = requests.get(wait_to_deal_with_url, headers=self.headers)
-        # body = response.content.decode('utf-8')
 
         self.from_ip_pool_set_proxy_ip_to_phantomjs()
         self.driver.set_page_load_timeout(20)       # 设置成10秒避免数据出错
@@ -80,6 +78,16 @@ class ALi1688LoginAndParse(object):
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
         body = self.driver.page_source
+
+        # '''
+        # 改用requests
+        # '''
+        # body = self.get_requests_body(tmp_url=wait_to_deal_with_url, my_headers=self.headers)
+        # # print(body)
+        #
+        # if body == []:
+        #     return {}
+        # body = body[0]
 
         # print(body)
         body = re.compile(r'\n').sub('', body)
@@ -435,6 +443,44 @@ class ALi1688LoginAndParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)
 
+    def get_requests_body(self, tmp_url, my_headers):
+        '''
+        根据url和请求头返回body
+        :param tmp_url: 待请求的url
+        :param my_headers: 请求头
+        :return: list   ['xxxx']
+        '''
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        tmp_headers = my_headers
+        tmp_host = re.compile(r'https://(.*?)/.*').findall(tmp_url)[0]  # 得到host地址
+        # print(tmp_host)
+        tmp_headers['Host'] = str(tmp_host)
+        try:
+            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            body = response.content.decode('utf-8')
+            # print(body)
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+
+            data = re.compile(r'(.*)').findall(body)  # 贪婪匹配匹配所有
+            # print(data)
+
+        except Exception:
+            print('requests.get()请求超时....')
+            print('data为空!')
+            return []
+
+        return data
+
     def init_phantomjs(self):
         """
         初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
@@ -488,6 +534,7 @@ class ALi1688LoginAndParse(object):
         # print(detail_info_url)
         if re.compile(r'https').findall(detail_info_url) == []:
             detail_info_url = 'https:' + detail_info_url
+            # print(detail_info_url)
         else:
             pass
         # data_tfs_url_response = requests.get(detail_info_url, headers=self.headers)
@@ -495,6 +542,17 @@ class ALi1688LoginAndParse(object):
 
         self.driver.get(detail_info_url)
         data_tfs_url_body = self.driver.page_source
+
+        # '''
+        # 改用requests
+        # '''
+        # body = self.get_requests_body(tmp_url=detail_info_url, my_headers=self.headers)
+        # print(body)
+        # if  body == []:
+        #     detail_info = ''
+        #
+        # data_tfs_url_body = body[0]
+
         data_tfs_url_body = re.compile(r'\n').sub('', data_tfs_url_body)
         data_tfs_url_body = re.compile(r'\t').sub('', data_tfs_url_body)
         data_tfs_url_body = re.compile(r'  ').sub('', data_tfs_url_body)
@@ -528,7 +586,7 @@ class ALi1688LoginAndParse(object):
                 detail_info = ''
         # print(detail_info)
 
-        return  detail_info
+        return detail_info
 
     def get_proxy_ip_from_ip_pool(self):
         '''

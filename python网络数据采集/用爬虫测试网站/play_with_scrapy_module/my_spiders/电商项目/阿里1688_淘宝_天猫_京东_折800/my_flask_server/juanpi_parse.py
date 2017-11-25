@@ -276,12 +276,14 @@ class JuanPiParse(object):
             # 详细信息标签名对应的属性
             p_info = []
             attr = data.get('goodsDetail', {}).get('attr', [])
+            # print(attr)
             if attr != []:
-                p_info = [{'p_name': item.get('st_key'), 'p_value': item.get('st_value')} for item in attr]
+                # item是str时跳过
+                p_info = [{'p_name': item.get('st_key'), 'p_value': item.get('st_value')} for item in attr if isinstance(item, dict)]
                 for item in p_info:
                     if item.get('p_name') == '运费':  # 过滤掉颜色的html代码
                         item['p_value'] = '全国包邮(偏远地区除外)'
-            # pprint(p_info)
+            pprint(p_info)
 
             # div_desc
             div_images_list = data.get('goodsDetail', {}).get('images', [])
