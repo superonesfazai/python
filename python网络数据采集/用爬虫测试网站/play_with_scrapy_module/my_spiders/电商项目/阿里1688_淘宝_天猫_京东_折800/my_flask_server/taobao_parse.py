@@ -132,6 +132,7 @@ class TaoBaoLoginAndParse(object):
         except Exception:
             print('requests.get()请求超时....')
             print('data为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
         if data != []:
@@ -139,12 +140,14 @@ class TaoBaoLoginAndParse(object):
             try:
                 data = json.loads(data)
             except Exception:
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
             # pprint(data)
 
             # 处理商品被转移或者下架导致页面不存在的商品
             if data.get('data').get('seller', {}).get('evaluates') is None:
                 print('data为空, 地址被重定向, 该商品可能已经被转移或下架')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             data['data']['rate'] = ''           # 这是宝贝评价
@@ -180,6 +183,7 @@ class TaoBaoLoginAndParse(object):
             try:
                 mock_data = json.loads(mock_data)
             except Exception:
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
             mock_data['feature'] = ''
             # pprint(mock_data)
@@ -189,6 +193,7 @@ class TaoBaoLoginAndParse(object):
             if result_data.get('apiStack', [])[0].get('value', '') == '':
                 print("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
                 result_data['trade'] = {}
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
             else:
                 result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
@@ -199,6 +204,7 @@ class TaoBaoLoginAndParse(object):
             return result_data
         else:
             print('data为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
     def deal_with_data(self, goods_id):

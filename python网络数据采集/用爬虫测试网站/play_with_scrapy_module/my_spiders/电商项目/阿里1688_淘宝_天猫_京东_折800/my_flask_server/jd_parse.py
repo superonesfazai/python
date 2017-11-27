@@ -51,6 +51,7 @@ class JdParse(object):
         '''
         if goods_id == []:
             print('goods_id为空list')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         else:
             tmp_url = ''
@@ -68,6 +69,7 @@ class JdParse(object):
                 tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
                 comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
                 print('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             elif goods_id[0] == 2:  # 表示京东大药房商品
@@ -122,6 +124,7 @@ class JdParse(object):
 
             else:
                 print('获取到的comment的销售量data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             try:
@@ -144,6 +147,7 @@ class JdParse(object):
             # # print(body_1)
             #
             # if body_1 == []:
+            #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             #     return {}
 
             if body_1 != []:
@@ -152,6 +156,7 @@ class JdParse(object):
                     data = json.loads(data)
                 except Exception:
                     print(r'json.loads(data)时为空, 此处直接返回data为{}')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
                 wdis = data.get('wdis', '') # 图文描述
@@ -186,10 +191,12 @@ class JdParse(object):
                     return data
                 else:
                     print('获取到的data的key值ware为空!')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 
             else:
                 print('获取到的data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
     def deal_with_data(self, goods_id):

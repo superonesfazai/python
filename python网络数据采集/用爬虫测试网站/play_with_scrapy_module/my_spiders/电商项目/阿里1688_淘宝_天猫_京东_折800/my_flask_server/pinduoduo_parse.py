@@ -47,6 +47,7 @@ class PinduoduoParse(object):
         :return: data   类型dict
         '''
         if goods_id == '':
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         else:
             tmp_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + str(goods_id)
@@ -64,17 +65,19 @@ class PinduoduoParse(object):
             try:
                 response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                 body = response.content.decode('utf-8')
-                # print(data)
+                # print(body)
 
                 # 过滤
                 body = re.compile(r'\n').sub('', body)
                 body = re.compile(r'\t').sub('', body)
                 body = re.compile(r'  ').sub('', body)
+                # print(body)
                 data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
                 # print(data)
             except Exception:
                 print('requests.get()请求超时....')
-                print('data为空!')
+                print('body中re匹配到的data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             if data != []:
@@ -82,6 +85,7 @@ class PinduoduoParse(object):
                 try:
                     data = json.loads(data)
                 except Exception:
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
 
@@ -125,6 +129,7 @@ class PinduoduoParse(object):
 
             else:
                 print('data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
     def deal_with_data(self):
@@ -154,24 +159,28 @@ class PinduoduoParse(object):
 
             # 商品标签属性名称
             if data.get('goods', {}).get('skus', []) == []:
-                detail_name_list = ''
+                detail_name_list = []
             else:
-                detail_name_list = [{'spec_name': item.get('spec_key')} for item in data.get('goods', {}).get('skus', [])[0].get('specs')]
-            print(detail_name_list)
+                if data.get('goods', {}).get('skus', [])[0].get('specs') == []:
+                    detail_name_list = []
+                else:
+                    detail_name_list = [{'spec_name': item.get('spec_key')} for item in data.get('goods', {}).get('skus', [])[0].get('specs')]
+            # print(detail_name_list)
 
             # 要存储的每个标签对应规格的价格及其库存
             skus = data.get('goods', {}).get('skus', [])
+            # pprint(skus)
             price_info_list = []
-            if skus != []:          # 注意: 拼多多商品只有一个规格时skus也不会为空的
-                for item in skus:
+            if skus != []:          # ** 注意: 拼多多商品只有一个规格时skus也不会为空的 **
+                for index in range(0, len(skus)):
                     tmp = {}
-                    price = item.get('groupPrice', '')          # 拼团价
-                    normal_price = item.get('normalPrice', '')  # 单独购买价格
-                    spec_value = [item.get('spec_value') for item in data.get('goods', {}).get('skus', [])[0].get('specs')]
+                    price = skus[index].get('groupPrice', '')          # 拼团价
+                    normal_price = skus[index].get('normalPrice', '')  # 单独购买价格
+                    spec_value = [item.get('spec_value') for item in data.get('goods', {}).get('skus', [])[index].get('specs')]
                     spec_value = '|'.join(spec_value)
-                    img_url = item.get('thumbUrl', '')
-                    rest_number = item.get('quantity', 0)  # 剩余库存
-                    is_on_sale = item.get('isOnSale', 0)        # 用于判断是否在特价销售，1:特价 0:原价(normal_price)
+                    img_url = skus[index].get('thumbUrl', '')
+                    rest_number = skus[index].get('quantity', 0)  # 剩余库存
+                    is_on_sale = skus[index].get('isOnSale', 0)        # 用于判断是否在特价销售，1:特价 0:原价(normal_price)
                     tmp['spec_value'] = spec_value
                     tmp['detail_price'] = price
                     tmp['normal_price'] = normal_price
@@ -189,6 +198,10 @@ class PinduoduoParse(object):
             price = tmp_price_list[-1]  # 商品价格
             taobao_price = tmp_price_list[0]  # 淘宝价
 
+            if detail_name_list == []:
+                print('## detail_name_list为空值 ##')
+                price_info_list = []
+
             # print('最高价为: ', price)
             # print('最低价为: ', taobao_price)
             # print(len(price_info_list))
@@ -199,7 +212,10 @@ class PinduoduoParse(object):
             # print(all_img_url)
 
             # 详细信息标签名对应属性
-            p_info = [{'p_name': '商品描述', 'p_value': data.get('goods', {}).get('goodsDesc', '')}]
+            tmp_p_value = re.compile(r'\n').sub('', data.get('goods', {}).get('goodsDesc', ''))
+            tmp_p_value = re.compile(r'\t').sub('', tmp_p_value)
+            tmp_p_value = re.compile(r'  ').sub('', tmp_p_value)
+            p_info = [{'p_name': '商品描述', 'p_value': tmp_p_value}]
             # print(p_info)
 
             # 总销量
@@ -213,28 +229,29 @@ class PinduoduoParse(object):
                 'begin_time': self.timestamp_to_regulartime(data.get('goods', {}).get('groupTypes', [])[0].get('startTime')),
                 'end_time': self.timestamp_to_regulartime(data.get('goods', {}).get('groupTypes', [])[0].get('endTime')),
             }]
-            pprint(schedule)
+            # pprint(schedule)
 
             # 用于判断商品是否已经下架
             is_delete = 0
 
             result = {
-                'shop_name': shop_name,  # 店铺名称
-                'account': account,  # 掌柜
-                'title': title,  # 商品名称
-                'sub_title': sub_title,  # 子标题
-                # 'shop_name_url': shop_name_url,            # 店铺主页地址
-                'price': price,  # 商品价格
-                'taobao_price': taobao_price,  # 淘宝价
-                # 'goods_stock': goods_stock,                # 商品库存
-                'detail_name_list': detail_name_list,  # 商品标签属性名称
-                # 'detail_value_list': detail_value_list,    # 商品标签属性对应的值
-                'price_info_list': price_info_list,  # 要存储的每个标签对应规格的价格及其库存
-                'all_img_url': all_img_url,  # 所有示例图片地址
-                'p_info': p_info,  # 详细信息标签名对应属性
-                'div_desc': div_desc,  # div_desc
-                'schedule': schedule,  # 商品开卖时间和结束开卖时间
-                'is_delete': is_delete  # 用于判断商品是否已经下架
+                'shop_name': shop_name,                 # 店铺名称
+                'account': account,                     # 掌柜
+                'title': title,                         # 商品名称
+                'sub_title': sub_title,                 # 子标题
+                # 'shop_name_url': shop_name_url,        # 店铺主页地址
+                'price': price,                         # 商品价格
+                'taobao_price': taobao_price,           # 淘宝价
+                # 'goods_stock': goods_stock,            # 商品库存
+                'detail_name_list': detail_name_list,   # 商品标签属性名称
+                # 'detail_value_list': detail_value_list,# 商品标签属性对应的值
+                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
+                'all_img_url': all_img_url,             # 所有示例图片地址
+                'p_info': p_info,                       # 详细信息标签名对应属性
+                'div_desc': div_desc,                   # div_desc
+                'schedule': schedule,                   # 商品开卖时间和结束开卖时间
+                'all_sell_count': all_sell_count,       # 商品总销售量
+                'is_delete': is_delete                  # 用于判断商品是否已经下架
             }
             # pprint(result)
             # print(result)
@@ -249,10 +266,65 @@ class PinduoduoParse(object):
 
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
-            # return {
-            #     'is_delete': 1,
-            # }
             return {}
+
+    def to_right_and_update_data(self, data, pipeline):
+        pass
+
+    def insert_into_pinduoduo_xianshimiaosha_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['spider_url']  # 商品地址
+        tmp['username'] = data_list['username']  # 操作人员username
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+        tmp['stock_info'] = data_list.get('stock_info')
+        tmp['miaosha_time'] = data_list.get('miaosha_time')
+
+        # 采集的来源地
+        tmp['site_id'] = 1  # 采集来源地(卷皮秒杀商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
+
+        pipeline.insert_into_pinduoduo_xianshimiaosha_table(item=tmp)
 
     def timestamp_to_regulartime(self, timestamp):
         '''

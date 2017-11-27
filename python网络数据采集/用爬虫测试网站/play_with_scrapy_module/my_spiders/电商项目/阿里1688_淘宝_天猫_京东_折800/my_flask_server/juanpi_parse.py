@@ -57,6 +57,7 @@ class JuanPiParse(object):
         :return: data   类型dict
         '''
         if goods_id == '':
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         else:
             tmp_url = 'https://web.juanpi.com/pintuan/shop/' + str(goods_id)
@@ -80,6 +81,7 @@ class JuanPiParse(object):
             except Exception:
                 print('requests.get()请求超时....')
                 print('data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             # 得到skudata
@@ -93,6 +95,7 @@ class JuanPiParse(object):
             except Exception:
                 print('requests.get()请求超时....')
                 print('skudata为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             if skudata != []:
@@ -100,6 +103,7 @@ class JuanPiParse(object):
                 try:
                     skudata = json.loads(skudata)
                 except:
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 skudata = skudata.get('skudata', {})
                 # pprint(skudata)
@@ -108,10 +112,12 @@ class JuanPiParse(object):
 
                 else:       # 否则跳出
                     print('skudata中info的key为None, 返回空dict')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 
             else:
                 print('skudata为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             if data != []:
@@ -119,6 +125,7 @@ class JuanPiParse(object):
                 try:
                     data = json.loads(data)
                 except:
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
 
@@ -146,9 +153,11 @@ class JuanPiParse(object):
 
                 else:
                     print('data中detail的key为None, 返回空dict')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
             else:
                 print('data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
     def deal_with_data(self):
@@ -283,7 +292,7 @@ class JuanPiParse(object):
                 for item in p_info:
                     if item.get('p_name') == '运费':  # 过滤掉颜色的html代码
                         item['p_value'] = '全国包邮(偏远地区除外)'
-            pprint(p_info)
+            # pprint(p_info)
 
             # div_desc
             div_images_list = data.get('goodsDetail', {}).get('images', [])

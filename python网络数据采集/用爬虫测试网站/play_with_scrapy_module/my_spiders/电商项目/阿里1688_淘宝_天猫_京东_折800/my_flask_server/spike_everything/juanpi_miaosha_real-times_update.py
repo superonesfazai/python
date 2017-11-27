@@ -82,7 +82,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                         elif self.is_recent_time(miaosha_begin_time) == 2:
                             # break       # 跳出循环
-                            pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺讯的
+                            pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                         else:  # 返回1，表示在待更新区间内
                             print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
@@ -168,12 +168,11 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                                             else:
                                                 pass
-
+                        index += 1
+                        gc.collect()
                     else:  # 表示返回的data值为空值
                         print('数据库连接失败，数据库可能关闭或者维护中')
                         pass
-                    index += 1
-                    gc.collect()
                 print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
             if get_shanghai_time_hour() == 0:   # 0点以后不更新
                 sleep(60*60*5.5)
@@ -321,6 +320,11 @@ def just_fuck_run():
         print('一次大更新即将开始'.center(30, '-'))
         tmp = Juanpi_Miaosha_Real_Time_Update()
         tmp.run_forever()
+        try:
+            del tmp
+        except:
+            pass
+        gc.collect()
         print('一次大更新完毕'.center(30, '-'))
 
 def main():

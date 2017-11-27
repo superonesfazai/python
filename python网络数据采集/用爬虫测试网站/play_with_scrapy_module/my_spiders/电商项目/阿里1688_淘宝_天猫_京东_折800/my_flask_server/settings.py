@@ -47,11 +47,16 @@ TAOBAO_REAL_TIMES_SLEEP_TIME = 1.8      # 加拿大服务器可以设置为0
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 14000         # 起始session_id
+BASE_SESSION_ID = 14300         # 起始session_id
 MAX_SESSION_ID = 15000          # 截止的session_id
 SPIDER_START_HOUR = 8           # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16            # 每日限时秒杀爬取的秒杀结束时间点
 ZHE_800_SPIKE_SLEEP_TIME = .7   # 没抓取一个sleep time的时间,用于避免返回为空的情况
+
+'''
+拼多多秒杀时长只有30分钟的时间点list，其他时间区间都是1小时
+'''
+PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '21']
 
 """
 超级管理员账户名密码

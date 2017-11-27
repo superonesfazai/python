@@ -121,6 +121,7 @@ class ALi1688LoginAndParse(object):
                 return self.result_data
             else:
                 print('data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
         else:
             print('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
@@ -151,9 +152,11 @@ class ALi1688LoginAndParse(object):
                     return self.result_data
                 else:
                     print('data为空!')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
             else:
                 print('这个商品对应活动属性未知, 此处不解析, 设置为跳过!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
     def deal_with_data(self):

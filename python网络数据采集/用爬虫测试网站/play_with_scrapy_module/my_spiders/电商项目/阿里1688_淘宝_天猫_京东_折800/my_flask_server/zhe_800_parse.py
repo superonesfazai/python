@@ -46,6 +46,7 @@ class Zhe800Parse(object):
         :return: data   类型dict
         '''
         if goods_id == '':
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         else:
             tmp_url = 'https://m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
@@ -69,6 +70,7 @@ class Zhe800Parse(object):
             except Exception:
                 print('requests.get()请求超时....')
                 print('data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             if data != []:
@@ -76,6 +78,7 @@ class Zhe800Parse(object):
                 try:
                     data = json.loads(data)
                 except Exception:
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
 
@@ -130,6 +133,7 @@ class Zhe800Parse(object):
                     phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
                 except AttributeError:
                     print('获取手机版地址失败，此处跳过')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 
                 print('------>>>| 得到商品手机版地址为: ', phone_url)
@@ -147,6 +151,7 @@ class Zhe800Parse(object):
                 except Exception:   # 未拿到图文详情就跳出
                     print('requests.get()请求超时....')
                     print('detail_data为空!')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 
                 if detail_data != []:
@@ -155,6 +160,7 @@ class Zhe800Parse(object):
                         detail_data = json.loads(detail_data)
                     except Exception:
                         print('json.loads(detail_data)时报错, 此处跳过')
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                         return {}
                     # pprint(detail_data)
 
@@ -220,6 +226,7 @@ class Zhe800Parse(object):
                             except Exception:  # 未拿到图文详情就跳出
                                 print('requests.get()请求超时....')
                                 print('size_data为空!')
+                                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                                 return {}
 
                             if size_data != []:
@@ -228,6 +235,7 @@ class Zhe800Parse(object):
                                     size_data = json.loads(size_data)
                                 except Exception:
                                     print('json.loads(size_data)出错, 此处跳过')
+                                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                                     return {}
 
                                 # pprint(size_data)
@@ -281,6 +289,7 @@ class Zhe800Parse(object):
                     except Exception:  # 未拿到图文详情就跳出
                         print('requests.get()请求超时....')
                         print('seller_info为空!')
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                         return {}
 
                     if seller_info != []:
@@ -289,6 +298,7 @@ class Zhe800Parse(object):
                             seller_info = json.loads(seller_info)
                         except Exception:
                             print('卖家信息在转换时出现错误, 此处跳过')
+                            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                             return {}
 
                         # pprint(seller_info)
@@ -310,6 +320,7 @@ class Zhe800Parse(object):
                     except Exception:  # 未拿到图文详情就跳出
                         print('requests.get()请求超时....')
                         print('schedule_and_stock_info为空!')
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                         return {}
 
                     if schedule_and_stock_info != []:
@@ -318,6 +329,7 @@ class Zhe800Parse(object):
                             schedule_and_stock_info = json.loads(schedule_and_stock_info)
                         except Exception:
                             print('得到秒杀开始时间和结束时间时错误, 此处跳过')
+                            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                             return {}
 
                         schedule = schedule_and_stock_info.get('/app/detail/status/schedule')
@@ -349,10 +361,12 @@ class Zhe800Parse(object):
 
                 else:
                     print('detail_data为空!')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 
             else:
                 print('data为空!')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
     def deal_with_data(self):

@@ -227,7 +227,27 @@ class Zhe800Spike(object):
         time_2 = time.time()  # 当前的时间戳
         time_1 = time.localtime(time_1)
         time_2 = time.localtime(time_2)
+        if time_1.tm_year > time_2.tm_year:
+            print('** 该年份为未来时间年份 **')
+            if time_1.tm_hour >= SPIDER_START_HOUR and time_1.tm_hour <= SPIDER_END_HOUR:  # 规定到SPIDER_START_HOUR点到SPIDER_END_HOUR点的商品信息
+                print('合法时间')
+                # diff_days = abs(time_1.tm_mday - time_2.tm_mday)
+                return True
+            else:
+                print('该小时在{0}点到{1}点以外，此处不处理跳过'.format(SPIDER_START_HOUR, SPIDER_END_HOUR))
+                return False
+
         if time_1.tm_year == time_2.tm_year:
+            if time_1.tm_mon > time_2.tm_mon:   # 先处理得到的time_1的月份大于当前月份的信息(即未来月份的)
+                print('** 该月份为未来时间月份 **')
+                if time_1.tm_hour >= SPIDER_START_HOUR and time_1.tm_hour <= SPIDER_END_HOUR:  # 规定到SPIDER_START_HOUR点到SPIDER_END_HOUR点的商品信息
+                    print('合法时间')
+                    # diff_days = abs(time_1.tm_mday - time_2.tm_mday)
+                    return True
+                else:
+                    print('该小时在{0}点到{1}点以外，此处不处理跳过'.format(SPIDER_START_HOUR, SPIDER_END_HOUR))
+                    return False
+
             if time_1.tm_mon >= time_2.tm_mon:  # 如果目标时间的月份时间 >= 当前月份(月份合法, 表示是当前月份或者是今年其他月份)
                 if time_1.tm_mday >= time_2.tm_mday-2:  # 这样能抓到今天的前两天的信息
                     if time_1.tm_hour >= SPIDER_START_HOUR and time_1.tm_hour <= SPIDER_END_HOUR:    # 规定到SPIDER_START_HOUR点到SPIDER_END_HOUR点的商品信息
@@ -357,6 +377,11 @@ def just_fuck_run():
         print('一次大抓取即将开始'.center(30, '-'))
         zhe_800_spike = Zhe800Spike()
         zhe_800_spike.get_spike_hour_goods_info()
+        try:
+            del zhe_800_spike
+        except:
+            pass
+        gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
 
 def main():

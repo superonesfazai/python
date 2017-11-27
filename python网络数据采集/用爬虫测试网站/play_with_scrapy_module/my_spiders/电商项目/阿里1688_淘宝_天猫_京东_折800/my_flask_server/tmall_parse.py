@@ -100,6 +100,7 @@ class TmallParse(object):
                 data = json.loads(data)
             except Exception:
                 print(r'json.loads(data)时报错, 此处返回data为{}')
+                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             data['detailDesc'] = ''
@@ -140,6 +141,7 @@ class TmallParse(object):
 
         else:
             print('获取到的data为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
     def deal_with_data(self):

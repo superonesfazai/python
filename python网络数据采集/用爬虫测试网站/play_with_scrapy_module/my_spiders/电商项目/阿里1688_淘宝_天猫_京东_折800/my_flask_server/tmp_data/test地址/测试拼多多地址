@@ -6,6 +6,66 @@ http://mobile.yangkeduo.com/goods.html?goods_id=17854727
 http://mobile.yangkeduo.com/goods.html?goods_id=2800418&is_spike=0&page_el_sn=99740&refer_page_name=index&refer_page_id=index_1511518023214_czHfPWAqSO&refer_page_sn=10002&refer_page_el_sn=99740&page_id=goods_detail_1511528621541_vdpwtAZfGM&is_back=1
 http://mobile.yangkeduo.com/goods.html?goods_id=29287077&is_spike=0&page_el_sn=99740&refer_page_name=index&refer_page_id=index_1511518023214_czHfPWAqSO&refer_page_sn=10002&refer_page_el_sn=99740
 http://mobile.yangkeduo.com/goods.html?goods_id=2085146&refer_page_name=index&is_spike=0&refer_page_id=index_1511518023214_czHfPWAqSO&refer_page_sn=10002&page_id=goods_detail_1511530147851_lFukcRuuAp&is_back=1
+http://mobile.yangkeduo.com/goods.html?goods_id=12385751&page_id=goods_detail_1511753895037_ZU12pLa39p&is_back=1
 
 # 手机版官网地址
 http://mobile.yangkeduo.com/
+
+# 拼多多 已过期的限时秒杀
+http://mobile.yangkeduo.com/goods.html?goods_id=236814858
+
+# 拼多多限时秒杀
+* 今日秒杀
+http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000
+* 明日秒杀
+http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000
+* 更多预告
+http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000
+
+* 秒杀时间段
+['2017-11-27 00:00:00',
+ '2017-11-27 08:00:00',
+ '2017-11-27 08:30:00',
+ '2017-11-27 09:00:00',
+ '2017-11-27 09:30:00',
+ '2017-11-27 10:00:00',
+ '2017-11-27 10:30:00',
+ '2017-11-27 11:00:00',
+ '2017-11-27 12:00:00',
+ '2017-11-27 13:00:00',
+ '2017-11-27 14:00:00',
+ '2017-11-27 14:30:00',
+ '2017-11-27 15:00:00',
+ '2017-11-27 15:30:00',
+ '2017-11-27 16:00:00',
+ '2017-11-27 17:00:00',
+ '2017-11-27 18:00:00',
+ '2017-11-27 19:00:00',
+ '2017-11-27 19:30:00',
+ '2017-11-27 20:00:00',
+ '2017-11-27 20:30:00',
+ '2017-11-27 21:00:00',
+ '2017-11-27 21:30:00',
+ '2017-11-27 22:00:00',
+ '2017-11-27 23:00:00']
+
+{'items': [{'data': {'all_quantity': 2000,
+                     'app_new': 0,
+                     'customer_num': 2,
+                     'goods_id': 4140417,
+                     'goods_name': '1500g波沽屋手造麻薯6种口味干吃汤圆麻糍糕点零食大礼包',
+                     'hd_thumb_url': 'http://omsproductionimg.yangkeduo.com/images/2017-10-03/7f21fd64e9675dbec0dc9194db337d58.jpeg',
+                     'is_app': 0,
+                     'is_onsale': 1,
+                     'market_price': 3900,
+                     'normal_price': 2050,
+                     'price': 1490,
+                     'quantity': 809,
+                     'short_name': '1500g波沽屋手造麻薯6种口味干吃汤圆麻糍糕点零食大礼包',
+                     'sold_quantity': 1191,
+                     'start_time': 1511595000,
+                     'thumb_url': 'http://omsproductionimg.yangkeduo.com/images/2017-10-03/28c3ac7ab7decf6d1bcc4555992ec40d.jpeg'},
+            'type': 1},
+
+
+
