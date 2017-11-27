@@ -377,10 +377,10 @@ def just_fuck_run():
         print('一次大抓取即将开始'.center(30, '-'))
         zhe_800_spike = Zhe800Spike()
         zhe_800_spike.get_spike_hour_goods_info()
-        try:
-            del zhe_800_spike
-        except:
-            pass
+        # try:
+        #     del zhe_800_spike
+        # except:
+        #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
 

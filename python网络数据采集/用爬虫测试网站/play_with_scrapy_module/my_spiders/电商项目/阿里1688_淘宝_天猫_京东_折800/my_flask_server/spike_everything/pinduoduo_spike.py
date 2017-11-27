@@ -45,6 +45,65 @@ class PinduoduoSpike(object):
         模拟构造得到data的url，得到近期所有的限时秒杀商品信息
         :return:
         '''
+        all_miaosha_goods_list = self.get_all_miaosha_goods_list()
+
+        pinduoduo = PinduoduoParse()
+        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+
+        if my_pipeline.is_connect_success:
+            if my_pipeline.select_pinduoduo_xianshimiaosha_all_goods_id() is None:
+                db_goods_id_list = []
+            else:
+                db_goods_id_list = [item[0] for item in list(my_pipeline.select_pinduoduo_xianshimiaosha_all_goods_id())]
+            for item in all_miaosha_goods_list:
+                '''
+                注意: 明日8点半抓取到的是页面加载中返回的是空值
+                '''
+                if item.get('goods_id') != 'None':    # 跳过goods_id为'None'
+                    if item.get('goods_id', '') in db_goods_id_list:
+                        print('该goods_id已经存在于数据库中, 此处跳过')
+                        pass
+                    else:
+                        tmp_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + item.get('goods_id')
+                        pinduoduo.get_goods_data(goods_id=item.get('goods_id'))
+                        goods_data = pinduoduo.deal_with_data()
+
+                        # print(goods_data)
+                        if goods_data == {}:  # 返回的data为空则跳过
+                            print('得到的goods_data为空值，此处先跳过，下次遍历再进行处理')
+                            pass
+
+                        else:  # 否则就解析并插入
+                            goods_data['stock_info'] = item.get('stock_info')
+                            goods_data['goods_id'] = item.get('goods_id')
+                            goods_data['spider_url'] = tmp_url
+                            goods_data['username'] = '18698570079'
+                            goods_data['price'] = item.get('price')  # 秒杀前的原特价
+                            goods_data['taobao_price'] = item.get('taobao_price')  # 秒杀价
+                            goods_data['sub_title'] = item.get('sub_title', '')
+                            goods_data['miaosha_time'] = item.get('miaosha_time')
+
+                            if item.get('stock_info').get('activity_stock') <= 2:
+                                # 实时秒杀库存小于等于2时就标记为 已售罄
+                                print('该秒杀商品已售罄...')
+                                goods_data['is_delete'] = 1
+
+                            pinduoduo.insert_into_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                        sleep(.9)
+                else:
+                    print('该goods_id为"None", 此处跳过')
+                    pass
+            sleep(15)
+
+        else:
+            pass
+        try:
+            del pinduoduo
+        except:
+            pass
+        gc.collect()
+
+    def get_all_miaosha_goods_list(self):
         # 今日秒杀
         tmp_url = 'http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000'
         print('待爬取的今日限时秒杀数据的地址为: ', tmp_url)
@@ -94,61 +153,7 @@ class PinduoduoSpike(object):
             all_miaosha_goods_list.append(item)
         print('当前所有限时秒杀商品list为: ', all_miaosha_goods_list)
 
-        pinduoduo = PinduoduoParse()
-        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
-        if my_pipeline.is_connect_success:
-            if my_pipeline.select_pinduoduo_xianshimiaosha_all_goods_id() is None:
-                db_goods_id_list = []
-            else:
-                db_goods_id_list = [item[0] for item in list(my_pipeline.select_pinduoduo_xianshimiaosha_all_goods_id())]
-            for item in all_miaosha_goods_list:
-                '''
-                注意: 明日8点半抓取到的是页面加载中返回的是空值
-                '''
-                if item.get('goods_id') != 'None':    # 跳过goods_id为'None'
-                    if item.get('goods_id', '') in db_goods_id_list:
-                        print('该goods_id已经存在于数据库中, 此处跳过')
-                        pass
-                    else:
-                        tmp_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + item.get('goods_id')
-                        pinduoduo.get_goods_data(goods_id=item.get('goods_id'))
-                        goods_data = pinduoduo.deal_with_data()
-
-                        print(goods_data)
-                        if goods_data == {}:  # 返回的data为空则跳过
-                            print('得到的goods_data为空值，此处先跳过，下次遍历再进行处理')
-                            pass
-
-                        else:  # 否则就解析并插入
-                            goods_data['stock_info'] = item.get('stock_info')
-                            goods_data['goods_id'] = item.get('goods_id')
-                            goods_data['spider_url'] = tmp_url
-                            goods_data['username'] = '18698570079'
-                            goods_data['price'] = item.get('price')  # 秒杀前的原特价
-                            goods_data['taobao_price'] = item.get('taobao_price')  # 秒杀价
-                            goods_data['sub_title'] = item.get('sub_title', '')
-                            goods_data['miaosha_time'] = item.get('miaosha_time')
-
-                            if item.get('stock_info').get('activity_stock') <= 2:
-                                # 实时秒杀库存小于等于2时就标记为 已售罄
-                                print('该秒杀商品已售罄...')
-                                goods_data['is_delete'] = 1
-
-                            pinduoduo.insert_into_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(.9)
-                else:
-                    print('该goods_id为"None", 此处跳过')
-                    pass
-            sleep(6)
-
-        else:
-            pass
-        try:
-            del pinduoduo
-        except:
-            pass
-        gc.collect()
+        return all_miaosha_goods_list
 
     def get_url_body(self, tmp_url):
         '''

@@ -43,143 +43,142 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
     def run_forever(self):
         '''
-        这个实时更新的想法是只更新当天前天未来两小时的上架商品的信息，再未来信息价格(全为原价)暂不更新
+        这个实时更新的想法是只更新当天前天未来14小时的上架商品的信息，再未来信息价格(全为原价)暂不更新
         :return:
         '''
-        while True:
-            #### 实时更新数据
-            tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-            try:
-                result = list(tmp_sql_server.select_juanpi_xianshimiaosha_all_goods_id())
-            except TypeError as e:
-                print('TypeError错误, 原因数据库连接失败...(可能维护中)')
-                result = None
-            if result is None:
-                pass
-            else:
-                print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-                print(result)
-                print('--------------------------------------------------------')
+        #### 实时更新数据
+        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        try:
+            result = list(tmp_sql_server.select_juanpi_xianshimiaosha_all_goods_id())
+        except TypeError as e:
+            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
+            result = None
+        if result is None:
+            pass
+        else:
+            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            print(result)
+            print('--------------------------------------------------------')
 
-                print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-                index = 1
-                for item in result:  # 实时更新数据
-                    miaosha_begin_time = json.loads(item[1]).get('miaosha_begin_time')
-                    miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time,'%Y-%m-%d %H:%M:%S')))[0:10])
-                    # print(miaosha_begin_time)
+            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            index = 1
+            for item in result:  # 实时更新数据
+                miaosha_begin_time = json.loads(item[1]).get('miaosha_begin_time')
+                miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time,'%Y-%m-%d %H:%M:%S')))[0:10])
+                # print(miaosha_begin_time)
 
-                    # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                    juanpi_miaosha = JuanPiParse()
-                    if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                        print('正在重置，并与数据库建立新连接中...')
-                        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                        print('与数据库的新连接成功建立...')
+                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+                juanpi_miaosha = JuanPiParse()
+                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
+                    print('正在重置，并与数据库建立新连接中...')
+                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                    print('与数据库的新连接成功建立...')
 
-                    if tmp_sql_server.is_connect_success:
-                        if self.is_recent_time(miaosha_begin_time) == 0:
-                            tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
-                            print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+                if tmp_sql_server.is_connect_success:
+                    if self.is_recent_time(miaosha_begin_time) == 0:
+                        tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
+                        print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
-                        elif self.is_recent_time(miaosha_begin_time) == 2:
-                            # break       # 跳出循环
-                            pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
+                    elif self.is_recent_time(miaosha_begin_time) == 2:
+                        # break       # 跳出循环
+                        pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
-                        else:  # 返回1，表示在待更新区间内
-                            print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                    else:  # 返回1，表示在待更新区间内
+                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
 
-                            tmp_url = 'https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id={0}&page={1}'.format(
-                                str(item[2]), str(item[3]),
-                            )
-                            print('待爬取的tab_id, page地址为: ', tmp_url)
+                        tmp_url = 'https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id={0}&page={1}'.format(
+                            str(item[2]), str(item[3]),
+                        )
+                        print('待爬取的tab_id, page地址为: ', tmp_url)
 
-                            # 设置代理ip
-                            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-                            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+                        # 设置代理ip
+                        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+                        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
-                            tmp_proxies = {
-                                'http': self.proxy,
-                            }
-                            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+                        tmp_proxies = {
+                            'http': self.proxy,
+                        }
+                        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
-                            try:
-                                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                                data = response.content.decode('utf-8')
-                                # print(data)
-                            except Exception:
-                                print('requests.get()请求超时....')
-                                print('data为空!')
-                                break
+                        try:
+                            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                            data = response.content.decode('utf-8')
+                            # print(data)
+                        except Exception:
+                            print('requests.get()请求超时....')
+                            print('data为空!')
+                            break
 
-                            try:
-                                data = json.loads(data)
-                                data = data.get('data', {})
-                                # print(data)
-                            except:
-                                break
+                        try:
+                            data = json.loads(data)
+                            data = data.get('data', {})
+                            # print(data)
+                        except:
+                            break
 
-                            if data.get('goodslist') == []:
-                                print('tab_id={0}, page={1}的goodslist为[], 此处跳过'.format(item[2], item[3]))
+                        if data.get('goodslist') == []:
+                            print('tab_id={0}, page={1}的goodslist为[], 此处跳过'.format(item[2], item[3]))
+                            pass
+
+                        else:
+                            data = data.get('goodslist', [])
+                            # print(data)
+                            if data == []:
+                                print('goodslist为[], 此处跳过')
                                 pass
-
                             else:
-                                data = data.get('goodslist', [])
-                                # print(data)
-                                if data == []:
-                                    print('goodslist为[], 此处跳过')
+                                miaosha_goods_list = self.get_miaoshao_goods_info_list(data=data)
+                                # print(miaosha_goods_list)
+
+                                # 该tab_id, page中现有的所有goods_id的list
+                                miaosha_goods_all_goods_id = [i.get('goods_id') for i in miaosha_goods_list]
+                                # print(miaosha_goods_all_goods_id)
+
+                                if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
+                                    '''
+                                    表示该tab_id，page中没有了该goods_id
+                                    '''
+                                    tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
+                                    print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
                                     pass
-                                else:
-                                    miaosha_goods_list = self.get_miaoshao_goods_info_list(data=data)
-                                    # print(miaosha_goods_list)
 
-                                    # 该tab_id, page中现有的所有goods_id的list
-                                    miaosha_goods_all_goods_id = [i.get('goods_id') for i in miaosha_goods_list]
-                                    # print(miaosha_goods_all_goods_id)
+                                else:       # 未下架的
+                                    for item_1 in miaosha_goods_list:
+                                        if item_1.get('goods_id', '') == item[0]:
+                                            juanpi_miaosha.get_goods_data(goods_id=item[0])
+                                            goods_data = juanpi_miaosha.deal_with_data()
 
-                                    if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
-                                        '''
-                                        表示该tab_id，page中没有了该goods_id
-                                        '''
-                                        tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
-                                        print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
-                                        pass
-
-                                    else:       # 未下架的
-                                        for item_1 in miaosha_goods_list:
-                                            if item_1.get('goods_id', '') == item[0]:
-                                                juanpi_miaosha.get_goods_data(goods_id=item[0])
-                                                goods_data = juanpi_miaosha.deal_with_data()
-
-                                                if goods_data == {}:    # 返回的data为空则跳过
-                                                    pass
-                                                else:                   # 否则就解析并且插入
-                                                    goods_data['stock_info'] = item_1.get('stock_info')
-                                                    goods_data['goods_id'] = item_1.get('goods_id')
-                                                    # goods_data['username'] = '18698570079'
-                                                    if item_1.get('stock_info').get('activity_stock') > 0:
-                                                        goods_data['price'] = item_1.get('price')  # 秒杀前的原特价
-                                                        goods_data['taobao_price'] = item_1.get('taobao_price')  # 秒杀价
-                                                    else:
-                                                        pass
-                                                    goods_data['sub_title'] = item_1.get('sub_title', '')
-                                                    goods_data['miaosha_time'] = item_1.get('miaosha_time')
-
-                                                    # print(goods_data)
-                                                    juanpi_miaosha.to_update_juanpi_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-
-                                            else:
+                                            if goods_data == {}:    # 返回的data为空则跳过
                                                 pass
-                        index += 1
-                        gc.collect()
-                    else:  # 表示返回的data值为空值
-                        print('数据库连接失败，数据库可能关闭或者维护中')
-                        pass
-                print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-            if get_shanghai_time_hour() == 0:   # 0点以后不更新
-                sleep(60*60*5.5)
-            else:
-                sleep(5)
-            # del ali_1688
-            gc.collect()
+                                            else:                   # 否则就解析并且插入
+                                                goods_data['stock_info'] = item_1.get('stock_info')
+                                                goods_data['goods_id'] = item_1.get('goods_id')
+                                                # goods_data['username'] = '18698570079'
+                                                if item_1.get('stock_info').get('activity_stock') > 0:
+                                                    goods_data['price'] = item_1.get('price')  # 秒杀前的原特价
+                                                    goods_data['taobao_price'] = item_1.get('taobao_price')  # 秒杀价
+                                                else:
+                                                    pass
+                                                goods_data['sub_title'] = item_1.get('sub_title', '')
+                                                goods_data['miaosha_time'] = item_1.get('miaosha_time')
+
+                                                # print(goods_data)
+                                                juanpi_miaosha.to_update_juanpi_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
+
+                                        else:
+                                            pass
+                    index += 1
+                    gc.collect()
+
+                else:  # 表示返回的data值为空值
+                    print('数据库连接失败，数据库可能关闭或者维护中')
+                    pass
+            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+        if get_shanghai_time_hour() == 0:   # 0点以后不更新
+            sleep(60*60*5.5)
+        else:
+            sleep(5)
+        gc.collect()
 
     def is_recent_time(self, timestamp):
         '''
