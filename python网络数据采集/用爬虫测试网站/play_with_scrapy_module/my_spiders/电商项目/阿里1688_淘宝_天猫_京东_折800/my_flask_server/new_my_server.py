@@ -20,7 +20,7 @@ from tmall_parse import TmallParse
 from jd_parse import JdParse
 from zhe_800_parse import Zhe800Parse
 from juanpi_parse import JuanPiParse
-from .pinduoduo_parse import PinduoduoParse
+from pinduoduo_parse import PinduoduoParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH, PINDUODUO_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT

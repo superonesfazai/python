@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -66,7 +66,11 @@
 	.juanpi span{
 		background: url(../static/images/jp.jpg)no-repeat;	
 		background-size: 100% 100%;			
-	}				
+	}			
+	.pinduoduo span{
+		background: url(../static/images/pingduoduo.jpg)no-repeat;	
+		background-size: 100% 100%;			
+	}	
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -85,6 +89,9 @@
 	.juanpi span:hover .login-btn{
 		display: block;
 	}	
+	.pinduoduo span:hover .login-btn{
+		display: block;
+	}
 	.login-btn{
 		display: none;
 		width: 1rem;
@@ -213,8 +220,15 @@
     					<!--请点击登录-->
     				<!--</a>-->
     		<!--</span></div>-->
-    		<!--</div>      		-->
-    	<!--</div>    	-->
+    	<!--</div>-->
+        <!--<div class="passList" id="passList">-->
+            <!--<div class="pinduoduo passListItem"><span>-->
+					<!--<a class="login-btn" href="/show_pinduoduo" target="_blank">-->
+    					<!--请点击登录-->
+    				<!--</a>-->
+    		<!--</span></div>-->
+    		<!--</div>-->
+        <!--</div>-->
     	<!--<ul class="login" id="login">
     		<li class="loginList">
 	 	    	<div class="scanLogin">
@@ -324,7 +338,17 @@
 							confirm_login:'juanpi_login'
 						}
 					});
-				})
+				});
+                $('.login-btn').eq(6).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'pinduoduo_login'
+						}
+					});
+				})                
 //			for(var i=0;i<passListItem.length;i++){
 //				passListItem[i].index = i;
 //				passListItem[i].onmouseover=function(){
