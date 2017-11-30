@@ -23,7 +23,12 @@ import selenium.webdriver.support.ui as ui
 from random import randint
 from settings import HEADERS
 import requests
-from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST
+from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
+
+from settings import PHANTOMJS_DRIVER_PATH
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 '''
 实时更新拼多多秒杀信息
@@ -40,6 +45,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             'Host': 'm.juanpi.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
+        self.init_phantomjs()
 
     def run_forever(self):
         '''
@@ -62,14 +68,14 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
 
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
+            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+            pinduoduo_miaosha = PinduoduoParse()
             for item in result:  # 实时更新数据
                 # 对于拼多多先拿到该商品的结束时间点
                 miaosha_end_time = json.loads(item[1]).get('miaosha_end_time')
                 miaosha_end_time = int(str(time.mktime(time.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_end_time)
 
-                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                pinduoduo_miaosha = PinduoduoParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
@@ -104,6 +110,8 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                         else:       # 未下架的
                             for item_1 in all_miaosha_goods_list:
                                 if item_1.get('goods_id', '') == item[0]:
+                                    # # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+                                    # pinduoduo_miaosha = PinduoduoParse()
                                     pinduoduo_miaosha.get_goods_data(goods_id=item[0])
                                     goods_data = pinduoduo_miaosha.deal_with_data()
 
@@ -128,12 +136,12 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
 
                                         # print(goods_data)
                                         pinduoduo_miaosha.to_update_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                    sleep(.5)
+                                    sleep(.4)
                                 else:
                                     pass
 
-                        index += 1
-                        gc.collect()
+                    index += 1
+                    gc.collect()
 
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
@@ -142,7 +150,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         if get_shanghai_time_hour() == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(5)
+            sleep(3)
         # del ali_1688
         gc.collect()
 
@@ -150,19 +158,22 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         # 今日秒杀
         tmp_url = 'http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000'
         # print('待爬取的今日限时秒杀数据的地址为: ', tmp_url)
-        today_data = self.get_url_body(tmp_url=tmp_url)
+        # today_data = self.get_url_body(tmp_url=tmp_url)
+        today_data = self.phantomjs_get_url_body(tmp_url=tmp_url)
         today_data = self.json_to_dict(tmp_data=today_data)
 
         # 明日的秒杀
         tmp_url_2 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000'
         # print('待爬取的明日限时秒杀数据的地址为: ', tmp_url_2)
-        tomorrow_data = self.get_url_body(tmp_url=tmp_url_2)
+        # tomorrow_data = self.get_url_body(tmp_url=tmp_url_2)
+        tomorrow_data = self.phantomjs_get_url_body(tmp_url=tmp_url_2)
         tomorrow_data = self.json_to_dict(tmp_data=tomorrow_data)
 
         # 未来的秒杀
         tmp_url_3 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000'
         # print('待爬取的未来限时秒杀数据的地址为: ', tmp_url_3)
-        all_after_data = self.get_url_body(tmp_url=tmp_url_3)
+        # all_after_data = self.get_url_body(tmp_url=tmp_url_3)
+        all_after_data = self.phantomjs_get_url_body(tmp_url=tmp_url_3)
         all_after_data = self.json_to_dict(tmp_data=all_after_data)
 
         if today_data != []:
@@ -209,30 +220,32 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             tmp = {}
             miaosha_begin_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time'))))
             tmp_hour = miaosha_begin_time[-8:-6]
-            if tmp_hour in PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST:
-                '''
-                # 这些起始的点秒杀时间只有30分钟
-                '''
-                miaosha_end_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*30))
+            if tmp_hour in PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST:
+                if tmp_hour in PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST:
+                    '''
+                    # 这些起始的点秒杀时间只有30分钟
+                    '''
+                    miaosha_end_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*30))
+                else:
+                    miaosha_end_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*60))
+
+                tmp['miaosha_time'] = {
+                    'miaosha_begin_time': miaosha_begin_time,
+                    'miaosha_end_time': miaosha_end_time,
+                }
+                # 卷皮商品的goods_id
+                tmp['goods_id'] = str(item.get('data', {}).get('goods_id'))
+                # 限时秒杀库存信息
+                tmp['stock_info'] = {
+                    'activity_stock': int(item.get('data', {}).get('all_quantity', 0) - item.get('data', {}).get('sold_quantity', 0)),
+                    'stock': item.get('data', {}).get('all_quantity', 0),
+                }
+                # 原始价格
+                tmp['price'] = round(float(item.get('data', {}).get('normal_price', '0'))/100, 2)
+                tmp['taobao_price'] = round(float(item.get('data', {}).get('price', '0'))/100, 2)
+                miaosha_goods_list.append(tmp)
             else:
-                miaosha_end_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*60))
-
-            tmp['miaosha_time'] = {
-                'miaosha_begin_time': miaosha_begin_time,
-                'miaosha_end_time': miaosha_end_time,
-            }
-            # 卷皮商品的goods_id
-            tmp['goods_id'] = str(item.get('data', {}).get('goods_id'))
-            # 限时秒杀库存信息
-            tmp['stock_info'] = {
-                'activity_stock': int(item.get('data', {}).get('all_quantity', 0) - item.get('data', {}).get('sold_quantity', 0)),
-                'stock': item.get('data', {}).get('all_quantity', 0),
-            }
-            # 原始价格
-            tmp['price'] = round(float(item.get('data', {}).get('normal_price', '0'))/100, 2)
-            tmp['taobao_price'] = round(float(item.get('data', {}).get('price', '0'))/100, 2)
-            miaosha_goods_list.append(tmp)
-
+                pass
         return miaosha_goods_list
 
     def get_url_body(self, tmp_url):
@@ -259,6 +272,32 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             print('today的data为空!')
             data = '{}'
         return data
+
+    def phantomjs_get_url_body(self, tmp_url):
+        '''
+        返回给与的url的body
+        :param tmp_url:
+        :return: str
+        '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        self.driver.set_page_load_timeout(10)  # 设置成10秒避免数据出错
+
+        try:
+            self.driver.get(tmp_url)
+            self.driver.implicitly_wait(15)
+            body = self.driver.page_source
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+            # print(body)
+            body = re.compile(r'<body>(.*)</body>').findall(body)[0]
+            # print(body)
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 10 seconds when loading page')
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            body = '{}'
+
+        return body
 
     def json_to_dict(self, tmp_data):
         try:
@@ -289,6 +328,49 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             return 1    # 表示是昨天跟今天的也就是待更新的
         else:
             return 2    # 未来时间的暂时不用更新
+
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+
+        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
 
     def timestamp_to_regulartime(self, timestamp):
         '''
@@ -323,6 +405,13 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                 delete_info = requests.get(delete_url + item[0])
         # pprint(result_ip_list)
         return result_ip_list
+
+    def __del__(self):
+        try:
+            self.driver.quit()
+        except:
+            pass
+        gc.collect()
 
 def get_shanghai_time_hour():
     '''

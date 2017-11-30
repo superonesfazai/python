@@ -10,6 +10,7 @@
 """
 拼多多页面采集系统(官网地址: http://mobile.yangkeduo.com/)
 由于拼多多的pc站，官方早已放弃维护，专注做移动端，所以下面的都是基于移动端地址进行的爬取
+直接requests开始时是可以的，后面就只返回错误的信息，估计将我IP过滤了
 """
 
 import time
@@ -26,6 +27,12 @@ import gc
 import pytz
 
 from settings import HEADERS
+from selenium import webdriver
+import selenium.webdriver.support.ui as ui
+from settings import PHANTOMJS_DRIVER_PATH
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class PinduoduoParse(object):
     def __init__(self):
@@ -36,9 +43,12 @@ class PinduoduoParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'mobile.yangkeduo.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
         }
         self.result_data = {}
+        # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
+        self.init_phantomjs()
 
     def get_goods_data(self, goods_id):
         '''
@@ -53,32 +63,48 @@ class PinduoduoParse(object):
             tmp_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + str(goods_id)
             print('------>>>| 得到的商品手机版地址为: ', tmp_url)
 
-            # 设置代理ip
-            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+            '''
+            1.采用requests，由于经常返回错误的body(即requests.get返回的为错误值), So pass
+            '''
+            # # 设置代理ip
+            # self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+            # self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+            #
+            # tmp_proxies = {
+            #     'http': self.proxy,
+            # }
+            # # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+            #
+            # try:
+            #     response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            #     body = response.content.decode('utf-8')
+            #     # print(body)
+            #
+            #     # 过滤
+            #     body = re.compile(r'\n').sub('', body)
+            #     body = re.compile(r'\t').sub('', body)
+            #     body = re.compile(r'  ').sub('', body)
+            #     # print(body)
+            #     data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
+            #     # print(data)
+            # except Exception:
+            #     print('requests.get()请求超时....')
+            #     print('body中re匹配到的data为空!')
+            #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            #     return {}
 
-            tmp_proxies = {
-                'http': self.proxy,
-            }
-            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
-            try:
-                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                body = response.content.decode('utf-8')
-                # print(body)
+            '''
+            2.采用phantomjs来获取
+            '''
+            body = self.get_url_body(tmp_url=tmp_url)
 
-                # 过滤
-                body = re.compile(r'\n').sub('', body)
-                body = re.compile(r'\t').sub('', body)
-                body = re.compile(r'  ').sub('', body)
-                # print(body)
-                data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
-                # print(data)
-            except Exception:
-                print('requests.get()请求超时....')
+            if body == '':
                 print('body中re匹配到的data为空!')
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
+
+            data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
 
             if data != []:
                 data = data[0]
@@ -269,7 +295,55 @@ class PinduoduoParse(object):
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
-        pass
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+
+        # 采集的来源地
+        # tmp['site_id'] = 13  # 采集来源地(拼多多常规商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['all_sell_count'] = str(data_list.get('all_sell_count'))
+
+        pipeline.update_pinduoduo_table(item=tmp)
 
     def insert_into_pinduoduo_xianshimiaosha_table(self, data, pipeline):
         data_list = data
@@ -316,7 +390,7 @@ class PinduoduoParse(object):
         tmp['miaosha_time'] = data_list.get('miaosha_time')
 
         # 采集的来源地
-        tmp['site_id'] = 1  # 采集来源地(卷皮秒杀商品)
+        tmp['site_id'] = 16  # 采集来源地(卷皮秒杀商品)
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
@@ -374,6 +448,100 @@ class PinduoduoParse(object):
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_pinduoduo_xianshimiaosha_table(tmp)
+
+    def get_url_body(self, tmp_url):
+        '''
+        返回给与的url的body
+        :param tmp_url:
+        :return: str
+        '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        self.driver.set_page_load_timeout(10)  # 设置成10秒避免数据出错
+
+        try:
+            self.driver.get(tmp_url)
+            self.driver.implicitly_wait(15)
+            body = self.driver.page_source
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+            # print(body)
+
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 10 seconds when loading page')
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            body = ''
+
+        return body
+
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+
+        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
+
+    def set_cookies_key_api_uid(self):
+        '''
+        给headers增加一个cookie, 里面有个key名字为api_uid
+        :return:
+        '''
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # 得到cookie中的key名为api_uid的值
+        host_url = 'http://mobile.yangkeduo.com'
+        try:
+            response = requests.get(host_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            api_uid = response.cookies.get('api_uid')
+            # print(response.cookies.items())
+            # if api_uid is None:
+            #     api_uid = 'rBQh+FoXerAjQWaAEOcpAg=='
+            self.headers['Cookie'] = 'api_uid=' + str(api_uid) + ';'
+            # print(api_uid)
+        except Exception:
+            print('requests.get()请求超时....')
+            pass
 
     def timestamp_to_regulartime(self, timestamp):
         '''
@@ -433,6 +601,10 @@ class PinduoduoParse(object):
             return ''
 
     def __del__(self):
+        try:
+            self.driver.quit()
+        except:
+            pass
         gc.collect()
 
 if __name__ == '__main__':

@@ -54,8 +54,10 @@ SPIDER_END_HOUR = 16            # 每日限时秒杀爬取的秒杀结束时间�
 ZHE_800_SPIKE_SLEEP_TIME = .7   # 没抓取一个sleep time的时间,用于避免返回为空的情况
 
 '''
-拼多多秒杀时长只有30分钟的时间点list，其他时间区间都是1小时
+拼多多
 '''
+PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST = ['08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18']
+# 秒杀时长只有30分钟的时间点list，其他时间区间都是1小时
 PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '21']
 
 """
@@ -113,6 +115,7 @@ TMALL_SPIDER_TO_SHOW_PATH = 'templates/tmall_spider_to_show.html'
 JD_SPIDER_TO_SHOW_PATH = 'templates/jd_spider_to_show.html'
 ZHE_800_SPIDER_TO_SHOW_PATH = 'templates/zhe_800_spider_to_show.html'
 JUANPI_SPIDER_TO_SHOW_PATH = 'templates/juanpi_spider_to_show.html'
+PINDUODUO_SPIDER_TO_SHOW_PATH = 'templates/pinduoduo_spider_to_show.html'
 
 """
 headers

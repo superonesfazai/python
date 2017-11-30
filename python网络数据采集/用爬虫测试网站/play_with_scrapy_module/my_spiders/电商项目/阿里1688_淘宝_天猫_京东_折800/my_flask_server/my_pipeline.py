@@ -1036,6 +1036,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
                 item['div_desc'],                          # 存入到DetailInfo
+                item['all_sell_count'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['site_id'],
@@ -1044,7 +1045,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -1079,6 +1080,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
+                item['all_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
@@ -1086,7 +1088,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -1287,7 +1289,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=1')
+            cs.execute('select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1341,7 +1343,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=1')
+            cs.execute('select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -1372,11 +1374,30 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             except Exception:
                 pass
 
+    def select_pinduoduo_all_goods_id(self):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=13')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
     def select_pinduoduo_xianshimiaosha_all_goods_id(self):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select goods_id, miaosha_time from dbo.pinduoduo_xianshimiaosha where site_id=1')
+            cs.execute('select goods_id, miaosha_time from dbo.pinduoduo_xianshimiaosha where site_id=16')
             # self.conn.commit()
 
             result = cs.fetchall()

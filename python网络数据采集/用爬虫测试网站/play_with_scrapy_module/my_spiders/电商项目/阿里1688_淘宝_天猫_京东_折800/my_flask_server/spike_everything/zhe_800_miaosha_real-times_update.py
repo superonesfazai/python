@@ -396,10 +396,10 @@ def just_fuck_run():
         print('一次大更新即将开始'.center(30, '-'))
         tmp = Zhe_800_Miaosha_Real_Time_Update()
         tmp.run_forever()
-        # try:
-        #     del tmp
-        # except:
-        #     pass
+        try:
+            del tmp
+        except:
+            pass
         gc.collect()
         print('一次大更新完毕'.center(30, '-'))
 

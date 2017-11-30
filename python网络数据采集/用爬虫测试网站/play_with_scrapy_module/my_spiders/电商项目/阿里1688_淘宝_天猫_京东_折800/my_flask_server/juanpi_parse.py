@@ -39,15 +39,6 @@ class JuanPiParse(object):
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
 
-        self.skudata_headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'webservice.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
-        }
         self.result_data = {}
 
     def get_goods_data(self, goods_id):
@@ -86,6 +77,8 @@ class JuanPiParse(object):
 
             # 得到skudata
             skudata_url = 'https://webservice.juanpi.com/api/getOtherInfo?goods_id=' + str(goods_id)
+            self.skudata_headers = self.headers
+            self.skudata_headers['Host'] = 'webservice.juanpi.com'
             try:
                 response = requests.get(skudata_url, headers=self.skudata_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                 skudata = response.content.decode('utf-8')
@@ -468,7 +461,7 @@ class JuanPiParse(object):
         tmp['page'] = data_list.get('page')
 
         # 采集的来源地
-        tmp['site_id'] = 1  # 采集来源地(卷皮秒杀商品)
+        tmp['site_id'] = 15  # 采集来源地(卷皮秒杀商品)
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])

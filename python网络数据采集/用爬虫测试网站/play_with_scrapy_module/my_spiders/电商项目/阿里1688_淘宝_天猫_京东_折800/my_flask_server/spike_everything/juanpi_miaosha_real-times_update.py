@@ -259,6 +259,9 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         # pprint(result_ip_list)
         return result_ip_list
 
+    def __del__(self):
+        gc.collect()
+
 def get_shanghai_time_hour():
     '''
     时区处理，时间处理到上海时间
