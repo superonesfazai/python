@@ -455,6 +455,8 @@ def regist():
     else:
         return render_template('Reg.html')
 
+######################################################
+
 @app.route('/show_ali', methods=['GET', 'POST'])
 def show_ali_info():
     '''
@@ -972,7 +974,7 @@ def get_taobao_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>> 下面是爬取到的页面信息: ')
+            print('------>>>| 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
 
@@ -1263,7 +1265,7 @@ def get_tmall_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>> 下面是爬取到的页面信息: ')
+            print('------>>>| 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
 
@@ -1579,7 +1581,7 @@ def get_jd_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>> 下面是爬取到的页面信息: ')
+            print('------>>>| 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
 
@@ -1873,7 +1875,7 @@ def get_zhe_800_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>> 下面是爬取到的页面信息: ')
+            print('------>>>| 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
 
@@ -2174,7 +2176,7 @@ def get_juanpi_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>> 下面是爬取到的页面信息: ')
+            print('------>>>| 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
 
@@ -2458,7 +2460,7 @@ def get_pinduoduo_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>> 下面是爬取到的页面信息: ')
+            print('------>>>| 下面是爬取到的页面信息: ')
             print(result_json.decode())
             print('-------------------------------')
 
@@ -2747,7 +2749,7 @@ def get_basic_data():
                 }
 
                 result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('------>>> 下面是爬取到的页面信息: ')
+                print('------>>>| 下面是爬取到的页面信息: ')
                 print(result_json.decode())
                 print('-------------------------------')
 
@@ -2828,7 +2830,7 @@ def get_basic_data():
                 }
 
                 result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('------>>> 下面是爬取到的页面信息: ')
+                print('------>>>| 下面是爬取到的页面信息: ')
                 print(result_json.decode())
                 print('-------------------------------')
 
@@ -2909,7 +2911,7 @@ def get_basic_data():
                 }
 
                 result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('------>>> 下面是爬取到的页面信息: ')
+                print('------>>>| 下面是爬取到的页面信息: ')
                 print(result_json.decode())
                 print('-------------------------------')
 
