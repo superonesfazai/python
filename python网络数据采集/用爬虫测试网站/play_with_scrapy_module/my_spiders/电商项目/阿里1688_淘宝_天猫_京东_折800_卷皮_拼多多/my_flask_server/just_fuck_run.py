@@ -15,10 +15,15 @@ import re
 def auto_run(path):
     print('开始执行秒杀脚本'.center(60, '*'))
     os.system('cd {0} && python3 zhe_800_spike.py'.format(path))
+    sleep(2.5)      # 避免同时先后启动先sleep下
     os.system('cd {0} && python3 zhe_800_miaosha_real-times_update.py'.format(path))
+    sleep(2.5)
     os.system('cd {0} && python3 juanpi_spike.py'.format(path))
+    sleep(2.5)
     os.system('cd {0} && python3 juanpi_miaosha_real-times_update.py'.format(path))
+    sleep(2.5)
     os.system('cd {0} && python3 pinduoduo_spike.py'.format(path))
+    sleep(2.5)
     os.system('cd {0} && python3 pinduoduo_miaosha_real-times_update.py'.format(path))
     print('脚本执行完毕'.center(60, '*'))
 

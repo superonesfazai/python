@@ -52,6 +52,11 @@ class PinduoduoSpike(object):
         :return:
         '''
         all_miaosha_goods_list = self.get_all_miaosha_goods_list()
+        try:
+            self.driver.quit()
+        except:
+            pass
+        gc.collect()
 
         pinduoduo = PinduoduoParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
@@ -61,6 +66,7 @@ class PinduoduoSpike(object):
                 db_goods_id_list = []
             else:
                 db_goods_id_list = [item[0] for item in list(my_pipeline.select_pinduoduo_xianshimiaosha_all_goods_id())]
+
             for item in all_miaosha_goods_list:
                 '''
                 注意: 明日8点半抓取到的是页面加载中返回的是空值
