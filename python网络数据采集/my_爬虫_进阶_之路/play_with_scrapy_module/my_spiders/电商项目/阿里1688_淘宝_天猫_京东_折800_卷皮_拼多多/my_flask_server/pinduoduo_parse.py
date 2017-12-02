@@ -211,7 +211,10 @@ class PinduoduoParse(object):
                     tmp['detail_price'] = price
                     tmp['normal_price'] = normal_price
                     tmp['img_url'] = img_url
-                    tmp['rest_number'] = rest_number
+                    if rest_number <= 0:
+                        tmp['rest_number'] = 0
+                    else:
+                        tmp['rest_number'] = rest_number
                     tmp['is_on_sale'] = is_on_sale
                     price_info_list.append(tmp)
 
