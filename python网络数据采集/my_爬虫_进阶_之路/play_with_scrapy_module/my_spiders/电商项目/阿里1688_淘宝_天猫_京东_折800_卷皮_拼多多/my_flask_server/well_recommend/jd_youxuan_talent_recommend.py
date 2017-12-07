@@ -50,224 +50,206 @@ class JdTalentRecommend(object):
         self.init_phantomjs()
 
     def get_all_user_and_their_recommend_goods_list(self):
-        # 达人推荐的地址
-        tmp_url = 'https://wq.jd.com/shopgroup_feed/GetDarenFeeds?pageno=1&pagesize=5&perDarenFeedNum=3&g_tk=1975813451'
+        for index in range(1, 40):
+            # 达人推荐的地址
+            tmp_url = 'https://wq.jd.com/shopgroup_feed/GetDarenFeeds?pageno={}&pagesize=5&perDarenFeedNum=3&g_tk=1975813451'.format(str(index))
 
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
+            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
 
-        try:
-            self.driver.get(tmp_url)
-            self.driver.implicitly_wait(15)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-
-        body = self.driver.page_source
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
-        # print(body)
-        body = re.compile(r'square\((.*)\)').findall(body)
-
-        if body != []:
-            body = body[0]
             try:
-                data = json.loads(body)
-                # pprint(data)
-            except:
-                print('json.loads转换body得到data时出错!')
-                return []
+                self.driver.get(tmp_url)
+                self.driver.implicitly_wait(15)
+            except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                print('-->>time out after 15 seconds when loading page')
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                # pass
 
-            if data.get('user_list') is None:   # 表示没有数据了，返回的为 square({"errmsg":"","iRet":0,"totalnum":347} )
-                print('body中获取的user_list为None!')
-                pass
+            body = self.driver.page_source
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+            # print(body)
+            body = re.compile(r'square\((.*)\)').findall(body)
+
+            if body != []:
+                body = body[0]
+                try:
+                    data = json.loads(body)
+                    # pprint(data)
+                except:
+                    print('json.loads转换body得到data时出错!')
+                    return []
+
+                if data.get('user_list') is None:   # 表示没有数据了，返回的为 square({"errmsg":"","iRet":0,"totalnum":347} )
+                    print('body中获取的user_list为None!')
+                    pass
+
+                else:
+                    user_list = data.get('user_list', [])
+                    # pprint(user_list)
+
+                    for item in user_list:
+                        # 达人昵称
+                        nick_name = item.get('nickname', '')
+
+                        # 达人头像
+                        head_url = item.get('headurl', '')
+                        head_url = re.compile(r'http:').sub('', head_url)
+                        head_url = 'http:' + head_url
+
+                        # 个性签名
+                        profile = item.get('profile', '')
+
+                        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                        db_goods_id = [j[1] for j in list(my_pipeline.select_jd_all_goods_id_url())]
+                        # print(db_goods_id)
+                        jd = JdParse()
+
+                        # 达人推荐的商品info
+                        feed_list = item.get('feed_list', [])
+                        for item1 in feed_list:
+                            # share_id
+                            share_id = item1.get('shareid', '')
+                            print('------>>>| 正在抓取的jd优选达人推荐文章的地址为: ', 'https://wqs.jd.com/shoppingv2/detail.html?shareid=' + share_id)
+
+                            # 图片的信息
+                            tmp_share_img_url_list = []
+                            for item2 in item1.get('sharepicurl', '').split(','):
+                                if re.compile(r'^//').findall(item2) == []:
+                                    tmp_share_img_url = 'https://img14.360buyimg.com/evalpic/s800x800_' + item2
+                                else:
+                                    tmp_share_img_url = 'http:' + item2
+                                tmp_share_img_url_list.append(tmp_share_img_url)
+                            share_img_url_list = [{'img_url': item5} for item5 in tmp_share_img_url_list]
+
+                            # 处理得到达人的自拍图片div
+                            tmp_img_div_desc = ''
+                            for item4 in tmp_share_img_url_list:
+                                tmp_img_div = r'<img src="{}" style="height:auto;width:100%;"/>'.format(item4)
+                                tmp_img_div_desc += tmp_img_div
+                            my_img_div = '<div>' + tmp_img_div_desc + '</div>'
+                            # print(my_img_div)
+
+                            # 获取到goods_id 和 fisrt_text
+                            share_url = 'https://wq.jd.com/shopgroup_feed/FeedDetail?shareid=' + item1.get('shareid', '') + '&g_tk=1975813451'
+                            try:
+                                self.from_ip_pool_set_proxy_ip_to_phantomjs()
+                                self.driver.get(share_url)
+                                self.driver.implicitly_wait(15)
+                            except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                                print('-->>time out after 15 seconds when loading page')
+                                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                                # pass
+                            feed_detail_body = self.driver.page_source
+                            feed_detail_body = re.compile(r'\n').sub('', feed_detail_body)
+                            feed_detail_body = re.compile(r'\t').sub('', feed_detail_body)
+                            feed_detail_body = re.compile(r'  ').sub('', feed_detail_body)
+
+                            feed_data = re.compile(r'square\((.*)\)').findall(feed_detail_body)
+                            # print(feed_data)
+
+                            if feed_data != []:
+                                feed_data = feed_data[0]
+                                try:
+                                    feed_data = json.loads(feed_data)
+                                except:
+                                    pass
+
+                                # 文章标题
+                                title = feed_data.get('feeddata', {}).get('title', '')
+
+                                # 达人评论内容
+                                tmp_comment_content = feed_data.get('feeddata', {}).get('commentcontent', '')
+                                tmp_comment_content = re.compile(r'&amp;').sub('', tmp_comment_content)
+                                tmp_comment_content = re.compile(r'\n').sub('', tmp_comment_content)
+                                comment_content = tmp_comment_content
+
+                                if title == '':
+                                    # 由于获取到title为空, 所有title = comment_content, 并把comment_content = ''
+                                    title = comment_content
+                                    comment_content = ''
+                                # print('该文章的标题为: ', title)
+                                # print('达人的评论内容为: ', comment_content)
+
+                                # first_text(文章的第一段评论内容)
+                                first_text = feed_data.get('feeddata', {}).get('firsttext', '')
+                                # print('first_text为: ', first_text)
+
+                                sku_id = feed_data.get('feeddata', {}).get('skuid')
+                                if sku_id == '0':
+                                    # 如果sku_id = '0'表示没有sku_id
+                                    sku_id = ''
+                                # print('sku_id为: ', sku_id)
+
+                                share_id = item1.get('shareid', '')
+                                tmp_div_body_dict = self.get_div_body(share_id=share_id)
+                                # pprint(tmp_div_body_dict)
+
+                                if tmp_div_body_dict['sku_info'] == [] and sku_id != '':
+                                    # 表示如果tmp_div_body_dict['sku_info']为[]，则第二部分没有goods_id，所有将第一个sku_id赋值给sku_info
+                                    goods_id_list = [{'goods_id': sku_id}]
+                                else:
+                                    # 这篇文章推荐的商品goods_id的list(第一个为没有div_body时的goods_id)
+                                    goods_id_list = [{'goods_id': item6} for item6 in tmp_div_body_dict['sku_info']]
+                                tmp_div_body = '<div>' + '<h3>{}</h3>'.format(title) + '<p>{}</p>'.format(comment_content) + my_img_div + tmp_div_body_dict['div_body']
+                                # print('该文章推荐的商品goods_id的list为: ', goods_id_list)
+                                # print(tmp_div_body)
+
+                            else:
+                                print('获取feed_data失败!')
+                                return []
+
+                            # 后期处理
+                            if comment_content == '':
+                                comment_content = first_text
+
+                            result = {
+                                'nick_name': nick_name,                     # 达人昵称
+                                'head_url': head_url,                       # 达人头像
+                                'profile': profile,                         # 个性签名
+                                'share_id': share_id,                       # 分享的share_id
+                                'title': title,                             # 文章标题
+                                'comment_content': comment_content,         # 达人的评论内容
+                                'share_img_url_list': share_img_url_list,   # 达人自拍照片list
+                                # 'first_text': first_text,                   # 文章的第一段评论文字
+                                'goods_id_list':goods_id_list,              # 文章中所有推荐的商品的goods_id的list
+                                'div_body': tmp_div_body,                   # 文章主体div
+                            }
+                            # pprint(result)
+                            print(result)
+                            my_pipeline.insert_into_jd_youxuan_daren_recommend_table(item=result)
+
+                            print('准备开始抓取该文章中的所有推荐商品'.center(30, '-'))
+
+                            for i in goods_id_list:
+                                if i.get('goods_id', '') in db_goods_id:
+                                    print('该goods_id(%s)已经存在于数据库中, 此处跳过!'.format(i.get('goods_id', '')))
+                                    pass
+                                else:
+                                    tmp_goods_id_url = 'https://item.jd.com/' + i.get('goods_id', '') + '.html'
+                                    goods_id = jd.get_goods_id_from_url(jd_url=tmp_goods_id_url)
+                                    jd.get_goods_data(goods_id=goods_id)
+                                    tmp_jd_data = jd.deal_with_data(goods_id=goods_id)
+                                    tmp_jd_data['spider_url'] = tmp_goods_id_url
+                                    tmp_jd_data['username'] = '18698570079'
+                                    tmp_jd_data['goods_id'] = goods_id[1]
+
+                                    jd.insert_into_jd_table(data=tmp_jd_data, pipeline=my_pipeline)
+
+                            print('该文章内推荐的商品全部抓取完毕'.center(30, '-'))
+
+                        # 获取到对应京东商品的goods_id
+                        # https://wq.jd.com/shopgroup_feed/FeedDetail?shareid=1091423620317126735
+                        # 存在skuid:"0"的情况    就没有推荐商品
+
+                    # share_img_url = 'https:' + '//img14.360buyimg.com/evalpic/s240x240_' + xxxx
+
+                    # 推荐详情的地址(咱们可以直接将其在之前数据中得到)
+                    # recommend_goods_info_url = 'https://wqs.jd.com/shoppingv2/detail.html?shareid=1091423620317126735'
 
             else:
-                user_list = data.get('user_list', [])
-                # pprint(user_list)
-
-                for item in user_list:
-                    # 达人昵称
-                    nick_name = item.get('nickname', '')
-
-                    # 达人头像
-                    head_url = item.get('headurl', '')
-                    head_url = re.compile(r'http:').sub('', head_url)
-                    head_url = 'http:' + head_url
-
-                    # 个性签名
-                    profile = item.get('profile', '')
-
-                    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    jd = JdParse()
-
-                    # 达人推荐的商品info
-                    feed_list = item.get('feed_list', [])
-                    for item1 in feed_list:
-                        # share_id
-                        share_id = item1.get('shareid', '')
-                        print('------>>>| 正在抓取的jd优选达人推荐文章的地址为: ', 'https://wqs.jd.com/shoppingv2/detail.html?shareid=' + share_id)
-
-                        # 图片的信息
-                        tmp_share_img_url_list = []
-                        for item2 in item1.get('sharepicurl', '').split(','):
-                            if re.compile(r'^//').findall(item2) == []:
-                                tmp_share_img_url = 'https://img14.360buyimg.com/evalpic/s800x800_' + item2
-                            else:
-                                tmp_share_img_url = 'http:' + item2
-                            tmp_share_img_url_list.append(tmp_share_img_url)
-                        share_img_url_list = [{'img_url': item5} for item5 in tmp_share_img_url_list]
-
-                        # 处理得到达人的自拍图片div
-                        tmp_img_div_desc = ''
-                        for item4 in tmp_share_img_url_list:
-                            tmp_img_div = r'<img src="{}" style="height:auto;width:100%;"/>'.format(item4)
-                            tmp_img_div_desc += tmp_img_div
-                        my_img_div = '<div>' + tmp_img_div_desc + '</div>'
-                        # print(my_img_div)
-
-                        # 获取到goods_id 和 fisrt_text
-                        share_url = 'https://wq.jd.com/shopgroup_feed/FeedDetail?shareid=' + item1.get('shareid', '') + '&g_tk=1975813451'
-                        try:
-                            self.from_ip_pool_set_proxy_ip_to_phantomjs()
-                            self.driver.get(share_url)
-                            self.driver.implicitly_wait(15)
-                        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                            print('-->>time out after 15 seconds when loading page')
-                            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                            # pass
-                        feed_detail_body = self.driver.page_source
-                        feed_detail_body = re.compile(r'\n').sub('', feed_detail_body)
-                        feed_detail_body = re.compile(r'\t').sub('', feed_detail_body)
-                        feed_detail_body = re.compile(r'  ').sub('', feed_detail_body)
-
-                        feed_data = re.compile(r'square\((.*)\)').findall(feed_detail_body)
-                        # print(feed_data)
-
-                        if feed_data != []:
-                            feed_data = feed_data[0]
-                            try:
-                                feed_data = json.loads(feed_data)
-                            except:
-                                pass
-
-                            # 文章标题
-                            title = feed_data.get('feeddata', {}).get('title', '')
-
-                            # 达人评论内容
-                            tmp_comment_content = feed_data.get('feeddata', {}).get('commentcontent', '')
-                            tmp_comment_content = re.compile(r'&amp;').sub('', tmp_comment_content)
-                            tmp_comment_content = re.compile(r'\n').sub('', tmp_comment_content)
-                            comment_content = tmp_comment_content
-
-                            if title == '':
-                                # 由于获取到title为空, 所有title = comment_content, 并把comment_content = ''
-                                title = comment_content
-                                comment_content = ''
-                            # print('该文章的标题为: ', title)
-                            # print('达人的评论内容为: ', comment_content)
-
-                            # first_text(文章的第一段评论内容)
-                            first_text = feed_data.get('feeddata', {}).get('firsttext', '')
-                            # print('first_text为: ', first_text)
-
-                            sku_id = feed_data.get('feeddata', {}).get('skuid')
-                            if sku_id == '0':
-                                # 如果sku_id = '0'表示没有sku_id
-                                sku_id = ''
-                            # print('sku_id为: ', sku_id)
-
-                            share_id = item1.get('shareid', '')
-                            tmp_div_body_dict = self.get_div_body(share_id=share_id)
-                            # pprint(tmp_div_body_dict)
-
-                            if tmp_div_body_dict['sku_info'] == [] and sku_id != '':
-                                # 表示如果tmp_div_body_dict['sku_info']为[]，则第二部分没有goods_id，所有将第一个sku_id赋值给sku_info
-                                goods_id_list = [{'goods_id': sku_id}]
-                            else:
-                                # 这篇文章推荐的商品goods_id的list(第一个为没有div_body时的goods_id)
-                                goods_id_list = [{'goods_id': item6} for item6 in tmp_div_body_dict['sku_info']]
-                            tmp_div_body = '<div>' + '<h3>{}</h3>'.format(title) + '<p>{}</p>'.format(comment_content) + my_img_div + tmp_div_body_dict['div_body']
-                            # print('该文章推荐的商品goods_id的list为: ', goods_id_list)
-                            # print(tmp_div_body)
-
-                        else:
-                            print('获取feed_data失败!')
-                            return []
-
-                        # 后期处理
-                        if comment_content == '':
-                            comment_content = first_text
-
-                        result = {
-                            'nick_name': nick_name,                     # 达人昵称
-                            'head_url': head_url,                       # 达人头像
-                            'profile': profile,                         # 个性签名
-                            'share_id': share_id,                       # 分享的share_id
-                            'title': title,                             # 文章标题
-                            'comment_content': comment_content,         # 达人的评论内容
-                            'share_img_url_list': share_img_url_list,   # 达人自拍照片list
-                            # 'first_text': first_text,                   # 文章的第一段评论文字
-                            'goods_id_list':goods_id_list,              # 文章中所有推荐的商品的goods_id的list
-                            'div_body': tmp_div_body,                   # 文章主体div
-                        }
-                        # pprint(result)
-                        print(result)
-                        my_pipeline.insert_into_jd_youxuan_daren_recommend_table(item=result)
-
-                        print('准备开始抓取该文章中的所有推荐商品'.center(20, '-'))
-
-                        for i in goods_id_list:
-                            tmp_goods_id_url = 'https://item.jd.com/' + i.get('goods_id', '') + '.html'
-                            goods_id = jd.get_goods_id_from_url(jd_url=tmp_goods_id_url)
-                            jd.get_goods_data(goods_id=goods_id)
-                            tmp_jd_data = jd.deal_with_data(goods_id=goods_id)
-                            tmp_jd_data['spider_url'] = tmp_goods_id_url
-                            tmp_jd_data['username'] = '18698570079'
-                            tmp_jd_data['goods_id'] = goods_id[1]
-
-                            jd.insert_into_jd_table(data=tmp_jd_data, pipeline=my_pipeline)
-
-                        print('该文章内推荐的商品全部抓取完毕'.center(20, '-'))
-
-                    # 获取到对应京东商品的goods_id
-                    # https://wq.jd.com/shopgroup_feed/FeedDetail?shareid=1091423620317126735
-                    # 存在skuid:"0"的情况    就没有推荐商品
-
-                # share_img_url = 'https:' + '//img14.360buyimg.com/evalpic/s240x240_' + xxxx
-
-                # 推荐详情的地址(咱们可以直接将其在之前数据中得到)
-                # recommend_goods_info_url = 'https://wqs.jd.com/shoppingv2/detail.html?shareid=1091423620317126735'
-
-        else:
-            print('body为空list!')
-
-        # is_success = False
-        # data = {}
-        # try:
-        #     data = json.loads(body)
-        #     if data.get('success') == 1:
-        #         is_success = True
-        #     data = data.get('data', {}).get('data', [])
-        #     # pprint(data)
-        # except:
-        #     print('json.loads转换data时出错, 此处跳过!')
-        #
-        # if is_success and data != []:
-        #     # 清洗data
-        #     for item in data:
-        #         # print(item.get('title'))
-        #         # print(item.get('userNick'))
-        #         for item2 in item.get('items', []):
-        #             item2['itemTags'] = []
-        #     print(len(data))
-        #     pprint(data)
-        #
-        # else:
-        #     print('data数据获取失败!')
-        #     return []
+                print('body为空list!')
 
     def get_div_body(self, share_id):
         '''
@@ -464,16 +446,16 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
 def just_fuck_run():
-    # while True:
-    print('一次大更新即将开始'.center(30, '-'))
-    tmp = JdTalentRecommend()
-    tmp.get_all_user_and_their_recommend_goods_list()
-    try:
-        del tmp
-    except:
-        pass
-    gc.collect()
-    print('一次大更新完毕'.center(30, '-'))
+    while True:
+        print('一次大更新即将开始'.center(30, '-'))
+        tmp = JdTalentRecommend()
+        tmp.get_all_user_and_their_recommend_goods_list()
+        try:
+            del tmp
+        except:
+            pass
+        gc.collect()
+        print('一次大更新完毕'.center(30, '-'))
 
 def main():
     '''

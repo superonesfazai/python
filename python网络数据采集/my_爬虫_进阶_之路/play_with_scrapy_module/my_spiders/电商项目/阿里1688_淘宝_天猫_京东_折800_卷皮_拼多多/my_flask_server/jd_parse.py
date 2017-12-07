@@ -384,6 +384,12 @@ class JdParse(object):
             wdis = re.compile(r'\n').sub('', wdis)
             wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
             wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
+
+            wdis = re.compile(r'<html>').sub('', wdis)
+            wdis = re.compile(r'</html>').sub('', wdis)
+            wdis = re.compile(r'<head.*?>.*?</head>').sub('', wdis)
+            wdis = re.compile(r'<body>').sub('', wdis)
+            wdis = re.compile(r'</body>').sub('', wdis)
             div_desc = wdis
             # print(div_desc)
 
@@ -680,8 +686,8 @@ class JdParse(object):
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+        # print('------>>>| 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         pipeline.insert_into_jd_table(item=tmp)
 
