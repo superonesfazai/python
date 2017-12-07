@@ -170,16 +170,20 @@ class JdParse(object):
                     pass
 
                 # 处理'wi' 'code'
-                code = data.get('wi', {}).get('code', '')
-                # print('wi,code的为: ', code)
-                if code != '':
-                    try:
-                        code = json.loads(code)
-                        data.get('wi', {})['code'] = code
-                    except Exception as e:  # 对应p_info解析错误的, 换方法解析
-                        print('wi中的code对应json解析错误, 为:', e)
-                        code = data.get('wi', {}).get('wareQD', '')
-                        data.get('wi', {})['code'] = code
+                if data.get('wi') is not None:
+                    # 用于获取p_info
+                    code = data.get('wi', {}).get('code', '')
+                    # print('wi,code的为: ', code)
+                    if code != '':
+                        try:
+                            code = json.loads(code)
+                            data.get('wi', {})['code'] = code
+                        except Exception as e:  # 对应p_info解析错误的, 换方法解析
+                            print('wi中的code对应json解析错误, 为:', e)
+                            code = data.get('wi', {}).get('wareQD', '')
+                            data.get('wi', {})['code'] = code
+                else:
+                    data['wi'] = {'code': []}
 
                 # 处理wdis
                 data['wdis'] = wdis

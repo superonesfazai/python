@@ -96,7 +96,10 @@ class JdTalentRecommend(object):
                         # 达人头像
                         head_url = item.get('headurl', '')
                         head_url = re.compile(r'http:').sub('', head_url)
-                        head_url = 'http:' + head_url
+                        if re.compile(r'^http').findall(head_url) != []:
+                            pass
+                        else:
+                            head_url = 'http:' + head_url
 
                         # 个性签名
                         profile = item.get('profile', '')
@@ -224,7 +227,7 @@ class JdTalentRecommend(object):
 
                             for i in goods_id_list:
                                 if i.get('goods_id', '') in db_goods_id:
-                                    print('该goods_id(%s)已经存在于数据库中, 此处跳过!'.format(i.get('goods_id', '')))
+                                    print('该goods_id({})已经存在于数据库中, 此处跳过!'.format(i.get('goods_id', '')))
                                     pass
                                 else:
                                     tmp_goods_id_url = 'https://item.jd.com/' + i.get('goods_id', '') + '.html'
