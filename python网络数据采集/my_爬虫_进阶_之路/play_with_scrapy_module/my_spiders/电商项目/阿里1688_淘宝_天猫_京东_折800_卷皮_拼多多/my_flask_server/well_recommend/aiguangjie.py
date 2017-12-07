@@ -15,6 +15,7 @@ import re
 import json
 import gc, os
 from random import randint
+from pprint import pprint
 from settings import HEADERS
 from settings import IS_BACKGROUND_RUNNING
 
@@ -37,10 +38,72 @@ class AiGuangJie(object):
         '''
         测试二: 模拟ajax爱逛街pc端接口
         '''
-        tmp_url = 'https://guang.taobao.com/street/ajax/get_guang_list.json?_input_charset=utf-8&cpage=1&start=1&_tb_token_=bd731a300e5e&_ksTS=1512382359042_177'
-        response2 = requests.get(tmp_url, headers=self.headers)
-        body2 = response2.content.decode('utf-8')
-        print(body2)
+        # tmp_url = 'https://guang.taobao.com/street/ajax/get_guang_list.json?_input_charset=utf-8&cpage=1&start=1'
+        # cpage为1到30页
+        tmp_url = 'https://guang.taobao.com/street/ajax/get_guang_list.json?_input_charset=utf-8&cpage=1'
+
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        try:
+            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)
+            body = response.content.decode('utf-8')
+            # print(body)
+        except Exception:
+            print('requests.get()请求超时....')
+            print('body为空!')
+            body = '{}'
+
+        is_success = False
+        data = {}
+        try:
+            data = json.loads(body)
+            if data.get('success') == 1:
+                is_success = True
+            data = data.get('data', {}).get('data', [])
+            # pprint(data)
+        except:
+            print('json.loads转换data时出错, 此处跳过!')
+
+        if is_success and data != []:
+            # 清洗data
+            for item in data:
+                # print(item.get('title'))
+                # print(item.get('userNick'))
+                for item2 in item.get('items', []):
+                    item2['itemTags'] = []
+            print(len(data))
+            pprint(data)
+
+        else:
+            print('data数据获取失败!')
+            return []
+
+    def get_proxy_ip_from_ip_pool(self):
+        '''
+        从代理ip池中获取到对应ip
+        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
+        '''
+        base_url = 'http://127.0.0.1:8000'
+        result = requests.get(base_url).json()
+
+        result_ip_list = {}
+        result_ip_list['http'] = []
+        for item in result:
+            if item[2] > 7:
+                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+                result_ip_list['http'].append(tmp_url)
+            else:
+                delete_url = 'http://127.0.0.1:8000/delete?ip='
+                delete_info = requests.get(delete_url + item[0])
+        # pprint(result_ip_list)
+        return result_ip_list
 
     def __del__(self):
         gc.collect()
@@ -87,16 +150,16 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
 def just_fuck_run():
-    while True:
-        print('一次大更新即将开始'.center(30, '-'))
-        tmp = AiGuangJie()
-        tmp.get_goods_info_list()
-        try:
-            del tmp
-        except:
-            pass
-        gc.collect()
-        print('一次大更新完毕'.center(30, '-'))
+    # while True:
+    print('一次大更新即将开始'.center(30, '-'))
+    tmp = AiGuangJie()
+    tmp.get_goods_info_list()
+    try:
+        del tmp
+    except:
+        pass
+    gc.collect()
+    print('一次大更新完毕'.center(30, '-'))
 
 def main():
     '''

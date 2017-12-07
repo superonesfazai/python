@@ -1428,6 +1428,40 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             except Exception:
                 pass
 
+    def insert_into_jd_youxuan_daren_recommend_table(self, item):
+        try:
+            cs = self.conn.cursor()
+
+            params = [
+                item['nick_name'],
+                item['head_url'],
+                item['profile'],
+                item['share_id'],
+                item['title'],
+                item['comment_content'],
+                dumps(item['share_img_url_list'], ensure_ascii=False),
+                dumps(item['goods_id_list'], ensure_ascii=False),
+                item['div_body'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.jd_youxuan_daren_recommend(nick_name, head_url, profile, share_id, title, comment_content, share_img_url_list, goods_id_list, div_body) values(%s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+                       tuple(params))   # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
+
     def __del__(self):
         try:
             self.conn.close()

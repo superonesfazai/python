@@ -543,6 +543,7 @@ class ALi1688LoginAndParse(object):
         # data_tfs_url_response = requests.get(detail_info_url, headers=self.headers)
         # data_tfs_url_body = data_tfs_url_response.content.decode('gbk')
 
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
         self.driver.get(detail_info_url)
         data_tfs_url_body = self.driver.page_source
 
