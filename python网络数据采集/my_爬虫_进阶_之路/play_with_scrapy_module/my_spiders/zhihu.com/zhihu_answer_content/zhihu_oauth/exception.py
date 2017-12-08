@@ -169,7 +169,6 @@ GetEmptyResponseWhenFetchData = IgnoreErrorDataWarning(
     '目前在遇到这个问题时只能当作获取完处理了。'
 )
 
-
 class CantGetTicketsWarning(ZhihuWarning):
     def __init__(self, message, *args, **kwargs):
         super(CantGetTicketsWarning, self).__init__(message, *args, **kwargs)

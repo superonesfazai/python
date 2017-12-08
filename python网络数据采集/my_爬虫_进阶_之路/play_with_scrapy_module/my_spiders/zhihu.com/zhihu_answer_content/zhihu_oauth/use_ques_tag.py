@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append('..')
+
 import random
 
 from zhihu_oauth import ZhihuClient, ActType
@@ -14,8 +17,11 @@ from random import randint
 
 import pandas as pd
 
+USER_TRY_CSV_PATH = '/users/gliam/desktop/user_try.csv'     # user_try.csv 的path
+SAVE_TO_CSV_A_PATH = 'd:/data_answer_info.csv'              # 存储的位置
+
 def save_to_csv_a(links):
-    file = 'd:/data_answer_info.csv'
+    file = SAVE_TO_CSV_A_PATH
     with open(file, "a", encoding='utf-8') as f:
         for i in links:
             if i is not None:
@@ -59,8 +65,8 @@ class MyCrawler:
                     # print(act.target.question.title)
                     if act.target.question.title:
                         str_title = act.target.question.title
-                        str_title1 = str_title.replace('，','_')
-                        str_title2 = str_title1.replace(',','_')
+                        str_title1 = str_title.replace('，', '_')
+                        str_title2 = str_title1.replace(',', '_')
                         links.append(str_title2)
                     else:
                         links.append("null")
@@ -75,11 +81,10 @@ class MyCrawler:
                     # print(act.target.comment_count)
 
                     links.append(act.target.comment_count)
-
                     links.append(act.target.thanks_count)
-
                     links.append(act.target.voteup_count)
                     print(links)
+
                     for x in act.target.question.topics:
                         links.append(x.name)
                         links.append(x.question_count)
@@ -157,7 +162,7 @@ def main():
     line_saved = 0
     data_out_list_a = list()
 
-    with open('/users/gliam/desktop/user_try.csv') as f:
+    with open(USER_TRY_CSV_PATH) as f:
         for line in f.readlines():
 
             craw_id = line.strip("\n")
@@ -185,5 +190,4 @@ def main():
                 line_saved = 0
 
 if __name__=="__main__":
-
     main()

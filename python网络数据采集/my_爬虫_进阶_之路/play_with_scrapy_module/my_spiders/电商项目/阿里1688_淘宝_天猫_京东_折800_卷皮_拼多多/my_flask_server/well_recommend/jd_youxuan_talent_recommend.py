@@ -17,7 +17,7 @@ import gc, os
 from random import randint
 from pprint import pprint
 from settings import HEADERS
-from settings import IS_BACKGROUND_RUNNING, PHANTOMJS_DRIVER_PATH
+from settings import IS_BACKGROUND_RUNNING, JD_YOUXUAN_DAREN_IS_BACKROUND_RUNNING, PHANTOMJS_DRIVER_PATH
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from scrapy.selector import Selector
@@ -111,14 +111,14 @@ class JdTalentRecommend(object):
 
                         # 达人推荐的商品info
                         feed_list = item.get('feed_list', [])
-                        for item1 in feed_list:
+                        for feed_list_item in feed_list:
                             # share_id
-                            share_id = item1.get('shareid', '')
+                            share_id = feed_list_item.get('shareid', '')
                             print('------>>>| 正在抓取的jd优选达人推荐文章的地址为: ', 'https://wqs.jd.com/shoppingv2/detail.html?shareid=' + share_id)
 
                             # 图片的信息
                             tmp_share_img_url_list = []
-                            for item2 in item1.get('sharepicurl', '').split(','):
+                            for item2 in feed_list_item.get('sharepicurl', '').split(','):
                                 if re.compile(r'^//').findall(item2) == []:
                                     tmp_share_img_url = 'https://img14.360buyimg.com/evalpic/s800x800_' + item2
                                 else:
@@ -135,7 +135,7 @@ class JdTalentRecommend(object):
                             # print(my_img_div)
 
                             # 获取到goods_id 和 fisrt_text
-                            share_url = 'https://wq.jd.com/shopgroup_feed/FeedDetail?shareid=' + item1.get('shareid', '') + '&g_tk=1975813451'
+                            share_url = 'https://wq.jd.com/shopgroup_feed/FeedDetail?shareid=' + feed_list_item.get('shareid', '') + '&g_tk=1975813451'
                             try:
                                 self.from_ip_pool_set_proxy_ip_to_phantomjs()
                                 self.driver.get(share_url)
@@ -185,7 +185,7 @@ class JdTalentRecommend(object):
                                     sku_id = ''
                                 # print('sku_id为: ', sku_id)
 
-                                share_id = item1.get('shareid', '')
+                                share_id = feed_list_item.get('shareid', '')
                                 tmp_div_body_dict = self.get_div_body(share_id=share_id)
                                 # pprint(tmp_div_body_dict)
 
@@ -472,7 +472,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    if IS_BACKGROUND_RUNNING:
+    if JD_YOUXUAN_DAREN_IS_BACKROUND_RUNNING:
         main()
     else:
         just_fuck_run()
