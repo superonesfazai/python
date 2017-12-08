@@ -17,8 +17,11 @@ from random import randint
 
 import pandas as pd
 
-USER_TRY_CSV_PATH = '/users/gliam/desktop/user_try.csv'     # user_try.csv 的path
-SAVE_TO_CSV_A_PATH = 'd:/data_answer_info.csv'              # 存储的位置
+# USER_TRY_CSV_PATH = '/users/gliam/desktop/user_try.csv'     # user_try.csv 的path
+USER_TRY_CSV_PATH = '/Users/afa/Downloads/user_try.csv'
+
+# SAVE_TO_CSV_A_PATH = 'd:/data_answer_info.csv'              # 存储的位置
+SAVE_TO_CSV_A_PATH = '/Users/afa/Downloads/data_answer_info.csv'
 
 def save_to_csv_a(links):
     file = SAVE_TO_CSV_A_PATH
@@ -160,7 +163,7 @@ def main():
 
     max_lines = 1
     line_saved = 0
-    data_out_list_a = list()
+    data_out_list_a = []
 
     with open(USER_TRY_CSV_PATH) as f:
         for line in f.readlines():
@@ -177,7 +180,7 @@ def main():
             else:
                 print("Invalid Output")
 
-            a = random.randint(1, 5)
+            a = random.randint(1, 3)
             time.sleep(a)
 
             line_saved += 1
@@ -185,7 +188,7 @@ def main():
             if line_saved == max_lines:
                 save_to_csv_a(data_out_list_a)
 
-                data_out_list_a = list()
+                data_out_list_a = []
 
                 line_saved = 0
 
