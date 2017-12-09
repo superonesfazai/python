@@ -1437,16 +1437,18 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['head_url'],
                 item['profile'],
                 item['share_id'],
+                item['article_url'],
                 item['title'],
                 item['comment_content'],
                 dumps(item['share_img_url_list'], ensure_ascii=False),
                 dumps(item['goods_id_list'], ensure_ascii=False),
                 item['div_body'],
+                item['create_time'],
             ]
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.jd_youxuan_daren_recommend(nick_name, head_url, profile, share_id, title, comment_content, share_img_url_list, goods_id_list, div_body) values(%s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.jd_youxuan_daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_img_url_list, goods_id_list, div_body, create_time) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()

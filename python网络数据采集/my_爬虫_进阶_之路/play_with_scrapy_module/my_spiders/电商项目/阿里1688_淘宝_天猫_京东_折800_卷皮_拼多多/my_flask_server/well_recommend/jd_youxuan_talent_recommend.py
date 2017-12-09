@@ -17,13 +17,14 @@ import gc, os
 from random import randint
 from pprint import pprint
 from settings import HEADERS
-from settings import IS_BACKGROUND_RUNNING, JD_YOUXUAN_DAREN_IS_BACKROUND_RUNNING, PHANTOMJS_DRIVER_PATH
+from settings import IS_BACKGROUND_RUNNING, PHANTOMJS_DRIVER_PATH
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from scrapy.selector import Selector
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from jd_parse import JdParse
+import pytz, datetime
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -127,6 +128,7 @@ class JdTalentRecommend(object):
                             else:
                                 # share_id
                                 share_id = feed_list_item.get('shareid', '')
+                                article_url = 'https://wqs.jd.com/shoppingv2/detail.html?shareid=' + share_id
                                 print('------>>>| 正在抓取的jd优选达人推荐文章的地址为: ', 'https://wqs.jd.com/shoppingv2/detail.html?shareid=' + share_id)
 
                                 # 图片的信息
@@ -182,6 +184,7 @@ class JdTalentRecommend(object):
                                     tmp_comment_content = re.compile(r'&amp;').sub('', tmp_comment_content)
                                     tmp_comment_content = re.compile(r'\n').sub('', tmp_comment_content)
                                     tmp_comment_content = re.compile(r'12.12').sub('', tmp_comment_content)
+                                    tmp_comment_content = re.compile(r'11.11').sub('', tmp_comment_content)
                                     comment_content = tmp_comment_content
 
                                     if title == '':
@@ -194,6 +197,7 @@ class JdTalentRecommend(object):
                                     # first_text(文章的第一段评论内容)
                                     first_text = feed_data.get('feeddata', {}).get('firsttext', '')
                                     first_text = re.compile(r'12.12').sub('', first_text)
+                                    first_text = re.compile(r'11.11').sub('', first_text)
                                     # print('first_text为: ', first_text)
 
                                     sku_id = feed_data.get('feeddata', {}).get('skuid')
@@ -224,17 +228,30 @@ class JdTalentRecommend(object):
                                 if comment_content == '':
                                     comment_content = first_text
 
+                                '''
+                                时区处理，时间处理到上海时间
+                                '''
+                                tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+                                now_time = datetime.datetime.now(tz)
+                                # 处理为精确到秒位，删除时区信息
+                                now_time = re.compile(r'\..*').sub('', str(now_time))
+                                # 将字符串类型转换为datetime类型
+                                now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+                                create_time = now_time      # 创建的时间
+
                                 result = {
                                     'nick_name': nick_name,                     # 达人昵称
                                     'head_url': head_url,                       # 达人头像
                                     'profile': profile,                         # 个性签名
                                     'share_id': share_id,                       # 分享的share_id
+                                    'article_url': article_url,                 # 文章原地址
                                     'title': title,                             # 文章标题
                                     'comment_content': comment_content,         # 达人的评论内容
                                     'share_img_url_list': share_img_url_list,   # 达人自拍照片list
                                     # 'first_text': first_text,                   # 文章的第一段评论文字
                                     'goods_id_list':goods_id_list,              # 文章中所有推荐的商品的goods_id的list
                                     'div_body': tmp_div_body,                   # 文章主体div
+                                    'create_time': create_time,                 # 文章创建的时间
                                 }
                                 # pprint(result)
                                 print(result)
@@ -480,7 +497,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    if JD_YOUXUAN_DAREN_IS_BACKROUND_RUNNING:
+    if IS_BACKGROUND_RUNNING:
         main()
     else:
         just_fuck_run()
