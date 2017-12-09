@@ -8,7 +8,7 @@
 '''
 
 """
-卷皮页面采集系统
+卷皮页面采集系统(别翻墙使用)
 """
 
 import time
@@ -23,8 +23,17 @@ import datetime
 import re
 import gc
 import pytz
+from selenium import webdriver
+import selenium.webdriver.support.ui as ui
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
+from settings import PHANTOMJS_DRIVER_PATH
 from settings import HEADERS
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class JuanPiParse(object):
     def __init__(self):
@@ -32,14 +41,14 @@ class JuanPiParse(object):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'web.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
         }
-
         self.result_data = {}
+        self.init_phantomjs()
 
     def get_goods_data(self, goods_id):
         '''
@@ -54,6 +63,9 @@ class JuanPiParse(object):
             tmp_url = 'https://web.juanpi.com/pintuan/shop/' + str(goods_id)
             print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
 
+            '''
+            1.原先使用requests来模拟(起初安全的运行了一个月)，但是后来发现光requests会not Found，记住使用前别翻墙
+            '''
             # 设置代理ip
             self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
             self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
@@ -63,20 +75,61 @@ class JuanPiParse(object):
             }
             # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
+            # try:
+            #     response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            #     main_body = response.content.decode('utf-8')
+            #     # print(main_body)
+            #     # main_body = re.compile(r'\n').sub('', main_body)
+            #     main_body = re.compile(r'\t').sub('', main_body)
+            #     main_body = re.compile(r'  ').sub('', main_body)
+            #     print(main_body)
+            #     data = re.compile(r'__PRELOADED_STATE__=(.*),window\.__SERVER_TIME__=').findall(main_body)  # 贪婪匹配匹配所有
+            #     print(data)
+            # except Exception:
+            #     print('requests.get()请求超时....')
+            #     print('data为空!')
+            #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            #     return {}
+
+            '''
+            2.采用phantomjs来处理，记住使用前别翻墙
+            '''
+            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
             try:
-                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                data = response.content.decode('utf-8')
+                self.driver.get(tmp_url)
+                self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+                locator = (By.CSS_SELECTOR, 'div.sc-jzJRlG.ZnnHv')
+                try:
+                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                except Exception as e:
+                    print('遇到错误: ', e)
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                    return {}
+                else:
+                    print('div.d-content已经加载完毕')
+                main_body = self.driver.page_source
+                main_body = re.compile(r'\n').sub('', main_body)
+                main_body = re.compile(r'\t').sub('', main_body)
+                main_body = re.compile(r'  ').sub('', main_body)
+                # print(main_body)
+                data = re.compile(r'__PRELOADED_STATE__=(.*),window\.__SERVER_TIME__=').findall(main_body)  # 贪婪匹配匹配所有
                 # print(data)
-                data = re.compile(r'__PRELOADED_STATE__=(.*),window.').findall(data)  # 贪婪匹配匹配所有
-                # print(data)
-            except Exception:
-                print('requests.get()请求超时....')
+            except Exception as e:  # 如果超时, 终止加载并继续后续操作
+                print('-->>time out after 15 seconds when loading page')
+                print('报错如下: ', e)
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
                 print('data为空!')
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
             # 得到skudata
-            skudata_url = 'https://webservice.juanpi.com/api/getOtherInfo?goods_id=' + str(goods_id)
+            # 卷皮原先的skudata请求地址1(官方放弃)
+            # skudata_url = 'https://webservice.juanpi.com/api/getOtherInfo?goods_id=' + str(goods_id)
+            # 现在卷皮skudata请求地址2
+            skudata_url = 'https://webservice.juanpi.com/api/getMemberAboutInfo?goods_id=' + str(goods_id)
+
             self.skudata_headers = self.headers
             self.skudata_headers['Host'] = 'webservice.juanpi.com'
             try:
@@ -114,35 +167,36 @@ class JuanPiParse(object):
                 return {}
 
             if data != []:
-                data = data[0]
+                main_data = data[0]
+                # print(main_data)
                 try:
-                    data = json.loads(data)
+                    main_data = json.loads(main_data)
+                    # pprint(main_data)
                 except:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
-                # pprint(data)
 
-                if data.get('detail') is not None:
-                    data = data.get('detail', {})
+                if main_data.get('detail') is not None:
+                    main_data = main_data.get('detail', {})
                     # 处理commitments
                     try:
-                        data['commitments'] = ''
-                        data.get('discount', {})['coupon'] = ''
-                        data.get('discount', {})['coupon_index'] = ''
-                        data.get('discount', {})['vip_info'] = ''
-                        data['topbanner'] = ''
+                        main_data['commitments'] = ''
+                        main_data.get('discount', {})['coupon'] = ''
+                        main_data.get('discount', {})['coupon_index'] = ''
+                        main_data.get('discount', {})['vip_info'] = ''
+                        main_data['topbanner'] = ''
                     except:
                         pass
                     try:
-                        data.get('brand_info')['sub_goods'] = ''
+                        main_data.get('brand_info')['sub_goods'] = ''
                     except:
                         pass
 
-                    data['skudata'] = skudata
-                    # pprint(data)
-                    # print(data)
-                    self.result_data = data
-                    return data
+                    main_data['skudata'] = skudata
+                    # pprint(main_data)
+                    # print(main_data)
+                    self.result_data = main_data
+                    return main_data
 
                 else:
                     print('data中detail的key为None, 返回空dict')
@@ -270,8 +324,8 @@ class JuanPiParse(object):
             # print('最低价为: ', taobao_price)
             # pprint(price_info_list)
 
-
             # 所有示例图片的地址
+            # pprint(data.get('goodImages'))
             all_img_url = [{'img_url': item} for item in data.get('goodImages')]
             # print(all_img_url)
 
@@ -535,6 +589,50 @@ class JuanPiParse(object):
 
         return dt
 
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        tmp_execute_path = EXECUTABLE_PATH
+
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
+
     def get_proxy_ip_from_ip_pool(self):
         '''
         从代理ip池中获取到对应ip
@@ -576,6 +674,13 @@ class JuanPiParse(object):
         else:
             print('卷皮商品url错误, 非正规的url, 请参照格式(http://shop.juanpi.com/deal/)开头的...')
             return ''
+
+    def __del__(self):
+        try:
+            self.driver.quit()
+        except:
+            pass
+        gc.collect()
 
 if __name__ == '__main__':
     juanpi = JuanPiParse()

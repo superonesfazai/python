@@ -17,7 +17,7 @@ import gc, os
 from random import randint
 from pprint import pprint
 from settings import HEADERS
-from settings import IS_BACKGROUND_RUNNING, PHANTOMJS_DRIVER_PATH
+from settings import IS_BACKGROUND_RUNNING, JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING, PHANTOMJS_DRIVER_PATH
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from scrapy.selector import Selector
@@ -296,7 +296,7 @@ class JdTalentRecommend(object):
             div_url = 'https://storage.360buyimg.com/bigfeeds/' + share_id + '.jsonp'
             # print(div_url)
             ## 用requests去请求待下载的文件
-            response = requests.get(div_url, proxies=tmp_proxies, timeout=10, verify=True)
+            response = requests.get(div_url, proxies=tmp_proxies, timeout=15, verify=True)
             div_body = response.content.decode('utf-8')
             # print(div_body)
             div_body = re.compile(r'\n').sub('', div_body)
@@ -331,19 +331,23 @@ class JdTalentRecommend(object):
                 '''
                 处理div_body
                 '''
-                tmp_div_body = div_body.get('content', '')
-                tmp_div_body = re.compile(r'&nbsp;').sub(' ', tmp_div_body)
-                tmp_div_body = re.compile(r'京东').sub('', tmp_div_body)
-                tmp_div_body = re.compile(r'12.12').sub('', tmp_div_body)
-                # * 此处替换的是最后面的推荐商品(都是一行一个推荐的那种)后期要插入咱们的商品就可以在<a data-item="href"></a>中进行插入 *
-                tmp_div_body = re.compile(r'<a data-item="href".*?>.*?</a>')\
-                    .sub('<a data-item=\"href\"></a>', tmp_div_body)
-                # * 多个goods_list的时候，非一行一行推荐而是一行好几个goods_id的时候的情况(是script动态生成的所以没法替换)
-                tmp_div_body = re.compile(r'<a class="feedback_coll_goods_item".*?>.*?</a>')\
-                    .sub('<a class=\"feedback_coll_goods_item\"></a>', tmp_div_body)
-                # tmp_div_body = re.compile(r'<div class="feedback_coll_goods.*?>.*?</div>')\
-                #     .sub('<div class=\"feedback_coll_goods\"></div>', tmp_div_body)
-                div_body = '<div>' + tmp_div_body + '</div>'
+                try:
+                    tmp_div_body = div_body.get('content', '')
+                    tmp_div_body = re.compile(r'&nbsp;').sub(' ', tmp_div_body)
+                    tmp_div_body = re.compile(r'京东').sub('', tmp_div_body)
+                    tmp_div_body = re.compile(r'12.12').sub('', tmp_div_body)
+                    # * 此处替换的是最后面的推荐商品(都是一行一个推荐的那种)后期要插入咱们的商品就可以在<a data-item="href"></a>中进行插入 *
+                    tmp_div_body = re.compile(r'<a data-item="href".*?>.*?</a>')\
+                        .sub('<a data-item=\"href\"></a>', tmp_div_body)
+                    # * 多个goods_list的时候，非一行一行推荐而是一行好几个goods_id的时候的情况(是script动态生成的所以没法替换)
+                    tmp_div_body = re.compile(r'<a class="feedback_coll_goods_item".*?>.*?</a>')\
+                        .sub('<a class=\"feedback_coll_goods_item\"></a>', tmp_div_body)
+                    # tmp_div_body = re.compile(r'<div class="feedback_coll_goods.*?>.*?</div>')\
+                    #     .sub('<div class=\"feedback_coll_goods\"></div>', tmp_div_body)
+                    div_body = '<div>' + tmp_div_body + '</div>'
+                except AttributeError as e:
+                    print('div_body获取content时出错如下: ', e)
+                    div_body = ''
 
             else:
                 sku_info = []
@@ -497,7 +501,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    if IS_BACKGROUND_RUNNING:
+    if JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING:
         main()
     else:
         just_fuck_run()

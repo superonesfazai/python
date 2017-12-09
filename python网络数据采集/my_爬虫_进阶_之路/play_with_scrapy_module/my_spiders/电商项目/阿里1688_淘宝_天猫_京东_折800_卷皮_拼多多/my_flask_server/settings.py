@@ -28,6 +28,8 @@ SERVER_PORT = 5000
 是否为后台运行
 '''
 IS_BACKGROUND_RUNNING = False
+# jd优选达人推荐
+JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING = False
 
 '''
 淘宝requests间接请求时间

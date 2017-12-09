@@ -62,7 +62,7 @@ class Zhe800Parse(object):
             # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
             try:
-                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                 data = response.content.decode('utf-8')
                 # print(data)
                 data = re.compile(r'(.*)').findall(data)  # 贪婪匹配匹配所有

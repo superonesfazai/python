@@ -62,13 +62,15 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
+
+            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+            juanpi_miaosha = JuanPiParse()
+
             for item in result:  # 实时更新数据
                 miaosha_begin_time = json.loads(item[1]).get('miaosha_begin_time')
                 miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time,'%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_begin_time)
 
-                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                juanpi_miaosha = JuanPiParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
@@ -145,6 +147,8 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                 else:       # 未下架的
                                     for item_1 in miaosha_goods_list:
                                         if item_1.get('goods_id', '') == item[0]:
+                                            # # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+                                            # juanpi_miaosha = JuanPiParse()
                                             juanpi_miaosha.get_goods_data(goods_id=item[0])
                                             goods_data = juanpi_miaosha.deal_with_data()
 
@@ -167,6 +171,11 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                                         else:
                                             pass
+                    if index % 10 == 0:      # 每过几个初始化一次，既能加快速度，又能优化内存
+                        # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+                        juanpi_miaosha = JuanPiParse()
+                        gc.collect()
+
                     index += 1
                     gc.collect()
 
@@ -177,7 +186,8 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         if get_shanghai_time_hour() == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
-            sleep(5)
+            # sleep(5)
+            pass
         gc.collect()
 
     def is_recent_time(self, timestamp):

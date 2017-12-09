@@ -1,4 +1,4 @@
 # python
-* give me a fork, thank you!
+* give me a fork, friend!
 
 ![](./images/ayst.png)
