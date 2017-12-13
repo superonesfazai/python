@@ -398,7 +398,7 @@ class PinduoduoParse(object):
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
+        # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         pipeline.insert_into_pinduoduo_xianshimiaosha_table(item=tmp)
@@ -448,7 +448,7 @@ class PinduoduoParse(object):
         # print('is_delete=', tmp['is_delete'])
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_pinduoduo_xianshimiaosha_table(tmp)
 

@@ -167,7 +167,6 @@ def main():
 
     with open(USER_TRY_CSV_PATH) as f:
         for line in f.readlines():
-
             craw_id = line.strip("\n")
             craw = MyCrawler(craw_id, client)
             print(craw_id)

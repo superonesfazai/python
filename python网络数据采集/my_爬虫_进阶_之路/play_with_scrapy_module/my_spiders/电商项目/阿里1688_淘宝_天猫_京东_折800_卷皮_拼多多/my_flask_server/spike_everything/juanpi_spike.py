@@ -99,6 +99,7 @@ class JuanPiSpike(object):
                                 db_goods_id_list = []
                             else:
                                 db_goods_id_list = [item[0] for item in list(my_pipeline.select_juanpi_xianshimiaosha_all_goods_id())]
+
                             for item in miaosha_goods_list:
                                 if item.get('goods_id', '') in db_goods_id_list:
                                     print('该goods_id已经存在于数据库中, 此处跳过')
@@ -124,7 +125,8 @@ class JuanPiSpike(object):
 
                                         # print(goods_data)
                                         juanpi.insert_into_juanpi_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                            sleep(.4)
+                                        sleep(.3)   # 短暂sleep下避免出错跳出
+                            sleep(.65)
                         else:
                             pass
                         try:
