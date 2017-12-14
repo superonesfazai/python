@@ -31,7 +31,7 @@ class MyCrawler(object):
                 if act.type == ActType.CREATE_ANSWER:
                     # CREATE_ANSWER      回答问题          :any:`Answer`
                     print(ts2str(act.target.created_time))
-                    # sleep(randint(1, 3))
+                    sleep(randint(1, 3))
 
                     # print('------>>>| 正在爬取的用户id为: ', client1.id)
                     links.append(client1.id)

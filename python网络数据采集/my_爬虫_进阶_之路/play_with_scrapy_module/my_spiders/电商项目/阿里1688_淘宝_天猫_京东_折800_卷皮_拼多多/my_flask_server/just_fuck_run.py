@@ -33,6 +33,5 @@ def main():
     auto_run(python_path)
     print(' Money is on the way! '.center(100, '*'))
 
-
 if __name__ == '__main__':
     main()
