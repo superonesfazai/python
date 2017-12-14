@@ -24,6 +24,7 @@ from pinduoduo_parse import PinduoduoParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH, PINDUODUO_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
+from settings import ERROR_HTML_CODE
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import BASIC_APP_KEY
 from settings import TAOBAO_SLEEP_TIME
@@ -165,15 +166,11 @@ def select():
                 return response
 
             else:
-                return '''
-                <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-                '''
+                return ERROR_HTML_CODE
         else:
             return render_template(SELECT_HTML_NAME)
     else:   # 非法登录显示错误网页
-        return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-        '''
+        return ERROR_HTML_CODE
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -396,9 +393,7 @@ def admin():
             return send_file('templates/admin.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
 
     else:   # 非法登录显示错误网页
-        return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-        '''
+        return ERROR_HTML_CODE
 
 @app.route('/Reg', methods=['GET', 'POST'])
 def regist():
@@ -464,9 +459,7 @@ def show_ali_info():
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:     # request.cookies -> return a dict
-        return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-        '''
+        return ERROR_HTML_CODE
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':
@@ -482,9 +475,8 @@ def show_taobao_info():
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
-        return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-        '''
+        return ERROR_HTML_CODE
+
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':
@@ -499,11 +491,8 @@ def show_tmall_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get(
-            'passwd') is None:  # request.cookies -> return a dict
-        return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-        '''
+    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+        return ERROR_HTML_CODE
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':
@@ -519,9 +508,7 @@ def show_jd_info():
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
-        return '''
-        <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-        '''
+        return ERROR_HTML_CODE
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':
@@ -537,9 +524,7 @@ def show_zhe_800_info():
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
-        return '''
-            <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-            '''
+        return ERROR_HTML_CODE
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':
@@ -555,9 +540,7 @@ def show_juanpi_info():
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
-        return '''
-            <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-            '''
+        return ERROR_HTML_CODE
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':
@@ -573,9 +556,7 @@ def show_pinduoduo_info():
     :return:
     '''
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
-        return '''
-            <html><header></header><body>非法操作!请返回登录页面登录后, 再继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
-            '''
+        return ERROR_HTML_CODE
     else:
         print('正在获取爬取页面...')
         if request.method == 'POST':

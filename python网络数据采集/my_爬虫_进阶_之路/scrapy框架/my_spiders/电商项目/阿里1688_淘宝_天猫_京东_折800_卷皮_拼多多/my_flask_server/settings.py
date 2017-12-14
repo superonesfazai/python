@@ -161,3 +161,10 @@ HEADERS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
 ]
 
+
+"""
+error_html_code(用于处理: 未登录时进行的非法操作)
+"""
+ERROR_HTML_CODE = '''
+<html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
+'''

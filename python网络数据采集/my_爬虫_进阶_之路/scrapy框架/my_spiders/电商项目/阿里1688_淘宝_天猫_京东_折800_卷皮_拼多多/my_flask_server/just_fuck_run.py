@@ -12,19 +12,21 @@ from time import sleep
 import datetime
 import re
 
+file_name_list = [
+    'zhe_800_spike',
+    'zhe_800_miaosha_real-times_update',
+    'juanpi_spike',
+    'juanpi_miaosha_real-times_update',
+    'pinduoduo_spike',
+    'pinduoduo_miaosha_real-times_update',
+]
+
 def auto_run(path):
     print('开始执行秒杀脚本'.center(60, '*'))
-    os.system('cd {0} && python3 zhe_800_spike.py'.format(path))
-    sleep(2.5)      # 避免同时先后启动先sleep下
-    os.system('cd {0} && python3 zhe_800_miaosha_real-times_update.py'.format(path))
-    sleep(2.5)
-    os.system('cd {0} && python3 juanpi_spike.py'.format(path))
-    sleep(2.5)
-    os.system('cd {0} && python3 juanpi_miaosha_real-times_update.py'.format(path))
-    sleep(2.5)
-    os.system('cd {0} && python3 pinduoduo_spike.py'.format(path))
-    sleep(2.5)
-    os.system('cd {0} && python3 pinduoduo_miaosha_real-times_update.py'.format(path))
+
+    for item in file_name_list:
+        os.system('cd {0} && python3 {1}.py'.format(path, item))
+        sleep(2.5)      # 避免同时先后启动先sleep下
     print('脚本执行完毕'.center(60, '*'))
 
 def main():
