@@ -9,7 +9,6 @@
 
 # 部分代码
 class Request(object_ref):
-
     def __init__(self, url, callback=None, method='GET', headers=None, body=None,
                  cookies=None, meta=None, encoding='utf-8', priority=0,
                  dont_filter=False, errback=None):

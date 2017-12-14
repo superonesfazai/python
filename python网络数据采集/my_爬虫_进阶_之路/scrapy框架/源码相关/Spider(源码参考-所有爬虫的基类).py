@@ -9,7 +9,6 @@
 
 # 所有爬虫的基类，用户定义的爬虫必须从这个类继承
 class Spider(object_ref):
-
     # 定义spider名字的字符串(string)。spider的名字定义了Scrapy如何定位(并初始化)spider，所以其必须是唯一的。
     # name是spider最重要的属性，而且是必须的。
     # 一般做法是以该网站(domain)(加或不加 后缀 )来命名spider。 例如，如果spider爬取 mywebsite.com ，该spider通常会被命名为 mywebsite
