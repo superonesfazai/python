@@ -141,7 +141,7 @@ class Zhe800Parse(object):
 
                 # 得到并处理detail(即图文详情显示信息)
                 # http://m.zhe800.com/gateway/app/detail/graph?productId=
-                tmp_detail_url = 'http://m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
+                tmp_detail_url = 'https://m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
                 try:
                     response = requests.get(tmp_detail_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                     detail_data = response.content.decode('utf-8')

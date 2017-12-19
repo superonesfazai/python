@@ -9,6 +9,8 @@ https://shop.zhe800.com/products/ze171108115616089965
 https://shop.zhe800.com/products/ze171026120345031230
 https://shop.zhe800.com/products/ze171101161844064937
 https://shop.zhe800.com/products/ze170515142955340855?jump_source=1&qd_key=qyOwt6Jn
+https://shop.zhe800.com/products/ze160628203232836513
+
 
 # 下架商品
 https://shop.zhe800.com/products/ze171102191323071151?jump_source=1&qd_key=qyOwt6Jn
@@ -99,3 +101,33 @@ sessionId
 11月15号22点(13724)
 
 11月16号就是(13726)
+
+
+# 折800拼团商品
+
+## 拼团商品首页列表
+https://pina.m.zhe800.com/list/list.html
+
+## 拼团商品的手机端地址
+https://pina.m.zhe800.com/detail/detail.html?zid=ze160628203232836513
+
+## 商品list
+https://pina.m.zhe800.com/nnc/list/deals.json?page=1&size=500
+https://pina.m.zhe800.com/nnc/list/deals.json?page=3&size=500
+
+## 商品的属性(详情，如产地什么的)
+https://pina.m.zhe800.com/cns/products/get_product_properties_list.json?productId=ze171008100551945000
+
+## 商品详情介绍(div_desc)
+https://pina.m.zhe800.com/nnc/product/detail_content.json?zid=ze171008100551945000
+
+## 商品实时库存
+https://pina.m.zhe800.com/cns/products/ze171008100551945000/realtime_info.json
+
+## 商品
+https://pina.m.zhe800.com/detail/detail.html?id=31741212&zid=ze170816210113749656&page_from=list&sortId=1&pub_page_from=weixin&p_refer=&sku_color=
+https://pina.m.zhe800.com/detail/detail.html?id=26688984&zid=ze161124112530513803&page_from=list&sortId=17&pub_page_from=weixin&p_refer=&sku_color=
+https://pina.m.zhe800.com/detail/detail.html?id=31863348&zid=ze150726154601000051&page_from=list&sortId=54&pub_page_from=weixin&p_refer=&sku_color=
+
+## 已抢光的商品
+https://pina.m.zhe800.com/detail/detail.html?zid=ze170920144136890464

@@ -114,7 +114,7 @@ class JuanPiParse(object):
                 main_body = re.compile(r'\t').sub('', main_body)
                 main_body = re.compile(r'  ').sub('', main_body)
                 # print(main_body)
-                data = re.compile(r'__PRELOADED_STATE__=(.*),window\.__SERVER_TIME__=').findall(main_body)  # 贪婪匹配匹配所有
+                data = re.compile(r'__PRELOADED_STATE__ = (.*);</script> <style ').findall(main_body)  # 贪婪匹配匹配所有
                 # print(data)
             except Exception as e:  # 如果超时, 终止加载并继续后续操作
                 print('-->>time out after 15 seconds when loading page')
@@ -371,19 +371,22 @@ class JuanPiParse(object):
                     '''
                     先判断如果baseInfo中的end_time=='0'表示已经下架
                     '''
-                    base_info_end_time = data.get('baseInfo', {}).get('end_time')
+                    # base_info_end_time = data.get('baseInfo', {}).get('end_time')
+                    # print(data.get('baseInfo', {}))
                     # print(base_info_end_time)
-                    if base_info_end_time == '0':
-                        is_delete = 1
+                    # if base_info_end_time == '0':
+                    #     print('test2')
+                    #     is_delete = 1
+                    pass
 
                 if float(end_time) < time.time():
                     '''
                     再判断日期过期的
                     '''
                     is_delete = 1
-                # print(is_delete)
             else:
                 pass
+            # print(is_delete)
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称

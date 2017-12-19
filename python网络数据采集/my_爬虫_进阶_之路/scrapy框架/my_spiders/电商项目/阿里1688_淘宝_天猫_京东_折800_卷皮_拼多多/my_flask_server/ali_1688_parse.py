@@ -499,9 +499,8 @@ class ALi1688LoginAndParse(object):
         cap['phantomjs.page.settings.disk-cache'] = True
         cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
 
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
 
         wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
