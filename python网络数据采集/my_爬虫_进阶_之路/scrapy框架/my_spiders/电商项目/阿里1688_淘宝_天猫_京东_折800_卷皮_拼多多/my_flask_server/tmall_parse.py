@@ -732,6 +732,5 @@ if __name__ == '__main__':
             gc.collect()
         else:
             print('获取到的天猫商品地址无法解析，地址错误')
-    gc.collect()
 
 # https://detail.m.tmall.com/item.htm?id=43979920132&sku_properties=1627207:28320

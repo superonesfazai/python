@@ -125,7 +125,7 @@ class JuanPiSpike(object):
 
                                         # print(goods_data)
                                         juanpi.insert_into_juanpi_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                                        sleep(.3)   # 短暂sleep下避免出错跳出
+                                        sleep(.4)   # 短暂sleep下避免出错跳出
                             sleep(.65)
                         else:
                             pass

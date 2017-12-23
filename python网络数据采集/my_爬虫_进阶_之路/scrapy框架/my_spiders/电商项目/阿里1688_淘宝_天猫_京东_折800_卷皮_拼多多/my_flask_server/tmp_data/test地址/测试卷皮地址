@@ -32,3 +32,9 @@ tab_id = 23     代表开始时间为今日20点, 结束时间为明日10点
 tab_id = 31     代表开始时间为明日10点, 结束时间为明日14点
 tab_id = 32     代表开始时间为明日14点, 结束时间为明日20点
 tab_id = 33     代表开始时间为明日20点, 结束时间为null值
+
+
+# 卷皮拼团
+
+## 卷皮拼团商品list地址(page控制页面的变化, pageSize为定值20, 后面两个字段不能缺失, 否者返回的json数据没有商品数据)
+https://tuan.juanpi.com/pintuan/get_goods_list?page=1&pageSize=20&cid=pinhaohuo_sx&show_type=wap

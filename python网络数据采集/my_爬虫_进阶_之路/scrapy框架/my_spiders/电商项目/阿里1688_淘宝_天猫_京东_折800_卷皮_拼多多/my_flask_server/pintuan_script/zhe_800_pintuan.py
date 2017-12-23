@@ -46,7 +46,6 @@ class Zhe800Pintuan(object):
         '''
         zid_list = []
         for page in range(0, 100):
-            tmp_zid_list = []
             tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(
                 str(page)
             )
@@ -96,6 +95,7 @@ class Zhe800Pintuan(object):
                         # print(goods_data)
                         zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
                         sleep(.7)
+                    gc.collect()
 
         else:
             pass
@@ -104,7 +104,6 @@ class Zhe800Pintuan(object):
         except:
             pass
         gc.collect()
-
 
     def get_url_body(self, tmp_url):
         # 设置代理ip
@@ -208,11 +207,12 @@ def just_fuck_run():
         zhe_800_pintuan = Zhe800Pintuan()
         zhe_800_pintuan.get_pintuan_goods_info()
         # try:
-        #     del zhe_800_spike
+        #     del zhe_800_pintuan
         # except:
         #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        sleep(60*5)
 
 def main():
     '''

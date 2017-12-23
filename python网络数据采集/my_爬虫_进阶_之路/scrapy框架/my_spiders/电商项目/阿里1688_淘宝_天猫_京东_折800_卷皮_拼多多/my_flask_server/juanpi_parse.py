@@ -119,7 +119,7 @@ class JuanPiParse(object):
             except Exception as e:  # 如果超时, 终止加载并继续后续操作
                 print('-->>time out after 15 seconds when loading page')
                 print('报错如下: ', e)
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+                # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
                 print('data为空!')
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
@@ -236,14 +236,18 @@ class JuanPiParse(object):
             # pprint(sku)
             detail_name_list = []
             if sku != []:
-                if sku[0].get('av_fvalue', '') == '':
-                    fav_name = ''
-                    pass
-                else:
-                    tmp = {}
-                    fav_name = data.get('skudata', {}).get('info', {}).get('fav_name', '')
-                    tmp['spec_name'] = fav_name
-                    detail_name_list.append(tmp)
+                try:
+                    if sku[0].get('av_fvalue', '') == '':
+                        fav_name = ''
+                        pass
+                    else:
+                        tmp = {}
+                        fav_name = data.get('skudata', {}).get('info', {}).get('fav_name', '')
+                        tmp['spec_name'] = fav_name
+                        detail_name_list.append(tmp)
+                except IndexError:
+                    print('IndexError错误，此处跳过!')
+                    return {}
 
                 if sku[0].get('av_zvalue', '') == '':
                     zav_name = ''

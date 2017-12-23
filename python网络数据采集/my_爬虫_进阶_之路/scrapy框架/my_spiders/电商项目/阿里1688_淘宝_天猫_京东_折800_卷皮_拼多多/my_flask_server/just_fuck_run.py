@@ -12,7 +12,7 @@ from time import sleep
 import datetime
 import re
 
-file_name_list = [
+spike_file_name_list = [
     'zhe_800_spike',
     'zhe_800_miaosha_real-times_update',
     'juanpi_spike',
@@ -21,18 +21,28 @@ file_name_list = [
     'pinduoduo_miaosha_real-times_update',
 ]
 
-def auto_run(path):
+pintuan_file_name_list = [
+    'zhe_800_pintuan',
+    'zhe_800_pintuan_real-times_update',
+]
+
+def auto_run(*params):
     print('开始执行秒杀脚本'.center(60, '*'))
 
-    for item in file_name_list:
-        os.system('cd {0} && python3 {1}.py'.format(path, item))
+    for item in spike_file_name_list:
+        os.system('cd {0} && python3 {1}.py'.format(params[0], item))
+        sleep(2.5)      # 避免同时先后启动先sleep下
+
+    for item in pintuan_file_name_list:
+        os.system('cd {0} && python3 {1}.py'.format(params[1], item))
         sleep(2.5)      # 避免同时先后启动先sleep下
     print('脚本执行完毕'.center(60, '*'))
 
 def main():
-    python_path = '~/myFiles/python/my_flask_server/spike_everything'
+    spike_path = '~/myFiles/python/my_flask_server/spike_everything'
+    pintuan_path = '~/myFiles/python/my_flask_server/pintuan_script'
 
-    auto_run(python_path)
+    auto_run(spike_path, pintuan_path)
     print(' Money is on the way! '.center(100, '*'))
 
 if __name__ == '__main__':
