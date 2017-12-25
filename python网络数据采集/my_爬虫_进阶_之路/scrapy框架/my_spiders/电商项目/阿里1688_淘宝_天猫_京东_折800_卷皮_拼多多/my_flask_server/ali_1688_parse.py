@@ -512,7 +512,7 @@ class ALi1688LoginAndParse(object):
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
         except Exception:
             print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
         proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
         proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
 

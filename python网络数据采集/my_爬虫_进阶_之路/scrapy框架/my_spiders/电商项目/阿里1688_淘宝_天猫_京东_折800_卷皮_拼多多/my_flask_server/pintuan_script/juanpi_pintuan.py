@@ -2,8 +2,8 @@
 
 '''
 @author = super_fazai
-@File    : zhe_800_pintuan.py
-@Time    : 2017/12/18 17:09
+@File    : juanpi_pintuan.py
+@Time    : 2017/12/23 14:30
 @connect : superonesfazai@gmail.com
 '''
 
@@ -24,10 +24,11 @@ import sys
 sys.path.append('..')
 
 from settings import HEADERS, IS_BACKGROUND_RUNNING
-from zhe_800_pintuan_parse import Zhe800PintuanParse
+from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-class Zhe800Pintuan(object):
+
+class JuanPiPinTuan(object):
     def __init__(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -35,7 +36,7 @@ class Zhe800Pintuan(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'pina.m.zhe800.com',
+            'Host': 'tuan.juanpi.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
 
@@ -44,9 +45,9 @@ class Zhe800Pintuan(object):
         模拟构造得到data的url, 得到近期所有的限时拼团商品信息
         :return:
         '''
-        zid_list = []
+        pintuan_goods_id_list = []
         for page in range(0, 100):
-            tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(
+            tmp_url = 'https://tuan.juanpi.com/pintuan/get_goods_list?page={0}&pageSize=20&cid=pinhaohuo_sx&show_type=wap'.format(
                 str(page)
             )
             print('正在抓取的页面地址为: ', tmp_url)
@@ -55,55 +56,115 @@ class Zhe800Pintuan(object):
             # print(tmp_data)
 
             if tmp_data == []:
-                print('该tmp_url得到的object为空list, 此处跳过!')
+                print('该tmp_url得到的goods为空list, 此处跳过!')
                 break
 
-            tmp_zid_list = [(item.get('product', {}).get('zid', ''), page) for item in tmp_data]
-            # print(tmp_zid_list)
+            tmp_pintuan_goods_id_list = [{
+                'goods_id': item.get('goods_id', ''),
+                'begin_time': self.timestamp_to_regulartime(int(item.get('start_time', ''))),
+                'end_time': self.timestamp_to_regulartime(int(item.get('end_time', ''))),
+                'all_sell_count': str(item.get('join_number_int', '')),
+                'page': page,
+            } for item in tmp_data]
+            # print(tmp_pintuan_goods_id_list)
 
-            for item in tmp_zid_list:
-                if item != '':
-                    zid_list.append(item)
+            for item in tmp_pintuan_goods_id_list:
+                if item.get('goods_id', '') not in [item2.get('goods_id', '') for item2 in pintuan_goods_id_list]:
+                    pintuan_goods_id_list.append(item)
 
-        zid_list = list(set(zid_list))
-        print('该zid_list的总个数为: ', len(zid_list))
-        print(zid_list)
+        print('该pintuan_goods_id_list的总个数为: ', len(pintuan_goods_id_list))
+        print(pintuan_goods_id_list)
 
-        zhe_800_pintuan = Zhe800PintuanParse()
+        juanpi_pintuan = JuanPiParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        index = 1
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline.select_zhe_800_pintuan_all_goods_id())]
-            for item in zid_list:
-                if item[0] in db_goods_id_list:
-                    print('该goods_id已经存在于数据库中, 此处跳过')
-                    pass
-                else:
-                    tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(item[0])
-                    goods_id = zhe_800_pintuan.get_goods_id_from_url(tmp_url)
-
-                    zhe_800_pintuan.get_goods_data(goods_id=goods_id)
-                    goods_data = zhe_800_pintuan.deal_with_data()
-
-                    if goods_data == {}:    # 返回的data为空则跳过
+            db_goods_id_list = [item[0] for item in list(my_pipeline.select_juanpi_pintuan_all_goods_id())]
+            # print(db_goods_id_list)
+            for item in pintuan_goods_id_list:
+                if index % 5 == 0:
+                    # 此处避免脚本占用大量内存
+                    try:
+                        del juanpi_pintuan
+                    except:
                         pass
-                    else:                   # 否则就解析并且插入
-                        goods_data['goods_id'] = str(item[0])
-                        goods_data['spider_url'] = tmp_url
-                        goods_data['username'] = '18698570079'
-                        goods_data['page'] = str(item[1])
-
-                        # print(goods_data)
-                        zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                    sleep(.7)
+                    juanpi_pintuan = JuanPiParse()
                     gc.collect()
+
+                if db_goods_id_list != []:
+                    if item.get('goods_id', '') in db_goods_id_list:
+                        print('该goods_id已经存在于数据库中, 此处跳过')
+                        pass
+                    else:
+                        # * 注意卷皮的拼团时间跟它原先抓到的上下架时间是同一个时间 *
+                        ## 所以就不用进行替换
+                        goods_data = self.get_pintuan_goods_data(
+                            juanpi_pintuan=juanpi_pintuan,
+                            goods_id=item.get('goods_id', ''),
+                            all_sell_count=item.get('all_sell_count', ''),
+                            page=item.get('page', 0)
+                        )
+
+                        if goods_data == {}:    # 返回的data为空则跳过
+                            pass
+                        else:
+                            # print(goods_data)
+                            juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                            pass
+
+                        sleep(.6)
+                        index += 1
+
+                else:
+                    goods_data = self.get_pintuan_goods_data(
+                        juanpi_pintuan=juanpi_pintuan,
+                        goods_id=item.get('goods_id', ''),
+                        all_sell_count=item.get('all_sell_count', ''),
+                        page=item.get('page', 0)
+                    )
+                    if goods_data == {}:  # 返回的data为空则跳过
+                        pass
+                    else:
+                        # print(goods_data)
+                        juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        pass
+                    sleep(.6)
+                    index += 1
 
         else:
             pass
         try:
-            del zhe_800_pintuan
+            del juanpi_pintuan
         except:
             pass
         gc.collect()
+
+    def get_pintuan_goods_data(self, juanpi_pintuan, goods_id, all_sell_count, page):
+        '''
+        得到goods_data
+        :param juanpi_pintuan:
+        :param goods_id: 商品id
+        :param page:
+        :return: a dict
+        '''
+        tmp_url = 'http://shop.juanpi.com/deal/' + str(goods_id)
+        goods_id = juanpi_pintuan.get_goods_id_from_url(tmp_url)
+
+        juanpi_pintuan.get_goods_data(goods_id=goods_id)
+        goods_data = juanpi_pintuan.deal_with_data()
+
+        if goods_data == {}:  # 返回的data为空则跳过
+            pass
+
+        else:
+            goods_data['goods_id'] = str(goods_id)
+            goods_data['spider_url'] = 'https://web.juanpi.com/pintuan/shop/' + str(goods_id)
+            goods_data['username'] = '18698570079'
+            goods_data['all_sell_count'] = all_sell_count
+            goods_data['page'] = page
+
+        gc.collect()
+        return goods_data
 
     def get_url_body(self, tmp_url):
         # 设置代理ip
@@ -131,11 +192,25 @@ class Zhe800Pintuan(object):
 
         try:
             data = json.loads(body)
-            data = data.get('objects', [])
+            data = data.get('data', {}).get('goods', [])
         except:
             print('json.loads转换data时出错!')
             data = []
         return data
+
+    def timestamp_to_regulartime(self, timestamp):
+        '''
+        将时间戳转换成时间
+        '''
+        # 利用localtime()函数将时间戳转化成localtime的格式
+        # 利用strftime()函数重新格式化时间
+
+        # 转换成localtime
+        time_local = time.localtime(timestamp)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+
+        return dt
 
     def get_proxy_ip_from_ip_pool(self):
         '''
@@ -204,10 +279,10 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
-        zhe_800_pintuan = Zhe800Pintuan()
-        zhe_800_pintuan.get_pintuan_goods_info()
+        juanpi_pintuan = JuanPiPinTuan()
+        juanpi_pintuan.get_pintuan_goods_info()
         # try:
-        #     del zhe_800_pintuan
+        #     del juanpi_pintuan
         # except:
         #     pass
         gc.collect()

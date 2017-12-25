@@ -36,10 +36,13 @@ def run_forever():
 
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
+            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+            ali_1688 = ALi1688LoginAndParse()
             for item in result:  # 实时更新数据
                 data = {}
-                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                ali_1688 = ALi1688LoginAndParse()
+                if index % 5 == 0:
+                    ali_1688 = ALi1688LoginAndParse()
+
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     # try:
@@ -98,7 +101,7 @@ def run_forever():
                 # except:
                 #     pass
                 gc.collect()
-                # sleep(.2)
+                sleep(1.8)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)

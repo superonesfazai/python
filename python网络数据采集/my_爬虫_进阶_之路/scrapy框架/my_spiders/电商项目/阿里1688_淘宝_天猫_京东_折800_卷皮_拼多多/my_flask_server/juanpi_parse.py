@@ -95,7 +95,11 @@ class JuanPiParse(object):
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
             self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
+            try:
+                self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
+            except:
+                return {}
+
             try:
                 self.driver.get(tmp_url)
                 self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
@@ -341,8 +345,14 @@ class JuanPiParse(object):
                 # item是str时跳过
                 p_info = [{'p_name': item.get('st_key'), 'p_value': item.get('st_value')} for item in attr if isinstance(item, dict)]
                 for item in p_info:
-                    if item.get('p_name') == '运费':  # 过滤掉颜色的html代码
+                    if item.get('p_name') == '运费':
+                        # 过滤掉颜色的html代码
                         item['p_value'] = '全国包邮(偏远地区除外)'
+
+                    # 过滤清洗
+                    tmp_p_value = item.get('p_value', '')
+                    tmp_p_value = re.compile(r'\xa0').sub(' ', tmp_p_value)     # 替换为一个空格
+                    item['p_value'] = tmp_p_value
             # pprint(p_info)
 
             # div_desc
@@ -580,6 +590,120 @@ class JuanPiParse(object):
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_juanpi_xianshimiaosha_table(tmp)
+
+    def insert_into_juuanpi_pintuan_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['spider_url']  # 商品地址
+        tmp['username'] = data_list['username']  # 操作人员username
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:  # 此处抓到的可能是卷皮拼团券所以跳过
+            print('此处抓到的可能是卷皮拼团券所以跳过')
+            return None
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+        tmp['all_sell_count'] = data_list.get('all_sell_count')  # 总销量
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+        tmp['page'] = data_list.get('page')
+
+        # 采集的来源地
+        tmp['site_id'] = 18  # 采集来源地(卷皮拼团商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.insert_into_juanpi_pintuan_table(tmp)
+
+    def to_right_and_update_pintuan_data(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:  # 此处抓到的可能是卷皮拼团券所以跳过
+            print('此处抓到的可能是卷皮拼团券所以跳过')
+            return None
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+        # tmp['all_sell_count'] = data_list.get('all_sell_count')  # 总销量
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+
+        # 采集的来源地
+        # tmp['site_id'] = 18  # 采集来源地(卷皮拼团商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>>| 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.update_juanpi_pintuan_table(tmp)
 
     def timestamp_to_regulartime(self, timestamp):
         '''
