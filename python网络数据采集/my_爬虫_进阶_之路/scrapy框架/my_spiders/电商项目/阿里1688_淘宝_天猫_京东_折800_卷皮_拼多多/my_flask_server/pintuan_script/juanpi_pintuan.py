@@ -26,7 +26,7 @@ sys.path.append('..')
 from settings import HEADERS, IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-
+import datetime
 
 class JuanPiPinTuan(object):
     def __init__(self):
@@ -162,6 +162,7 @@ class JuanPiPinTuan(object):
             goods_data['username'] = '18698570079'
             goods_data['all_sell_count'] = all_sell_count
             goods_data['page'] = page
+            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(schedule=goods_data.get('schedule', [])[0])
 
         gc.collect()
         return goods_data
@@ -197,6 +198,20 @@ class JuanPiPinTuan(object):
             print('json.loads转换data时出错!')
             data = []
         return data
+
+    def get_pintuan_begin_time_and_pintuan_end_time(self, schedule):
+        '''
+        返回拼团开始和结束时间
+        :param miaosha_time:
+        :return: tuple  pintuan_begin_time, pintuan_end_time
+        '''
+        pintuan_begin_time = schedule.get('begin_time')
+        pintuan_end_time = schedule.get('end_time')
+        # 将字符串转换为datetime类型
+        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
+        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
+
+        return pintuan_begin_time, pintuan_end_time
 
     def timestamp_to_regulartime(self, timestamp):
         '''

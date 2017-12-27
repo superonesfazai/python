@@ -29,6 +29,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
 from settings import PHANTOMJS_DRIVER_PATH
+import datetime
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -94,6 +95,7 @@ class PinduoduoSpike(object):
                             goods_data['taobao_price'] = item.get('taobao_price')  # 秒杀价
                             goods_data['sub_title'] = item.get('sub_title', '')
                             goods_data['miaosha_time'] = item.get('miaosha_time')
+                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
 
                             if item.get('stock_info').get('activity_stock') <= 2:
                                 # 实时秒杀库存小于等于2时就标记为 已售罄
@@ -169,6 +171,20 @@ class PinduoduoSpike(object):
         print('当前所有限时秒杀商品list为: ', all_miaosha_goods_list)
 
         return all_miaosha_goods_list
+
+    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
+        '''
+        返回秒杀开始和结束时间
+        :param miaosha_time:
+        :return: tuple  miaosha_begin_time, miaosha_end_time
+        '''
+        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
+        miaosha_end_time = miaosha_time.get('miaosha_end_time')
+        # 将字符串转换为datetime类型
+        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
+        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
+
+        return miaosha_begin_time, miaosha_end_time
 
     def init_phantomjs(self):
         """

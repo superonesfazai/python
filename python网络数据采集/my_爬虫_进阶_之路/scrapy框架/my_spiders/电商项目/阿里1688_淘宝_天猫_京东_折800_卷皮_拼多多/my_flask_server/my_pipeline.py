@@ -371,12 +371,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['detail_info'],
                 dumps(item['property_info'], ensure_ascii=False),
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -460,13 +461,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['div_desc'],
                 item['month_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
             # print(item['month_sell_count'])
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID=%s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID=%s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -550,12 +552,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['div_desc'],
                 item['month_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -639,12 +642,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['div_desc'],
                 item['all_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -727,13 +731,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -772,6 +777,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['schedule'], ensure_ascii=False),
                 dumps(item['stock_info'], ensure_ascii=False),
                 dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
                 item['session_id'],
 
                 item['site_id'],
@@ -780,7 +787,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.zhe_800_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, session_id, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.zhe_800_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, session_id, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -818,6 +825,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
                 item['div_desc'],                          # 存入到DetailInfo
                 dumps(item['schedule'], ensure_ascii=False),
+                item['pintuan_begin_time'],
+                item['pintuan_end_time'],
                 item['page'],
 
                 item['site_id'],
@@ -826,7 +835,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, pintuan_begin_time, pintuan_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -862,11 +871,12 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['schedule'], ensure_ascii=False),
                 dumps(item['stock_info'], ensure_ascii=False),
                 dumps(item['miaosha_time'], ensure_ascii=False),
-
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s where goods_id = %s',
+            cs.execute('update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -991,13 +1001,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -1036,6 +1047,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['schedule'], ensure_ascii=False),
                 dumps(item['stock_info'], ensure_ascii=False),
                 dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
                 item['tab_id'],
                 item['page'],
 
@@ -1045,7 +1058,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -1083,6 +1096,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
                 item['div_desc'],                          # 存入到DetailInfo
                 dumps(item['schedule'], ensure_ascii=False),
+                item['pintuan_begin_time'],
+                item['pintuan_end_time'],
                 item['page'],
 
                 item['site_id'],
@@ -1091,7 +1106,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, pintuan_begin_time, pintuan_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -1127,11 +1142,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['schedule'], ensure_ascii=False),
                 dumps(item['stock_info'], ensure_ascii=False),
                 dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s where goods_id = %s',
+            cs.execute('update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -1258,13 +1275,14 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['div_desc'],
                 item['all_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -1303,6 +1321,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['schedule'], ensure_ascii=False),
                 dumps(item['stock_info'], ensure_ascii=False),
                 dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
 
                 item['site_id'],
                 item['is_delete'],
@@ -1310,7 +1330,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.pinduoduo_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.pinduoduo_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -1346,11 +1366,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['schedule'], ensure_ascii=False),
                 dumps(item['stock_info'], ensure_ascii=False),
                 dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s where goods_id = %s',
+            cs.execute('update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
                        tuple(params))
             self.conn.commit()
             cs.close()
@@ -1768,12 +1790,13 @@ class SqlPools(object):
                 item['div_desc'],
                 item['month_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
 
-            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, IsDelete=%s where GoodsID = %s',
+            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
                 tuple(params))
             # self.engine.commit()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')

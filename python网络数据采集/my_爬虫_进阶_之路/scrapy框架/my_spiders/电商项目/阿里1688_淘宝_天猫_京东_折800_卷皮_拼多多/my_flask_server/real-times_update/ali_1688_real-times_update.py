@@ -17,6 +17,7 @@ import os
 import re, pytz, datetime
 import json
 from settings import IS_BACKGROUND_RUNNING
+import time
 
 def run_forever():
     while True:
@@ -68,25 +69,33 @@ def run_forever():
                             'shelf_time': '',
                             'down_time': '',
                         }
-                        if data['is_delete'] != item[1]:
+                        if data['is_delete'] != item[1]:    # 表示状态改变
                             if data['is_delete'] == 0 and item[1] == 1:
                                 # is_delete由0->1 表示商品状态上架变为下架
                                 my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
                             else:
                                 # is_delete由1->0 表示商品状态下架变为上架
                                 my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
-                        else:
+                            delete_time = str(get_shanghai_time())      # 记录下状态变化的时间点
+                        else:                               # 表示状态不变
                             if item[2] is None or item[2] == '{"shelf_time": "", "down_time": ""}' or len(item[2]) == 35:   # 35就是那串初始str
                                 if data['is_delete'] == 0:  # 上架的状态
                                     my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
                                 else:  # 下架的状态
                                     my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
+                                delete_time = str(get_shanghai_time())
                             else:
                                 # 否则保存原始值不变
                                 tmp_shelf_and_down_time = item[2]
                                 my_shelf_and_down_time = json.loads(tmp_shelf_and_down_time)   # 先转换为dict
+                                # print(my_shelf_and_down_time)
+                                delete_time = set_delete_time_from_orginal_time(my_shelf_and_down_time=my_shelf_and_down_time)
+
                         data['my_shelf_and_down_time'] = my_shelf_and_down_time
-                        # print(my_shlef_and_down_time)
+                        # print(my_shelf_and_down_time)
+
+                        data['delete_time'] = delete_time
+                        # print(delete_time)
 
                         # print('------>>>| 爬取到的数据为: ', data)
                         ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
@@ -101,7 +110,7 @@ def run_forever():
                 # except:
                 #     pass
                 gc.collect()
-                sleep(1.8)
+                sleep(2.2)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
@@ -109,6 +118,32 @@ def run_forever():
             sleep(5)
         # del ali_1688
         gc.collect()
+
+def set_delete_time_from_orginal_time(my_shelf_and_down_time):
+    '''
+    返回原先商品状态变换被记录下的时间点
+    :param my_shelf_and_down_time: 一个dict
+    :return: detele_time    datetime类型
+    '''
+    shelf_time = my_shelf_and_down_time.get('shelf_time', '')
+    if shelf_time != '':
+        # 将字符串类型的时间转换为datetime类型
+        shelf_time = datetime.datetime.strptime(shelf_time, '%Y-%m-%d %H:%M:%S')
+    down_time = my_shelf_and_down_time.get('down_time', '')
+    if down_time != '':
+        down_time = datetime.datetime.strptime(down_time, '%Y-%m-%d %H:%M:%S')
+
+    if shelf_time == '':
+        delete_time = down_time
+    elif down_time == '':
+        delete_time = shelf_time
+    else:  # shelf_time和down_time都不为''
+        if shelf_time > down_time:  # 取最近的那个
+            delete_time = shelf_time
+        else:
+            delete_time = down_time
+
+    return delete_time
 
 def get_shanghai_time():
     '''

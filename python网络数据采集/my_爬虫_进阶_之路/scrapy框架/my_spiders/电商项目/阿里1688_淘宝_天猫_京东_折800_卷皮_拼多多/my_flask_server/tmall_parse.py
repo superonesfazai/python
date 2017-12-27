@@ -217,7 +217,12 @@ class TmallParse(object):
             # print('taobao_price=', taobao_price)
 
             # 商品库存  int类型
-            goods_stock = data['extra_data'].get('skuCore').get('sku2info').get('0').get('quantity')
+            try:
+                goods_stock = data.get('extra_data', {}).get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity')
+            except Exception as e:
+                print(e)
+                print('在获取该商品库存信息时报错, 此处跳过!')
+                return {}
 
             # 商品标签属性名称, 以及商品标签属性对应的值
             sku_base = data.get('skuBase')
@@ -396,9 +401,14 @@ class TmallParse(object):
             if tmp_goods_id != []:
                 tmp_goods_id = tmp_goods_id[0]
                 div_desc = self.deal_with_div(tmp_goods_id)
+
             else:
                 div_desc = ''
             # print(div_desc)
+
+            if div_desc == '':
+                print('获取到的div_desc为空str, 此处跳过!')
+                return {}
 
             '''
             后期处理
@@ -523,7 +533,12 @@ class TmallParse(object):
 
         body = self.driver.page_source
         # print(body)
-        body = re.compile(r'backToDesc\((.*)\)').findall(body)[0]
+        try:
+            body = re.compile(r'backToDesc\((.*)\)').findall(body)[0]
+        except IndexError:
+            print('获取详情图片介绍时出错，此处跳过!')
+            return ''
+
         try:
             body = json.loads(body)
         except Exception:
@@ -597,6 +612,7 @@ class TmallParse(object):
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
 
         pipeline.update_tmall_table(tmp)
 
@@ -628,7 +644,7 @@ class TmallParse(object):
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
         except Exception:
             print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
         proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
         proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
 

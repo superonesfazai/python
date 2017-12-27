@@ -442,6 +442,7 @@ class ALi1688LoginAndParse(object):
             tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)

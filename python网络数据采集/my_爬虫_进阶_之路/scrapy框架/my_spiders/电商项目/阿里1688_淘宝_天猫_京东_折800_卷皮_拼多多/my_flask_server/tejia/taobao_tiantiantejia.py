@@ -2,33 +2,37 @@
 
 '''
 @author = super_fazai
-@File    : zhe_800_pintuan.py
-@Time    : 2017/12/18 17:09
+@File    : taobao_tiantiantejia.py
+@Time    : 2017/12/26 16:02
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
-import json
-import requests
-import re
-import time
-from pprint import pprint
-import gc
-import pytz
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from time import sleep
-import os
+"""
+淘宝天天特价板块
+"""
 
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, IS_BACKGROUND_RUNNING
-from zhe_800_pintuan_parse import Zhe800PintuanParse
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+import time
+from random import randint
+import json
+import requests
+import re
+from pprint import pprint
+from decimal import Decimal
+from time import sleep
 import datetime
+import gc
 
-class Zhe800Pintuan(object):
+from settings import HEADERS
+from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH, IS_BACKGROUND_RUNNING
+import pytz
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+
+class TaoBaoTianTianTeJia(object):
     def __init__(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -36,92 +40,36 @@ class Zhe800Pintuan(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'pina.m.zhe800.com',
+            'Host': 'metrocity.taobao.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
+        self.result_data = {}
 
-    def get_pintuan_goods_info(self):
+    def get_goods_list_and_deal_with_data(self):
         '''
-        模拟构造得到data的url, 得到近期所有的限时拼团商品信息
+        模拟构造得到天天特价的所有商品的list, 并且解析存入每个
         :return:
         '''
-        zid_list = []
-        for page in range(0, 100):
-            tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(
-                str(page)
-            )
-            print('正在抓取的页面地址为: ', tmp_url)
+        # * 获取分类的name和extQuery的tagId的地址为 *(开始为在blockId=902开始)
+        # https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=902
+        for block_id in range(902, 950, 2):
+            sort_url = 'https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=' + str(block_id)
+            print(sort_url)
+            sort_body = self.get_url_body(url=sort_url)
+            print(sort_body)
 
-            tmp_data = self.get_url_body(tmp_url=tmp_url)
-            # print(tmp_data)
+        tmp_url = 'https://metrocity.taobao.com/json/fantomasItems.htm?sort=null&appId=9&blockId=914&pageSize=1000&_input_charset=utf-8'
 
-            if tmp_data == []:
-                print('该tmp_url得到的object为空list, 此处跳过!')
-                break
+        tmp_body = self.get_url_body(url=tmp_url)
+        tejia_goods_list = self.get_tiantiantejia_goods_list(body=tmp_body)
+        print(tejia_goods_list)
 
-            tmp_zid_list = [(item.get('product', {}).get('zid', ''), page) for item in tmp_data]
-            # print(tmp_zid_list)
-
-            for item in tmp_zid_list:
-                if item != '':
-                    zid_list.append(item)
-
-        zid_list = list(set(zid_list))
-        print('该zid_list的总个数为: ', len(zid_list))
-        print(zid_list)
-
-        zhe_800_pintuan = Zhe800PintuanParse()
-        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-        if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline.select_zhe_800_pintuan_all_goods_id())]
-            for item in zid_list:
-                if item[0] in db_goods_id_list:
-                    print('该goods_id已经存在于数据库中, 此处跳过')
-                    pass
-                else:
-                    tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(item[0])
-                    goods_id = zhe_800_pintuan.get_goods_id_from_url(tmp_url)
-
-                    zhe_800_pintuan.get_goods_data(goods_id=goods_id)
-                    goods_data = zhe_800_pintuan.deal_with_data()
-
-                    if goods_data == {}:    # 返回的data为空则跳过
-                        pass
-                    else:                   # 否则就解析并且插入
-                        goods_data['goods_id'] = str(item[0])
-                        goods_data['spider_url'] = tmp_url
-                        goods_data['username'] = '18698570079'
-                        goods_data['page'] = str(item[1])
-                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(schedule=goods_data.get('schedule', [])[0])
-
-                        # print(goods_data)
-                        zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                    sleep(1.5)
-                    gc.collect()
-
-        else:
-            pass
-        try:
-            del zhe_800_pintuan
-        except:
-            pass
-        gc.collect()
-
-    def get_pintuan_begin_time_and_pintuan_end_time(self, schedule):
+    def get_url_body(self, url):
         '''
-        返回拼团开始和结束时间
-        :param miaosha_time:
-        :return: tuple  pintuan_begin_time, pintuan_end_time
+        获取url的body
+        :param url: 待抓取的地址url
+        :return: str
         '''
-        pintuan_begin_time = schedule.get('begin_time')
-        pintuan_end_time = schedule.get('end_time')
-        # 将字符串转换为datetime类型
-        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
-        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return pintuan_begin_time, pintuan_end_time
-
-    def get_url_body(self, tmp_url):
         # 设置代理ip
         self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
@@ -130,28 +78,67 @@ class Zhe800Pintuan(object):
             'http': self.proxy,
         }
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        # 更改Host
+        tmp_headers = self.headers
+        tmp_host = re.compile(r'https://(.*?)/.*').findall(url)[0]
+        tmp_headers['Host'] = tmp_host
+        tmp_headers['cookie'] = 'UM_distinctid=16015e04f6d4ff-037c1f4e36bf3-17386d57-fa000-16015e04f6e555; hng=CN%7Czh-CN%7CCNY%7C156; thw=cn; ali_apache_id=11.228.45.44.1512376392548.274581.5; uc3=sg2=WqJ5CclAaAIRL%2BjSIx%2FSzyVuMbp8JSBthJSylPIhcsc%3D&nk2=rUtEoY7x%2Bk8Rxyx1ZtN%2FAg%3D%3D&id2=UUplY9Ft9xwldQ%3D%3D&vt3=F8dBzLQKaueubXgKyDU%3D&lg2=VFC%2FuZ9ayeYq2g%3D%3D; lgc=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; t=567b173f0709a9279b1255b8cb39b2fc; _cc_=VFC%2FuZ9ajQ%3D%3D; tg=0; miid=5767446262036433919; cna=ZyWpEl+kTywCAXHXsSxv8Ati; cookie2=15c1fda7973edcbe0105c74d28a4a51d; _tb_token_=8e33663a5306; v=0; mt=ci=-1_0; linezing_session=bJoeqtC38UdQyLARdXoeon1N_1514273311440Yq3z_1; _m_h5_tk=61ee4727021cbffa54957d35273006f5_1514276876357; _m_h5_tk_enc=c8213eca0b9d27725f3d105e9b7c27d6; l=AvT0JKUZDcPfSJZdxeTqrbhlRKlmzxnl; uc1=cookie14=UoTdf1MI%2FjVqdQ%3D%3D; isg=AtHRDIQhb6JI1oPWFHFLrKxu4NurlkTIWDcky7NiNxmhWvOs-I7KgKvwiBhH'
         try:
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = requests.get(url, headers=tmp_headers, proxies=tmp_proxies, timeout=16)
             body = response.content.decode('utf-8')
             # print(body)
-
-            # 过滤
             body = re.compile(r'\n').sub('', body)
             body = re.compile(r'\t').sub('', body)
             body = re.compile(r'  ').sub('', body)
             # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            body = '{}'
-            pass
 
+            body = re.compile(r'\((.*)\)').findall(body)[0]
+        except:
+            print('requests.get()请求超时....')
+            print('data为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            body = '{}'
+
+        return body
+
+    def get_tiantiantejia_goods_list(self, body):
+        '''
+        将str类型的body转换为需求的list
+        :param body:
+        :return: a list
+        '''
         try:
             data = json.loads(body)
-            data = data.get('objects', [])
-        except:
-            print('json.loads转换data时出错!')
+        except Exception:
+            print('在获取天天特价商品id的list时, json.loads转换出错, 此处跳过!')
+            data = {}
+
+        try:
+            data = data.get('data', [])
+        except Exception:
+            print('获取data中的key值data出错!')
             data = []
-        return data
+
+        if data != []:
+            # 处理得到需要的数据
+            tejia_goods_list = [{
+                'goods_id': item.get('itemId', ''),
+                'start_time': self.deal_with_time_to_regulartime(item.get('activityStartTime', '')),
+                'end_time': self.deal_with_time_to_regulartime(item.get('activityEndTime', '')),
+            } for item in data]
+        else:
+            tejia_goods_list = []
+
+        return tejia_goods_list
+
+    def deal_with_time_to_regulartime(self, tmp_time):
+        '''
+        处理得到规范的时间
+        :param tmp_time: str    eg: '20171225000000'
+        :return: str    规律的人眼可识别的时间 2609-03-15 14:03:20
+        '''
+        return tmp_time[0:4] + '-' + tmp_time[4:6] + '-' + tmp_time[6:8] + ' ' + tmp_time[8:10] + ':' + tmp_time[10:12] + ':' + tmp_time[12:14]
 
     def get_proxy_ip_from_ip_pool(self):
         '''
@@ -174,6 +161,7 @@ class Zhe800Pintuan(object):
         return result_ip_list
 
     def __del__(self):
+        # self.driver.quit()
         gc.collect()
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
@@ -220,10 +208,10 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
-        zhe_800_pintuan = Zhe800Pintuan()
-        zhe_800_pintuan.get_pintuan_goods_info()
+        taobao_tiantaintejia = TaoBaoTianTianTeJia()
+        taobao_tiantaintejia.get_goods_list_and_deal_with_data()
         # try:
-        #     del zhe_800_pintuan
+        #     del taobao_tiantaintejia
         # except:
         #     pass
         gc.collect()

@@ -24,6 +24,7 @@ from random import randint
 from settings import HEADERS
 import requests
 from settings import IS_BACKGROUND_RUNNING
+import datetime
 
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
@@ -165,6 +166,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                                     pass
                                                 goods_data['sub_title'] = item_1.get('sub_title', '')
                                                 goods_data['miaosha_time'] = item_1.get('miaosha_time')
+                                                goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item_1.get('miaosha_time'))
 
                                                 # print(goods_data)
                                                 juanpi_miaosha.to_update_juanpi_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
@@ -189,6 +191,20 @@ class Juanpi_Miaosha_Real_Time_Update(object):
             # sleep(5)
             pass
         gc.collect()
+
+    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
+        '''
+        返回秒杀开始和结束时间
+        :param miaosha_time:
+        :return: tuple  miaosha_begin_time, miaosha_end_time
+        '''
+        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
+        miaosha_end_time = miaosha_time.get('miaosha_end_time')
+        # 将字符串转换为datetime类型
+        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
+        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
+
+        return miaosha_begin_time, miaosha_end_time
 
     def is_recent_time(self, timestamp):
         '''

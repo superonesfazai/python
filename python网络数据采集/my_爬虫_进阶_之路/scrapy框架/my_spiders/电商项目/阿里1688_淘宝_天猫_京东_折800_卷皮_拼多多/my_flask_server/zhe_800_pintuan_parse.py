@@ -369,6 +369,8 @@ class Zhe800PintuanParse(object):
         tmp['div_desc'] = data_list.get('div_desc')  # 下方div
 
         tmp['schedule'] = data_list.get('schedule')
+        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
+        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
         tmp['page'] = data_list.get('page')
 
         # 采集的来源地

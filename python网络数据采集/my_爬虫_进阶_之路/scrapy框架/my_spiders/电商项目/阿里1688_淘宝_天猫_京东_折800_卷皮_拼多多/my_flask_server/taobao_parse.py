@@ -447,6 +447,7 @@ class TaoBaoLoginAndParse(object):
                 'is_delete': is_delete,                             # 用于判断商品是否已经下架
             }
             # print(result)
+            # pprint(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -516,6 +517,7 @@ class TaoBaoLoginAndParse(object):
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
 
         pipeline.update_taobao_table(tmp)
 

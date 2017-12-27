@@ -104,7 +104,7 @@ class JuanPiParse(object):
                 self.driver.get(tmp_url)
                 self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
 
-                locator = (By.CSS_SELECTOR, 'div.sc-jzJRlG.ZnnHv')
+                locator = (By.CSS_SELECTOR, 'div.sc-eNQAEJ.bqegeZ')
                 try:
                     WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:
@@ -482,6 +482,7 @@ class JuanPiParse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
 
         pipeline.update_juanpi_table(item=tmp)
 
@@ -528,6 +529,8 @@ class JuanPiParse(object):
         tmp['schedule'] = data_list.get('schedule')
         tmp['stock_info'] = data_list.get('stock_info')
         tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
         tmp['tab_id'] = data_list.get('tab_id')
         tmp['page'] = data_list.get('page')
 
@@ -582,6 +585,8 @@ class JuanPiParse(object):
         tmp['schedule'] = data_list.get('schedule')
         tmp['stock_info'] = data_list.get('stock_info')
         tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
@@ -637,6 +642,8 @@ class JuanPiParse(object):
         tmp['div_desc'] = data_list.get('div_desc')  # 下方div
 
         tmp['schedule'] = data_list.get('schedule')
+        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
+        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
         tmp['page'] = data_list.get('page')
 
         # 采集的来源地

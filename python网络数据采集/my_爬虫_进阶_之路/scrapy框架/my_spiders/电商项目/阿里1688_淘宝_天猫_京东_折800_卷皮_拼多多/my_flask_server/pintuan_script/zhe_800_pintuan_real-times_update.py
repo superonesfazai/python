@@ -73,14 +73,13 @@ def run_forever():
                 except:
                     pass
                 gc.collect()
-                sleep(.7)
+                sleep(1.2)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
             sleep(5)
         gc.collect()
-
 
 def get_shanghai_time():
     '''

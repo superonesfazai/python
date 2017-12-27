@@ -587,6 +587,7 @@ class Zhe800Parse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
 
         pipeline.update_zhe_800_table(item=tmp)
 
@@ -642,6 +643,9 @@ class Zhe800Parse(object):
         # 采集的来源地
         tmp['site_id'] = 14  # 采集来源地(折800秒杀商品)
 
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
+
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
 
@@ -690,6 +694,8 @@ class Zhe800Parse(object):
         tmp['schedule'] = data_list.get('schedule')
         tmp['stock_info'] = data_list.get('stock_info')
         tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])

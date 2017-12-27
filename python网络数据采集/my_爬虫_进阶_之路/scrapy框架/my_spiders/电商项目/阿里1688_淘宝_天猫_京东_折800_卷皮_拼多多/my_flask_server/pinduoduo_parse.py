@@ -344,6 +344,7 @@ class PinduoduoParse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
         tmp['all_sell_count'] = str(data_list.get('all_sell_count'))
 
         pipeline.update_pinduoduo_table(item=tmp)
@@ -391,6 +392,8 @@ class PinduoduoParse(object):
         tmp['schedule'] = data_list.get('schedule')
         tmp['stock_info'] = data_list.get('stock_info')
         tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
 
         # 采集的来源地
         tmp['site_id'] = 16  # 采集来源地(卷皮秒杀商品)
@@ -443,6 +446,8 @@ class PinduoduoParse(object):
         tmp['schedule'] = data_list.get('schedule')
         tmp['stock_info'] = data_list.get('stock_info')
         tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         # print('is_delete=', tmp['is_delete'])
