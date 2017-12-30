@@ -8,7 +8,7 @@
 '''
 
 """
-淘宝天天特价板块
+淘宝天天特价板块抓取清洗入库
 """
 
 import sys
@@ -27,7 +27,15 @@ import gc
 
 from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH, IS_BACKGROUND_RUNNING
+from ..my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from selenium import webdriver
+import selenium.webdriver.support.ui as ui
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pytz
+
+from taobao_parse import TaoBaoLoginAndParse
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -44,25 +52,120 @@ class TaoBaoTianTianTeJia(object):
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
         self.result_data = {}
+        self.init_phantomjs()
 
-    def get_goods_list_and_deal_with_data(self):
+        self.main_sort = {
+            '901': '时尚女装',
+            '902': '舒适内衣',
+            '903': '包包配饰',
+            '904': '男鞋女鞋',
+            '905': '品质男装',
+            '906': '母婴儿童',
+            '907': '日用百货',
+            '908': '美食特产',
+            '909': '数码家电',
+            '910': '美容护肤',
+            '911': '运动户外',
+        }
+
+    def get_all_goods_list(self):
         '''
         模拟构造得到天天特价的所有商品的list, 并且解析存入每个
-        :return:
+        :return: sort_data  类型list
         '''
-        # * 获取分类的name和extQuery的tagId的地址为 *(开始为在blockId=902开始)
-        # https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=902
-        for block_id in range(902, 950, 2):
+        # * 获取分类的name和extQuery的tagId的地址为 *(开始为在blockId=901开始)
+        # https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=901
+        sort_data = []
+        for block_id in range(901, 914, 1):
             sort_url = 'https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=' + str(block_id)
             print(sort_url)
-            sort_body = self.get_url_body(url=sort_url)
-            print(sort_body)
+            sort_body = self.use_phantomjs_to_get_url_body(url=sort_url)
+            # print(sort_body)
 
-        tmp_url = 'https://metrocity.taobao.com/json/fantomasItems.htm?sort=null&appId=9&blockId=914&pageSize=1000&_input_charset=utf-8'
+            if sort_body != '':
+                tmp_sort_data = self.get_sort_data_list(body=sort_body)
+                # print(tmp_sort_data)
+                if str(block_id) in self.main_sort:
+                    sort_name = self.main_sort[str(block_id)]
+                    # print(sort_name)
+                    tmp = {
+                        block_id: sort_name,
+                        'data': tmp_sort_data,
+                    }
+                    sort_data.append(tmp)
+            sleep(.5)
+        pprint(sort_data)
 
-        tmp_body = self.get_url_body(url=tmp_url)
-        tejia_goods_list = self.get_tiantiantejia_goods_list(body=tmp_body)
-        print(tejia_goods_list)
+        try:
+            self.driver.quit()
+        except:
+            pass
+        gc.collect()
+
+        return sort_data
+
+
+    def deal_with_all_goods_id(self, sort_data):
+        '''
+        获取每个详细分类的商品信息
+        :param sort_data: 所有分类的商品信息(包括商品id跟特价开始时间跟结束时间)
+        :return: None
+        '''
+        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        if my_pipeline.is_connect_success:
+            db_goods_id_list = [item[0] for item in list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())]
+            # print(db_goods_id_list)
+
+            for item in sort_data:
+                for key in item.keys():
+                    if isinstance(key, int):  # 当key值类型为int时, 表示为详细分类的blockID的值
+                        tmp_data = item.get('data', [])
+                        for item_2 in tmp_data:
+                            # &extQuery=tagId%3A1010142     要post的数据, 此处直接用get模拟
+                            tmp_url = 'https://metrocity.taobao.com/json/fantomasItems.htm?appId=9&pageSize=1000&_input_charset=utf-8&blockId={0}&extQuery=tagId%3A{1}'.format(
+                                str(key), item_2.get('extQuery', '')[6:]
+                            )
+
+                            tmp_body = self.get_url_body(url=tmp_url)
+                            tejia_goods_list = self.get_tiantiantejia_goods_list(body=tmp_body)
+                            print(tejia_goods_list)
+
+                            for tmp_item in tejia_goods_list:
+                                if tmp_item.get('goods_id', '') in db_goods_id_list:
+                                    print('该goods_id已经存在于数据库中, 此处跳过')
+                                    pass
+
+                                else:
+                                    tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
+                                    taobao = TaoBaoLoginAndParse()
+                                    goods_id = taobao.get_goods_id_from_url(tmp_url)
+                                    taobao.get_goods_data(goods_id=goods_id)
+                                    goods_data = taobao.deal_with_data(goods_id=goods_id)
+
+                                    if goods_data != {}:
+                                        goods_data['goods_id'] = tmp_item.get('goods_id', '')
+                                        goods_data['schedule'] = [{
+                                            'begin_time': tmp_item.get('start_time', ''),
+                                            'end_time': tmp_item.get('end_time', ''),
+                                        }]
+                                        goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = self.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+                                        goods_data['block_id'] = str(key)
+                                        goods_data['tag_id'] = item_2.get('extQuery', '')[6:]
+                                        goods_data['father_sort'] = self.main_sort[str(key)]
+                                        goods_data['child_sort'] = item_2.get('name', '')
+
+                                        print(goods_data)
+                                    else:
+                                        pass
+                                    sleep(1.5)
+
+                    else:
+                        pass
+
+        else:
+            print('数据库连接失败!')
+            pass
+        gc.collect()
 
     def get_url_body(self, url):
         '''
@@ -83,7 +186,6 @@ class TaoBaoTianTianTeJia(object):
         tmp_headers = self.headers
         tmp_host = re.compile(r'https://(.*?)/.*').findall(url)[0]
         tmp_headers['Host'] = tmp_host
-        tmp_headers['cookie'] = 'UM_distinctid=16015e04f6d4ff-037c1f4e36bf3-17386d57-fa000-16015e04f6e555; hng=CN%7Czh-CN%7CCNY%7C156; thw=cn; ali_apache_id=11.228.45.44.1512376392548.274581.5; uc3=sg2=WqJ5CclAaAIRL%2BjSIx%2FSzyVuMbp8JSBthJSylPIhcsc%3D&nk2=rUtEoY7x%2Bk8Rxyx1ZtN%2FAg%3D%3D&id2=UUplY9Ft9xwldQ%3D%3D&vt3=F8dBzLQKaueubXgKyDU%3D&lg2=VFC%2FuZ9ayeYq2g%3D%3D; lgc=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; t=567b173f0709a9279b1255b8cb39b2fc; _cc_=VFC%2FuZ9ajQ%3D%3D; tg=0; miid=5767446262036433919; cna=ZyWpEl+kTywCAXHXsSxv8Ati; cookie2=15c1fda7973edcbe0105c74d28a4a51d; _tb_token_=8e33663a5306; v=0; mt=ci=-1_0; linezing_session=bJoeqtC38UdQyLARdXoeon1N_1514273311440Yq3z_1; _m_h5_tk=61ee4727021cbffa54957d35273006f5_1514276876357; _m_h5_tk_enc=c8213eca0b9d27725f3d105e9b7c27d6; l=AvT0JKUZDcPfSJZdxeTqrbhlRKlmzxnl; uc1=cookie14=UoTdf1MI%2FjVqdQ%3D%3D; isg=AtHRDIQhb6JI1oPWFHFLrKxu4NurlkTIWDcky7NiNxmhWvOs-I7KgKvwiBhH'
         try:
             response = requests.get(url, headers=tmp_headers, proxies=tmp_proxies, timeout=16)
             body = response.content.decode('utf-8')
@@ -101,6 +203,72 @@ class TaoBaoTianTianTeJia(object):
             body = '{}'
 
         return body
+
+    def get_tejia_begin_time_and_tejia_end_time(self, schedule):
+        '''
+        返回拼团开始和结束时间
+        :param miaosha_time:
+        :return: tuple  tejia_begin_time, tejia_end_time
+        '''
+        tejia_begin_time = schedule.get('begin_time')
+        tejia_end_time = schedule.get('end_time')
+        # 将字符串转换为datetime类型
+        tejia_begin_time = datetime.datetime.strptime(tejia_begin_time, '%Y-%m-%d %H:%M:%S')
+        tejia_end_time = datetime.datetime.strptime(tejia_end_time, '%Y-%m-%d %H:%M:%S')
+
+        return tejia_begin_time, tejia_end_time
+
+    def use_phantomjs_to_get_url_body(self, url):
+        '''
+        通过phantomjs来获取url的body
+        :return: data   str类型
+        '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        try:
+            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
+        except:
+            return {}
+
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+            main_body = self.driver.page_source
+            main_body = re.compile(r'\n').sub('', main_body)
+            main_body = re.compile(r'\t').sub('', main_body)
+            main_body = re.compile(r'  ').sub('', main_body)
+            # print(main_body)
+            data = re.compile(r'\((.*)\)').findall(main_body)[0]  # 贪婪匹配匹配所有
+            # print(data)
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 15 seconds when loading page')
+            print('报错如下: ', e)
+            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            print('data为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            data = ''
+
+        return data
+
+    def get_sort_data_list(self, body):
+        '''
+        获取到分类的list(对应name和extQuery的值的list)
+        :param body: 待转换的json
+        :return: sort_data  类型 list
+        '''
+        try:
+            sort_data = json.loads(body)
+        except Exception:
+            print('在获取分类信息的list时, json.loads转换出错, 此处跳过!')
+            sort_data = {}
+
+        try:
+            sort_data = sort_data.get('data', [])
+        except:
+            print('获取分类信息data中的key值data出错!')
+            sort_data = []
+
+        return sort_data
 
     def get_tiantiantejia_goods_list(self, body):
         '''
@@ -139,6 +307,50 @@ class TaoBaoTianTianTeJia(object):
         :return: str    规律的人眼可识别的时间 2609-03-15 14:03:20
         '''
         return tmp_time[0:4] + '-' + tmp_time[4:6] + '-' + tmp_time[6:8] + ' ' + tmp_time[8:10] + ':' + tmp_time[10:12] + ':' + tmp_time[12:14]
+
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        tmp_execute_path = EXECUTABLE_PATH
+
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
 
     def get_proxy_ip_from_ip_pool(self):
         '''
@@ -209,7 +421,8 @@ def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         taobao_tiantaintejia = TaoBaoTianTianTeJia()
-        taobao_tiantaintejia.get_goods_list_and_deal_with_data()
+        sort_data = taobao_tiantaintejia.get_all_goods_list()
+        taobao_tiantaintejia.deal_with_all_goods_id(sort_data=sort_data)
         # try:
         #     del taobao_tiantaintejia
         # except:

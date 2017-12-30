@@ -24,6 +24,8 @@ spike_file_name_list = [
 pintuan_file_name_list = [
     'zhe_800_pintuan',
     'zhe_800_pintuan_real-times_update',
+    'juanpi_pintuan',
+    'juanpi_pintuan_real-times_update',
 ]
 
 real_file_name_list = [

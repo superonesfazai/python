@@ -64,20 +64,19 @@ def run_forever():
                     pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                     # print(pintuan_end_time)
 
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                    juanpi_pintuan.get_goods_data(goods_id=item[0])
-                    data = juanpi_pintuan.deal_with_data()
+                    if item[2] == 1 or pintuan_end_time < int(time.time()):
+                        tmp_sql_server.delete_juanpi_pintuan_expired_goods_id(goods_id=item[0])
+                        print('该goods_id[{0}]已过期或者售完，删除成功!'.format(item[0]))
+                    else:
+                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                        juanpi_pintuan.get_goods_data(goods_id=item[0])
+                        data = juanpi_pintuan.deal_with_data()
 
-                    if data != {}:
-                        data['goods_id'] = item[0]
-
-                        if item[2] == 1 or pintuan_end_time < int(time.time()):
-                            tmp_sql_server.delete_juanpi_pintuan_expired_goods_id(goods_id=item[0])
-                            print('该goods_id[{0}]已过期或者售完，删除成功!'.format(item[0]))
-                        else:
+                        if data != {}:
+                            data['goods_id'] = item[0]
                             juanpi_pintuan.to_right_and_update_pintuan_data(data=data, pipeline=tmp_sql_server)
-                    else:  # 表示返回的data值为空值
-                            pass
+                        else:  # 表示返回的data值为空值
+                                pass
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
@@ -87,7 +86,7 @@ def run_forever():
                 # except:
                 #     pass
                 gc.collect()
-                sleep(.6)
+                sleep(1.2)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)

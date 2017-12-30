@@ -26,8 +26,16 @@ import re
 import gc
 import pytz
 
-from settings import HEADERS
+from settings import HEADERS, PHANTOMJS_DRIVER_PATH
+from selenium import webdriver
+import selenium.webdriver.support.ui as ui
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class Zhe800PintuanParse(object):
     def __init__(self):
@@ -42,6 +50,7 @@ class Zhe800PintuanParse(object):
             # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
         }
         self.result_data = {}
+        # self.init_phantomjs()
 
     def get_goods_data(self, goods_id):
         '''
@@ -56,32 +65,33 @@ class Zhe800PintuanParse(object):
             tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(goods_id)
             print('------>>>| 得到的商品手机版地址为: ', tmp_url)
 
-            # 设置代理ip
-            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-            tmp_proxies = {
-                'http': self.proxy,
-            }
-            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-            try:
-                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                body = response.content.decode('utf-8')
-                # print(body)
-
-                # 过滤
-                body = re.compile(r'\n').sub('', body)
-                body = re.compile(r'\t').sub('', body)
-                body = re.compile(r'  ').sub('', body)
-                # print(body)
-                data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)  # 贪婪匹配匹配所有
-                # print(data)
-            except Exception:
-                print('requests.get()请求超时....')
-                print('body中re匹配到的data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            '''
+            原先采用requests来模拟的，之前能用，但是数据多了请求多了sleep也不管用后面会获取不到信息
+            '''
+            body = self.get_url_body(tmp_url=tmp_url)
+            # print(body)
+            if body == '':
+                print('获取到的tmp_url的body为空值, 此处跳过!')
                 return {}
+            try:
+                data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)  # 贪婪匹配匹配所有
+            except:
+                data = []
+
+            '''
+            采用phantomjs
+            '''
+            # main_body = self.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.title')
+            # # print(main_body)
+            # if main_body == '':
+            #     print('获取到的main_body为空值, 此处跳过!')
+            #     return {}
+            #
+            # try:
+            #     data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(main_body)  # 贪婪匹配匹配所有
+            #     # print(data)
+            # except:
+            #     data = []
 
             if data != []:
                 data = data[0]
@@ -110,6 +120,8 @@ class Zhe800PintuanParse(object):
                 p_info_url = 'https://pina.m.zhe800.com/cns/products/get_product_properties_list.json?productId=' + str(goods_id)
                 p_info = self.get_p_info_list(p_info_url=p_info_url)
                 # pprint(p_info)
+                if p_info == []:
+                    return {}
 
                 '''
                 获取商品实时库存信息
@@ -439,11 +451,11 @@ class Zhe800PintuanParse(object):
 
         pipeline.update_zhe_800_pintuan_table(tmp)
 
-    def get_div_desc_body(self, div_desc_url):
+    def get_url_body(self, tmp_url):
         '''
-        得到div_desc的html页面
-        :param div_desc_url:
-        :return: str类型的data, 出错的情况下返回{}
+        获取到url的body
+        :param tmp_url: 待抓取的url
+        :return: body   类型 字符串
         '''
         # 设置代理ip
         self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
@@ -452,21 +464,89 @@ class Zhe800PintuanParse(object):
         tmp_proxies = {
             'http': self.proxy,
         }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
         try:
-            response = requests.get(div_desc_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            div_desc_body = response.content.decode('utf-8')
-            # print(div_desc_body)
+            # allow_redirects = False   表示禁止跳转
+            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            body = response.content.decode('utf-8')
+            # print(body)
 
             # 过滤
-            div_desc_body = re.compile(r'\n').sub('', div_desc_body)
-            div_desc_body = re.compile(r'\t').sub('', div_desc_body)
-            div_desc_body = re.compile(r'  ').sub('', div_desc_body)
-            # print(div_desc_body)
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+            # print(body)
         except Exception:
             print('requests.get()请求超时....')
-            print('div_desc_body中re匹配到的data为空!')
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            body = ''
+
+        return body
+
+    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
+        '''
+        通过phantomjs来获取url的body
+        :param url: 待获取的url
+        :return: 字符串类型
+        '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        try:
+            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
+        except:
+            return ''
+
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+            if css_selector != '':
+                locator = (By.CSS_SELECTOR, css_selector)
+                try:
+                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                except Exception as e:
+                    print('遇到错误: ', e)
+                    return ''
+                else:
+                    print('div.d-content已经加载完毕')
+            main_body = self.driver.page_source
+            main_body = re.compile(r'\n').sub('', main_body)
+            main_body = re.compile(r'  ').sub('', main_body)
+            main_body = re.compile(r'\t').sub('', main_body)
+            # print(main_body)
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 15 seconds when loading page')
+            print('报错如下: ', e)
+            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            print('main_body为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            main_body = ''
+
+        return main_body
+
+    def get_div_desc_body(self, div_desc_url):
+        '''
+        得到div_desc的html页面
+        :param div_desc_url:
+        :return: str类型的data, 出错的情况下返回{}
+        '''
+        # 使用requests
+        div_desc_body = self.get_url_body(tmp_url=div_desc_url)
+        if div_desc_body == '':
             div_desc_body = '{}'
+
+        # 使用phantomjs
+        # div_desc_body = self.use_phantomjs_to_get_url_body(url=div_desc_url, css_selector='')
+        # # print(div_desc_body)
+        # if div_desc_body == '':
+        #     div_desc_body = '{}'
+        # else:
+        #     try:
+        #         div_desc_body = re.compile(r'<body><pre .*?>(.*)</pre></body>').findall(div_desc_body)[0]
+        #         div_desc_body = re.compile(r'&gt;').sub('>', div_desc_body)
+        #         div_desc_body = re.compile(r'&lt;').sub('<', div_desc_body)
+        #     except:
+        #         div_desc_body = '{}'
 
         try:
             div_desc_data = json.loads(div_desc_body)
@@ -492,27 +572,10 @@ class Zhe800PintuanParse(object):
         :param p_info_url:
         :return: 返回一个list
         '''
-        # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        try:
-            response = requests.get(p_info_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            p_info_body = response.content.decode('utf-8')
-            # print(p_info_body)
-
-            # 过滤
-            p_info_body = re.compile(r'\n').sub('', p_info_body)
-            p_info_body = re.compile(r'\t').sub('', p_info_body)
-            p_info_body = re.compile(r'  ').sub('', p_info_body)
-            # print(p_info_body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('P_info_body中re匹配到的data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+        # 使用requests
+        p_info_body = self.get_url_body(tmp_url=p_info_url)
+        if p_info_body == '':
+            print('获取到的p_info_body为空值, 此处跳过!')
             p_info_body = '{}'
 
         try:
@@ -538,27 +601,9 @@ class Zhe800PintuanParse(object):
         :param stock_info_url:
         :return: 返回dict类型
         '''
-        # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        try:
-            response = requests.get(stock_info_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            stock_info_body = response.content.decode('utf-8')
-            # print(stock_info_body)
-
-            # 过滤
-            stock_info_body = re.compile(r'\n').sub('', stock_info_body)
-            stock_info_body = re.compile(r'\t').sub('', stock_info_body)
-            stock_info_body = re.compile(r'  ').sub('', stock_info_body)
-            # print(stock_info_body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('stock_info_body中re匹配到的data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+        stock_info_body = self.get_url_body(tmp_url=stock_info_url)
+        if stock_info_body == '':
+            print('获取到的stock_info_body为空值!')
             stock_info_body = '{}'
 
         try:
@@ -569,6 +614,50 @@ class Zhe800PintuanParse(object):
             tmp_stock_info = {}
 
         return tmp_stock_info
+
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        '''
+        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
+        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
+        '''
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        tmp_execute_path = EXECUTABLE_PATH
+
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+        except Exception:
+            print('动态切换ip失败')
+            pass
 
     def timestamp_to_regulartime(self, timestamp):
         '''
@@ -618,16 +707,20 @@ class Zhe800PintuanParse(object):
                     goods_id = tmp_zhe_800_pintuan_url
                 else:  # 只是为了在pycharm里面测试，可以不加
                     zhe_800_pintuan_url = re.compile(r';').sub('', tmp_zhe_800_pintuan_url)
-                    goods_id = re.compile(r'https://pina.m.zhe800.com/detail/detail.html\?.*?zid=ze(\d+).*?').findall(zhe_800_pintuan_url)[0]
+                    goods_id = 'ze' + re.compile(r'https://pina.m.zhe800.com/detail/detail.html\?.*?zid=ze(\d+).*?').findall(zhe_800_pintuan_url)[0]
                 print('------>>>| 得到的折800拼团商品id为:', goods_id)
                 return goods_id
             else:
                 pass
         else:
-            print('折800拼团商品url错误, 非正规的url, 请参照格式(https://pina.m.zhe800.com/detail/detail.htm)开头的...')
+            print('折800拼团商品url错误, 非正规的url, 请参照格式(https://pina.m.zhe800.com/detail/detail.html)开头的...')
             return ''
 
     def __del__(self):
+        # try:
+        #     self.driver.quit()
+        # except:
+        #     pass
         gc.collect()
 
 if __name__ == '__main__':

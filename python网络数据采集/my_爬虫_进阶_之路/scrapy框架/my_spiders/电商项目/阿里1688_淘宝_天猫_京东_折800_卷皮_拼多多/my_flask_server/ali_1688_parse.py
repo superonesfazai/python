@@ -344,6 +344,7 @@ class ALi1688LoginAndParse(object):
                 'is_delete': is_delete,                     # 判断是否下架
             }
             # pprint(result)
+            # print(result)
             # print('------>>>| 爬到goods_id(%s)对应的数据: |', result)
             # print()
 

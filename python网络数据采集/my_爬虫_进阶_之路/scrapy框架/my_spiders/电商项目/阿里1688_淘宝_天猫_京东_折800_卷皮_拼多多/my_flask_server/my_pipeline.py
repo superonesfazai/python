@@ -1426,6 +1426,9 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return None
 
+    def select_taobao_tiantian_tejia_all_goods_id(self):
+        pass
+
     def select_tmall_all_goods_id_url(self):
         try:
             cs = self.conn.cursor()

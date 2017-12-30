@@ -96,7 +96,7 @@ class Zhe800Pintuan(object):
 
                         # print(goods_data)
                         zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                    sleep(1.5)
+                    sleep(1.2)
                     gc.collect()
 
         else:

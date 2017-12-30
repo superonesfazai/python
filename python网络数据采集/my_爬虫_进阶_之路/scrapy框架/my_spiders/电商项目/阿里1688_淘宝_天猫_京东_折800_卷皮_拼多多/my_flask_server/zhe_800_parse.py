@@ -522,7 +522,7 @@ class Zhe800Parse(object):
                 'schedule': schedule,                       # 商品开卖时间和结束开卖时间
                 'is_delete': is_delete                      # 用于判断商品是否已经下架
             }
-            # pprint(result)
+            pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
