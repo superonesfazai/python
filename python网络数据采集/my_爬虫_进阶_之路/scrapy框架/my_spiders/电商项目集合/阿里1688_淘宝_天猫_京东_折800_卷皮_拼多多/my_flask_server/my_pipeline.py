@@ -440,6 +440,59 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
 
+    def insert_into_taobao_tiantiantejia_table(self, item):
+        try:
+            cs = self.conn.cursor()
+
+            params = [
+                item['goods_id'],
+                item['goods_url'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],  # 存入到DetailInfo
+                item['month_sell_count'],
+                dumps(item['schedule'], ensure_ascii=False),
+                item['tejia_begin_time'],
+                item['tejia_end_time'],
+                item['block_id'],
+                item['tag_id'],
+                item['father_sort'],
+                item['child_sort'],
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute(
+                'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
+                    'utf-8'),
+                tuple(params))  # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
+
     def update_taobao_table(self, item):
         try:
             cs = self.conn.cursor()
@@ -1427,7 +1480,49 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return None
 
     def select_taobao_tiantian_tejia_all_goods_id(self):
-        pass
+        cs = self.conn.cursor()
+        result = []
+        try:
+            cs.execute('set lock_timeout 15000;')     # 设置客户端执行超时等待为6秒
+            cs.execute('select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19')
+            # self.conn.commit()
+
+            print('111')
+            index = 1
+
+            for row in cs:      # 这样处理能避免时间延迟的错而退出
+                print(index)
+                # print(list(row))
+                result.append(list(row))
+                index += 1
+            # result = cs.fetchall()
+            # print(result)
+            # cs.close()
+            # return result
+
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            # return None
+            return result
+
+    def delete_taobao_tiantiantejia_expired_goods_id(self, goods_id):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('delete from dbo.taobao_tiantiantejia where goods_id=%s', tuple([goods_id]))
+            self.conn.commit()
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 删除对应goods_id记录时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
 
     def select_tmall_all_goods_id_url(self):
         try:
@@ -1812,6 +1907,56 @@ class SqlPools(object):
         finally:
             self.conn.close()
 
+    def insert_into_taobao_tiantiantejia_table(self, item):
+        self.engine.begin()
+        self.conn = self.engine.connect()
+        try:
+            params = [
+                item['goods_id'],
+                item['goods_url'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],  # 存入到DetailInfo
+                item['month_sell_count'],
+                dumps(item['schedule'], ensure_ascii=False),
+                item['tejia_begin_time'],
+                item['tejia_end_time'],
+                item['block_id'],
+                item['tag_id'],
+                item['father_sort'],
+                item['child_sort'],
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            self.conn.execute('insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
+            # self.conn.commit()
+            print('-' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            pass
+        finally:
+            try:
+                self.conn.close()
+            except Exception:
+                pass
+
     def select_taobao_all_goods_id(self):
         self.engine.begin()
         self.conn = self.engine.connect()
@@ -1824,6 +1969,24 @@ class SqlPools(object):
         except Exception as e:
             print('--------------------| 筛选level时报错：', e)
             self.conn.close()
+            return None
+
+    def select_taobao_tiantian_tejia_all_goods_id(self):
+        self.engine.begin()
+        self.conn = self.engine.connect()
+        try:
+            result = list(self.conn.execute('select goods_id, is_delete, schedule, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'))
+            # self.conn.commit()
+
+            # print(result)
+            self.conn.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                self.conn.close()
+            except Exception:
+                pass
             return None
 
 class OtherDb(object):

@@ -27,7 +27,7 @@ import gc
 
 from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH, IS_BACKGROUND_RUNNING
-from ..my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from selenium.webdriver.common.by import By
@@ -104,7 +104,6 @@ class TaoBaoTianTianTeJia(object):
 
         return sort_data
 
-
     def deal_with_all_goods_id(self, sort_data):
         '''
         获取每个详细分类的商品信息
@@ -112,9 +111,12 @@ class TaoBaoTianTianTeJia(object):
         :return: None
         '''
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        # my_pipeline = SqlPools()
+        index = 1
         if my_pipeline.is_connect_success:
+            # 普通sql_server连接(超过3000无返回结果集)
             db_goods_id_list = [item[0] for item in list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())]
-            # print(db_goods_id_list)
+            print(db_goods_id_list)
 
             for item in sort_data:
                 for key in item.keys():
@@ -136,29 +138,46 @@ class TaoBaoTianTianTeJia(object):
                                     pass
 
                                 else:
-                                    tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
-                                    taobao = TaoBaoLoginAndParse()
-                                    goods_id = taobao.get_goods_id_from_url(tmp_url)
-                                    taobao.get_goods_data(goods_id=goods_id)
-                                    goods_data = taobao.deal_with_data(goods_id=goods_id)
+                                    if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                                        print('正在重置，并与数据库建立新连接中...')
+                                        # try:
+                                        #     del my_pipeline
+                                        # except:
+                                        #     pass
+                                        # gc.collect()
+                                        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                                        # my_pipeline = SqlPools()
+                                        print('与数据库的新连接成功建立...')
 
-                                    if goods_data != {}:
-                                        goods_data['goods_id'] = tmp_item.get('goods_id', '')
-                                        goods_data['schedule'] = [{
-                                            'begin_time': tmp_item.get('start_time', ''),
-                                            'end_time': tmp_item.get('end_time', ''),
-                                        }]
-                                        goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = self.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
-                                        goods_data['block_id'] = str(key)
-                                        goods_data['tag_id'] = item_2.get('extQuery', '')[6:]
-                                        goods_data['father_sort'] = self.main_sort[str(key)]
-                                        goods_data['child_sort'] = item_2.get('name', '')
+                                    if my_pipeline.is_connect_success:
+                                        tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
+                                        taobao = TaoBaoLoginAndParse()
+                                        goods_id = taobao.get_goods_id_from_url(tmp_url)
+                                        taobao.get_goods_data(goods_id=goods_id)
+                                        goods_data = taobao.deal_with_data(goods_id=goods_id)
 
-                                        print(goods_data)
+                                        if goods_data != {}:
+                                            goods_data['goods_id'] = tmp_item.get('goods_id', '')
+                                            goods_data['goods_url'] = tmp_url
+                                            goods_data['schedule'] = [{
+                                                'begin_time': tmp_item.get('start_time', ''),
+                                                'end_time': tmp_item.get('end_time', ''),
+                                            }]
+                                            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = self.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+                                            goods_data['block_id'] = str(key)
+                                            goods_data['tag_id'] = item_2.get('extQuery', '')[6:]
+                                            goods_data['father_sort'] = self.main_sort[str(key)]
+                                            goods_data['child_sort'] = item_2.get('name', '')
+                                            # print(goods_data)
+
+                                            taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
+                                        else:
+                                            pass
+                                        sleep(1.6)
+                                        index += 1
                                     else:
+                                        print('数据库连接失败!')
                                         pass
-                                    sleep(1.5)
-
                     else:
                         pass
 
