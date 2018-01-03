@@ -173,7 +173,7 @@ class TaoBaoTianTianTeJia(object):
                                             taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
                                         else:
                                             pass
-                                        sleep(1.6)
+                                        sleep(2)
                                         index += 1
                                     else:
                                         print('数据库连接失败!')

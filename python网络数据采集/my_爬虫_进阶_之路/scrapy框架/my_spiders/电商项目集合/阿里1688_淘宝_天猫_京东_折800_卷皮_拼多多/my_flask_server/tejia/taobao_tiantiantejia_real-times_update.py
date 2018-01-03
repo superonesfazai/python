@@ -11,8 +11,9 @@
 import sys
 sys.path.append('..')
 
-from ..taobao_parse import TaoBaoLoginAndParse
-from ..my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from taobao_parse import TaoBaoLoginAndParse
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from taobao_tiantiantejia import TaoBaoTianTianTeJia
 import gc
 from time import sleep
 import os, re, pytz, datetime
@@ -39,9 +40,9 @@ def run_forever():
 
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
+            tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia()
             for item in result:  # 实时更新数据
                 data = {}
-                taobao = TaoBaoLoginAndParse()
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     # try:
@@ -56,16 +57,85 @@ def run_forever():
                     tejia_end_time = item[2]
                     # print(tejia_end_time)
 
-                    if item[1] == 1 or tejia_end_time < datetime.datetime.now():
+                    if item[1] == 1:
                         tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
-                        print('该goods_id[{0}]已过期或者售完，删除成功!'.format(item[0]))
-                    else:
+                        print('该商品goods_id[{0}]已售完, 删除成功!'.format(item[0]))
+
+                    elif tejia_end_time < datetime.datetime.now():
+                        '''
+                        过期的不删除, 降为更新为常规爆款促销商品
+                        '''
+                        # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
+                        # print('该商品goods_id({0})已过期, 天天特价结束时间为 [{1}], 删除成功!'.format(item[0], item[2].strftime('%Y-%m-%d %H:%M:%S')))
+                        print('++++++>>>| 此为过期商品, 正在更新! |<<<++++++')
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                        taobao = TaoBaoLoginAndParse()
                         taobao.get_goods_data(item[0])
                         goods_data = taobao.deal_with_data(goods_id=item[0])
                         if goods_data != {}:
                             goods_data['goods_id'] = item[0]
+                            taobao.update_expired_goods_id_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
+                        else:
+                            pass
+                        sleep(2)
+                        index += 1
+                        gc.collect()
 
+                    else:
+                        '''
+                        下面为天天特价商品信息更新
+                        '''
+                        '''
+                        先检查该商品在对应的子分类中是否已经被提前下架, 并获取到该商品的上下架时间
+                        '''
+                        # &extQuery=tagId%3A1010142     要post的数据, 此处直接用get模拟
+                        tmp_url = 'https://metrocity.taobao.com/json/fantomasItems.htm?appId=9&pageSize=1000&_input_charset=utf-8&blockId={0}&extQuery=tagId%3A{1}'.format(
+                            str(item[3]), item[4]
+                        )
+                        # print(tmp_url)
+
+                        if index % 6 == 0:
+                            tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia()
+
+                        tmp_body = tmp_taobao_tiantiantejia.get_url_body(url=tmp_url)
+                        tejia_goods_list = tmp_taobao_tiantiantejia.get_tiantiantejia_goods_list(body=tmp_body)
+                        # print(tejia_goods_list)
+                        sleep(.45)
+                        # print('111')
+
+                        '''
+                        研究发现已经上架的天天特价商品不会再被官方提前下架，所以此处什么都不做，跳过
+                        '''
+                        # if is_in_child_sort(tejia_goods_list, goods_id=item[0]) is False:     # 表示被官方提前下架
+                        #     # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
+                        #     # print('该商品goods_id[{0}]已被官方提前下架, 删除成功!'.format(item[0]))
+                        #     print('222')
+                        #     pass
+
+                        # else:       # 表示商品未被提前下架
+                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                        taobao = TaoBaoLoginAndParse()
+                        taobao.get_goods_data(item[0])
+                        goods_data = taobao.deal_with_data(goods_id=item[0])
+                        if goods_data != {}:
+                            tmp_time = get_this_goods_id_tejia_time(tejia_goods_list, goods_id=item[0])
+                            if tmp_time != []:
+                                begin_time, end_time = tmp_time
+
+                                goods_data['goods_id'] = item[0]
+                                goods_data['schedule'] = [{
+                                    'begin_time': begin_time,
+                                    'end_time': end_time,
+                                }]
+                                goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = tmp_taobao_tiantiantejia.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+                                taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
+                            else:
+                                pass
+                        else:
+                            pass
+                        sleep(1.5)
+                        index += 1
+                        gc.collect()
 
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
@@ -77,6 +147,33 @@ def run_forever():
         else:
             sleep(5)
         gc.collect()
+
+def is_in_child_sort(tejia_goods_list, goods_id):
+    '''
+    判断该商品在对应的子分类中是否已经被提前下架
+    :param tejia_goods_list: 子类的分类list  [{'goods_id': , 'start_time': , 'end_time': ,}, ...]
+    :param goods_id: 商品id
+    :return: True(未被提前下架) or False(被提前下架)
+    '''
+    tmp_list = [item.get('goods_id', '') for item in tejia_goods_list]
+    if tmp_list in tmp_list:
+        return True
+    else:
+        return False
+
+def get_this_goods_id_tejia_time(tejia_goods_list, goods_id):
+    '''
+    得到该goods_id的上下架时间
+    :param tejia_goods_list: 子类的分类list  [{'goods_id': , 'start_time': , 'end_time': ,}, ...]
+    :param goods_id: 商品id
+    :return: ['tejia_start_time', 'tejia_end_time'] or []
+    '''
+    for item in tejia_goods_list:
+        if goods_id == item.get('goods_id', ''):
+            return [item.get('start_time', ''), item.get('end_time', '')]
+        else:
+            pass
+    return []
 
 def get_shanghai_time():
     '''

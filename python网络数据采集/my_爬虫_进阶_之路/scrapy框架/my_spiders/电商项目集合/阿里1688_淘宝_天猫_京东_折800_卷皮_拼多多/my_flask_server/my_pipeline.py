@@ -494,9 +494,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def update_taobao_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['modfiy_time'],
                 item['shop_name'],
@@ -523,6 +522,89 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID=%s',
                        tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+
+    def update_taobao_tiantiantejia_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['month_sell_count'],
+                dumps(item['schedule'], ensure_ascii=False),
+                item['tejia_begin_time'],
+                item['tejia_end_time'],
+                item['is_delete'],
+
+                item['goods_id'],
+            ]
+            # print(item['month_sell_count'])
+
+            cs.execute(
+                'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, schedule=%s, tejia_begin_time=%s, tejia_end_time=%s, is_delete=%s where goods_id=%s',
+                tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+
+    def update_expired_goods_id_taobao_tiantiantejia_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['month_sell_count'],
+                item['is_delete'],
+
+                item['goods_id'],
+            ]
+            # print(item['month_sell_count'])
+
+            cs.execute(
+                'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s',
+                tuple(params))
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1483,22 +1565,22 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         cs = self.conn.cursor()
         result = []
         try:
-            cs.execute('set lock_timeout 15000;')     # 设置客户端执行超时等待为6秒
+            cs.execute('set lock_timeout 10000;')     # 设置客户端执行超时等待为10秒
             cs.execute('select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19')
             # self.conn.commit()
 
-            print('111')
-            index = 1
+            # print('111')
+            # index = 1
+            # for row in cs:      # 这样处理能避免时间延迟的错而退出
+            #     print(index)
+            #     # print(list(row))
+            #     result.append(list(row))
+            #     index += 1
 
-            for row in cs:      # 这样处理能避免时间延迟的错而退出
-                print(index)
-                # print(list(row))
-                result.append(list(row))
-                index += 1
-            # result = cs.fetchall()
+            result = cs.fetchall()
             # print(result)
-            # cs.close()
-            # return result
+            cs.close()
+            return result
 
         except Exception as e:
             print('--------------------| 筛选level时报错：', e)
@@ -1506,8 +1588,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 cs.close()
             except Exception:
                 pass
-            # return None
-            return result
+            return None
+            # return result
 
     def delete_taobao_tiantiantejia_expired_goods_id(self, goods_id):
         cs = self.conn.cursor()
