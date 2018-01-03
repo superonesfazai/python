@@ -172,6 +172,7 @@ class TaoBaoTianTianTeJia(object):
 
                                             taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
                                         else:
+                                            sleep(4)    # 否则休息4秒
                                             pass
                                         sleep(2)
                                         index += 1

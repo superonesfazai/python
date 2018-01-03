@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-
 import sys
 sys.path.append('..')
 
@@ -20,7 +19,6 @@ import os, re, pytz, datetime
 import json
 from settings import IS_BACKGROUND_RUNNING
 import datetime
-
 
 def run_forever():
     #### 实时更新数据
@@ -76,6 +74,7 @@ def run_forever():
                             goods_data['goods_id'] = item[0]
                             taobao.update_expired_goods_id_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
                         else:
+                            sleep(4)    # 否则休息4秒
                             pass
                         sleep(2)
                         index += 1
@@ -132,6 +131,7 @@ def run_forever():
                             else:
                                 pass
                         else:
+                            sleep(4)    # 否则休息4秒
                             pass
                         sleep(1.5)
                         index += 1
