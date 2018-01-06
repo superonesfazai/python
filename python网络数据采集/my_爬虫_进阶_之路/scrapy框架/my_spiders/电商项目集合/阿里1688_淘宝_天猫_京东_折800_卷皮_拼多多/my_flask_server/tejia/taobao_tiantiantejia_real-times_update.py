@@ -60,33 +60,12 @@ def run_forever():
                         print('该商品goods_id[{0}]已售完, 删除成功!'.format(item[0]))
 
                     elif tejia_end_time < datetime.datetime.now():
-                        '''
-                        过期的不删除, 降为更新为常规爆款促销商品
-                        '''
-                        # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
-                        # print('该商品goods_id({0})已过期, 天天特价结束时间为 [{1}], 删除成功!'.format(item[0], item[2].strftime('%Y-%m-%d %H:%M:%S')))
-                        print('++++++>>>| 此为过期商品, 正在更新! |<<<++++++')
-                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                        taobao = TaoBaoLoginAndParse()
-                        taobao.get_goods_data(item[0])
-                        goods_data = taobao.deal_with_data(goods_id=item[0])
-                        if goods_data != {}:
-                            goods_data['goods_id'] = item[0]
-                            taobao.update_expired_goods_id_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
-                        else:
-                            sleep(4)    # 否则休息4秒
-                            pass
-                        sleep(2)
-                        index += 1
-                        gc.collect()
+                        # 过期的不删除, 降为更新为常规爆款促销商品
+                        index = update_expired_goods_to_normal_goods(goods_id=item[0], index=index, tmp_sql_server=tmp_sql_server)
 
                     else:
-                        '''
-                        下面为天天特价商品信息更新
-                        '''
-                        '''
-                        先检查该商品在对应的子分类中是否已经被提前下架, 并获取到该商品的上下架时间
-                        '''
+                        # 下面为天天特价商品信息更新
+                        # 先检查该商品在对应的子分类中是否已经被提前下架, 并获取到该商品的上下架时间
                         # &extQuery=tagId%3A1010142     要post的数据, 此处直接用get模拟
                         tmp_url = 'https://metrocity.taobao.com/json/fantomasItems.htm?appId=9&pageSize=1000&_input_charset=utf-8&blockId={0}&extQuery=tagId%3A{1}'.format(
                             str(item[3]), item[4]
@@ -147,6 +126,33 @@ def run_forever():
         else:
             sleep(5)
         gc.collect()
+
+def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server):
+    '''
+    过期的不删除, 降为更新为常规爆款促销商品
+    :param goods_id:
+    :param index:
+    :param tmp_sql_server:
+    :return: index
+    '''
+    # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
+    # print('该商品goods_id({0})已过期, 天天特价结束时间为 [{1}], 删除成功!'.format(item[0], item[2].strftime('%Y-%m-%d %H:%M:%S')))
+    print('++++++>>>| 此为过期商品, 正在更新! |<<<++++++')
+    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
+    taobao = TaoBaoLoginAndParse()
+    taobao.get_goods_data(goods_id)
+    goods_data = taobao.deal_with_data(goods_id=goods_id)
+    if goods_data != {}:
+        goods_data['goods_id'] = goods_id
+        taobao.update_expired_goods_id_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
+    else:
+        sleep(4)  # 否则休息4秒
+        pass
+    sleep(2)
+    index += 1
+    gc.collect()
+
+    return index
 
 def is_in_child_sort(tejia_goods_list, goods_id):
     '''

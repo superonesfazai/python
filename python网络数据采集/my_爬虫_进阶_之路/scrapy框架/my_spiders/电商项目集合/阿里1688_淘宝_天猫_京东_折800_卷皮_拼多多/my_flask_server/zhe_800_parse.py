@@ -49,7 +49,7 @@ class Zhe800Parse(object):
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         else:
-            tmp_url = 'https://m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
+            tmp_url = 'https://th5.m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
             # print('------>>>| 得到的detail信息的地址为: ', tmp_url)
 
             # 设置代理ip
@@ -141,7 +141,7 @@ class Zhe800Parse(object):
 
                 # 得到并处理detail(即图文详情显示信息)
                 # http://m.zhe800.com/gateway/app/detail/graph?productId=
-                tmp_detail_url = 'https://m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
+                tmp_detail_url = 'https://th5.m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
                 try:
                     response = requests.get(tmp_detail_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                     detail_data = response.content.decode('utf-8')
@@ -217,7 +217,7 @@ class Zhe800Parse(object):
                             '''
                             处理有尺码的情况(将其加入到div_desc中)
                             '''
-                            tmp_size_url = 'https://m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
+                            tmp_size_url = 'https://th5.m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
                             try:
                                 response = requests.get(tmp_size_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                                 size_data = response.content.decode('utf-8')
@@ -279,7 +279,7 @@ class Zhe800Parse(object):
                     得到shop_name
                     '''
                     seller_id = data.get('/app/detail/product/base', {}).get('sellerId', 0)
-                    tmp_seller_id_url = 'https://m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
+                    tmp_seller_id_url = 'https://th5.m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
 
                     try:
                         response = requests.get(tmp_seller_id_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
@@ -311,7 +311,7 @@ class Zhe800Parse(object):
                     '''
                     得到秒杀开始时间和结束时间
                     '''
-                    schedule_and_stock_url = 'https://m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
+                    schedule_and_stock_url = 'https://th5.m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
                     try:
                         response = requests.get(schedule_and_stock_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                         schedule_and_stock_info = response.content.decode('utf-8')
@@ -446,6 +446,7 @@ class Zhe800Parse(object):
                             tmp = {
                                 'spec_value': tmp_spec_value_2,
                                 'detail_price': tmp_price_info_list[index].get('curPrice', ''),
+                                'normal_price': tmp_price_info_list[index].get('orgPrice', ''),
                                 'rest_number': count,
                                 'img_url': picture,
                             }
@@ -453,6 +454,7 @@ class Zhe800Parse(object):
                             tmp = {
                                 'spec_value': tmp_spec_value_2,
                                 'detail_price': tmp_price_info_list[index].get('orgPrice', ''),
+                                'normal_price': tmp_price_info_list[index].get('orgPrice', ''),
                                 'rest_number': count,
                                 'img_url': picture,
                             }
@@ -522,7 +524,7 @@ class Zhe800Parse(object):
                 'schedule': schedule,                       # 商品开卖时间和结束开卖时间
                 'is_delete': is_delete                      # 用于判断商品是否已经下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',

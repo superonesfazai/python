@@ -302,8 +302,10 @@ class JuanPiParse(object):
 
                     if item.get('cprice', '') != '':
                         tmp['detail_price'] = item.get('cprice')
+                        tmp['normal_price'] = item.get('price')
                     else:
                         tmp['detail_price'] = item.get('price')
+                        tmp['normal_price'] = item.get('price')
 
                     if item.get('stock') == '0':    # 跳过
                         rest_number = '0'

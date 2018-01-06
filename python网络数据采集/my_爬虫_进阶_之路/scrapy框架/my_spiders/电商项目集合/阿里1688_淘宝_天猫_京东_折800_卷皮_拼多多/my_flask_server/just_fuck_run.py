@@ -31,6 +31,7 @@ pintuan_file_name_list = [
 real_file_name_list = [
     'zhe_800_real-times_update',
     'juanpi_real-times_update',
+    'tmall_real-times_update',
 ]
 
 def auto_run(*params):
