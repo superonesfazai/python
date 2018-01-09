@@ -26,7 +26,7 @@ import datetime
 import gc
 
 from settings import HEADERS
-from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH, IS_BACKGROUND_RUNNING
+from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
@@ -174,7 +174,7 @@ class TaoBaoTianTianTeJia(object):
                                         else:
                                             sleep(4)    # 否则休息4秒
                                             pass
-                                        sleep(2)
+                                        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
                                         index += 1
                                     else:
                                         print('数据库连接失败!')

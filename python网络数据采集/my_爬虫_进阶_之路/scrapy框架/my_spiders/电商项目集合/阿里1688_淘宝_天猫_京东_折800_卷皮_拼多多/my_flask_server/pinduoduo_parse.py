@@ -64,35 +64,9 @@ class PinduoduoParse(object):
             print('------>>>| 得到的商品手机版地址为: ', tmp_url)
 
             '''
-            1.采用requests，由于经常返回错误的body(即requests.get返回的为错误值), So pass
+            1.采用requests，由于经常返回错误的body(即requests.get返回的为空的html), So pass
             '''
-            # # 设置代理ip
-            # self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            # self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-            #
-            # tmp_proxies = {
-            #     'http': self.proxy,
-            # }
-            # # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-            #
-            # try:
-            #     response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            #     body = response.content.decode('utf-8')
-            #     # print(body)
-            #
-            #     # 过滤
-            #     body = re.compile(r'\n').sub('', body)
-            #     body = re.compile(r'\t').sub('', body)
-            #     body = re.compile(r'  ').sub('', body)
-            #     # print(body)
-            #     data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
-            #     # print(data)
-            # except Exception:
-            #     print('requests.get()请求超时....')
-            #     print('body中re匹配到的data为空!')
-            #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            #     return {}
-
+            # body = self.get_url_body_by_requests(tmp_url=tmp_url)
 
             '''
             2.采用phantomjs来获取
@@ -457,13 +431,47 @@ class PinduoduoParse(object):
 
         pipeline.update_pinduoduo_xianshimiaosha_table(tmp)
 
+    def get_url_body_by_requests(self, tmp_url):
+        '''
+        返回给与url的body
+        :param tmp_url:
+        :return: str
+        '''
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        try:
+            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            body = response.content.decode('utf-8')
+            # print(body)
+
+            # 过滤
+            body = re.compile(r'\n').sub('', body)
+            body = re.compile(r'\t').sub('', body)
+            body = re.compile(r'  ').sub('', body)
+            # print(body)
+        except Exception:
+            print('requests.get()请求超时....')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            body = ''
+
+        return body
+
     def get_url_body(self, tmp_url):
         '''
         返回给与的url的body
         :param tmp_url:
         :return: str
         '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        tmp = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        if tmp == '':
+            return ''
         self.driver.set_page_load_timeout(10)  # 设置成10秒避免数据出错
 
         try:
@@ -477,7 +485,10 @@ class PinduoduoParse(object):
 
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
             print('-->>time out after 10 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            try:
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            except:
+                pass
             body = ''
 
         return body
@@ -523,6 +534,7 @@ class PinduoduoParse(object):
             self.driver.execute('executePhantomScript', tmp_js)
         except Exception:
             print('动态切换ip失败')
+            return ''
             pass
 
     def set_cookies_key_api_uid(self):

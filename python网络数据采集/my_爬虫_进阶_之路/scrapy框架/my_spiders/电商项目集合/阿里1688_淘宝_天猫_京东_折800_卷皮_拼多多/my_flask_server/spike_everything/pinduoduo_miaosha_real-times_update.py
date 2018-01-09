@@ -117,6 +117,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                                     goods_data = pinduoduo_miaosha.deal_with_data()
 
                                     if goods_data == {}:  # 返回的data为空则跳过
+                                        # sleep(3)
                                         pass
                                     else:  # 否则就解析并且插入
                                         goods_data['stock_info'] = item_1.get('stock_info')
@@ -138,7 +139,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
 
                                         # print(goods_data)
                                         pinduoduo_miaosha.to_update_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                    sleep(.4)
+                                    sleep(.7)
                                 else:
                                     pass
 

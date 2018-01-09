@@ -95,6 +95,7 @@ def run_forever():
                         # print('------>>>| 爬取到的数据为: ', data)
                         zhe_800.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
+                        sleep(2)
                         pass
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
@@ -105,7 +106,7 @@ def run_forever():
                 # except:
                 #     pass
                 gc.collect()
-                # sleep(1)
+                sleep(1)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)

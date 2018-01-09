@@ -84,6 +84,7 @@ class PinduoduoSpike(object):
                         # print(goods_data)
                         if goods_data == {}:  # 返回的data为空则跳过
                             print('得到的goods_data为空值，此处先跳过，下次遍历再进行处理')
+                            # sleep(3)
                             pass
 
                         else:  # 否则就解析并插入
@@ -103,7 +104,7 @@ class PinduoduoSpike(object):
                                 goods_data['is_delete'] = 1
 
                             pinduoduo.insert_into_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(.9)
+                        sleep(1)
                 else:
                     print('该goods_id为"None", 此处跳过')
                     pass

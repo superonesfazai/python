@@ -17,8 +17,8 @@ spike_file_name_list = [
     'zhe_800_miaosha_real-times_update',
     'juanpi_spike',
     'juanpi_miaosha_real-times_update',
-    'pinduoduo_spike',
-    'pinduoduo_miaosha_real-times_update',
+    # 'pinduoduo_spike',
+    # 'pinduoduo_miaosha_real-times_update',
 ]
 
 pintuan_file_name_list = [

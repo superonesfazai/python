@@ -17,7 +17,7 @@ import gc
 from time import sleep
 import os, re, pytz, datetime
 import json
-from settings import IS_BACKGROUND_RUNNING
+from settings import IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
 import datetime
 
 def run_forever():
@@ -112,7 +112,7 @@ def run_forever():
                         else:
                             sleep(4)    # 否则休息4秒
                             pass
-                        sleep(1.5)
+                        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
                         index += 1
                         gc.collect()
 
