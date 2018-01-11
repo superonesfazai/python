@@ -1,0 +1,46 @@
+[INFO  - 2018-01-11T04:06:50.810Z] GhostDriver - Main - running on port 50556
+[INFO  - 2018-01-11T04:06:51.182Z] Session [da016550-f684-11e7-8438-2fe9d8111bc5] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.186 Safari/535.1","webSecurityEnabled":true}
+[INFO  - 2018-01-11T04:06:51.182Z] Session [da016550-f684-11e7-8438-2fe9d8111bc5] - page.customHeaders:  - {}
+[INFO  - 2018-01-11T04:06:51.182Z] Session [da016550-f684-11e7-8438-2fe9d8111bc5] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.186 Safari/535.1"}
+[INFO  - 2018-01-11T04:06:51.182Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: da016550-f684-11e7-8438-2fe9d8111bc5
+[ERROR - 2018-01-11T04:06:51.576Z] RouterReqHand - _handle.error - {"name":"Missing Command Parameter","message":"{\"headers\":{\"Accept\":\"application/json\",\"Accept-Encoding\":\"identity\",\"Content-Length\":\"72\",\"Content-Type\":\"application/json;charset=UTF-8\",\"Host\":\"127.0.0.1:50556\",\"User-Agent\":\"Python http auth\",\"X-Lantern-Version\":\"4.4.1\"},\"httpVersion\":\"1.1\",\"method\":\"POST\",\"post\":\"{\\\"pageLoad\\\": 15000, \\\"sessionId\\\": \\\"da016550-f684-11e7-8438-2fe9d8111bc5\\\"}\",\"url\":\"/timeouts\",\"urlParsed\":{\"anchor\":\"\",\"query\":\"\",\"file\":\"timeouts\",\"directory\":\"/\",\"path\":\"/timeouts\",\"relative\":\"/timeouts\",\"port\":\"\",\"host\":\"\",\"password\":\"\",\"user\":\"\",\"userInfo\":\"\",\"authority\":\"\",\"protocol\":\"\",\"source\":\"/timeouts\",\"queryKey\":{},\"chunks\":[\"timeouts\"]},\"urlOriginal\":\"/session/da016550-f684-11e7-8438-2fe9d8111bc5/timeouts\"}","line":546,"sourceURL":"phantomjs://code/session_request_handler.js","stack":"_postTimeout@phantomjs://code/session_request_handler.js:546:73\n_handle@phantomjs://code/session_request_handler.js:148:25\n_reroute@phantomjs://code/request_handler.js:61:20\n_handle@phantomjs://code/router_request_handler.js:78:46"}
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-01-11T04:06:53.016Z] RouterReqHand - _handle.error - {"name":"Missing Command Parameter","message":"{\"headers\":{\"Accept\":\"application/json\",\"Accept-Encoding\":\"identity\",\"Content-Length\":\"72\",\"Content-Type\":\"application/json;charset=UTF-8\",\"Host\":\"127.0.0.1:50556\",\"User-Agent\":\"Python http auth\",\"X-Lantern-Version\":\"4.4.1\"},\"httpVersion\":\"1.1\",\"method\":\"POST\",\"post\":\"{\\\"pageLoad\\\": 15000, \\\"sessionId\\\": \\\"da016550-f684-11e7-8438-2fe9d8111bc5\\\"}\",\"url\":\"/timeouts\",\"urlParsed\":{\"anchor\":\"\",\"query\":\"\",\"file\":\"timeouts\",\"directory\":\"/\",\"path\":\"/timeouts\",\"relative\":\"/timeouts\",\"port\":\"\",\"host\":\"\",\"password\":\"\",\"user\":\"\",\"userInfo\":\"\",\"authority\":\"\",\"protocol\":\"\",\"source\":\"/timeouts\",\"queryKey\":{},\"chunks\":[\"timeouts\"]},\"urlOriginal\":\"/session/da016550-f684-11e7-8438-2fe9d8111bc5/timeouts\"}","line":546,"sourceURL":"phantomjs://code/session_request_handler.js","stack":"_postTimeout@phantomjs://code/session_request_handler.js:546:73\n_handle@phantomjs://code/session_request_handler.js:148:25\n_reroute@phantomjs://code/request_handler.js:61:20\n_handle@phantomjs://code/router_request_handler.js:78:46"}
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-01-11T04:06:53.036Z] Session [da016550-f684-11e7-8438-2fe9d8111bc5] - page.onError - msg: Error: ajax error 0
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-01-11T04:06:53.036Z] Session [da016550-f684-11e7-8438-2fe9d8111bc5] - page.onError - stack:
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  notifyError (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1067)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1043)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  notifyError (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1067)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1043)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  notifyError (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1067)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1043)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1091)
+  r (https://web.juanpi.com/static/js/bootstrap.057a7e50.js:1229)
+  openUrl (:0)
+  open (phantomjs://platform/webpage.js:281)
+  (anonymous function) (phantomjs://code/session_request_handler.js:495)
+  _execFuncAndWaitForLoadDecorator (phantomjs://code/session.js:212)
+  _postUrlCommand (phantomjs://code/session_request_handler.js:494)
+  _handle (phantomjs://code/session_request_handler.js:91)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error

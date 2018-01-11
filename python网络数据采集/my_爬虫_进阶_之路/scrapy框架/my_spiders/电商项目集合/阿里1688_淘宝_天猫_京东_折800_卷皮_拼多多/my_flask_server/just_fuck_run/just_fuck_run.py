@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import os
 from time import sleep
 import datetime
 import re
@@ -34,6 +33,10 @@ real_file_name_list = [
     'zhe_800_real-times_update',
     'juanpi_real-times_update',
     'tmall_real-times_update',
+]
+
+other_file_name_list = [
+    'sina_head_img_and_nick_name',
 ]
 
 def auto_run(*params):
@@ -64,6 +67,14 @@ def auto_run(*params):
         else:
             print(process_name + '脚本已存在!')
 
+    for item in other_file_name_list:
+        process_name = item + '.py'
+        if process_exit(process_name) == 0:
+            os.system('cd {0} && python3 {1}.py'.format(params[3], item))
+            sleep(2.5)
+        else:
+            print(process_name + '脚本已经存在!')
+
     print('脚本执行完毕'.center(60, '*'))
 
 def process_exit(process_name):
@@ -81,11 +92,12 @@ def main_2():
         spike_path = '~/myFiles/python/my_flask_server/spike_everything'
         pintuan_path = '~/myFiles/python/my_flask_server/pintuan_script'
         real_path = '~/myFiles/python/my_flask_server/real-times_update'
+        other_path = '~/myFiles/python/my_flask_server/other_scripts'
 
-        auto_run(spike_path, pintuan_path, real_path)
+        auto_run(spike_path, pintuan_path, real_path, other_path)
         print(' Money is on the way! '.center(100, '*'))
 
-        sleep(60*60)
+        sleep(60*30)
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''

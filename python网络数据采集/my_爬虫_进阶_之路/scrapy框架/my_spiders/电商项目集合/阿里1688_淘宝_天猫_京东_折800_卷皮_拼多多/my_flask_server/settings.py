@@ -34,7 +34,7 @@ JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING = False
 '''
 淘宝requests间接请求时间
 '''
-TAOBAO_SLEEP_TIME = 1.4     # 这个在服务器里面可以注释掉为.5s
+TAOBAO_SLEEP_TIME = 1.4     # 这个在服务器里面可以注释掉为.4s
 
 '''
 select.html的name
@@ -44,7 +44,7 @@ SELECT_HTML_NAME = 'select.html'
 '''
 淘宝实时更新的sleep_time
 '''
-TAOBAO_REAL_TIMES_SLEEP_TIME = 1.8      # 加拿大服务器可以设置为.5s
+TAOBAO_REAL_TIMES_SLEEP_TIME = 1.8      # 加拿大服务器可以设置为.4s
 
 '''
 折800 session_id相关
@@ -168,3 +168,8 @@ error_html_code(用于处理: 未登录时进行的非法操作)
 ERROR_HTML_CODE = '''
 <html><header></header><body>非法操作!请返回登录页面登录后继续相关操作<a href="/"></br></br>返回登录页面</a></body></html>
 '''
+
+'''
+cookies
+'''
+SINA_COOKIES = 'SINAGLOBAL=1779567549215.5193.1513216238889; wvr=6; UOR=www.vaikan.com,widget.weibo.com,www.google.co.jp; _s_tentry=www.google.co.jp; Apache=4738279521719.211.1515549022707; ULV=1515549022757:5:3:3:4738279521719.211.1515549022707:1515319000497; login_sid_t=f288415fad51131ab9cbf382927383aa; cross_origin_proto=SSL; SSOLoginState=1515549183; un=jc09893445wei@163.com; YF-Page-G0=9a31b867b34a0b4839fa27a4ab6ec79f; SCF=AgK0RDOKrRIOKXzub_Q00Rdmdq_Mtnap4wCdEu4VKbiF86sjGfb2vDbhvAu7aM6dw6XsqIY94IytR1Esq_RP3T0.; SUB=_2A253UrXeDeThGeBP7VYZ-CrLyjuIHXVUKaAWrDV8PUJbmtANLUXekW9NRVESwyYv8LUyqGK8lN5NtHRibjCQTn5L; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFnCUfIwQh3Usm8xNPAMySy5JpX5K-hUgL.FoqpSoBR1hBNeKM2dJLoIEQLxKML1K-L1h-LxK-LB.qLB-zLxKML1-zLB.eLxKqL1-eL1-ikSozReoqt; SUHB=0D-VQf05yCoxph; ALF=1547172007; wb_cusLike_6164884717=N'

@@ -116,7 +116,7 @@ class TaoBaoTianTianTeJia(object):
         if my_pipeline.is_connect_success:
             # 普通sql_server连接(超过3000无返回结果集)
             db_goods_id_list = [item[0] for item in list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())]
-            print(db_goods_id_list)
+            # print(db_goods_id_list)
 
             for item in sort_data:
                 for key in item.keys():

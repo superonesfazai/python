@@ -6,6 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 from MySQLdb import *
+from pymssql import *
 
 class SinaWeiboProjectPipeline(object):
     def process_item(self, item, spider):

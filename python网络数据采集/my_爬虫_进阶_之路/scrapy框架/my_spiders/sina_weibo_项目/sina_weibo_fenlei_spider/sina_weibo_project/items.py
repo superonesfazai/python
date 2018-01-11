@@ -17,3 +17,5 @@ class BoZhuUserItem(scrapy.Item):
     sina_type = scrapy.Field()
     nick_name_url = scrapy.Field()
 
+
+

@@ -1931,6 +1931,34 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return None
 
+    def insert_into_sina_weibo_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['nick_name'],
+                item['sina_type'],
+                item['head_img_url'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('set lock_timeout 1500;')     # 设置客户端执行超时等待为1.5秒
+            cs.execute('insert into dbo.sina_weibo(nick_name, sina_type, head_img_url) values(%s, %s, %s)'.encode('utf-8'),
+                       tuple(params))   # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 4 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            # print('-' * 4 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            # print('-------------------------| 错误如下: ', e)
+            # print('---->>| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
+
     def __del__(self):
         try:
             self.conn.close()
@@ -2129,4 +2157,3 @@ class OtherDb(object):
             except Exception:
                 pass
             return None
-
