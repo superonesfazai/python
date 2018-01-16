@@ -84,7 +84,6 @@ def filter_tags(html_str):
     s = replace_char_entity(s)  # 实体替换
     return s
 
-
 def read_file(file_path):
     """
     一次读取全文件

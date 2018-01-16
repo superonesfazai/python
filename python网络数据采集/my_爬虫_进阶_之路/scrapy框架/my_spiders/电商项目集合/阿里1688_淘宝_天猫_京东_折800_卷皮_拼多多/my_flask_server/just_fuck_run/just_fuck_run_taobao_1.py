@@ -47,11 +47,10 @@ def process_exit(process_name):
 def main_2():
     while True:
         tejia_path = '~/myFiles/python/my_flask_server/tejia'
-
         auto_run(tejia_path)
         print(' Money is on the way! '.center(100, '*'))
 
-        sleep(60*30)
+        sleep(2)
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''

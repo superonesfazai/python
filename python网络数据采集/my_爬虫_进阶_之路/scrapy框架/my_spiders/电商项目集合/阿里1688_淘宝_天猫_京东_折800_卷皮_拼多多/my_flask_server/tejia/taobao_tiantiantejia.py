@@ -115,7 +115,7 @@ class TaoBaoTianTianTeJia(object):
         index = 1
         if my_pipeline.is_connect_success:
             # 普通sql_server连接(超过3000无返回结果集)
-            db_goods_id_list = [item[0] for item in list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())]
+            db_goods_id_list = [[item[0], item[2]] for item in list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())]
             # print(db_goods_id_list)
 
             for item in sort_data:
@@ -133,49 +133,53 @@ class TaoBaoTianTianTeJia(object):
                             print(tejia_goods_list)
 
                             for tmp_item in tejia_goods_list:
-                                if tmp_item.get('goods_id', '') in db_goods_id_list:
+                                if tmp_item.get('goods_id', '') in [i[0] for i in db_goods_id_list]:    # 处理如果该goods_id已经存在于数据库中的情况
+                                    try:
+                                        tmp_end_time = [i[1] for i in db_goods_id_list if tmp_item.get('goods_id', '')==i[0]][0]
+                                        # print(tmp_end_time)
+                                    except:
+                                        tmp_end_time = ''
+
+                                    if tmp_end_time != '' and tmp_end_time < datetime.datetime.now():
+                                        '''
+                                        * 处理由常规商品又转换为天天特价商品 *
+                                        '''
+                                        print('*****该商品由常规商品又转换为天天特价商品!*****')
+                                        # 先删除，再重新插入
+                                        my_pipeline.delete_taobao_tiantiantejia_expired_goods_id(goods_id=tmp_item.get('goods_id', ''))
+
+                                        index = self.insert_into_table(
+                                            tmp_item=tmp_item,
+                                            key=key,
+                                            item_2=item_2,
+                                            my_pipeline=my_pipeline,
+                                            index=index,
+                                        )
+                                        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+
+                                    else:
+                                        pass
+
                                     print('该goods_id已经存在于数据库中, 此处跳过')
                                     pass
 
                                 else:
                                     if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                                         print('正在重置，并与数据库建立新连接中...')
-                                        # try:
-                                        #     del my_pipeline
-                                        # except:
-                                        #     pass
-                                        # gc.collect()
                                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                                         # my_pipeline = SqlPools()
                                         print('与数据库的新连接成功建立...')
 
                                     if my_pipeline.is_connect_success:
-                                        tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
-                                        taobao = TaoBaoLoginAndParse()
-                                        goods_id = taobao.get_goods_id_from_url(tmp_url)
-                                        taobao.get_goods_data(goods_id=goods_id)
-                                        goods_data = taobao.deal_with_data(goods_id=goods_id)
-
-                                        if goods_data != {}:
-                                            goods_data['goods_id'] = tmp_item.get('goods_id', '')
-                                            goods_data['goods_url'] = tmp_url
-                                            goods_data['schedule'] = [{
-                                                'begin_time': tmp_item.get('start_time', ''),
-                                                'end_time': tmp_item.get('end_time', ''),
-                                            }]
-                                            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = self.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
-                                            goods_data['block_id'] = str(key)
-                                            goods_data['tag_id'] = item_2.get('extQuery', '')[6:]
-                                            goods_data['father_sort'] = self.main_sort[str(key)]
-                                            goods_data['child_sort'] = item_2.get('name', '')
-                                            # print(goods_data)
-
-                                            taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
-                                        else:
-                                            sleep(4)    # 否则休息4秒
-                                            pass
+                                        index = self.insert_into_table(
+                                            tmp_item=tmp_item,
+                                            key=key,
+                                            item_2=item_2,
+                                            my_pipeline=my_pipeline,
+                                            index=index,
+                                        )
                                         sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
-                                        index += 1
+
                                     else:
                                         print('数据库连接失败!')
                                         pass
@@ -186,6 +190,45 @@ class TaoBaoTianTianTeJia(object):
             print('数据库连接失败!')
             pass
         gc.collect()
+
+    def insert_into_table(self, tmp_item, key, item_2, my_pipeline, index):
+        '''
+        执行插入到淘宝天天特价的操作
+        :param tmp_item:
+        :param key:
+        :param item_2:
+        :param my_pipeline:
+        :param index:
+        :return: index 加1
+        '''
+        tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
+        taobao = TaoBaoLoginAndParse()
+        goods_id = taobao.get_goods_id_from_url(tmp_url)
+        taobao.get_goods_data(goods_id=goods_id)
+        goods_data = taobao.deal_with_data(goods_id=goods_id)
+
+        if goods_data != {}:
+            goods_data['goods_id'] = tmp_item.get('goods_id', '')
+            goods_data['goods_url'] = tmp_url
+            goods_data['schedule'] = [{
+                'begin_time': tmp_item.get('start_time', ''),
+                'end_time': tmp_item.get('end_time', ''),
+            }]
+            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = self.get_tejia_begin_time_and_tejia_end_time(
+                schedule=goods_data.get('schedule', [])[0])
+            goods_data['block_id'] = str(key)
+            goods_data['tag_id'] = item_2.get('extQuery', '')[6:]
+            goods_data['father_sort'] = self.main_sort[str(key)]
+            goods_data['child_sort'] = item_2.get('name', '')
+            # print(goods_data)
+
+            taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
+        else:
+            sleep(4)  # 否则休息4秒
+            pass
+        index += 1
+
+        return index
 
     def get_url_body(self, url):
         '''
@@ -396,6 +439,16 @@ class TaoBaoTianTianTeJia(object):
         # self.driver.quit()
         gc.collect()
 
+def just_fuck_run():
+    while True:
+        print('一次大抓取即将开始'.center(30, '-'))
+        taobao_tiantaintejia = TaoBaoTianTianTeJia()
+        sort_data = taobao_tiantaintejia.get_all_goods_list()
+        taobao_tiantaintejia.deal_with_all_goods_id(sort_data=sort_data)
+        gc.collect()
+        print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        sleep(60*5)
+
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''
     杀掉父进程，独立子进程
@@ -437,20 +490,6 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
     sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
-def just_fuck_run():
-    while True:
-        print('一次大抓取即将开始'.center(30, '-'))
-        taobao_tiantaintejia = TaoBaoTianTianTeJia()
-        sort_data = taobao_tiantaintejia.get_all_goods_list()
-        taobao_tiantaintejia.deal_with_all_goods_id(sort_data=sort_data)
-        # try:
-        #     del taobao_tiantaintejia
-        # except:
-        #     pass
-        gc.collect()
-        print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60*5)
-
 def main():
     '''
     这里的思想是将其转换为孤儿进程，然后在后台运行
@@ -461,7 +500,6 @@ def main():
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
-
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:

@@ -805,7 +805,7 @@ class JuanPiParse(object):
                 tmp_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(juanpi_url)[0]
                 if tmp_juanpi_url != '':
                     goods_id = tmp_juanpi_url
-                else:   # 只是为了在pycharm运行时不调到chrome，其实else完全可以不要的
+                else:   # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
                     juanpi_url = re.compile(r';').sub('', juanpi_url)
                     goods_id = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(juanpi_url)[0]
                 print('------>>>| 得到的卷皮商品的地址为:', goods_id)
