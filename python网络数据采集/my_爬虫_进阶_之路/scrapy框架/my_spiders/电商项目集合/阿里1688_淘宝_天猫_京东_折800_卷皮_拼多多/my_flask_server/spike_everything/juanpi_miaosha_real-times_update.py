@@ -216,7 +216,8 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         time_2 = int(time.time())  # 当前的时间戳
 
         diff_time = time_1 - time_2
-        if diff_time < -172800:     # 48个小时, 只需要跟新过去48小时和对与当前时间的未来14小时的商品信息(20点到第二天10点时间间隔为14小时)
+        if diff_time < -259200:     # (为了后台能同步下架)所以设置为 72个小时, 只需要更新过去48小时和对与当前时间的未来2小时的商品信息
+        # if diff_time < -172800:     # (原先的时间)48个小时, 只需要跟新过去48小时和对与当前时间的未来14小时的商品信息(20点到第二天10点时间间隔为14小时)
             return 0    # 已过期恢复原价的
         elif diff_time > -172800 and diff_time < 50400:
             return 1    # 表示是昨天跟今天的也就是待更新的

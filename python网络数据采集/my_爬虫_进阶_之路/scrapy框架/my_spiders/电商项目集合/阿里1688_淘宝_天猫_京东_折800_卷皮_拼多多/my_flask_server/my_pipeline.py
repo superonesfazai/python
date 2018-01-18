@@ -38,9 +38,8 @@ class UserItemPipeline(object):
             self.is_connect_success = False
 
     def insert_into_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = item
 
             # print(params)
@@ -58,8 +57,8 @@ class UserItemPipeline(object):
             pass
 
     def select_all_info(self):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
             cs.execute('select * from dbo.ali_spider_employee_table')
             result = list(cs.fetchall())
             self.conn.commit()
@@ -77,8 +76,8 @@ class UserItemPipeline(object):
             return []
 
     def find_user_by_username(self, username):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
             cs.execute('select * from dbo.ali_spider_employee_table where username=%s', tuple([username,]))
             result = list(cs.fetchone())
             self.conn.commit()
@@ -96,8 +95,8 @@ class UserItemPipeline(object):
             return []
 
     def find_user_by_real_name(self, name):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
             cs.execute('select * from dbo.ali_spider_employee_table where realnane=%s', tuple([name,]))
             result = list(cs.fetchall())
             self.conn.commit()
@@ -115,8 +114,8 @@ class UserItemPipeline(object):
             return []
 
     def init_user_passwd(self, username):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
             cs.execute('update dbo.ali_spider_employee_table set passwd=%s where username=%s', tuple([INIT_PASSWD, username]))
 
             cs.close()
@@ -127,9 +126,8 @@ class UserItemPipeline(object):
             return False
 
     def delete_users(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             for i in item:
                 cs.execute('delete from dbo.ali_spider_employee_table where username=%s', tuple([i]))
 
@@ -310,9 +308,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             self.is_connect_success = False
 
     def insert_into_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['goods_id'],
                 item['spider_url'],
@@ -441,9 +438,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def insert_into_taobao_tiantiantejia_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['goods_id'],
                 item['goods_url'],
@@ -890,9 +886,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             pass
 
     def insert_into_zhe_800_xianshimiaosha_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['goods_id'],
                 item['spider_url'],
@@ -1482,9 +1477,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def update_pinduoduo_xianshimiaosha_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['modfiy_time'],
                 item['shop_name'],
@@ -1509,6 +1503,93 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             cs.execute('update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
                        tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+
+    def insert_into_mia_xianshimiaosha_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],  # 存入到DetailInfo
+                dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
+                item['pid'],
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute(
+                'insert into dbo.mia_xianshimiaosha(goods_id, spider_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
+                    'utf-8'),
+                tuple(params))  # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
+
+    def update_mia_xianshimiaosha_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['is_delete'],
+                dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
+
+                item['goods_id'],
+            ]
+
+            cs.execute(
+                'update dbo.mia_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
+                tuple(params))
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1823,9 +1904,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
 
     def select_pinduoduo_all_goods_id(self):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=13')
             # self.conn.commit()
 
@@ -1861,10 +1941,42 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return None
 
     def delete_pinduoduo_expired_goods_id(self, goods_id):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             cs.execute('delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s', tuple([goods_id]))
+            self.conn.commit()
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 删除对应goods_id记录时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+
+    def select_mia_xianshimiaosha_all_goods_id(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select goods_id, miaosha_time, pid from dbo.mia_xianshimiaosha where site_id=20')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def delete_mia_miaosha_expired_goods_id(self, goods_id):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('delete from dbo.mia_xianshimiaosha where goods_id=%s', tuple([goods_id]))
             self.conn.commit()
 
             cs.close()
