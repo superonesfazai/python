@@ -239,7 +239,7 @@ class MiaParse(object):
                 'div_desc': div_desc,                   # div_desc
                 'is_delete': is_delete                  # 用于判断商品是否已经下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -665,7 +665,7 @@ class MiaParse(object):
                 else:   # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
                     mia_url = re.compile(r';').sub('', mia_url)
                     goods_id = re.compile(r'https://www.mia.com/item-(\d+).html.*?').findall(mia_url)[0]
-                print('------>>>| 得到的卷皮商品的地址为:', goods_id)
+                print('------>>>| 得到的蜜芽商品的地址为:', goods_id)
                 return goods_id
         else:
             print('蜜芽商品url错误, 非正规的url, 请参照格式(https://www.mia.com/item-)开头的...')
