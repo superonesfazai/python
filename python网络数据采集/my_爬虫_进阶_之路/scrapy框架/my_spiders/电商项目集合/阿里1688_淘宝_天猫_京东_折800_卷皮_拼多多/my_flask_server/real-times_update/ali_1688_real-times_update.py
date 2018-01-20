@@ -99,6 +99,8 @@ def run_forever():
 
                         # print('------>>>| 爬取到的数据为: ', data)
                         ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
+
+                        sleep(.3)       # 避免服务器更新太频繁
                     else:  # 表示返回的data值为空值
                         pass
                 else:  # 表示返回的data值为空值

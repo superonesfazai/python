@@ -79,7 +79,7 @@ class MiaSpike(object):
 
                     self.deal_with_data(pid, begin_time, end_time, item_list)
 
-            sleep(2)
+            sleep(MIA_SPIKE_SLEEP_TIME)
             mia_base_number += 1
 
     def deal_with_data(self, *param):

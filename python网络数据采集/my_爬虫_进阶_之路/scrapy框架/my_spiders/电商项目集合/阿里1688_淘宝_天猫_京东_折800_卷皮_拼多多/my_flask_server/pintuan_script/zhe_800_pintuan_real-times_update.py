@@ -52,7 +52,18 @@ def run_forever():
 
                 if tmp_sql_server.is_connect_success:
                     print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                    zhe_800_pintuan.get_goods_data(goods_id=item[0])
+                    tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
+
+                    # 不用这个了因为会影响到正常情况的商品
+                    # try:        # 单独处理商品页面不存在的情况
+                    #     if isinstance(tmp_tmp, str) and re.compile(r'^ze').findall(tmp_tmp) != []:
+                    #         print('******** 该商品的页面已经不存在!此处将其删除!')
+                    #         tmp_sql_server.delete_zhe_800_pintuan_expired_goods_id(goods_id=item[0])
+                    #     else:
+                    #         pass
+                    # except:
+                    #     pass
+
                     data = zhe_800_pintuan.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[0]
@@ -64,6 +75,7 @@ def run_forever():
                             zhe_800_pintuan.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         pass
+
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass

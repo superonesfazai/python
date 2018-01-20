@@ -157,11 +157,18 @@ class JuanPiParse(object):
                     return {}
                 skudata = skudata.get('skudata', {})
                 # pprint(skudata)
-                if skudata.get('info') is not None:
-                    pass    # 说明得到正确的skudata
 
-                else:       # 否则跳出
-                    print('skudata中info的key为None, 返回空dict')
+                try:
+                    if skudata.get('info') is not None:
+                        pass    # 说明得到正确的skudata
+
+                    else:       # 否则跳出
+                        print('skudata中info的key为None, 返回空dict')
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                        return {}
+
+                except AttributeError as e:
+                    print('遇到错误如下(先跳过!): ', e)
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 
@@ -594,7 +601,7 @@ class JuanPiParse(object):
         # print('is_delete=', tmp['is_delete'])
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_juanpi_xianshimiaosha_table(tmp)
 

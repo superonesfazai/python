@@ -171,6 +171,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                                 # print(goods_data)
                                                 juanpi_miaosha.to_update_juanpi_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
 
+                                                sleep(.2)   # 避免太快
                                         else:
                                             pass
                     if index % 10 == 0:      # 每过几个初始化一次，既能加快速度，又能优化内存

@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-
 """
 折800常规拼团商品页面采集解析系统(官网地址:https://pina.m.zhe800.com)
 由于pc版折800没有拼团的页面，只有手机版有，所以是基于手机版的页面采集
@@ -73,6 +72,18 @@ class Zhe800PintuanParse(object):
             if body == '':
                 print('获取到的tmp_url的body为空值, 此处跳过!')
                 return {}
+
+            # 不用这个了因为会影响到正常情况的商品
+            # try:
+            #     if re.compile(r'很抱歉，您查看的页面木有了~').findall(body) != []:   # 单独处理商品页面不存在的情况
+            #         # print('test############')
+            #         self.result_data = {}
+            #         return str(goods_id)
+            #     else:
+            #         pass
+            # except:
+            #     pass
+
             try:
                 data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)  # 贪婪匹配匹配所有
             except:
