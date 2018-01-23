@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_pintuan_parse.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_parse.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_parse.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan_real-times_update.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_pintuan_parse.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_pintuan_parse.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/my_pipeline.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/my_pipeline.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/real-times_update/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/real-times_update/ghostdriver.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/settings.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/settings.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/ghostdriver.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_spike.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_spike.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_miaosha_real-times_update.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_miaosha_real-times_update.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_spike.py" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_spike.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tejia/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tejia/ghostdriver.log" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -284,6 +290,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$process_multiprocessing.coverage" NAME="process_multiprocessing Coverage Results" MODIFIED="1502261458506" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/进程_线程_and_同步/进程/multiprocessing" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$_____.coverage" NAME="$$$$$ Coverage Results" MODIFIED="1500602081521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$copycookiesscrapydict.coverage" NAME="将从浏览器copy的cookies转换为scrapy能适应的dict Coverage Results" MODIFIED="1504615968879" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders" />
+    <SUITE FILE_PATH="coverage/PythonDoc$mia_pintuan.coverage" NAME="mia_pintuan Coverage Results" MODIFIED="1516680341068" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$dns.coverage" NAME="简单的dns客户端 Coverage Results" MODIFIED="1502767236763" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$json_test.coverage" NAME="json_test Coverage Results" MODIFIED="1500619485134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/json_deal_with" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$test_select.coverage" NAME="test_select Coverage Results" MODIFIED="1507965962509" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/mysql与python交互" />
@@ -327,7 +334,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$turtle_test.coverage" NAME="turtle_test Coverage Results" MODIFIED="1501720776006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/tmp" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$send_to_myself.coverage" NAME="send_to_myself Coverage Results" MODIFIED="1504878053916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/微信聊天机器人" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$QCalendarWidget__.coverage" NAME="QCalendarWidget(日历) Coverage Results" MODIFIED="1502791782081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/widgets(小部件)" />
-    <SUITE FILE_PATH="coverage/PythonDoc$mia_pintuan_parse.coverage" NAME="mia_pintuan_parse Coverage Results" MODIFIED="1516421209011" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server" />
+    <SUITE FILE_PATH="coverage/PythonDoc$mia_pintuan_parse.coverage" NAME="mia_pintuan_parse Coverage Results" MODIFIED="1516682481962" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$urllib_robotparser_simple.coverage" NAME="urllib_robotparser_simple Coverage Results" MODIFIED="1502943184894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_robotparser" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$ipip.coverage" NAME="从实时ip池里获取可用ip Coverage Results" MODIFIED="1509673035180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/tools" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$map_test.coverage" NAME="map_test Coverage Results" MODIFIED="1502091820097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
@@ -419,7 +426,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$cookies.coverage" NAME="cookies Coverage Results" MODIFIED="1506410782223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/sina_weibo_项目/sina_weibo_project/sina_weibo_project" />
     <SUITE FILE_PATH="coverage/PythonDoc$pinduoduo_miaosha_real_times_update.coverage" NAME="pinduoduo_miaosha_real-times_update Coverage Results" MODIFIED="1516088207430" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$taobao_login_and_parse.coverage" NAME="taobao_login_and_parse Coverage Results" MODIFIED="1508845540391" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/阿里_1688_项目/ali_1688_simple_page_spider_方案2/my_flask_server" />
-    <SUITE FILE_PATH="coverage/PythonDoc$sina_head_img_and_nick_name.coverage" NAME="sina_head_img_and_nick_name Coverage Results" MODIFIED="1515634956363" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/others_scripts" />
+    <SUITE FILE_PATH="coverage/PythonDoc$sina_head_img_and_nick_name.coverage" NAME="sina_head_img_and_nick_name Coverage Results" MODIFIED="1516685723039" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/other_scripts" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$urllib_parse_urlsplit.coverage" NAME="urllib_parse_urlsplit Coverage Results" MODIFIED="1502935615271" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib_parse(将url拆分为组件)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$demo.coverage" NAME="demo Coverage Results" MODIFIED="1502876497199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/io/BytesIO" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$ali.coverage" NAME="ali Coverage Results" MODIFIED="1509881094386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server/from_old_db_to_get_goods_id_to_save" />
@@ -538,14 +545,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="mia_pintuan_parse.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mia_pintuan_parse.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_pintuan_parse.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-860">
-              <caret line="170" column="21" lean-forward="true" selection-start-line="170" selection-start-column="21" selection-end-line="170" selection-end-column="21" />
+            <state relative-caret-position="86">
+              <caret line="216" column="29" lean-forward="true" selection-start-line="216" selection-start-column="29" selection-end-line="216" selection-end-column="29" />
               <folding>
                 <element signature="e#162#173#0" expanded="true" />
-                <element signature="e#573#5849#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -554,9 +560,44 @@
       <file leaf-file-name="mia_pintuan.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+            <state relative-caret-position="1859">
+              <caret line="142" column="36" lean-forward="true" selection-start-line="142" selection-start-column="36" selection-end-line="142" selection-end-column="36" />
+              <folding>
+                <element signature="e#136#162#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sina_head_img_and_nick_name.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/other_scripts/sina_head_img_and_nick_name.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="228">
+              <caret line="263" column="0" lean-forward="true" selection-start-line="263" selection-start-column="0" selection-end-line="263" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mia_pintuan_real-times_update.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan_real-times_update.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="135">
+              <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="测试蜜芽地址" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tmp_data/test地址/测试蜜芽地址">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="465">
+                <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -574,9 +615,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_proxy_ip_from_ip_pool</find>
-      <find>select_taobao_tiantian_tejia_all_goods_id</find>
-      <find>self.species[self.index][1]</find>
       <find>'http': self.proxies['http'][randint(1, 70)]</find>
       <find>tmp_proxies</find>
       <find>replace_char_entity</find>
@@ -604,6 +642,9 @@
       <find>get_jump_to_url_and_is_hk</find>
       <find>卷皮</find>
       <find>deal_</find>
+      <find>2609988</find>
+      <find>get_true_sku_info</find>
+      <find>获取该规格拼团价pintuan_price时出错!</find>
     </findStrings>
     <replaceStrings>
       <replace>/to_save_taobao_data</replace>
@@ -626,7 +667,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/ali_1688_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/taobao_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tools/从实时ip池里获取可用ip.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/zhe_800_pintuan.py" />
@@ -641,7 +681,6 @@
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/图像处理相关/Pillow(PIL)/draw_pencil_sketches_and_play_with_hotos.ipynb" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/zhe_800_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/real-times_update/zhe_800_real-times_update.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_spike.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pinduoduo_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tejia/taobao_tiantiantejia_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/just_fuck_run_2.py" />
@@ -661,22 +700,24 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tools/test.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tmp_data/test地址/测试淘宝的地址" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/zhe_800_miaosha_real-times_update.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_miaosha_real-times_update.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/my_pipeline.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_miaosha_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tmp_data/test地址/测试蜜芽地址" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/zhe_800_pintuan_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/zhe_800_pintuan_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/taobao_parse.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_spike.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/juanpi_miaosha_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/juanpi_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/just_fuck_run/just_fuck_run.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/real-times_update/ali_1688_real-times_update.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/settings.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_miaosha_real-times_update.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_spike.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/settings.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_spike.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/my_pipeline.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_pintuan_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan_real-times_update.py" />
       </list>
     </option>
   </component>
@@ -1091,7 +1132,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.mia_pintuan_parse">
+  <component name="RunManager" selected="Python.sina_head_img_and_nick_name">
     <configuration name="PythonDoc" type="Python.Ipnb" factoryName="Jupyter Notebook">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1293,24 +1334,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <configuration name="juanpi_parse" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/juanpi_parse.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
     <configuration name="lianjia_login" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1361,6 +1384,24 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="mia_pintuan" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1473,6 +1514,24 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
+    <configuration name="sina_head_img_and_nick_name" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/other_scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonDoc" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/other_scripts/sina_head_img_and_nick_name.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <configuration name="str_format_文本缩进_test" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1487,24 +1546,6 @@
       <module name="PythonDoc" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/文本/str_format_文本缩进_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="taobao_parse" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PythonDoc" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/taobao_parse.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1558,19 +1599,19 @@
       <item index="8" class="java.lang.String" itemvalue="Python.turtle_test" />
       <item index="9" class="java.lang.String" itemvalue="Python.queue_test" />
       <item index="10" class="java.lang.String" itemvalue="Python.shandong_envir_24h_py2" />
-      <item index="11" class="java.lang.String" itemvalue="Python.taobao_parse" />
-      <item index="12" class="java.lang.String" itemvalue="Python.juanpi_parse" />
-      <item index="13" class="java.lang.String" itemvalue="Python.ali_1688_real-times_update" />
-      <item index="14" class="java.lang.String" itemvalue="Python.mia_parse" />
-      <item index="15" class="java.lang.String" itemvalue="Python.mia_pintuan_parse" />
+      <item index="11" class="java.lang.String" itemvalue="Python.ali_1688_real-times_update" />
+      <item index="12" class="java.lang.String" itemvalue="Python.mia_parse" />
+      <item index="13" class="java.lang.String" itemvalue="Python.mia_pintuan_parse" />
+      <item index="14" class="java.lang.String" itemvalue="Python.sina_head_img_and_nick_name" />
+      <item index="15" class="java.lang.String" itemvalue="Python.mia_pintuan" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.mia_pintuan_parse" />
-        <item index="1" class="java.lang.String" itemvalue="Python.mia_parse" />
-        <item index="2" class="java.lang.String" itemvalue="Python.ali_1688_real-times_update" />
-        <item index="3" class="java.lang.String" itemvalue="Python.juanpi_parse" />
-        <item index="4" class="java.lang.String" itemvalue="Python.taobao_parse" />
+        <item index="0" class="java.lang.String" itemvalue="Python.sina_head_img_and_nick_name" />
+        <item index="1" class="java.lang.String" itemvalue="Python.mia_pintuan_parse" />
+        <item index="2" class="java.lang.String" itemvalue="Python.mia_pintuan" />
+        <item index="3" class="java.lang.String" itemvalue="Python.mia_parse" />
+        <item index="4" class="java.lang.String" itemvalue="Python.ali_1688_real-times_update" />
       </list>
     </recent_temporary>
   </component>
@@ -1647,7 +1688,7 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32933334" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34533334" sideWeight="0.4546875" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39733332" sideWeight="0.4546875" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32266667" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1749,20 +1790,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/ali_1688_parse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="596" column="8" lean-forward="true" selection-start-line="596" selection-start-column="8" selection-end-line="614" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/案例/链家爬虫/lianjia_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="97" column="36" lean-forward="false" selection-start-line="97" selection-start-column="36" selection-end-line="97" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.6/site-packages/pymysql/cursors.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="182">
@@ -1874,14 +1901,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/other_scripts/sina_head_img_and_nick_name.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="209" column="53" lean-forward="false" selection-start-line="209" selection-start-column="53" selection-end-line="209" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tools/test.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -1894,14 +1913,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-69">
           <caret line="263" column="27" lean-forward="true" selection-start-line="263" selection-start-column="27" selection-end-line="263" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_miaosha_real-times_update.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="342" column="28" lean-forward="true" selection-start-line="342" selection-start-column="28" selection-end-line="342" selection-end-column="28" />
           <folding />
         </state>
       </provider>
@@ -1945,17 +1956,6 @@
           <folding>
             <element signature="e#14222#15431#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tmp_data/test地址/测试蜜芽地址">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="495">
-            <caret line="33" column="49" lean-forward="true" selection-start-line="33" selection-start-column="49" selection-end-line="33" selection-end-column="49" />
-            <folding />
-          </first_editor>
-          <second_editor />
         </state>
       </provider>
     </entry>
@@ -2037,157 +2037,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_spike.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="81" column="38" lean-forward="false" selection-start-line="81" selection-start-column="18" selection-end-line="81" selection-end-column="38" />
-          <folding>
-            <element signature="e#6559#7214#0" expanded="false" />
-            <element signature="e#8314#9523#0" expanded="false" />
-            <element signature="e#9769#10094#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/my_pipeline.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-21">
-          <caret line="1254" column="8" lean-forward="false" selection-start-line="1254" selection-start-column="8" selection-end-line="1254" selection-end-column="8" />
-          <folding>
-            <element signature="e#161#182#0" expanded="true" />
-            <element signature="e#507#934#0" expanded="false" />
-            <element signature="e#983#1690#0" expanded="false" />
-            <element signature="e#1731#2233#0" expanded="false" />
-            <element signature="e#2290#2830#0" expanded="false" />
-            <element signature="e#2884#3420#0" expanded="false" />
-            <element signature="e#3472#3820#0" expanded="false" />
-            <element signature="e#3864#4214#0" expanded="false" />
-            <element signature="e#4280#5030#0" expanded="false" />
-            <element signature="e#5032#9138#1" expanded="false" />
-            <element signature="e#9250#9696#0" expanded="false" />
-            <element signature="e#9745#11673#0" expanded="false" />
-            <element signature="e#11717#13352#0" expanded="false" />
-            <element signature="e#13408#15482#0" expanded="false" />
-            <element signature="e#15552#17874#0" expanded="false" />
-            <element signature="e#17925#19745#0" expanded="false" />
-            <element signature="e#19810#21585#0" expanded="false" />
-            <element signature="e#21667#23246#0" expanded="false" />
-            <element signature="e#23301#25375#0" expanded="false" />
-            <element signature="e#25425#27206#0" expanded="false" />
-            <element signature="e#27258#29330#0" expanded="false" />
-            <element signature="e#29377#31156#0" expanded="false" />
-            <element signature="e#31213#33305#0" expanded="false" />
-            <element signature="e#33357#35156#0" expanded="false" />
-            <element signature="e#35228#37513#0" expanded="false" />
-            <element signature="e#37578#39747#0" expanded="false" />
-            <element signature="e#39814#41603#0" expanded="false" />
-            <element signature="e#41663#43401#0" expanded="false" />
-            <element signature="e#43457#45549#0" expanded="false" />
-            <element signature="e#45600#47399#0" expanded="false" />
-            <element signature="e#47470#49791#0" expanded="false" />
-            <element signature="e#49855#52023#0" expanded="false" />
-            <element signature="e#53937#55657#0" expanded="false" />
-            <element signature="e#55716#57863#0" expanded="false" />
-            <element signature="e#57917#59770#0" expanded="false" />
-            <element signature="e#59844#62084#0" expanded="false" />
-            <element signature="e#67830#68337#0" expanded="false" />
-            <element signature="e#68389#68896#0" expanded="false" />
-            <element signature="e#68963#69853#0" expanded="false" />
-            <element signature="e#69933#70339#0" expanded="false" />
-            <element signature="e#70394#70933#0" expanded="false" />
-            <element signature="e#70985#71537#0" expanded="false" />
-            <element signature="e#71590#72098#0" expanded="false" />
-            <element signature="e#72166#72678#0" expanded="false" />
-            <element signature="e#72745#73158#0" expanded="false" />
-            <element signature="e#73219#73709#0" expanded="false" />
-            <element signature="e#73784#74190#0" expanded="false" />
-            <element signature="e#74242#74750#0" expanded="false" />
-            <element signature="e#74817#75330#0" expanded="false" />
-            <element signature="e#75396#75808#0" expanded="false" />
-            <element signature="e#75868#76367#0" expanded="false" />
-            <element signature="e#76441#76846#0" expanded="false" />
-            <element signature="e#76901#77404#0" expanded="false" />
-            <element signature="e#77474#77976#0" expanded="false" />
-            <element signature="e#78045#78455#0" expanded="false" />
-            <element signature="e#78519#79015#0" expanded="false" />
-            <element signature="e#79086#79490#0" expanded="false" />
-            <element signature="e#79566#80984#0" expanded="false" />
-            <element signature="e#81056#81529#0" expanded="false" />
-            <element signature="e#81589#82568#0" expanded="false" />
-            <element signature="e#82601#82699#0" expanded="false" />
-            <element signature="e#82729#88447#0" expanded="false" />
-            <element signature="e#88476#90069#0" expanded="false" />
-            <marker date="1516156952059" expanded="true" signature="1160:1280" ph="insert into dbo.ali_spider_employee_table... " />
-            <marker date="1516156952059" expanded="true" signature="1792:1835" ph="select * fro... ali_spider_employee_table" />
-            <marker date="1516156952059" expanded="true" signature="2351:2412" ph="select * fro... ali_spider_employee_table" />
-            <marker date="1516156952059" expanded="true" signature="2945:3006" ph="select * fro... ali_spider_employee_table" />
-            <marker date="1516156952059" expanded="true" signature="3533:3601" ph="update dbo.a... " />
-            <marker date="1516156952059" expanded="true" signature="3956:4015" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="4434:4520" ph="select usern... ali_spider_employee_table" />
-            <marker date="1516156952059" expanded="true" signature="10811:11109" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="12570:12837" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="14578:14918" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="16857:17297" ph="insert into dbo.taobao_tiantiantejia... " />
-            <marker date="1516156952059" expanded="true" signature="18926:19230" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="20761:21077" ph="update dbo.t... " />
-            <marker date="1516156952059" expanded="true" signature="22475:22738" ph="update dbo.t... " />
-            <marker date="1516156952059" expanded="true" signature="24471:24811" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="26385:26691" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="28426:28766" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="30335:30641" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="32402:32741" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="34336:34641" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="36531:36949" ph="insert into dbo.zhe_800_xianshimiaosha... " />
-            <marker date="1516156952059" expanded="true" signature="38792:39183" ph="insert into dbo.zhe_800_pintuan... " />
-            <marker date="1516156952059" expanded="true" signature="40763:41088" ph="update dbo.z... " />
-            <marker date="1516156952059" expanded="true" signature="42634:42893" ph="update dbo.z... " />
-            <marker date="1516156952059" expanded="true" signature="44646:44985" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="46579:46884" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="48804:49227" ph="insert into dbo.juanpi_xianshimiaosha... " />
-            <marker date="1516156952059" expanded="true" signature="51069:51459" ph="insert into dbo.juanpi_pintuan... " />
-            <marker date="1516156952059" expanded="true" signature="53039:53363" ph="update dbo.j... " />
-            <marker date="1516156952059" expanded="true" signature="54910:55149" ph="update dbo.j... " />
-            <marker date="1516156952059" expanded="true" signature="56945:57299" ph="insert into dbo.GoodsInfoAutoGet... " />
-            <marker date="1516156952059" expanded="true" signature="58936:59255" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="61116:61520" ph="insert into dbo.pinduoduo_xianshimiaosha... " />
-            <marker date="1516156952059" expanded="true" signature="63098:63425" ph="update dbo.p... " />
-            <marker date="1516156952059" expanded="true" signature="65137:65499" ph="insert into dbo.zhe_800_xianshimiaosha... " />
-            <marker date="1516156952059" expanded="true" signature="66977:67268" ph="update dbo.m... " />
-            <marker date="1516156952059" expanded="true" signature="67896:67981" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="68455:68540" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="69116:69223" ph="select goods... taobao_tiantiantejia" />
-            <marker date="1516156952059" expanded="true" signature="69994:70048" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="70460:70577" ph="select SiteI... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="71051:71181" ph="select SiteI... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="71656:71742" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="72232:72322" ph="select goods... zhe_800_xianshimiaosha" />
-            <marker date="1516156952059" expanded="true" signature="72811:72867" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="73285:73353" ph="select goods... zhe_800_pintuan" />
-            <marker date="1516156952059" expanded="true" signature="73850:73899" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="74308:74394" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="74883:74974" ph="select goods... juanpi_xianshimiaosha" />
-            <marker date="1516156952059" expanded="true" signature="75462:75517" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="75934:76011" ph="select goods... juanpi_pintuan" />
-            <marker date="1516156952059" expanded="true" signature="76507:76555" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="76962:77048" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="77540:77620" ph="select goods... pinduoduo_xianshimiaosha" />
-            <marker date="1516156952059" expanded="true" signature="78106:78164" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="78580:78657" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="78580:78659" ph="select goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="79147:79199" ph="delete from " />
-            <marker date="1516156952059" expanded="true" signature="80193:80420" ph="insert into dbo.jd_youxuan_daren_recommend... " />
-            <marker date="1516156952059" expanded="true" signature="81122:81173" ph="select share... jd_youxuan_daren_recommend" />
-            <marker date="1516156952059" expanded="true" signature="81938:82019" ph="insert into dbo.sina_weibo... " />
-            <marker date="1516156952059" expanded="true" signature="84178:84484" ph="update dbo.G... " />
-            <marker date="1516156952059" expanded="true" signature="86328:86768" ph="insert into dbo.taobao_tiantiantejia... " />
-            <marker date="1516156952059" expanded="true" signature="87475:87560" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="88010:88111" ph="select goods... taobao_tiantiantejia" />
-            <marker date="1516156952059" expanded="true" signature="89129:89184" ph="select Goods... GoodsInfoAutoGet" />
-            <marker date="1516156952059" expanded="true" signature="89657:89713" ph="select Goods... GoodsInfoAutoGet" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/juanpi_miaosha_real-times_update.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="395">
@@ -2242,24 +2091,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_miaosha_real-times_update.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="153" column="32" lean-forward="true" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
-          <folding>
-            <element signature="e#9000#10209#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="613">
-          <caret line="181" column="0" lean-forward="false" selection-start-line="181" selection-start-column="0" selection-end-line="181" selection-end-column="956" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/builtins.pyi">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
@@ -2292,14 +2123,57 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_miaosha_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="141" column="45" lean-forward="false" selection-start-line="141" selection-start-column="45" selection-end-line="141" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/pinduoduo_spike.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1031">
+          <caret line="106" column="33" lean-forward="false" selection-start-line="106" selection-start-column="33" selection-end-line="106" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="613">
+          <caret line="181" column="0" lean-forward="false" selection-start-line="181" selection-start-column="0" selection-end-line="181" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tmp_data/test地址/测试蜜芽地址">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="465">
+            <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_miaosha_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1706">
+          <caret line="153" column="32" lean-forward="true" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
+          <folding>
+            <element signature="e#9000#10209#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_parse.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="242" column="27" lean-forward="true" selection-start-line="242" selection-start-column="27" selection-end-line="242" selection-end-column="27" />
+        <state relative-caret-position="290">
+          <caret line="310" column="0" lean-forward="true" selection-start-line="310" selection-start-column="0" selection-end-line="310" selection-end-column="0" />
           <folding>
-            <element signature="e#152#163#0" expanded="true" />
             <element signature="e#977#6253#0" expanded="false" />
-            <element signature="e#8953#10973#0" expanded="false" />
             <element signature="e#11046#12848#0" expanded="false" />
             <element signature="e#12895#14076#0" expanded="false" />
             <element signature="e#14133#15095#0" expanded="false" />
@@ -2314,22 +2188,196 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/my_pipeline.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="212">
+          <caret line="1637" column="313" lean-forward="false" selection-start-line="1637" selection-start-column="313" selection-end-line="1637" selection-end-column="313" />
+          <folding>
+            <element signature="e#161#182#0" expanded="true" />
+            <element signature="e#507#934#0" expanded="false" />
+            <element signature="e#983#1690#0" expanded="false" />
+            <element signature="e#1731#2233#0" expanded="false" />
+            <element signature="e#2290#2830#0" expanded="false" />
+            <element signature="e#2884#3420#0" expanded="false" />
+            <element signature="e#3472#3820#0" expanded="false" />
+            <element signature="e#3864#4214#0" expanded="false" />
+            <element signature="e#4280#5030#0" expanded="false" />
+            <element signature="e#5032#9138#1" expanded="false" />
+            <element signature="e#9250#9696#0" expanded="false" />
+            <element signature="e#9745#11673#0" expanded="false" />
+            <element signature="e#11717#13352#0" expanded="false" />
+            <element signature="e#13408#15482#0" expanded="false" />
+            <element signature="e#15552#17874#0" expanded="false" />
+            <element signature="e#17925#19745#0" expanded="false" />
+            <element signature="e#19810#21585#0" expanded="false" />
+            <element signature="e#21667#23246#0" expanded="false" />
+            <element signature="e#23301#25375#0" expanded="false" />
+            <element signature="e#25425#27206#0" expanded="false" />
+            <element signature="e#27258#29330#0" expanded="false" />
+            <element signature="e#29377#31156#0" expanded="false" />
+            <element signature="e#31213#33305#0" expanded="false" />
+            <element signature="e#33357#35156#0" expanded="false" />
+            <element signature="e#35228#37513#0" expanded="false" />
+            <element signature="e#37578#39747#0" expanded="false" />
+            <element signature="e#39814#41603#0" expanded="false" />
+            <element signature="e#41663#43401#0" expanded="false" />
+            <element signature="e#43457#45549#0" expanded="false" />
+            <element signature="e#45600#47399#0" expanded="false" />
+            <element signature="e#47470#49791#0" expanded="false" />
+            <element signature="e#49855#52023#0" expanded="false" />
+            <element signature="e#52089#53878#0" expanded="false" />
+            <element signature="e#53937#55657#0" expanded="false" />
+            <element signature="e#55716#57863#0" expanded="false" />
+            <element signature="e#57917#59770#0" expanded="false" />
+            <element signature="e#59844#62084#0" expanded="false" />
+            <element signature="e#70012#70519#0" expanded="false" />
+            <element signature="e#70571#71078#0" expanded="false" />
+            <element signature="e#71145#72035#0" expanded="false" />
+            <element signature="e#72115#72521#0" expanded="false" />
+            <element signature="e#72576#73115#0" expanded="false" />
+            <element signature="e#73167#73719#0" expanded="false" />
+            <element signature="e#73772#74280#0" expanded="false" />
+            <element signature="e#74348#74860#0" expanded="false" />
+            <element signature="e#74927#75340#0" expanded="false" />
+            <element signature="e#75401#75891#0" expanded="false" />
+            <element signature="e#75966#76372#0" expanded="false" />
+            <element signature="e#76424#76932#0" expanded="false" />
+            <element signature="e#76999#77512#0" expanded="false" />
+            <element signature="e#77578#77990#0" expanded="false" />
+            <element signature="e#78050#78549#0" expanded="false" />
+            <element signature="e#78623#79028#0" expanded="false" />
+            <element signature="e#79083#79586#0" expanded="false" />
+            <element signature="e#79656#80158#0" expanded="false" />
+            <element signature="e#80227#80637#0" expanded="false" />
+            <element signature="e#80701#81197#0" expanded="false" />
+            <element signature="e#81268#81672#0" expanded="false" />
+            <element signature="e#82294#83712#0" expanded="false" />
+            <element signature="e#83784#84257#0" expanded="false" />
+            <element signature="e#84317#85296#0" expanded="false" />
+            <element signature="e#85329#85427#0" expanded="false" />
+            <element signature="e#85457#91175#0" expanded="false" />
+            <element signature="e#91204#92797#0" expanded="false" />
+            <marker date="1516678570880" expanded="true" signature="1160:1280" ph="insert into dbo.ali_spider_employee_table... " />
+            <marker date="1516678570880" expanded="true" signature="1792:1835" ph="select * fro... ali_spider_employee_table" />
+            <marker date="1516678570880" expanded="true" signature="2351:2412" ph="select * fro... ali_spider_employee_table" />
+            <marker date="1516678570880" expanded="true" signature="2945:3006" ph="select * fro... ali_spider_employee_table" />
+            <marker date="1516678570880" expanded="true" signature="3533:3601" ph="update dbo.a... " />
+            <marker date="1516678570880" expanded="true" signature="3956:4015" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="4434:4520" ph="select usern... ali_spider_employee_table" />
+            <marker date="1516678570880" expanded="true" signature="10811:11109" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="12570:12837" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="14578:14918" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="16857:17297" ph="insert into dbo.taobao_tiantiantejia... " />
+            <marker date="1516678570880" expanded="true" signature="18926:19230" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="20761:21077" ph="update dbo.t... " />
+            <marker date="1516678570880" expanded="true" signature="22475:22738" ph="update dbo.t... " />
+            <marker date="1516678570880" expanded="true" signature="24471:24811" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="26385:26691" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="28426:28766" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="30335:30641" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="32402:32741" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="34336:34641" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="36531:36949" ph="insert into dbo.zhe_800_xianshimiaosha... " />
+            <marker date="1516678570880" expanded="true" signature="38792:39183" ph="insert into dbo.zhe_800_pintuan... " />
+            <marker date="1516678570880" expanded="true" signature="40763:41088" ph="update dbo.z... " />
+            <marker date="1516678570880" expanded="true" signature="42634:42893" ph="update dbo.z... " />
+            <marker date="1516678570880" expanded="true" signature="44646:44985" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="46579:46884" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="48804:49227" ph="insert into dbo.juanpi_xianshimiaosha... " />
+            <marker date="1516678570880" expanded="true" signature="51069:51459" ph="insert into dbo.juanpi_pintuan... " />
+            <marker date="1516678570880" expanded="true" signature="53039:53363" ph="update dbo.j... " />
+            <marker date="1516678570880" expanded="true" signature="54910:55149" ph="update dbo.j... " />
+            <marker date="1516678570880" expanded="true" signature="56945:57299" ph="insert into dbo.GoodsInfoAutoGet... " />
+            <marker date="1516678570880" expanded="true" signature="58936:59255" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="61116:61520" ph="insert into dbo.pinduoduo_xianshimiaosha... " />
+            <marker date="1516678570880" expanded="true" signature="63098:63425" ph="update dbo.p... " />
+            <marker date="1516678570880" expanded="true" signature="65137:65499" ph="insert into dbo.zhe_800_xianshimiaosha... " />
+            <marker date="1516678570880" expanded="true" signature="66977:67268" ph="update dbo.m... " />
+            <marker date="1516678570880" expanded="true" signature="69006:69381" ph="insert into dbo.mia_xianshimiaosha... " />
+            <marker date="1516678570880" expanded="true" signature="70078:70163" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="70637:70722" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="71298:71405" ph="select goods... taobao_tiantiantejia" />
+            <marker date="1516678570880" expanded="true" signature="72176:72230" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="72642:72759" ph="select SiteI... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="73233:73363" ph="select SiteI... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="73838:73924" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="74414:74504" ph="select goods... zhe_800_xianshimiaosha" />
+            <marker date="1516678570880" expanded="true" signature="74993:75049" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="75467:75535" ph="select goods... zhe_800_pintuan" />
+            <marker date="1516678570880" expanded="true" signature="76032:76081" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="76490:76576" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="77065:77156" ph="select goods... juanpi_xianshimiaosha" />
+            <marker date="1516678570880" expanded="true" signature="77644:77699" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="78116:78193" ph="select goods... juanpi_pintuan" />
+            <marker date="1516678570880" expanded="true" signature="78689:78737" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="79144:79230" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="79722:79802" ph="select goods... pinduoduo_xianshimiaosha" />
+            <marker date="1516678570880" expanded="true" signature="80288:80346" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="80762:80839" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="80762:80841" ph="select goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="81329:81381" ph="delete from " />
+            <marker date="1516678570880" expanded="true" signature="81790:81861" ph="select goods... mia_xianshimiaosha" />
+            <marker date="1516678570880" expanded="true" signature="81790:81862" ph="select goods... mia_pintuan" />
+            <marker date="1516678570880" expanded="true" signature="82921:83148" ph="insert into dbo.jd_youxuan_daren_recommend... " />
+            <marker date="1516678570880" expanded="true" signature="83850:83901" ph="select share... jd_youxuan_daren_recommend" />
+            <marker date="1516678570880" expanded="true" signature="84666:84747" ph="insert into dbo.sina_weibo... " />
+            <marker date="1516678570880" expanded="true" signature="86906:87212" ph="update dbo.G... " />
+            <marker date="1516678570880" expanded="true" signature="89056:89496" ph="insert into dbo.taobao_tiantiantejia... " />
+            <marker date="1516678570880" expanded="true" signature="90203:90288" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="90738:90839" ph="select goods... taobao_tiantiantejia" />
+            <marker date="1516678570880" expanded="true" signature="91857:91912" ph="select Goods... GoodsInfoAutoGet" />
+            <marker date="1516678570880" expanded="true" signature="92385:92441" ph="select Goods... GoodsInfoAutoGet" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/spike_everything/mia_spike.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-281">
+          <caret line="137" column="48" lean-forward="false" selection-start-line="137" selection-start-column="48" selection-end-line="137" selection-end-column="48" />
+          <folding>
+            <element signature="e#167#193#0" expanded="false" />
+            <element signature="e#5394#6575#0" expanded="false" />
+            <element signature="e#6626#7281#0" expanded="false" />
+            <element signature="e#8381#9590#0" expanded="false" />
+            <element signature="e#9836#10161#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/mia_pintuan_parse.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-860">
-          <caret line="170" column="21" lean-forward="true" selection-start-line="170" selection-start-column="21" selection-end-line="170" selection-end-column="21" />
+        <state relative-caret-position="86">
+          <caret line="216" column="29" lean-forward="true" selection-start-line="216" selection-start-column="29" selection-end-line="216" selection-end-column="29" />
           <folding>
             <element signature="e#162#173#0" expanded="true" />
-            <element signature="e#573#5849#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1859">
+          <caret line="142" column="36" lean-forward="true" selection-start-line="142" selection-start-column="36" selection-end-line="142" selection-end-column="36" />
+          <folding>
+            <element signature="e#136#162#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/other_scripts/sina_head_img_and_nick_name.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="263" column="0" lean-forward="true" selection-start-line="263" selection-start-column="0" selection-end-line="263" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/pintuan_script/mia_pintuan_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

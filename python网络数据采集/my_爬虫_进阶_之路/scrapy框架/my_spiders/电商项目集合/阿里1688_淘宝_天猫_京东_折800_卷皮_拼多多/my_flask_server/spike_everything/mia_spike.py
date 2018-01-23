@@ -137,6 +137,10 @@ class MiaSpike(object):
                         # print(goods_data)
                         mia.insert_into_mia_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                         sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
+        else:
+            print('数据库连接失败，此处跳过!')
+            pass
+
         try:
             del mia
         except:

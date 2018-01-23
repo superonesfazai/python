@@ -104,7 +104,7 @@ class PinduoduoSpike(object):
                                 goods_data['is_delete'] = 1
 
                             pinduoduo.insert_into_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(1)
+                        sleep(1.2)
                 else:
                     print('该goods_id为"None", 此处跳过')
                     pass

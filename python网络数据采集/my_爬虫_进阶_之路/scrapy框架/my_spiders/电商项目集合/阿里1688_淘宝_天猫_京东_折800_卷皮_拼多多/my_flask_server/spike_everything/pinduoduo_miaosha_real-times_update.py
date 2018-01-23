@@ -139,7 +139,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
 
                                         # print(goods_data)
                                         pinduoduo_miaosha.to_update_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                    sleep(.7)
+                                    sleep(1.2)
                                 else:
                                     pass
 

@@ -31,7 +31,7 @@ class MiaPintuanParse(MiaParse):
     def __init__(self):
         MiaParse.__init__(self)
 
-    def get_goods_data(self, goods_id) -> '重载方法':
+    def get_goods_data(self, goods_id:str) -> '重载获取数据的方法':
         '''
         模拟构造得到data的url
         :param goods_id:
@@ -128,8 +128,10 @@ class MiaPintuanParse(MiaParse):
                 if self.get_true_sku_info(sku_info=sku_info) == {}:     # 表示出错退出
                     return {}
                 else:                                                   # 成功获取
-                    true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info)
+                    true_sku_info, i_s, pintuan_time, all_sell_count = self.get_true_sku_info(sku_info=sku_info)
                     data['price_info_list'] = true_sku_info
+                    data['pintuan_time'] = pintuan_time
+                    data['all_sell_count'] = all_sell_count
                 # pprint(true_sku_info)
 
                 # 设置detail_name_list
@@ -211,6 +213,8 @@ class MiaPintuanParse(MiaParse):
 
             # 用于判断商品是否已经下架
             is_delete = 0
+            if price_info_list == []:
+                is_delete = 1
 
             result = {
                 'goods_url': data['goods_url'],         # goods_url
@@ -227,9 +231,11 @@ class MiaPintuanParse(MiaParse):
                 'all_img_url': all_img_url,             # 所有示例图片地址
                 'p_info': p_info,                       # 详细信息标签名对应属性
                 'div_desc': div_desc,                   # div_desc
+                'pintuan_time': data['pintuan_time'],   # 拼团开始和结束时间
+                'all_sell_count': data['all_sell_count'], # 总销量
                 'is_delete': is_delete                  # 用于判断商品是否已经下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -243,6 +249,67 @@ class MiaPintuanParse(MiaParse):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def insert_into_mia_pintuan_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['goods_url']  # 商品地址
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:
+            print('此处抓到的可能是蜜芽秒杀券所以跳过')
+            return None
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['pintuan_time'] = data_list.get('pintuan_time')
+        tmp['pid'] = data_list.get('pid')
+
+        # 采集的来源地
+        tmp['site_id'] = 21  # 采集来源地(蜜芽拼团商品)
+
+        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
+        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
+        tmp['all_sell_count'] = data_list.get('all_sell_count')
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.insert_into_mia_pintuan_table(tmp)
 
     def get_true_sku_info(self, sku_info) -> '重载得到true_sku_info的方法':
         '''
@@ -269,6 +336,8 @@ class MiaPintuanParse(MiaParse):
 
         true_sku_info = []
         i_s = {}
+        pintuan_time = []  # 初始化
+        all_sell_count = '0'
         for item_1 in sku_info:
             for item_2 in tmp_data:
                 if item_1.get('goods_id') == str(item_2.get('id', '')):
@@ -283,10 +352,34 @@ class MiaPintuanParse(MiaParse):
                         normal_price = str(item_2.get('mp'))
                         detail_price = str(item_2.get('sp'))
                         try:
+                            if item_2.get('g_l', []) == []:
+                                break
+
                             pintuan_price = str(item_2.get('g_l', [])[0].get('gp', ''))
                             # print(pintuan_price)
                         except:
                             print('获取该规格拼团价pintuan_price时出错!')
+                            self.result_data = {}
+                            return {}
+
+                        try:
+                            s = str(item_2.get('g_l', [])[0].get('s', ''))  # 拼团开始时间
+                            e = str(item_2.get('g_l', [])[0].get('e', ''))  # 拼团结束时间
+                            s = self.change_to_number_str_time(s)
+                            e = self.change_to_number_str_time(e)
+                            pintuan_time = [{
+                                'begin_time': self.timestamp_to_regulartime(int(time.mktime(time.strptime(s, '%m %d %Y %H:%M:%S')))),
+                                'end_time': self.timestamp_to_regulartime(int(time.mktime(time.strptime(e, '%m %d %Y %H:%M:%S')))),
+                            }]
+                        except:
+                            print('获取拼团pintuan_time时出错!')
+                            self.result_data = {}
+                            return {}
+
+                        try:
+                            all_sell_count = str(item_2.get('g_l', [])[0].get('rsn', ''))
+                        except:
+                            print('获取拼团all_sell_count时出错!')
                             self.result_data = {}
                             return {}
 
@@ -303,7 +396,50 @@ class MiaPintuanParse(MiaParse):
                             tmp['rest_number'] = rest_number
                             true_sku_info.append(tmp)
 
-        return (true_sku_info, i_s)
+        return (true_sku_info, i_s, pintuan_time, all_sell_count)
+
+    def change_to_number_str_time(self, str):
+        '''
+        替换里面的月份的英文缩写为对应的数字月份
+        :return:
+        '''
+        a = {
+            'January': '01',
+            'February': '02',
+            'March': '03',
+            'April': '04',
+            'May': '05',
+            'June': '06',
+            'July': '07',
+            'August': '08',
+            'September': '09',
+            'October': '10',
+            'November': '11',
+            'December': '12',
+        }
+
+        month = str.split(' ')[0]
+
+        month = [a[key] for key in a if month == key][0]
+
+        new_str = str.split(' ')
+        new_str[0] = month
+
+        return  ' '.join(new_str)
+
+    def timestamp_to_regulartime(self, timestamp):
+        '''
+        将时间戳转换成时间
+        '''
+        # 利用localtime()函数将时间戳转化成localtime的格式
+        # 利用strftime()函数重新格式化时间
+
+        # 转换成localtime
+        time_local = time.localtime(timestamp)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+
+        return dt
 
 if __name__ == '__main__':
     mia_pintuan = MiaPintuanParse()
