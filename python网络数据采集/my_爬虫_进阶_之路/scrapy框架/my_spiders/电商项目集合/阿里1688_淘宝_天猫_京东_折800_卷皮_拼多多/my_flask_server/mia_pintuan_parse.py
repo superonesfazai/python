@@ -213,7 +213,7 @@ class MiaPintuanParse(MiaParse):
 
             # 用于判断商品是否已经下架
             is_delete = 0
-            if price_info_list == []:
+            if price_info_list == [] or data['pintuan_time'] == {}:
                 is_delete = 1
 
             result = {
@@ -278,7 +278,7 @@ class MiaPintuanParse(MiaParse):
             tmp['price'] = Decimal(data_list['price']).__round__(2)
             tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
         except:
-            print('此处抓到的可能是蜜芽秒杀券所以跳过')
+            print('此处抓到的可能是蜜芽拼团券所以跳过')
             return None
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
@@ -311,6 +311,64 @@ class MiaPintuanParse(MiaParse):
 
         pipeline.insert_into_mia_pintuan_table(tmp)
 
+    def update_mia_pintuan_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:
+            print('此处抓到的可能是蜜芽拼团券所以跳过')
+            return None
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['pintuan_time'] = data_list.get('pintuan_time')
+
+        # 采集的来源地
+        # tmp['site_id'] = 21  # 采集来源地(蜜芽拼团商品)
+
+        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
+        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
+        tmp['all_sell_count'] = data_list.get('all_sell_count')
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.update_mia_pintuan_table(tmp)
+
     def get_true_sku_info(self, sku_info) -> '重载得到true_sku_info的方法':
         '''
         获取每个规格对应价格跟规格以及其库存
@@ -336,7 +394,7 @@ class MiaPintuanParse(MiaParse):
 
         true_sku_info = []
         i_s = {}
-        pintuan_time = []  # 初始化
+        pintuan_time = {}  # 初始化
         all_sell_count = '0'
         for item_1 in sku_info:
             for item_2 in tmp_data:
@@ -353,7 +411,7 @@ class MiaPintuanParse(MiaParse):
                         detail_price = str(item_2.get('sp'))
                         try:
                             if item_2.get('g_l', []) == []:
-                                break
+                                break       # 表示如果该规格的拼团价为[], 则跳出这层循环
 
                             pintuan_price = str(item_2.get('g_l', [])[0].get('gp', ''))
                             # print(pintuan_price)
@@ -367,10 +425,10 @@ class MiaPintuanParse(MiaParse):
                             e = str(item_2.get('g_l', [])[0].get('e', ''))  # 拼团结束时间
                             s = self.change_to_number_str_time(s)
                             e = self.change_to_number_str_time(e)
-                            pintuan_time = [{
+                            pintuan_time = {
                                 'begin_time': self.timestamp_to_regulartime(int(time.mktime(time.strptime(s, '%m %d %Y %H:%M:%S')))),
                                 'end_time': self.timestamp_to_regulartime(int(time.mktime(time.strptime(e, '%m %d %Y %H:%M:%S')))),
-                            }]
+                            }
                         except:
                             print('获取拼团pintuan_time时出错!')
                             self.result_data = {}

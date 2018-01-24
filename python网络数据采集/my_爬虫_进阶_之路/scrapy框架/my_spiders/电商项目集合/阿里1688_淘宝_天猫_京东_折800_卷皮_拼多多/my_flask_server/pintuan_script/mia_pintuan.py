@@ -43,11 +43,11 @@ class MiaPintuan(object):
 
     def get_pintuan_goods_info(self):
         '''
-        模拟构造得到data的url，得到近期所有的限时秒杀商品信息
+        模拟构造得到data的url，得到近期所有的限时拼团商品信息
         :return: None
         '''
         goods_list = []
-        for index in range(1, 120):     # 0跟1返回一样，所有从1开始遍历
+        for index in range(1, 1000):     # 0跟1返回一样，所有从1开始遍历
             tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(index) + '/0/'
             print('正在抓取: ', tmp_url)
 
@@ -83,7 +83,7 @@ class MiaPintuan(object):
 
         pprint(goods_list)
         self.deal_with_data(goods_list=goods_list)
-
+        sleep(8)
         return None
 
     def deal_with_data(self, goods_list):
@@ -123,7 +123,7 @@ class MiaPintuan(object):
                         goods_data['goods_url'] = goods_url
                         goods_data['goods_id'] = str(goods_id)
                         goods_data['sub_title'] = item.get('sub_title', '')
-                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'][0])
+                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'])
                         goods_data['pid'] = item.get('pid')
 
                         # pprint(goods_data)

@@ -66,7 +66,7 @@ class Mia_Miaosha_Real_Time_Update(object):
                 # print(miaosha_end_time)
 
                 data = {}
-                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+                # 释放内存, 在外面声明就会占用很大的, 所以此处优化内存的方法是声明后再删除释放
                 mia_miaosha = MiaParse()
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
