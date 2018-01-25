@@ -124,7 +124,7 @@ class MiaSpike(object):
                         goods_data['goods_url'] = goods_url
                         goods_data['goods_id'] = str(goods_id)
                         goods_data['price'] = item.get('active_price')
-                        goods_data['taobao_price'] = item.get('active_price')
+                        goods_data['taobao_price'] = item.get('active_price')       # 秒杀最低价
                         goods_data['sub_title'] = item.get('short_info', '')
                         goods_data['miaosha_time'] = {
                             'miaosha_begin_time': self.timestamp_to_regulartime(begin_time),

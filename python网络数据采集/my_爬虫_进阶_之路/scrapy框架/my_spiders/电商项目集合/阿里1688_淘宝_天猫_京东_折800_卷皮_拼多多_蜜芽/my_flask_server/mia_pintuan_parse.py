@@ -26,6 +26,7 @@ import pytz
 from scrapy import Selector
 
 from mia_parse import MiaParse
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 class MiaPintuanParse(MiaParse):
     def __init__(self):
@@ -53,6 +54,16 @@ class MiaPintuanParse(MiaParse):
 
             if body == '':
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                return {}
+
+            is_mia_mian_page = Selector(text=body).css('div.item-center::text').extract_first()
+            # print(is_mia_mian_page)
+            if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
+                print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
+                self.result_data = {}
+                tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                tmp_pipeline.update_mia_pintuan_is_delete(goods_id=goods_id)
+                gc.collect()
                 return {}
 
             # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)

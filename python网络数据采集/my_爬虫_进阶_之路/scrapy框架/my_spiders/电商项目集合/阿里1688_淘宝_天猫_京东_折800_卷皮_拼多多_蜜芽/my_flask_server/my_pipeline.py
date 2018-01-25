@@ -1693,6 +1693,35 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
 
+    def update_mia_pintuan_is_delete(self, goods_id):
+        '''
+        将该goods_id进行逻辑删除
+        :param goods_id:
+        :return:
+        '''
+        cs = self.conn.cursor()
+        try:
+            params = [
+                goods_id,
+            ]
+
+            cs.execute(
+                'update dbo.mia_pintuan set is_delete=1 where goods_id = %s',
+                tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+
     def select_ali_1688_all_goods_id(self):
         try:
             cs = self.conn.cursor()
