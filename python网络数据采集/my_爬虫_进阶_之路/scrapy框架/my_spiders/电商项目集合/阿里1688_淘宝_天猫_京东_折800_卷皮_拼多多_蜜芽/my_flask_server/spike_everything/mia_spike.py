@@ -58,6 +58,7 @@ class MiaSpike(object):
             # print(body)
 
             if body == '' or body == '[]':
+                print('mia_base_number为: ', mia_base_number)
                 print('获取到的body为空值! 此处跳过')
 
             else:
@@ -72,6 +73,7 @@ class MiaSpike(object):
                     pass
                 else:
                     print(tmp_data)
+                    print('mia_base_number为: ', mia_base_number)
                     pid = mia_base_number
                     begin_time = tmp_data.get('p_info', {}).get('start_time', '')
                     end_time = tmp_data.get('p_info', {}).get('end_time', '')
@@ -79,7 +81,7 @@ class MiaSpike(object):
 
                     self.deal_with_data(pid, begin_time, end_time, item_list)
 
-            sleep(MIA_SPIKE_SLEEP_TIME)
+            sleep(.35)
             mia_base_number += 1
 
     def deal_with_data(self, *param):

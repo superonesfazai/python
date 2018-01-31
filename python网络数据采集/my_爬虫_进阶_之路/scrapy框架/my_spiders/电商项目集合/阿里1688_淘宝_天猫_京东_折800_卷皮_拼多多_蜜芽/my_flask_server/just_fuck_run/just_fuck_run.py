@@ -29,6 +29,8 @@ pintuan_file_name_list = [
     'zhe_800_pintuan_real-times_update',
     'juanpi_pintuan',
     'juanpi_pintuan_real-times_update',
+    'mia_pintuan',
+    'mia_pintuan_real-times_update',
 ]
 
 real_file_name_list = [

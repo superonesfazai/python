@@ -198,8 +198,8 @@ class MiaParse(object):
             # 商品价格和淘宝价
             try:
                 tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
-                price = tmp_price_list[-1]  # 商品价格
-                taobao_price = tmp_price_list[0]  # 淘宝价
+                price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品价格
+                taobao_price = Decimal(tmp_price_list[0]).__round__(2)  # 淘宝价
             except IndexError:
                 self.result_data = {}
                 return {}
