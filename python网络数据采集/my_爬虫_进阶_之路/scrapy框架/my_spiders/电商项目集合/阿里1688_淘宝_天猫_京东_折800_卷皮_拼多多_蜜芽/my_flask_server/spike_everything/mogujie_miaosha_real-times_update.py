@@ -2,19 +2,19 @@
 
 '''
 @author = super_fazai
-@File    : mia_miaosha_real-times_update.py
-@Time    : 2018/1/17 09:46
+@File    : mogujie_miaosha_real-times_update.py
+@Time    : 2018/2/1 09:29
 @connect : superonesfazai@gmail.com
 '''
 
 '''
-蜜芽秒杀商品实时更新脚本
+蘑菇街秒杀商品实时更新脚本
 '''
 
 import sys
 sys.path.append('..')
 
-from mia_parse import MiaParse
+from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
@@ -24,10 +24,11 @@ import json
 from pprint import pprint
 import time
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
+from settings import HEADERS, IS_BACKGROUND_RUNNING
 import requests
+from decimal import Decimal
 
-class Mia_Miaosha_Real_Time_Update(object):
+class MoGuJieMiaoShaRealTimeUpdate(object):
     def __init__(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -35,7 +36,7 @@ class Mia_Miaosha_Real_Time_Update(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'm.mia.com',
+            'Host': 'm.mogujie.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
 
@@ -46,7 +47,7 @@ class Mia_Miaosha_Real_Time_Update(object):
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            result = list(tmp_sql_server.select_mia_xianshimiaosha_all_goods_id())
+            result = list(tmp_sql_server.select_mogujie_xianshimiaosha_all_goods_id())
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -67,7 +68,7 @@ class Mia_Miaosha_Real_Time_Update(object):
 
                 data = {}
                 # 释放内存, 在外面声明就会占用很大的, 所以此处优化内存的方法是声明后再删除释放
-                mia_miaosha = MiaParse()
+                mogujie_miaosha = MoGuJieMiaoShaParse()
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
@@ -87,61 +88,61 @@ class Mia_Miaosha_Real_Time_Update(object):
                         data['goods_id'] = item[0]
                         # print('------>>>| 爬取到的数据为: ', data)
 
-                        tmp_url = 'https://m.mia.com/instant/seckill/seckillPromotionItem/' + str(item[2])
+                        item_list = self.get_item_list(event_time=str(item[2]))
+                        if item_list == '':
+                            # 可能网络状况导致, 先跳过
+                            pass
 
-                        body = mia_miaosha.get_url_body(tmp_url=tmp_url)
-                        # print(body)
-
-                        if body == '' or body == '[]':
-                            print('获取到的body为空值! 此处跳过')
+                        elif item_list == []:
+                            print('该商品已被下架限时秒杀活动，此处将其删除')
+                            tmp_sql_server.delete_mogujie_miaosha_expired_goods_id(goods_id=item[0])
+                            print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
+                            pass
 
                         else:
-                            try:
-                                tmp_data = json.loads(body)
-                            except:
-                                tmp_data = {}
-                                print('json.loads转换body时出错, 此处跳过!')
+                            # 该event_time中现有的所有goods_id的list
+                            miaosha_goods_all_goods_id = [item_1.get('iid', '') for item_1 in item_list]
 
-                            begin_time = tmp_data.get('p_info', {}).get('start_time', '')
-                            end_time = tmp_data.get('p_info', {}).get('end_time', '')
-                            begin_time = int(time.mktime(time.strptime(begin_time, '%Y/%m/%d %H:%M:%S')))     # 把str字符串类型转换为时间戳的形式
-                            end_time = int(time.mktime(time.strptime(end_time, '%Y/%m/%d %H:%M:%S')))
-                            item_list = tmp_data.get('item_list', [])
-
-                            # 该pid中现有的所有goods_id的list
-                            miaosha_goods_all_goods_id = [item_1.get('item_id', '') for item_1 in item_list]
-
-                            if item[0] not in miaosha_goods_all_goods_id:   # 内部已经下架的
+                            if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server.delete_mia_miaosha_expired_goods_id(goods_id=item[0])
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                 pass
 
-                            else:   # 未下架的
+                            else:  # 未下架的
                                 for item_2 in item_list:
-                                    if item_2.get('item_id', '') == item[0]:
-                                        mia_miaosha.get_goods_data(goods_id=item[0])
-                                        goods_data = mia_miaosha.deal_with_data()
+                                    if item_2.get('iid', '') == item[0]:
+                                        spider_url = item[3]
+                                        mogujie_miaosha.get_goods_data(goods_id=spider_url)
+                                        goods_data = mogujie_miaosha.deal_with_data()
 
                                         if goods_data == {}:    # 返回的data为空则跳过
                                             pass
                                         else:
                                             goods_data['goods_id'] = str(item[0])
-                                            goods_data['price'] = item_2.get('active_price')
-                                            goods_data['taobao_price'] = item_2.get('active_price')
-                                            goods_data['sub_title'] = item_2.get('short_info', '')
+
+                                            # price设置为原价
+                                            try:
+                                                tmp_price_list = sorted([round(float(item_4.get('normal_price', '')), 2) for item_4 in goods_data['price_info_list']])
+                                                price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品原价
+                                                goods_data['price'] = price
+                                            except:
+                                                print('设置price为原价时出错!请检查')
+                                                continue
+
                                             goods_data['miaosha_time'] = {
-                                                'miaosha_begin_time': self.timestamp_to_regulartime(begin_time),
-                                                'miaosha_end_time': self.timestamp_to_regulartime(end_time),
+                                                'miaosha_begin_time': self.timestamp_to_regulartime(int(item_2.get('startTime', 0))),
+                                                'miaosha_end_time': self.timestamp_to_regulartime(int(item_2.get('endTime', 0))),
                                             }
                                             goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
 
                                             # pprint(goods_data)
                                             # print(goods_data)
-                                            mia_miaosha.update_mia_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                            sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
+                                            mogujie_miaosha.update_mogujie_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
+                                            sleep(1.2)  # 放慢速度
                                     else:
                                         pass
+
 
 
                 else:  # 表示返回的data值为空值
@@ -170,6 +171,109 @@ class Mia_Miaosha_Real_Time_Update(object):
 
         return miaosha_begin_time, miaosha_end_time
 
+    def timestamp_to_regulartime(self, timestamp):
+        '''
+        把时间戳转成字符串形式
+        :param time_stamp: 时间戳
+        :return:
+        '''
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
+
+    def get_item_list(self, event_time):
+        '''
+        得到event_time中所有的商品信息
+        :param event_time:
+        :return: item_list 类型 list
+        '''
+        tmp_url = 'https://qiang.mogujie.com//jsonp/fastBuyListActionLet/1?eventTime={0}&bizKey=rush_main'.format(str(event_time))
+        body = self.get_url_body(tmp_url=tmp_url)
+        # print(body)
+
+        if body == '':
+            print('获取到的body为空值! 此处跳过')
+            item_list = ''
+
+        else:
+            try:
+                body = re.compile('null\((.*)\)').findall(body)[0]
+            except Exception:
+                print('re匹配body中的数据时出错!')
+                body = '{}'
+
+            try:
+                tmp_data = json.loads(body)
+            except:
+                tmp_data = {}
+                print('json.loads转换body时出错, 此处跳过!')
+
+            if tmp_data == {}:
+                print('tmp_data为空{}!')
+                item_list = []
+
+            else:
+                # pprint(tmp_data)
+                # print(tmp_data)
+
+                item_list = tmp_data.get('data', {}).get('list', [])
+        sleep(.5)
+
+        return item_list
+
+    def get_url_body(self, tmp_url):
+            '''
+            根据url得到body
+            :param tmp_url:
+            :return: body   类型str
+            '''
+            # 设置代理ip
+            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+
+            tmp_proxies = {
+                'http': self.proxy,
+            }
+            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+            tmp_headers = self.headers
+            tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
+            tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
+
+            try:
+                response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                body = response.content.decode('utf-8')
+
+                body = re.compile('\t').sub('', body)
+                body = re.compile('  ').sub('', body)
+                body = re.compile('\r\n').sub('', body)
+                body = re.compile('\n').sub('', body)
+                # print(body)
+            except Exception:
+                print('requests.get()请求超时....')
+                print('data为空!')
+                body = ''
+
+            return body
+
+    def get_proxy_ip_from_ip_pool(self):
+        '''
+        从代理ip池中获取到对应ip
+        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
+        '''
+        base_url = 'http://127.0.0.1:8000'
+        result = requests.get(base_url).json()
+
+        result_ip_list = {}
+        result_ip_list['http'] = []
+        for item in result:
+            if item[2] > 7:
+                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
+                result_ip_list['http'].append(tmp_url)
+            else:
+                delete_url = 'http://127.0.0.1:8000/delete?ip='
+                delete_info = requests.get(delete_url + item[0])
+        # pprint(result_ip_list)
+        return result_ip_list
+
     def is_recent_time(self, timestamp):
         '''
         判断是否在指定的日期差内
@@ -188,22 +292,6 @@ class Mia_Miaosha_Real_Time_Update(object):
         else:           # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
             return 2
 
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
-
-    def __del__(self):
-        gc.collect()
 
 def get_shanghai_time_hour():
     '''
@@ -263,7 +351,7 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 def just_fuck_run():
     while True:
         print('一次大更新即将开始'.center(30, '-'))
-        tmp = Mia_Miaosha_Real_Time_Update()
+        tmp = MoGuJieMiaoShaRealTimeUpdate()
         tmp.run_forever()
         try:
             del tmp

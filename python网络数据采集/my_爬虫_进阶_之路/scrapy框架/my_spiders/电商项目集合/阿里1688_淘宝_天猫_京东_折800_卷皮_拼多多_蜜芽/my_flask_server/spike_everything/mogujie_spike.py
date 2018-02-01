@@ -114,7 +114,7 @@ class MoGuJieSpike(object):
 
                         # price设置为原价
                         try:
-                            tmp_price_list = sorted([round(float(item.get('normal_price', '')), 2) for item in goods_data['price_info_list']])
+                            tmp_price_list = sorted([round(float(item_4.get('normal_price', '')), 2) for item_4 in goods_data['price_info_list']])
                             price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品原价
                             goods_data['price'] = price
                         except:
@@ -172,7 +172,7 @@ class MoGuJieSpike(object):
                 tmp_data = {}
 
             if tmp_data == {}:
-                print('t为空值!')
+                print('tmp_data为空{}!')
                 pass
             else:
                 # pprint(tmp_data)
