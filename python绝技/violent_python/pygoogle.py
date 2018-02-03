@@ -9,7 +9,8 @@ $ wget https://github.com/4rsh/
 """
 
 import requests
-import BeautifulSoup
+from bs4 import BeautifulSoup
+# import BeautifulSoup
 import os
 
 os.system("clear")
@@ -29,7 +30,7 @@ r = requests.get('https://www.google.com.br/search?q=%s&num=50&start=50' % (quer
 if r.status_code != 200:
     print ("Error\n")
 else:
-    soup = BeautifulSoup.BeautifulSoup(r.content)
+    soup = BeautifulSoup(r.content, 'lxml')
 
     for link in soup.findAll(attrs={'class':'g'}):
 

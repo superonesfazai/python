@@ -30,7 +30,7 @@ sys.path.append('..')
 from settings import HEADERS
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING
+from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
 from decimal import Decimal
 
@@ -131,7 +131,7 @@ class MoGuJieSpike(object):
                         # pprint(goods_data)
                         # print(goods_data)
                         mogujie.insert_into_mogujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(1.2)  # 放慢速度
+                        sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 
         else:
             print('数据库连接失败，此处跳过!')
@@ -182,7 +182,7 @@ class MoGuJieSpike(object):
                 item_list = tmp_data.get('data', {}).get('list', [])
 
                 self.deal_with_data(event_time, item_list)
-                sleep(1.5)
+                sleep(MOGUJIE_SLEEP_TIME)
 
     def get_url_body(self, tmp_url):
             '''

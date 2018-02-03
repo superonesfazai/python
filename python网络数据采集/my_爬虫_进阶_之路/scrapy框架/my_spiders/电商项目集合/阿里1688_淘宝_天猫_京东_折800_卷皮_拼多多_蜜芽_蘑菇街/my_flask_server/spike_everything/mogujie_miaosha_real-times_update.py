@@ -24,7 +24,7 @@ import json
 from pprint import pprint
 import time
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING
+from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import requests
 from decimal import Decimal
 
@@ -139,11 +139,9 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                             # pprint(goods_data)
                                             # print(goods_data)
                                             mogujie_miaosha.update_mogujie_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                            sleep(1.2)  # 放慢速度
+                                            sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
                                     else:
                                         pass
-
-
 
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
