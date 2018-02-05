@@ -8,9 +8,7 @@
 '''
 
 import sys
-# sys.path.append('....')
-# sys.path.append('~/myFiles/python/my_flask_server')
-sys.path.append('/Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街/my_flask_server/')
+sys.path.append('..')
 
 import requests
 import json
@@ -27,12 +25,13 @@ import re, gc
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 
-from requests.exceptions import ReadTimeout
+from requests.exceptions import ReadTimeout, ConnectionError
 
 reload(sys)
 
 # 全局变量
 index = 1
+db_nick_name_list = []
 
 def datetime_to_timestamp_in_milliseconds(d):
     def current_milli_time(): return int(round(time.time() * 1000))
@@ -73,6 +72,7 @@ def get_proxy_ip_from_ip_pool():
     return result_ip_list
 
 def main_2():
+    global db_nick_name_list
     uas = LoadUserAgents("user_agents.txt")
     head = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
@@ -88,6 +88,9 @@ def main_2():
     time1 = time.time()
 
     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+
+    # db_nick_name_list = my_pipeline.select_all_nick_name_from_sina_weibo()
+    # print(db_nick_name_list)
 
     for m in range(1, 9500):  # 1 ,9500
         urls = []
@@ -124,7 +127,7 @@ def main_2():
                           proxies=tmp_proxies,
                           timeout=8) \
                     .text
-            except ReadTimeout:
+            except Exception:
                 return None
 
             time2 = time.time()

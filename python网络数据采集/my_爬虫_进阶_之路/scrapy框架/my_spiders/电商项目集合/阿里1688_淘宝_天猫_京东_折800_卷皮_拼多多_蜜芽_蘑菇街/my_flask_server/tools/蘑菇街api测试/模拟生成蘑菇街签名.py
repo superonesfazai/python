@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : __init__.py
-@Time    : 2018/2/3 10:45
+@File    : 模拟生成蘑菇街签名.py
+@Time    : 2018/2/3 17:04
 @connect : superonesfazai@gmail.com
 '''

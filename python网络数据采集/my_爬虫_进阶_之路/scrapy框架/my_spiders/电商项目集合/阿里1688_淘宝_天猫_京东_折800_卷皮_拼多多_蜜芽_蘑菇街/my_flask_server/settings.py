@@ -58,7 +58,7 @@ ZHE_800_SPIKE_SLEEP_TIME = .7   # 没抓取一个sleep time的时间,用于避�
 '''
 蜜芽 base_number相关
 '''
-MIA_BASE_NUMBER = 57000         # 起始的base_number
+MIA_BASE_NUMBER = 56000         # 起始的base_number
 MIA_MAX_NUMBER = 75000          # 截止的base_number
 MIA_SPIKE_SLEEP_TIME = 1.3
 
