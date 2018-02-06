@@ -44,7 +44,7 @@ real_file_name_list = [
 ]
 
 other_file_name_list = [
-    'sina_head_img_and_nick_name',
+    # 'sina_head_img_and_nick_name',
     'bilibili_user',
 ]
 

@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+抓取B站用户信息
+"""
+
 import sys
 sys.path.append('..')
 
@@ -220,6 +224,7 @@ def main_2():
                 results = pool.map(getsource, urls)
 
             time.sleep(3)
+
         else:
             print('数据库连接失败!')
             pass
@@ -283,7 +288,7 @@ def main():
     main_2()
 
 if __name__ == '__main__':
-    if IS_BACKGROUND_RUNNING:
-        main()
-    else:
-        main_2()
+    # if IS_BACKGROUND_RUNNING:
+    #     main()
+    # else:
+    main_2()
