@@ -96,7 +96,7 @@ def main_2():
     # db_nick_name_list = my_pipeline.select_all_nick_name_from_sina_weibo()
     # print(db_nick_name_list)
 
-    for m in range(1, 9500):  # 1 ,9500
+    for m in range(6000, 9500):  # 1 ,9500
         urls = []
 
         for i in range(m * 100, (m + 1) * 100):
@@ -213,6 +213,7 @@ def main_2():
 
         if my_pipeline.is_connect_success:
             pool = ThreadPool(1)
+
             try:
                 results = pool.map(getsource, urls)
             except Exception:

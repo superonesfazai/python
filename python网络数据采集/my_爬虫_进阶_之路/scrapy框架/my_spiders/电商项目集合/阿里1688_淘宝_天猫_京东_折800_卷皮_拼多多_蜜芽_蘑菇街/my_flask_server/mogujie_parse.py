@@ -11,6 +11,9 @@
 蘑菇街页面解析
 """
 
+import sys
+sys.path.append('..')
+
 import time
 from random import randint
 import json
@@ -25,6 +28,12 @@ import gc
 
 from settings import HEADERS
 import pytz
+
+from tools.my_logging import set_logger
+
+log_name = './logs/log.txt'
+lg = set_logger(log_file_name=log_name)
+# lg.error('test')
 
 class MoGuJieParse(object):
     def __init__(self):

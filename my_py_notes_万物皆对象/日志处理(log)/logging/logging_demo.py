@@ -22,10 +22,10 @@ import logging
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s [%(levelname)s] at %(filename)s, %(lineno)d: %(message)s',
-    datefmt='%Y-%m-%d(%a)%H:%M:%S',
-    filename='out.txt',
-    filemode='w'
+    format='%(asctime)s [%(levelname)-8s] at %(filename)s, %(lineno)d:  %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename='out.log',
+    filemode='w',
 )
 
 # 将大于或等于INFO级别的日志信息输出到StreamHandler(默认为标准错误)
@@ -38,3 +38,14 @@ logging.getLogger().addHandler(console)
 logging.debug('gubed')
 logging.info('ofni')
 logging.critical('lacitirc')
+# logging.error('拉拉')
+
+def test():
+    try:
+        1/0
+    except Exception as e:
+        # logging.error(e)
+        logging.exception('except logged')
+
+test()
+logging.info('aaa')
