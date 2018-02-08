@@ -70,6 +70,7 @@ MOGUJIE_SLEEP_TIME = 1.3        # 间歇sleep时间
 '''
 拼多多
 '''
+PINDUODUO_SLEEP_TIME = 1.4      # sleep时间
 PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST = ['08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18']
 # 秒杀时长只有30分钟的时间点list，其他时间区间都是1小时
 PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '21']

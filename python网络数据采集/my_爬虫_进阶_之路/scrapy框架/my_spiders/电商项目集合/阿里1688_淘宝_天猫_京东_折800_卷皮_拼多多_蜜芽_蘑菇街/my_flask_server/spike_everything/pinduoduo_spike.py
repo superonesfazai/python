@@ -28,7 +28,7 @@ from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
 import datetime
 
 # phantomjs驱动地址
@@ -104,7 +104,7 @@ class PinduoduoSpike(object):
                                 goods_data['is_delete'] = 1
 
                             pinduoduo.insert_into_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(1.2)
+                        sleep(PINDUODUO_SLEEP_TIME)
 
                 else:
                     print('该goods_id为"None", 此处跳过')
@@ -126,6 +126,7 @@ class PinduoduoSpike(object):
         # today_data = self.get_url_body(tmp_url=tmp_url)
         today_data = self.phantomjs_get_url_body(tmp_url=tmp_url)
         today_data = self.json_to_dict(tmp_data=today_data)
+        sleep(PINDUODUO_SLEEP_TIME)
 
         # 明日的秒杀
         tmp_url_2 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000'
@@ -133,6 +134,7 @@ class PinduoduoSpike(object):
         # tomorrow_data = self.get_url_body(tmp_url=tmp_url_2)
         tomorrow_data = self.phantomjs_get_url_body(tmp_url=tmp_url_2)
         tomorrow_data = self.json_to_dict(tmp_data=tomorrow_data)
+        sleep(PINDUODUO_SLEEP_TIME)
 
         # 未来的秒杀
         tmp_url_3 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000'
@@ -140,6 +142,7 @@ class PinduoduoSpike(object):
         # all_after_data = self.get_url_body(tmp_url=tmp_url_3)
         all_after_data = self.phantomjs_get_url_body(tmp_url=tmp_url_3)
         all_after_data = self.json_to_dict(tmp_data=all_after_data)
+        sleep(PINDUODUO_SLEEP_TIME)
 
         if today_data != []:
             today_miaosha_goods_list = self.get_miaoshao_goods_info_list(data=today_data)

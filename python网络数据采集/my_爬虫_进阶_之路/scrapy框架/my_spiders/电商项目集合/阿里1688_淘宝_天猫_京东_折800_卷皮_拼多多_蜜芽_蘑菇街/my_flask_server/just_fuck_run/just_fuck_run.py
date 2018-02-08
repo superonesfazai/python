@@ -18,8 +18,8 @@ spike_file_name_list = [
     'zhe_800_miaosha_real-times_update',
     'juanpi_spike',
     'juanpi_miaosha_real-times_update',
-    # 'pinduoduo_spike',
-    # 'pinduoduo_miaosha_real-times_update',
+    'pinduoduo_spike',
+    'pinduoduo_miaosha_real-times_update',
     'mia_spike',
     'mia_miaosha_real-times_update',
     'mogujie_spike',
@@ -45,7 +45,7 @@ real_file_name_list = [
 
 other_file_name_list = [
     # 'sina_head_img_and_nick_name',
-    'bilibili_user',
+    # 'bilibili_user',
 ]
 
 def auto_run(*params):

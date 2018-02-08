@@ -30,12 +30,22 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 
 from requests.exceptions import ReadTimeout, ConnectionError
+from requests_futures.sessions import FuturesSession
+
+import asyncio
+import aiohttp
 
 reload(sys)
 
 # 全局变量
 index = 1
-db_nick_name_list = []
+# db_nick_name_list = []
+
+tmp__ = SqlServerMyPageInfoSaveItemPipeline()
+print('正在获取db中的所有nick_name....耐心等待....')
+db_nick_name_list = [item[0] for item in tmp__.select_all_nick_name_from_sina_weibo()]
+print(len(db_nick_name_list))
+print('完成')
 
 def datetime_to_timestamp_in_milliseconds(d):
     def current_milli_time(): return int(round(time.time() * 1000))
@@ -75,6 +85,17 @@ def get_proxy_ip_from_ip_pool():
     # pprint(result_ip_list)
     return result_ip_list
 
+async def test(head, payload, tmp_proxies):
+    async with aiohttp.request(
+            'POST',
+            url='http://space.bilibili.com/ajax/member/GetInfo',
+            headers=head,
+            data=payload,
+            proxy=tmp_proxies['http'],
+    ) as r:
+        tmp_ = await r.text()
+        return tmp_
+
 def main_2():
     global db_nick_name_list
     uas = LoadUserAgents("user_agents.txt")
@@ -96,7 +117,7 @@ def main_2():
     # db_nick_name_list = my_pipeline.select_all_nick_name_from_sina_weibo()
     # print(db_nick_name_list)
 
-    for m in range(6000, 9500):  # 1 ,9500
+    for m in range(4500, 9500):  # 1 ,9500
         urls = []
 
         for i in range(m * 100, (m + 1) * 100):
@@ -125,12 +146,13 @@ def main_2():
             }
 
             try:
-                jscontent = requests.session().post('http://space.bilibili.com/ajax/member/GetInfo',
-                          headers=head,
-                          data=payload,
-                          proxies=tmp_proxies,
-                          timeout=8) \
-                    .text
+                jscontent = requests.session().post(
+                    url='http://space.bilibili.com/ajax/member/GetInfo',
+                    headers=head,
+                    data=payload,
+                    proxies=tmp_proxies,
+                    timeout=8
+                ).text
             except Exception:
                 return None
 
@@ -161,6 +183,11 @@ def main_2():
                             return None
 
                         if re.compile(r'noface.gif').findall(face) != []:
+                            return None
+
+                        if name in db_nick_name_list:
+                            print('[%d]该nick_name已存在于db中' % index)
+                            index += 1
                             return None
 
                         print("(索引值为: %d) Succeed: " % index + mid + "\t" + str(time2 - time1))

@@ -2504,7 +2504,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def select_all_nick_name_from_sina_weibo(self):
         cs = self.conn.cursor()
         try:
-            cs.execute('set lock_timeout=4000;')
+            # cs.execute('set lock_timeout 10000;')
             cs.execute('select nick_name from dbo.sina_weibo')
             # self.conn.commit()
 

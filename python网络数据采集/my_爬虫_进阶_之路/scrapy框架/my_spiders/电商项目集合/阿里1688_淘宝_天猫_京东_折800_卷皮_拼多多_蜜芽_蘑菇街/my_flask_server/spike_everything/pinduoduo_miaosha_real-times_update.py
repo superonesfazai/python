@@ -25,7 +25,7 @@ from settings import HEADERS
 import requests
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
 import datetime
 
 # phantomjs驱动地址
@@ -71,6 +71,13 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             pinduoduo_miaosha = PinduoduoParse()
+
+            all_miaosha_goods_list = self.get_all_miaosha_goods_list()
+
+            # 其中所有goods_id的list
+            miaosha_goods_all_goods_id = [i.get('goods_id') for i in all_miaosha_goods_list]
+            # print(miaosha_goods_all_goods_id)
+
             for item in result:  # 实时更新数据
                 # 对于拼多多先拿到该商品的结束时间点
                 miaosha_end_time = json.loads(item[1]).get('miaosha_end_time')
@@ -88,17 +95,10 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
-                        # break       # 跳出循环
                         pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                     else:  # 返回1，表示在待更新区间内
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-
-                        all_miaosha_goods_list = self.get_all_miaosha_goods_list()
-
-                        # 其中所有goods_id的list
-                        miaosha_goods_all_goods_id = [i.get('goods_id') for i in all_miaosha_goods_list]
-                        # print(miaosha_goods_all_goods_id)
 
                         if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                             '''
@@ -122,7 +122,6 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                                     else:  # 否则就解析并且插入
                                         goods_data['stock_info'] = item_1.get('stock_info')
                                         goods_data['goods_id'] = item_1.get('goods_id')
-                                        # goods_data['username'] = '18698570079'
                                         if item_1.get('stock_info').get('activity_stock') > 0:
                                             goods_data['price'] = item_1.get('price')  # 秒杀前的原特价
                                             goods_data['taobao_price'] = item_1.get('taobao_price')  # 秒杀价
@@ -139,7 +138,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
 
                                         # print(goods_data)
                                         pinduoduo_miaosha.to_update_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                    sleep(1.2)
+                                    sleep(PINDUODUO_SLEEP_TIME)
                                 else:
                                     pass
 
