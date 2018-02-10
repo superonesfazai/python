@@ -18,8 +18,8 @@ spike_file_name_list = [
     'zhe_800_miaosha_real-times_update',
     'juanpi_spike',
     'juanpi_miaosha_real-times_update',
-    'pinduoduo_spike',
-    'pinduoduo_miaosha_real-times_update',
+    # 'pinduoduo_spike',
+    # 'pinduoduo_miaosha_real-times_update',
     'mia_spike',
     'mia_miaosha_real-times_update',
     'mogujie_spike',
@@ -33,6 +33,8 @@ pintuan_file_name_list = [
     'juanpi_pintuan_real-times_update',
     'mia_pintuan',
     'mia_pintuan_real-times_update',
+    'mogujie_pintuan',
+    'mogujie_pintuan_real-times_update',
 ]
 
 real_file_name_list = [
