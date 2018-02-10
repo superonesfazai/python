@@ -403,7 +403,7 @@ class Zhe800PintuanParse(object):
         # print('is_delete=', tmp['is_delete'])
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.insert_into_zhe_800_pintuan_table(tmp)
 

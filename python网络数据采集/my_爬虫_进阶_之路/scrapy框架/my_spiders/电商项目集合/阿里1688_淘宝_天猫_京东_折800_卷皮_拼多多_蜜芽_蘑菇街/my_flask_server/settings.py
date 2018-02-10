@@ -49,11 +49,12 @@ TAOBAO_REAL_TIMES_SLEEP_TIME = 1.8      # 加拿大服务器可以设置为.4s
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 15700         # 起始session_id
-MAX_SESSION_ID = 19000          # 截止的session_id
-SPIDER_START_HOUR = 8           # 每日限时秒杀爬取的开始秒杀时间点
-SPIDER_END_HOUR = 16            # 每日限时秒杀爬取的秒杀结束时间点
-ZHE_800_SPIKE_SLEEP_TIME = .7   # 没抓取一个sleep time的时间,用于避免返回为空的情况
+BASE_SESSION_ID = 15700             # 起始session_id
+MAX_SESSION_ID = 19000              # 截止的session_id
+SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
+SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
+ZHE_800_SPIKE_SLEEP_TIME = .7       # 没抓取一个sleep time的时间,用于避免返回为空的情况
+ZHE_800_PINTUAN_SLEEP_TIME = 1.4    # 折800拼团sleep_time
 
 '''
 蜜芽 base_number相关

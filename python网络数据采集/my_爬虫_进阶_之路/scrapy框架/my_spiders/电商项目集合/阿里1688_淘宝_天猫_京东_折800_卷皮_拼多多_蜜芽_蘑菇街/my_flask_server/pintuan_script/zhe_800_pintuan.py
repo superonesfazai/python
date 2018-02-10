@@ -23,7 +23,7 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, IS_BACKGROUND_RUNNING
+from settings import HEADERS, IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import datetime
@@ -96,7 +96,7 @@ class Zhe800Pintuan(object):
 
                         # print(goods_data)
                         zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                    sleep(1.2)
+                    sleep(ZHE_800_PINTUAN_SLEEP_TIME)
                     gc.collect()
 
         else:
@@ -228,7 +228,7 @@ def just_fuck_run():
         #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60*5)
+        sleep(60*3)
 
 def main():
     '''

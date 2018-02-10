@@ -16,7 +16,7 @@ import gc
 from time import sleep
 import os, re, pytz, datetime
 import json
-from settings import IS_BACKGROUND_RUNNING
+from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 
 def run_forever():
     while True:
@@ -51,7 +51,6 @@ def run_forever():
                     print('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                     tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
 
                     # 不用这个了因为会影响到正常情况的商品
@@ -72,6 +71,7 @@ def run_forever():
                             tmp_sql_server.delete_zhe_800_pintuan_expired_goods_id(goods_id=item[0])
                             print('该goods_id[{0}]已过期，删除成功!'.format(item[0]))
                         else:
+                            print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                             zhe_800_pintuan.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         pass
@@ -85,7 +85,7 @@ def run_forever():
                 except:
                     pass
                 gc.collect()
-                sleep(1.2)
+                sleep(ZHE_800_PINTUAN_SLEEP_TIME)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
