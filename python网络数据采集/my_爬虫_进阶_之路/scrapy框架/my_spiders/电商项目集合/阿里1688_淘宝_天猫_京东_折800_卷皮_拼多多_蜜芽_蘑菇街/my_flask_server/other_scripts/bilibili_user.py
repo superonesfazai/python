@@ -83,7 +83,10 @@ class BiLiBiLiUser(object):
         :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
         '''
         base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
+        try:
+            result = requests.get(base_url).json()
+        except:
+            return []
 
         result_ip_list = {}
         result_ip_list['http'] = []
@@ -117,7 +120,7 @@ class BiLiBiLiUser(object):
 
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
-        for m in range(1, 9500):  # 1 ,9500
+        for m in range(6000, 9500):  # 1 ,9500
             urls = []
 
             for i in range(m * 100, (m + 1) * 100):
@@ -135,6 +138,9 @@ class BiLiBiLiUser(object):
 
                 # 设置ip代理
                 proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+                if proxies == []:   # 避免报错跳出
+                    return None
+
                 proxy = proxies['http'][randint(0, len(proxies) - 1)]
 
                 tmp_proxies = {
@@ -154,15 +160,22 @@ class BiLiBiLiUser(object):
 
                 time2 = time.time()
                 try:
-                    jsDict = json.loads(jscontent)
-                    statusJson = jsDict['status'] if 'status' in jsDict.keys() else False
+                    try:
+                        jsDict = json.loads(jscontent)
+                        statusJson = jsDict['status'] if 'status' in jsDict.keys() else False
+                    except:
+                        return None
+
                     if statusJson == True:
                         if 'data' in jsDict.keys():
                             jsData = jsDict['data']
-                            mid = jsData['mid']
-                            name = jsData['name']
-                            # sex = jsData['sex']
-                            face = jsData['face']
+                            try:
+                                mid = jsData['mid']
+                                name = jsData['name']
+                                # sex = jsData['sex']
+                                face = jsData['face']
+                            except:
+                                return None
                             # coins = jsData['coins']
                             # spacesta = jsData['spacesta']
                             # birthday = jsData['birthday'] if 'birthday' in jsData.keys() else 'nobirthday'
@@ -244,8 +257,12 @@ class BiLiBiLiUser(object):
                     pool.close()
                     pool.join()
                     time.sleep(3)
-                    pool = ThreadPool(1)
-                    results = pool.map(getsource, urls)
+
+                    try:
+                        pool = ThreadPool(1)
+                        results = pool.map(getsource, urls)
+                    except:
+                        break
 
                 time.sleep(3)
 

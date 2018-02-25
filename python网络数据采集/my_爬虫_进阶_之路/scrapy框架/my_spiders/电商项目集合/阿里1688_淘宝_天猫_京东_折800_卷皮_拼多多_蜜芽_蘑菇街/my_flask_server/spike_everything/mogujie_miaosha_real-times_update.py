@@ -76,7 +76,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server.delete_mia_miaosha_expired_goods_id(goods_id=item[0])
+                        tmp_sql_server.delete_mogujie_miaosha_expired_goods_id(goods_id=item[0])
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                     elif self.is_recent_time(miaosha_end_time) == 2:

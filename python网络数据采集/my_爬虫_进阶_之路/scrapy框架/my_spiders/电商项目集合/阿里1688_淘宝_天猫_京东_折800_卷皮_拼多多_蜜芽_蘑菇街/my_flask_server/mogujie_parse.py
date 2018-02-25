@@ -205,7 +205,7 @@ class MoGuJieParse(object):
                     data['div_desc'] = div_desc
 
                 '''
-                获取去detail_name_list
+                获取detail_name_list
                 '''
                 detail_name_list = self.get_goods_detail_name_list(sku_info=sku_info)
                 # print(detail_name_list)

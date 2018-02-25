@@ -32,7 +32,7 @@ def get_info_and_delete_ip():
     delete_url = 'http://127.0.0.1:8000/delete?ip='
 
     for item in result:
-        if item[2] <8:
+        if item[2] <11:
             delete_info = requests.get(delete_url + item[0])
             print(delete_info.text)
 

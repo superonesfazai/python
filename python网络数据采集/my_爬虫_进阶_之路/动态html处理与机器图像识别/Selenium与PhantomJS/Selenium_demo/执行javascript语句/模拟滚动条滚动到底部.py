@@ -15,8 +15,9 @@ driver = webdriver.PhantomJS(executable_path='/Users/afa/myFiles/tools/phantomjs
 # driver.get('https://movie.douban.com/typerank?type_name=剧情&type=11&interval_id=100:90&action=')
 # driver.get('https://d.weibo.com')
 # url  = 'https://weibo.com/tupiandingjian?refer_flag=0000015010_/info?mod&is_all=1'
-url = 'https://item.taobao.com/item.htm?id=542022399141&ali_trackid=2:mm_55678658_12502097_47308190:1508679867_237_2040095806&spm=a21bo.7925826.192013.3.64336a46QXTShg'
+# url = 'https://item.taobao.com/item.htm?id=542022399141&ali_trackid=2:mm_55678658_12502097_47308190:1508679867_237_2040095806&spm=a21bo.7925826.192013.3.64336a46QXTShg'
 # url = 'https://h5.m.taobao.com/app/detail/desc.html?_isH5Des=true#!id=546756179626&type=0&f=TB1aJRLQXXXXXXyXFXX8qtpFXlX&sellerType=C'
+url = 'https://m.chuchujie.com/details/detail.html?id=10016793335#'
 
 start_time = time()
 driver.get(url)
@@ -59,5 +60,5 @@ sleep(4)
 
 # 查看页面快照
 driver.save_screenshot('newdouban.png')
-
+print(driver.page_source)
 driver.quit()
