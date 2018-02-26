@@ -377,6 +377,63 @@ class ChuChuJie_9_9_Parse(object):
 
         pipeline.insert_into_chuchujie_xianshimiaosha_table(tmp)
 
+    def update_chuchujie_xianshimiaosha_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        # tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:
+            print('此处抓到的可能是楚楚街券所以跳过')
+            return None
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        # tmp['miaosha_time'] = data_list.get('miaosha_time')
+
+        # 采集的来源地
+        # tmp['site_id'] = 24  # 采集来源地(楚楚街9.9，19.9，29.9秒杀商品)
+
+        # tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        # tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+
+        pipeline.update_chuchujie_xianshimiaosha_table(tmp)
+
     def get_price_info_list(self, *params):
         '''
         获取每个规格对应价格跟规格以及其库存

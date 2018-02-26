@@ -2012,6 +2012,45 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
 
+    def update_chuchujie_xianshimiaosha_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                # item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['is_delete'],
+                # dumps(item['miaosha_time'], ensure_ascii=False),
+                # item['miaosha_begin_time'],
+                # item['miaosha_end_time'],
+
+                item['goods_id'],
+            ]
+
+            cs.execute('update dbo.chuchujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s',
+                tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
+
     def select_ali_1688_all_goods_id(self):
         try:
             cs = self.conn.cursor()
@@ -2512,6 +2551,21 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             except Exception:
                 pass
             return None
+
+    def delete_chuchujie_miaosha_expired_goods_id(self, goods_id):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('delete from dbo.chuchujie_xianshimiaosha where goods_id=%s', tuple([goods_id]))
+            self.conn.commit()
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 删除对应goods_id记录时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
 
     def insert_into_jd_youxuan_daren_recommend_table(self, item):
         try:

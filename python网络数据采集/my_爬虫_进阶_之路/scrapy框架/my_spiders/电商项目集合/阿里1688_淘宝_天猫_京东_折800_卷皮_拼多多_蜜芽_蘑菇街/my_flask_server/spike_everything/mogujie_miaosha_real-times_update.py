@@ -86,7 +86,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                     else:   # 返回1，表示在待更新区间内
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                         data['goods_id'] = item[0]
-                        # print('------>>>| 爬取到的数据为: ', data)
 
                         item_list = self.get_item_list(event_time=str(item[2]))
                         if item_list == '':
@@ -105,7 +104,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
 
                             if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
-                                tmp_sql_server.delete_mia_miaosha_expired_goods_id(goods_id=item[0])
+                                tmp_sql_server.delete_mogujie_miaosha_expired_goods_id(goods_id=item[0])
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                 pass
 
@@ -218,39 +217,39 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         return item_list
 
     def get_url_body(self, tmp_url):
-            '''
-            根据url得到body
-            :param tmp_url:
-            :return: body   类型str
-            '''
-            # 设置代理ip
-            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+        '''
+        根据url得到body
+        :param tmp_url:
+        :return: body   类型str
+        '''
+        # 设置代理ip
+        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
-            tmp_proxies = {
-                'http': self.proxy,
-            }
-            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+        tmp_proxies = {
+            'http': self.proxy,
+        }
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
-            tmp_headers = self.headers
-            tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-            tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
+        tmp_headers = self.headers
+        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
+        tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
 
-            try:
-                response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                body = response.content.decode('utf-8')
+        try:
+            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            body = response.content.decode('utf-8')
 
-                body = re.compile('\t').sub('', body)
-                body = re.compile('  ').sub('', body)
-                body = re.compile('\r\n').sub('', body)
-                body = re.compile('\n').sub('', body)
-                # print(body)
-            except Exception:
-                print('requests.get()请求超时....')
-                print('data为空!')
-                body = ''
+            body = re.compile('\t').sub('', body)
+            body = re.compile('  ').sub('', body)
+            body = re.compile('\r\n').sub('', body)
+            body = re.compile('\n').sub('', body)
+            # print(body)
+        except Exception:
+            print('requests.get()请求超时....')
+            print('data为空!')
+            body = ''
 
-            return body
+        return body
 
     def get_proxy_ip_from_ip_pool(self):
         '''
