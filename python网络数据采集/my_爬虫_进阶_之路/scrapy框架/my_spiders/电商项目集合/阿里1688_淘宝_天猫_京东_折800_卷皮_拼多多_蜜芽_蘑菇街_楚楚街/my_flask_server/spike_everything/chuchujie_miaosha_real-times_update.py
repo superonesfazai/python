@@ -29,7 +29,6 @@ from settings import HEADERS, IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
 import requests
 from decimal import Decimal
 
-
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):
         self.headers = {
@@ -163,10 +162,10 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                                     chuchujie_miaosha.update_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
                                     sleep(CHUCHUJIE_SLEEP_TIME)
 
-
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
+
                 index += 1
                 gc.collect()
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
