@@ -149,6 +149,13 @@ class Zhe800PintuanParse(object):
                 data['p_info'] = p_info
                 data['stock_info'] = stock_info
 
+                if stock_info.get('pin_status', 2) == 3:
+                    print('##### 该拼团商品已经被抢光 ...')
+                    is_delete = 1
+                else:
+                    is_delete = 0
+                data['is_delete'] = is_delete
+
                 self.result_data = data
                 # pprint(data)
                 return data
@@ -296,7 +303,7 @@ class Zhe800PintuanParse(object):
             # pprint(schedule)
 
             # 用于判断商品是否下架
-            is_delete = 0
+            is_delete = data['is_delete']
             if schedule != []:
                 if data.get('sale_end_time') is not None:
                     end_time = data.get('sale_end_time')
@@ -737,7 +744,7 @@ class Zhe800PintuanParse(object):
 if __name__ == '__main__':
     zhe_800_pintuan = Zhe800PintuanParse()
     while True:
-        zhe_800_pintuan_url = input('请输入待爬取的拼多多商品地址: ')
+        zhe_800_pintuan_url = input('请输入待爬取的折800拼团商品地址: ')
         zhe_800_pintuan_url.strip('\n').strip(';')
         goods_id = zhe_800_pintuan.get_goods_id_from_url(zhe_800_pintuan_url)
         data = zhe_800_pintuan.get_goods_data(goods_id=goods_id)

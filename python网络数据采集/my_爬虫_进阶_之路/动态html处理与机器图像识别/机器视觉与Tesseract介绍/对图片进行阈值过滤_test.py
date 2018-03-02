@@ -33,8 +33,8 @@ def cleanFile(filePath, newFilePath):
     print(file.read())
     file.close()
 
-# cleanFile("./images/tess2.png", "./images/tess2clean.png")
-cleanFile('./images/seccode.jpeg', './images/seccode.jpeg')
+cleanFile("./images/tess2.png", "./images/tess2clean.png")
+# cleanFile('./images/seccode.jpeg', './images/seccode.jpeg')
 '''
 测试结果:
 Thus IS some text. written In Arial. that will be ,

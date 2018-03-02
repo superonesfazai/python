@@ -111,8 +111,8 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                         data['goods_id'] = item[0]
                         # print('------>>>| 爬取到的数据为: ', data)
 
-                        tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/get?sessionId={0}&page=1&per_page=1000'.format(
-                            str(item[2]),
+                        tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page=1&per_page=1000'.format(
+                            str(item[2])
                         )
 
                         body = self.get_url_body(url=tmp_url)
@@ -123,12 +123,12 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                             tmp_data = json.loads(tmp_data)
                             # pprint(tmp_data)
 
-                            if tmp_data.get('status') == 0:  # session_id不存在
+                            if tmp_data.get('data', {}).get('blocks', []) == []:  # session_id不存在
                                 print('该session_id不存在，此处跳过')
                                 pass
 
                             else:
-                                tmp_data = tmp_data.get('jsons', [])
+                                tmp_data = [item_s.get('deal', {}) for item_s in tmp_data.get('data', {}).get('blocks', [])]
                                 if tmp_data != []:  # 否则说明里面有数据
                                     miaosha_goods_list = self.get_miaoshao_goods_info_list(data=tmp_data)
                                     # pprint(miaosha_goods_list)
@@ -251,15 +251,15 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             # tmp['is_baoyou'] = item.get('is_baoyou', 0)
             # 限时秒杀的库存信息
             tmp['stock_info'] = {
-                'activity_stock': item.get('xianshi', {}).get('activity_stock', 0),  # activity_stock为限时抢的剩余数量
-                'stock': item.get('xianshi', {}).get('stock', 0),  # stock为限时秒杀的总库存
+                'activity_stock': item.get('activity_stock', 0),  # activity_stock为限时抢的剩余数量
+                'stock': item.get('stock', 0),  # stock为限时秒杀的总库存
             }
             # 原始价格
-            tmp['price'] = item.get('xianshi', {}).get('list_price')
+            tmp['price'] = float(item.get('list_price'))
             # 秒杀的价格, float类型
-            tmp['taobao_price'] = item.get('xianshi', {}).get('price')
+            tmp['taobao_price'] = float(item.get('price'))
             # 子标题
-            tmp['sub_title'] = item.get('xianshi', {}).get('description', '')
+            tmp['sub_title'] = item.get('description', '')
             miaosha_goods_list.append(tmp)
             # pprint(miaosha_goods_list)
 

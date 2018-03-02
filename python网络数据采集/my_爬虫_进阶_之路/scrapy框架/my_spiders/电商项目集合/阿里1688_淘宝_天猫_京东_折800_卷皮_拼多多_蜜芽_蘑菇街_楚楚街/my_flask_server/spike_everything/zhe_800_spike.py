@@ -54,11 +54,13 @@ class Zhe800Spike(object):
         base_session_id = BASE_SESSION_ID
         while base_session_id < MAX_SESSION_ID:
             print('待抓取的session_id为: ', base_session_id)
-            tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/get?sessionId={0}&page=1&per_page=1000'.format(
-                str(base_session_id),
+
+            tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page=1&per_page=1000'.format(
+                str(base_session_id)
             )
 
             body = self.get_url_body(url=tmp_url)
+            # print(body)
 
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
             if body_1 != []:
@@ -66,19 +68,32 @@ class Zhe800Spike(object):
                 data = json.loads(data)
                 # pprint(data)
 
-                if data.get('status') == 0:     # session_id不存在
+                if data.get('data', {}).get('blocks', []) == []:     # session_id不存在
                     print('该session_id不存在，此处跳过')
                     pass
 
                 else:                           # 否则session_id存在
-                    begin_times = data.get('begin_times')[0]
-                    print('秒杀时间为: ', begin_times)
-                    begin_times_timestamp = int(time.mktime(time.strptime(begin_times, '%Y-%m-%d %H:%M:%S'))) # 将如 "2017-09-28 10:00:00"的时间字符串转化为时间戳，然后再将时间戳取整
+                    # begin_times_timestamp = int(time.mktime(time.strptime(begin_times, '%Y-%m-%d %H:%M:%S'))) # 将如 "2017-09-28 10:00:00"的时间字符串转化为时间戳，然后再将时间戳取整
+
+                    try:
+                        begin_times_timestamp = int(str(data.get('data', {}).get('blocks', [])[0].get('deal', {}).get('begin_time', ''))[:10])
+                    except Exception as e:
+                        print('遇到严重错误: ', e)
+                        continue
+
+                    print('秒杀时间为: ', self.timestamp_to_regulartime(begin_times_timestamp))
 
                     if self.is_recent_time(timestamp=begin_times_timestamp):    # 说明秒杀日期合法
-                        data = data.get('jsons', [])
+                        try:
+                            data = [item_s.get('deal', {}) for item_s in data.get('data', {}).get('blocks', [])]
+                        except Exception as e:
+                            print('遇到严重错误: ', e)
+                            continue
+                        # pprint(data)
+
                         if data != []:  # 否则说明里面有数据
                             miaosha_goods_list = self.get_miaoshao_goods_info_list(data=data)
+                            # pprint(miaosha_goods_list)
 
                             zhe_800 = Zhe800Parse()
                             my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
@@ -135,6 +150,21 @@ class Zhe800Spike(object):
                 # return {}
                 pass
             base_session_id += 2
+
+    def timestamp_to_regulartime(self, timestamp):
+        '''
+        将时间戳转换成时间
+        '''
+        # 利用localtime()函数将时间戳转化成localtime的格式
+        # 利用strftime()函数重新格式化时间
+
+        # 转换成localtime
+        time_local = time.localtime(int(timestamp))
+        # print(time_local)
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+
+        return dt
 
     def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
         '''
@@ -218,15 +248,15 @@ class Zhe800Spike(object):
             # tmp['is_baoyou'] = item.get('is_baoyou', 0)
             # 限时秒杀的库存信息
             tmp['stock_info'] = {
-                'activity_stock': item.get('xianshi', {}).get('activity_stock', 0),  # activity_stock为限时抢的剩余数量
-                'stock': item.get('xianshi', {}).get('stock', 0),  # stock为限时秒杀的总库存
+                'activity_stock': item.get('activity_stock', 0),  # activity_stock为限时抢的剩余数量
+                'stock': item.get('stock', 0),  # stock为限时秒杀的总库存
             }
             # 原始价格
-            tmp['price'] = item.get('xianshi', {}).get('list_price')
+            tmp['price'] = float(item.get('list_price'))
             # 秒杀的价格, float类型
-            tmp['taobao_price'] = item.get('xianshi', {}).get('price')
+            tmp['taobao_price'] = float(item.get('price'))
             # 子标题
-            tmp['sub_title'] = item.get('xianshi', {}).get('description', '')
+            tmp['sub_title'] = item.get('description', '')
             miaosha_goods_list.append(tmp)
             # pprint(miaosha_goods_list)
 

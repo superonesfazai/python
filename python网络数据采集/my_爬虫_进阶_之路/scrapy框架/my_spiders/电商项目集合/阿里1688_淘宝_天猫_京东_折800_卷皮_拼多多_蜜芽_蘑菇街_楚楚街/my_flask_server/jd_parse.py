@@ -25,6 +25,10 @@ from pprint import pprint
 
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from scrapy.selector import Selector
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -39,6 +43,16 @@ class JdParse(object):
             'Connection': 'keep-alive',
             'Host': 'jd.com;jd.hk',
             'User-Agent': HEADERS[randint(0, 34)],      # 随机一个请求头
+        }
+
+        # pc头, 只识别小写
+        self.pc_headers = {
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            # 'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'cache-control': 'max-age=0',
+            'connection': 'keep-alive',
+            'user-agent': HEADERS[randint(0, 34)],
         }
         self.result_data = {}
         self.init_phantomjs()
@@ -326,12 +340,23 @@ class JdParse(object):
             # print('最低价: ', taobao_price)
 
             # 所有示例图片地址
-            if data.get('images') is not None:
-                all_img_url = [{
-                    'img_url': item.get('bigpath')
-                } for item in data.get('images')]
+            '''
+            新增: 由于手机版获取到的jd示例图片数据有京东的水印，所以单独先通过pc端来获取图片，pc获取失败就用phone端的
+            '''
+            all_img_url = self.get_pc_no_watermark_picture(goods_id=goods_id)
+            if all_img_url == {}:   # 意外退出
+                self.result_data = {}
+                return {}
+
+            if all_img_url == []:   # 获取pc端失败, 即获取phone示例图
+                if data.get('images') is not None:
+                    all_img_url = [{
+                        'img_url': item.get('bigpath')
+                    } for item in data.get('images')]
+                else:
+                    all_img_url = []
             else:
-                all_img_url = []
+                pass
             # pprint(all_img_url)
 
             # 详细信息标签名对应属性
@@ -759,7 +784,47 @@ class JdParse(object):
         except Exception:
             print('动态切换ip失败')
             pass
-    
+
+    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
+        '''
+        通过phantomjs来获取url的body
+        :param url: 待获取的url
+        :return: 字符串类型
+        '''
+        self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        try:
+            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
+        except:
+            return ''
+
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+            if css_selector != '':
+                locator = (By.CSS_SELECTOR, css_selector)
+                try:
+                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                except Exception as e:
+                    print('遇到错误: ', e)
+                    return ''
+                else:
+                    print('div.d-content已经加载完毕')
+            main_body = self.driver.page_source
+            main_body = re.compile(r'\n').sub('', main_body)
+            main_body = re.compile(r'  ').sub('', main_body)
+            main_body = re.compile(r'\t').sub('', main_body)
+            # print(main_body)
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 15 seconds when loading page')
+            print('报错如下: ', e)
+            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            print('main_body为空!')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            main_body = ''
+
+        return main_body
+
     def get_goods_id_from_url(self, jd_url):
         # https://detail.1688.com/offer/559526148757.html?spm=b26110380.sw1688.mof001.28.sBWF6s
         is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(jd_url)
@@ -782,6 +847,47 @@ class JdParse(object):
                 else:
                     print('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
                     return []
+
+    def get_pc_no_watermark_picture(self, goods_id):
+        '''
+        获取pc端无水印示例图片
+        :param goods_id: eg: [0, '111111']
+        :return: {} 表示意外退出 | [] 表示获取pc无水印图片失败 | [{'img_url': 'xxxxx'}, ...] 表示success
+        '''
+        if goods_id == []:
+            return {}
+        elif goods_id[0] == 0:  # 京东常规商品，京东超市
+            tmp_pc_url = 'https://item.jd.com/' + str(goods_id[1]) + '.html'
+        elif goods_id[0] == 1:  # 京东全球购(税率无法计算忽略抓取)
+            tmp_pc_url = 'https://item.jd.hk/' + str(goods_id[1]) + '.html'
+        elif goods_id[0] == 2:  # 京东大药房
+            tmp_pc_url = 'https://item.yiyaojd.com/' + str(goods_id[1]) + '.html'
+        else:
+            return {}
+
+        # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
+        # tmp_pc_body = self.get_requests_body(tmp_url=tmp_pc_url, my_headers=self.pc_headers)
+        tmp_pc_body = self.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
+        # print(tmp_pc_body)
+        if tmp_pc_body == '':
+            print('#### 获取该商品的无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
+            all_img_url = []
+        else:
+            try:
+                all_img_url = list(Selector(text=tmp_pc_body).css('div#spec-list ul.lh li img::attr("src")').extract())
+                if all_img_url != []:
+                    all_img_url = ['https:' + item_img_url for item_img_url in all_img_url if re.compile(r'^http').findall(item_img_url) == []]
+                    all_img_url = [re.compile(r'/n5.*?jfs/').sub('/n1/jfs/', item_img_url) for item_img_url in all_img_url]
+                    all_img_url = [{
+                        'img_url': item_img_url,
+                    } for item_img_url in all_img_url]
+                else:
+                    all_img_url = []
+            except Exception as e:
+                print('获取商品pc版无水印示例图片时出错: ', e)
+                all_img_url = []
+
+        return all_img_url
 
     def __del__(self):
         try:

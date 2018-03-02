@@ -113,7 +113,7 @@ class ChuChuJie_9_9_Spike(object):
 
     def deal_with_data(self, *params):
         '''
-        处理并存储相关秒杀商品的数据
+        处理并存储相关秒杀商品数据
         :param params: 相关参数
         :return:
         '''

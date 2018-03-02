@@ -117,6 +117,7 @@ class Zhe800Parse(object):
                 sku = data.get('/app/detail/product/sku', '')
                 try:
                     sku = json.loads(sku)
+                    # pprint(sku)
                 except Exception:
                     print("json.loads转换出错，得到sku值可能为空，此处跳过")
                     sku = ''
@@ -477,7 +478,11 @@ class Zhe800Parse(object):
 
             # 详细信息标签名对应属性
             try:
-                profiles = data.get('/app/detail/product/profiles', {}).get('profiles')
+                tmp_profiles = data.get('/app/detail/product/profiles')
+                if tmp_profiles is None:
+                    profiles = None
+                else:
+                    profiles = data.get('/app/detail/product/profiles', {}).get('profiles')
             except AttributeError as e:
                 print('AttributeError属性报错，为: ', e)
                 print("data.get('/app/detail/product/profiles', {}).get('profiles')获取失败, 此处跳过")
