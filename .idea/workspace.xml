@@ -2,54 +2,84 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/matplotlib_note" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/.ipynb_checkpoints/创建数组-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/.ipynb_checkpoints/数据类型-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/.ipynb_checkpoints/数组索引和切片-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/.ipynb_checkpoints/数组运算-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/numpy_note" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/创建数组.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/数据类型.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/数组索引和切片.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/numpy相关/数组运算.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/pandas相关/.ipynb_checkpoints/pandas_demo_1-checkpoint.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/pandas相关/pandas_demo_1.ipynb" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/pandas相关/pandas_note" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/pandas相关/some_data/uk_rain_2014.csv" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/K最邻近算法-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/K最邻近算法-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/Slope_One算法-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/Slope_One算法-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/python推荐模块-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/python推荐模块-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/使用加权的Slope_One算法进行预测-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/使用加权的Slope_One算法进行预测-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/协同过滤-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/协同过滤-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/应该使用哪种相似度?-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/应该使用哪种相似度?-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/计算余弦相似度-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/计算余弦相似度-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/计算修正余弦相似度-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/计算修正余弦相似度-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/计算曼哈顿距离-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/计算曼哈顿距离-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/计算皮尔逊相关系数-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/计算皮尔逊相关系数-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/.ipynb_checkpoints/计算闵可夫斯基距离-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/.ipynb_checkpoints/计算闵可夫斯基距离-checkpoint.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/K最邻近算法.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/K最邻近算法.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/Slope_One算法.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/Slope_One算法.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/python推荐模块.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/python推荐模块.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/余弦相似度计算公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/余弦相似度计算公式.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/使用加权的Slope One算法进行预测.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/使用加权的Slope One算法进行预测.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/使用加权的Slope_One算法进行预测.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/使用加权的Slope_One算法进行预测.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/修正的余弦相似度.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/修正的余弦相似度.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/加权的Slope One算法：推荐逻辑的实现.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/加权的Slope One算法：推荐逻辑的实现.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/协同过滤.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/协同过滤.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/应该使用哪种相似度?.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/应该使用哪种相似度?.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/曼哈顿距离计算公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/曼哈顿距离计算公式.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/欧几里得距离计算公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/欧几里得距离计算公式.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/皮尔逊相关系数的近似值计算公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/皮尔逊相关系数的近似值计算公式.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/皮尔逊相关系数计算公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/皮尔逊相关系数计算公式.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/计算余弦相似度.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/计算余弦相似度.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/计算修正余弦相似度.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/计算修正余弦相似度.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/计算曼哈顿距离.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/计算曼哈顿距离.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/计算物品间差异的公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/计算物品间差异的公式.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/计算皮尔逊相关系数.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/计算皮尔逊相关系数.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/计算闵可夫斯基距离.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/计算闵可夫斯基距离.ipynb" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/数据挖掘/闵可夫斯基距离计算公式.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/闵可夫斯基距离计算公式.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/tmp_figpath.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/.ipynb_checkpoints/线性图-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/.ipynb_checkpoints/matplotlib_pyplot_demo-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/Haiti.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/macrodata.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/3d_图-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/barplots-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/boxplots-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/clust_complete_linkage-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/errorbars-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/heatmaps-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/tricks-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/散布图-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_1-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_2-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_3-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_4-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/特殊图-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/线性图-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/酒馆老板-checkpoint.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/3d_图.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/barplots.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/boxplots.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/clust_complete_linkage.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/errorbars.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/heatmaps.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/histograms.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/tricks.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/散布图.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_1.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_2.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_3.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_4.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/特殊图.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/线性图.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/酒馆老板.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib_pyplot_demo.ipynb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/tips.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/线性图.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/.ipynb_checkpoints/matplotlib_pyplot_demo-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/.ipynb_checkpoints/matplotlib_pyplot_demo-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/Haiti.csv" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/Haiti.csv" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/macrodata.csv" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/macrodata.csv" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/3d_图-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/3d_图-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/barplots-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/barplots-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/boxplots-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/boxplots-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/clust_complete_linkage-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/clust_complete_linkage-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/errorbars-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/errorbars-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/heatmaps-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/heatmaps-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/tricks-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/tricks-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/散布图-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/散布图-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/格式_1-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_1-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/格式_2-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_2-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/格式_3-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_3-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/格式_4-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/格式_4-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/特殊图-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/特殊图-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/线性图-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/线性图-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/.ipynb_checkpoints/酒馆老板-checkpoint.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/.ipynb_checkpoints/酒馆老板-checkpoint.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/3d_图.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/3d_图.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/barplots.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/barplots.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/boxplots.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/boxplots.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/clust_complete_linkage.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/clust_complete_linkage.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/errorbars.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/errorbars.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/heatmaps.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/heatmaps.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/histograms.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/histograms.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/tricks.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/tricks.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/散布图.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/散布图.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/格式_1.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_1.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/格式_2.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_2.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/格式_3.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_3.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/格式_4.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/格式_4.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/特殊图.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/特殊图.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/线性图.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/线性图.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib-画廊/酒馆老板.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib-画廊/酒馆老板.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/matplotlib_pyplot_demo.ipynb" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/matplotlib_pyplot_demo.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/tips.csv" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/tips.csv" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/tmp_figpath.png" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/tmp_figpath.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街/my_flask_server/spike_everything/ghostdriver.log" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街/my_flask_server/spike_everything/ghostdriver.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/matplotlib_note" afterPath="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/matplotlib_note" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -974,6 +1004,17 @@
             <path>
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="modules_python常用模块" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -1061,6 +1102,19 @@
               <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
               <item name="数据分析与挖掘" type="462c0819:PsiDirectoryNode" />
+              <item name="matplotlib相关(绘图)" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="数据分析与挖掘" type="462c0819:PsiDirectoryNode" />
+              <item name="matplotlib相关(绘图)" type="462c0819:PsiDirectoryNode" />
+              <item name="other_画廊" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PythonDoc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PythonDoc" type="462c0819:PsiDirectoryNode" />
+              <item name="数据分析与挖掘" type="462c0819:PsiDirectoryNode" />
               <item name="numpy相关" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -1089,19 +1143,19 @@
     <option name="SHOW_DIALOG" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/数据分析与挖掘/pandas相关/some_data" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/images" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/google的开源pytesseract识别验证码" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街/my_flask_server/tools" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/日志处理" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街/my_flask_server/other_scripts" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽/my_flask_server/tools/淘宝api测试" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/just_fuck_run" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/play_with_scrapy_module/my_spiders/zhihu.com/my_zhihu_use_oauth" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊" />
+      <recent name="$PROJECT_DIR$/数据分析与挖掘/pandas相关/some_data" />
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/images" />
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/google的开源pytesseract识别验证码" />
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街/my_flask_server/tools" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -1767,30 +1821,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街/my_flask_server/templates/select_3.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2780">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/训练Tesseract">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/从网站图片中抓取文字/从网站图片中抓取文字_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="16" column="27" lean-forward="false" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/动态html处理与机器图像识别/机器视觉与Tesseract介绍/images/6.9.png">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -2073,17 +2103,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/matplotlib_note">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="15">
-            <caret line="1" column="58" lean-forward="false" selection-start-line="1" selection-start-column="58" selection-end-line="1" selection-end-column="58" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/scrapy_note">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -2112,6 +2131,36 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/数据分析与挖掘/numpy相关/数组运算.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/matplotlib_note">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="15">
+            <caret line="1" column="58" lean-forward="false" selection-start-line="1" selection-start-column="58" selection-end-line="1" selection-end-column="58" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/tmp_figpath.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/画图相关/matplotlib/.ipynb_checkpoints/matplotlib_pyplot_demo-checkpoint.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/数据分析与挖掘/matplotlib相关(绘图)/other_画廊/.ipynb_checkpoints/matplotlib_pyplot_demo-checkpoint.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
           <selected id="0" />
