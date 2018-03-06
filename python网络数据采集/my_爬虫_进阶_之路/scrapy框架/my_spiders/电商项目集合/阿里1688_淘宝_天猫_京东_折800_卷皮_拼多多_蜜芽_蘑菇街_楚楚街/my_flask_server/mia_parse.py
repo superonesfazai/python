@@ -136,6 +136,7 @@ class MiaParse(object):
                 获取每个规格对应价格跟规格以及其库存
                 '''
                 if self.get_true_sku_info(sku_info=sku_info) == {}:     # 表示出错退出
+                    self.result_data = {}
                     return {}
                 else:                                                   # 成功获取
                     true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info)
