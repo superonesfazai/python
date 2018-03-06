@@ -1337,9 +1337,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             pass
 
     def insert_into_pinduoduo_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['goods_id'],
                 item['spider_url'],
@@ -1516,6 +1515,53 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
+
+    def insert_into_vip_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['username'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],                          # 存入到DetailInfo
+                item['all_sell_count'],
+                dumps(item['schedule'], ensure_ascii=False),
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+                       tuple(params))   # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
 
     def insert_into_mia_xianshimiaosha_table(self, item):
         cs = self.conn.cursor()

@@ -8,7 +8,7 @@
 '''
 
 """
-唯品会常规商品页面解析系统
+唯品会常规商品页面解析系统(也可采集预售商品)
 """
 
 import time
@@ -47,13 +47,13 @@ class VipParse(object):
         :param goods_id:
         :return: data dict类型
         '''
-        if goods_id == '':
+        if goods_id == []:
             self.result_data = {}
             return {}
         else:
             data = {}
             # 常规商品手机地址
-            goods_url = 'https://m.vip.com/product-0-' + str(goods_id) + '.html'
+            goods_url = 'https://m.vip.com/product-0-' + str(goods_id[1]) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
             body = self.get_url_body(tmp_url=goods_url)
@@ -183,15 +183,6 @@ class VipParse(object):
             # 子标题
             sub_title = data['sub_title']
 
-            # 商品价格和淘宝价
-            try:
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
-                price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品价格
-                taobao_price = Decimal(tmp_price_list[0]).__round__(2)  # 淘宝价
-            except IndexError:
-                self.result_data = {}
-                return {}
-
             # 商品标签属性名称
             detail_name_list = data['detail_name_list']
 
@@ -203,6 +194,7 @@ class VipParse(object):
 
             # 详细信息标签名对应属性
             p_info = data['p_info']
+            # pprint(p_info)
 
             # div_desc
             div_desc = data['div_desc']
@@ -221,6 +213,20 @@ class VipParse(object):
                 'end_time': self.timestamp_to_regulartime(int(data.get('sell_time', {}).get('end_time', ''))),
             }]
 
+            # 销售总量
+            all_sell_count = ''
+
+            # 商品价格和淘宝价
+            # pprint(data['price_info_list'])
+            try:
+                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
+                price = tmp_price_list[-1]  # 商品价格
+                taobao_price = tmp_price_list[0]  # 淘宝价
+            except IndexError:
+                print('获取price和taobao_price时出错, 请检查!')
+                self.result_data = {}
+                return {}
+
             result = {
                 'shop_name': shop_name,                 # 店铺名称
                 'account': account,                     # 掌柜
@@ -236,9 +242,10 @@ class VipParse(object):
                 'p_info': p_info,                       # 详细信息标签名对应属性
                 'div_desc': div_desc,                   # div_desc
                 'schedule': schedule,                   # 商品特价销售时间段
+                'all_sell_count': all_sell_count,       # 销售总量
                 'is_delete': is_delete                  # 用于判断商品是否已经下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -247,10 +254,12 @@ class VipParse(object):
             # }
             # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
             # print(json_data)
+            self.result_data = {}
             return result
 
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            self.result_data = {}
             return {}
 
     def get_detail_name_list(self, tmp_data):
@@ -261,13 +270,16 @@ class VipParse(object):
         '''
         detail_name_list = []
         multiColor = tmp_data.get('multiColor', {})
+        # pprint(multiColor)
         productSku = tmp_data.get('productSize', {}).get('productSku', [])
 
         if multiColor == {} or productSku == []:
             print('获取detail_name_list失败, 请检查!')
             raise Exception
         else:
-            if multiColor.get('items', []).__len__() == 1:
+            if multiColor.get('items') is None:
+                pass
+            elif multiColor.get('items', []).__len__() == 1:
                 pass
             else:
                 detail_name_list.append({'spec_name': multiColor.get('name', '')})
@@ -302,18 +314,21 @@ class VipParse(object):
         if multiColor == {} or productSku == {}:
             return []
         else:
-            tmp_color_items = multiColor.get('items', [])
-            color_ = []
-            for item in tmp_color_items:
-                if item.get('type', 0) == 1:    # 该颜色无库存
-                    continue
-                else:                           # 为0，表示有库存
-                    # 先获取到有库存的对应规格, 是否有颜色属性后面再判断
-                    color_.append({
-                        'goods_id': item.get('product_id', ''),
-                        'name': item.get('name', ''),
-                        'img_url': 'https:' + item.get('icon', {}).get('imageUrl', '')
-                    })
+            if multiColor.get('items') is None:
+                color_ = None
+            else:
+                tmp_color_items = multiColor.get('items', [])
+                color_ = []
+                for item in tmp_color_items:
+                    if item.get('type', 0) == 1:    # 该颜色无库存
+                        continue
+                    else:                           # 为0，表示有库存
+                        # 先获取到有库存的对应规格, 是否有颜色属性后面再判断
+                        color_.append({
+                            'goods_id': item.get('product_id', ''),
+                            'name': item.get('name', ''),
+                            'img_url': 'https:' + item.get('icon', {}).get('imageUrl', '')
+                        })
 
             if color_ == []:    # 没有规格
                 print('获取到的color_为空[], 请检查!')
@@ -325,19 +340,35 @@ class VipParse(object):
                     if item.get('type', 0) == 1:    # 该规格无库存
                         continue
                     else:                           # 该规格有库存
+                        detail_price = item.get('promotion_price', '')
+                        if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
+                            detail_price = item.get('vipshop_price', '')
+                        else:
+                            pass
+                        normal_price = item.get('market_price', '')
+                        if normal_price == '':
+                            normal_price = detail_price
                         other_.append({
                             'spec_value': item.get('sku_name', ''),
-                            'detail_price': item.get('promotion_price', ''),
-                            'normal_price': item.get('market_price', ''),
+                            'detail_price': detail_price,
+                            'normal_price': normal_price,
                             'img_url': '',      # 设置默认为空值
                             'rest_number': item.get('leavings', 0),  # 该规格的剩余库存量
                         })
 
-                if len(color_) == 1:    # 颜色长度为1时，表示唯品会默认选择的属性，不需要将color_相关的值添加到spec_value里面
+                if color_ is None:
+                    for item_2 in other_:
+                        spec_value = item_2.get('spec_value', '')
+                        item_2['spec_value'] = spec_value
+                        item_2['img_url'] = ''
+                        true_sku_info.append(item_2)
+
+                elif len(color_) == 1:    # 颜色长度为1时，表示唯品会默认选择的属性，不需要将color_相关的值添加到spec_value里面
                     true_sku_info = other_
+
                 else:
                     for item in color_:
-                        if item.get('goods_id') == goods_id:    # 表示为原先的那个goods_id
+                        if item.get('goods_id') == goods_id[1]:    # 表示为原先的那个goods_id
                             if item.get('name', '') == '无':     # 表示无颜色属性
                                 pass
                             else:
@@ -380,10 +411,16 @@ class VipParse(object):
                                     if item_3.get('type', 0) == 1:  # 该规格无库存
                                         continue
                                     else:  # 该规格有库存
+                                        detail_price = item_3.get('promotion_price', '')
+                                        if detail_price == '' or goods_id[0] == 1:  # 为空就改为获取vipshop_price字段
+                                            detail_price = item_3.get('vipshop_price', '')
+                                        normal_price = item_3.get('market_price', '')
+                                        if normal_price == '':
+                                            normal_price = detail_price
                                         other_2.append({
                                             'spec_value': item_3.get('sku_name', ''),
-                                            'detail_price': item_3.get('promotion_price', ''),
-                                            'normal_price': item_3.get('market_price', ''),
+                                            'detail_price': detail_price,
+                                            'normal_price': normal_price,
                                             'rest_number': item_3.get('leavings', 0),  # 设置默认的值
                                             'img_url': '',  # 设置默认为空值
                                         })
@@ -589,9 +626,8 @@ class VipParse(object):
         :return: [] 表示出错 | [xxx, ...] 表示success
         '''
         tmp_p_info = tmp_data.get('productSize', {}).get('product', {}).get('attrSpecProps', [])
-        if tmp_p_info == []:
-            print('获取到的p_info为空[], 请检查!')
-            raise Exception
+        # pprint(tmp_p_info)
+        # pprint(tmp_data.get('productSize', {}).get('product', {}))
 
         p_info = []
         brandStoreName = tmp_data.get('productSize', {}).get('product', {}).get('brandStoreName', '')
@@ -599,11 +635,43 @@ class VipParse(object):
             p_info.append({'p_name': '品牌名称', 'p_value': brandStoreName})
 
         p_info.append({'p_name': '商品名称', 'p_value': tmp_data.get('productSize', {}).get('product', {}).get('product_name', '')})
+
+        # 产地
+        areaOutput = tmp_data.get('productSize', {}).get('product', {}).get('areaOutput', '')
+        if areaOutput != '':
+            p_info.append({'p_name': '产地', 'p_value': areaOutput})
+
+        # 材质相关
+        itemProperties = tmp_data.get('productSize', {}).get('product', {}).get('itemProperties', [])
+        if itemProperties != []:
+            for item in itemProperties:
+                p_info.append({'p_name': item.get('name', ''), 'p_value': item.get('value', '')})
+
+        # 洗涤说明相关
+        itemDetailModules = tmp_data.get('productSize', {}).get('product', {}).get('itemDetailModules', [])
+        if itemDetailModules != []:
+            for item in itemDetailModules:
+                p_info.append({'p_name': item.get('name', ''), 'p_value': item.get('value', '')})
+
+        if tmp_p_info == []:
+            # print('获取到的p_info为空[], 请检查!')
+            return p_info
+
         for item in tmp_p_info:
             try:
+                p_value = item.get('values', [])
+                if p_value != [] and p_value.__len__() > 1:
+                    p_value = [item_6.get('optionName', '') for item_6 in p_value]
+                    p_value = ' '.join(p_value)
+
+                elif p_value.__len__() == 1:
+                    p_value = item.get('values', [])[0].get('optionName', '')
+
+                else:
+                    p_value = ''
                 p_info.append({
                     'p_name': item.get('attributeName', ''),
-                    'p_value': item.get('values', [])[0].get('optionName', '')
+                    'p_value': p_value
                 })
             except IndexError:
                 print('在解析p_info时索引出错, 请检查!')
@@ -684,22 +752,35 @@ class VipParse(object):
         '''
         得到goods_id
         :param vip_url:
-        :return: goods_id (类型str)
+        :return: goods_id (类型list)
         '''
-        is_vip_irl = re.compile(r'https://m.vip.com/product-0-.*?.html.*?').findall(vip_url)
-        if is_vip_irl != []:
-            if re.compile(r'https://m.vip.com/product-0-(\d+).html.*?').findall(vip_url) != []:
-                tmp_vip_url = re.compile(r'https://m.vip.com/product-0-(\d+).html.*?').findall(vip_url)[0]
+        is_vip_url = re.compile(r'https://m.vip.com/product-(\d*)-.*?.html.*?').findall(vip_url)
+        if is_vip_url != []:
+            if re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url) != []:
+                tmp_vip_url = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url)[0]
                 if tmp_vip_url != '':
                     goods_id = tmp_vip_url
                 else:   # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
                     vip_url = re.compile(r';').sub('', vip_url)
-                    goods_id = re.compile(r'https://m.vip.com/product-0-(\d+).html.*?').findall(vip_url)[0]
+                    goods_id = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url)[0]
                 print('------>>>| 得到的唯品会商品的goods_id为:', goods_id)
-                return goods_id
+                return [0, goods_id]
         else:
-            print('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html)开头的...')
-            return ''
+            # 是否是预售商品
+            is_vip_preheading = re.compile(r'https://m.vip.com/preheating-product-(\d+)-.*?.html.*?').findall(vip_url)
+            if is_vip_preheading != []:
+                if re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url) != []:
+                    tmp_vip_url = re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url)[0]
+                    if tmp_vip_url != '':
+                        goods_id = tmp_vip_url
+                    else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
+                        vip_url = re.compile(r';').sub('', vip_url)
+                        goods_id = re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url)[0]
+                    print('------>>>| 得到的唯品会 预售商品 的goods_id为:', goods_id)
+                    return [1, goods_id]
+            else:
+                print('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html) or (https://m.vip.com/preheating-product-xxxx-xxxx.html)开头的...')
+                return []
 
     def __del__(self):
         gc.collect()

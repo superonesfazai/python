@@ -137,6 +137,7 @@ JD_SPIDER_TO_SHOW_PATH = 'templates/jd_spider_to_show.html'
 ZHE_800_SPIDER_TO_SHOW_PATH = 'templates/zhe_800_spider_to_show.html'
 JUANPI_SPIDER_TO_SHOW_PATH = 'templates/juanpi_spider_to_show.html'
 PINDUODUO_SPIDER_TO_SHOW_PATH = 'templates/pinduoduo_spider_to_show.html'
+VIP_SPIDER_TO_SHOW_PATH = 'templates/vip_spider_to_show.html'
 
 """
 headers
