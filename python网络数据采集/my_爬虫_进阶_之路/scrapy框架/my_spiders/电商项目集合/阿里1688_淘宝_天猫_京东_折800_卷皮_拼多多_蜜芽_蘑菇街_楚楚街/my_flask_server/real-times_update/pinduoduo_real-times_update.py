@@ -110,7 +110,7 @@ def run_forever():
             sleep(60*60*5.5)
         else:
             sleep(5)
-        # del ali_1688
+        # del pinduoduo
         gc.collect()
 
 def set_delete_time_from_orginal_time(my_shelf_and_down_time):

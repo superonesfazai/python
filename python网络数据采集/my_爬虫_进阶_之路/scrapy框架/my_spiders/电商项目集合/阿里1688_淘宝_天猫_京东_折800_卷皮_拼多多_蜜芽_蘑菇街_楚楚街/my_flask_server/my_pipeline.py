@@ -1384,9 +1384,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def update_pinduoduo_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['modfiy_time'],
                 item['shop_name'],
@@ -1562,6 +1561,50 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
+
+    def update_vip_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['all_sell_count'],
+                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+                item['delete_time'],
+                item['is_delete'],
+                dumps(item['schedule'], ensure_ascii=False),
+
+                item['goods_id'],
+            ]
+
+            cs.execute(
+                'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
+                tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
+            pass
 
     def insert_into_mia_xianshimiaosha_table(self, item):
         cs = self.conn.cursor()
@@ -2447,6 +2490,24 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 cs.close()
             except Exception:
                 pass
+
+    def select_vip_all_goods_id(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=25')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
 
     def select_mia_xianshimiaosha_all_goods_id(self):
         cs = self.conn.cursor()

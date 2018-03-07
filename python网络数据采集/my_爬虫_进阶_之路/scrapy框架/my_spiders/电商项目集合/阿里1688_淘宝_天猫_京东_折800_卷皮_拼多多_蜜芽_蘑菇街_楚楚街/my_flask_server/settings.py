@@ -81,6 +81,11 @@ PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '
 '''
 CHUCHUJIE_SLEEP_TIME = 1.2      # sleep时间
 
+'''
+唯品会
+'''
+VIP_SLEEP_TIME = 1.2            # sleep时间
+
 """
 超级管理员账户名密码
 """

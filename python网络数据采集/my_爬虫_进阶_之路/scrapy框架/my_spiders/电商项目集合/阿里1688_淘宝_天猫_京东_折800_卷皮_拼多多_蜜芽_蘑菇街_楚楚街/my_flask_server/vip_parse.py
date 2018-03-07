@@ -44,7 +44,7 @@ class VipParse(object):
     def get_goods_data(self, goods_id):
         '''
         模拟构造得到data的url
-        :param goods_id:
+        :param goods_id: 类型 list
         :return: data dict类型
         '''
         if goods_id == []:
@@ -138,9 +138,11 @@ class VipParse(object):
                             '''
                             true_sku_info = self.get_true_sku_info(goods_id=goods_id, tmp_data=tmp_data)
                             # pprint(true_sku_info)
-                            if true_sku_info == []:
+                            if true_sku_info == []:     # 也可能是 表示没有库存, 买完或者下架
                                 print('获取到的sku_info为空值, 请检查!')
-                                raise Exception
+                                print('*** 注意可能是卖完了，库存为0 导致!! ***')
+                                # raise Exception
+                                data['price_info_list'] = true_sku_info
                             else:
                                 data['price_info_list'] = true_sku_info
 
@@ -199,13 +201,20 @@ class VipParse(object):
             # div_desc
             div_desc = data['div_desc']
 
-            # 用于判断商品是否已经下架
+            '''
+            用于判断商品是否已经下架
+            '''
             is_delete = 0
             all_rest_number = 0
             for item in price_info_list:
                 all_rest_number += item.get('rest_number', 0)
             if all_rest_number == 0:
                 is_delete = 1
+            # 当官方下架时间< int(time.time()) 则商品已下架 is_delete = 1
+            if int(data.get('sell_time', {}).get('end_time', '')) < int(time.time()):
+                print('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+                is_delete = 1
+            # print(is_delete)
 
             # 上下架时间
             schedule = [{
@@ -223,9 +232,13 @@ class VipParse(object):
                 price = tmp_price_list[-1]  # 商品价格
                 taobao_price = tmp_price_list[0]  # 淘宝价
             except IndexError:
-                print('获取price和taobao_price时出错, 请检查!')
+                print('获取price和taobao_price时出错, 请检查!')  # 商品下架时, detail_price为空str, 所以会IndexError报错
+                print('@@@@@@ 此处对该商品进行逻辑删除! @@@@@@')
                 self.result_data = {}
-                return {}
+                price = 0.
+                taobao_price = 0.
+                is_delete = 1
+                # return {}
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -261,6 +274,64 @@ class VipParse(object):
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             self.result_data = {}
             return {}
+
+    def to_right_and_update_data(self, data, pipeline):
+        '''
+        更新商品数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+
+        # 采集的来源地
+        # tmp['site_id'] = 25  # 采集来源地(唯品会常规商品)
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        tmp['delete_time'] = data_list.get('delete_time')
+        tmp['all_sell_count'] = str(data_list.get('all_sell_count'))
+
+        pipeline.update_vip_table(item=tmp)
 
     def get_detail_name_list(self, tmp_data):
         '''
@@ -330,31 +401,36 @@ class VipParse(object):
                             'img_url': 'https:' + item.get('icon', {}).get('imageUrl', '')
                         })
 
-            if color_ == []:    # 没有规格
+            if color_ == []:    # 没有规格 也可能是 # 表示没有库存, 买完或者下架
                 print('获取到的color_为空[], 请检查!')
                 return []
             else:
-                other_items = productSku.get('items', [])
-                other_ = []
-                for item in other_items:
-                    if item.get('type', 0) == 1:    # 该规格无库存
-                        continue
-                    else:                           # 该规格有库存
-                        detail_price = item.get('promotion_price', '')
-                        if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
-                            detail_price = item.get('vipshop_price', '')
-                        else:
-                            pass
-                        normal_price = item.get('market_price', '')
-                        if normal_price == '':
-                            normal_price = detail_price
-                        other_.append({
-                            'spec_value': item.get('sku_name', ''),
-                            'detail_price': detail_price,
-                            'normal_price': normal_price,
-                            'img_url': '',      # 设置默认为空值
-                            'rest_number': item.get('leavings', 0),  # 该规格的剩余库存量
-                        })
+                if productSku.get('items') is None:
+                    print('获取到的others_items为None')
+                    return []
+
+                else:
+                    other_items = productSku.get('items', [])
+                    other_ = []
+                    for item in other_items:
+                        if item.get('type', 0) == 1:    # 该规格无库存
+                            continue
+                        else:                           # 该规格有库存
+                            detail_price = item.get('promotion_price', '')
+                            if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
+                                detail_price = item.get('vipshop_price', '')
+                            else:
+                                pass
+                            normal_price = item.get('market_price', '')
+                            if normal_price == '':
+                                normal_price = detail_price
+                            other_.append({
+                                'spec_value': item.get('sku_name', ''),
+                                'detail_price': detail_price,
+                                'normal_price': normal_price,
+                                'img_url': '',      # 设置默认为空值
+                                'rest_number': item.get('leavings', 0),  # 该规格的剩余库存量
+                            })
 
                 if color_ is None:
                     for item_2 in other_:
