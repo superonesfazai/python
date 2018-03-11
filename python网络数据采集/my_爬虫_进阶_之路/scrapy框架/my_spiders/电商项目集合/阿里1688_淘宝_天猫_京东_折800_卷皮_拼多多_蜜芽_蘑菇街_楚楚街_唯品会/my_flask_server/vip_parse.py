@@ -128,6 +128,14 @@ class VipParse(object):
                                 raise Exception
                             data['div_desc'] = div_desc
 
+                            '''
+                            上下架时间
+                            '''
+                            data['sell_time'] = tmp_data.get('sell_time', {})
+                            if int(data['sell_time'].get('begin_time')) > int(time.time()):
+                                # *** 先根据上下架时间来判断是否为预售商品，如果是预售商品就按预售商品的method来去对应规格的价格
+                                goods_id = [1, goods_id[1]]     # 设置成预售的商品goods_id格式
+
                             # 设置detail_name_list
                             detail_name_list = self.get_detail_name_list(tmp_data=tmp_data)
                             # print(detail_name_list)
@@ -145,11 +153,6 @@ class VipParse(object):
                                 data['price_info_list'] = true_sku_info
                             else:
                                 data['price_info_list'] = true_sku_info
-
-                            '''
-                            上下架时间
-                            '''
-                            data['sell_time'] = tmp_data.get('sell_time', {})
 
                         except Exception as e:
                             print('遇到错误如下: ', e)
@@ -417,7 +420,9 @@ class VipParse(object):
                             continue
                         else:                           # 该规格有库存
                             detail_price = item.get('promotion_price', '')
-                            if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
+                            # 还是选择所有商品都拿最优惠的价格
+                            # if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
+                            if detail_price == '':      # 为空就改为获取vipshop_price字段
                                 detail_price = item.get('vipshop_price', '')
                             else:
                                 pass
@@ -488,7 +493,9 @@ class VipParse(object):
                                         continue
                                     else:  # 该规格有库存
                                         detail_price = item_3.get('promotion_price', '')
-                                        if detail_price == '' or goods_id[0] == 1:  # 为空就改为获取vipshop_price字段
+                                        # 还是都拿最优惠的价格 不管限时2小时时间问题的折扣
+                                        # if detail_price == '' or goods_id[0] == 1:  # 为空就改为获取vipshop_price字段
+                                        if detail_price == '':  # 为空就改为获取vipshop_price字段
                                             detail_price = item_3.get('vipshop_price', '')
                                         normal_price = item_3.get('market_price', '')
                                         if normal_price == '':

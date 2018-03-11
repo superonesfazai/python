@@ -45,6 +45,7 @@ real_file_name_list = [
     'tmall_real-times_update',
     'jd_real-times_update',
     'ali_1688_real-times_update',
+    'vip_real-times_update',
 ]
 
 other_file_name_list = [

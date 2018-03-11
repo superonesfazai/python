@@ -24,7 +24,7 @@ from scrapy.selector import Selector
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from jd_parse import JdParse
-import pytz, datetime
+import pytz, datetime, time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -53,14 +53,18 @@ class JdTalentRecommend(object):
             'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
             # 'X-Requested-With': 'XMLHttpRequest',
             'Referer': 'https://wqs.jd.com/shopping/daren.html',  # 必须的参数
-            'Cookie': 'mobilev=html5; webp=1; sc_width=414; shshshfpa=d66b90d1-e35b-4d2b-f376-e769e8f394ad-1512455224; wq_area=15_1213_0%7C; ipLoc-djd=1-72-2799-0; weather_timestamp=; __jdv=122270672%7Cdirect%7Ct_1000072661_17003_001%7Cweixin%7C-%7C1512456060372; rurl=http%3A%2F%2Fwqs.jd.com%2Fmy%2Findexv2.shtml%3Fshownav%3D1%26ptag%3D137196.10.4; TrackerID=GmU1QO9JecAa0YMIlS0iSwrcL_xL5sd7vXMXM7wJwc652plPJuY-HnzrBoLozFAayHuhURAQPfUmDIG4vxyGc3oHUXmlmcsWwpcfIdfT6yIRa3z5FRbClkwuz6rmigCAAIQz--5H5cJXblOMMqgpqg; pt_key=AAFaJj-8ADAiVqaGUebHBuYpIeFbGw0v6__-VM3z3yYYL1susCYjgvnvAaNZYNY3cITO5d2uKH8; pt_pin=jd_42a8fb51f9966; pt_token=ny81i9qi; pwdt_id=jd_42a8fb51f9966; buy_uin=15277665150; jdpin=jd_42a8fb51f9966; pin=jd_42a8fb51f9966; wq_skey=zm3D538945DC4C21823A8A61723FBE6550FE8BFEE3B88AA0E0ED63ACF55DB12AF36AAE7247E099C5B96BB167F955CC6CC6; wq_uin=15277665150; wq_logid=1512457148.1210098481; __jdu=1512454812735826109527; 3AB9D23F7A4B3C9B=E3J6QKDLSEMGLT6NNWSHD7D7WDL2WJMRIN3HWD3Y4P5YVRZPAZ2QMXWURQHIJLVPQPUFWOLHHUTYKI2OHUJFDCFJUE; __jda=122270672.1512454812735826109527.1512454813.1512454813.1512454813.1; __jdb=122270672.28.1512454812735826109527|1.1512454813; __jdc=122270672; mba_muid=1512454812735826109527; mba_sid=15124548495135409042709132064.24; sid=02ca8d35bacedc8cde4bd1e8890ff8bb; shshshfp=05f67ee8e0a575e4b0736225d3ecb2d2; shshshsID=f813878eddcc340213f6300f1fb4f7e8_42_1512457566857; shshshfpb=24603a59721c4492483e385e8a96854835a12b625c92e2942ce263c391; wxa_level=1; retina=1; cid=3; __wga=1512457589199.1512455224147.1512455224147.1512455224147.37.1; PPRD_P=EA.17003.4.1-UUID.1512454812735826109527-CT.39283.1.4-DAP.3550786096544613541%3A4316454547851%3A696%3A656007-FOCUS.FO4O604%253A3OA02873O2DEB74O5DC64O248A03%253A7O99CFA62DO23O19O3ED00BD718B5O2B8031F25E4475D045769',
+            # 'Cookie': 'mobilev=html5; webp=1; sc_width=414; shshshfpa=d66b90d1-e35b-4d2b-f376-e769e8f394ad-1512455224; wq_area=15_1213_0%7C; ipLoc-djd=1-72-2799-0; weather_timestamp=; __jdv=122270672%7Cdirect%7Ct_1000072661_17003_001%7Cweixin%7C-%7C1512456060372; rurl=http%3A%2F%2Fwqs.jd.com%2Fmy%2Findexv2.shtml%3Fshownav%3D1%26ptag%3D137196.10.4; TrackerID=GmU1QO9JecAa0YMIlS0iSwrcL_xL5sd7vXMXM7wJwc652plPJuY-HnzrBoLozFAayHuhURAQPfUmDIG4vxyGc3oHUXmlmcsWwpcfIdfT6yIRa3z5FRbClkwuz6rmigCAAIQz--5H5cJXblOMMqgpqg; pt_key=AAFaJj-8ADAiVqaGUebHBuYpIeFbGw0v6__-VM3z3yYYL1susCYjgvnvAaNZYNY3cITO5d2uKH8; pt_pin=jd_42a8fb51f9966; pt_token=ny81i9qi; pwdt_id=jd_42a8fb51f9966; buy_uin=15277665150; jdpin=jd_42a8fb51f9966; pin=jd_42a8fb51f9966; wq_skey=zm3D538945DC4C21823A8A61723FBE6550FE8BFEE3B88AA0E0ED63ACF55DB12AF36AAE7247E099C5B96BB167F955CC6CC6; wq_uin=15277665150; wq_logid=1512457148.1210098481; __jdu=1512454812735826109527; 3AB9D23F7A4B3C9B=E3J6QKDLSEMGLT6NNWSHD7D7WDL2WJMRIN3HWD3Y4P5YVRZPAZ2QMXWURQHIJLVPQPUFWOLHHUTYKI2OHUJFDCFJUE; __jda=122270672.1512454812735826109527.1512454813.1512454813.1512454813.1; __jdb=122270672.28.1512454812735826109527|1.1512454813; __jdc=122270672; mba_muid=1512454812735826109527; mba_sid=15124548495135409042709132064.24; sid=02ca8d35bacedc8cde4bd1e8890ff8bb; shshshfp=05f67ee8e0a575e4b0736225d3ecb2d2; shshshsID=f813878eddcc340213f6300f1fb4f7e8_42_1512457566857; shshshfpb=24603a59721c4492483e385e8a96854835a12b625c92e2942ce263c391; wxa_level=1; retina=1; cid=3; __wga=1512457589199.1512455224147.1512455224147.1512455224147.37.1; PPRD_P=EA.17003.4.1-UUID.1512454812735826109527-CT.39283.1.4-DAP.3550786096544613541%3A4316454547851%3A696%3A656007-FOCUS.FO4O604%253A3OA02873O2DEB74O5DC64O248A03%253A7O99CFA62DO23O19O3ED00BD718B5O2B8031F25E4475D045769',
         }
         self.init_phantomjs()
 
     def get_all_user_and_their_recommend_goods_list(self):
         for index in range(1, 100):
+            t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+
             # 达人推荐的地址(ajax请求)
-            tmp_url = 'https://wq.jd.com/shopgroup_feed/GetDarenFeeds?pageno={}&pagesize=5&perDarenFeedNum=3&g_tk=1975813451'.format(str(index))
+            tmp_url = 'https://wq.jd.com/shopgroup_feed/GetDarenFeeds?pageno={}&pagesize=5&darenType=0&perDarenFeedNum=3&totalpage=1&_={}&callback=jsonpCBKC&g_ty=ls'.format(
+                str(index), t
+            )
 
             self.from_ip_pool_set_proxy_ip_to_phantomjs()
             self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错

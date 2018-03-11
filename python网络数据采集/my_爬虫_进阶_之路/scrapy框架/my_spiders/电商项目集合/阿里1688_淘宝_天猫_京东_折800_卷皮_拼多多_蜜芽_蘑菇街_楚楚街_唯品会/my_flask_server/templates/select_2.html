@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -71,6 +71,10 @@
 		background: url(../static/images/pingduoduo.jpg)no-repeat;	
 		background-size: 100% 100%;			
 	}	
+	.vip span{
+		background: url(../static/images/vip.jpg)no-repeat;	
+		background-size: 100% 100%;			
+	}		
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -90,6 +94,9 @@
 		display: block;
 	}	
 	.pinduoduo span:hover .login-btn{
+		display: block;
+	}
+	.vip span:hover .login-btn{
 		display: block;
 	}
 	.login-btn{
@@ -208,6 +215,11 @@
     				</a>
     			</span>
     		</div>
+    		<div class="vip passListItem"><span>
+					<a class="login-btn" href="/show_vip" target="_blank">
+    					请点击登录
+    				</a>
+    		</span></div>    
     	</div>
     	<div class="passList" id="passList">
     		<div class="zhe_800 passListItem"><span>
@@ -220,13 +232,13 @@
     					请点击登录
     				</a>
     		</span></div>
-            <div class="pinduoduo passListItem"><span>
+    		<div class="pinduoduo passListItem"><span>
 					<a class="login-btn" href="/show_pinduoduo" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		</div>
-    	</div>
+    		</span></div>    		
+    		</div>      		
+    	</div>    	
     	<!--<ul class="login" id="login">
     		<li class="loginList">
 	 	    	<div class="scanLogin">
@@ -317,7 +329,17 @@
 						}
 					});
 				});
-	            $('.login-btn').eq(4).click(function(){
+				$('.login-btn').eq(4).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'vip_login'
+						}
+					});
+				});
+	            $('.login-btn').eq(5).click(function(){
 					$.ajax({
 						type:"post",
 						url:"",
@@ -327,7 +349,7 @@
 						}
 					});
 				});
-                $('.login-btn').eq(5).click(function(){
+        		$('.login-btn').eq(6).click(function(){
 					$.ajax({
 						type:"post",
 						url:"",
@@ -336,8 +358,8 @@
 							confirm_login:'juanpi_login'
 						}
 					});
-				});
-                $('.login-btn').eq(6).click(function(){
+				})
+                $('.login-btn').eq(7).click(function(){
 					$.ajax({
 						type:"post",
 						url:"",
