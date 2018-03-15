@@ -31,6 +31,7 @@ import gc
 
 from settings import PHANTOMJS_DRIVER_PATH, HEADERS
 import pytz, datetime
+from  scrapy.selector import Selector
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -75,6 +76,27 @@ class TmallParse(object):
                 WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
             except Exception as e:
                 print('遇到错误: ', e)
+                body_s = self.driver.page_source
+                body_s = re.compile(r'\n').sub('', body_s)
+                body_s = re.compile(r'\t').sub('', body_s)
+                body_s = re.compile(r'  ').sub('', body_s)
+                # print(body_s)
+
+                # 下架商品单独处理
+                try:
+                    pull_off_shelves = str(Selector(text=body_s).css('section.s-error div.message::text').extract_first())
+                    print('@@@@@@ 商品页面提示: ', pull_off_shelves)
+                except:
+                    pull_off_shelves = ''
+                if pull_off_shelves == '很抱歉，您查看的宝贝不存在，可能已下架或被转移' or pull_off_shelves == '很抱歉，系统繁忙':
+                    '''
+                    ## 表示该商品已经下架，注意: 很抱歉，系统繁忙也是商品下架的表现
+                    '''
+                    print('@@@@@@ 该商品已经下架...')
+                    tmp_data_s = self.init_pull_off_shelves_goods(type=type)
+                    self.result_data = {}
+                    return tmp_data_s
+
                 return 4041  # 未得到div#mod-detail-bd，返回4041
             else:
                 print('div#mod-detail-bd已经加载完毕')
@@ -616,6 +638,103 @@ class TmallParse(object):
 
         pipeline.update_tmall_table(tmp)
 
+    def old_tmall_goods_insert_into_new_table(self, data, pipeline):
+        '''
+        老库数据规范，然后存入
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['username'] = data_list['username']
+        tmp['spider_url'] = data_list['goods_url']
+        tmp['main_goods_id'] = data_list['main_goods_id']
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        # # 采集的来源地
+        if data_list.get('type') == 0:
+            tmp['site_id'] = 3  # 采集来源地(天猫)
+        elif data_list.get('type') == 1:
+            tmp['site_id'] = 4  # 采集来源地(天猫超市)
+        elif data_list.get('type') == 2:
+            tmp['site_id'] = 6  # 采集来源地(天猫国际)
+        else:
+            print('type为未知值, 导致site_id设置失败, 此处跳过!')
+            return False
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+
+        # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        # tmp['delete_time'] = data_list.get('delete_time')
+
+        pipeline.old_tmall_goods_insert_into_new_table(tmp)
+        return True
+
+    def init_pull_off_shelves_goods(self, type):
+        '''
+        初始化下架商品的数据
+        :return:
+        '''
+        is_delete = 1
+        result = {
+            'shop_name': '',  # 店铺名称
+            'account': '',  # 掌柜
+            'title': '',  # 商品名称
+            'sub_title': '',  # 子标题
+            'price': 0,  # 商品价格
+            'taobao_price': 0,  # 淘宝价
+            'goods_stock': '',  # 商品库存
+            'detail_name_list': [],  # 商品标签属性名称
+            'detail_value_list': [],  # 商品标签属性对应的值
+            'price_info_list': [],  # 要存储的每个标签对应规格的价格及其库存
+            'all_img_url': [],  # 所有示例图片地址
+            'p_info': [],  # 详细信息标签名对应属性
+            'pc_div_url': '',  # pc端描述地址
+            'div_desc': '',  # div_desc
+            'sell_count': '0',  # 月销量
+            'is_delete': is_delete,  # 是否下架判断
+            'type': type,  # 天猫类型
+        }
+        return result
+
     def init_phantomjs(self):
         """
         初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
@@ -740,6 +859,7 @@ if __name__ == '__main__':
         tmall_url = input('请输入待爬取的天猫商品地址: ')
         tmall_url.strip('\n').strip(';')
         goods_id = tmall.get_goods_id_from_url(tmall_url)   # 返回一个dict类型
+        # print(goods_id)
         if goods_id != []:
             data = tmall.get_goods_data(goods_id=goods_id)
             result = tmall.deal_with_data()
@@ -748,5 +868,3 @@ if __name__ == '__main__':
             gc.collect()
         else:
             print('获取到的天猫商品地址无法解析，地址错误')
-
-# https://detail.m.tmall.com/item.htm?id=43979920132&sku_properties=1627207:28320

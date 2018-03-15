@@ -1219,7 +1219,7 @@ def get_tmall_data():
             # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
             #####################################################
             if goods_id[0] == 0:        # [0, '1111']
-                wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]   # 构造成标准干净的淘宝商品地址
+                wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]   # 构造成标准干净的天猫商品地址
             elif goods_id[0] == 1:      # [1, '1111']
                 wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
             elif goods_id[0] == 2:      # [2, '1111', 'https://xxxxx']
