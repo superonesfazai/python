@@ -144,6 +144,15 @@ class TaoBaoLoginAndParse(object):
                 return {}
             # pprint(data)
 
+            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+                '''
+                ## 表示该商品已经下架, 原地址被重定向到新页面
+                '''
+                print('@@@@@@ 该商品已经下架...')
+                tmp_data_s = self.init_pull_off_shelves_goods()
+                self.result_data = {}
+                return tmp_data_s
+
             # 处理商品被转移或者下架导致页面不存在的商品
             if data.get('data').get('seller', {}).get('evaluates') is None:
                 print('data为空, 地址被重定向, 该商品可能已经被转移或下架')
@@ -520,6 +529,96 @@ class TaoBaoLoginAndParse(object):
         tmp['delete_time'] = data_list.get('delete_time')
 
         pipeline.update_taobao_table(tmp)
+
+    def old_taobao_goods_insert_into_new_table(self, data, pipeline):
+        '''
+        得到规范格式的data并且存入数据库
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['main_goods_id'] = data_list['main_goods_id']
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['goods_url']
+        tmp['username'] = data_list['username']
+        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+        tmp['link_name'] = ''  # 卖家姓名
+        tmp['account'] = data_list['account']  # 掌柜名称
+        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['price_info'] = []  # 价格信息
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        # 采集的来源地
+        tmp['site_id'] = 1  # 采集来源地(淘宝)
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+
+        # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        # tmp['delete_time'] = data_list.get('delete_time')
+
+        pipeline.old_taobao_goods_insert_into_new_table(tmp)
+
+    def init_pull_off_shelves_goods(self):
+        '''
+        状态为已下架商品的初始化
+        :return:
+        '''
+        is_delete = 1
+        result = {
+            'shop_name': '',  # 店铺名称
+            'account': '',  # 掌柜
+            'title': '',  # 商品名称
+            'sub_title': '',  # 子标题
+            # 'shop_name_url': shop_name_url,                     # 店铺主页地址
+            'price': 0,  # 商品价格
+            'taobao_price': 0,  # 淘宝价
+            'goods_stock': '',  # 商品库存
+            'detail_name_list': [],  # 商品标签属性名称
+            'detail_value_list': [],  # 商品标签属性对应的值
+            'price_info_list': [],  # 要存储的每个标签对应规格的价格及其库存
+            'all_img_url': [],  # 所有示例图片地址
+            'p_info': [],  # 详细信息标签名对应属性
+            'phone_div_url': '',  # 手机端描述地址
+            'pc_div_url': '',  # pc端描述地址
+            'div_desc': '',  # div_desc
+            'sell_count': '',  # 月销量
+            'is_delete': is_delete,  # 用于判断商品是否已经下架
+        }
+
+        return result
 
     def insert_into_taobao_tiantiantejia_table(self, data, pipeline):
         data_list = data

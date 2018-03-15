@@ -187,8 +187,8 @@ function p(e) {
 }
 var tmp_1 = JSON.stringify({"optStr":"{\"displayCount\":4,\"topItemIds\":[]}","bizCode":"tejia_003","currentPage":"1","pageSize":"4"})
 var t = (new Date).getTime()
-//var t = "1517389851466"
-var o_token = "04502c25df90b651f96cf8b1e79f6ef5"
+//var t = "1520925846965"
+var o_token = "71970a8a18369af5b825d0829f392bf9"
 var e = o_token + "&" + t + "&" + "12574478" + "&" + tmp_1
 var result = t.toString() + "|" + p(e)
 return result     //返回值让python接收

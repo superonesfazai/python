@@ -44,7 +44,7 @@ SELECT_HTML_NAME = 'select.html'
 '''
 淘宝实时更新的sleep_time
 '''
-TAOBAO_REAL_TIMES_SLEEP_TIME = 1.8      # 加拿大服务器可以设置为.4s
+TAOBAO_REAL_TIMES_SLEEP_TIME = 2      # 加拿大服务器可以设置为.4s
 
 '''
 折800 session_id相关

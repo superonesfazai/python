@@ -30,6 +30,7 @@ from settings import PHANTOMJS_DRIVER_PATH
 from settings import CHROME_DRIVER_PATH
 from settings import HEADERS
 import pytz
+from scrapy.selector import Selector
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -54,6 +55,10 @@ class ALi1688LoginAndParse(object):
         self.init_phantomjs()
 
     def get_ali_1688_data(self, goods_id):
+        if goods_id == '':
+            self.result_data = {}
+            return {}
+
         # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
 
@@ -95,6 +100,35 @@ class ALi1688LoginAndParse(object):
         body = re.compile(r'  ').sub('', body)
         tmp_body = body
         # print(body)
+
+        try:
+            pull_off_shelves = Selector(text=body).css('div.d-content p.info::text').extract_first()
+        except:
+            pull_off_shelves = ''
+        if pull_off_shelves == '该商品无法查看或已下架':   # 表示商品已下架, 同样执行插入数据操作
+            try:
+                tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                is_in_db = list(tmp_my_pipeline.select_the_goods_id_is_in_ali_1688_table(goods_id=goods_id))
+                # print(is_in_db)
+            except Exception:
+                print('数据库连接失败!')
+                self.result_data = {}
+                return {}
+            if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
+                tmp_my_pipeline.update_ali_1688_expired_goods_id_to_is_delete(goods_id=goods_id)
+                print('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
+                tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
+                tmp_data_s['before'] = True     # 用来判断原先该goods是否在db中
+                self.result_data = {}
+                return tmp_data_s
+
+            else:       # 表示该goods_id没存在于db中
+                print('@@@ 该商品已下架[但未存在于db中], ** 此处将其插入到db中...')
+                tmp_data_s = self.init_pull_off_shelves_goods()      # 初始化下架商品的属性
+                tmp_data_s['before'] = False
+                self.result_data = {}
+                return tmp_data_s
+
         body = re.compile(r'{"beginAmount"(.*?)</script></div></div>').findall(body)
         if body != []:
             body = body[0]
@@ -230,8 +264,14 @@ class ALi1688LoginAndParse(object):
                     tmp['spec_type'] = key
 
                     # 处理value得到需要的值
+                    # pprint(price_info)
                     if value.get('discountPrice') is None:  # 如果没有折扣价, 价格就为起批价
-                        value['discountPrice'] = price_info[0].get('price')
+                        try:
+                            value['discountPrice'] = price_info[0].get('price')
+                        except IndexError:
+                            print('获取价格失败, 此处跳过!')
+                            self.result_data = {}
+                            return {}
                     else:
                         if self.is_activity_goods:
                             pass
@@ -434,19 +474,117 @@ class ALi1688LoginAndParse(object):
         tmp['property_info'] = data_list.get('property_info')  # 详细信息
         tmp['detail_info'] = data_list.get('detail_info')  # 下方div
 
-        if re.compile(r'下架').findall(tmp['title']) != []:
-            if re.compile(r'待下架').findall(tmp['title']) != []:
-                tmp['is_delete'] = 0
-            else:
-                tmp['is_delete'] = 1
-        else:
-            tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+        tmp['is_delete'] = data_list.get('is_delete')
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)
+
+    def init_pull_off_shelves_goods(self):
+        '''
+        初始化原先就下架的商品信息
+        :return:
+        '''
+        is_delete = 1
+        result = {
+            'company_name': '',  # 公司名称
+            'title': '',  # 商品名称
+            'link_name': '',  # 卖家姓名
+            'price_info': [],  # 商品价格信息, 及其对应起批量
+            'sku_props': [],  # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
+            'sku_map': [],  # 每个规格对应价格, 及其库存量
+            'all_img_url': [],  # 所有示例图片地址
+            'property_info': [],  # 详细信息的标签名, 及其对应的值
+            'detail_info': '',  # 下方详细div块
+            'is_delete': is_delete,  # 判断是否下架
+        }
+
+        return result
+
+    def old_ali_1688_goods_insert_into_new_table(self, data, pipeline):
+        data_list = data
+        tmp = {}
+        tmp['main_goods_id'] = data_list['main_goods_id']
+        tmp['username'] = data_list['username']
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['goods_url']
+        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['company_name'] = data_list['company_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['link_name'] = data_list['link_name']  # 卖家姓名
+
+        # 设置最高价price， 最低价taobao_price
+        if len(data_list['price_info']) > 1:
+            tmp_ali_price = []
+            for item in data_list['price_info']:
+                tmp_ali_price.append(float(item.get('price')))
+
+            if tmp_ali_price == []:
+                tmp['price'] = Decimal(0).__round__(2)
+                tmp['taobao_price'] = Decimal(0).__round__(2)
+            else:
+                tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
+        elif len(data_list['price_info']) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
+            if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
+                tmp_price_range = data_list['price_info'][0].get('price')
+                tmp_price_range = tmp_price_range.split('-')
+                tmp['price'] = tmp_price_range[1]
+                tmp['taobao_price'] = tmp_price_range[0]
+            else:
+                tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                tmp['taobao_price'] = tmp['price']
+        else:  # 少于1
+            tmp['price'] = Decimal(0).__round__(2)
+            tmp['taobao_price'] = Decimal(0).__round__(2)
+
+        tmp['price_info'] = data_list['price_info']  # 价格信息
+        # print(tmp['price'], print(tmp['taobao_price']))
+        # print(tmp['price_info'])
+
+        spec_name = []
+        for item in data_list['sku_props']:
+            tmp_dic = {}
+            tmp_dic['spec_name'] = item.get('prop')
+            spec_name.append(tmp_dic)
+
+        tmp['spec_name'] = spec_name  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['sku_map'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url_info'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['property_info'] = data_list.get('property_info')  # 详细信息
+        tmp['detail_info'] = data_list.get('detail_info')  # 下方div
+
+        tmp['site_id'] = 2      # 阿里1688
+
+        tmp['is_delete'] = data_list['is_delete']
+
+        # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
+        # tmp['delete_time'] = data_list.get('delete_time')
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        pipeline.old_ali_1688_goods_insert_into_new_table(tmp)
 
     def get_requests_body(self, tmp_url, my_headers):
         '''

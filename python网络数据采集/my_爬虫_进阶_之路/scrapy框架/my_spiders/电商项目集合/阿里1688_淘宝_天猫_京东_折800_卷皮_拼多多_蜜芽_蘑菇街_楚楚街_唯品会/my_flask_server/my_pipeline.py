@@ -390,6 +390,52 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
 
+    def old_ali_1688_goods_insert_into_new_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['username'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['company_name'],
+                item['title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['spec_name'], ensure_ascii=False),
+                dumps(item['sku_map'], ensure_ascii=False),
+                dumps(item['all_img_url_info'], ensure_ascii=False),
+                item['detail_info'],  # 存入到DetailInfo
+                dumps(item['property_info'], ensure_ascii=False),  # 存入到PropertyInfo
+
+                item['site_id'],
+                item['is_delete'],
+                item['main_goods_id'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute(
+                'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
+                    'utf-8'),
+                tuple(params))  # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
+
     def insert_into_taobao_table(self, item):
         try:
             cs = self.conn.cursor()
@@ -614,6 +660,53 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
+
+    def old_taobao_goods_insert_into_new_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['username'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],                          # 存入到DetailInfo
+                item['month_sell_count'],
+
+                item['site_id'],
+                item['is_delete'],
+                item['main_goods_id'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+                       tuple(params))   # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            try:
+                self.conn.close()
+            except Exception:
+                pass
+            return False
 
     def insert_into_tmall_table(self, item):
         try:
@@ -2144,7 +2237,65 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=2')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=2 order by ID desc')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def select_the_goods_id_is_in_ali_1688_table(self, goods_id):
+        '''
+        判断该goods_id是否已经存在于table中
+        :param goods_id:
+        :return:
+        '''
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s', tuple([goods_id]))
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def update_ali_1688_expired_goods_id_to_is_delete(self, goods_id):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s', tuple([goods_id]))
+            self.conn.commit()
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 删除对应goods_id记录时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+
+    def select_old_table_all_goods_id(self):
+        try:
+            cs = self.conn.cursor()
+
+            cs.execute('select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -2883,11 +3034,60 @@ class SqlPools(object):
             except Exception:
                 pass
 
+    def old_taobao_goods_insert_into_new_table(self, item):
+        self.engine.begin()
+        self.conn = self.engine.connect()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['username'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['account'],
+                item['title'],
+                item['sub_title'],
+                item['link_name'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['price_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],                          # 存入到DetailInfo
+                item['month_sell_count'],
+
+                item['site_id'],
+                item['is_delete'],
+                item['main_goods_id'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            self.conn.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+                       tuple(params))   # 注意必须是tuple类型
+            # self.conn.commit()
+            # self.conn.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            pass
+        finally:
+            try:
+                self.conn.close()
+            except Exception:
+                pass
+
     def select_taobao_all_goods_id(self):
         self.engine.begin()
         self.conn = self.engine.connect()
         try:
-            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1'))
+            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1 order by ID desc'))
             # self.conn.commit()
             self.conn.close()
             # print(result)
