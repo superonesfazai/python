@@ -152,6 +152,7 @@ class ChuChuJie_9_9_Spike(object):
                         # if index % 5 == 0:
                         #     self.init_phantomjs()
 
+                        # 获取剩余时间
                         tmp_body = self.use_phantomjs_to_get_url_body(
                             url=tmp_url,
                             css_selector='p#activityTime span'

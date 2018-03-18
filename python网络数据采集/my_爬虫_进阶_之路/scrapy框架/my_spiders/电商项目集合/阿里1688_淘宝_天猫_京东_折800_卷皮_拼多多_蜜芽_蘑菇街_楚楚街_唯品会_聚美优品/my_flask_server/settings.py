@@ -86,6 +86,11 @@ CHUCHUJIE_SLEEP_TIME = 1.2      # sleep时间
 '''
 VIP_SLEEP_TIME = 2            # sleep时间
 
+'''
+聚美优品
+'''
+JUMEIYOUPIN_SLEEP_TIME = 1.6    # sleep时间
+
 """
 超级管理员账户名密码
 """

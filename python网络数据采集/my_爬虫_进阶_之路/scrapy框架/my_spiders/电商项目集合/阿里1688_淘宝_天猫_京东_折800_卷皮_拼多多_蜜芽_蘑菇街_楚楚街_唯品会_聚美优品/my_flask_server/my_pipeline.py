@@ -12,6 +12,7 @@ from pymssql import *
 from json import dumps
 import gc
 from sqlalchemy import create_engine
+import datetime, calendar
 
 from settings import HOST, USER, PASSWORD, DATABASE, PORT
 from settings import INIT_PASSWD
@@ -2222,10 +2223,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'insert into dbo.chuchujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, gender, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
-                    'utf-8'),
-                tuple(params))  # 注意必须是tuple类型
+            cs.execute('insert into dbo.chuchujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, gender, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
             print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -2278,6 +2276,50 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
+
+    def insert_into_jumeiyoupin_xianshimiaosha_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],  # 存入到DetailInfo
+                dumps(item['miaosha_time'], ensure_ascii=False),
+                item['miaosha_begin_time'],
+                item['miaosha_end_time'],
+                item['page'],
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.jumeiyoupin_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            print('-------------------------| 错误如下: ', e)
+            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            return False
 
     def select_ali_1688_all_goods_id(self):
         try:
@@ -2871,6 +2913,24 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             except Exception:
                 pass
 
+    def select_jumeiyoupin_xianshimiaosha_all_goods_id(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select goods_id, miaosha_time, page, goods_url from dbo.jumeiyoupin_xianshimiaosha where site_id=26')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
     def insert_into_jd_youxuan_daren_recommend_table(self, item):
         try:
             cs = self.conn.cursor()
@@ -3219,3 +3279,125 @@ class OtherDb(object):
             except Exception:
                 pass
             return None
+
+class DataAnalysisDbPipeline(object):
+    """
+    数据分析: 数据信息获取管道
+    """
+    def __init__(self):
+        super(DataAnalysisDbPipeline, self).__init__()
+        self.is_connect_success = True
+        try:
+            self.conn = connect(
+                host=HOST,
+                user=USER,
+                password=PASSWORD,
+                database='db_k85u',
+                port=PORT,
+                charset='utf8'
+            )
+        except Exception as e:
+            print('数据库连接失败!!')
+            self.is_connect_success = False
+
+    def select_everyday_order_sell_count(self, year, month, day):
+        '''
+        筛选每月的每日订单量
+        :param year:
+        :param month:
+        :param day:
+        :return:
+        '''
+        cs = self.conn.cursor()
+        wait_to_deal_with_time = datetime.datetime(year, month, day, 0, 0, 0)
+        day_add_1 = datetime.datetime(year, month, day+1, 0, 0, 0)
+        params = (wait_to_deal_with_time, day_add_1,)
+        # print(params)
+        try:
+            cs.execute('select count(*) from dbo.OrderInfo where CreateTime>%s and CreateTime<%s', params)
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def select_every_month_order_sell_count(self, year, month):
+        '''
+        筛选某月的每日订单量
+        :param year:
+        :param month:
+        :return:
+        '''
+        cs = self.conn.cursor()
+        month_range = calendar.monthrange(year, month)      # 获得一个月有多少天 return (3, 30)
+        month_order_sell_count_by_day_list = []
+        for day in range(1, month_range[1]):
+            wait_to_deal_with_time = datetime.datetime(year, month, day, 0, 0, 0)
+            day_add_1 = datetime.datetime(year, month, day+1, 0, 0, 0)
+            params = (wait_to_deal_with_time, day_add_1,)
+            # print(params)
+            try:
+                cs.execute('select count(*) from dbo.OrderInfo where CreateTime>%s and CreateTime<%s', params)
+                # self.conn.commit()
+
+                result = cs.fetchall()
+                # print(result)
+                # cs.close()
+                month_order_sell_count_by_day_list.append([day, result[0][0]])
+            except Exception as e:
+                print('--------------------| 筛选level时报错：', e)
+                try:cs.close()
+                except Exception: pass
+                return None
+
+        try: cs.close()
+        except: pass
+
+        return month_order_sell_count_by_day_list
+
+    def select_one_year_every_month_order_sell_count(self, year):
+        '''
+        某年每月订单数
+        :param year:
+        :return:
+        '''
+        cs = self.conn.cursor()
+        year_order_sell_count_by_month_list = []
+        for month in range(1, 13):
+            wait_to_deal_with_time = datetime.datetime(year, month, 1, 0, 0, 0)
+            if month == 12:
+                month_add_1 = datetime.datetime(year+1, month, 1, 0, 0)
+            else:
+                month_add_1 = datetime.datetime(year, month+1, 1, 0, 0, 0)
+            params = (wait_to_deal_with_time, month_add_1,)
+            # print(params)
+            try:
+                cs.execute('select count(*) from dbo.OrderInfo where CreateTime>%s and CreateTime<%s', params)
+                # self.conn.commit()
+
+                result = cs.fetchall()
+                # print(result)
+                # cs.close()
+                year_order_sell_count_by_month_list.append([month, result[0][0]])
+            except Exception as e:
+                print('--------------------| 筛选level时报错：', e)
+                try:
+                    cs.close()
+                except Exception:
+                    pass
+                return None
+
+        try:
+            cs.close()
+        except:
+            pass
+
+        return year_order_sell_count_by_month_list

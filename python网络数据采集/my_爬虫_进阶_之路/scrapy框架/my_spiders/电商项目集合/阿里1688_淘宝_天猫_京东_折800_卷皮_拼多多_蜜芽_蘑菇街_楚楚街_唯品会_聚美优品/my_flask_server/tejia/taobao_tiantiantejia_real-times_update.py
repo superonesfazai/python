@@ -55,9 +55,11 @@ def run_forever():
                     tejia_end_time = item[2]
                     # print(tejia_end_time)
 
-                    if item[1] == 1:
-                        tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
-                        print('该商品goods_id[{0}]已售完, 删除成功!'.format(item[0]))
+                    if item[1] == 1:    # 原先下架的商品，扫描到不处理
+                        # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
+                        # print('该商品goods_id[{0}]已售完, 删除成功!'.format(item[0]))
+                        print('&&&&&& 该商品({0})原先状态为is_delete=1, 不进行实际删除操作!'.format(item[0]))
+                        pass
 
                     elif tejia_end_time < datetime.datetime.now():
                         # 过期的不删除, 降为更新为常规爆款促销商品
@@ -140,7 +142,21 @@ def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server):
     print('++++++>>>| 此为过期商品, 正在更新! |<<<++++++')
     print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
     taobao = TaoBaoLoginAndParse()
-    taobao.get_goods_data(goods_id)
+    data_before = taobao.get_goods_data(goods_id)
+    if data_before.get('is_delete') == 1:  # 单独处理下架状态的商品
+        data_before['goods_id'] = goods_id
+        data_before['schedule'] = []
+        data_before['tejia_begin_time'], data_before['tejia_end_time'] = '', ''
+
+        # print('------>>>| 爬取到的数据为: ', data_before)
+        taobao.update_taobao_tiantiantejia_table(data_before, pipeline=tmp_sql_server)
+
+        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 避免服务器更新太频繁
+        index += 1
+        gc.collect()
+
+        return index
+
     goods_data = taobao.deal_with_data(goods_id=goods_id)
     if goods_data != {}:
         goods_data['goods_id'] = goods_id
@@ -148,7 +164,7 @@ def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server):
     else:
         sleep(4)  # 否则休息4秒
         pass
-    sleep(2)
+    sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
     index += 1
     gc.collect()
 
