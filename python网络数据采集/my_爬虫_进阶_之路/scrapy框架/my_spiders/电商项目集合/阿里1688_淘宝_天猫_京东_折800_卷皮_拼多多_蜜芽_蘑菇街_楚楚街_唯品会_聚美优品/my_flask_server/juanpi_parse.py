@@ -104,7 +104,7 @@ class JuanPiParse(object):
                 self.driver.get(tmp_url)
                 self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
 
-                locator = (By.CSS_SELECTOR, 'div.sc-eNQAEJ.bqegeZ')
+                locator = (By.CSS_SELECTOR, 'div.sc-kgoBCf.bTQvTk')     # 该css为手机端标题块
                 try:
                     WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:

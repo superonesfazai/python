@@ -285,7 +285,13 @@ class Zhe800Parse(object):
                     try:
                         response = requests.get(tmp_seller_id_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                         seller_info = response.content.decode('utf-8')
+                        # print(seller_info)
                         seller_info = re.compile(r'(.*)').findall(seller_info)  # 贪婪匹配匹配所有
+                        sell_info_str = ''
+                        for item_ss in seller_info:     # 拼接字符串
+                            sell_info_str += item_ss
+
+                        seller_info = [sell_info_str]
                         # print(seller_info)
                     except Exception:  # 未拿到图文详情就跳出
                         print('requests.get()请求超时....')
@@ -295,6 +301,7 @@ class Zhe800Parse(object):
 
                     if seller_info != []:
                         seller_info = seller_info[0]
+                        # print(seller_info)
                         try:
                             seller_info = json.loads(seller_info)
                         except Exception:
@@ -789,5 +796,6 @@ if __name__ == '__main__':
         zhe_800_url.strip('\n').strip(';')
         goods_id = zhe_800.get_goods_id_from_url(zhe_800_url)
         data = zhe_800.get_goods_data(goods_id=goods_id)
-        zhe_800.deal_with_data()
+        data = zhe_800.deal_with_data()
+        # pprint(data)
 

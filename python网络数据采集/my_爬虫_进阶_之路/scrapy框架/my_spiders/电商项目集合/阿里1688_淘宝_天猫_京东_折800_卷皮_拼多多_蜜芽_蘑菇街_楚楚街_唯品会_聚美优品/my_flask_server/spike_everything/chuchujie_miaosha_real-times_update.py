@@ -124,7 +124,7 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                                 } for item_s in tmp_goods_list]
 
                             if item_list == []:
-                                print('#### 该gender, page对应得到的item_list为空[]')
+                                print('#### 该gender, page对应得到的item_list为空[]!')
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server.delete_chuchujie_miaosha_expired_goods_id(goods_id=item[0])
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
@@ -138,7 +138,7 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                                 """
                                 # if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                                 #     print('该商品已被下架限时秒杀活动，此处将其删除')
-                                #     tmp_sql_server.delete_mia_miaosha_expired_goods_id(goods_id=item[0])
+                                #     tmp_sql_server.delete_chuchujie_miaosha_expired_goods_id(goods_id=item[0])
                                 #     print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                 #     pass
                                 #
