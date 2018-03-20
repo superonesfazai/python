@@ -29,6 +29,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from scrapy.selector import Selector
+from my_ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -93,7 +94,11 @@ class JdParse(object):
                 comment_url = 'https://m.yiyaojd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
             # print(tmp_url)
-            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            if change_ip_result is False:
+                print('phantomjs切换ip错误, 此处先跳过更新！')
+                self.result_data = {}
+                return {}
             self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
 
             if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
@@ -116,7 +121,11 @@ class JdParse(object):
                     # pass
 
             # 得到总销售量
-            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            if change_ip_result is False:
+                print('phantomjs切换ip错误, 此处先跳过更新！')
+                self.result_data = {}
+                return {}
             try:
                 self.driver.get(comment_url)
                 self.driver.implicitly_wait(15)
@@ -142,7 +151,12 @@ class JdParse(object):
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
-            self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            if change_ip_result is False:
+                print('phantomjs切换ip错误, 此处先跳过更新！')
+                self.result_data = {}
+                return {}
+
             try:
                 self.driver.get(tmp_url)
                 self.driver.implicitly_wait(15)
@@ -161,10 +175,6 @@ class JdParse(object):
             ## ** 起初是拿phantomjs来进行url请求的，本来想着用requests来优化，但是改动有点大，就先暂时不改动 **
             # body_1 = self.get_requests_body(tmp_url=tmp_url, my_headers=self.headers)
             # # print(body_1)
-            #
-            # if body_1 == []:
-            #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            #     return {}
 
             if body_1 != []:
                 data = body_1[0]
@@ -258,50 +268,7 @@ class JdParse(object):
             '''
             要存储的每个标签对应规格的价格及其库存(京东无库存抓取, 只有对应规格商品是否可买)
             '''
-            # tmp_price_info_list = data.get('skuColorSize', {}).get('colorSize')
-            # pprint(tmp_price_info_list)
-
-            price_info_list = []
-            if detail_name_list != []:   # 有规格
-                tmp_price_info_list = data.get('skuColorSize', {}).get('colorSize')
-                # pprint(tmp_price_info_list)
-                if tmp_price_info_list is not None:
-                    for item in tmp_price_info_list:
-                        tmp = {}
-                        tmp_spec_value = []
-                        if item.get('color') != '*':
-                            tmp_spec_value.append(item.get('color'))
-
-                        if item.get('size') != '*':
-                            tmp_spec_value.append(item.get('size'))
-
-                        if item.get('spec') != '*':
-                            tmp_spec_value.append(item.get('spec'))
-
-                        tmp_spec_value = '|'.join(tmp_spec_value)   # 具体规格
-                        # print(tmp_spec_value)
-
-                        sku_id = item.get('skuId')
-                        # 对每个sku_id就行一次请求，来获得对应sku_id的价格数据
-                        if goods_id[0] == 0:
-                            sku_id = [0, sku_id]
-                        elif goods_id[0] == 1:
-                            sku_id = [1, sku_id]
-                        elif goods_id[0] == 2:
-                            sku_id = [2, sku_id]
-                        ware_price_and_main_img_url_list = self.from_ware_id_get_price_info(ware_id=sku_id)
-
-                        tmp['spec_value'] = tmp_spec_value
-                        if ware_price_and_main_img_url_list != []:
-                            tmp['detail_price'] = ware_price_and_main_img_url_list[0]
-                            tmp['img'] = ware_price_and_main_img_url_list[1]
-                        else:
-                            tmp['detail_price'] = ''
-                            tmp['img'] = ''
-
-                        tmp['rest_number'] = ''
-                        price_info_list.append(tmp)
-            # pprint(price_info_list)
+            price_info_list = self.get_price_info_list(goods_id, detail_name_list, data)
 
             '''
             是否下架判断
@@ -360,66 +327,11 @@ class JdParse(object):
             # pprint(all_img_url)
 
             # 详细信息标签名对应属性
-            tmp_p_info = data.get('wi', {}).get('code')
-            # pprint(tmp_p_info)
-            p_info = []
-            if tmp_p_info is not None:
-                if isinstance(tmp_p_info, str):
-                    p_info = [{'p_name': '规格和包装', 'p_value': tmp_p_info}]
-                elif isinstance(tmp_p_info, list):
-                    for item in tmp_p_info:
-                        tmp = {}
-                        tmp['p_name'] = list(item.keys())[0]
-                        tmp_p_value = list(item.values())[0]
-                        tmp_p_value_2 = []
-                        if isinstance(tmp_p_value, list):
-                            for i in tmp_p_value:
-                                tmp_2 = {}
-                                tmp_2['name'] = list(i.keys())[0]
-                                tmp_2['value'] = list(i.values())[0]
-                                tmp_p_value_2.append(tmp_2)
-                            tmp['p_value'] = tmp_p_value_2
-                        else:
-                            tmp['p_value'] = tmp_p_value
-
-                        p_info.append(tmp)
-                else:
-                    p_info = []
-            else:
-                p_info = []
+            p_info = self.get_p_info(data=data)
             # pprint(p_info)      # 爬取是手机端的所以没有第一行的，就是手机端的规格
 
-            '''
-            详细描述 div_desc
-            '''
-            wdis = ''
-            # 特殊处理script动态生成的
-            if data.get('popWareDetailWebViewMap') is not None:
-                if data.get('popWareDetailWebViewMap').get('cssContent') is not None:
-                    wdis = data.get('popWareDetailWebViewMap', {}).get('cssContent', '')
-                    wdis = re.compile(r'&lt;').sub('<', wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
-                    wdis = re.compile(r'&gt;').sub('>', wdis)
-                    wdis = re.compile(r'&amp;').sub('&', wdis)
-                    wdis = re.compile(r'&nbsp;').sub(' ', wdis)
-                    wdis = re.compile(r'\n').sub('', wdis)
-                    wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
-                    wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
-
-            wdis = wdis + data.get('wdis', '')      # 如果获取到script就与wdis重组
-            wdis = re.compile(r'&lt;').sub('<', wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
-            wdis = re.compile(r'&gt;').sub('>', wdis)
-            wdis = re.compile(r'&amp;').sub('&', wdis)
-            wdis = re.compile(r'&nbsp;').sub(' ', wdis)
-            wdis = re.compile(r'\n').sub('', wdis)
-            wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
-            wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
-
-            wdis = re.compile(r'<html>').sub('', wdis)
-            wdis = re.compile(r'</html>').sub('', wdis)
-            wdis = re.compile(r'<head.*?>.*?</head>').sub('', wdis)
-            wdis = re.compile(r'<body>').sub('', wdis)
-            wdis = re.compile(r'</body>').sub('', wdis)
-            div_desc = wdis
+            # 详细描述 div_desc
+            div_desc = self.get_right_div_desc(data=data)
             # print(div_desc)
 
             '''
@@ -486,7 +398,8 @@ class JdParse(object):
         :return: list   ['xxxx']
         '''
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        ip_object = MyIpPools()
+        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
         tmp_proxies = {
@@ -550,12 +463,9 @@ class JdParse(object):
             try:
                 price_data.pop('defaultAddress')
                 price_data.pop('commonConfigJson')
-            except Exception:
-                pass
-            try:
-                price_data.pop('newYanBaoInfo')
-            except Exception:
-                pass
+            except Exception: pass
+            try: price_data.pop('newYanBaoInfo')
+            except Exception: pass
 
             # 处理newYanBaoInfo
             new_yan_bao_info = price_data.get('newYanBaoInfo')
@@ -595,6 +505,134 @@ class JdParse(object):
         else:
             # print('获取到的price_data为空!')
             return []
+
+    def get_price_info_list(self, *params):
+        '''
+        得到规范的price_info_list
+        :param *params:
+        :return:
+        '''
+        goods_id = params[0]
+        detail_name_list = params[1]
+        data = params[2]
+        # tmp_price_info_list = data.get('skuColorSize', {}).get('colorSize')
+        # pprint(tmp_price_info_list)
+
+        price_info_list = []
+        if detail_name_list != []:  # 有规格
+            tmp_price_info_list = data.get('skuColorSize', {}).get('colorSize')
+            # pprint(tmp_price_info_list)
+            if tmp_price_info_list is not None:
+                for item in tmp_price_info_list:
+                    tmp = {}
+                    tmp_spec_value = []
+                    if item.get('color') != '*':
+                        tmp_spec_value.append(item.get('color'))
+
+                    if item.get('size') != '*':
+                        tmp_spec_value.append(item.get('size'))
+
+                    if item.get('spec') != '*':
+                        tmp_spec_value.append(item.get('spec'))
+
+                    tmp_spec_value = '|'.join(tmp_spec_value)  # 具体规格
+                    # print(tmp_spec_value)
+
+                    sku_id = item.get('skuId')
+                    # 对每个sku_id就行一次请求，来获得对应sku_id的价格数据
+                    if goods_id[0] == 0:
+                        sku_id = [0, sku_id]
+                    elif goods_id[0] == 1:
+                        sku_id = [1, sku_id]
+                    elif goods_id[0] == 2:
+                        sku_id = [2, sku_id]
+                    ware_price_and_main_img_url_list = self.from_ware_id_get_price_info(ware_id=sku_id)
+
+                    tmp['spec_value'] = tmp_spec_value
+                    if ware_price_and_main_img_url_list != []:
+                        tmp['detail_price'] = ware_price_and_main_img_url_list[0]
+                        tmp['img'] = ware_price_and_main_img_url_list[1]
+                    else:
+                        tmp['detail_price'] = ''
+                        tmp['img'] = ''
+
+                    tmp['rest_number'] = ''
+                    price_info_list.append(tmp)
+                    # pprint(price_info_list)
+
+        return price_info_list
+
+    def get_right_div_desc(self, data):
+        '''
+        得到处理后的div_desc
+        :param data:
+        :return:
+        '''
+        wdis = ''
+        # 特殊处理script动态生成的
+        if data.get('popWareDetailWebViewMap') is not None:
+            if data.get('popWareDetailWebViewMap').get('cssContent') is not None:
+                wdis = data.get('popWareDetailWebViewMap', {}).get('cssContent', '')
+                wdis = re.compile(r'&lt;').sub('<',
+                                               wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+                wdis = re.compile(r'&gt;').sub('>', wdis)
+                wdis = re.compile(r'&amp;').sub('&', wdis)
+                wdis = re.compile(r'&nbsp;').sub(' ', wdis)
+                wdis = re.compile(r'\n').sub('', wdis)
+                wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
+                wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
+
+        wdis = wdis + data.get('wdis', '')  # 如果获取到script就与wdis重组
+        wdis = re.compile(r'&lt;').sub('<', wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+        wdis = re.compile(r'&gt;').sub('>', wdis)
+        wdis = re.compile(r'&amp;').sub('&', wdis)
+        wdis = re.compile(r'&nbsp;').sub(' ', wdis)
+        wdis = re.compile(r'\n').sub('', wdis)
+        wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
+        wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
+
+        wdis = re.compile(r'<html>').sub('', wdis)
+        wdis = re.compile(r'</html>').sub('', wdis)
+        wdis = re.compile(r'<head.*?>.*?</head>').sub('', wdis)
+        wdis = re.compile(r'<body>').sub('', wdis)
+        wdis = re.compile(r'</body>').sub('', wdis)
+        div_desc = wdis
+
+        return div_desc
+
+    def get_p_info(self, data):
+        '''
+        得到p_info
+        :param data:
+        :return: list
+        '''
+        tmp_p_info = data.get('wi', {}).get('code')
+        # pprint(tmp_p_info)
+        p_info = []
+        if tmp_p_info is not None:
+            if isinstance(tmp_p_info, str):
+                p_info = [{'p_name': '规格和包装', 'p_value': tmp_p_info}]
+            elif isinstance(tmp_p_info, list):
+                for item in tmp_p_info:
+                    tmp = {}
+                    tmp['p_name'] = list(item.keys())[0]
+                    tmp_p_value = list(item.values())[0]
+                    tmp_p_value_2 = []
+                    if isinstance(tmp_p_value, list):
+                        for i in tmp_p_value:
+                            tmp_2 = {}
+                            tmp_2['name'] = list(i.keys())[0]
+                            tmp_2['value'] = list(i.values())[0]
+                            tmp_p_value_2.append(tmp_2)
+                        tmp['p_value'] = tmp_p_value_2
+                    else:
+                        tmp['p_value'] = tmp_p_value
+
+                    p_info.append(tmp)
+            else:
+                pass
+
+        return p_info
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -743,28 +781,9 @@ class JdParse(object):
         wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
 
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
-
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        ip_object = MyIpPools()
+        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
         proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
@@ -781,9 +800,12 @@ class JdParse(object):
             }
             self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
             self.driver.execute('executePhantomScript', tmp_js)
+
         except Exception:
             print('动态切换ip失败')
-            pass
+            return False
+
+        return True
 
     def use_phantomjs_to_get_url_body(self, url, css_selector=''):
         '''

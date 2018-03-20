@@ -31,7 +31,8 @@ import gc
 
 from settings import PHANTOMJS_DRIVER_PATH, HEADERS
 import pytz, datetime
-from  scrapy.selector import Selector
+from scrapy.selector import Selector
+from my_ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -536,7 +537,8 @@ class TmallParse(object):
         # print(url)
 
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        ip_object = MyIpPools()
+        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
         tmp_proxies = {
@@ -757,7 +759,8 @@ class TmallParse(object):
         print('------->>>初始化完毕<<<-------')
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        ip_list = MyIpPools()
+        ip_list = ip_list.get_proxy_ip_from_ip_pool().get('http')
         proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
@@ -777,27 +780,6 @@ class TmallParse(object):
         except Exception:
             print('动态切换ip失败')
             pass
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        # base_url = 'http://127.0.0.1:8000/?types=0&count=5&country=国内'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def get_goods_id_from_url(self, tmall_url):
         '''

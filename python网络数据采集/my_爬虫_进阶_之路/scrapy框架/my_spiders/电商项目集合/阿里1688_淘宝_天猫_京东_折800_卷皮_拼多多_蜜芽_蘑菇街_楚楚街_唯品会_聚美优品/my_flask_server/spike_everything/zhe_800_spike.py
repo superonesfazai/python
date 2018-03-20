@@ -28,6 +28,7 @@ from settings import PHANTOMJS_DRIVER_PATH
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
+from my_ip_pools import MyIpPools
 import datetime
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -314,7 +315,8 @@ class Zhe800Spike(object):
             return False
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        ip_object = MyIpPools()
+        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
         proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
@@ -334,26 +336,6 @@ class Zhe800Spike(object):
         except Exception:
             print('动态切换ip失败')
             pass
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def timestamp_to_regulartime(self, timestamp):
         '''

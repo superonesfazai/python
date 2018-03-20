@@ -23,6 +23,7 @@ import selenium.webdriver.support.ui as ui
 from random import randint
 from settings import HEADERS, PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING
 import requests
+from my_ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -304,7 +305,8 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         return body
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        ip_object = MyIpPools()
+        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
         proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
@@ -324,26 +326,6 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         except Exception:
             print('动态切换ip失败')
             pass
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def __del__(self):
         try:

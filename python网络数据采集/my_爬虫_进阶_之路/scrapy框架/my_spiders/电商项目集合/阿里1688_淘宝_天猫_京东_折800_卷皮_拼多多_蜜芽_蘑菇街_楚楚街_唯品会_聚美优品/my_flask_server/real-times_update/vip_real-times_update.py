@@ -91,7 +91,7 @@ def run_forever():
                         data['delete_time'] = delete_time
                         # print(delete_time)
 
-                        print('------>>>| 爬取到的数据为: ', data)
+                        # print('------>>>| 爬取到的数据为: ', data)
                         vip.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         pass

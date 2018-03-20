@@ -39,6 +39,7 @@ import gc
 from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
 import pytz
+from my_ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -112,7 +113,8 @@ class TaoBaoLoginAndParse(object):
         )
 
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()     # {'http': ['xx', 'yy', ...]}
+        ip_object = MyIpPools()
+        self.proxies = ip_object.get_proxy_ip_from_ip_pool()     # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies)-1)]
 
         tmp_proxies = {
@@ -837,7 +839,8 @@ class TaoBaoLoginAndParse(object):
         except Exception:
             try:
                 # 设置代理ip
-                self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+                ip_object = MyIpPools()
+                self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
                 self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
                 tmp_proxies = {
@@ -846,7 +849,8 @@ class TaoBaoLoginAndParse(object):
                 response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             except Exception:
                 # 设置代理ip
-                self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+                ip_object = MyIpPools()
+                self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
                 self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
                 tmp_proxies = {
@@ -859,7 +863,8 @@ class TaoBaoLoginAndParse(object):
         try:
             response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         except Exception:
-            self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+            ip_object = MyIpPools()
+            self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
             self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
             tmp_proxies = {
@@ -942,26 +947,6 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'&nbsp;').sub(' ', body)
 
         return body
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def get_goods_id_from_url(self, taobao_url):
         # https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
