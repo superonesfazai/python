@@ -31,6 +31,7 @@ from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from settings import PHANTOMJS_DRIVER_PATH
 from my_ip_pools import MyIpPools
+from my_phantomjs import MyPhantomjs
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -49,7 +50,7 @@ class PinduoduoParse(object):
         }
         self.result_data = {}
         # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
-        self.init_phantomjs()
+        self.my_phantomjs = MyPhantomjs()
 
     def get_goods_data(self, goods_id):
         '''
@@ -72,7 +73,7 @@ class PinduoduoParse(object):
             '''
             2.采用phantomjs来获取
             '''
-            body = self.get_url_body(tmp_url=tmp_url)
+            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
 
             if body == '':
                 print('body中re匹配到的data为空!')
@@ -465,81 +466,6 @@ class PinduoduoParse(object):
 
         return body
 
-    def get_url_body(self, tmp_url):
-        '''
-        返回给与的url的body
-        :param tmp_url:
-        :return: str
-        '''
-        tmp = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        if tmp == '':
-            return ''
-        self.driver.set_page_load_timeout(10)  # 设置成10秒避免数据出错
-
-        try:
-            self.driver.get(tmp_url)
-            self.driver.implicitly_wait(15)
-            body = self.driver.page_source
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 10 seconds when loading page')
-            try:
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            except:
-                pass
-            body = ''
-
-        return body
-
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-
-        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            return ''
-            pass
-
     def set_cookies_key_api_uid(self):
         '''
         给headers增加一个cookie, 里面有个key名字为api_uid
@@ -606,7 +532,7 @@ class PinduoduoParse(object):
 
     def __del__(self):
         try:
-            self.driver.quit()
+            del self.my_phantomjs
         except:
             pass
         gc.collect()

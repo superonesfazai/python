@@ -1,0 +1,131 @@
+# coding:utf-8
+
+'''
+@author = super_fazai
+@File    : my_phantomjs.py
+@Time    : 2018/3/21 15:30
+@connect : superonesfazai@gmail.com
+'''
+
+from settings import HEADERS
+from settings import PHANTOMJS_DRIVER_PATH
+from my_ip_pools import MyIpPools
+
+from selenium import webdriver
+import selenium.webdriver.support.ui as ui
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from scrapy.selector import Selector
+
+from random import randint
+import re, gc
+
+# phantomjs驱动地址
+EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+
+class MyPhantomjs(object):
+    def __init__(self):
+        super().__init__()
+        self.init_phantomjs()
+
+    def init_phantomjs(self):
+        """
+        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
+        """
+        print('--->>>初始化phantomjs驱动中<<<---')
+        cap = webdriver.DesiredCapabilities.PHANTOMJS
+        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
+        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.disk-cache'] = True
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        tmp_execute_path = EXECUTABLE_PATH
+
+        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
+
+        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+        '''
+        给phantomjs切换代理ip
+        :return:
+        '''
+        ip_object = MyIpPools()
+        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
+        proxy_ip = ''
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        proxy_ip = re.compile(r'https://').sub('', proxy_ip)
+        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
+        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
+
+        try:
+            tmp_js = {
+                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
+                'args': []
+            }
+            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+            self.driver.execute('executePhantomScript', tmp_js)
+
+        except Exception:
+            print('动态切换ip失败')
+            return False
+
+        return True
+
+    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
+        '''
+        通过phantomjs来获取url的body
+        :param url: 待获取的url
+        :return: 字符串类型
+        '''
+        change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        if change_ip_result is False:
+            if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
+                return ''
+            else: pass
+
+        try:
+            self.driver.set_page_load_timeout(20)  # 设置成10秒避免数据出错
+        except:
+            try: self.driver.set_page_load_timeout(20)
+            except: return ''
+
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+            if css_selector != '':
+                locator = (By.CSS_SELECTOR, css_selector)
+                try:
+                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                except Exception as e:
+                    print('遇到错误: ', e)
+                    return ''
+                else:
+                    print('{0}已经加载完毕'.format(css_selector))
+            main_body = self.driver.page_source
+            main_body = re.compile(r'\n').sub('', main_body)
+            main_body = re.compile(r'  ').sub('', main_body)
+            main_body = re.compile(r'\t').sub('', main_body)
+            # print(main_body)
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 20 seconds when loading page')
+            print('报错如下: ', e)
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            print('main_body为空!')
+            main_body = ''
+
+        return main_body
+
+    def __del__(self):
+        try:
+            self.driver.quit()
+        except:
+            pass
+        gc.collect()

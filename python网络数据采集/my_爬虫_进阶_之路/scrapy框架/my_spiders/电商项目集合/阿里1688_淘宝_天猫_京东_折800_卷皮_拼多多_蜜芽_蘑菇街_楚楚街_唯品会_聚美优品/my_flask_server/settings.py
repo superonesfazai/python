@@ -79,7 +79,7 @@ PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '
 '''
 楚楚街
 '''
-CHUCHUJIE_SLEEP_TIME = 1.2      # sleep时间
+CHUCHUJIE_SLEEP_TIME = .8      # sleep时间
 
 '''
 唯品会

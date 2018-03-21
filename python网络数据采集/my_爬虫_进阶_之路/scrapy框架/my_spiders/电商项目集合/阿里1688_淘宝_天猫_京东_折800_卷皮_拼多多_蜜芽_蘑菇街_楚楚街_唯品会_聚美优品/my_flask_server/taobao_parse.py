@@ -890,47 +890,6 @@ class TaoBaoLoginAndParse(object):
 
         return div
 
-    """
-    def init_chrome_driver(self):
-        '''
-        初始化chromedriver驱动
-        :return:
-        '''
-        # 设置无运行界面版chrome, 测试发现淘宝过滤了phantomjs, 所有此处不用
-        print('--->>>初始化chromedriver驱动中<<<---')
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')
-
-        # 注意：测试发现还是得设置成加载图片要不然就无法得到超5张的示例图片完整地址
-        # 设置chrome不加载图片
-        prefs = {
-            'profile.managed_default_content_settings.images': 2,
-        }
-        chrome_options.add_experimental_option('prefs', prefs)
-        # chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
-
-        self.driver = webdriver.Chrome(executable_path=my_chrome_driver_path, chrome_options=chrome_options)
-
-        print('--->>>初始化化完毕<<<---')
-        # self.driver.get('http://httpbin.org/ip')
-        # print(self.driver.page_source)
-        # self.driver.get('https://www.baidu.com')
-
-        # print('--->>>初始化phantomjs驱动中<<<---')
-        # cap = webdriver.DesiredCapabilities.PHANTOMJS
-        # cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        # cap['phantomjs.page.settings.loadImages'] = False
-        # cap['phantomjs.page.settings.disk-cache'] = True
-        # cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        # tmp_execute_path = EXECUTABLE_PATH
-        #
-        # self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-        #
-        # wait = ui.WebDriverWait(self.driver, 10)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        # print('------->>>初始化完毕<<<-------')
-    """
-
     def deal_with_div(self, div):
         body = div
 

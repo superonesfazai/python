@@ -27,11 +27,12 @@ from scrapy.selector import Selector
 
 from settings import HEADERS
 from my_ip_pools import MyIpPools
+from my_phantomjs import MyPhantomjs
 
 class ChuChuJie_9_9_Parse(object):
     def __init__(self):
         self.headers = {
-            'Accept': 'application/json,text/javascript,*/*;q=0.01',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             # 'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Connection': 'keep-alive',
@@ -125,8 +126,13 @@ class ChuChuJie_9_9_Parse(object):
         '''
         tmp_url = 'http://wx.chuchujie.com/index.php?s=/WebProduct/product_detail/product_id/' + str(goods_id)
 
-        body = self.get_url_body(tmp_url=tmp_url)
-        print(body)
+        # 开始常规requests有数据, 后面无数据, 改用phantomjs
+        # body = self.get_url_body(tmp_url=tmp_url)
+        my_phantomjs = MyPhantomjs()
+        body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+        try: del my_phantomjs
+        except: pass
+        # print(body)
 
         if body == '':
             print('获取到的body为空str!')

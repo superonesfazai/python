@@ -24,23 +24,15 @@ import os, datetime
 from decimal import Decimal
 from scrapy.selector import Selector
 
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
 import sys
 sys.path.append('..')
 
 from settings import HEADERS, PHONE_HEADERS
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME, PHANTOMJS_DRIVER_PATH
+from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
 from my_ip_pools import MyIpPools
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+from my_phantomjs import MyPhantomjs
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
@@ -125,7 +117,8 @@ class ChuChuJie_9_9_Spike(object):
             db_goods_id_list = [item[0] for item in list(my_pipeline.select_chuchujie_xianshimiaosha_all_goods_id())]
             # print(db_goods_id_list)
 
-            # self.init_phantomjs()
+            # my_phantomjs = MyPhantomjs()
+            # my_phantomjs.init_phantomjs()
             # index = 1
             for item in item_list:
                 if item.get('goods_id', '') in db_goods_id_list:
@@ -146,23 +139,18 @@ class ChuChuJie_9_9_Spike(object):
                         pass
 
                     else:   # 否则就解析并且插入
-                        self.init_phantomjs()
-
-                        # 采用下面这种老是动态ip切换错误, 无法获取到_t，于是不用
-                        # if index % 5 == 0:
-                        #     self.init_phantomjs()
+                        my_phantomjs = MyPhantomjs()
+                        my_phantomjs.init_phantomjs()
 
                         # 获取剩余时间
-                        tmp_body = self.use_phantomjs_to_get_url_body(
+                        tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(
                             url=tmp_url,
                             css_selector='p#activityTime span'
                         )
                         # print(tmp_body)
 
-                        try:
-                            self.driver.quit()
-                        except:
-                            pass
+                        try: del my_phantomjs
+                        except: pass
                         gc.collect()
 
                         if tmp_body == '':  # 获取手机版的页面完整html失败
@@ -326,99 +314,8 @@ class ChuChuJie_9_9_Spike(object):
 
         return miaosha_begin_time, miaosha_end_time
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        # print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 9)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        # print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        '''
-        给phantomjs设置代理ip
-        :return: '' 表示切换代理ip出错 | None
-        '''
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            return ''
-
-        return None
-
-    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
-        '''
-        通过phantomjs来获取url的body
-        :param url: 待获取的url
-        :return: 字符串类型
-        '''
-        change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        if change_ip_result == '':
-            return ''
-
-        try:
-            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
-        except:
-            return ''
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
-
-            if css_selector != '':
-                locator = (By.CSS_SELECTOR, css_selector)
-                try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    print('遇到错误: ', e)
-                    return ''
-                else:
-                    print('div.d-content已经加载完毕')
-            main_body = self.driver.page_source
-            main_body = re.compile(r'\n').sub('', main_body)
-            main_body = re.compile(r'  ').sub('', main_body)
-            main_body = re.compile(r'\t').sub('', main_body)
-            # print(main_body)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            print('报错如下: ', e)
-            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            print('main_body为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            main_body = ''
-
-        return main_body
-
     def __del__(self):
         gc.collect()
-
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     '''
@@ -469,7 +366,6 @@ def just_fuck_run():
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(60*2)
-
 
 def main():
     '''

@@ -17,27 +17,15 @@ import datetime
 from decimal import Decimal
 from random import randint
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.proxy import ProxyType
-import selenium.webdriver.support.ui as ui
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import PHANTOMJS_DRIVER_PATH
-from settings import CHROME_DRIVER_PATH
 from settings import HEADERS
 import pytz
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
-
-# chrome驱动地址
-my_chrome_driver_path = CHROME_DRIVER_PATH
+from my_phantomjs import MyPhantomjs
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -53,7 +41,7 @@ class ALi1688LoginAndParse(object):
         }
         self.result_data = {}
         self.is_activity_goods = False
-        self.init_phantomjs()
+        self.my_phantomjs = MyPhantomjs()
 
     def get_ali_1688_data(self, goods_id):
         if goods_id == '':
@@ -65,25 +53,12 @@ class ALi1688LoginAndParse(object):
 
         # print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
 
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.set_page_load_timeout(20)       # 设置成10秒避免数据出错
-        try:
-            self.driver.get(wait_to_deal_with_url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
-
-            locator = (By.CSS_SELECTOR, 'div.d-content')
-            try:
-                WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
-            except Exception as e:
-                print('遇到错误: ', e)
-                return 4041  # 未得到div.d-content，返回4041
-            else:
-                print('div.d-content已经加载完毕')
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 20 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-        body = self.driver.page_source
+        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=wait_to_deal_with_url, css_selector='div.d-content')
+        # print(body)
+        if body == '':
+            print('获取到的body为空str!请检查!')
+            self.result_data = {}
+            return {}
 
         # '''
         # 改用requests
@@ -94,13 +69,9 @@ class ALi1688LoginAndParse(object):
         # if body == []:
         #     return {}
         # body = body[0]
+        # print(body)
 
-        # print(body)
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
         tmp_body = body
-        # print(body)
 
         try:
             pull_off_shelves = Selector(text=body).css('div.d-content p.info::text').extract_first()
@@ -626,50 +597,6 @@ class ALi1688LoginAndParse(object):
 
         return data
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-
-        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
     def get_detail_info_url_div(self, detail_info_url):
         '''
         此处过滤得到data_tfs_url的div块
@@ -685,9 +612,7 @@ class ALi1688LoginAndParse(object):
         # data_tfs_url_response = requests.get(detail_info_url, headers=self.headers)
         # data_tfs_url_body = data_tfs_url_response.content.decode('gbk')
 
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.get(detail_info_url)
-        data_tfs_url_body = self.driver.page_source
+        data_tfs_url_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=detail_info_url)
 
         # '''
         # 改用requests
@@ -699,10 +624,6 @@ class ALi1688LoginAndParse(object):
         #
         # data_tfs_url_body = body[0]
 
-        data_tfs_url_body = re.compile(r'\n').sub('', data_tfs_url_body)
-        data_tfs_url_body = re.compile(r'\t').sub('', data_tfs_url_body)
-        data_tfs_url_body = re.compile(r'  ').sub('', data_tfs_url_body)
-        # print(body)
         is_offer_details = re.compile(r'offer_details').findall(data_tfs_url_body)
         if is_offer_details != []:
             data_tfs_url_body = re.compile(r'.*?{"content":"(.*?)"};').findall(data_tfs_url_body)
@@ -747,9 +668,9 @@ class ALi1688LoginAndParse(object):
 
     def __del__(self):
         try:
-            self.driver.quit()
+            del self.my_phantomjs
         except Exception:
-            print("'ALi1688LoginAndParse'对象没有'driver'这个属性, 此处我设置为跳过!")
+            print("self.my_phantomjs释放失败!")
             pass
         gc.collect()
 
