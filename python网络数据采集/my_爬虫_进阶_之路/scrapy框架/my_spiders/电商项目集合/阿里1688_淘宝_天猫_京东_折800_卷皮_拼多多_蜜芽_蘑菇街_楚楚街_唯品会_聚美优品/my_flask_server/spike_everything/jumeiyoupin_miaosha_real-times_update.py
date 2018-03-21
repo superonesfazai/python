@@ -17,6 +17,7 @@ sys.path.append('..')
 from jumeiyoupin_spike import JuMeiYouPinSpike
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_ip_pools import MyIpPools
 
 import gc
 from time import sleep
@@ -170,7 +171,8 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
         :return: body   类型str
         '''
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        ip_object = MyIpPools()
+        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
         tmp_proxies = {
@@ -237,26 +239,6 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
         } for item in all_goods_list if item.get('item_id') is not None]
 
         return all_goods_list
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def is_recent_time(self, timestamp):
         '''

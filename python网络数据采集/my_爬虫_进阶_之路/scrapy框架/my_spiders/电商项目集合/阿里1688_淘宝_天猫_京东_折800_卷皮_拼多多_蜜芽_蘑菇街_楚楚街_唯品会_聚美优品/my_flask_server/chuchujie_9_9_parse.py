@@ -126,7 +126,7 @@ class ChuChuJie_9_9_Parse(object):
         tmp_url = 'http://wx.chuchujie.com/index.php?s=/WebProduct/product_detail/product_id/' + str(goods_id)
 
         body = self.get_url_body(tmp_url=tmp_url)
-        # print(body)
+        print(body)
 
         if body == '':
             print('获取到的body为空str!')

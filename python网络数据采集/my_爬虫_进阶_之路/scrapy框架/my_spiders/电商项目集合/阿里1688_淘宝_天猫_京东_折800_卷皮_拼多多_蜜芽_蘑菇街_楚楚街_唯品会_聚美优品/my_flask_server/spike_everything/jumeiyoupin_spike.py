@@ -35,6 +35,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from settings import HEADERS
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_ip_pools import MyIpPools
 from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, PHANTOMJS_DRIVER_PATH
 
 # phantomjs驱动地址
@@ -214,7 +215,8 @@ class JuMeiYouPinSpike(object):
         :return: body   类型str
         '''
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        ip_object = MyIpPools()
+        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
         tmp_proxies = {
@@ -266,7 +268,8 @@ class JuMeiYouPinSpike(object):
         给phantomjs设置代理ip
         :return: '' 表示切换代理ip出错 | None
         '''
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        ip_object = MyIpPools()
+        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
         proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
@@ -322,26 +325,6 @@ class JuMeiYouPinSpike(object):
         miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
 
         return miaosha_begin_time, miaosha_end_time
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def __del__(self):
         gc.collect()
