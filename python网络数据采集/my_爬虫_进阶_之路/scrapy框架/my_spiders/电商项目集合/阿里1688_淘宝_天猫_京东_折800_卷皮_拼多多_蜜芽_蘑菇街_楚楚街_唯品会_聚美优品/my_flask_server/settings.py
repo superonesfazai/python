@@ -20,6 +20,14 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 # PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
 
 """
+db_info_json_path
+"""
+# 自己电脑上
+db_info_json_path = '/Users/afa/my_company_db_info.json'
+# linux服务器
+# db_info_json_path = '/root/my_company_db_info.json'
+
+"""
 服务器运行端口
 """
 SERVER_PORT = 5000
@@ -102,19 +110,18 @@ basic_app_key
 '''
 BASIC_APP_KEY = 'yiuxiu6688'
 
+import json
+
+def get_db_info():
+    with open(db_info_json_path, 'r') as f:
+        _tmp = json.loads(f.readline())
+
+    return (_tmp['HOST'], _tmp['USER'], _tmp['PASSWORD'], _tmp['DATABASE'], _tmp['PORT'])
+
 """
 数据库相关
 """
-# sql_server服务器地址
-HOST = '120.26.142.189'
-# 用户名
-USER = 'caiji2'
-# 密码
-PASSWORD = 'zy118ZY118'
-# 数据库名称
-DATABASE = 'Gather'
-# 端口号
-PORT = 1433
+HOST, USER, PASSWORD, DATABASE, PORT = get_db_info()
 
 # sql_server服务器地址
 HOST_2 = ''
@@ -127,7 +134,7 @@ DATABASE_2 = ''
 # 端口号
 PORT_2 = 1433
 
-INIT_PASSWD = 'zy118zy118'
+INIT_PASSWD = 'aaatttyiuxiu'
 
 """
 保存的对应cookies文件路径
