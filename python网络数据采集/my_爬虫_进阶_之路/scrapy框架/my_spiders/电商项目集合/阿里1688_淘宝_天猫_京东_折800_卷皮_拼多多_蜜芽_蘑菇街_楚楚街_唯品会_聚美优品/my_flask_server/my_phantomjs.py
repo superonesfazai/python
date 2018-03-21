@@ -123,6 +123,70 @@ class MyPhantomjs(object):
 
         return main_body
 
+    def get_url_cookies_from_phantomjs_session(self, url, css_selector=''):
+        '''
+        从session中获取cookies
+        :param url:
+        :return: cookies 类型 str
+        '''
+        print('正在获取cookies...请耐心等待...')
+        change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+        if change_ip_result is False:
+            if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
+                return ''
+            else: pass
+
+        try:
+            self.driver.set_page_load_timeout(20)  # 设置成10秒避免数据出错
+        except:
+            try: self.driver.set_page_load_timeout(20)
+            except: return ''
+
+        try:
+            self.driver.get(url)
+            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+            if css_selector != '':
+                locator = (By.CSS_SELECTOR, css_selector)
+                try:
+                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                except Exception as e:
+                    print('遇到错误: ', e)
+                    return ''
+                else:
+                    print('{0}已经加载完毕'.format(css_selector))
+
+            cookies = self.phantomjs_cookies_2_str(self.driver.get_cookies())
+            # print(cookies)
+
+        except Exception as e:  # 如果超时, 终止加载并继续后续操作
+            print('-->>time out after 20 seconds when loading page')
+            print('报错如下: ', e)
+            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            cookies = ''
+
+        return cookies
+
+    def phantomjs_cookies_2_str(self, cookies):
+        '''
+        从phantomjs的cookies中获取到规范格式的cookies字符串
+        :param cookies:
+        :return: '' 表示获取失败 | str
+        '''
+        if cookies == []:
+            return ''
+
+        tmp_cookies = {}
+        cookies_str = ''
+        for item in cookies:
+            tmp_cookies[item.get('name', '')] = item.get('value', '')
+
+        # pprint(tmp_cookies)
+        for key, value in tmp_cookies.items():
+            cookies_str += key + '=' + value + ';'
+
+        return cookies_str
+
     def __del__(self):
         try:
             self.driver.quit()

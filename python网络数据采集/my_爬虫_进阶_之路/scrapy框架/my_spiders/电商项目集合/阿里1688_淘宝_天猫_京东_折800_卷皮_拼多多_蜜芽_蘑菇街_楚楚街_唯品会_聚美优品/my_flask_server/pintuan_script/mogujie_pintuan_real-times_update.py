@@ -13,6 +13,7 @@ sys.path.append('..')
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_ip_pools import MyIpPools
+from my_phantomjs import MyPhantomjs
 
 import gc
 from time import sleep
@@ -23,16 +24,6 @@ import time
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import requests
-
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from settings import PHANTOMJS_DRIVER_PATH
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
@@ -68,7 +59,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
 
-            self.init_phantomjs()
+            self.my_phantomjs = MyPhantomjs()
             for item in result:  # 实时更新数据
                 pintuan_end_time = json.loads(item[1]).get('end_time')
                 pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
@@ -77,10 +68,10 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                 data = {}
                 mogujie_pintuan = MoGuJieParse()
                 if index % 8 == 0:
-                    try: self.driver.quit()
+                    try: del self.my_phantomjs
                     except:pass
                     gc.collect()
-                    self.init_phantomjs()
+                    self.my_phantomjs = MyPhantomjs()
 
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
@@ -107,7 +98,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
 
                         # requests请求不到数据，涉及证书认证，直接用phantomjs
                         # body = mogujie_pintuan.get_url_body(tmp_url=tmp_url)
-                        body = self.use_phantomjs_to_get_url_body(url=tmp_url)
+                        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
                         # print(body)
 
                         if body == '':
@@ -241,94 +232,6 @@ class MoGuJiePinTuanRealTimesUpdate(object):
 
         return pintuan_begin_time, pintuan_end_time
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
-        '''
-        通过phantomjs来获取url的body
-        :param url: 待获取的url
-        :return: 字符串类型
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        try:
-            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
-        except:
-            return ''
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
-
-            if css_selector != '':
-                locator = (By.CSS_SELECTOR, css_selector)
-                try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    print('遇到错误: ', e)
-                    return ''
-                else:
-                    print('div.d-content已经加载完毕')
-            main_body = self.driver.page_source
-            main_body = re.compile(r'\n').sub('', main_body)
-            main_body = re.compile(r'  ').sub('', main_body)
-            main_body = re.compile(r'\t').sub('', main_body)
-            # print(main_body)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            print('报错如下: ', e)
-            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            print('main_body为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            main_body = ''
-
-        return main_body
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-
-        except Exception:
-            print('动态切换ip失败')
-            return False
-
-        return True
-
     def timestamp_to_regulartime(self, timestamp):
         '''
         将时间戳转换成时间
@@ -401,7 +304,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
             return 2
 
     def __del__(self):
-        try: self.driver.quit()
+        try: del self.my_phantomjs
         except: pass
         gc.collect()
 

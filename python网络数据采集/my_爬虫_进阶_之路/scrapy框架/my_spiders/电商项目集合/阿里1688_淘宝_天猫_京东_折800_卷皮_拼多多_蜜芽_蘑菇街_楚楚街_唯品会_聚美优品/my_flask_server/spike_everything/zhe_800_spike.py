@@ -15,8 +15,6 @@ import time
 from pprint import pprint
 import gc
 import pytz
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from time import sleep
 import os
 
@@ -24,14 +22,11 @@ import sys
 sys.path.append('..')
 
 from settings import HEADERS, BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR, SPIDER_END_HOUR, ZHE_800_SPIKE_SLEEP_TIME
-from settings import PHANTOMJS_DRIVER_PATH
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
-from my_ip_pools import MyIpPools
+from my_phantomjs import MyPhantomjs
 import datetime
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class Zhe800Spike(object):
     def __init__(self):
@@ -44,8 +39,7 @@ class Zhe800Spike(object):
             'Host': 'zhe800.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
-
-        self.init_phantomjs()   # 初始化phantomjs
+        self.my_phantomjs = MyPhantomjs()
 
     def get_spike_hour_goods_info(self):
         '''
@@ -60,7 +54,7 @@ class Zhe800Spike(object):
                 str(base_session_id)
             )
 
-            body = self.get_url_body(url=tmp_url)
+            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
             # print(body)
 
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
@@ -181,52 +175,6 @@ class Zhe800Spike(object):
 
         return miaosha_begin_time, miaosha_end_time
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def get_url_body(self, url):
-        '''
-        返回url的html代码
-        :param url: 待抓取的url
-        :return: str
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(15)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-        body = self.driver.page_source
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
-        # print(body)
-
-        return body
-
     def get_miaoshao_goods_info_list(self, data):
         '''
         得到秒杀商品有用信息
@@ -314,29 +262,6 @@ class Zhe800Spike(object):
             print('非本年度的限时秒杀时间，此处跳过')
             return False
 
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
     def timestamp_to_regulartime(self, timestamp):
         '''
         将时间戳转换成时间
@@ -353,7 +278,7 @@ class Zhe800Spike(object):
 
     def __del__(self):
         try:
-            self.driver.quit()
+            del self.my_phantomjs
         except:
             pass
         gc.collect()

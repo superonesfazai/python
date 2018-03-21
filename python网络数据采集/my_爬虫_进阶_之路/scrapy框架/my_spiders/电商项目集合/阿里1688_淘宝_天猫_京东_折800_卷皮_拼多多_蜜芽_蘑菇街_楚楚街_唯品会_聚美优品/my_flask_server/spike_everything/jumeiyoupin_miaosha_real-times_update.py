@@ -18,6 +18,7 @@ from jumeiyoupin_spike import JuMeiYouPinSpike
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_ip_pools import MyIpPools
+from my_phantomjs import MyPhantomjs
 
 import gc
 from time import sleep
@@ -30,6 +31,7 @@ from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
 import requests
 from decimal import Decimal
+
 
 class JuMeiYouPinMiaoShaRealTimeUpdate(object):
     def __init__(self):
@@ -69,12 +71,10 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
 
             jumeiyoupin_spike = JuMeiYouPinSpike()
             # 获取cookies
-            jumeiyoupin_spike.init_phantomjs()
-            cookies = jumeiyoupin_spike.get_cookies_from_session(url='https://h5.jumei.com/')
-            try:
-                jumeiyoupin_spike.driver.quit()
-            except:
-                pass
+            my_phantomjs = MyPhantomjs()
+            cookies = my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://h5.jumei.com/')
+            try: del my_phantomjs
+            except: pass
             if cookies == '':
                 print('!!! 获取cookies失败 !!!')
                 return False

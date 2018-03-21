@@ -27,16 +27,7 @@ from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
 from mogujie_parse import MoGuJieParse
 from my_ip_pools import MyIpPools
-
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from settings import PHANTOMJS_DRIVER_PATH
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+from my_phantomjs import MyPhantomjs
 
 class MoGuJiePinTuan(object):
     def __init__(self):
@@ -122,15 +113,15 @@ class MoGuJiePinTuan(object):
         '''
         方法二: 通过pc端来获取拼团商品列表
         '''
-        self.init_phantomjs()
+        self.my_phantomjs = MyPhantomjs()
         for key in self.fcid_dict:
             print('正在抓取的分类为: ', key)
             for index in range(1, 100):
                 if index % 5 == 0:
-                    try: self.driver.quit()
+                    try: del self.my_phantomjs
                     except: pass
                     gc.collect()
-                    self.init_phantomjs()
+                    self.my_phantomjs = MyPhantomjs()
 
                 fcid = self.fcid_dict[key]
                 tmp_url = 'http://list.mogujie.com/search?page={0}&fcid={1}&algoKey=pc_tuan_book_pop&cKey=pc-tuan'.format(
@@ -138,7 +129,7 @@ class MoGuJiePinTuan(object):
                 )
                 # requests请求数据被过滤(起初能用)，改用phantomjs
                 # body = self.get_url_body(tmp_url=tmp_url)
-                body = self.use_phantomjs_to_get_url_body(url=tmp_url)
+                body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
                 # print(body)
 
                 try:
@@ -249,94 +240,6 @@ class MoGuJiePinTuan(object):
             pass
         gc.collect()
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
-        '''
-        通过phantomjs来获取url的body
-        :param url: 待获取的url
-        :return: 字符串类型
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        try:
-            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
-        except:
-            return ''
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
-
-            if css_selector != '':
-                locator = (By.CSS_SELECTOR, css_selector)
-                try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    print('遇到错误: ', e)
-                    return ''
-                else:
-                    print('div.d-content已经加载完毕')
-            main_body = self.driver.page_source
-            main_body = re.compile(r'\n').sub('', main_body)
-            main_body = re.compile(r'  ').sub('', main_body)
-            main_body = re.compile(r'\t').sub('', main_body)
-            # print(main_body)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            print('报错如下: ', e)
-            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            print('main_body为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            main_body = ''
-
-        return main_body
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-
-        except Exception:
-            print('动态切换ip失败')
-            return False
-
-        return True
-
     def get_pintuan_end_time(self, begin_time, left_time):
         '''
         处理并得到拼团结束时间
@@ -439,7 +342,7 @@ class MoGuJiePinTuan(object):
         return pintuan_begin_time, pintuan_end_time
 
     def __del__(self):
-        try: self.driver.quit()
+        try: del self.my_phantomjs
         except: pass
         gc.collect()
 
