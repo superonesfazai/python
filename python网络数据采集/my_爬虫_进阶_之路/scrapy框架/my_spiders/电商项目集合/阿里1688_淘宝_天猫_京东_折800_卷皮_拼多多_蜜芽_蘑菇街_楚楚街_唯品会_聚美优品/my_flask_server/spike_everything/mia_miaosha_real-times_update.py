@@ -16,6 +16,7 @@ sys.path.append('..')
 
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_requests import MyRequests
 
 import gc
 from time import sleep
@@ -25,7 +26,6 @@ from pprint import pprint
 import time
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
-import requests
 
 class Mia_Miaosha_Real_Time_Update(object):
     def __init__(self):
@@ -89,7 +89,7 @@ class Mia_Miaosha_Real_Time_Update(object):
 
                         tmp_url = 'https://m.mia.com/instant/seckill/seckillPromotionItem/' + str(item[2])
 
-                        body = mia_miaosha.get_url_body(tmp_url=tmp_url)
+                        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
                         # print(body)
 
                         if body == '' or body == '[]':

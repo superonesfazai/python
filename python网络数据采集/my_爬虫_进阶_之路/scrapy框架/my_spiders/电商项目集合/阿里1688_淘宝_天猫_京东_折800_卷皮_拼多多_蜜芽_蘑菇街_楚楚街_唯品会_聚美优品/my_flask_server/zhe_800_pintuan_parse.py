@@ -15,7 +15,6 @@
 import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -32,8 +31,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -69,10 +68,11 @@ class Zhe800PintuanParse(object):
             '''
             原先采用requests来模拟的，之前能用，但是数据多了请求多了sleep也不管用后面会获取不到信息
             '''
-            body = self.get_url_body(tmp_url=tmp_url)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
             # print(body)
             if body == '':
                 print('获取到的tmp_url的body为空值, 此处跳过!')
+                self.result_data = {}
                 return {}
 
             # 不用这个了因为会影响到正常情况的商品
@@ -472,40 +472,6 @@ class Zhe800PintuanParse(object):
 
         pipeline.update_zhe_800_pintuan_table(tmp)
 
-    def get_url_body(self, tmp_url):
-        '''
-        获取到url的body
-        :param tmp_url: 待抓取的url
-        :return: body   类型 字符串
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        try:
-            # allow_redirects = False   表示禁止跳转
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # print(body)
-
-            # 过滤
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            body = ''
-
-        return body
-
     def get_div_desc_body(self, div_desc_url):
         '''
         得到div_desc的html页面
@@ -513,7 +479,7 @@ class Zhe800PintuanParse(object):
         :return: str类型的data, 出错的情况下返回{}
         '''
         # 使用requests
-        div_desc_body = self.get_url_body(tmp_url=div_desc_url)
+        div_desc_body = MyRequests.get_url_body(url=div_desc_url, headers=self.headers)
         if div_desc_body == '':
             div_desc_body = '{}'
 
@@ -555,7 +521,7 @@ class Zhe800PintuanParse(object):
         :return: 返回一个list
         '''
         # 使用requests
-        p_info_body = self.get_url_body(tmp_url=p_info_url)
+        p_info_body = MyRequests.get_url_body(url=p_info_url, headers=self.headers)
         if p_info_body == '':
             print('获取到的p_info_body为空值, 此处跳过!')
             p_info_body = '{}'
@@ -583,7 +549,7 @@ class Zhe800PintuanParse(object):
         :param stock_info_url:
         :return: 返回dict类型
         '''
-        stock_info_body = self.get_url_body(tmp_url=stock_info_url)
+        stock_info_body = MyRequests.get_url_body(url=stock_info_url, headers=self.headers)
         if stock_info_body == '':
             print('获取到的stock_info_body为空值!')
             stock_info_body = '{}'

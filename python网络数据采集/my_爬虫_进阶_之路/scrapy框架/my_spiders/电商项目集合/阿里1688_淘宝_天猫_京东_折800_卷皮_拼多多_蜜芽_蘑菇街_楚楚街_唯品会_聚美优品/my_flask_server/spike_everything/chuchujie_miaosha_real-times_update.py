@@ -16,6 +16,7 @@ sys.path.append('..')
 
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_requests import MyRequests
 
 import gc
 from time import sleep
@@ -26,8 +27,6 @@ import time
 from random import randint
 
 from settings import HEADERS, IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
-from my_ip_pools import MyIpPools
-import requests
 from decimal import Decimal
 
 class ChuChuJieMiaosShaRealTimeUpdate(object):
@@ -215,30 +214,8 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
             'page': page
         }
 
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        try:
-            response = requests.get(
-                url=tmp_url,
-                headers=self.headers,
-                params=data,
-                proxies=tmp_proxies,
-                timeout=12
-            )
-            # print(response.url)
-            body = response.content.decode('utf-8')
-            # print(body)
-
-        except Exception as e:
-            print('遇到错误: ', e)
+        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=data)
+        if body == '':
             body = '{}'
 
         return body

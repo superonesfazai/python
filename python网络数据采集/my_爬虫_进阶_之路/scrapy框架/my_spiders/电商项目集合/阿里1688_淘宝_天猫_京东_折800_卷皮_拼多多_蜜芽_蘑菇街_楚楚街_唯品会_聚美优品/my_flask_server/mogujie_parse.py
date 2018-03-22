@@ -17,7 +17,6 @@ sys.path.append('..')
 import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -28,7 +27,7 @@ import gc
 
 from settings import HEADERS
 import pytz
-from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 from tools.my_logging import set_logger
 
@@ -133,7 +132,7 @@ class MoGuJieParse(object):
 
             data = {}
 
-            body = self.get_url_body(tmp_url=tmp_url)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
             # print(body)
 
             if body == '':
@@ -180,7 +179,7 @@ class MoGuJieParse(object):
                 获取p_info
                 '''
                 p_info_api_url = 'https://shop.mogujie.com/ajax/mgj.pc.detailinfo/v1?_ajax=1&itemId=' + str(goods_id)
-                tmp_p_info_body = self.get_url_body(tmp_url=p_info_api_url)
+                tmp_p_info_body = MyRequests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True)
                 # print(tmp_p_info_body)
                 if tmp_p_info_body == '':
                     print('获取到的tmp_p_info_body为空值, 请检查!')
@@ -506,42 +505,6 @@ class MoGuJieParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_mogujie_pintuan_table_2(tmp)
-
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
 
     def get_price_info_list(self, sku_info):
         '''

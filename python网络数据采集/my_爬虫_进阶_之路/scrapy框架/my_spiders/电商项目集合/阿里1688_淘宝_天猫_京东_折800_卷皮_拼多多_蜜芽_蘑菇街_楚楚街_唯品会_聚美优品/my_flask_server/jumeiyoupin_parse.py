@@ -27,6 +27,7 @@ from scrapy.selector import Selector
 
 from settings import HEADERS
 from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 class JuMeiYouPinParse(object):
     def __init__(self):
@@ -60,7 +61,7 @@ class JuMeiYouPinParse(object):
         #** 获取ajaxStaticDetail请求中的数据
         tmp_url = 'https://h5.jumei.com/product/ajaxStaticDetail?item_id=' + goods_id[0] + '&type=' + str(goods_id[1])
         self.headers['Referer'] = goods_url
-        body = self.get_url_body(tmp_url=tmp_url)
+        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
         # print(body)
 
         if body == '':
@@ -81,7 +82,7 @@ class JuMeiYouPinParse(object):
 
         #** 获取ajaxDynamicDetail请求中的数据
         tmp_url_2 = 'https://h5.jumei.com/product/ajaxDynamicDetail?item_id=' + str(goods_id[0]) + '&type=' + str(goods_id[1])
-        body_2 = self.get_url_body(tmp_url=tmp_url_2)
+        body_2 = MyRequests.get_url_body(url=tmp_url_2, headers=self.headers)
         # print(body)
         if body_2 == '':
             print('获取到的body为空str!')
@@ -569,42 +570,6 @@ class JuMeiYouPinParse(object):
             })
 
         return price_info_list
-
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        # tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
 
     def timestamp_to_regulartime(self, timestamp):
         '''

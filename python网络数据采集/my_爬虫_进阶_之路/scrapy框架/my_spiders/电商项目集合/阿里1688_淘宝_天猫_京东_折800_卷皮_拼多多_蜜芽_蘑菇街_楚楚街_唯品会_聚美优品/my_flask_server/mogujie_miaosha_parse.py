@@ -10,7 +10,6 @@
 import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -24,6 +23,7 @@ import pytz
 
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_requests import MyRequests
 
 class MoGuJieMiaoShaParse(MoGuJieParse):
     def __init__(self):
@@ -53,7 +53,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
 
             data = {}
 
-            body = self.get_url_body(tmp_url=tmp_url)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
             # print(body)
 
             if body == '':
@@ -100,7 +100,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 获取p_info
                 '''
                 p_info_api_url = 'https://shop.mogujie.com/ajax/mgj.pc.detailinfo/v1?_ajax=1&itemId=' + str(goods_id)
-                tmp_p_info_body = self.get_url_body(tmp_url=p_info_api_url)
+                tmp_p_info_body = MyRequests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True)
                 # print(tmp_p_info_body)
                 if tmp_p_info_body == '':
                     print('获取到的tmp_p_info_body为空值, 请检查!')

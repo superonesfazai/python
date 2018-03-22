@@ -262,20 +262,6 @@ class Zhe800Spike(object):
             print('非本年度的限时秒杀时间，此处跳过')
             return False
 
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
-
     def __del__(self):
         try:
             del self.my_phantomjs

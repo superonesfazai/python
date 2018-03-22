@@ -113,8 +113,15 @@ BASIC_APP_KEY = 'yiuxiu6688'
 import json
 
 def get_db_info():
-    with open(db_info_json_path, 'r') as f:
-        _tmp = json.loads(f.readline())
+    try:
+        with open(db_info_json_path, 'r') as f:
+            _tmp = json.loads(f.readline())
+    except FileNotFoundError:
+        print('严重错误, 数据库初始配置json文件未找到!请检查!')
+        return ('', '', '', '', 1433)
+    except Exception as e:
+        print('错误如下: ', e)
+        return ('', '', '', '', 1433)
 
     return (_tmp['HOST'], _tmp['USER'], _tmp['PASSWORD'], _tmp['DATABASE'], _tmp['PORT'])
 

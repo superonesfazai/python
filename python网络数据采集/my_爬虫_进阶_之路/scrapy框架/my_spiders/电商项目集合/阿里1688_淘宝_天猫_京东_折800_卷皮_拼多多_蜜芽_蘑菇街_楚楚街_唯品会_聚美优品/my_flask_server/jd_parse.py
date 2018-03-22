@@ -15,7 +15,7 @@ from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH
 
 from random import randint
-import requests, json, re, time
+import json, re, time
 from time import sleep
 from decimal import Decimal
 import datetime
@@ -30,6 +30,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -173,7 +174,10 @@ class JdParse(object):
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
 
             ## ** 起初是拿phantomjs来进行url请求的，本来想着用requests来优化，但是改动有点大，就先暂时不改动 **
-            # body_1 = self.get_requests_body(tmp_url=tmp_url, my_headers=self.headers)
+            # body_1 = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            # if body_1 == '':
+            #     body_1 = []
+            # else: body_1 = body_1[0]
             # # print(body_1)
 
             if body_1 != []:
@@ -389,41 +393,6 @@ class JdParse(object):
         else:
             print('待处理的data为空的dict')
             return {}
-
-    def get_requests_body(self, tmp_url, my_headers):
-        '''
-        根据url和请求头返回body
-        :param tmp_url: 待请求的url
-        :param my_headers: 请求头
-        :return: list   ['xxxx']
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = my_headers
-        tmp_host = re.compile(r'https://(.*?)/.*').findall(tmp_url)[0]  # 得到host地址
-        # print(tmp_host)
-        tmp_headers['Host'] = str(tmp_host)
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            data = response.content.decode('utf-8')
-            # print(data)
-            data = re.compile(r'(.*)').findall(data)  # 贪婪匹配匹配所有
-            # print(data)
-
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            return []
-
-        return data
 
     def from_ware_id_get_price_info(self, ware_id):
         '''
@@ -888,7 +857,7 @@ class JdParse(object):
             return {}
 
         # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
-        # tmp_pc_body = self.get_requests_body(tmp_url=tmp_pc_url, my_headers=self.pc_headers)
+        # tmp_pc_body = MyRequests.get_url_body(url=tmp_pc_url, headers=self.pc_headers)
         tmp_pc_body = self.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
         # print(tmp_pc_body)
         if tmp_pc_body == '':

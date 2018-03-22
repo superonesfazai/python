@@ -8,6 +8,7 @@
 '''
 
 import requests
+import gc
 
 class MyIpPools(object):
     def __init__(self):
@@ -32,3 +33,6 @@ class MyIpPools(object):
                 delete_info = requests.get(delete_url + item[0])
         # pprint(result_ip_list)
         return result_ip_list
+
+    def __del__(self):
+        gc.collect()

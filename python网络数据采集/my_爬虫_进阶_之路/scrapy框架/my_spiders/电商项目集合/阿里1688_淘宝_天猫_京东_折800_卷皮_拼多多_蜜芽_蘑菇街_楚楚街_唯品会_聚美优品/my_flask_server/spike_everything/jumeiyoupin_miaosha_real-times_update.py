@@ -17,8 +17,8 @@ sys.path.append('..')
 from jumeiyoupin_spike import JuMeiYouPinSpike
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 import gc
 from time import sleep
@@ -29,9 +29,7 @@ import time
 from random import randint
 
 from settings import HEADERS, IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
-import requests
 from decimal import Decimal
-
 
 class JuMeiYouPinMiaoShaRealTimeUpdate(object):
     def __init__(self):
@@ -164,43 +162,6 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
             sleep(5)
         gc.collect()
 
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        # tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        s = requests.session()
-        try:
-            response = s.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
-
     def get_one_page_all_goods_list(self, *params):
         '''
         得到一个页面地址的所有商品list
@@ -210,7 +171,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
         all_goods_list = []
         tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=formal&page_key=1521336720'.format(str(page))
         # print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
-        body = self.get_url_body(tmp_url=tmp_url)
+        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
         # print(body)
 
         try:

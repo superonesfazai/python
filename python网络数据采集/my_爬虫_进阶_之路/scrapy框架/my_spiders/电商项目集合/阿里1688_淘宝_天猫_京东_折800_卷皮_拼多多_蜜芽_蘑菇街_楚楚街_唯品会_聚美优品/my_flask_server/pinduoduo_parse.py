@@ -32,6 +32,7 @@ import selenium.webdriver.support.ui as ui
 from settings import PHANTOMJS_DRIVER_PATH
 from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -68,7 +69,7 @@ class PinduoduoParse(object):
             '''
             1.采用requests，由于经常返回错误的body(即requests.get返回的为空的html), So pass
             '''
-            # body = self.get_url_body_by_requests(tmp_url=tmp_url)
+            # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
 
             '''
             2.采用phantomjs来获取
@@ -432,39 +433,6 @@ class PinduoduoParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_pinduoduo_xianshimiaosha_table(tmp)
-
-    def get_url_body_by_requests(self, tmp_url):
-        '''
-        返回给与url的body
-        :param tmp_url:
-        :return: str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        try:
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # print(body)
-
-            # 过滤
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            body = ''
-
-        return body
 
     def set_cookies_key_api_uid(self):
         '''

@@ -27,7 +27,7 @@ from settings import HEADERS, IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import datetime
-from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 class Zhe800Pintuan(object):
     def __init__(self):
@@ -53,7 +53,15 @@ class Zhe800Pintuan(object):
             )
             print('正在抓取的页面地址为: ', tmp_url)
 
-            tmp_data = self.get_url_body(tmp_url=tmp_url)
+            tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            if tmp_body == '':
+                tmp_body = '{}'
+            try:
+                tmp_data = json.loads(tmp_body)
+                tmp_data = tmp_data.get('objects', [])
+            except:
+                print('json.loads转换tmp_data时出错!')
+                tmp_data = []
             # print(tmp_data)
 
             if tmp_data == []:
@@ -121,39 +129,6 @@ class Zhe800Pintuan(object):
         pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
 
         return pintuan_begin_time, pintuan_end_time
-
-    def get_url_body(self, tmp_url):
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-        try:
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # print(body)
-
-            # 过滤
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            body = '{}'
-            pass
-
-        try:
-            data = json.loads(body)
-            data = data.get('objects', [])
-        except:
-            print('json.loads转换data时出错!')
-            data = []
-        return data
 
     def __del__(self):
         gc.collect()

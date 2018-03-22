@@ -9,7 +9,6 @@
 
 from random import randint
 import json
-import requests
 import re
 import time
 from pprint import pprint
@@ -26,7 +25,7 @@ sys.path.append('..')
 from settings import HEADERS
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 from settings import IS_BACKGROUND_RUNNING
 import datetime
 
@@ -56,24 +55,8 @@ class JuanPiSpike(object):
                 )
                 print('待抓取的限时秒杀地址为: ', tmp_url)
 
-                # 设置代理ip
-                ip_object = MyIpPools()
-                self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-                self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-                tmp_proxies = {
-                    'http': self.proxy,
-                }
-                # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-                try:
-                    response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                    data = response.content.decode('utf-8')
-                    # print(data)
-                except Exception:
-                    print('requests.get()请求超时....')
-                    print('data为空!')
-                    break
+                data = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+                if data == '': break
 
                 try:
                     data = json.loads(data)

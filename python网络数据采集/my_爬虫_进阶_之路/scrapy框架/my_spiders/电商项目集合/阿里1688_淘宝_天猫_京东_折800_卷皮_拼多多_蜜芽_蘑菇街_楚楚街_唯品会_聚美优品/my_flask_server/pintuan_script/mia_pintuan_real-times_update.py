@@ -25,7 +25,7 @@ from pprint import pprint
 import time
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
-import requests
+from my_requests import MyRequests
 
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
@@ -90,7 +90,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                         tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(item[2]) + '/0/'
                         # print(tmp_url)
 
-                        body = mia_pintuan.get_url_body(tmp_url=tmp_url)
+                        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
 
                         if body == '':
                             print('获取到的body为空值! 此处跳过')

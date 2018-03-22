@@ -26,8 +26,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
 from mogujie_parse import MoGuJieParse
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 class MoGuJiePinTuan(object):
     def __init__(self):
@@ -128,7 +128,7 @@ class MoGuJiePinTuan(object):
                     str(index), fcid
                 )
                 # requests请求数据被过滤(起初能用)，改用phantomjs
-                # body = self.get_url_body(tmp_url=tmp_url)
+                # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
                 body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
                 # print(body)
 
@@ -290,42 +290,6 @@ class MoGuJiePinTuan(object):
         dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
 
         return dt
-
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
 
     def get_pintuan_begin_time_and_pintuan_end_time(self, pintuan_time):
         '''

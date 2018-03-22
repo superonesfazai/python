@@ -26,6 +26,7 @@ import pytz
 
 from settings import HEADERS
 from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 class Zhe800Parse(object):
     def __init__(self):
@@ -53,27 +54,11 @@ class Zhe800Parse(object):
             tmp_url = 'https://th5.m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
             # print('------>>>| 得到的detail信息的地址为: ', tmp_url)
 
-            # 设置代理ip
-            ip_object = MyIpPools()
-            self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-            tmp_proxies = {
-                'http': self.proxy,
-            }
-            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-            try:
-                response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                data = response.content.decode('utf-8')
-                # print(data)
-                data = re.compile(r'(.*)').findall(data)  # 贪婪匹配匹配所有
-                # print(data)
-            except Exception:
-                print('requests.get()请求超时....')
-                print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            if body == '':
+                self.result_data = {}
                 return {}
+            else: data = [body]
 
             if data != []:
                 data = data[0]
@@ -145,17 +130,12 @@ class Zhe800Parse(object):
                 # 得到并处理detail(即图文详情显示信息)
                 # http://m.zhe800.com/gateway/app/detail/graph?productId=
                 tmp_detail_url = 'https://th5.m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
-                try:
-                    response = requests.get(tmp_detail_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                    detail_data = response.content.decode('utf-8')
-                    # print(detail_data)
-                    detail_data = re.compile(r'(.*)').findall(detail_data)  # 贪婪匹配匹配所有
-                    # print(detail_data)
-                except Exception:   # 未拿到图文详情就跳出
-                    print('requests.get()请求超时....')
-                    print('detail_data为空!')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                detail_data_body = MyRequests.get_url_body(url=tmp_detail_url, headers=self.headers)
+                if detail_data_body == '':
+                    print('detail_data为[]!')
+                    self.result_data = {}
                     return {}
+                else: detail_data = [detail_data_body]
 
                 if detail_data != []:
                     detail_data = detail_data[0]
@@ -221,16 +201,12 @@ class Zhe800Parse(object):
                             处理有尺码的情况(将其加入到div_desc中)
                             '''
                             tmp_size_url = 'https://th5.m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
-                            try:
-                                response = requests.get(tmp_size_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                                size_data = response.content.decode('utf-8')
-                                size_data = re.compile(r'(.*)').findall(size_data)  # 贪婪匹配匹配所有
-                                # print(size_data)
-                            except Exception:  # 未拿到图文详情就跳出
-                                print('requests.get()请求超时....')
+                            size_data_body = MyRequests.get_url_body(url=tmp_size_url, headers=self.headers)
+                            if size_data_body == '':
                                 print('size_data为空!')
-                                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                                self.result_data = {}
                                 return {}
+                            else: size_data = [size_data_body]
 
                             if size_data != []:
                                 size_data = size_data[0]
@@ -283,23 +259,18 @@ class Zhe800Parse(object):
                     '''
                     seller_id = data.get('/app/detail/product/base', {}).get('sellerId', 0)
                     tmp_seller_id_url = 'https://th5.m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
-
-                    try:
-                        response = requests.get(tmp_seller_id_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                        seller_info = response.content.decode('utf-8')
-                        # print(seller_info)
-                        seller_info = re.compile(r'(.*)').findall(seller_info)  # 贪婪匹配匹配所有
-                        sell_info_str = ''
-                        for item_ss in seller_info:     # 拼接字符串
-                            sell_info_str += item_ss
-
-                        seller_info = [sell_info_str]
-                        # print(seller_info)
-                    except Exception:  # 未拿到图文详情就跳出
-                        print('requests.get()请求超时....')
+                    seller_info_body = MyRequests.get_url_body(url=tmp_seller_id_url, headers=self.headers)
+                    if seller_info_body == '':
                         print('seller_info为空!')
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                        self.result_data = {}
                         return {}
+                    else: seller_info = [seller_info_body]
+                    seller_info_str = ''
+                    for item_ss in seller_info:  # 拼接字符串
+                        seller_info_str += item_ss
+
+                    seller_info = [seller_info_str]
+                    # print(seller_info)
 
                     if seller_info != []:
                         seller_info = seller_info[0]
@@ -322,16 +293,12 @@ class Zhe800Parse(object):
                     得到秒杀开始时间和结束时间
                     '''
                     schedule_and_stock_url = 'https://th5.m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
-                    try:
-                        response = requests.get(schedule_and_stock_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                        schedule_and_stock_info = response.content.decode('utf-8')
-                        schedule_and_stock_info = re.compile(r'(.*)').findall(schedule_and_stock_info)  # 贪婪匹配匹配所有
-                        # print(schedule_and_stock_info)
-                    except Exception:  # 未拿到图文详情就跳出
-                        print('requests.get()请求超时....')
+                    schedule_and_stock_info_body = MyRequests.get_url_body(url=schedule_and_stock_url, headers=self.headers)
+                    if schedule_and_stock_info_body == '':
                         print('schedule_and_stock_info为空!')
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                        self.result_data = {}
                         return {}
+                    else: schedule_and_stock_info = [schedule_and_stock_info_body]
 
                     if schedule_and_stock_info != []:
                         schedule_and_stock_info = schedule_and_stock_info[0]

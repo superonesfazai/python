@@ -13,7 +13,6 @@
 
 from random import randint
 import json
-import requests
 import re
 import time
 from pprint import pprint
@@ -31,8 +30,8 @@ from settings import HEADERS, PHONE_HEADERS
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
@@ -234,30 +233,8 @@ class ChuChuJie_9_9_Spike(object):
             'page': page
         }
 
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        try:
-            response = requests.get(
-                url=tmp_url,
-                headers=self.headers,
-                params=data,
-                proxies=tmp_proxies,
-                timeout=12
-            )
-            # print(response.url)
-            body = response.content.decode('utf-8')
-            # print(body)
-
-        except Exception as e:
-            print('遇到错误: ', e)
+        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=data)
+        if body == '':
             body = '{}'
 
         return body

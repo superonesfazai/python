@@ -9,14 +9,11 @@
 
 from random import randint
 import json
-import requests
 import re
 import time
 from pprint import pprint
 import gc
 import pytz
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from time import sleep
 import os
 
@@ -26,7 +23,7 @@ sys.path.append('..')
 from settings import HEADERS, IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 import datetime
 
 class JuanPiPinTuan(object):
@@ -53,7 +50,15 @@ class JuanPiPinTuan(object):
             )
             print('正在抓取的页面地址为: ', tmp_url)
 
-            tmp_data = self.get_url_body(tmp_url=tmp_url)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            if body == '': body = '{}'
+            try:
+                tmp_data = json.loads(body)
+                tmp_data = tmp_data.get('data', {}).get('goods', [])
+            except:
+                print('json.loads转换tmp_data时出错!')
+                tmp_data = []
+
             # print(tmp_data)
             sleep(.3)
 
@@ -168,39 +173,6 @@ class JuanPiPinTuan(object):
 
         gc.collect()
         return goods_data
-
-    def get_url_body(self, tmp_url):
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-        try:
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # print(body)
-
-            # 过滤
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            body = '{}'
-            pass
-
-        try:
-            data = json.loads(body)
-            data = data.get('data', {}).get('goods', [])
-        except:
-            print('json.loads转换data时出错!')
-            data = []
-        return data
 
     def get_pintuan_begin_time_and_pintuan_end_time(self, schedule):
         '''

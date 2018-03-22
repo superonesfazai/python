@@ -27,6 +27,7 @@ from scrapy import Selector
 
 from settings import HEADERS
 from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 class VipParse(object):
     def __init__(self):
@@ -57,7 +58,7 @@ class VipParse(object):
             goods_url = 'https://m.vip.com/product-0-' + str(goods_id[1]) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = self.get_url_body(tmp_url=goods_url)
+            body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
             # print(body)
 
             if body == '':
@@ -465,7 +466,7 @@ class VipParse(object):
                             下面是获取该颜色对应goods_id的所有可售的规格价格信息
                             '''
                             goods_url = 'https://m.vip.com/product-0-' + str(item.get('goods_id', '')) + '.html'
-                            tmp_data_2 = self.get_url_body(tmp_url=goods_url)
+                            tmp_data_2 = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
 
                             # 先处理得到dict数据
                             if tmp_data_2 == '':
@@ -762,42 +763,6 @@ class VipParse(object):
                 return []
 
         return p_info
-
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
 
     def timestamp_to_regulartime(self, timestamp):
         '''

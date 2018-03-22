@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import requests
 from pprint import pprint
 import re
 import gc
@@ -24,8 +23,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import HEADERS
 import pytz
 from scrapy.selector import Selector
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -63,12 +62,11 @@ class ALi1688LoginAndParse(object):
         # '''
         # 改用requests
         # '''
-        # body = self.get_requests_body(tmp_url=wait_to_deal_with_url, my_headers=self.headers)
+        # body = MyRequests.get_url_body(url=wait_to_deal_with_url, headers=self.headers)
         # # print(body)
         #
-        # if body == []:
+        # if body == '':
         #     return {}
-        # body = body[0]
         # print(body)
 
         tmp_body = body
@@ -558,45 +556,6 @@ class ALi1688LoginAndParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.old_ali_1688_goods_insert_into_new_table(tmp)
 
-    def get_requests_body(self, tmp_url, my_headers):
-        '''
-        根据url和请求头返回body
-        :param tmp_url: 待请求的url
-        :param my_headers: 请求头
-        :return: list   ['xxxx']
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = my_headers
-        tmp_host = re.compile(r'https://(.*?)/.*').findall(tmp_url)[0]  # 得到host地址
-        # print(tmp_host)
-        tmp_headers['Host'] = str(tmp_host)
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # print(body)
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-
-            data = re.compile(r'(.*)').findall(body)  # 贪婪匹配匹配所有
-            # print(data)
-
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            return []
-
-        return data
-
     def get_detail_info_url_div(self, detail_info_url):
         '''
         此处过滤得到data_tfs_url的div块
@@ -617,12 +576,12 @@ class ALi1688LoginAndParse(object):
         # '''
         # 改用requests
         # '''
-        # body = self.get_requests_body(tmp_url=detail_info_url, my_headers=self.headers)
+        # body = MyRequests.get_url_body(url=detail_info_url, headers=self.headers)
         # print(body)
-        # if  body == []:
+        # if  body == '':
         #     detail_info = ''
         #
-        # data_tfs_url_body = body[0]
+        # data_tfs_url_body = body
 
         is_offer_details = re.compile(r'offer_details').findall(data_tfs_url_body)
         if is_offer_details != []:

@@ -14,7 +14,6 @@
 import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -27,10 +26,22 @@ from scrapy import Selector
 
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from settings import HEADERS
+from my_requests import MyRequests
 
 class MiaPintuanParse(MiaParse):
     def __init__(self):
         MiaParse.__init__(self)
+        self.headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            # 'Accept-Encoding:': 'gzip',
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Host': 'm.mia.com',
+            'Referer': 'https://m.mia.com/',
+            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+        }
 
     def get_goods_data(self, goods_id:str) -> '重载获取数据的方法':
         '''
@@ -49,7 +60,7 @@ class MiaPintuanParse(MiaParse):
             # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = self.get_url_body(tmp_url=goods_url)
+            body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
             # print(body)
 
             if body == '':
@@ -391,7 +402,7 @@ class MiaPintuanParse(MiaParse):
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
         # print(tmp_url)
 
-        tmp_body = self.get_url_body(tmp_url=tmp_url)
+        tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
         # print(tmp_body)
 
         try:

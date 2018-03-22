@@ -14,7 +14,6 @@
 import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -26,7 +25,7 @@ import pytz
 from scrapy import Selector
 
 from settings import HEADERS
-from my_ip_pools import MyIpPools
+from my_requests import MyRequests
 
 class MiaParse(object):
     def __init__(self):
@@ -59,7 +58,7 @@ class MiaParse(object):
             # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = self.get_url_body(tmp_url=goods_url)
+            body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
             # print(body)
 
             if body == '':
@@ -370,42 +369,6 @@ class MiaParse(object):
 
         pipeline.update_mia_xianshimiaosha_table(tmp)
 
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
-
     def get_jump_to_url_and_is_hk(self, body):
         '''
         得到跳转地址和is_hk
@@ -421,7 +384,7 @@ class MiaParse(object):
                 sign_direct_url = ''
                 print('获取跳转的地址时出错!')
 
-            body = self.get_url_body(tmp_url=sign_direct_url)       # 根据跳转的url得到的body
+            body = MyRequests.get_url_body(url=sign_direct_url, headers=self.headers, had_referer=True)
 
             if re.compile(r'://m.miyabaobei.hk/').findall(sign_direct_url) != []:
                 # 表示为全球购商品
@@ -477,7 +440,7 @@ class MiaParse(object):
         else:
             tmp_url_2 = 'https://www.mia.com/item-' + str(goods_id) + '.html'
 
-        tmp_body_2 = self.get_url_body(tmp_url=tmp_url_2)
+        tmp_body_2 = MyRequests.get_url_body(url=tmp_url_2, headers=self.headers, had_referer=True)
         # print(Selector(text=tmp_body_2).css('div.small').extract())
 
         if tmp_body_2 == '':
@@ -560,7 +523,7 @@ class MiaParse(object):
             else:
                 tmp_url = 'https://www.mia.com/item-' + item.get('goods_id') + '.html'
 
-            tmp_body = self.get_url_body(tmp_url=tmp_url)
+            tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
             # print(tmp_body)
 
             if sign_direct_url != '':
@@ -592,7 +555,7 @@ class MiaParse(object):
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
         # print(tmp_url)
 
-        tmp_body = self.get_url_body(tmp_url=tmp_url)
+        tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
         # print(tmp_body)
 
         try:

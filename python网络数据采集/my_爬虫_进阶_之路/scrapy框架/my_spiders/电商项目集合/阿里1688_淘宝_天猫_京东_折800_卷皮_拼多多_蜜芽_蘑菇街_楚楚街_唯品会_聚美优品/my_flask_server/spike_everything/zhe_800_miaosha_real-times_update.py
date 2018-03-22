@@ -23,7 +23,6 @@ import selenium.webdriver.support.ui as ui
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING
 import requests
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
 
 class Zhe_800_Miaosha_Real_Time_Update(object):

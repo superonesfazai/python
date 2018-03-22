@@ -23,7 +23,7 @@ from pprint import pprint
 import time
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
-import requests
+from my_requests import MyRequests
 
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
@@ -97,7 +97,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                         # print(tmp_url)
 
                         # requests请求不到数据，涉及证书认证，直接用phantomjs
-                        # body = mogujie_pintuan.get_url_body(tmp_url=tmp_url)
+                        # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
                         body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
                         # print(body)
 

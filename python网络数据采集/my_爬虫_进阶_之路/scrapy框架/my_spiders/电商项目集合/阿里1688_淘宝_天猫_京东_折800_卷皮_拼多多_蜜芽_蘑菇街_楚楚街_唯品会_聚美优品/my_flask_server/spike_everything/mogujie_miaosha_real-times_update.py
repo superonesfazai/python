@@ -16,6 +16,7 @@ sys.path.append('..')
 
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_requests import MyRequests
 
 import gc
 from time import sleep
@@ -183,7 +184,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         :return: item_list 类型 list
         '''
         tmp_url = 'https://qiang.mogujie.com//jsonp/fastBuyListActionLet/1?eventTime={0}&bizKey=rush_main'.format(str(event_time))
-        body = self.get_url_body(tmp_url=tmp_url)
+        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
         # print(body)
 
         if body == '':
@@ -215,61 +216,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         sleep(.5)
 
         return item_list
-
-    def get_url_body(self, tmp_url):
-        '''
-        根据url得到body
-        :param tmp_url:
-        :return: body   类型str
-        '''
-        # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = self.headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(tmp_url)[0]
-        tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-
-        try:
-            response = requests.get(tmp_url, headers=tmp_headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
-
-        return body
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
 
     def is_recent_time(self, timestamp):
         '''
