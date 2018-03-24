@@ -3,16 +3,11 @@
 '''
 @author = super_fazai
 @File    : my_ip_pools.py
-@Time    : 2017/12/23 15:11
+@Time    : 2018/3/23 09:44
 @connect : superonesfazai@gmail.com
 '''
 
-import requests
-import gc
-
-__all__ = [
-    'MyIpPools',
-]
+import requests, gc
 
 class MyIpPools(object):
     def __init__(self):

@@ -26,6 +26,8 @@ spike_file_name_list = [
     'mogujie_miaosha_real-times_update',
     'chuchujie_spike',
     'chuchujie_miaosha_real-times_update',
+    'jumeiyoupin_spike',
+    'jumeiyoupin_miaosha_real-times_update',
 ]
 
 pintuan_file_name_list = [

@@ -50,7 +50,7 @@ select.html的name
 SELECT_HTML_NAME = 'select.html'
 
 '''
-淘宝实时更新的sleep_time
+淘宝实时更新的sleep_time(接口请求限频,2秒以上比较保险)
 '''
 TAOBAO_REAL_TIMES_SLEEP_TIME = 2      # 加拿大服务器可以设置为.4s
 

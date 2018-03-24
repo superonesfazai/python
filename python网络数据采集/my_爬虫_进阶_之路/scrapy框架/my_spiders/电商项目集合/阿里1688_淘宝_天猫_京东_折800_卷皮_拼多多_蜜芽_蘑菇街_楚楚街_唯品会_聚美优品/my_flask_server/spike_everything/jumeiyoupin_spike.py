@@ -64,8 +64,36 @@ class JuMeiYouPinSpike(object):
         print('获取cookies成功!')
         self.headers.update(Cookie=cookies)
 
+        print('开始抓取在售商品...')
         for page in range(1, 50):   # 1, 开始
             tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=formal&page_key=1521336720'.format(str(page))
+            print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            # print(body)
+
+            try:
+                json_body = json.loads(body)
+                # print(json_body)
+            except:
+                print('json.loads转换body时出错!请检查')
+                json_body = {}
+                pass
+
+            this_page_item_list = json_body.get('item_list', [])
+            if this_page_item_list == []:
+                print('@@@@@@ 所有接口数据抓取完毕 !')
+                break
+
+            for item in this_page_item_list:
+                if item.get('item_id', '') not in [item_1.get('item_id', '') for item_1 in all_goods_list]:
+                    item['page'] = page
+                    all_goods_list.append(item)
+
+            sleep(.5)
+
+        print('开始抓取预售商品...')
+        for page in range(1, 50):   # 1, 开始
+            tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=pre&page_key=1521858480'.format(str(page))
             print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
             body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
             # print(body)

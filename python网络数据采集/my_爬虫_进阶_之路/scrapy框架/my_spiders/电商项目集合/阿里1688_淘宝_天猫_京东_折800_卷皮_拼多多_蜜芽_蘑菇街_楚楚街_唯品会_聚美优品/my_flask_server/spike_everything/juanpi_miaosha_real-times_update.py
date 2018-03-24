@@ -94,7 +94,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                         tmp_url = 'https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id={0}&page={1}'.format(
                             str(item[2]), str(item[3]),
                         )
-                        print('待爬取的tab_id, page地址为: ', tmp_url)
+                        # print('待爬取的tab_id, page地址为: ', tmp_url)
 
                         data = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
                         if data == '': break

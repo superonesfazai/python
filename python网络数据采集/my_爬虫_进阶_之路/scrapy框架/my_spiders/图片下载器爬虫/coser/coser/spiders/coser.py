@@ -12,7 +12,6 @@ import scrapy
 from scrapy.contrib.loader import ItemLoader
 from ..items import CoserItem
 
-
 class CoserSpider(scrapy.Spider):
     name = "coser"
     allowed_domains = ["bcy.net"]

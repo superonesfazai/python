@@ -45,7 +45,7 @@ class MiaPintuanParse(MiaParse):
 
     def get_goods_data(self, goods_id:str) -> '重载获取数据的方法':
         '''
-        模拟构造得到data的url
+        模拟构造得到data
         :param goods_id:
         :return: data dict类型
         '''

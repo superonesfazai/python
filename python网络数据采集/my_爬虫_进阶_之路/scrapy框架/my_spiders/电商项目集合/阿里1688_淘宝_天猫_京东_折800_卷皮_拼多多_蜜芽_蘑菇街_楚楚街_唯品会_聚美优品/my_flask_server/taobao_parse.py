@@ -66,21 +66,6 @@ class TaoBaoLoginAndParse(object):
         :param goods_id:
         :return: data   类型dict
         '''
-        """     这些是url的参数
-        appKey = '12574478'
-        t = str(time.time().__round__()) + str(randint(100, 999))    # time.time().__round__() 表示保留到个位
-        # sign = '24b2e987fce9c84d2fc0cebd44be49ef'     # sign可以为空
-        api = 'mtop.taobao.detail.getdetail'
-        v = '6.0'
-        ttid = '2016@taobao_h5_2.0.0'
-        isSec = str(0)
-        ecode = str(0)
-        AntiFlood = 'true'
-        AntiCreep = 'true'
-        H5Request = 'true'
-        type = 'jsonp'
-        callback = 'mtopjsonp1'
-        """
         print('------>>>| 对应的手机端地址为: ', 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + goods_id)
 
         appKey = '12574478'
@@ -99,18 +84,29 @@ class TaoBaoLoginAndParse(object):
             'itemNumId': goods_id
         }
         # print(params_data_2)
-        params = {
-            'data': json.dumps(params_data_2)  # 每层里面的字典都要先转换成json
-        }
 
         ### * 注意这是正确的url地址: right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
         # print(right_url)
 
-        tmp_url = "https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey={}&t={}&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1".format(
-            appKey, t
-        )
+        params = {
+            'appKey': appKey,
+            't': t,
+            # sign = '24b2e987fce9c84d2fc0cebd44be49ef'     # sign可以为空
+            'api': 'mtop.taobao.detail.getdetail',
+            'v': '6.0',
+            'ttid': '2016@taobao_h5_2.0.0',
+            'isSec': '0',
+            'ecode': '0',
+            'AntiFlood': 'true',
+            'AntiCreep': 'true',
+            'H5Request': 'true',
+            'type': 'jsonp',
+            'callback': 'mtopjsonp1',
+            'data': json.dumps(params_data_2),  # 每层里面的字典都要先转换成json
+        }
+        tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
 
         # 设置代理ip
         ip_object = MyIpPools()
@@ -122,11 +118,12 @@ class TaoBaoLoginAndParse(object):
         }
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
+        s = requests.session()
         try:
-            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
             # print(last_url)
-            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             data = response.content.decode('utf-8')
             # print(data)
             data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
