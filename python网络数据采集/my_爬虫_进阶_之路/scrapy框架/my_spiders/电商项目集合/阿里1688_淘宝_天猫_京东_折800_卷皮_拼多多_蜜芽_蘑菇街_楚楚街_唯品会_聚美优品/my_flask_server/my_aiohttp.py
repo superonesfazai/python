@@ -31,7 +31,7 @@ class MyAiohttp(object):
         }
 
     @classmethod
-    async def aio_get_url_body(self, url, headers, params=None, timeout=12, num_retries=8):
+    async def aio_get_url_body(self, url, headers, params=None, timeout=20, num_retries=8):
         '''
         异步获取url的body(简略版)
         :param url:
@@ -50,7 +50,7 @@ class MyAiohttp(object):
                 async with session.get(url=url, headers=headers, params=params, proxy=proxy, timeout=timeout) as r:
                     result = await r.text(encoding=None)
                     result = await self.wash_html(result)
-                    print('success')
+                    # print('success')
                     return result
             except Exception as e:
                 # print('出错:', e)
@@ -58,6 +58,7 @@ class MyAiohttp(object):
                     # 如果不是200就重试，每次递减重试次数
                     return await self.aio_get_url_body(url=url, headers=headers, params=params, num_retries=num_retries - 1)
                 else:
+                    print('异步获取body失败!')
                     return ''
 
     @classmethod

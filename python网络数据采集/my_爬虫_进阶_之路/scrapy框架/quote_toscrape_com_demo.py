@@ -16,7 +16,7 @@ class QuotesSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        for quote in response.css(div.quote):
+        for quote in response.css('div.quote'):
             yield {
                 'text': quote.css('span.text::text').extract[0],
                 'author': quote.xpath('span/small').extract[0],

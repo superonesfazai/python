@@ -375,3 +375,33 @@ create table jumeiyoupin_xianshimiaosha(
 	miaosha_end_time datetime,
 	page int
 )
+
+-- 创建jumeiyoupin_pintuan表
+create table jumeiyoupin_pintuan(
+	id int identity(1,1) primary key,
+	shop_name nvarchar(100),
+	goods_name nvarchar(300),
+	sub_title nvarchar(300),
+	price decimal(18, 2),
+	taobao_price decimal(18, 2),
+	spider_url nvarchar(500),
+	create_time datetime,
+	detail_info nvarchar(max),
+	all_img_url nvarchar(max),
+	sku_name nvarchar(max),
+	sku_info nvarchar(max),
+	property_info nvarchar(max),
+	site_id int,
+	goods_id varchar(100) not null unique,
+	is_convert int,
+	is_delete int,
+	is_modfiy int,
+	modfiy_time datetime,
+	pintuan_time nvarchar(500),
+	pintuan_begin_time datetime,
+	pintuan_end_time datetime,
+	all_sell_count varchar(40),
+  sort nvarchar(20),
+	tab varchar(40),
+	page int
+)

@@ -25,8 +25,11 @@ import pytz
 
 import asyncio, aiohttp
 from scrapy.selector import Selector
-from settings import HEADERS
+from settings import HEADERS, MY_SPIDER_LOGS_PATH
 from my_aiohttp import MyAiohttp
+from my_logging import set_logger
+from logging import INFO, ERROR
+import pytz, datetime
 
 class JuMeiYouPinPinTuanParse(object):
     def __init__(self):
@@ -41,6 +44,12 @@ class JuMeiYouPinPinTuanParse(object):
             'X-Requested-With': 'XMLHttpRequest',
         }
         self.result_data = {}
+        self.my_lg = set_logger(
+            log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
+            console_log_level=INFO,
+            file_log_level=ERROR
+        )
+        self.msg = ''
 
     async def get_goods_data(self, jumei_pintuan_url):
         '''
@@ -55,7 +64,8 @@ class JuMeiYouPinPinTuanParse(object):
 
         # 拼团商品手机地址
         goods_url = 'https://s.h5.jumei.com/yiqituan/detail?item_id={0}&type={1}'.format(goods_id[0], goods_id[1])
-        print('------>>>| 对应手机端地址为: ', goods_url)
+        self.msg = '------>>>| 对应手机端地址为: ' + goods_url
+        self.my_lg.info(self.msg)
 
         #** 获取ajaxDetail请求中的数据
         tmp_url = 'https://s.h5.jumei.com/yiqituan/ajaxDetail'
@@ -69,12 +79,15 @@ class JuMeiYouPinPinTuanParse(object):
         tmp_body = await MyAiohttp.aio_get_url_body(url=goods_url, headers=self.headers)
         # print(tmp_body)
         if body == '' or tmp_body == '':
-            print('获取到的body为空str!')
+            self.msg = '获取到的body为空str!' + ' 出错地址: ' + goods_url
+            self.my_lg.error(self.msg)
             self.result_data = {}
             return {}
 
         data = await self.json_2_dict(json_str=body)
         if data == {}:
+            self.msg = '出错地址: ' + goods_url
+            self.my_lg.error(self.msg)
             self.result_data = {}
             return {}
         data = await self.wash_data(data=data)
@@ -89,7 +102,7 @@ class JuMeiYouPinPinTuanParse(object):
                 data['sub_title'] = data.get('buy_alone', {}).get('name', '')
             # print(data['title'])
             if data['title'] == '':
-                print('获取到的title为空值, 请检查!')
+                self.my_lg.error('获取到的title为空值, 请检查!')
                 raise Exception
 
             # shop_name
@@ -131,15 +144,19 @@ class JuMeiYouPinPinTuanParse(object):
             # all_sell_count
             all_sell_count = data.get('buyer_number_text', '')
             if all_sell_count != '':
-                all_sell_count = re.compile(r'(\d+\.{0,1}\d.)').findall(all_sell_count)[0]
-                all_sell_count = re.compile(r'人').sub('', all_sell_count)
+                all_sell_count = re.compile(r'(\d+\.?\d*)').findall(all_sell_count)[0]
+                is_W = re.compile(r'万').findall(all_sell_count)
+                if is_W != []:
+                    all_sell_count = str(int(float(all_sell_count) * 10000))
             else: all_sell_count = '0'
             data['all_sell_count'] = all_sell_count
 
             data['goods_url'] = goods_url
 
         except Exception as e:
-            print('遇到错误如下: ', e)
+            self.msg = '遇到错误如下: ' + str(e) + ' 出错地址: ' + goods_url
+            self.my_lg.error(self.msg)
+            self.my_lg.exception(e)
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
@@ -149,7 +166,8 @@ class JuMeiYouPinPinTuanParse(object):
             return data
 
         else:
-            print('data为空!')
+            self.msg = 'data为空!' + ' 出错地址: ' + goods_url
+            self.my_lg.error(self.msg)
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
@@ -178,6 +196,8 @@ class JuMeiYouPinPinTuanParse(object):
                 price = tmp_price_list[-1]  # 商品价格
                 taobao_price = tmp_price_list[0]  # 淘宝价
             except IndexError:
+                self.msg = '获取price or taobao_price时出错请检查!' + ' 出错地址: ' + data['goods_url']
+                self.my_lg.error(self.msg)
                 self.result_data = {}
                 return {}
 
@@ -215,7 +235,7 @@ class JuMeiYouPinPinTuanParse(object):
                 'all_sell_count': data['all_sell_count'], # 总销量
                 'is_delete': is_delete                  # 用于判断商品是否已经下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -227,8 +247,82 @@ class JuMeiYouPinPinTuanParse(object):
             return result
 
         else:
-            print('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            try:
+                self.msg = '待处理的data为空的dict, 该商品可能已经转移或者下架' + ' 出错地址: ' + data['goods_url']
+                self.my_lg.error(self.msg)
+            except KeyError:
+                pass
             return {}
+
+    async def insert_into_jumeiyoupin_pintuan_table(self, data, pipeline):
+        '''
+        异步存储数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['goods_url']  # 商品地址
+
+        '''
+        时区处理，时间处理到上海时间
+        '''
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:
+            self.my_lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
+            return None
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['pintuan_time'] = data_list.get('pintuan_time')
+        tmp['tab'] = data_list.get('tab')
+        tmp['page'] = data_list.get('page')
+        tmp['sort'] = data_list.get('sort')
+
+        # 采集的来源地
+        tmp['site_id'] = 27  # 采集来源地(聚美优品拼团商品)
+
+        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
+        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
+        tmp['all_sell_count'] = data_list.get('all_sell_count')
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
+        self.my_lg.info(self.msg)
+
+        await pipeline.insert_into_jumeiyoupin_pintuan_table(item=tmp, logger=self.my_lg)
 
     async def get_all_img_url(self, data):
         '''
@@ -239,7 +333,7 @@ class JuMeiYouPinPinTuanParse(object):
         if len(data.get('buy_alone', {})) == 1:
             all_img_url = data.get('share_info', [])[1].get('image_url_set', {}).get('url', {}).get('800', '')
             if all_img_url == '':
-                print('all_img_url获取失败!')
+                self.my_lg.error('all_img_url获取失败!')
                 raise Exception
         else:
             all_img_url = data.get('buy_alone', {}).get('image_url_set', {}).get('single', {}).get('800', '')
@@ -276,7 +370,7 @@ class JuMeiYouPinPinTuanParse(object):
         try:
             tmp_div_desc = str(Selector(text=body).css('section#detailImg').extract_first())
         except:
-            print('获取到的div_desc出错,请检查!')
+            self.my_lg.error('获取到的div_desc出错,请检查!')
             raise Exception
 
         tmp_div_desc = re.compile(r'src="http://p0.jmstatic.com/templates/jumei/images/baoxian_pop.jpg"').sub('', tmp_div_desc)
@@ -289,11 +383,12 @@ class JuMeiYouPinPinTuanParse(object):
         :param size_attr:
         :return:
         '''
+        detail_name_list = [{'spec_name': item.get('title', '')} for item in size_attr]
         if size_attr == []:
             # print('获取detail_name_list失败!')
             detail_name_list = [{'spec_name': '规格'}]
 
-        return [{'spec_name': item.get('title', '')} for item in size_attr]
+        return detail_name_list
 
     async def get_true_sku_info(self, **kwargs):
         '''
@@ -303,8 +398,12 @@ class JuMeiYouPinPinTuanParse(object):
         '''
         buy_alone_size = kwargs.get('buy_alone_size')
         size = kwargs.get('size')
-        group_single_price = re.compile(r'(\d+)').findall(kwargs.get('group_single_price'))[0]  # 单独购买价格
+        try:
+            group_single_price = re.compile(r'(\d+)').findall(kwargs.get('group_single_price'))[0]  # 单独购买价格
+        except IndexError:
+            group_single_price = ''
         if size == []:
+            self.my_lg.error('size为空[]')
             raise Exception
 
         if buy_alone_size == []:
@@ -322,7 +421,6 @@ class JuMeiYouPinPinTuanParse(object):
             'img_url': item.get('img', ''),
             'rest_number': int(item.get('stock', '0')),
         } for item in size]
-
 
         if alone_size != []:
             for item_1 in alone_size:
@@ -374,6 +472,28 @@ class JuMeiYouPinPinTuanParse(object):
 
         return data
 
+    def get_log_file_name_from_time(self):
+        '''
+        得到log文件的时间名字
+        :return: 格式: 2016-03-25 类型str
+        '''
+        # 时区处理，时间处理到上海时间
+        # pytz查询某个国家时区
+        country_timezones_list = pytz.country_timezones('cn')
+        # print(country_timezones_list)
+
+        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
+        now_time = datetime.datetime.now(tz)
+        # print(type(now_time))
+
+        # 处理为精确到秒位，删除时区信息
+        now_time = re.compile(r'\..*').sub('', str(now_time))
+        # 将字符串类型转换为datetime类型
+        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+        # print(now_time)
+
+        return str(now_time)[0:10]
+
     async def json_2_dict(self, json_str):
         '''
         异步json_2_dict
@@ -383,13 +503,13 @@ class JuMeiYouPinPinTuanParse(object):
         try:
             tmp = json.loads(json_str)
         except Exception:
-            print('json转换json_str时出错,请检查!')
+            self.my_lg.error('json转换json_str时出错,请检查!')
             tmp = {}
         return tmp
 
     async def get_goods_id_from_url(self, jumei_url):
         '''
-        异步得到goods_id
+        得到goods_id
         :param jumei_url:
         :return: goods_id 类型list eg: [] 表示非法url | ['xxxx', 'type=yyyy']
         '''
@@ -403,31 +523,41 @@ class JuMeiYouPinPinTuanParse(object):
                 try:
                     type = re.compile(r'&type=(.*?)&{1,}.*').findall(jumei_url)[0]
                 except IndexError:
-                    print('获取url的type时出错, 请检查!')
+                    self.msg = '获取url的type时出错, 请检查!' + ' 出错地址: ' + jumei_url
+                    self.my_lg.error(self.msg)
                     return []
-                print('------>>>| 得到的聚美商品id为: ', goods_id, 'type为: ', type)
+                self.msg = '------>>>| 得到的聚美商品id为: ' + goods_id + ' type为: ' + type
+                self.my_lg.info(self.msg)
 
                 return [goods_id, type]
             else:
-                print('获取goods_id时出错, 请检查!')
+                self.msg = '获取goods_id时出错, 请检查!' + '出错地址:' + jumei_url
+                self.my_lg.error(self.msg)
                 return []
 
         else:
-            print('聚美优品商品url错误, 非正规的url, 请参照格式(https://s.h5.jumei.com/yiqituan/detail)开头的...')
+            self.msg = '聚美优品商品url错误, 非正规的url, 请参照格式(https://s.h5.jumei.com/yiqituan/detail)开头的...' + ' 出错地址: ' + jumei_url
+            self.my_lg.error(self.msg)
             return []
 
     def __del__(self):
+        try:
+            del self.my_lg
+            del self.msg
+        except: pass
         gc.collect()
 
 if __name__ == '__main__':
+    jumei_pintuan = JuMeiYouPinPinTuanParse()
     while True:
         try:
-            jumei_pintuan = JuMeiYouPinPinTuanParse()
             jumei_url = input('请输入待爬取的聚美优品商品地址: ')
             jumei_url.strip('\n').strip(';')
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(jumei_pintuan.deal_with_data(jumei_url))
+            result = loop.run_until_complete(jumei_pintuan.deal_with_data(jumei_url))
+            pprint(result)
         except KeyboardInterrupt:
             print('\nKeyboardInterrupt')
             try: loop.close()
             except NameError: pass
+

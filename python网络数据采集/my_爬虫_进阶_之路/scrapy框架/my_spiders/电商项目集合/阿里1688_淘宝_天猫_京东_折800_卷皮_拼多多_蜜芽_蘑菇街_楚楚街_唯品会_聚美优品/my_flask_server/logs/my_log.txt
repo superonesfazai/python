@@ -1,0 +1,5 @@
+2018-03-25 10:08:47,077 [ERROR   ] at my_logging.py <module>.51 - - division by zero
+Traceback (most recent call last):
+  File "/Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/my_logging.py", line 48, in <module>
+    1/0
+ZeroDivisionError: division by zero

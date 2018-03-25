@@ -35,6 +35,7 @@ class MyIpPools(object):
             else:
                 delete_url = 'http://127.0.0.1:8000/delete?ip='
                 delete_info = requests.get(delete_url + item[0])
+
         # pprint(result_ip_list)
         return result_ip_list
 

@@ -26,4 +26,5 @@ now_time = datetime.datetime.now(tz)
 now_time = re.compile(r'\..*').sub('', str(now_time))
 # 将字符串类型转换为datetime类型
 now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-# print(now_time)
+print(now_time)
+# print(str(now_time)[0:10])

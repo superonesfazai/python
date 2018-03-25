@@ -13,6 +13,7 @@ from json import dumps
 import gc
 from sqlalchemy import create_engine
 import datetime, calendar
+import asyncio
 
 from settings import HOST, USER, PASSWORD, DATABASE, PORT
 from settings import INIT_PASSWD
@@ -2360,6 +2361,58 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
 
+    async def insert_into_jumeiyoupin_pintuan_table(self, item, logger):
+        '''
+        异步存入数据
+        :param item: 待存数据
+        :param logger: 日志对象
+        :return:
+        '''
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_id'],
+                item['spider_url'],
+                item['deal_with_time'],
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+                item['div_desc'],  # 存入到DetailInfo
+                dumps(item['pintuan_time'], ensure_ascii=False),
+                item['pintuan_begin_time'],
+                item['pintuan_end_time'],
+                item['all_sell_count'],
+                item['page'],
+                item['sort'],
+                item['tab'],
+
+                item['site_id'],
+                item['is_delete'],
+            ]
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.jumeiyoupin_pintuan(goods_id, spider_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, pintuan_time, pintuan_begin_time, pintuan_end_time, all_sell_count, page, sort, tab, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
+            self.conn.commit()
+            cs.close()
+            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            logger.error('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |' + ' 出错地址: ' + item['spider_url'])
+            logger.exception(e)
+            return False
+
     def select_ali_1688_all_goods_id(self):
         try:
             cs = self.conn.cursor()
@@ -2964,6 +3017,24 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return result
         except Exception as e:
             print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    async def select_jumeiyoupin_pintuan_all_goods_id(self, logger):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select goods_id, pintuan_time, tab, page, spider_url from dbo.jumeiyoupin_pintuan where site_id=27')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            logger.exception(e)
             try:
                 cs.close()
             except Exception:

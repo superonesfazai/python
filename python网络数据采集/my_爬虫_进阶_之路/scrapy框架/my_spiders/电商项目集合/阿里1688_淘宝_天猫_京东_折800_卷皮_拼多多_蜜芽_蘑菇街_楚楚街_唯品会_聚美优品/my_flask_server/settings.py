@@ -28,6 +28,14 @@ db_info_json_path = '/Users/afa/my_company_db_info.json'
 # db_info_json_path = '/root/my_company_db_info.json'
 
 """
+日志文件目录
+"""
+# 自己电脑上
+MY_SPIDER_LOGS_PATH = '/Users/afa/myFiles/my_spider_logs/电商项目'
+# linux服务器
+# MY_SPIDER_LOGS_PATH = '/root/myFiles/my_spider_logs/电商项目'
+
+"""
 服务器运行端口
 """
 SERVER_PORT = 5000
