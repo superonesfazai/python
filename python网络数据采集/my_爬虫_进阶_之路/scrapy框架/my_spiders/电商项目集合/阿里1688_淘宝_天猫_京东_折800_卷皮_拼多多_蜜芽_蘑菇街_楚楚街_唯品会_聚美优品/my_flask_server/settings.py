@@ -106,6 +106,9 @@ VIP_SLEEP_TIME = 2            # sleep时间
 聚美优品
 '''
 JUMEIYOUPIN_SLEEP_TIME = 1.6    # sleep时间
+# 下面是服务器最佳timeout 多次测试的结果
+JUMEIYOUPIN_PINTUAN_API_TIMEOUT = 2       # 拼团单页面商品 异步抓取接口timeout
+JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT = 3       # 拼团商品页面 异步抓取的timeout
 
 """
 超级管理员账户名密码

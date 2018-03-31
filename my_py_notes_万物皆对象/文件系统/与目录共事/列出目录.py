@@ -40,6 +40,9 @@ glob(文件名模式匹配) 模块,另一方面,接受一个通配符并且返�
 print(glob.glob('/home/afa/myFiles/tmp/aircrack-ng_/go/*.csv'))
 print(glob.glob('/home/afa/myFiles/tmp/aircrack-ng_/go/-02*'))
 
+# 还有glob.iglob() 比较常用
+# 获取一个可编历对象，使用它可以逐个获取匹配的文件路径名。
+
 '''
 现在考查这种情况:你有一个 music 目录,它包含几个子目录,子目录中
 包含一些 .mp3 文件系统。使用两个通配符,仅仅调用 glob(文件名模式匹配) 一次就可以立刻获

@@ -26,14 +26,16 @@ import asyncio, aiohttp
 
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
+from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, JUMEIYOUPIN_PINTUAN_API_TIMEOUT
 import datetime
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 from my_logging import set_logger
 from my_aiohttp import MyAiohttp
+from my_phantomjs import MyPhantomjs
+from my_utils import get_shanghai_time, daemon_init
 
 class JuMeiYouPinPinTuan(object):
-    def __init__(self):
+    def __init__(self, logger=None):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -46,11 +48,14 @@ class JuMeiYouPinPinTuan(object):
             'X-Requested-With': 'XMLHttpRequest',
         }
         self.msg = ''
-        self.my_lg = set_logger(
-            log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
-            console_log_level=INFO,
-            file_log_level=ERROR
-        )
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
         self.tab_dict = {
             '母婴健康': 'coutuan_baby',
             '家居': 'coutuan_furniture',
@@ -70,57 +75,26 @@ class JuMeiYouPinPinTuan(object):
         模拟构造得到data的url，得到近期所有的限时拼团商品信息
         :return:
         '''
+        s_time = time.time()
         goods_list = []
+        my_phantomjs = MyPhantomjs()
         for key in self.tab_dict:
             self.msg = '正在抓取的分类为: ' + key
             self.my_lg.info(self.msg)
             for index in range(1, 20):
-                self.msg = '正在抓取第' + str(index) + '页...'
-                self.my_lg.info(self.msg)
-                tmp_url = 'http://s.h5.jumei.com/yiqituan/tab_list?tab={0}&page={1}&per_page=20'.format(
-                    self.tab_dict[key],
-                    str(index)
-                )
+                item_list = await self.get_one_page_goods_list(my_phantomjs=my_phantomjs, key=key, tab=self.tab_dict[key], index=index)
 
-                # 常规requests被过滤, aiohttp成功
-                body = await MyAiohttp.aio_get_url_body(url=tmp_url, headers=self.headers)
-                # self.my_lg.info(body)
-
-                if body == '':
-                    self.msg = '获取到的body为空str!' + ' 出错地址: ' + tmp_url
-                    self.my_lg.error(self.msg)
-                    pass
-                else:
-                    one_data = await self.json_2_dict(json_str=body)
-                    if one_data == {}:
-                        self.msg = '出错地址: ' + tmp_url
-                        self.my_lg.error(self.msg)
-                        continue
-                    else:
-                        if one_data.get('data', []) == []:
-                            break
-
-                        tmp_item_list = one_data.get('data', [])
-                        item_list = [{
-                            'goods_id': item.get('item_id', ''),
-                            'pintuan_time': {
-                                'begin_time': await self.timestamp_to_regulartime(item.get('start_time', '0')),
-                                'end_time': await self.timestamp_to_regulartime(item.get('end_time', '0'))
-                            },
-                            'type': item.get('type', ''),
-                            'sort': key,
-                            'page': index,
-                            'tab': self.tab_dict[key],
-                        } for item in tmp_item_list if item.get('status', '') != 'soldout']
-                        # self.my_lg.info(str(item_list))
-
-                        for item in item_list:
-                            goods_list.append(item)
-
-                        # await asyncio.sleep(.5)
-
+                all_goods_id = list(set([s.get('goods_id', '') for s in goods_list]))
+                for item in item_list:
+                    if item.get('goods_id', '') not in all_goods_id:
+                        goods_list.append(item)
+                # await asyncio.sleep(.5)
+        try: del my_phantomjs
+        except: pass
         self.my_lg.info(str(goods_list))
         self.my_lg.info('本次抓到所有拼团商品个数为: ' + str(len(goods_list)))
+        e_time = time.time()
+        self.my_lg.info('总用时:' + str(e_time-s_time))
         await asyncio.sleep(3)
 
         return goods_list
@@ -130,7 +104,6 @@ class JuMeiYouPinPinTuan(object):
         处理并存储相关拼团商品的数据
         :return:
         '''
-        jumeiyoupin = JuMeiYouPinPinTuanParse()
         goods_list = await self.get_pintuan_goods_info()
 
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
@@ -139,7 +112,11 @@ class JuMeiYouPinPinTuan(object):
             db_goods_id_list = [item[0] for item in list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))]
             # self.my_lg.info(str(db_goods_id_list))
 
+            index = 1
             for item in goods_list:
+                if index % 20 == 0:
+                    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+
                 if item.get('goods_id', '') in db_goods_id_list:
                     self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
                     pass
@@ -147,10 +124,10 @@ class JuMeiYouPinPinTuan(object):
                     goods_id = item.get('goods_id', '')
                     tmp_url = 'https://s.h5.jumei.com/yiqituan/detail?item_id={0}&type={1}'.format(goods_id, item.get('type', ''))
 
-                    tmp_url_s = tmp_url + '&'   # 防止筛选goods_id的时候报错退出
                     s_time = time.time()
 
-                    goods_data = await jumeiyoupin.deal_with_data(jumei_pintuan_url=tmp_url_s)
+                    jumeiyoupin = JuMeiYouPinPinTuanParse(logger=self.my_lg)
+                    goods_data = await jumeiyoupin.deal_with_data(jumei_pintuan_url=tmp_url)
 
                     if goods_data == {} or goods_data.get('is_delete', 0) == 1:
                         pass
@@ -165,58 +142,82 @@ class JuMeiYouPinPinTuan(object):
 
                         # pprint(goods_data)
                         # print(goods_data)
-
-                        await jumeiyoupin.insert_into_jumeiyoupin_pintuan_table(data=goods_data, pipeline=my_pipeline)
-
-                    try: del jumeiyoupin
-                    except: pass
+                        await jumeiyoupin.insert_into_jumeiyoupin_pintuan_table(data=goods_data, pipeline=my_pipeline, logger=self.my_lg)
 
                     e_time = time.time()
                     if e_time - s_time > JUMEIYOUPIN_SLEEP_TIME:    # 使其更智能点
                         pass
                     else:
-                        await asyncio.sleep(JUMEIYOUPIN_SLEEP_TIME)
+                        await asyncio.sleep(JUMEIYOUPIN_SLEEP_TIME - (e_time-s_time))
+                    index += 1
 
         else:
             self.my_lg.error('数据库连接失败，此处跳过!')
             pass
 
         gc.collect()
+        return None
 
-    async def aio_get_url_body(self, url, headers, params=None, timeout=12, num_retries=8):
+    async def get_one_page_goods_list(self, **kwargs):
         '''
-        异步获取url的body(定制版)
-        :param url:
-        :param headers:
-        :param params:
-        :param had_proxy:
-        :param num_retries: 出错重试次数
-        :return:
+        获取单页面的goods_list
+        :param kwargs:
+        :return: item_list 类型list
         '''
-        proxy = await MyAiohttp.get_proxy()
+        my_phantomjs = kwargs.get('my_phantomjs')
+        key = kwargs.get('key', '')
+        tab = kwargs.get('tab', '')
+        index = kwargs.get('index')
+        i_time = time.time()
+        tmp_url = 'http://s.h5.jumei.com/yiqituan/tab_list?tab={0}&page={1}&per_page=20'.format(
+            tab,
+            str(index)
+        )
+        # 常规requests被过滤, aiohttp成功, 测试发现：设置时间短抓取较快
+        # body = await MyAiohttp.aio_get_url_body(url=tmp_url, headers=self.headers, timeout=JUMEIYOUPIN_PINTUAN_API_TIMEOUT)
 
-        # 连接池不能太大, < 500
-        conn = aiohttp.TCPConnector(verify_ssl=True, limit=150, use_dns_cache=True)
-        async with aiohttp.ClientSession(connector=conn) as session:
-            try:
-                async with session.get(url=url, headers=headers, params=params, proxy=proxy, timeout=timeout) as r:
-                    result = await r.text(encoding=None)
-                    result = await MyAiohttp.wash_html(result)
-                    # print('success')
-                    try:
-                        tab = re.compile(r'tab=(.*?)&.*').findall(url)[0]
-                        page = re.compile(r'page=(\d+)').findall(url)[0]
-                    except IndexError:
-                        return ('', '', '')
+        # 改用phantomjs，aiohttp太慢
+        body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+        try: body = re.compile('<pre .*?>(.*)</pre>').findall(body)[0]
+        except: pass
+        await asyncio.sleep(1)
+        # self.my_lg.info(body)
 
-                    return (tab, int(page), result)
-            except Exception as e:
-                # print('出错:', e)
-                if num_retries > 0:
-                    # 如果不是200就重试，每次递减重试次数
-                    return await self.aio_get_url_body(url=url, headers=headers, params=params, num_retries=num_retries - 1)
+        self.msg = '正在抓取第' + str(index) + '页...' + ' ☭ 用时: ' + str(time.time() - i_time)
+        self.my_lg.info(self.msg)
+
+        item_list = []
+        if body == '':
+            self.msg = '获取到的body为空str!' + ' 出错地址: ' + tmp_url
+            self.my_lg.error(self.msg)
+        else:
+            one_data = await self.json_2_dict(json_str=body)
+            if one_data == {}:
+                self.msg = '出错地址: ' + tmp_url
+                self.my_lg.error(self.msg)
+            else:
+                if one_data.get('data', []) == []:
+                    pass
+
                 else:
-                    return ('', '', '')
+                    tmp_item_list = one_data.get('data', [])
+
+                    for item in tmp_item_list:      # 由于await 不能理解列表表达式，就采用常规做法
+                        if item.get('status', '') != 'soldout':
+                            item_list.append({
+                                'goods_id': item.get('item_id', ''),
+                                'pintuan_time': {
+                                    'begin_time': await self.timestamp_to_regulartime(item.get('start_time', '0')),
+                                    'end_time': await self.timestamp_to_regulartime(item.get('end_time', '0'))
+                                },
+                                'type': item.get('type', ''),
+                                'sort': key,
+                                'page': index,
+                                'tab': tab,
+                            })
+                    # self.my_lg.info(str(item_list))
+
+        return item_list
 
     async def json_2_dict(self, json_str):
         '''
@@ -290,62 +291,25 @@ class JuMeiYouPinPinTuan(object):
             pass
         gc.collect()
 
-def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-    '''
-    杀掉父进程，独立子进程
-    :param stdin:
-    :param stdout:
-    :param stderr:
-    :return:
-    '''
-    sys.stdin = open(stdin, 'r')
-    sys.stdout = open(stdout, 'a+')
-    sys.stderr = open(stderr, 'a+')
-    try:
-        pid = os.fork()
-        if pid > 0:     # 父进程
-            os._exit(0)
-    except OSError as e:
-        sys.stderr.write("first fork failed!!" + e.strerror)
-        os._exit(1)
-
-    # 子进程， 由于父进程已经退出，所以子进程变为孤儿进程，由init收养
-    '''setsid使子进程成为新的会话首进程，和进程组的组长，与原来的进程组、控制终端和登录会话脱离。'''
-    os.setsid()
-    '''防止在类似于临时挂载的文件系统下运行，例如/mnt文件夹下，这样守护进程一旦运行，临时挂载的文件系统就无法卸载了，这里我们推荐把当前工作目录切换到根目录下'''
-    os.chdir("/")
-    '''设置用户创建文件的默认权限，设置的是权限“补码”，这里将文件权限掩码设为0，使得用户创建的文件具有最大的权限。否则，默认权限是从父进程继承得来的'''
-    os.umask(0)
-
-    try:
-        pid = os.fork()  # 第二次进行fork,为了防止会话首进程意外获得控制终端
-        if pid > 0:
-            os._exit(0)  # 父进程退出
-    except OSError as e:
-        sys.stderr.write("second fork failed!!" + e.strerror)
-        os._exit(1)
-
-    # 孙进程
-    #   for i in range(3, 64):  # 关闭所有可能打开的不需要的文件，UNP中这样处理，但是发现在python中实现不需要。
-    #       os.close(i)
-    sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
-    sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
+def restart_program():
+    import sys
+    import os
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
 
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         jumeiyoupin_pintuan = JuMeiYouPinPinTuan()
         loop = asyncio.get_event_loop()
-        try:
-            loop.run_until_complete(jumeiyoupin_pintuan.deal_with_data())
-        except RuntimeError:
-            pass
+        loop.run_until_complete(jumeiyoupin_pintuan.deal_with_data())
         try:
             del jumeiyoupin_pintuan
             loop.close()
         except: pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        restart_program()       # 通过这个重启环境, 避免log重复打印
 
 def main():
     '''

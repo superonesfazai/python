@@ -30,8 +30,8 @@ class MyAiohttp(object):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36',      # 随机一个请求头
         }
 
-    @classmethod
-    async def aio_get_url_body(self, url, headers, params=None, timeout=20, num_retries=8):
+    @classmethod    # 注意timeout不是越长越好，测试发现10左右成功率较高
+    async def aio_get_url_body(self, url, headers, params=None, timeout=10, num_retries=10):
         '''
         异步获取url的body(简略版)
         :param url:
@@ -97,6 +97,8 @@ class MyAiohttp(object):
         all_result = [r.result() for r in finished_job]
         # print(all_result)
 
+        return all_result
+
     def __del__(self):
         self.loop.close()
         gc.collect()
@@ -105,7 +107,8 @@ if __name__ == '__main__':
     start_time = time.time()
     loop = asyncio.get_event_loop()
     my_aiohttp = MyAiohttp(max_tasks=1)
-    loop.run_until_complete(my_aiohttp.run())
+    result = loop.run_until_complete(my_aiohttp.run())
+    print(result)
     end_time = time.time()
     print('用时: ', end_time - start_time)
     try: del my_aiohttp

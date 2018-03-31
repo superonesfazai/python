@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+切记不要重复创造日志对象，否则会重复打印
+"""
+
 import logging
 from logging import handlers
 import os

@@ -39,6 +39,8 @@ pintuan_file_name_list = [
     'mia_pintuan_real-times_update',
     'mogujie_pintuan',
     'mogujie_pintuan_real-times_update',
+    'jumeiyoupin_pintuan',
+    'jumeiyoupin_pintuan_real-times_update',
 ]
 
 real_file_name_list = [
@@ -55,41 +57,28 @@ other_file_name_list = [
     # 'bilibili_user',
 ]
 
-def auto_run(*params):
-    print('开始执行秒杀脚本'.center(60, '*'))
+logs_file_name_list = [
+    'expired_logs_deal_with'
+]
 
-    for item in spike_file_name_list:
+def run_one_file_name_list(path, file_name_list):
+    for item in file_name_list:
         process_name = item + '.py'
         if process_exit(process_name) == 0:
             # 如果对应的脚本没有在运行, 则运行之
-            os.system('cd {0} && python3 {1}.py'.format(params[0], item))
+            os.system('cd {0} && python3 {1}.py'.format(path, item))
             sleep(2.5)      # 避免同时先后启动先sleep下
         else:
             print(process_name + '脚本已存在!')
 
-    for item in pintuan_file_name_list:
-        process_name = item + '.py'
-        if process_exit(process_name) == 0:
-            os.system('cd {0} && python3 {1}.py'.format(params[1], item))
-            sleep(2.5)      # 避免同时先后启动先sleep下
-        else:
-            print(process_name + '脚本已存在!')
+def auto_run(*params):
+    print('开始执行秒杀脚本'.center(60, '*'))
 
-    for item in real_file_name_list:
-        process_name = item + '.py'
-        if process_exit(process_name) == 0:
-            os.system('cd {0} && python3 {1}.py'.format(params[2], item))
-            sleep(2.5)  # 避免同时先后启动先sleep下
-        else:
-            print(process_name + '脚本已存在!')
-
-    for item in other_file_name_list:
-        process_name = item + '.py'
-        if process_exit(process_name) == 0:
-            os.system('cd {0} && python3 {1}.py'.format(params[3], item))
-            sleep(2.5)
-        else:
-            print(process_name + '脚本已经存在!')
+    run_one_file_name_list(path=params[0], file_name_list=spike_file_name_list)
+    run_one_file_name_list(path=params[1], file_name_list=pintuan_file_name_list)
+    run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
+    run_one_file_name_list(path=params[3], file_name_list=other_file_name_list)
+    run_one_file_name_list(path=params[4], file_name_list=logs_file_name_list)
 
     print('脚本执行完毕'.center(60, '*'))
 
@@ -109,8 +98,9 @@ def main_2():
         pintuan_path = '~/myFiles/python/my_flask_server/pintuan_script'
         real_path = '~/myFiles/python/my_flask_server/real-times_update'
         other_path = '~/myFiles/python/my_flask_server/other_scripts'
+        logs_path = '~/myFiles/python/my_flask_server/logs'
 
-        auto_run(spike_path, pintuan_path, real_path, other_path)
+        auto_run(spike_path, pintuan_path, real_path, other_path, logs_path)
         print(' Money is on the way! '.center(100, '*'))
 
         sleep(60*30)

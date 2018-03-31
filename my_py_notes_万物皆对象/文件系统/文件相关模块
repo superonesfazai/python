@@ -5,7 +5,7 @@ bz2                 访问 BZ2 格式的压缩文件
 csv                 访问 csv 文件(逗号分隔文件)
 filecmp             用于比较目录和文件
 fileinput           提供多个文本文件的行迭代器
-getopt/optparse    提供了命令行参数的解析/处理
+getopt/optparse     提供了命令行参数的解析/处理
 glob/fnmatch        提供 Unix 样式的通配符匹配的功能
 gzip/zlib           读写 GNU zip( gzip) 文件(压缩需要 zlib 模块)
 shutil              提供高级文件访问功能

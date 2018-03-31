@@ -2361,9 +2361,9 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
 
-    async def insert_into_jumeiyoupin_pintuan_table(self, item, logger):
+    def insert_into_jumeiyoupin_pintuan_table(self, item, logger):
         '''
-        异步存入数据
+        存入数据
         :param item: 待存数据
         :param logger: 日志对象
         :return:
@@ -2404,12 +2404,90 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs.close()
             logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
+        except IntegrityError:      # 单独捕捉重复插入, 不在error日志中打印
+            logger.info('###### 重复插入goods_id[%s]' % str(item['goods_id']))
+            return False
+
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
             logger.error('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |' + ' 出错地址: ' + item['spider_url'])
+            logger.exception(e)
+            return False
+
+    def update_jumeiyoupin_pintuan_table(self, item, logger):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['is_delete'],
+                dumps(item['pintuan_time'], ensure_ascii=False),
+                item['pintuan_begin_time'],
+                item['pintuan_end_time'],
+                item['all_sell_count'],
+
+                item['goods_id'],
+            ]
+
+            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, pintuan_time=%s, pintuan_begin_time=%s, pintuan_end_time=%s, all_sell_count=%s where goods_id = %s', tuple(params))
+            self.conn.commit()
+            cs.close()
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            logger.exception(e)
+            return False
+
+    def update_jumeiyoupin_pintuan_table_2(self, item, logger):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['modfiy_time'],
+                item['shop_name'],
+                item['title'],
+                item['sub_title'],
+                item['price'],
+                item['taobao_price'],
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                dumps(item['p_info'], ensure_ascii=False),
+                item['div_desc'],
+                item['is_delete'],
+                item['all_sell_count'],
+
+                item['goods_id'],
+            ]
+
+            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s',
+                tuple(params))
+            self.conn.commit()
+            cs.close()
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             logger.exception(e)
             return False
 
@@ -3029,7 +3107,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs.execute('select goods_id, pintuan_time, tab, page, spider_url from dbo.jumeiyoupin_pintuan where site_id=27')
             # self.conn.commit()
 
-            result = cs.fetchall()
+            result = list(cs.fetchall())
             # print(result)
             cs.close()
             return result
@@ -3051,6 +3129,22 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return True
         except Exception as e:
             print('--------------------| 删除对应goods_id记录时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+
+    async def delete_jumeiyoupin_pintuan_expired_goods_id(self, goods_id, logger):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('delete from dbo.jumeiyoupin_pintuan where goods_id=%s', (goods_id))
+            self.conn.commit()
+
+            cs.close()
+            return True
+        except Exception as e:
+            logger.error('--------------------| 删除对应goods_id记录时报错如下：')
+            logger.exception(e)
             try:
                 cs.close()
             except Exception:

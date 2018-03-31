@@ -7,8 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-# Description   : This will scan the current directory and all subdirectories and display the size.
-
 # 扫描给予对应文件夹名字的文件夹,计算一个文件夹的大小
 
 import os
