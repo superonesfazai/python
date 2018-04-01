@@ -23,24 +23,19 @@ from pprint import pprint
 from decimal import Decimal
 from time import sleep
 import datetime
-import gc
-
-from settings import HEADERS
-from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
-from my_utils import get_shanghai_time, daemon_init
-
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import gc, execjs
 import pytz
+from logging import INFO, ERROR
+import asyncio
+
+from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime, restart_program
+from my_ip_pools import MyIpPools
+from my_logging import set_logger
 
 from taobao_parse import TaoBaoLoginAndParse
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class TaoBaoTianTianTeJia(object):
     def __init__(self):
@@ -50,155 +45,202 @@ class TaoBaoTianTianTeJia(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'metrocity.taobao.com',
+            'Host': 'h5api.m.taobao.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
-        self.result_data = {}
-        self.init_phantomjs()
-
+        self.my_lg = set_logger(
+            log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
+            console_log_level=INFO,
+            file_log_level=ERROR
+        )
+        self.msg = ''
         self.main_sort = {
-            '901': '时尚女装',
-            '902': '舒适内衣',
-            '903': '包包配饰',
-            '904': '男鞋女鞋',
-            '905': '品质男装',
-            '906': '母婴儿童',
-            '907': '日用百货',
-            '908': '美食特产',
-            '909': '数码家电',
-            '910': '美容护肤',
-            '911': '运动户外',
+            '495000': ['时尚女装', 'mtopjsonp2'],
+            '496000': ['潮流男装', 'mtopjsonp4'],
+            '499000': ['性感内衣', 'mtopjsonp5'],
+            '508000': ['家居百货', 'mtopjsonp6'],
+            '502000': ['品质母婴', 'mtopjsonp7'],
+            '503000': ['食品饮料', 'mtopjsonp8'],
+            '497000': ['男女鞋品', 'mtopjsonp9'],   # ['497000', '498000']
+            '498000': ['男女鞋品', 'mtopjsonp9'],
+            '505000': ['美容美妆', 'mtopjsonp10'],
+            '500000': ['箱包配饰', 'mtopjsonp11'],   # ['500000', '501000']
+            '501000': ['箱包配饰', 'mtopjsonp11'],
+            '504000': ['数码电器', 'mtopjsonp12'],
+            '506000': ['户外运动', 'mtopjsonp13'],   # ['506000', '507000']
+            '507000': ['户外运动', 'mtopjsonp13'],
         }
 
-    def get_all_goods_list(self):
+    async def get_all_goods_list(self):
         '''
         模拟构造得到天天特价的所有商品的list, 并且解析存入每个
         :return: sort_data  类型list
         '''
-        # * 获取分类的name和extQuery的tagId的地址为 *(开始为在blockId=901开始)
-        # https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=901
         sort_data = []
-        for block_id in range(901, 914, 1):
-            sort_url = 'https://metrocity.taobao.com/json/fantomasTags.htm?_input_charset=utf-8&appId=9&blockId=' + str(block_id)
-            print(sort_url)
-            sort_body = self.use_phantomjs_to_get_url_body(url=sort_url)
-            # print(sort_body)
+        for category in self.main_sort.keys():
+            self.my_lg.info('正在抓取的分类为: ' + self.main_sort[category][0])
+            for current_page in range(1, 300, 1):
+                self.my_lg.info('正在抓取第 ' + str(current_page) + ' 页...')
+                base_url = 'https://h5api.m.taobao.com/h5/mtop.ju.data.get/1.0/'
 
-            if sort_body != '':
-                tmp_sort_data = self.get_sort_data_list(body=sort_body)
-                # print(tmp_sort_data)
-                if str(block_id) in self.main_sort:
-                    sort_name = self.main_sort[str(block_id)]
-                    # print(sort_name)
-                    tmp = {
-                        block_id: sort_name,
-                        'data': tmp_sort_data,
-                    }
-                    sort_data.append(tmp)
-            sleep(.5)
-        pprint(sort_data)
+                data = json.dumps({
+                    'bizCode': 'tejia_004',
+                    'currentPage': current_page,
+                    'optStr': json.dumps({
+                        'priceScope': {  # 切记: priceScope这里不需要json.dumps, 否则请求不到数据
+                            "lowerLimit": 1,
+                            "upperLimit": 9999,
+                        },
+                        'category': [category],
+                        'includeForecast': 'false',
+                        'topItemIds': [],
+                    }),
+                    'pageSize': 20,
+                    'salesSites': 9,    # 这为默认推荐
+                })
+                params = {
+                    "jsv": "2.4.8",
+                    "appKey": "12574478",
+                    # "t": t,
+                    # "sign": sign,
+                    "api": "mtop.ju.data.get",
+                    "v": "1.0",
+                    "type": "jsonp",
+                    "dataType": "jsonp",
+                    "callback": self.main_sort[category][1],
+                    "data": data,
+                }
+                result_1 = await self.get_taobao_sign_and_body(base_url=base_url, headers=self.headers, params=params, data=data)
+                _m_h5_tk = result_1[0]
 
-        try:
-            self.driver.quit()
-        except:
-            pass
+                if _m_h5_tk == '':
+                    self.msg = '获取到的_m_h5_tk为空str! 出错category为: ' + category
+                    self.my_lg.error(self.msg)
+                    continue
+                # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
+                result_2 = await self.get_taobao_sign_and_body(base_url=base_url, headers=self.headers, params=params, data=data, _m_h5_tk=_m_h5_tk, session=result_1[1])
+                body = result_2[2]
+                # print(body)
+                if body == '':
+                    self.msg = '获取到的body为空str! 出错category为: ' + category
+                    self.my_lg.error(self.msg)
+                    continue
+
+                try:
+                    body = re.compile(r'\((.*?)\)').findall(body)[0]
+                except IndexError:
+                    self.msg = 're筛选body时出错, 请检查! 出错category为: ' + category
+                    self.my_lg.error(self.msg)
+                    continue
+                tmp_sort_data = await self.get_sort_data_list(body=body)
+                if tmp_sort_data == 'no items':
+                    break
+
+                # self.my_lg.info(tmp_sort_data)
+                sort_data.append({
+                    'category': category,
+                    'current_page': current_page,
+                    'data': tmp_sort_data,
+                })
+                await asyncio.sleep(1.5)
+
+            #     break   # 下面2行用于测试, 避免全抓完太慢
+            # break
+        self.my_lg.info(sort_data)
         gc.collect()
 
         return sort_data
 
-    def deal_with_all_goods_id(self, sort_data):
+    async def deal_with_all_goods_id(self):
         '''
         获取每个详细分类的商品信息
         :param sort_data: 所有分类的商品信息(包括商品id跟特价开始时间跟结束时间)
         :return: None
         '''
+        sort_data = await self.get_all_goods_list()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         # my_pipeline = SqlPools()
         index = 1
         if my_pipeline.is_connect_success:
             # 普通sql_server连接(超过3000无返回结果集)
-            db_goods_id_list = [[item[0], item[2]] for item in list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())]
+            self.my_lg.info('正在获取天天特价db原有goods_id, 请耐心等待...')
+            db_ = list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())
+            db_goods_id_list = [[item[0], item[2]] for item in db_]
+            self.my_lg.info('获取完毕!!!')
             # print(db_goods_id_list)
+            db_all_goods_id = [i[0] for i in db_goods_id_list]
 
             for item in sort_data:
-                for key in item.keys():
-                    if isinstance(key, int):  # 当key值类型为int时, 表示为详细分类的blockID的值
-                        tmp_data = item.get('data', [])
-                        for item_2 in tmp_data:
-                            # &extQuery=tagId%3A1010142     要post的数据, 此处直接用get模拟
-                            tmp_url = 'https://metrocity.taobao.com/json/fantomasItems.htm?appId=9&pageSize=1000&_input_charset=utf-8&blockId={0}&extQuery=tagId%3A{1}'.format(
-                                str(key), item_2.get('extQuery', '')[6:]
+                tejia_goods_list = await self.get_tiantiantejia_goods_list(data=item.get('data', []))
+                self.my_lg.info(tejia_goods_list)
+
+                for tmp_item in tejia_goods_list:
+                    if tmp_item.get('goods_id', '') in db_all_goods_id:    # 处理如果该goods_id已经存在于数据库中的情况
+                        try:
+                            tmp_end_time = [i[1] for i in db_goods_id_list if tmp_item.get('goods_id', '')==i[0]][0]
+                            # print(tmp_end_time)
+                        except:
+                            tmp_end_time = ''
+
+                        if tmp_end_time != '' and tmp_end_time < datetime.datetime.now():
+                            '''
+                            * 处理由常规商品又转换为天天特价商品 *
+                            '''
+                            self.my_lg.info('*****该商品由常规商品又转换为天天特价商品!*****')
+                            # 先删除，再重新插入
+                            _ = await my_pipeline.delete_taobao_tiantiantejia_expired_goods_id(goods_id=tmp_item.get('goods_id', ''), logger=self.my_lg)
+                            if _ is False:
+                                continue
+
+                            index = await self.insert_into_table(
+                                tmp_item=tmp_item,
+                                category=item['category'],
+                                current_page=item['current_page'],
+                                my_pipeline=my_pipeline,
+                                index=index,
                             )
+                            await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
 
-                            tmp_body = self.get_url_body(url=tmp_url)
-                            tejia_goods_list = self.get_tiantiantejia_goods_list(body=tmp_body)
-                            print(tejia_goods_list)
+                        else:
+                            pass
 
-                            for tmp_item in tejia_goods_list:
-                                if tmp_item.get('goods_id', '') in [i[0] for i in db_goods_id_list]:    # 处理如果该goods_id已经存在于数据库中的情况
-                                    try:
-                                        tmp_end_time = [i[1] for i in db_goods_id_list if tmp_item.get('goods_id', '')==i[0]][0]
-                                        # print(tmp_end_time)
-                                    except:
-                                        tmp_end_time = ''
-
-                                    if tmp_end_time != '' and tmp_end_time < datetime.datetime.now():
-                                        '''
-                                        * 处理由常规商品又转换为天天特价商品 *
-                                        '''
-                                        print('*****该商品由常规商品又转换为天天特价商品!*****')
-                                        # 先删除，再重新插入
-                                        my_pipeline.delete_taobao_tiantiantejia_expired_goods_id(goods_id=tmp_item.get('goods_id', ''))
-
-                                        index = self.insert_into_table(
-                                            tmp_item=tmp_item,
-                                            key=key,
-                                            item_2=item_2,
-                                            my_pipeline=my_pipeline,
-                                            index=index,
-                                        )
-                                        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
-
-                                    else:
-                                        pass
-
-                                    print('该goods_id已经存在于数据库中, 此处跳过')
-                                    pass
-
-                                else:
-                                    if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                                        print('正在重置，并与数据库建立新连接中...')
-                                        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                                        # my_pipeline = SqlPools()
-                                        print('与数据库的新连接成功建立...')
-
-                                    if my_pipeline.is_connect_success:
-                                        index = self.insert_into_table(
-                                            tmp_item=tmp_item,
-                                            key=key,
-                                            item_2=item_2,
-                                            my_pipeline=my_pipeline,
-                                            index=index,
-                                        )
-                                        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
-
-                                    else:
-                                        print('数据库连接失败!')
-                                        pass
-                    else:
+                        self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
                         pass
 
+                    else:
+                        if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                            self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                            my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                            # my_pipeline = SqlPools()
+                            self.my_lg.info('与数据库的新连接成功建立...')
+
+                        if my_pipeline.is_connect_success:
+                            index = await self.insert_into_table(
+                                tmp_item=tmp_item,
+                                category=item['category'],
+                                current_page=item['current_page'],
+                                my_pipeline=my_pipeline,
+                                index=index,
+                            )
+                            await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+
+                        else:
+                            self.my_lg.error('数据库连接失败!')
+                            pass
+
         else:
-            print('数据库连接失败!')
+            self.my_lg.error('数据库连接失败!')
             pass
         gc.collect()
 
-    def insert_into_table(self, tmp_item, key, item_2, my_pipeline, index):
+        return True
+
+    async def insert_into_table(self, tmp_item, category, current_page, my_pipeline, index):
         '''
         执行插入到淘宝天天特价的操作
         :param tmp_item:
-        :param key:
-        :param item_2:
+        :param category:
+        :param current_page:
         :param my_pipeline:
         :param index:
         :return: index 加1
@@ -216,60 +258,94 @@ class TaoBaoTianTianTeJia(object):
                 'begin_time': tmp_item.get('start_time', ''),
                 'end_time': tmp_item.get('end_time', ''),
             }]
-            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = self.get_tejia_begin_time_and_tejia_end_time(
-                schedule=goods_data.get('schedule', [])[0])
-            goods_data['block_id'] = str(key)
-            goods_data['tag_id'] = item_2.get('extQuery', '')[6:]
-            goods_data['father_sort'] = self.main_sort[str(key)]
-            goods_data['child_sort'] = item_2.get('name', '')
-            # print(goods_data)
+            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await self.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+            goods_data['block_id'] = str(category)
+            goods_data['tag_id'] = str(current_page)
+            goods_data['father_sort'] = self.main_sort[category][0]
+            goods_data['child_sort'] = ''
+            # pprint(goods_data)
 
-            taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
+            await taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline, logger=self.my_lg)
         else:
-            sleep(4)  # 否则休息4秒
+            await asyncio.sleep(4)  # 否则休息4秒
             pass
         index += 1
 
         return index
 
-    def get_url_body(self, url):
+    async def calculate_right_sign(self, _m_h5_tk: str, data: json):
         '''
-        获取url的body
-        :param url: 待抓取的地址url
-        :return: str
+        根据给的json对象 data 和 _m_h5_tk计算出正确的sign
+        :param _m_h5_tk:
+        :param data:
+        :return: sign 类型str, t 类型str
         '''
+        with open('../static/js/get_h_func.js', 'r') as f:  # 打开js源文件
+            js = f.read()
+
+        js_parser = execjs.compile(js)  # 编译js得到python解析对象
+        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+
+        # 构造参数e
+        appKey = '12574478'
+        # e = 'undefine' + '&' + t + '&' + appKey + '&' + '{"optStr":"{\"displayCount\":4,\"topItemIds\":[]}","bizCode":"tejia_003","currentPage":"1","pageSize":"4"}'
+        e = _m_h5_tk + '&' + t + '&' + appKey + '&' + data
+
+        sign = js_parser.call('h', e)
+
+        return sign, t
+
+    async def get_taobao_sign_and_body(self, base_url, headers: dict, params: dict, data: json, timeout=13, _m_h5_tk='undefine', session=None):
+        '''
+        得到淘宝带签名sign接口数据
+        :param base_url:
+        :param headers:
+        :param params:
+        :param data:
+        :param timeout:
+        :param _m_h5_tk:
+        :param session:
+        :return: (_m_h5_tk, session, body)
+        '''
+        sign, t = await self.calculate_right_sign(data=data, _m_h5_tk=_m_h5_tk)
+        headers['Host'] = re.compile(r'://(.*?)/').findall(base_url)[0]
+        params.update({  # 添加下面几个query string
+            't': t,
+            'sign': sign,
+            'data': data,
+        })
+
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
+        ip_object = MyIpPools()
+        proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        proxy = proxies['http'][randint(0, len(proxies) - 1)]
 
         tmp_proxies = {
-            'http': self.proxy,
+            'http': proxy,
         }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
-        # 更改Host
-        tmp_headers = self.headers
-        tmp_host = re.compile(r'https://(.*?)/.*').findall(url)[0]
-        tmp_headers['Host'] = tmp_host
+        if session is None:
+            session = requests.session()
+        else:
+            session = session
         try:
-            response = requests.get(url, headers=tmp_headers, proxies=tmp_proxies, timeout=16)
+            response = session.get(url=base_url, headers=headers, params=params, proxies=tmp_proxies, timeout=timeout)
+            _m_h5_tk = response.cookies.get('_m_h5_tk', '')
+            _m_h5_tk = _m_h5_tk.split('_')[0]
+            # print(s.cookies.items())
+            # print(_m_h5_tk)
+
             body = response.content.decode('utf-8')
             # print(body)
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
 
-            body = re.compile(r'\((.*)\)').findall(body)[0]
-        except:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            body = '{}'
+        except Exception as e:
+            self.my_lg.exception(e)
+            _m_h5_tk = ''
+            body = ''
 
-        return body
+        return (_m_h5_tk, session, body)
 
-    def get_tejia_begin_time_and_tejia_end_time(self, schedule):
+    async def get_tejia_begin_time_and_tejia_end_time(self, schedule):
         '''
         返回拼团开始和结束时间
         :param miaosha_time:
@@ -283,172 +359,67 @@ class TaoBaoTianTianTeJia(object):
 
         return tejia_begin_time, tejia_end_time
 
-    def use_phantomjs_to_get_url_body(self, url):
-        '''
-        通过phantomjs来获取url的body
-        :return: data   str类型
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        try:
-            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
-        except:
-            return {}
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
-
-            main_body = self.driver.page_source
-            main_body = re.compile(r'\n').sub('', main_body)
-            main_body = re.compile(r'\t').sub('', main_body)
-            main_body = re.compile(r'  ').sub('', main_body)
-            # print(main_body)
-            data = re.compile(r'\((.*)\)').findall(main_body)[0]  # 贪婪匹配匹配所有
-            # print(data)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
-            print('报错如下: ', e)
-            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            print('data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            data = ''
-
-        return data
-
-    def get_sort_data_list(self, body):
+    async def get_sort_data_list(self, body):
         '''
         获取到分类的list(对应name和extQuery的值的list)
         :param body: 待转换的json
-        :return: sort_data  类型 list
+        :return: 'no items' 表示没有items了 | sort_data  类型 list
         '''
         try:
             sort_data = json.loads(body)
         except Exception:
-            print('在获取分类信息的list时, json.loads转换出错, 此处跳过!')
+            self.my_lg.error('在获取分类信息的list时, json.loads转换出错, 此处跳过!')
             sort_data = {}
 
-        try:
-            sort_data = sort_data.get('data', [])
-        except:
-            print('获取分类信息data中的key值data出错!')
-            sort_data = []
+        if sort_data.get('data', {}).get('data', {}).get('TjGetItems', '') == 'tejia_004 error : no items':
+            return 'no items'
+
+        sort_data = sort_data.get('data', {}).get('data', {}).get('itemList', [])
 
         return sort_data
 
-    def get_tiantiantejia_goods_list(self, body):
+    async def get_tiantiantejia_goods_list(self, data):
         '''
-        将str类型的body转换为需求的list
+        将tmp_data转换为需求的list
         :param body:
         :return: a list
         '''
-        try:
-            data = json.loads(body)
-        except Exception:
-            print('在获取天天特价商品id的list时, json.loads转换出错, 此处跳过!')
-            data = {}
-
-        try:
-            data = data.get('data', [])
-        except Exception:
-            print('获取data中的key值data出错!')
-            data = []
-
         if data != []:
             # 处理得到需要的数据
-            tejia_goods_list = [{
-                'goods_id': item.get('itemId', ''),
-                'start_time': self.deal_with_time_to_regulartime(item.get('activityStartTime', '')),
-                'end_time': self.deal_with_time_to_regulartime(item.get('activityEndTime', '')),
-            } for item in data]
+            try:
+                tejia_goods_list = [{
+                    'goods_id': item.get('baseinfo', {}).get('itemId', ''),
+                    'start_time': timestamp_to_regulartime(int(item.get('baseinfo', {}).get('ostime', '')[0:10])),
+                    'end_time': timestamp_to_regulartime(int(item.get('baseinfo', {}).get('oetime', '')[0:10])),
+                } for item in data]
+            except Exception as e:
+                self.my_lg.exception(e)
+                tejia_goods_list = []
         else:
             tejia_goods_list = []
 
         return tejia_goods_list
 
-    def deal_with_time_to_regulartime(self, tmp_time):
-        '''
-        处理得到规范的时间
-        :param tmp_time: str    eg: '20171225000000'
-        :return: str    规律的人眼可识别的时间 2609-03-15 14:03:20
-        '''
-        return tmp_time[0:4] + '-' + tmp_time[4:6] + '-' + tmp_time[6:8] + ' ' + tmp_time[8:10] + ':' + tmp_time[10:12] + ':' + tmp_time[12:14]
-
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
-
     def __del__(self):
-        # self.driver.quit()
+        try:
+            del self.my_lg
+            del self.msg
+        except: pass
         gc.collect()
 
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         taobao_tiantaintejia = TaoBaoTianTianTeJia()
-        sort_data = taobao_tiantaintejia.get_all_goods_list()
-        taobao_tiantaintejia.deal_with_all_goods_id(sort_data=sort_data)
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(taobao_tiantaintejia.deal_with_all_goods_id())
+        try:
+            del taobao_tiantaintejia
+            loop.close()
+        except: pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        restart_program()   # 通过这个重启环境, 避免log重复打印
         sleep(60*5)
 
 def main():

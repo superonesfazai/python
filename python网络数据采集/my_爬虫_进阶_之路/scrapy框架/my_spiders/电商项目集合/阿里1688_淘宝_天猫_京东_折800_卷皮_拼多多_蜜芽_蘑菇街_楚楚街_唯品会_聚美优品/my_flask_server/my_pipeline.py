@@ -485,7 +485,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
 
-    def insert_into_taobao_tiantiantejia_table(self, item):
+    async def insert_into_taobao_tiantiantejia_table(self, item, logger):
         cs = self.conn.cursor()
         try:
             params = [
@@ -519,22 +519,18 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
-                    'utf-8'),
-                tuple(params))  # 注意必须是tuple类型
+            cs.execute('insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            logger.error('修改信息失败, 未能将该页面信息存入到sqlserver中, 失败地址: ' + item['goods_url'])
+            logger.exception(e)
             return False
 
     def update_taobao_table(self, item):
@@ -2617,7 +2613,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return None
             # return result
 
-    def delete_taobao_tiantiantejia_expired_goods_id(self, goods_id):
+    async def delete_taobao_tiantiantejia_expired_goods_id(self, goods_id, logger):
         cs = self.conn.cursor()
         try:
             cs.execute('delete from dbo.taobao_tiantiantejia where goods_id=%s', tuple([goods_id]))
@@ -2626,11 +2622,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs.close()
             return True
         except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
+            logger.error('--------------------| 删除对应goods_id[%s]记录时报错!' % goods_id)
+            logger.exception(e)
             try:
                 cs.close()
             except Exception:
                 pass
+            return False
 
     def select_tmall_all_goods_id_url(self):
         try:

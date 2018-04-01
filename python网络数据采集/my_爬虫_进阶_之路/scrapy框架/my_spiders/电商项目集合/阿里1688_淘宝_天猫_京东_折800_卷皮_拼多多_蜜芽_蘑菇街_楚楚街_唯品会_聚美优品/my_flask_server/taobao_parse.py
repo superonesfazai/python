@@ -18,15 +18,8 @@ import requests
 import re
 from pprint import pprint
 from decimal import Decimal
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.wait import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# import selenium.webdriver.support.ui as ui
-# from selenium.webdriver.common.proxy import Proxy
-# from selenium.webdriver.common.proxy import ProxyType
+import asyncio
 # from scrapy import Selector
-# from urllib.request import urlopen
 # from PIL import Image
 from time import sleep
 import datetime
@@ -619,7 +612,7 @@ class TaoBaoLoginAndParse(object):
 
         return result
 
-    def insert_into_taobao_tiantiantejia_table(self, data, pipeline):
+    async def insert_into_taobao_tiantiantejia_table(self, data, pipeline, logger):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
@@ -675,9 +668,11 @@ class TaoBaoLoginAndParse(object):
         tmp['child_sort'] = data_list.get('child_sort')
 
         # print('------>>>| 待存储的数据信息为: |', tmp)
-        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+        logger.info('------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id')))
 
-        pipeline.insert_into_taobao_tiantiantejia_table(item=tmp)
+        await pipeline.insert_into_taobao_tiantiantejia_table(item=tmp, logger=logger)
+
+        return True
 
     def update_taobao_tiantiantejia_table(self, data, pipeline):
         '''

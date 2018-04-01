@@ -32,7 +32,7 @@ from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 from my_logging import set_logger
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, restart_program
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
@@ -290,12 +290,6 @@ class JuMeiYouPinPinTuan(object):
         except:
             pass
         gc.collect()
-
-def restart_program():
-    import sys
-    import os
-    python = sys.executable
-    os.execl(python, python, * sys.argv)
 
 def just_fuck_run():
     while True:

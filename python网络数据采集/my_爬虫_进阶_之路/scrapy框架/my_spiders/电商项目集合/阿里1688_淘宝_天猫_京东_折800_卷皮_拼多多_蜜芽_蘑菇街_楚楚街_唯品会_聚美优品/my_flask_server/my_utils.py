@@ -8,12 +8,17 @@
 '''
 
 import pytz, datetime, re
-import sys, os
+import sys, os, time
 
 def get_shanghai_time():
     '''
     时区处理，时间处理到上海时间
     '''
+    # 时区处理，时间处理到上海时间
+    # pytz查询某个国家时区
+    country_timezones_list = pytz.country_timezones('cn')
+    # print(country_timezones_list)
+
     tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
     now_time = datetime.datetime.now(tz)
 
@@ -64,3 +69,29 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     #       os.close(i)
     sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
     sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
+
+
+def timestamp_to_regulartime(timestamp):
+    '''
+    将时间戳转换成时间
+    '''
+    # 利用localtime()函数将时间戳转化成localtime的格式
+    # 利用strftime()函数重新格式化时间
+
+    # 转换成localtime
+    time_local = time.localtime(int(timestamp))
+    # print(time_local)
+    # 转换成新的时间格式(2016-05-05 20:28:54)
+    dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+
+    return dt
+
+def restart_program():
+    '''
+    初始化避免异步导致log重复打印
+    :return:
+    '''
+    import sys
+    import os
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
