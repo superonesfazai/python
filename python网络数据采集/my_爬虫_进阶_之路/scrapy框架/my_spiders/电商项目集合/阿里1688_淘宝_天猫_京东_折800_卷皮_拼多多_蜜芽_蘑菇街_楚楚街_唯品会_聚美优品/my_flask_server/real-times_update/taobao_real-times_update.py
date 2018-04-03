@@ -16,18 +16,27 @@ sys.path.append('..')
 
 from taobao_parse import TaoBaoLoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, restart_program
+from my_logging import set_logger
 
 from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 import gc
 from time import sleep
 import os, re, pytz, datetime
 import json
-from settings import IS_BACKGROUND_RUNNING
+from logging import INFO, ERROR
+from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
 def run_forever():
     #### 实时更新数据
     while True:
+        # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
+        my_lg = set_logger(
+            log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
+            console_log_level=INFO,
+            file_log_level=ERROR
+        )
+
         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
         try:
@@ -35,22 +44,22 @@ def run_forever():
             result = tmp_sql_server.select_taobao_all_goods_id()
 
         except TypeError as e:
-            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
+            my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
+            my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            my_lg.info(str(result))
+            my_lg.info('--------------------------------------------------------')
 
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
             for item in result:  # 实时更新数据
                 data = {}
-                taobao = TaoBaoLoginAndParse()
+                taobao = TaoBaoLoginAndParse(logger=my_lg)
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
+                    my_lg.info('正在重置，并与数据库建立新连接中...')
                     # try:
                     #     del tmp_sql_server
                     # except:
@@ -59,10 +68,10 @@ def run_forever():
                     # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     tmp_sql_server = SqlPools()
 
-                    print('与数据库的新连接成功建立...')
+                    my_lg.info('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                    my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))
                     data = taobao.get_goods_data(item[0])
 
                     if data.get('is_delete') == 1:        # 单独处理【原先插入】就是 下架状态的商品
@@ -73,7 +82,7 @@ def run_forever():
                             MyShelfAndDownTime=item[2]
                         )
 
-                        # print('------>>>| 爬取到的数据为: ', data)
+                        # my_lg.info('------>>>| 爬取到的数据为: ' + str(data))
                         taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
 
                         sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 避免服务器更新太频繁
@@ -90,13 +99,15 @@ def run_forever():
                             MyShelfAndDownTime=item[2]
                         )
 
-                        # print('------>>>| 爬取到的数据为: ', data)
+                        # my_lg.info('------>>>| 爬取到的数据为: ' + str(data))
                         taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:
                         pass
                 else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
+                    my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
+                    sleep(10)
                     pass
+
                 index += 1
                 # try:
                 #     del taobao
@@ -105,12 +116,13 @@ def run_forever():
                 gc.collect()
                 # 国外服务器上可以缩短时间, 可以设置为0s
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 不能太频繁，与用户请求错开尽量
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
             sleep(5)
         gc.collect()
+        restart_program()
 
 def set_delete_time_from_orginal_time(my_shelf_and_down_time):
     '''

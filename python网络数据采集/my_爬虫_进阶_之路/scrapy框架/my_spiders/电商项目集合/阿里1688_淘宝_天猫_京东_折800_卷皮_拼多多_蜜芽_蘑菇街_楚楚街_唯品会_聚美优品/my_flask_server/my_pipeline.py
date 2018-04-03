@@ -438,7 +438,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
 
-    def insert_into_taobao_table(self, item):
+    def insert_into_taobao_table(self, item, logger):
         try:
             cs = self.conn.cursor()
 
@@ -467,22 +467,25 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['is_delete'],
             ]
 
-            # print(params)
+            # logger.info(str(params))
             # ---->>> 注意要写对要插入数据的所有者,不然报错
             cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
+        except IntegrityError:
+            logger.info('重复插入goods_id[%s], 此处跳过!' % item['goods_id'])
+            return False
+
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            logger.error('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错地址: ' + item['spider_url'])
+            logger.exception(e)
             return False
 
     async def insert_into_taobao_tiantiantejia_table(self, item, logger):
@@ -524,6 +527,10 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs.close()
             logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
+        except IntegrityError:
+            logger.info('###### 重复插入goods_id[%s]' % item['goods_id'])
+            return False
+
         except Exception as e:
             try:
                 cs.close()
@@ -533,7 +540,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             logger.exception(e)
             return False
 
-    def update_taobao_table(self, item):
+    def update_taobao_table(self, item, logger):
         cs = self.conn.cursor()
         try:
             params = [
@@ -564,19 +571,18 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
+            logger.info('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: ' + item['goods_id'])
+            logger.exception(e)
+            return False
 
-    def update_taobao_tiantiantejia_table(self, item):
+    async def update_taobao_tiantiantejia_table(self, item, logger):
         cs = self.conn.cursor()
         try:
             params = [
@@ -593,33 +599,31 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
                 item['month_sell_count'],
-                dumps(item['schedule'], ensure_ascii=False),
-                item['tejia_begin_time'],
-                item['tejia_end_time'],
+                # dumps(item['schedule'], ensure_ascii=False),
+                # item['tejia_begin_time'],
+                # item['tejia_end_time'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
-            # print(item['month_sell_count'])
+            # logger.info(item['month_sell_count'])
 
-            cs.execute(
-                'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, schedule=%s, tejia_begin_time=%s, tejia_end_time=%s, is_delete=%s where goods_id=%s',
+            cs.execute('update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s',
                 tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
+            logger.info('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: ' + item['goods_id'])
+            logger.exception(e)
+            return False
 
-    def update_expired_goods_id_taobao_tiantiantejia_table(self, item):
+    async def update_expired_goods_id_taobao_tiantiantejia_table(self, item, logger):
         cs = self.conn.cursor()
         try:
             params = [
@@ -642,22 +646,20 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             ]
             # print(item['month_sell_count'])
 
-            cs.execute(
-                'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s',
+            cs.execute('update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s',
                 tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
+            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
+            logger.exception(e)
+            return False
 
     def old_taobao_goods_insert_into_new_table(self, item):
         cs = self.conn.cursor()
@@ -2588,7 +2590,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         result = []
         try:
             cs.execute('set lock_timeout 20000;')     # 设置客户端执行超时等待为20秒
-            cs.execute('select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19')
+            cs.execute('select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19 order by id desc')
             # self.conn.commit()
 
             # print('111')
@@ -3267,7 +3269,7 @@ class SqlPools(object):
             print('数据库连接失败!!')
             self.is_connect_success = False
 
-    def update_taobao_table(self, item):
+    def update_taobao_table(self, item, logger):
         self.engine.begin()
         self.conn = self.engine.connect()
         try:
@@ -3297,15 +3299,17 @@ class SqlPools(object):
             self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
                 tuple(params))
             # self.engine.commit()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            try: self.conn.close()
+            except: pass
             return True
+
         except Exception as e:
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-        finally:
-            self.conn.close()
+            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: ' + item['goods_id'])
+            logger.exception(e)
+            try: self.conn.close()
+            except: pass
+            return False
 
     def insert_into_taobao_tiantiantejia_table(self, item):
         self.engine.begin()

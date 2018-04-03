@@ -24,12 +24,14 @@ from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH, PINDUODUO_SPIDER_TO_SHOW_PATH, VIP_SPIDER_TO_SHOW_PATH
-from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT
+from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT, MY_SPIDER_LOGS_PATH
 from settings import ERROR_HTML_CODE
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import BASIC_APP_KEY
 from settings import TAOBAO_SLEEP_TIME
 from settings import SELECT_HTML_NAME
+from my_logging import set_logger
+from my_utils import get_shanghai_time
 
 import hashlib
 import json
@@ -38,6 +40,7 @@ from time import sleep
 import datetime
 import re
 from decimal import Decimal
+from logging import INFO, ERROR
 
 from gevent.wsgi import WSGIServer      # 高并发部署
 import gc
@@ -69,6 +72,12 @@ inner_pass = 'adminss'
 key = 21
 
 tmp_wait_to_save_data_list = []
+
+my_lg = set_logger(
+    log_file_name=MY_SPIDER_LOGS_PATH + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
+    console_log_level=INFO,
+    file_log_level=ERROR
+)
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -890,20 +899,21 @@ def to_save_data():
 # taobao
 @app.route('/taobao_data', methods=['POST'])
 def get_taobao_data():
+    global my_lg
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
-            username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            username = decrypt(key, request.cookies.get('username', ''))
+            my_lg.info('发起获取请求的员工的username为: %s' % str(username))
 
             goodsLink = request.form.get('goodsLink')
 
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 result = {
                     'reason': 'error',
@@ -914,11 +924,11 @@ def get_taobao_data():
                 result = json.dumps(result)
                 return result
 
-            login_taobao = TaoBaoLoginAndParse()
+            login_taobao = TaoBaoLoginAndParse(logger=my_lg)
 
             goods_id = login_taobao.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
             if goods_id == '':      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -934,7 +944,7 @@ def get_taobao_data():
             tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
             time.sleep(TAOBAO_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
             if tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -949,7 +959,7 @@ def get_taobao_data():
             data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -976,15 +986,15 @@ def get_taobao_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(result_json.decode()))
+            my_lg.info('-------------------------------')
 
             del login_taobao       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             gc.collect()        # 手动回收即可立即释放需要删除的资源
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             result = {
                 'reason': 'error',
                 'data': '',
@@ -1004,14 +1014,16 @@ def get_taobao_data():
 
 @app.route('/taobao_to_save_data', methods=['POST'])
 def taobao_to_save_data():
-    global tmp_wait_to_save_data_list
+    global tmp_wait_to_save_data_list, my_lg
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            # msg = '缓存中待存储url的list为: ' + str(tmp_wait_to_save_data_list)
+            # my_lg.info(msg)
+            msg = '获取到的待存取的url的list为: ' + str(wait_to_save_data_url_list)
+            my_lg.info(msg)
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = []
                 for item in wait_to_save_data_url_list:
@@ -1022,37 +1034,37 @@ def taobao_to_save_data():
                         if is_taobao_url != []:
                             if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item) != []:
                                 tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)[0]
-                                # print(tmp_taobao_url)
+                                # my_lg.info(tmp_taobao_url)
                                 if tmp_taobao_url != []:
                                     goods_id = tmp_taobao_url
                                 else:
                                     item = re.compile(r';').sub('', item)
                                     goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(item)[0]
                             else:  # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
-                                # print('9999')
+                                # my_lg.info('9999')
                                 item = re.compile(r';').sub('', item)
                                 goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(item)[0]
-                                # print('------>>>| 得到的淘宝商品id为:', goods_id)
+                                # my_lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
                             tmp_goods_id = goods_id
                             tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
                         else:
-                            print('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
+                            my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
 
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+                my_lg.info('获取到的待存取的goods_id的list为: ' + str(wait_to_save_data_goods_id_list))
 
                 # list里面的dict去重
                 ll_list = []
                 [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
                 tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+                # my_lg.info('所有待存储的数据: ' + str(tmp_wait_to_save_data_list))
 
                 goods_to_delete = []
                 tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
                 for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
                     for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
+                            my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
                             tmp = {}
                             tmp['goods_id'] = data_list['goods_id']             # 官方商品id
@@ -1102,14 +1114,14 @@ def taobao_to_save_data():
                             tmp['site_id'] = 1      # 采集来源地(淘宝)
                             tmp['is_delete'] = data_list.get('is_delete')    # 逻辑删除, 未删除为0, 删除为1
 
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # my_lg.info('------>>> | 待存储的数据信息为: |' + str(tmp))
+                            my_lg.info('------>>> | 待存储的数据信息为: |' + tmp.get('goods_id', ''))
 
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
                             except IndexError as e:
-                                print('索引越界, 此处我设置为跳过')
+                                my_lg.error('索引越界, 此处我设置为跳过')
                             # tmp_wait_to_save_data_list.pop(index)
                             finally:
                                 pass
@@ -1118,20 +1130,20 @@ def taobao_to_save_data():
 
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                # print(tmp_list)
+                # my_lg.info(str(tmp_list))
                 for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                    # my_lg.info('------>>> | 正在存储的数据为: |' + str(item))
+                    my_lg.info('------>>> | 正在存储的数据为: |' + item.get('goods_id', ''))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_taobao_table(item)
+                    is_insert_into = my_page_info_save_item_pipeline.insert_into_taobao_table(item, logger=my_lg)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
-                        # print('插入失败!')
+                        # my_lg.info('插入失败!')
                         pass
 
                 tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
+                my_lg.info('存入完毕'.center(100, '*'))
                 del my_page_info_save_item_pipeline
                 gc.collect()
 
@@ -1145,7 +1157,7 @@ def taobao_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
+                my_lg.info('saveData为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -1154,7 +1166,7 @@ def taobao_to_save_data():
                 result = json.dumps(result)
                 return result
         else:
-            print('saveData为空!')
+            my_lg.info('saveData为空!')
             result = {
                 'reason': 'error',
                 'data': '',
@@ -3002,7 +3014,7 @@ def get_basic_data():
                 return result
 
             if re.compile(r'https://item.taobao.com/item.htm.*?').findall(wait_to_deal_with_url) != []:
-                basic_taobao = TaoBaoLoginAndParse()
+                basic_taobao = TaoBaoLoginAndParse(logger=my_lg)
 
                 goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
                 if goods_id == '':  # 如果得不到goods_id, 则return error

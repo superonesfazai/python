@@ -38,7 +38,7 @@ from my_logging import set_logger
 from taobao_parse import TaoBaoLoginAndParse
 
 class TaoBaoTianTianTeJia(object):
-    def __init__(self):
+    def __init__(self, logger=None):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -48,11 +48,14 @@ class TaoBaoTianTianTeJia(object):
             'Host': 'h5api.m.taobao.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
-        self.my_lg = set_logger(
-            log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
-            console_log_level=INFO,
-            file_log_level=ERROR
-        )
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
         self.msg = ''
         self.main_sort = {
             '495000': ['时尚女装', 'mtopjsonp2'],
@@ -81,45 +84,8 @@ class TaoBaoTianTianTeJia(object):
             self.my_lg.info('正在抓取的分类为: ' + self.main_sort[category][0])
             for current_page in range(1, 300, 1):
                 self.my_lg.info('正在抓取第 ' + str(current_page) + ' 页...')
-                base_url = 'https://h5api.m.taobao.com/h5/mtop.ju.data.get/1.0/'
 
-                data = json.dumps({
-                    'bizCode': 'tejia_004',
-                    'currentPage': current_page,
-                    'optStr': json.dumps({
-                        'priceScope': {  # 切记: priceScope这里不需要json.dumps, 否则请求不到数据
-                            "lowerLimit": 1,
-                            "upperLimit": 9999,
-                        },
-                        'category': [category],
-                        'includeForecast': 'false',
-                        'topItemIds': [],
-                    }),
-                    'pageSize': 20,
-                    'salesSites': 9,    # 这为默认推荐
-                })
-                params = {
-                    "jsv": "2.4.8",
-                    "appKey": "12574478",
-                    # "t": t,
-                    # "sign": sign,
-                    "api": "mtop.ju.data.get",
-                    "v": "1.0",
-                    "type": "jsonp",
-                    "dataType": "jsonp",
-                    "callback": self.main_sort[category][1],
-                    "data": data,
-                }
-                result_1 = await self.get_taobao_sign_and_body(base_url=base_url, headers=self.headers, params=params, data=data)
-                _m_h5_tk = result_1[0]
-
-                if _m_h5_tk == '':
-                    self.msg = '获取到的_m_h5_tk为空str! 出错category为: ' + category
-                    self.my_lg.error(self.msg)
-                    continue
-                # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
-                result_2 = await self.get_taobao_sign_and_body(base_url=base_url, headers=self.headers, params=params, data=data, _m_h5_tk=_m_h5_tk, session=result_1[1])
-                body = result_2[2]
+                body = await self.get_one_api_body(current_page=current_page, category=category)
                 # print(body)
                 if body == '':
                     self.msg = '获取到的body为空str! 出错category为: ' + category
@@ -186,7 +152,7 @@ class TaoBaoTianTianTeJia(object):
                             '''
                             * 处理由常规商品又转换为天天特价商品 *
                             '''
-                            self.my_lg.info('*****该商品由常规商品又转换为天天特价商品!*****')
+                            self.my_lg.info('##### 该商品由常规商品又转换为天天特价商品! #####')
                             # 先删除，再重新插入
                             _ = await my_pipeline.delete_taobao_tiantiantejia_expired_goods_id(goods_id=tmp_item.get('goods_id', ''), logger=self.my_lg)
                             if _ is False:
@@ -202,10 +168,8 @@ class TaoBaoTianTianTeJia(object):
                             await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
 
                         else:
+                            self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
                             pass
-
-                        self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
-                        pass
 
                     else:
                         if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
@@ -246,7 +210,7 @@ class TaoBaoTianTianTeJia(object):
         :return: index 加1
         '''
         tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
-        taobao = TaoBaoLoginAndParse()
+        taobao = TaoBaoLoginAndParse(logger=self.my_lg)
         goods_id = taobao.get_goods_id_from_url(tmp_url)
         taobao.get_goods_data(goods_id=goods_id)
         goods_data = taobao.deal_with_data(goods_id=goods_id)
@@ -265,13 +229,76 @@ class TaoBaoTianTianTeJia(object):
             goods_data['child_sort'] = ''
             # pprint(goods_data)
 
-            await taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline, logger=self.my_lg)
+            await taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
         else:
             await asyncio.sleep(4)  # 否则休息4秒
             pass
         index += 1
 
         return index
+
+    async def get_one_api_body(self, **kwargs):
+        '''
+        获取一个api接口的数据
+        :param kwargs:
+        :return:
+        '''
+        current_page = kwargs.get('current_page')
+        category = kwargs.get('category')
+
+        base_url = 'https://h5api.m.taobao.com/h5/mtop.ju.data.get/1.0/'
+
+        data = json.dumps({
+            'bizCode': 'tejia_004',
+            'currentPage': current_page,
+            'optStr': json.dumps({
+                'priceScope': {  # 切记: priceScope这里不需要json.dumps, 否则请求不到数据
+                    "lowerLimit": 1,
+                    "upperLimit": 9999,
+                },
+                'category': [category],
+                'includeForecast': 'false',
+                'topItemIds': [],
+            }),
+            'pageSize': 20,
+            'salesSites': 9,  # 这为默认推荐
+        })
+        params = {
+            "jsv": "2.4.8",
+            "appKey": "12574478",
+            # "t": t,
+            # "sign": sign,
+            "api": "mtop.ju.data.get",
+            "v": "1.0",
+            "type": "jsonp",
+            "dataType": "jsonp",
+            "callback": self.main_sort[category][1],
+            "data": data,
+        }
+        result_1 = await self.get_taobao_sign_and_body(
+            base_url=base_url,
+            headers=self.headers,
+            params=params,
+            data=data
+        )
+        _m_h5_tk = result_1[0]
+
+        if _m_h5_tk == '':
+            self.msg = '获取到的_m_h5_tk为空str! 出错category为: ' + category
+            self.my_lg.error(self.msg)
+            return ''
+
+        # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
+        result_2 = await self.get_taobao_sign_and_body(
+            base_url=base_url,
+            headers=self.headers,
+            params=params, data=data,
+            _m_h5_tk=_m_h5_tk,
+            session=result_1[1]
+        )
+        body = result_2[2]
+
+        return body
 
     async def calculate_right_sign(self, _m_h5_tk: str, data: json):
         '''

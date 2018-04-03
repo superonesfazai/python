@@ -29,10 +29,13 @@ import gc
 # import traceback
 # from io import BytesIO
 
-from settings import HEADERS
+from settings import HEADERS, MY_SPIDER_LOGS_PATH
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
 import pytz
+from logging import INFO, ERROR
 from my_ip_pools import MyIpPools
+from my_utils import get_shanghai_time
+from my_logging import set_logger
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -41,7 +44,7 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 my_chrome_driver_path = CHROME_DRIVER_PATH
 
 class TaoBaoLoginAndParse(object):
-    def __init__(self):
+    def __init__(self, logger=None):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -52,6 +55,14 @@ class TaoBaoLoginAndParse(object):
             'User-Agent': HEADERS[randint(0, 34)]      # 随机一个请求头
         }
         self.result_data = {}
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/_/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else: self.my_lg = logger
+        self.msg = ''
 
     def get_goods_data(self, goods_id):
         '''
@@ -59,7 +70,8 @@ class TaoBaoLoginAndParse(object):
         :param goods_id:
         :return: data   类型dict
         '''
-        print('------>>>| 对应的手机端地址为: ', 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + goods_id)
+        self.msg = '------>>>| 对应的手机端地址为: ' + 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + str(goods_id)
+        self.my_lg.info(self.msg)
 
         appKey = '12574478'
         t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
@@ -68,7 +80,7 @@ class TaoBaoLoginAndParse(object):
         下面是构造params
         '''
         goods_id = goods_id
-        # print(goods_id)
+        # self.my_lg.info(goods_id)
         params_data_1 = {
             'id': goods_id
         }
@@ -76,12 +88,12 @@ class TaoBaoLoginAndParse(object):
             'exParams': json.dumps(params_data_1),  # 每层里面的字典都要先转换成json
             'itemNumId': goods_id
         }
-        # print(params_data_2)
+        # self.my_lg.info(str(params_data_2))
 
         ### * 注意这是正确的url地址: right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
-        # print(right_url)
+        # self.my_lg.info(right_url)
 
         params = {
             'appKey': appKey,
@@ -109,21 +121,21 @@ class TaoBaoLoginAndParse(object):
         tmp_proxies = {
             'http': self.proxy,
         }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+        # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         s = requests.session()
         try:
             response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
-            # print(last_url)
+            # self.my_lg.info(last_url)
             response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             data = response.content.decode('utf-8')
-            # print(data)
+            # self.my_lg.info(data)
             data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
-            # print(data)
+            # self.my_lg.info(str(data))
         except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
+            self.my_lg.error('requests.get()请求超时...' + ' 出错goods_id: ' + str(goods_id))
+            self.my_lg.error('data为空!')
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
@@ -132,6 +144,7 @@ class TaoBaoLoginAndParse(object):
             try:
                 data = json.loads(data)
             except Exception:
+                self.my_lg.error('json.loads转换data时出错, 请检查! 出错goods_id: ' + str(goods_id))
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
             # pprint(data)
@@ -140,14 +153,14 @@ class TaoBaoLoginAndParse(object):
                 '''
                 ## 表示该商品已经下架, 原地址被重定向到新页面
                 '''
-                print('@@@@@@ 该商品已经下架...')
+                self.my_lg.info('@@@@@@ 该商品已经下架...')
                 tmp_data_s = self.init_pull_off_shelves_goods()
                 self.result_data = {}
                 return tmp_data_s
 
             # 处理商品被转移或者下架导致页面不存在的商品
             if data.get('data').get('seller', {}).get('evaluates') is None:
-                print('data为空, 地址被重定向, 该商品可能已经被转移或下架')
+                self.my_lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
 
@@ -158,7 +171,7 @@ class TaoBaoLoginAndParse(object):
             result_data = data['data']
 
             # 处理result_data['apiStack'][0]['value']
-            # print(result_data.get('apiStack', [])[0].get('value', ''))
+            # self.my_lg.info(result_data.get('apiStack', [])[0].get('value', ''))
             result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
             try:
                 result_data_apiStack_value = json.loads(result_data_apiStack_value)
@@ -172,7 +185,7 @@ class TaoBaoLoginAndParse(object):
                 # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
                 # pprint(result_data_apiStack_value)
             except Exception:
-                print("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过")
+                self.my_lg.error("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过" + ' 出错goods_id: ' + str(goods_id))
                 result_data_apiStack_value = ''
                 pass
 
@@ -184,15 +197,16 @@ class TaoBaoLoginAndParse(object):
             try:
                 mock_data = json.loads(mock_data)
             except Exception:
+                self.my_lg.error('json.loads转化mock_data时出错, 跳出' + ' 出错goods_id: ' + str(goods_id))
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
             mock_data['feature'] = ''
             # pprint(mock_data)
             result_data['mockData'] = mock_data
 
-            # print(result_data.get('apiStack', [])[0])   # 可能会有{'name': 'esi', 'value': ''}的情况
+            # self.my_lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
             if result_data.get('apiStack', [])[0].get('value', '') == '':
-                print("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
+                self.my_lg.info("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
                 result_data['trade'] = {}
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
@@ -204,7 +218,7 @@ class TaoBaoLoginAndParse(object):
             # pprint(self.result_data)
             return result_data
         else:
-            print('data为空!')
+            self.my_lg.info('data为空!')
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
@@ -234,22 +248,22 @@ class TaoBaoLoginAndParse(object):
             # price = data['apiStack'][0]['value']['price']['extraPrices'][0]['priceText']
             tmp_taobao_price = data['apiStack'][0].get('value', '').get('price').get('price').get('priceText', '')
             tmp_taobao_price = tmp_taobao_price.split('-')     # 如果是区间的话，分割成两个，单个价格就是一个
-            # print(tmp_taobao_price)
+            # self.my_lg.info(str(tmp_taobao_price))
             if len(tmp_taobao_price) == 1:
                 # 商品最高价
                 # price = Decimal(tmp_taobao_price[0]).__round__(2)     # json不能处理decimal所以后期存的时候再处理
                 price = tmp_taobao_price[0]
                 # 商品最低价
                 taobao_price = price
-                # print(price)
-                # print(taobao_price)
+                # self.my_lg.info(str(price))
+                # self.my_lg.info(str(taobao_price))
             else:
                 # price = Decimal(tmp_taobao_price[1]).__round__(2)
                 # taobao_price = Decimal(tmp_taobao_price[0]).__round__(2)
                 price = tmp_taobao_price[1]
                 taobao_price = tmp_taobao_price[0]
-                # print(price)
-                # print(taobao_price)
+                # self.my_lg.info(str(price))
+                # self.my_lg.info(str(taobao_price))
 
             # 淘宝价
             # taobao_price = data['apiStack'][0]['value']['price']['price']['priceText']
@@ -262,15 +276,15 @@ class TaoBaoLoginAndParse(object):
             if data.get('skuBase') is not None:
                 if data.get('skuBase').get('props') is not None:
                     detail_name_list = [[item['name'],item['pid']] for item in data['skuBase']['props']]
-                    # print(detail_name_list)
+                    # self.my_lg.info(str(detail_name_list))
 
                     # 商品标签属性对应的值, 及其对应id值
                     tmp_detail_value_list = [item['values'] for item in data['skuBase']['props']]
-                    # print(tmp_detail_value_list)
+                    # self.my_lg.info(str(tmp_detail_value_list))
                     detail_value_list = []
                     for item in tmp_detail_value_list:
                         tmp = [[i['name'], i['vid']] for i in item]
-                        # print(tmp)
+                        # self.my_lg.info(str(tmp))
                         detail_value_list.append(tmp)       # 商品标签属性对应的值
                     # pprint(detail_value_list)
                 else:
@@ -301,17 +315,17 @@ class TaoBaoLoginAndParse(object):
                     prop_path = prop_path.split(';')
                     prop_path = [i.split(':') for i in prop_path]
                     prop_path = [j[1] for j in prop_path]           # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
-                    # print(prop_path)
+                    # self.my_lg.info(str(prop_path))
 
                     for index in range(0, len(prop_path)):      # 将每个值对应转换为具体规格
                         for i in detail_value_list:
                             for j in i:
                                 if prop_path[index] == j[1]:
                                     prop_path[index] = j[0]
-                    # print(prop_path)                  # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
+                    # self.my_lg.info(str(prop_path))                  # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
                     # 再转换为要存储的字符串
                     prop_path = '|'.join(prop_path)     # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
-                    # print(prop_path)
+                    # self.my_lg.info(prop_path)
 
                     tmp_prop_path_list[0]['sku_price'] = sku2_info[key]['price']['priceText']
                     tmp_prop_path_list[0]['quantity'] = sku2_info[key]['quantity']
@@ -333,7 +347,7 @@ class TaoBaoLoginAndParse(object):
                 item = 'https:' + item
                 all_img_url.append(item)
             all_img_url = [{'img_url': item} for item in all_img_url]
-            # print(all_img_url)
+            # self.my_lg.info(str(all_img_url))
 
             # 详细信息p_info
             tmp_p_info = data.get('props').get('groupProps')     # 一个list [{'内存容量': '32GB'}, ...]
@@ -347,7 +361,7 @@ class TaoBaoLoginAndParse(object):
                         tmp['p_value'] = value
                         tmp['id'] = '0'
                         p_info.append(tmp)
-                # print(p_info)
+                # self.my_lg.info(str(p_info))
             else:
                 p_info = []
 
@@ -363,14 +377,14 @@ class TaoBaoLoginAndParse(object):
             # pc端描述地址
             if data.get('item').get('taobaoPcDescUrl') is not None:
                 pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
-                # print(phone_div_url)
-                # print(pc_div_url)
+                # self.my_lg.info(phone_div_url)
+                # self.my_lg.info(pc_div_url)
 
                 # self.init_chrome_driver()
                 # self.from_ip_pool_set_proxy_ip_to_chrome_driver()
                 # div_desc = self.deal_with_div(pc_div_url)
                 div_desc = self.get_div_from_pc_div_url(pc_div_url, goods_id)
-                # print(div_desc)
+                # self.my_lg.info(div_desc)
 
                 # self.driver.quit()
                 gc.collect()
@@ -391,11 +405,11 @@ class TaoBaoLoginAndParse(object):
                 pass
             else:
                 tmp_detail_value_list = [item['values'] for item in data.get('skuBase', '').get('props', '')]
-                # print(tmp_detail_value_list)
+                # self.my_lg.info(str(tmp_detail_value_list))
                 detail_value_list = []
                 for item in tmp_detail_value_list:
                     tmp = [i['name'] for i in item]
-                    # print(tmp)
+                    # self.my_lg.info(str(tmp))
                     detail_value_list.append(tmp)  # 商品标签属性对应的值
                     # pprint(detail_value_list)
 
@@ -418,14 +432,14 @@ class TaoBaoLoginAndParse(object):
                     is_delete = 0
                 else:
                     is_delete = 1
-            # print('is_delete = %d' % is_delete)
+            # self.my_lg.info('is_delete = %s' % str(is_delete))
 
             # 月销量
             try:
                 sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
             except:
                 sell_count = '0'
-            # print(sell_count)
+            # self.my_lg.info(sell_count)
 
             result = {
                 'shop_name': shop_name,                             # 店铺名称
@@ -447,7 +461,7 @@ class TaoBaoLoginAndParse(object):
                 'sell_count': sell_count,                           # 月销量
                 'is_delete': is_delete,                             # 用于判断商品是否已经下架
             }
-            # print(result)
+            # self.my_lg.info(str(result))
             # pprint(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -455,10 +469,10 @@ class TaoBaoLoginAndParse(object):
             #     'code': 1
             # }
             # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # print(json_data)
+            # self.my_lg.info(json_data)
             return result
         else:
-            print('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            self.my_lg.info('待处理的data为空的dict, 该商品可能已经转移或者下架')
             # return {
             #     'is_delete': 1,
             # }
@@ -520,7 +534,7 @@ class TaoBaoLoginAndParse(object):
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
-        pipeline.update_taobao_table(tmp)
+        pipeline.update_taobao_table(tmp, logger=self.my_lg)
 
     def old_taobao_goods_insert_into_new_table(self, data, pipeline):
         '''
@@ -612,7 +626,7 @@ class TaoBaoLoginAndParse(object):
 
         return result
 
-    async def insert_into_taobao_tiantiantejia_table(self, data, pipeline, logger):
+    async def insert_into_taobao_tiantiantejia_table(self, data, pipeline):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
@@ -667,18 +681,19 @@ class TaoBaoLoginAndParse(object):
         tmp['father_sort'] = data_list.get('father_sort')
         tmp['child_sort'] = data_list.get('child_sort')
 
-        # print('------>>>| 待存储的数据信息为: |', tmp)
-        logger.info('------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id')))
+        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
+        self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id')))
 
-        await pipeline.insert_into_taobao_tiantiantejia_table(item=tmp, logger=logger)
+        await pipeline.insert_into_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
 
         return True
 
-    def update_taobao_tiantiantejia_table(self, data, pipeline):
+    async def update_taobao_tiantiantejia_table(self, data, pipeline):
         '''
         更新天天秒杀特价的商品信息
         :param data:
         :param pipeline:
+        :param logger
         :return:
         '''
         data_list = data
@@ -721,16 +736,16 @@ class TaoBaoLoginAndParse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['tejia_begin_time'] = data_list.get('tejia_begin_time')
-        tmp['tejia_end_time'] = data_list.get('tejia_end_time')
+        # tmp['schedule'] = data_list.get('schedule')
+        # tmp['tejia_begin_time'] = data_list.get('tejia_begin_time')
+        # tmp['tejia_end_time'] = data_list.get('tejia_end_time')
 
-        # print('------>>>| 待存储的数据信息为: |', tmp)
-        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
+        self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
-        pipeline.update_taobao_tiantiantejia_table(item=tmp)
+        await pipeline.update_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
 
-    def update_expired_goods_id_taobao_tiantiantejia_table(self, data, pipeline):
+    async def update_expired_goods_id_taobao_tiantiantejia_table(self, data, pipeline):
         '''
         更新过期商品的信息，使其转为普通常规商品
         :param data:
@@ -777,10 +792,10 @@ class TaoBaoLoginAndParse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
-        # print('------>>>| 待存储的数据信息为: |', tmp)
-        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
+        self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
-        pipeline.update_expired_goods_id_taobao_tiantiantejia_table(item=tmp)
+        await pipeline.update_expired_goods_id_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
 
     def get_div_from_pc_div_url(self, url, goods_id):
         '''
@@ -805,13 +820,13 @@ class TaoBaoLoginAndParse(object):
         下面是构造params
         '''
         goods_id = goods_id
-        # print(goods_id)
+        # self.my_lg.info(goods_id)
         params_data_1 = {
             'id': goods_id,
             'type': '1',
         }
 
-        # print(params_data_2)
+        # self.my_lg.info(str(params_data_2))
         params = {
             'data': json.dumps(params_data_1)  # 每层里面的字典都要先转换成json
         }
@@ -823,7 +838,7 @@ class TaoBaoLoginAndParse(object):
         tmp_proxies = {
             'http': self.proxy,
         }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+        # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         # 设置3层避免报错退出
         try:
@@ -851,7 +866,7 @@ class TaoBaoLoginAndParse(object):
                 response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
 
         last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
-        # print(last_url)
+        # self.my_lg.info(last_url)
         try:
             response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         except Exception:
@@ -865,7 +880,7 @@ class TaoBaoLoginAndParse(object):
             response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
 
         data = response.content.decode('utf-8')
-        # print(data)
+        # self.my_lg.info(str(data))
         data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
         if data != []:
             data = data[0]
@@ -874,7 +889,7 @@ class TaoBaoLoginAndParse(object):
             if data != []:
                 div = data.get('data', '').get('pcDescContent', '')
                 div = self.deal_with_div(div)
-                # print(div)
+                # self.my_lg.info(div)
             else:
                 div = ''
         else:
@@ -889,7 +904,7 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'\n').sub('', body)
         body = re.compile(r'\t').sub('', body)
         body = re.compile(r'  ').sub('', body)
-        # print(body)
+        # self.my_lg.info(str(body))
 
         body = re.compile(r'src="data:image/png;.*?"').sub('', body)
         body = re.compile(r'data-img').sub('src', body)
@@ -905,26 +920,29 @@ class TaoBaoLoginAndParse(object):
         if is_taobao_url != []:
             if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url) != []:
                 tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
-                # print(tmp_taobao_url)
+                # self.my_lg.info(tmp_taobao_url)
                 if tmp_taobao_url != '':
                     goods_id = tmp_taobao_url
                 else:
                     taobao_url = re.compile(r';').sub('', taobao_url)
                     goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(taobao_url)[0]
-                print('------>>>| 得到的淘宝商品id为:', goods_id)
+                    self.my_lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
                 return goods_id
             else:       # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
-                # print('9999')
+                # self.my_lg.info('9999')
                 taobao_url = re.compile(r';').sub('', taobao_url)
                 goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
-                print('------>>>| 得到的淘宝商品id为:', goods_id)
+                self.my_lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
                 return goods_id
         else:
-            print('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
+            self.my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
 
     def __del__(self):
-        # self.driver.quit()
+        try:
+            del self.msg
+            del self.my_lg
+        except: pass
         gc.collect()
 
 if __name__ == '__main__':
@@ -934,7 +952,7 @@ if __name__ == '__main__':
         taobao_url.strip('\n').strip(';')
         goods_id = login_taobao.get_goods_id_from_url(taobao_url)
         data = login_taobao.get_goods_data(goods_id=goods_id)
-        login_taobao.deal_with_data(goods_id=goods_id)
+        data = login_taobao.deal_with_data(goods_id=goods_id)
         # pprint(data)
 
 
