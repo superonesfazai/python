@@ -2590,7 +2590,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         result = []
         try:
             cs.execute('set lock_timeout 20000;')     # 设置客户端执行超时等待为20秒
-            cs.execute('select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19 order by id desc')
+            cs.execute('select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19')
             # self.conn.commit()
 
             # print('111')

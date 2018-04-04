@@ -28,7 +28,7 @@ from my_logging import set_logger
 
 async def run_forever():
     #### 实时更新数据
-    # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
+    # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中, 不能实现每日一志
     my_lg = set_logger(
         log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
         console_log_level=INFO,
@@ -50,9 +50,9 @@ async def run_forever():
 
         my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
         index = 1
-        tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia(logger=my_lg)
-        for item in result:  # 实时更新数据
-            if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
+        # tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia(logger=my_lg)
+        for item in result:     # 实时更新数据
+            if index % 50 == 0:
                 my_lg.info('正在重置，并与数据库建立新连接中...')
                 # try: del tmp_sql_server
                 # except: pass
@@ -73,12 +73,12 @@ async def run_forever():
 
                 elif tejia_end_time < datetime.datetime.now():
                     # 过期的不删除, 降为更新为常规爆款促销商品
-                    # index = await update_expired_goods_to_normal_goods(
-                    #     goods_id=item[0],
-                    #     index=index,
-                    #     tmp_sql_server=tmp_sql_server,
-                    #     logger=my_lg
-                    # )
+                    index = await update_expired_goods_to_normal_goods(
+                        goods_id=item[0],
+                        index=index,
+                        tmp_sql_server=tmp_sql_server,
+                        logger=my_lg
+                    )
                     pass
 
                 else:
