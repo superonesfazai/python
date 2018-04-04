@@ -101,7 +101,6 @@ async def run(num):
     with (await sema):  # 控制下方函数最高并发量
         await fetch_async(num)
 
-
 if __name__ == '__main__':
     # start = 21002
     concurrency_number = 100      # 并发量
