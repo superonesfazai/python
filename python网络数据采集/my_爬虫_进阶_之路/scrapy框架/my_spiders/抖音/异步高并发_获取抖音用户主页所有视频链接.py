@@ -88,9 +88,13 @@ def main():
         NUMBERS = range(start, start + concurrency_number)
 
         loop = asyncio.get_event_loop()
-        f = asyncio.wait([run(num) for num in NUMBERS])
-        result = loop.run_until_complete(f)
-        # print(result)
+        # f = [run(num) for num in NUMBERS]
+        # loop.run_until_complete(asyncio.wait(f))
+
+        # 下面2行替换成上面2行, 增大了10个的并发量
+        tasks = [asyncio.ensure_future(run(num)) for num in NUMBERS]
+        loop.run_until_complete(asyncio.wait(tasks))
+
         end_time = time.time()
         print('用时: ', end_time - start_time)
         # loop.close()
@@ -101,7 +105,7 @@ def main():
             f.write(str(start))
 
 if __name__ == '__main__':
-    concurrency_number = 110  # 并发量
+    concurrency_number = 120  # 并发量
     sema = Semaphore(concurrency_number)
     main()
 
