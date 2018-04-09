@@ -3150,6 +3150,24 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             except Exception:
                 pass
 
+    def select_all_goods_info_from_GoodsInfoAutoGet_table(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute(r'select GoodsID, SiteID from dbo.GoodsInfoAutoGet where MainGoodsID!=%s and IsDelete=0', ('',))
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
     def insert_into_jd_youxuan_daren_recommend_table(self, item):
         try:
             cs = self.conn.cursor()
@@ -3187,8 +3205,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def select_jd_youxuan_daren_recommend_all_share_id(self):
-        cs = self.conn.cursor()
         try:
+            cs = self.conn.cursor()
             cs.execute('select share_id from dbo.jd_youxuan_daren_recommend')
             # self.conn.commit()
 

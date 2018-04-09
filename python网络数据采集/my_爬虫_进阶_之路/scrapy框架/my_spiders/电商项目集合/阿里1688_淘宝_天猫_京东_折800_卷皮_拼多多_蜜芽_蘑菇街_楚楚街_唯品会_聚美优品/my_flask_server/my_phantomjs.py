@@ -20,6 +20,7 @@ from scrapy.selector import Selector
 
 from random import randint
 import re, gc
+from time import sleep
 
 __all__ = [
     'MyPhantomjs',
@@ -42,7 +43,7 @@ class MyPhantomjs(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = False
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
         tmp_execute_path = EXECUTABLE_PATH
 
@@ -83,7 +84,7 @@ class MyPhantomjs(object):
 
         return True
 
-    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
+    def use_phantomjs_to_get_url_body(self, url, css_selector='', exec_code=''):
         '''
         通过phantomjs来获取url的body
         :param url: 待获取的url
@@ -114,6 +115,17 @@ class MyPhantomjs(object):
                     return ''
                 else:
                     print('{0}已经加载完毕'.format(css_selector))
+
+            if exec_code != '':     # 动态执行代码
+                # 执行代码前先替换掉'  '
+                try:
+                    _ = compile(exec_code.replace('  ', ''), '', 'exec')
+                    exec(_)
+                except:
+                    print('动态执行代码时出错!')
+                    return ''
+                # self.driver.save_screenshot('tmp_screen.png')
+
             main_body = self.driver.page_source
             main_body = re.compile(r'\n').sub('', main_body)
             main_body = re.compile(r'  ').sub('', main_body)

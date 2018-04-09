@@ -14,7 +14,6 @@ import time
 def datetime_toString(dt):
     return dt.strftime("%Y-%m-%d-%H")
 
-
 # 把字符串转成datetime
 def string_toDatetime(string):
     return datetime.strptime(string, "%Y-%m-%d-%H")
@@ -35,3 +34,4 @@ def datetime_toTimestamp(dateTim):
     return time.mktime(dateTim.timetuple())
 
 print(timestamp_toString(1510704000))
+print(string_toDatetime('2017-12-04'))

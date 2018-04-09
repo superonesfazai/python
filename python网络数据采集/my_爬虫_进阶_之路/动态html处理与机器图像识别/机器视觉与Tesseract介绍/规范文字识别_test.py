@@ -80,6 +80,7 @@ def convert_Image(img, standard=127.5):
     return image
 
 img = Image.open('./images/some_img.jpg')
+img.show()
 # convert_Image(img=img)
 print(pytesseract.image_to_string(img))
 

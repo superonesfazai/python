@@ -7,12 +7,15 @@
 @connect : superonesfazai@gmail.com
 '''
 
-file_path = './tmp_user_id.txt'
+# file_path = './tmp_user_id.txt'
+file_path = '/Users/afa/myFiles/my_spider_logs/抖音/user_id.txt'
 
 user_id_list = []
 with open(file_path, 'r') as f:
     for line in f.readlines():
         line = line.replace('\n', '')
+        if line == '':
+            continue
         user_id_list.append(int(line))
 
 user_id_list = sorted(list(set(user_id_list)))

@@ -50,7 +50,7 @@ class ALi1688LoginAndParse(object):
         # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
 
-        # print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
+        print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
 
         body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=wait_to_deal_with_url, css_selector='div.d-content')
         # print(body)

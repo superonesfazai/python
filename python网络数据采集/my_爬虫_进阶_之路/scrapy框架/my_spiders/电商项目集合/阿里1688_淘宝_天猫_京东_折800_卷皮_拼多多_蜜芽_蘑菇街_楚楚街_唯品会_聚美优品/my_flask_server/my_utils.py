@@ -70,7 +70,6 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
     sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
-
 def timestamp_to_regulartime(timestamp):
     '''
     将时间戳转换成时间
@@ -86,6 +85,15 @@ def timestamp_to_regulartime(timestamp):
 
     return dt
 
+# 把字符串转成datetime
+def string_to_datetime(string):
+    '''
+    将字符串转换成datetime
+    :param string:
+    :return:
+    '''
+    return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
+
 def restart_program():
     '''
     初始化避免异步导致log重复打印
@@ -95,3 +103,4 @@ def restart_program():
     import os
     python = sys.executable
     os.execl(python, python, * sys.argv)
+
