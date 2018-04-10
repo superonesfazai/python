@@ -17,6 +17,7 @@ from my_utils import daemon_init, get_shanghai_time
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
 from ali_1688_comment_parse import ALi1688CommentParse
+from taobao_comment_parse import TaoBaoCommentParse
 
 import gc
 from logging import INFO, ERROR
@@ -49,32 +50,41 @@ class MyAllCommentSpider(object):
 
                 self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 
-                for item in result:     # item: ('xxxx':goods_id, 'y':site_id)
+                for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
                     switch = {
-                        1: 'self.taobao_comment({0})',
-                        2: 'self.ali_1688_comment({0})',
+                        1: 'self.taobao_comment({0}, {1})',
+                        2: 'self.ali_1688_comment({0}, {1})',
                     }
 
                     # 动态执行
-                    exec_code = compile(switch[item[1]].format(item[0]), '', 'exec')
+                    exec_code = compile(switch[item[1]].format(index, item[0]), '', 'exec')
                     exec(exec_code)
 
-    def taobao_comment(self, goods_id):
+    def taobao_comment(self, index, goods_id):
         '''
         处理淘宝的商品comment
+        :params index: 索引
         :param goods_id:
         :return:
         '''
-        # self.my_lg.info('淘宝')
-        pass
+        self.my_lg.info('淘宝\t\t\t索引值(%s)' % str(index))
+        taobao = TaoBaoCommentParse(logger=self.my_lg)
+        taobao._get_comment_data(goods_id=str(goods_id))
 
-    def ali_1688_comment(self, goods_id):
+        try:
+            del taobao
+        except:
+            self.my_lg.info('del taobao失败!')
+        gc.collect()
+
+    def ali_1688_comment(self, index, goods_id):
         '''
         处理阿里1688的商品comment
+        :params index: 索引
         :param goods_id:
         :return:
         '''
-        self.my_lg.info('阿里1688')
+        self.my_lg.info('阿里1688\t\t\t索引值(%s)' % str(index))
         ali_1688 = ALi1688CommentParse(logger=self.my_lg)
         ali_1688._get_comment_data(goods_id=goods_id)
 

@@ -23,7 +23,7 @@ class MyRequests(object):
         super().__init__()
 
     @classmethod
-    def get_url_body(cls, url, headers:dict, params=None, cookies=None, had_referer=False):
+    def get_url_body(cls, url, headers:dict, params=None, cookies=None, had_referer=False, encoding='utf-8'):
         '''
         根据url得到body
         :param tmp_url:
@@ -51,10 +51,10 @@ class MyRequests(object):
         try:
             if params is not None:
                 response = s.get(url, headers=tmp_headers, params=params, cookies=cookies, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                print(response.url)
+                # print(response.url)
             else:
                 response = s.get(url, headers=tmp_headers, proxies=tmp_proxies, cookies=cookies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
+            body = response.content.decode(encoding)
 
             body = re.compile('\t').sub('', body)
             body = re.compile('  ').sub('', body)

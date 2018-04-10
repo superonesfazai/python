@@ -89,7 +89,7 @@ class ALi1688CommentParse(object):
                     return {}
 
                 comment_date = str(Selector(text=item).css('div.date span::text').extract_first())
-                comment_date = self._get_comment_date(comment_date)
+                comment_date = self._get_comment_date(comment_date)     # str '2017-01-25 17:06:00'
                 tmp_sku_info = str(Selector(text=item).css('div.date::text').extract_first())
                 comment = [{
                     'comment': str(Selector(text=item).css('div.bd::text').extract_first()),
@@ -97,12 +97,14 @@ class ALi1688CommentParse(object):
                     'sku_info': re.compile(r'<span.*?</span>').sub('', tmp_sku_info),           # 购买的商品规格
                     'img_url_list': [],
                     'star_level': randint(3, 5),                                                # 几星好评
+                    'video': '',
                 }]
 
                 _ = {
                     'buyer_name': buyer_name,           # 买家昵称
                     'comment': comment,                 # 评论内容
-                    'quantify': quantify                # 购买数量
+                    'quantify': quantify,               # 购买数量
+                    'head_img': '',                     # 用户头像
                 }
                 _comment_list.append(_)
 
@@ -250,7 +252,7 @@ class ALi1688CommentParse(object):
 
         comment_date = comment_date + ' ' + _hour + ':' + _min + ':' + _s
 
-        return string_to_datetime(comment_date)
+        return comment_date
 
     def __del__(self):
         try:
@@ -267,7 +269,7 @@ if __name__ == '__main__':
     while True:
         goods_id = input('请输入要爬取的商品goods_id(以英文分号结束): ')
         goods_id = goods_id.strip('\n').strip(';')
-        goods_id = ali_1688._get_comment_data(goods_id=goods_id)
+        ali_1688._get_comment_data(goods_id=goods_id)
 
         gc.collect()
 
