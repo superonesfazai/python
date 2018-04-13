@@ -7,91 +7,52 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import sys
+sys.path.append('..')
+
+from my_utils import daemon_init, process_exit
+
 from time import sleep
 import datetime
 import re
 import os
-import sys
 
 tejia_file_name_list = [
     'taobao_tiantiantejia',
     # 'taobao_tiantiantejia_real-times_update',
 ]
 
-def auto_run(*params):
-    print('开始执行秒杀脚本'.center(60, '*'))
+logs_file_name_list = [
+    'expired_logs_deal_with'
+]
 
-    for item in tejia_file_name_list:
+def run_one_file_name_list(path, file_name_list):
+    for item in file_name_list:
         process_name = item + '.py'
         if process_exit(process_name) == 0:
-            print('111')
             # 如果对应的脚本没有在运行, 则运行之
-            os.system('cd {0} && python3 {1}.py'.format(params[0], item))
-            print('222')
+            os.system('cd {0} && python3 {1}.py'.format(path, item))
             sleep(2.5)      # 避免同时先后启动先sleep下
         else:
             print(process_name + '脚本已存在!')
 
-    print('脚本执行完毕'.center(60, '*'))
+def auto_run(*params):
+    print('开始执行脚本'.center(60, '*'))
 
-def process_exit(process_name):
-    '''
-    判断进程是否存在
-    :param process_name:
-    :return: 0 不存在 | >= 1 存在
-    '''
-    # Linux
-    process_check_response = os.popen('ps aux | grep "' + process_name + '" | grep -v grep').readlines()
-    return len(process_check_response)
+    run_one_file_name_list(path=params[0], file_name_list=tejia_file_name_list)
+    run_one_file_name_list(path=params[1], file_name_list=logs_file_name_list)
+
+    print('脚本执行完毕'.center(60, '*'))
 
 def main_2():
     while True:
         tejia_path = '~/myFiles/python/my_flask_server/tejia'
-        auto_run(tejia_path)
+        logs_path = '~/myFiles/python/my_flask_server/logs'
+
+        auto_run(tejia_path, logs_path)
         print(' Money is on the way! '.center(100, '*'))
 
         sleep(2)
-
-def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-    '''
-    杀掉父进程，独立子进程
-    :param stdin:
-    :param stdout:
-    :param stderr:
-    :return:
-    '''
-    sys.stdin = open(stdin, 'r')
-    sys.stdout = open(stdout, 'a+')
-    sys.stderr = open(stderr, 'a+')
-    try:
-        pid = os.fork()
-        if pid > 0:     # 父进程
-            os._exit(0)
-    except OSError as e:
-        sys.stderr.write("first fork failed!!" + e.strerror)
-        os._exit(1)
-
-    # 子进程， 由于父进程已经退出，所以子进程变为孤儿进程，由init收养
-    '''setsid使子进程成为新的会话首进程，和进程组的组长，与原来的进程组、控制终端和登录会话脱离。'''
-    os.setsid()
-    '''防止在类似于临时挂载的文件系统下运行，例如/mnt文件夹下，这样守护进程一旦运行，临时挂载的文件系统就无法卸载了，这里我们推荐把当前工作目录切换到根目录下'''
-    os.chdir("/")
-    '''设置用户创建文件的默认权限，设置的是权限“补码”，这里将文件权限掩码设为0，使得用户创建的文件具有最大的权限。否则，默认权限是从父进程继承得来的'''
-    os.umask(0)
-
-    try:
-        pid = os.fork()  # 第二次进行fork,为了防止会话首进程意外获得控制终端
-        if pid > 0:
-            os._exit(0)  # 父进程退出
-    except OSError as e:
-        sys.stderr.write("second fork failed!!" + e.strerror)
-        os._exit(1)
-
-    # 孙进程
-    #   for i in range(3, 64):  # 关闭所有可能打开的不需要的文件，UNP中这样处理，但是发现在python中实现不需要。
-    #       os.close(i)
-    sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
-    sys.stdout.flush()  # 由于这里我们使用的是标准IO，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
 def main():
     '''

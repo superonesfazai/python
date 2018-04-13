@@ -18,6 +18,7 @@ from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
 from ali_1688_comment_parse import ALi1688CommentParse
 from taobao_comment_parse import TaoBaoCommentParse
+from tmall_comment_parse import TmallCommentParse
 
 import gc
 from logging import INFO, ERROR
@@ -52,19 +53,23 @@ class MyAllCommentSpider(object):
 
                 for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
                     switch = {
-                        1: 'self.taobao_comment({0}, {1})',
-                        2: 'self.ali_1688_comment({0}, {1})',
+                        1: 'self.taobao_comment({0}, {1}, {2})',
+                        2: 'self.ali_1688_comment({0}, {1}, {2})',
+                        3: 'self.tmall_comment({0}, {1}, {2})',
+                        4: 'self.tmall_comment({0}, {1}, {2})',
+                        6: 'self.tmall_comment({0}, {1}, {2})',
                     }
 
                     # 动态执行
-                    exec_code = compile(switch[item[1]].format(index, item[0]), '', 'exec')
+                    exec_code = compile(switch[item[1]].format(index, item[0], item[1]), '', 'exec')
                     exec(exec_code)
 
-    def taobao_comment(self, index, goods_id):
+    def taobao_comment(self, index, goods_id, site_id):
         '''
         处理淘宝的商品comment
-        :params index: 索引
+        :param index: 索引
         :param goods_id:
+        :param site_id:
         :return:
         '''
         self.my_lg.info('淘宝\t\t\t索引值(%s)' % str(index))
@@ -77,11 +82,12 @@ class MyAllCommentSpider(object):
             self.my_lg.info('del taobao失败!')
         gc.collect()
 
-    def ali_1688_comment(self, index, goods_id):
+    def ali_1688_comment(self, index, goods_id, site_id):
         '''
         处理阿里1688的商品comment
-        :params index: 索引
+        :param index: 索引
         :param goods_id:
+        :param site_id:
         :return:
         '''
         self.my_lg.info('阿里1688\t\t\t索引值(%s)' % str(index))
@@ -92,6 +98,30 @@ class MyAllCommentSpider(object):
             del ali_1688
         except:
             self.my_lg.info('del ali_1688失败!')
+        gc.collect()
+
+    def tmall_comment(self, index, goods_id, site_id):
+        '''
+        处理tmall商品的comment
+        :param index:
+        :param goods_id:
+        :param site_id:
+        :return:
+        '''
+        self.my_lg.info('天猫\t\t\t索引值(%s)' % str(index))
+        tmall = TmallCommentParse(logger=self.my_lg)
+        if site_id == 3:
+            _type = 0
+        elif site_id == 4:
+            _type = 1
+        elif site_id == 6:
+            _type = 2
+        else:
+            return None
+
+        tmall._get_comment_data(type=_type, goods_id=str(goods_id))
+        try: del tmall
+        except: pass
         gc.collect()
 
     def __del__(self):

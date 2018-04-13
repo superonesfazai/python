@@ -105,6 +105,7 @@ class ALi1688CommentParse(object):
                     'comment': comment,                 # 评论内容
                     'quantify': quantify,               # 购买数量
                     'head_img': '',                     # 用户头像
+                    'append_comment': {},               # 追评
                 }
                 _comment_list.append(_)
 

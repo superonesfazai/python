@@ -16,6 +16,7 @@ import selenium.webdriver.support.ui as ui
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
 from scrapy.selector import Selector
 
 from random import randint
@@ -134,7 +135,9 @@ class MyPhantomjs(object):
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
             print('-->>time out after 20 seconds when loading page')
             print('报错如下: ', e)
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            try:
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            except WebDriverException: pass
             print('main_body为空!')
             main_body = ''
 
@@ -179,7 +182,9 @@ class MyPhantomjs(object):
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
             print('-->>time out after 20 seconds when loading page')
             print('报错如下: ', e)
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            try:
+                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
+            except WebDriverException: pass
             cookies = ''
 
         return cookies

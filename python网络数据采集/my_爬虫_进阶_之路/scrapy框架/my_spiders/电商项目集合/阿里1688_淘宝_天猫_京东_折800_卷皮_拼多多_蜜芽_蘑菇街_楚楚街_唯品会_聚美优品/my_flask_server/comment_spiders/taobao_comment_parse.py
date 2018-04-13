@@ -130,6 +130,7 @@ class TaoBaoCommentParse(object):
                     'comment': comment,             # 评论内容
                     'quantify': quantify,           # 评论数量
                     'head_img': head_img,           # 头像
+                    'append_comment': {},           # 追评
                 }
 
                 _comment_list.append(_)

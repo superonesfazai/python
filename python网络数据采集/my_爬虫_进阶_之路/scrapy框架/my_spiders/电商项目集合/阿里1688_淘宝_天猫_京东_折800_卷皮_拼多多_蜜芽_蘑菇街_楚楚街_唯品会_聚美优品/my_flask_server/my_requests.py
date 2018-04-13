@@ -30,14 +30,8 @@ class MyRequests(object):
         :return: '' 表示出错退出 | body 类型str
         '''
         # 设置代理ip
-        ip_object = MyIpPools()
-        proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        proxy = proxies['http'][randint(0, len(proxies) - 1)]
-
-        tmp_proxies = {
-            'http': proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+        tmp_proxies = cls._get_proxies()
+        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(tmp_proxies.get('http')))
 
         tmp_headers = headers
         tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(url)[0]
@@ -47,24 +41,24 @@ class MyRequests(object):
             else:
                 tmp_headers['Referer'] = 'http://' + tmp_headers['Host'] + '/'
 
-        s = requests.session()
-        try:
-            if params is not None:
-                response = s.get(url, headers=tmp_headers, params=params, cookies=cookies, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                # print(response.url)
-            else:
-                response = s.get(url, headers=tmp_headers, proxies=tmp_proxies, cookies=cookies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode(encoding)
+        with requests.session() as s:
+            try:
+                if params is not None:
+                    response = s.get(url, headers=tmp_headers, params=params, cookies=cookies, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                    # print(response.url)
+                else:
+                    response = s.get(url, headers=tmp_headers, proxies=tmp_proxies, cookies=cookies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                body = response.content.decode(encoding)
 
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
+                body = re.compile('\t').sub('', body)
+                body = re.compile('  ').sub('', body)
+                body = re.compile('\r\n').sub('', body)
+                body = re.compile('\n').sub('', body)
+                # print(body)
+            except Exception:
+                print('requests.get()请求超时....')
+                print('data为空!')
+                body = ''
 
         return body
 
@@ -75,13 +69,7 @@ class MyRequests(object):
         :return: '' 表示出错退出 | body 类型str
         '''
         # 设置代理ip
-        ip_object = MyIpPools()
-        proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        proxy = proxies['http'][randint(0, len(proxies) - 1)]
-
-        tmp_proxies = {
-            'http': proxy,
-        }
+        tmp_proxies = cls._get_proxies()
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         tmp_headers = headers
@@ -111,6 +99,22 @@ class MyRequests(object):
             body = ''
 
         return body
+
+    @classmethod
+    def _get_proxies(cls):
+        '''
+        得到单个代理ip
+        :return: 格式: {'http': ip+port}
+        '''
+        ip_object = MyIpPools()
+        proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        proxy = proxies['http'][randint(0, len(proxies) - 1)]
+
+        tmp_proxies = {
+            'http': proxy,
+        }
+
+        return tmp_proxies
 
     def __del__(self):
         gc.collect()

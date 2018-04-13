@@ -29,6 +29,8 @@ import gc
 # import traceback
 # from io import BytesIO
 
+from requests.exceptions import ProxyError
+
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
 import pytz
@@ -36,6 +38,7 @@ from logging import INFO, ERROR
 from my_ip_pools import MyIpPools
 from my_utils import get_shanghai_time
 from my_logging import set_logger
+from my_requests import MyRequests
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -73,54 +76,13 @@ class TaoBaoLoginAndParse(object):
         self.msg = '------>>>| 对应的手机端地址为: ' + 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + str(goods_id)
         self.my_lg.info(self.msg)
 
-        appKey = '12574478'
-        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
-
-        '''
-        下面是构造params
-        '''
-        goods_id = goods_id
-        # self.my_lg.info(goods_id)
-        params_data_1 = {
-            'id': goods_id
-        }
-        params_data_2 = {
-            'exParams': json.dumps(params_data_1),  # 每层里面的字典都要先转换成json
-            'itemNumId': goods_id
-        }
-        # self.my_lg.info(str(params_data_2))
-
-        ### * 注意这是正确的url地址: right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
-        # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
-        # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
-        # self.my_lg.info(right_url)
-
-        params = {
-            'appKey': appKey,
-            't': t,
-            # sign = '24b2e987fce9c84d2fc0cebd44be49ef'     # sign可以为空
-            'api': 'mtop.taobao.detail.getdetail',
-            'v': '6.0',
-            'ttid': '2016@taobao_h5_2.0.0',
-            'isSec': '0',
-            'ecode': '0',
-            'AntiFlood': 'true',
-            'AntiCreep': 'true',
-            'H5Request': 'true',
-            'type': 'jsonp',
-            'callback': 'mtopjsonp1',
-            'data': json.dumps(params_data_2),  # 每层里面的字典都要先转换成json
-        }
+        # 设置params
+        params = self._set_params(goods_id=goods_id)
         tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
 
         # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()     # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies)-1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
+        tmp_proxies = MyRequests._get_proxies()
+        self.proxy = tmp_proxies['http']
         # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         s = requests.session()
@@ -173,24 +135,9 @@ class TaoBaoLoginAndParse(object):
             # 处理result_data['apiStack'][0]['value']
             # self.my_lg.info(result_data.get('apiStack', [])[0].get('value', ''))
             result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
-            try:
-                result_data_apiStack_value = json.loads(result_data_apiStack_value)
-
-                result_data_apiStack_value['vertical'] = ''
-                result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
-                result_data_apiStack_value['feature'] = ''
-                result_data_apiStack_value['layout'] = ''
-                result_data_apiStack_value['delivery'] = ''     # 发货地到收到地
-                result_data_apiStack_value['resource'] = ''     # 优惠券
-                # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
-                # pprint(result_data_apiStack_value)
-            except Exception:
-                self.my_lg.error("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过" + ' 出错goods_id: ' + str(goods_id))
-                result_data_apiStack_value = ''
-                pass
 
             # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
-            result_data['apiStack'][0]['value'] = result_data_apiStack_value
+            result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(goods_id=goods_id, result_data_apiStack_value=result_data_apiStack_value)
 
             # 处理mockData
             mock_data = result_data['mockData']
@@ -273,100 +220,22 @@ class TaoBaoLoginAndParse(object):
             goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
 
             # 商品标签属性名称,及其对应id值
-            if data.get('skuBase') is not None:
-                if data.get('skuBase').get('props') is not None:
-                    detail_name_list = [[item['name'],item['pid']] for item in data['skuBase']['props']]
-                    # self.my_lg.info(str(detail_name_list))
-
-                    # 商品标签属性对应的值, 及其对应id值
-                    tmp_detail_value_list = [item['values'] for item in data['skuBase']['props']]
-                    # self.my_lg.info(str(tmp_detail_value_list))
-                    detail_value_list = []
-                    for item in tmp_detail_value_list:
-                        tmp = [[i['name'], i['vid']] for i in item]
-                        # self.my_lg.info(str(tmp))
-                        detail_value_list.append(tmp)       # 商品标签属性对应的值
-                    # pprint(detail_value_list)
-                else:
-                    detail_name_list = []
-                    detail_value_list = []
-            else:
-                detail_name_list = []
-                detail_value_list = []
+            detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
 
             '''
             每个标签对应值的价格及其库存
             '''
-            if data.get('skuBase').get('skus') is not None:
-                skus = data['skuBase']['skus']      # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
-                sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
-                try:
-                    sku2_info.pop('0')      # 此处删除总库存的值
-                except Exception:
-                    pass
-                # pprint(sku2_info)
-                prop_path_list = []     # 要存储的每个标签对应规格的价格及其库存
-                for key in sku2_info:
-                    tmp = {}
-                    tmp_prop_path_list = [item for item in skus if item.get('skuId') == key]    # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
-
-                    # 处理propPath得到可识别的文字
-                    prop_path = tmp_prop_path_list[0].get('propPath')
-                    prop_path = prop_path.split(';')
-                    prop_path = [i.split(':') for i in prop_path]
-                    prop_path = [j[1] for j in prop_path]           # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
-                    # self.my_lg.info(str(prop_path))
-
-                    for index in range(0, len(prop_path)):      # 将每个值对应转换为具体规格
-                        for i in detail_value_list:
-                            for j in i:
-                                if prop_path[index] == j[1]:
-                                    prop_path[index] = j[0]
-                    # self.my_lg.info(str(prop_path))                  # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
-                    # 再转换为要存储的字符串
-                    prop_path = '|'.join(prop_path)     # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
-                    # self.my_lg.info(prop_path)
-
-                    tmp_prop_path_list[0]['sku_price'] = sku2_info[key]['price']['priceText']
-                    tmp_prop_path_list[0]['quantity'] = sku2_info[key]['quantity']
-                    # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
-                    # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
-                    tmp['spec_value'] = prop_path
-                    tmp['detail_price'] = tmp_prop_path_list[0]['sku_price']       # 每个规格对应的价格
-                    tmp['rest_number'] = tmp_prop_path_list[0]['quantity']         # 每个规格对应的库存量
-                    prop_path_list.append(tmp)
-                # pprint(prop_path_list)                  # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
-                price_info_list = prop_path_list
-            else:
-                price_info_list = []
+            price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
 
             # 所有示例图片地址
-            tmp_all_img_url = data['item']['images']
-            all_img_url = []
-            for item in tmp_all_img_url:
-                item = 'https:' + item
-                all_img_url.append(item)
-            all_img_url = [{'img_url': item} for item in all_img_url]
+            all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
             # self.my_lg.info(str(all_img_url))
 
             # 详细信息p_info
-            tmp_p_info = data.get('props').get('groupProps')     # 一个list [{'内存容量': '32GB'}, ...]
-            if tmp_p_info is not None:
-                tmp_p_info = tmp_p_info[0].get('基本信息', [])
-                p_info = []
-                for item in tmp_p_info:
-                    for key, value in item.items():
-                        tmp = {}
-                        tmp['p_name'] = key
-                        tmp['p_value'] = value
-                        tmp['id'] = '0'
-                        p_info.append(tmp)
-                # self.my_lg.info(str(p_info))
-            else:
-                p_info = []
+            p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))   # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
 
             '''
-            下方div图片文字介绍区
+            div_desc
             '''
             # 手机端描述地址
             if data.get('item').get('taobaoDescUrl') is not None:
@@ -380,11 +249,12 @@ class TaoBaoLoginAndParse(object):
                 # self.my_lg.info(phone_div_url)
                 # self.my_lg.info(pc_div_url)
 
-                # self.init_chrome_driver()
-                # self.from_ip_pool_set_proxy_ip_to_chrome_driver()
-                # div_desc = self.deal_with_div(pc_div_url)
                 div_desc = self.get_div_from_pc_div_url(pc_div_url, goods_id)
                 # self.my_lg.info(div_desc)
+                if div_desc == '':
+                    self.my_lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
+                    self.result_data = {}
+                    return {}
 
                 # self.driver.quit()
                 gc.collect()
@@ -395,8 +265,6 @@ class TaoBaoLoginAndParse(object):
             '''
             后期处理
             '''
-            tmp = []
-            tmp_1 = []
             # 后期处理detail_name_list, detail_value_list
             detail_name_list = [{'spec_name': i[0]} for i in detail_name_list]
 
@@ -596,6 +464,187 @@ class TaoBaoLoginAndParse(object):
         # tmp['delete_time'] = data_list.get('delete_time')
 
         pipeline.old_taobao_goods_insert_into_new_table(tmp)
+
+    def _set_params(self, goods_id):
+        '''
+        设置params
+        :param goods_id:
+        :return:
+        '''
+        appKey = '12574478'
+        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+
+        '''
+        下面是构造params
+        '''
+        goods_id = goods_id
+        # self.my_lg.info(goods_id)
+        params_data_1 = {
+            'id': goods_id
+        }
+        params_data_2 = {
+            'exParams': json.dumps(params_data_1),  # 每层里面的字典都要先转换成json
+            'itemNumId': goods_id
+        }
+        # self.my_lg.info(str(params_data_2))
+
+        ### * 注意这是正确的url地址: right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
+        # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
+        # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
+        # self.my_lg.info(right_url)
+
+        params = {
+            'appKey': appKey,
+            't': t,
+            # sign = '24b2e987fce9c84d2fc0cebd44be49ef'     # sign可以为空
+            'api': 'mtop.taobao.detail.getdetail',
+            'v': '6.0',
+            'ttid': '2016@taobao_h5_2.0.0',
+            'isSec': '0',
+            'ecode': '0',
+            'AntiFlood': 'true',
+            'AntiCreep': 'true',
+            'H5Request': 'true',
+            'type': 'jsonp',
+            'callback': 'mtopjsonp1',
+            'data': json.dumps(params_data_2),  # 每层里面的字典都要先转换成json
+        }
+
+        return params
+
+    def _wash_result_data_apiStack_value(self, goods_id, result_data_apiStack_value):
+        '''
+        清洗result_data_apiStack_value
+        :param goods_id:
+        :param result_data_apiStack_value:
+        :return:
+        '''
+        try:
+            result_data_apiStack_value = json.loads(result_data_apiStack_value)
+
+            result_data_apiStack_value['vertical'] = ''
+            result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
+            result_data_apiStack_value['feature'] = ''
+            result_data_apiStack_value['layout'] = ''
+            result_data_apiStack_value['delivery'] = ''  # 发货地到收到地
+            result_data_apiStack_value['resource'] = ''  # 优惠券
+            # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
+            # pprint(result_data_apiStack_value)
+        except Exception:
+            self.my_lg.error("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过" + ' 出错goods_id: ' + str(goods_id))
+            result_data_apiStack_value = ''
+            pass
+
+        return result_data_apiStack_value
+
+    def _get_all_img_url(self, tmp_all_img_url):
+        '''
+        获取所有示例图片
+        :param tmp_all_img_url:
+        :return:
+        '''
+        all_img_url = []
+        for item in tmp_all_img_url:
+            item = 'https:' + item
+            all_img_url.append(item)
+
+        return [{'img_url': item} for item in all_img_url]
+
+    def _get_p_info(self, tmp_p_info):
+        '''
+        得到 p_info
+        :param tmp_p_info:
+        :return:
+        '''
+        p_info = []
+        if tmp_p_info is not None:
+            tmp_p_info = tmp_p_info[0].get('基本信息', [])
+            for item in tmp_p_info:
+                for key, value in item.items():
+                    tmp = {}
+                    tmp['p_name'] = key
+                    tmp['p_value'] = value
+                    tmp['id'] = '0'
+                    p_info.append(tmp)
+                    # self.my_lg.info(str(p_info))
+
+        return p_info
+
+    def _get_detail_name_and_value_list(self, data):
+        '''
+        得到detail_name_list, detail_value_list
+        :param data:
+        :return: detail_name_list, detail_value_list
+        '''
+        detail_name_list = []
+        detail_value_list = []
+        if data.get('skuBase') is not None:
+            if data.get('skuBase').get('props') is not None:
+                detail_name_list = [[item['name'], item['pid']] for item in data['skuBase']['props']]
+                # self.my_lg.info(str(detail_name_list))
+
+                # 商品标签属性对应的值, 及其对应id值
+                tmp_detail_value_list = [item['values'] for item in data['skuBase']['props']]
+                # self.my_lg.info(str(tmp_detail_value_list))
+                for item in tmp_detail_value_list:
+                    tmp = [[i['name'], i['vid']] for i in item]
+                    # self.my_lg.info(str(tmp))
+                    detail_value_list.append(tmp)  # 商品标签属性对应的值
+                    # pprint(detail_value_list)
+
+        return detail_name_list, detail_value_list
+
+    def _get_price_info_list(self, data, detail_value_list):
+        '''
+        得到详细规格及其价格信息
+        :param data:
+        :param detail_value_list:
+        :return:
+        '''
+        if data.get('skuBase').get('skus') is not None:
+            skus = data['skuBase']['skus']  # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
+            sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
+            try:
+                sku2_info.pop('0')  # 此处删除总库存的值
+            except Exception:
+                pass
+            # pprint(sku2_info)
+            prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
+            for key in sku2_info:
+                tmp = {}
+                tmp_prop_path_list = [item for item in skus if item.get(
+                    'skuId') == key]  # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
+
+                # 处理propPath得到可识别的文字
+                prop_path = tmp_prop_path_list[0].get('propPath', '').split(';')
+                prop_path = [i.split(':') for i in prop_path]
+                prop_path = [j[1] for j in prop_path]  # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
+                # self.my_lg.info(str(prop_path))
+
+                for index in range(0, len(prop_path)):  # 将每个值对应转换为具体规格
+                    for i in detail_value_list:
+                        for j in i:
+                            if prop_path[index] == j[1]:
+                                prop_path[index] = j[0]
+                # self.my_lg.info(str(prop_path))                  # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
+                # 再转换为要存储的字符串
+                prop_path = '|'.join(prop_path)  # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
+                # self.my_lg.info(prop_path)
+
+                tmp_prop_path_list[0]['sku_price'] = sku2_info[key]['price']['priceText']
+                tmp_prop_path_list[0]['quantity'] = sku2_info[key]['quantity']
+                # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
+                # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
+                tmp['spec_value'] = prop_path
+                tmp['detail_price'] = tmp_prop_path_list[0]['sku_price']  # 每个规格对应的价格
+                tmp['rest_number'] = tmp_prop_path_list[0]['quantity']  # 每个规格对应的库存量
+                prop_path_list.append(tmp)
+            # pprint(prop_path_list)                  # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
+            price_info_list = prop_path_list
+        else:
+            price_info_list = []
+
+        return price_info_list
 
     def init_pull_off_shelves_goods(self):
         '''
@@ -877,7 +926,11 @@ class TaoBaoLoginAndParse(object):
             tmp_proxies = {
                 'http': self.proxy,
             }
-            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            try:
+                response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            except ProxyError:
+                self.my_lg.error('ProxyError!')
+                return ''
 
         data = response.content.decode('utf-8')
         # self.my_lg.info(str(data))
@@ -954,8 +1007,3 @@ if __name__ == '__main__':
         data = login_taobao.get_goods_data(goods_id=goods_id)
         data = login_taobao.deal_with_data(goods_id=goods_id)
         # pprint(data)
-
-
-
-
-

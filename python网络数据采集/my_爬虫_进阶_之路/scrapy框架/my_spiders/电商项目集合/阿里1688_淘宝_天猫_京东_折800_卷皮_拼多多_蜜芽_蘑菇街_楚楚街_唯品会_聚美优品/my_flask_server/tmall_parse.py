@@ -65,6 +65,7 @@ class TmallParse(object):
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         print('------>>>| 得到的移动端地址为: ', tmp_url)
 
+        # 不用requests的原因是要带cookies才能请求到数据
         # response = requests.get(tmp_url, headers=self.headers)
         self.driver.set_page_load_timeout(15)
         try:
@@ -536,14 +537,6 @@ class TmallParse(object):
         url = 'https://hws.m.taobao.com/cache/desc/5.0?callback=backToDesc&type=1&id=' + str(goods_id)
         # print(url)
 
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
         try:
             self.from_ip_pool_set_proxy_ip_to_phantomjs()
             self.driver.get(url)

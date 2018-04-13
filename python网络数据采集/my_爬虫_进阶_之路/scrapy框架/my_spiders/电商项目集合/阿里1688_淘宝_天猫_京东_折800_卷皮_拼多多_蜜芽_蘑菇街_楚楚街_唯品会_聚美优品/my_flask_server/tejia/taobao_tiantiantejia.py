@@ -292,7 +292,8 @@ class TaoBaoTianTianTeJia(object):
         result_2 = await self.get_taobao_sign_and_body(
             base_url=base_url,
             headers=self.headers,
-            params=params, data=data,
+            params=params,
+            data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1]
         )
@@ -322,7 +323,7 @@ class TaoBaoTianTianTeJia(object):
 
         return sign, t
 
-    async def get_taobao_sign_and_body(self, base_url, headers: dict, params: dict, data: json, timeout=13, _m_h5_tk='undefine', session=None):
+    async def get_taobao_sign_and_body(self, base_url, headers:dict, params:dict, data:json, timeout=13, _m_h5_tk='undefine', session=None):
         '''
         得到淘宝带签名sign接口数据
         :param base_url:

@@ -104,3 +104,21 @@ def restart_program():
     python = sys.executable
     os.execl(python, python, * sys.argv)
 
+def process_exit(process_name):
+    '''
+    判断进程是否存在
+    :param process_name:
+    :return: 0 不存在 | >= 1 存在
+    '''
+    # Linux
+    process_check_response = os.popen('ps aux | grep "' + process_name + '" | grep -v grep').readlines()
+    return len(process_check_response)
+
+def _get_url_contain_params(url, params):
+    '''
+    根据params组合得到包含params的url
+    :param url:
+    :param params:
+    :return: url
+    '''
+    return url + '?' + '&'.join([item[0] + '=' + item[1] for item in params])
