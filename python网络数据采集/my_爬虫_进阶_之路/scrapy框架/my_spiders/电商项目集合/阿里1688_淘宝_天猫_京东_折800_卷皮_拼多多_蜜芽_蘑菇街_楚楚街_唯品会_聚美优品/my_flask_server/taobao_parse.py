@@ -471,9 +471,6 @@ class TaoBaoLoginAndParse(object):
         :param goods_id:
         :return:
         '''
-        appKey = '12574478'
-        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
-
         '''
         下面是构造params
         '''
@@ -494,8 +491,8 @@ class TaoBaoLoginAndParse(object):
         # self.my_lg.info(right_url)
 
         params = {
-            'appKey': appKey,
-            't': t,
+            'appKey': '12574478',
+            't': str(time.time().__round__()) + str(randint(100, 999)),
             # sign = '24b2e987fce9c84d2fc0cebd44be49ef'     # sign可以为空
             'api': 'mtop.taobao.detail.getdetail',
             'v': '6.0',
@@ -884,9 +881,7 @@ class TaoBaoLoginAndParse(object):
             appKey, t
         )
 
-        tmp_proxies = {
-            'http': self.proxy,
-        }
+        tmp_proxies = MyRequests._get_proxies()
         # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         # 设置3层避免报错退出

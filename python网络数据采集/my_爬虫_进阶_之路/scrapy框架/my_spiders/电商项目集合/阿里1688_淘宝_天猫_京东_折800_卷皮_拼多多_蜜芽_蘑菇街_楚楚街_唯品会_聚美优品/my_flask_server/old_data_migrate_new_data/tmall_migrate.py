@@ -77,7 +77,7 @@ def run_forever():
                             elif goods_id[0] == 1:  # [1, '1111']
                                 wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
                             elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
-                                wait_to_deal_with_url = str(goods_id[2]) + goods_id[1]
+                                wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
                             else:
                                 continue
                             data['goods_url'] = wait_to_deal_with_url

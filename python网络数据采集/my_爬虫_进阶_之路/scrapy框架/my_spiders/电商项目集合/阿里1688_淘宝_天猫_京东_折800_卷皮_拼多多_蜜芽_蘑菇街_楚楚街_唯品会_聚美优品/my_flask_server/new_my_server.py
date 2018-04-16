@@ -16,7 +16,8 @@ from flask_login import LoginManager
 
 from ali_1688_parse import ALi1688LoginAndParse
 from taobao_parse import TaoBaoLoginAndParse
-from tmall_parse import TmallParse
+# from tmall_parse import TmallParse
+from tmall_parse_2 import TmallParse
 from jd_parse import JdParse
 from zhe_800_parse import Zhe800Parse
 from juanpi_parse import JuanPiParse
@@ -24,7 +25,7 @@ from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
 from my_pipeline import UserItemPipeline
 from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH, PINDUODUO_SPIDER_TO_SHOW_PATH, VIP_SPIDER_TO_SHOW_PATH
-from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT, MY_SPIDER_LOGS_PATH
+from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT, MY_SPIDER_LOGS_PATH, TMALL_SLEEP_TIME
 from settings import ERROR_HTML_CODE
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import BASIC_APP_KEY
@@ -83,9 +84,9 @@ my_lg = set_logger(
 def login():
     if request.method == 'POST':
         if request.form.get('username', '') != '' and request.form.get('passwd', '') != '':
-            username = str(request.form.get('username'))
-            passwd = str(request.form.get('passwd'))
-            print(username + ' : ' + passwd)
+            username = str(request.form.get('username', ''))
+            passwd = str(request.form.get('passwd', ''))
+            my_lg.info(str(username) + ' : ' + str(passwd))
         else:
             username, passwd = ('', '',)
 
@@ -97,7 +98,7 @@ def login():
             super_name, super_passwd = ('', '',)
 
         if super_name == ADMIN_NAME and super_passwd == ADMIN_PASSWD:   # 先判断是否为admin，如果是转向管理员管理界面
-            print('超级管理员密码匹配正确')
+            my_lg.info('超级管理员密码匹配正确')
             response = make_response(redirect('admin'))    # 重定向到新的页面
 
             # 加密
@@ -134,14 +135,14 @@ def login():
                     return response
             else:
                 # session['islogin'] = '0'
-                print('登录失败!请重新登录')
+                my_lg.info('登录失败!请重新登录')
                 return redirect('/')
     else:
         return render_template('login.html')
 
 @app.route('/select', methods=['GET', 'POST'])
 def select():
-    print('正在获取选择界面...')
+    my_lg.info('正在获取选择界面...')
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:   # 判断是否为非法登录
         if request.form.get('confirm_login'):       # 根据ajax请求类型的分别处理
             ajax_request = request.form.get('confirm_login')
@@ -192,7 +193,7 @@ def admin():
     管理员页面
     :return:
     '''
-    # print('正在获取登录界面...')
+    # my_lg.info('正在获取登录界面...')
     if request.cookies.get('super_name', '') == encrypt(key, ADMIN_NAME) and request.cookies.get('super_passwd', '') == encrypt(key, ADMIN_PASSWD):   # 判断是否为非法登录
         if request.method == 'POST':
             tmp_user = UserItemPipeline()
@@ -204,7 +205,7 @@ def admin():
                 if len(find_name) == 11 and re.compile(r'^1').findall(find_name) != []:                            # 根据手机号查找
                     result = tmp_user.find_user_by_username(username=find_name)
                     if result != []:
-                        print('查找成功!')
+                        my_lg.info('查找成功!')
                         # print(result)     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
                         data = [{
                             'username': result[0],
@@ -221,7 +222,7 @@ def admin():
                         return result.decode()
 
                     else:
-                        print('查找失败!')
+                        my_lg.info('查找失败!')
                         result = {
                             'reason': 'error',
                             'data': [],
@@ -232,9 +233,9 @@ def admin():
 
                 elif len(find_name) > 1 and len(find_name) <= 4:     # 根据用户名查找
                     result = tmp_user.find_user_by_real_name(name=find_name)
-                    print(result)
+                    my_lg.info(str(result))
                     if result != []:
-                        print('查找成功!')
+                        my_lg.info('查找成功!')
                         data = [{
                             'username': item[0],
                             'passwd': encrypt(key, item[1]),
@@ -250,7 +251,7 @@ def admin():
                         return result.decode()
 
                     else:
-                        print('查找失败!')
+                        my_lg.info('查找失败!')
                         result = {
                             'reason': 'error',
                             'data': [],
@@ -260,7 +261,7 @@ def admin():
                         result = json.dumps(result)
                         return result
                 else:
-                    print('find_name非法!')
+                    my_lg.info('find_name非法!')
                     result = {
                         'reason': 'error',
                         'data': [],
@@ -274,7 +275,7 @@ def admin():
                 update_name = request.form.get('update', '')
                 result = tmp_user.init_user_passwd(username=update_name)
                 if result:
-                    print('重置密码成功!')
+                    my_lg.info('重置密码成功!')
                     # 返回所有数据
                     result = tmp_user.select_all_info()
                     data = [{
@@ -292,7 +293,7 @@ def admin():
                     return result.decode()
 
                 else:
-                    print('重置密码失败!')
+                    my_lg.info('重置密码失败!')
                     result = tmp_user.select_all_info()
                     data = [{
                         'username': item[0],
@@ -313,7 +314,7 @@ def admin():
                 user_to_delete_list = list(request.form.getlist('user_to_delete_list[]'))
                 result = tmp_user.delete_users(item=user_to_delete_list)
                 if result:
-                    print('删除成功!')
+                    my_lg.info('删除成功!')
                     result = tmp_user.select_all_info()
                     data = [{
                         'username': item[0],
@@ -330,7 +331,7 @@ def admin():
                     return result.decode()
 
                 else:       # 删除失败(删除失败也返回数据库中所有注册员工的数据)，让前端提醒下，数据库异常，删除失败
-                    print('删除失败!')
+                    my_lg.info('删除失败!')
                     result = tmp_user.select_all_info()
                     data = [{
                         'username': item[0],
@@ -348,7 +349,7 @@ def admin():
 
             # 查看现有所有用户数据
             elif request.form.get('check_all_users', '') == 'True':
-                print('返回所有注册员工信息!')
+                my_lg.info('返回所有注册员工信息!')
                 result = tmp_user.select_all_info()
                 data = [{
                     'username': item[0],
@@ -393,9 +394,9 @@ def admin():
                 is_insert_into = tmp_user.insert_into_table(item)
 
                 if is_insert_into:
-                    print('用户 %s 注册成功!' % username)
+                    my_lg.info('用户 %s 注册成功!' % str(username))
                 else:
-                    print("用户注册失败!")
+                    my_lg.info("用户注册失败!")
 
                 return send_file('templates/admin.html')
 
@@ -453,7 +454,7 @@ def regist():
             is_insert_into = tmp_user.insert_into_table(item)
 
             if is_insert_into:
-                print('用户 %s 注册成功!' % username)
+                my_lg.info('用户 %s 注册成功!' % str(username))
                 return redirect('/')
             else:
                 return "用户注册失败!"
@@ -475,7 +476,7 @@ def show_ali_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:     # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass        # 让前端发个post请求, 重置页面
         else:
@@ -492,7 +493,7 @@ def show_taobao_info():
         return ERROR_HTML_CODE
 
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -508,7 +509,7 @@ def show_tmall_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -524,7 +525,7 @@ def show_jd_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -540,7 +541,7 @@ def show_zhe_800_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -556,7 +557,7 @@ def show_juanpi_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -572,7 +573,7 @@ def show_pinduoduo_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -588,7 +589,7 @@ def show_vip_info():
     if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
-        print('正在获取爬取页面...')
+        my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
@@ -601,11 +602,11 @@ def show_vip_info():
 def get_all_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            my_lg.info('发起获取请求的员工的username为: %s' % str(username))
 
             goodsLink = request.form.get('goodsLink')
 
@@ -616,7 +617,7 @@ def get_all_data():
                 else:
                     wait_to_deal_with_url = tmp_item[0]
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 result = {
                     'reason': 'error',
@@ -631,7 +632,7 @@ def get_all_data():
 
             goods_id = login_ali.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
             if goods_id == '':      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -646,7 +647,7 @@ def get_all_data():
             tmp_result = login_ali.get_ali_1688_data(goods_id=goods_id)
 
             if tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -661,7 +662,7 @@ def get_all_data():
             data = login_ali.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -754,79 +755,8 @@ def to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']                                 # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']                             # 商品地址
-                            tmp['username'] = data_list['username']                                 # 操作人员username
-                            # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
 
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-                            tmp['deal_with_time'] = now_time                                        # 操作时间
-                            tmp['modfiy_time'] = now_time                                           # 修改时间
-
-                            tmp['company_name'] = data_list['company_name']                         # 公司名称
-                            tmp['title'] = data_list['title']                                       # 商品名称
-                            tmp['link_name'] = data_list['link_name']                               # 卖家姓名
-
-                            # 设置最高价price， 最低价taobao_price
-                            if len(data_list['price_info']) > 1:
-                                tmp_ali_price = []
-                                for item in data_list['price_info']:
-                                    tmp_ali_price.append(float(item.get('price')))
-
-                                if tmp_ali_price == []:
-                                    tmp['price'] = Decimal(0).__round__(2)
-                                    tmp['taobao_price'] = Decimal(0).__round__(2)
-                                else:
-                                    tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)          # 得到最大值并转换为精度为2的decimal类型
-                                    tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
-                            elif len(data_list['price_info']) == 1:         # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
-                                if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
-                                    tmp_price_range = data_list['price_info'][0].get('price')
-                                    tmp_price_range = tmp_price_range.split('-')
-                                    tmp['price'] = tmp_price_range[1]
-                                    tmp['taobao_price'] = tmp_price_range[0]
-                                else:
-                                    tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-                                    tmp['taobao_price'] = tmp['price']
-                            else:   # 少于1
-                                tmp['price'] = Decimal(0).__round__(2)
-                                tmp['taobao_price'] = Decimal(0).__round__(2)
-
-                            tmp['price_info'] = data_list['price_info']                             # 价格信息
-
-                            spec_name = []
-                            for item in data_list['sku_props']:
-                                tmp_dic = {}
-                                tmp_dic['spec_name'] = item.get('prop')
-                                spec_name.append(tmp_dic)
-
-                            tmp['spec_name'] = spec_name                                            # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['sku_map'] = data_list.get('sku_map')                               # 每个规格对应价格及其库存
-
-                            tmp['all_img_url_info'] = data_list.get('all_img_url')                  # 所有示例图片地址
-
-                            tmp['property_info'] = data_list.get('property_info')                   # 详细信息
-                            tmp['detail_info'] = data_list.get('detail_info')                       # 下方div
-
-                            # 采集的来源地
-                            tmp['site_id'] = 2                                                      # 采集来源地(阿里1688批发市场)
-                            tmp['is_delete'] = 0                                                    # 逻辑删除, 未删除为0, 删除为1
-                            # tmp['is_modfiy'] = 0                                                    # 表示是否已修改，0未修改
-
+                            tmp = _get_ali_right_data(data=data_list)
                             # print('------>>> | 待存储的数据信息为: |', tmp)
                             print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -894,6 +824,77 @@ def to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_ali_right_data(data):
+    '''
+    得到规范格式的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['company_name'] = data_list['company_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['link_name'] = data_list['link_name']  # 卖家姓名
+
+    # 设置最高价price， 最低价taobao_price
+    if len(data_list['price_info']) > 1:
+        tmp_ali_price = []
+        for item in data_list['price_info']:
+            tmp_ali_price.append(float(item.get('price')))
+
+        if tmp_ali_price == []:
+            tmp['price'] = Decimal(0).__round__(2)
+            tmp['taobao_price'] = Decimal(0).__round__(2)
+        else:
+            tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+            tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
+    elif len(data_list['price_info']) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
+        if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
+            tmp_price_range = data_list['price_info'][0].get('price')
+            tmp_price_range = tmp_price_range.split('-')
+            tmp['price'] = tmp_price_range[1]
+            tmp['taobao_price'] = tmp_price_range[0]
+        else:
+            tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+            tmp['taobao_price'] = tmp['price']
+    else:  # 少于1
+        tmp['price'] = Decimal(0).__round__(2)
+        tmp['taobao_price'] = Decimal(0).__round__(2)
+
+    tmp['price_info'] = data_list['price_info']  # 价格信息
+
+    spec_name = []
+    for item in data_list['sku_props']:
+        tmp_dic = {}
+        tmp_dic['spec_name'] = item.get('prop')
+        spec_name.append(tmp_dic)
+
+    tmp['spec_name'] = spec_name  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['sku_map'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url_info'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['property_info'] = data_list.get('property_info')  # 详细信息
+    tmp['detail_info'] = data_list.get('detail_info')  # 下方div
+
+    # 采集的来源地
+    tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
+    tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+
+    return tmp
 
 ######################################################
 # taobao
@@ -1066,54 +1067,8 @@ def taobao_to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']             # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']         # 商品地址
-                            tmp['username'] = data_list['username']             # 操作人员username
-                            # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
 
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-                            tmp['deal_with_time'] = now_time                    # 操作时间
-
-                            tmp['modfiy_time'] = now_time                       # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']           # 公司名称
-                            tmp['title'] = data_list['title']                   # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']           # 商品子标题
-                            tmp['link_name'] = ''                               # 卖家姓名
-                            tmp['account'] = data_list['account']               # 掌柜名称
-                            tmp['month_sell_count'] = data_list['sell_count']   # 月销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []                              # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']     # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')   # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')      # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')              # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')          # 下方div
-
-                            # 采集的来源地
-                            tmp['site_id'] = 1      # 采集来源地(淘宝)
-                            tmp['is_delete'] = data_list.get('is_delete')    # 逻辑删除, 未删除为0, 删除为1
-
+                            tmp = _get_taobao_right_data(data=data_list)
                             # my_lg.info('------>>> | 待存储的数据信息为: |' + str(tmp))
                             my_lg.info('------>>> | 待存储的数据信息为: |' + tmp.get('goods_id', ''))
 
@@ -1184,24 +1139,70 @@ def taobao_to_save_data():
         result = json.dumps(result)
         return result
 
+def _get_taobao_right_data(data):
+    '''
+    得到规范格式的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+
+    # 设置最高价price， 最低价taobao_price
+    tmp['price'] = Decimal(data_list['price']).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    # 采集的来源地
+    tmp['site_id'] = 1  # 采集来源地(淘宝)
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+
+    return tmp
+
 ######################################################
 # tmall
 @app.route('/tmall_data', methods=['POST'])
 def get_tmall_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            my_lg.info('发起获取请求的员工的username为: %s' % username)
 
             goodsLink = request.form.get('goodsLink')
 
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 result = {
                     'reason': 'error',
@@ -1212,11 +1213,11 @@ def get_tmall_data():
                 result = json.dumps(result)
                 return result
 
-            login_tmall = TmallParse()
+            login_tmall = TmallParse(logger=my_lg)
 
             goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == []:      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -1235,10 +1236,11 @@ def get_tmall_data():
             elif goods_id[0] == 1:      # [1, '1111']
                 wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
             elif goods_id[0] == 2:      # [2, '1111', 'https://xxxxx']
-                wait_to_deal_with_url = str(goods_id[2]) + goods_id[1]
+                wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
             tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
+            time.sleep(TMALL_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
             if tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -1253,7 +1255,7 @@ def get_tmall_data():
             data = login_tmall.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -1279,15 +1281,15 @@ def get_tmall_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
             result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(result_json.decode()))
+            my_lg.info('-------------------------------')
 
             del login_tmall       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             gc.collect()        # 手动回收即可立即释放需要删除的资源
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             result = {
                 'reason': 'error',
                 'data': '',
@@ -1314,8 +1316,8 @@ def tmall_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            # my_lg.info('缓存中待存储url的list为: %s' % str(tmp_wait_to_save_data_list))
+            my_lg.info('获取到的待存取的url的list为: %s' % str(wait_to_save_data_url_list))
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = []
                 for item in wait_to_save_data_url_list:
@@ -1360,85 +1362,35 @@ def tmall_to_save_data():
                                     tmp_goods_id = goods_id
                                     tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
                                 else:       # 非正确的天猫商品url
-                                    print('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
+                                    my_lg.info('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
                                     pass
 
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+                my_lg.info('获取到的待存取的goods_id的list为: %s' % str(wait_to_save_data_goods_id_list))
 
                 # list里面的dict去重
                 ll_list = []
                 [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
                 tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+                # my_lg.info('所有待存储的数据: %s' % str(tmp_wait_to_save_data_list))
 
                 goods_to_delete = []
                 tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
                 for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
                     for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
+                            my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
-                            tmp['username'] = data_list['username']  # 操作人员username
-                            # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
 
-                            tmp['deal_with_time'] = now_time            # 操作时间
-                            tmp['modfiy_time'] = now_time               # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']   # 公司名称
-                            tmp['title'] = data_list['title']  # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']   # 商品子标题
-                            tmp['link_name'] = ''  # 卖家姓名
-                            tmp['account'] = data_list['account']  # 掌柜名称
-                            tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []  # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-                            # 采集的来源地
-                            if data_list.get('type') == 0:
-                                tmp['site_id'] = 3                  # 采集来源地(天猫)
-                            elif data_list.get('type') == 1:
-                                tmp['site_id'] = 4                  # 采集来源地(天猫超市)
-                            elif data_list.get('type') == 2:
-                                tmp['site_id'] = 6                  # 采集来源地(天猫国际)
-                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-                            # print('is_delete=', tmp['is_delete'])
-
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            tmp = _get_tmall_right_data(data=data_list)
+                            # my_lg.info('------>>> | 待存储的数据信息为: |%s' % str(tmp))
+                            my_lg.info('------>>> | 待存储的数据信息为: |%s' % str(tmp.get('goods_id')))
 
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
                             except IndexError as e:
-                                print('索引越界, 此处我设置为跳过')
+                                my_lg.info('索引越界, 此处我设置为跳过')
                             # tmp_wait_to_save_data_list.pop(index)
                             finally:
                                 pass
@@ -1448,18 +1400,18 @@ def tmall_to_save_data():
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
                 for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                    # my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item))
+                    my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item.get('goods_id')))
 
                     is_insert_into = my_page_info_save_item_pipeline.insert_into_tmall_table(item)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
-                        # print('插入失败!')
+                        # my_lg.info('插入失败!')
                         pass
 
                 tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
+                my_lg.info('存入完毕'.center(100, '*'))
                 del my_page_info_save_item_pipeline
                 gc.collect()
 
@@ -1473,7 +1425,7 @@ def tmall_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
+                my_lg.info('saveData为空!')
                 result = {
                     'reason': 'error',
                     'data': '',
@@ -1482,7 +1434,7 @@ def tmall_to_save_data():
                 result = json.dumps(result)
                 return result
         else:
-            print('saveData为空!')
+            my_lg.info('saveData为空!')
             result = {
                 'reason': 'error',
                 'data': '',
@@ -1499,6 +1451,58 @@ def tmall_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_tmall_right_data(data):
+    '''
+    得到规范化的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+
+    # 设置最高价price， 最低价taobao_price
+    tmp['price'] = Decimal(data_list['price']).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    # 采集的来源地
+    if data_list.get('type') == 0:
+        tmp['site_id'] = 3  # 采集来源地(天猫)
+    elif data_list.get('type') == 1:
+        tmp['site_id'] = 4  # 采集来源地(天猫超市)
+    elif data_list.get('type') == 2:
+        tmp['site_id'] = 6  # 采集来源地(天猫国际)
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    # my_lg.info('is_delete=%s' % str(tmp['is_delete']))
+
+    return tmp
 
 ######################################################
 # jd
@@ -1675,61 +1679,8 @@ def jd_to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
-                            tmp['username'] = data_list['username']  # 操作人员username
-                            # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
 
-                            tmp['deal_with_time'] = now_time  # 操作时间
-                            tmp['modfiy_time'] = now_time  # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']  # 公司名称
-                            tmp['title'] = data_list['title']  # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-                            tmp['link_name'] = ''  # 卖家姓名
-                            tmp['account'] = data_list['account']  # 掌柜名称
-                            tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []  # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-                            # 采集的来源地
-                            if data_list.get('jd_type') == 7:
-                                tmp['site_id'] = 7  # 采集来源地(京东)
-                            elif data_list.get('jd_type') == 8:
-                                tmp['site_id'] = 8  # 采集来源地(京东超市)
-                            elif data_list.get('jd_type') == 9:
-                                tmp['site_id'] = 9  # 采集来源地(京东全球购)
-                            elif data_list.get('jd_type') == 10:
-                                tmp['site_id'] = 10 # 采集来源地(京东大药房)
-
-                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-                            # print('is_delete=', tmp['is_delete'])
-
+                            tmp = _get_jd_right_data(data=data_list)
                             # print('------>>> | 待存储的数据信息为: |', tmp)
                             print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -1798,6 +1749,61 @@ def jd_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_jd_right_data(data):
+    '''
+    得到规范化的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
+
+    # 设置最高价price， 最低价taobao_price
+    tmp['price'] = Decimal(data_list['price']).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    # 采集的来源地
+    if data_list.get('jd_type') == 7:
+        tmp['site_id'] = 7  # 采集来源地(京东)
+    elif data_list.get('jd_type') == 8:
+        tmp['site_id'] = 8  # 采集来源地(京东超市)
+    elif data_list.get('jd_type') == 9:
+        tmp['site_id'] = 9  # 采集来源地(京东全球购)
+    elif data_list.get('jd_type') == 10:
+        tmp['site_id'] = 10  # 采集来源地(京东大药房)
+
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    # print('is_delete=', tmp['is_delete'])
+
+    return tmp
 
 ######################################################
 # 折800
@@ -1982,56 +1988,8 @@ def zhe_800_to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
-                            tmp['username'] = data_list['username']  # 操作人员username
 
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-                            tmp['deal_with_time'] = now_time  # 操作时间
-                            tmp['modfiy_time'] = now_time  # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']  # 公司名称
-                            tmp['title'] = data_list['title']  # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-                            tmp['link_name'] = ''  # 卖家姓名
-                            tmp['account'] = data_list['account']  # 掌柜名称
-                            # tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []  # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-                            tmp['schedule'] = data_list.get('schedule')
-
-                            # 采集的来源地
-                            tmp['site_id'] = 11  # 采集来源地(折800常规商品)
-
-                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-                            # print('is_delete=', tmp['is_delete'])
-
+                            tmp = _get_zhe_800_right_data(data=data_list)
                             # print('------>>> | 待存储的数据信息为: |', tmp)
                             print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -2100,6 +2058,56 @@ def zhe_800_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_zhe_800_right_data(data):
+    '''
+    得到规范化数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    # tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
+
+    # 设置最高价price， 最低价taobao_price
+    tmp['price'] = Decimal(data_list['price']).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    tmp['schedule'] = data_list.get('schedule')
+
+    # 采集的来源地
+    tmp['site_id'] = 11  # 采集来源地(折800常规商品)
+
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    # print('is_delete=', tmp['is_delete'])
+
+    return tmp
 
 ######################################################
 # 卷皮
@@ -2266,63 +2274,15 @@ def juanpi_to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
-                            tmp['username'] = data_list['username']  # 操作人员username
 
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-                            tmp['deal_with_time'] = now_time  # 操作时间
-                            tmp['modfiy_time'] = now_time  # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']  # 公司名称
-                            tmp['title'] = data_list['title']  # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-                            tmp['link_name'] = ''  # 卖家姓名
-                            tmp['account'] = data_list['account']  # 掌柜名称
-                            # tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []  # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-                            tmp['schedule'] = data_list.get('schedule')
-
-                            # 采集的来源地
-                            tmp['site_id'] = 12  # 采集来源地(卷皮常规商品)
-
-                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-                            # print('is_delete=', tmp['is_delete'])
-
+                            tmp = _get_juanpi_right_data(data=data_list)
                             # print('------>>> | 待存储的数据信息为: |', tmp)
                             print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
+                            except IndexError:
                                 print('索引越界, 此处我设置为跳过')
                             # tmp_wait_to_save_data_list.pop(index)
                             finally:
@@ -2384,6 +2344,56 @@ def juanpi_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_juanpi_right_data(data):
+    '''
+    得到规范化的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    # tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
+
+    # 设置最高价price， 最低价taobao_price
+    tmp['price'] = Decimal(data_list['price']).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    tmp['schedule'] = data_list.get('schedule')
+
+    # 采集的来源地
+    tmp['site_id'] = 12  # 采集来源地(卷皮常规商品)
+
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    # print('is_delete=', tmp['is_delete'])
+
+    return tmp
 
 ######################################################
 # 拼多多
@@ -2552,56 +2562,8 @@ def pinduoduo_to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
-                            tmp['username'] = data_list['username']  # 操作人员username
 
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-                            tmp['deal_with_time'] = now_time  # 操作时间
-                            tmp['modfiy_time'] = now_time  # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']  # 公司名称
-                            tmp['title'] = data_list['title']  # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-                            tmp['link_name'] = ''  # 卖家姓名
-                            tmp['account'] = data_list['account']  # 掌柜名称
-                            tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []  # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-                            tmp['schedule'] = data_list.get('schedule')
-
-                            # 采集的来源地
-                            tmp['site_id'] = 13  # 采集来源地(卷皮常规商品)
-
-                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-                            # print('is_delete=', tmp['is_delete'])
-
+                            tmp = _get_pinduoduo_right_data(data=data_list)
                             # print('------>>> | 待存储的数据信息为: |', tmp)
                             print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -2670,6 +2632,56 @@ def pinduoduo_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_pinduoduo_right_data(data):
+    '''
+    得到规范化的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
+
+    # 设置最高价price， 最低价taobao_price
+    tmp['price'] = Decimal(data_list['price']).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    tmp['schedule'] = data_list.get('schedule')
+
+    # 采集的来源地
+    tmp['site_id'] = 13  # 采集来源地(卷皮常规商品)
+
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    # print('is_delete=', tmp['is_delete'])
+
+    return tmp
 
 ######################################################
 # 唯品会
@@ -2859,62 +2871,8 @@ def vip_to_save_data():
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
                             print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
-                            tmp = {}
-                            tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-                            tmp['spider_url'] = data_list['spider_url']  # 商品地址
-                            tmp['username'] = data_list['username']  # 操作人员username
 
-                            '''
-                            时区处理，时间处理到上海时间
-                            '''
-                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                            now_time = datetime.datetime.now(tz)
-                            # 处理为精确到秒位，删除时区信息
-                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                            # 将字符串类型转换为datetime类型
-                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-                            tmp['deal_with_time'] = now_time  # 操作时间
-                            tmp['modfiy_time'] = now_time  # 修改时间
-
-                            tmp['shop_name'] = data_list['shop_name']  # 公司名称
-                            tmp['title'] = data_list['title']  # 商品名称
-                            tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-                            tmp['link_name'] = ''  # 卖家姓名
-                            tmp['account'] = data_list['account']  # 掌柜名称
-                            tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
-
-                            # 设置最高价price， 最低价taobao_price
-                            if isinstance(data_list['price'], Decimal):
-                                tmp['price'] = data_list['price']
-                            else:
-                                tmp['price'] = Decimal(data_list['price']).__round__(2)
-                            if isinstance(data_list['taobao_price'], Decimal):
-                                tmp['taobao_price'] = data_list['taobao_price']
-                            else:
-                                tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-                            tmp['price_info'] = []  # 价格信息
-
-                            tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-                            """
-                            得到sku_map
-                            """
-                            tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-                            tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-                            tmp['p_info'] = data_list.get('p_info')  # 详细信息
-                            tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-                            tmp['schedule'] = data_list.get('schedule')
-
-                            # 采集的来源地
-                            tmp['site_id'] = 25  # 采集来源地(卷皮常规商品)
-
-                            tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-                            # print('is_delete=', tmp['is_delete'])
-
+                            tmp = _get_vip_right_data(data=data_list)
                             # print('------>>> | 待存储的数据信息为: |', tmp)
                             print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -2985,6 +2943,62 @@ def vip_to_save_data():
         result = json.dumps(result)
         return result
 
+def _get_vip_right_data(data):
+    '''
+    得到规范化的数据
+    :param data:
+    :return:
+    '''
+    data_list = data
+    tmp = {}
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['deal_with_time'] = now_time  # 操作时间
+    tmp['modfiy_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
+
+    # 设置最高价price， 最低价taobao_price
+    if isinstance(data_list['price'], Decimal):
+        tmp['price'] = data_list['price']
+    else:
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+    if isinstance(data_list['taobao_price'], Decimal):
+        tmp['taobao_price'] = data_list['taobao_price']
+    else:
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    tmp['schedule'] = data_list.get('schedule')
+
+    # 采集的来源地
+    tmp['site_id'] = 25  # 采集来源地(卷皮常规商品)
+
+    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    # print('is_delete=', tmp['is_delete'])
+
+    return tmp
+
 ######################################################
 
 @app.route('/basic_data', methods=['POST'])
@@ -3018,7 +3032,7 @@ def get_basic_data():
 
                 goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
                 if goods_id == '':  # 如果得不到goods_id, 则return error
-                    print('获取到的goods_id为空!')
+                    my_lg.info('获取到的goods_id为空!')
                     result = {
                         'reason': 'error',
                         'data': '',
@@ -3034,7 +3048,7 @@ def get_basic_data():
                 tmp_result = basic_taobao.get_goods_data(goods_id=goods_id)
                 time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
                 if tmp_result == {}:
-                    print('获取到的data为空!')
+                    my_lg.info('获取到的data为空!')
                     result = {
                         'reason': 'error',
                         'data': '',
@@ -3049,7 +3063,7 @@ def get_basic_data():
                 data = basic_taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
 
                 if data == {}:
-                    print('获取到的data为空!')
+                    my_lg.info('获取到的data为空!')
                     result = {
                         'reason': 'error',
                         'data': '',
@@ -3089,11 +3103,11 @@ def get_basic_data():
                 or re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
                 or re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(wait_to_deal_with_url) != []:
 
-                basic_tmall = TmallParse()
+                basic_tmall = TmallParse(logger=my_lg)
 
                 goods_id = basic_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
                 if goods_id == []:  # 如果得不到goods_id, 则return error
-                    print('获取到的goods_id为空!')
+                    my_lg.info('获取到的goods_id为空!')
                     result = {
                         'reason': 'error',
                         'data': '',
@@ -3112,10 +3126,10 @@ def get_basic_data():
                 elif goods_id[0] == 1:  # [1, '1111']
                     wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
                 elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
-                    wait_to_deal_with_url = str(goods_id[2]) + goods_id[1]
+                    wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
                 tmp_result = basic_tmall.get_goods_data(goods_id=goods_id)
                 if tmp_result == {}:
-                    print('获取到的data为空!')
+                    my_lg.info('获取到的data为空!')
                     result = {
                         'reason': 'error',
                         'data': '',
@@ -3130,7 +3144,7 @@ def get_basic_data():
                 data = basic_tmall.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
 
                 if data == {}:
-                    print('获取到的data为空!')
+                    my_lg.info('获取到的data为空!')
                     result = {
                         'reason': 'error',
                         'data': '',
@@ -3158,9 +3172,9 @@ def get_basic_data():
                 }
 
                 result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('------>>>| 下面是爬取到的页面信息: ')
-                print(result_json.decode())
-                print('-------------------------------')
+                my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+                my_lg.info(str(result_json.decode()))
+                my_lg.info('-------------------------------')
 
                 del basic_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
                 gc.collect()  # 手动回收即可立即释放需要删除的资源
@@ -3318,8 +3332,8 @@ def decrypt(key, s):
         return "failed"
 
 if __name__ == "__main__":
-    print('服务器已经启动...等待接入中...')
-    print('http://0.0.0.0:{}'.format(str(SERVER_PORT),))
+    my_lg.info('服务器已经启动...等待接入中...')
+    my_lg.info('http://0.0.0.0:{0}'.format(str(SERVER_PORT),))
 
     WSGIServer(listener=('0.0.0.0', SERVER_PORT), application=app).serve_forever()      # 采用高并发部署
 

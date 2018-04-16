@@ -153,7 +153,7 @@ def test():
     except:
         pass
 
-test()
+# test()
 
 class VipParse(object):
     def __init__(self):

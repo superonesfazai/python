@@ -10,54 +10,66 @@
 import sys
 sys.path.append('..')
 
-from tmall_parse import TmallParse
+# from tmall_parse import TmallParse
+from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_utils import get_shanghai_time, daemon_init
+from my_logging import set_logger
 
 import gc
 from time import sleep
 import datetime
 import json
-from settings import IS_BACKGROUND_RUNNING
+from logging import INFO, ERROR
+from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
+from settings import TMALL_SLEEP_TIME, TMALL_REAL_TIMES_SLEEP_TIME
 
 def run_forever():
     while True:
+        # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
+        my_lg = set_logger(
+            log_file_name=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
+            console_log_level=INFO,
+            file_log_level=ERROR
+        )
+
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
             result = list(tmp_sql_server.select_tmall_all_goods_id_url())
-        except TypeError as e:
-            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
+        except TypeError:
+            my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
+            my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            my_lg.info(str(result))
+            my_lg.info('--------------------------------------------------------')
 
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            tmall = TmallParse()
+            tmall = TmallParse(logger=my_lg)
             for item in result:  # 实时更新数据
-                data = {}
                 if index % 5 == 0:
-                    tmall = TmallParse()
+                    try:del tmall
+                    except: pass
+                    tmall = TmallParse(logger=my_lg)
                     gc.collect()
 
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
+                if index % 10 == 0:    # 每10次重连一次，避免单次长连无响应报错
+                    my_lg.info('正在重置，并与数据库建立新连接中...')
                     # try:
                     #     del tmp_sql_server
                     # except:
                     #     pass
                     # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
+                    my_lg.info('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[1], index))
+                    my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(item[1]), str(index)))
                     tmp_item = []
                     if item[0] == 3:        # 从数据库中取出时，先转换为对应的类型
                         tmp_item.append(0)
@@ -68,6 +80,8 @@ def run_forever():
                     tmp_item.append(item[1])
                     data = tmall.get_goods_data(goods_id=tmp_item)
                     if isinstance(data, int):       # 单独处理return 4041
+                        index += 1
+                        sleep(TMALL_REAL_TIMES_SLEEP_TIME)
                         continue
 
                     if data.get('is_delete') == 1:  # 单独处理下架商品
@@ -79,10 +93,10 @@ def run_forever():
                             MyShelfAndDownTime=item[3]
                         )
 
-                        # print('------>>>| 爬取到的数据为: ', data)
+                        # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
 
-                        sleep(1.5)
+                        sleep(TMALL_REAL_TIMES_SLEEP_TIME)
                         index += 1
                         gc.collect()
                         continue
@@ -97,21 +111,17 @@ def run_forever():
                             MyShelfAndDownTime=item[3]
                         )
 
-                        # print('------>>>| 爬取到的数据为: ', data)
+                        # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         pass
                 else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
+                    my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                # try:
-                #     del tmall
-                # except:
-                #     pass
                 gc.collect()
-                sleep(2)
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+                sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+            my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:

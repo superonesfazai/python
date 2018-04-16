@@ -23,13 +23,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import selenium.webdriver.support.ui as ui
-from scrapy import Selector
+from selenium.webdriver.support.expected_conditions import WebDriverException
 from urllib.request import urlopen
 from PIL import Image
 from time import sleep
 import gc
+from scrapy.selector import Selector
 
-from settings import PHANTOMJS_DRIVER_PATH, HEADERS
+from settings import PHANTOMJS_DRIVER_PATH, HEADERS, PHONE_HEADERS
+from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
 import pytz, datetime
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
@@ -45,8 +47,8 @@ class TmallParse(object):
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'acs.m.taobao.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'Host': 'detail.m.tmall.com',
+            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
         }
         self.result_data = {}
         self.init_phantomjs()
@@ -66,22 +68,37 @@ class TmallParse(object):
         print('------>>>| 得到的移动端地址为: ', tmp_url)
 
         # 不用requests的原因是要带cookies才能请求到数据
-        # response = requests.get(tmp_url, headers=self.headers)
+        # response = requests.get(tmp_url, headers=self.headers, allow_redirects=False)
+        # print(response.text)
+
         self.driver.set_page_load_timeout(15)
         try:
-            # print('444')
             self.driver.get(tmp_url)
             self.driver.implicitly_wait(15)  # 隐式等待和显式等待可以同时使用
 
+            if list(Selector(text=self._wash_body(self.driver.page_source)).css('a.f-left').extract()) != []:
+                # 研究发现只有部分商品需要登录，所以先不进行处理
+                '''遇到要求登录的 ## 未完成，待续...'''
+                print('要求淘宝登录...')
+                # 要求淘宝登录就先登录
+                self.driver.find_element_by_name('TPL_username').send_keys(TAOBAO_USERNAME)
+                self.driver.find_element_by_name('TPL_password').send_keys(TAOBAO_PASSWD)
+
+                self.driver.find_element_by_css_selector('button#btn-submit').click()
+                self.driver.find_element_by_css_selector('span.km-dialog-btn').click()
+                self.driver.find_element_by_css_selector('div.icon.nc-iconfont.icon-notclick').click()
+                print('淘宝登录完成!')
+                sleep(3)
+                # self.driver.save_screenshot('11.png')
+                print('此处打印结果未成功登录! 未完成，待续...')
+                # print(self._wash_body(self.driver.page_source))
+
             locator = (By.CSS_SELECTOR, 'div#J_mod4')
             try:
-                WebDriverWait(self.driver, 15, 0.5).until(EC.presence_of_element_located(locator))
-            except Exception as e:
+                WebDriverWait(self.driver, 15, 0.2).until(EC.presence_of_element_located(locator))
+            except WebDriverException as e:
                 print('遇到错误: ', e)
-                body_s = self.driver.page_source
-                body_s = re.compile(r'\n').sub('', body_s)
-                body_s = re.compile(r'\t').sub('', body_s)
-                body_s = re.compile(r'  ').sub('', body_s)
+                body_s = self._wash_body(self.driver.page_source)
                 # print(body_s)
 
                 # 下架商品单独处理
@@ -107,13 +124,11 @@ class TmallParse(object):
 
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
             print('-->>time out after 15 seconds when loading page')
+            print('遇到错误:', e)
             self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             # pass
 
-        body = self.driver.page_source
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
+        body = self._wash_body(self.driver.page_source)
         # print(body)
 
         body_1 = re.compile(r'var _DATA_Detail = (.*?);</script>').findall(body)
@@ -743,13 +758,22 @@ class TmallParse(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = False
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
+        # cap['phantomjs.page.settings.userAgent'] = PHONE_HEADERS[randint(0, len(PHONE_HEADERS)-1)]  # 随机一个请求头
+
+        # cap['phantomjs.page.customHeaders.Cookie'] = _tmall_cookies
         tmp_execute_path = EXECUTABLE_PATH
         self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
         # self.driver.set_window_size(1200, 2000)      # 设置默认大小，避免默认大小显示
         wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
+
+    def _wash_body(self, body_s):
+        body_s = re.compile(r'\n').sub('', body_s)
+        body_s = re.compile(r'\t').sub('', body_s)
+        body_s = re.compile(r'  ').sub('', body_s)
+
+        return body_s
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
         ip_list = MyIpPools()

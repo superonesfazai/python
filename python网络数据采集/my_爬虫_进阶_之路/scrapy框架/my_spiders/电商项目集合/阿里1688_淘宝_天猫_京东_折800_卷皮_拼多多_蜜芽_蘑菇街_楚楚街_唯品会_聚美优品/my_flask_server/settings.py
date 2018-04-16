@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import json
+
 """
 驱动相关设置
 """
@@ -26,6 +28,32 @@ db_info_json_path
 db_info_json_path = '/Users/afa/my_company_db_info.json'
 # linux服务器
 # db_info_json_path = '/root/my_company_db_info.json'
+
+'''
+taobao
+'''
+# 自己电脑
+taobao_u_and_p_path = '/Users/afa/my_username_and_passwd.json'
+# linux服务器
+# taobao_u_and_p_path = '/root/my_username_and_passwd.json'
+
+def get_u_and_p_info():
+    try:
+        with open(taobao_u_and_p_path, 'r') as f:
+            _tmp = json.loads(f.readline())
+    except FileNotFoundError:
+        print('严重错误, 数据库初始配置json文件未找到!请检查!')
+        return ('', '')
+    except Exception as e:
+        print('错误如下: ', e)
+        return ('', '')
+
+    return _tmp['taobao_username'], _tmp['taobao_passwd']
+
+TAOBAO_USERNAME, TAOBAO_PASSWD = get_u_and_p_info()
+
+# 避免登录弹窗
+_tmall_cookies = 't=1a77751093aca97df6ff633d179a4153; _tb_token_=e3dfee4bb4eb3; cookie2=1d639cd1684a3541c57c553d6854615a; dnk=zy118; uc1=cookie21=V32FPkk%2Fgi8IDE%2FSq3xx&cookie15=VT5L2FSpMGV7TQ%3D%3D&cookie14=UoTePTIfvOsB5w%3D%3D; uc3=vt3=F8dBz4D6JuPl1o5Emq4%3D&id2=VW8dqnjNBhw%3D&nk2=GdFnyJY%3D&lg2=VFC%2FuZ9ayeYq2g%3D%3D; tracknick=zy118; _l_g_=Ug%3D%3D; unb=60387916; lgc=zy118; cookie1=B0Bahel1MMqhEHy5Lu5lvH1XHjVvXnxb65n13jIusnA%3D; login=true; cookie17=VW8dqnjNBhw%3D; _nk_=zy118; sg=869; csg=fe1c2ee8; ucn=unsz; _m_h5_tk=524e6b249bd8003b8d30d129494a7e03_1523702758043; _m_h5_tk_enc=8b107feac79bc4f6b98a3b2838e3913c; cna=xMFYEyS2NhQCAaQ0DFNuhw68; isg=BJycLPyHKn6hed6i9U6YY7ZsbbyOvUCEPiF1fHadrgdqwTxLniUQzxJzJSk5yXiX'
 
 """
 日志文件目录
@@ -53,6 +81,11 @@ JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING = False
 TAOBAO_SLEEP_TIME = 1.4     # 这个在服务器里面可以注释掉为.4s
 
 '''
+天猫requests间接请求时间
+'''
+TMALL_SLEEP_TIME = 1.5      # 这个在服务器里可以注释为.4s
+
+'''
 select.html的name
 '''
 SELECT_HTML_NAME = 'select.html'
@@ -61,6 +94,11 @@ SELECT_HTML_NAME = 'select.html'
 淘宝实时更新的sleep_time(接口请求限频,2秒以上比较保险)
 '''
 TAOBAO_REAL_TIMES_SLEEP_TIME = 2      # 加拿大服务器可以设置为.4s
+
+'''
+天猫实时更新的sleep_time(接口请求限频,2秒以上比较保险)
+'''
+TMALL_REAL_TIMES_SLEEP_TIME = 2      # 加拿大服务器可以设置为.4s
 
 '''
 折800 session_id相关

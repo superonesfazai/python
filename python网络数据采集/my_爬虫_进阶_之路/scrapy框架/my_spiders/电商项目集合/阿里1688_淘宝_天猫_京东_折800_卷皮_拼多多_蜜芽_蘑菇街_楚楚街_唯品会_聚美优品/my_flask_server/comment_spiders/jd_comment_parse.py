@@ -43,7 +43,6 @@ class JdCommentParse(object):
             'content-type': 'application/x-www-form-urlencoded',
             'accept': 'application/json',
             'referer': 'https://item.m.jd.com/ware/view.action?wareId=5025518',
-            'authority': 'item.m.jd.com',
             'x-requested-with': 'XMLHttpRequest',
         }
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
@@ -54,6 +53,7 @@ class JdCommentParse(object):
             self.result_data = {}
             return {}
         self.my_lg.info('待抓取的goods_id: %s' % goods_id)
+        self.goods_id = goods_id
 
         # 测试发现得带cookies, 详细到cookies中的sid字符必须有
         # 先获取cookies
@@ -71,9 +71,57 @@ class JdCommentParse(object):
 
             params = self._set_params(goods_id=goods_id, current_page=current_page)
             body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params)
-            self.my_lg.info(str(body))
+            # self.my_lg.info(str(body))
+
+            _data = self._json_2_dict(body).get('wareDetailComment', {}).get('commentInfoList', [])
+            _tmp_comment_list += _data
 
             sleep(self.comment_page_switch_sleep_time)
+
+        try:
+            _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
+        except Exception as e:
+            self.my_lg.error('出错goods_id:{0}'.format(goods_id))
+            self.my_lg.exception(e)
+            self.result_data = {}
+            return {}
+
+        self.result_data = {
+            'goods_id': str(goods_id),
+            'modify_time': datetime.datetime.now(),
+            '_comment_list': _comment_list,
+        }
+        pprint(self.result_data)
+        return self.result_data
+
+    def _get_comment_list(self, _tmp_comment_list):
+        '''
+        转换成需求的结果集
+        :param _tmp_comment_list:
+        :return:
+        '''
+        _comment_list = []
+        for item in _tmp_comment_list:
+            _comment_date = item.get('commentDate', '')
+            assert _comment_date != '', '得到的_comment_date为空str!请检查!'
+
+            # sku_info
+            ware_attributes = item.get('wareAttributes', [])
+            _ = ' '.join([i.get('key', '')+':'+i.get('value', '') for i in ware_attributes])
+
+    def _json_2_dict(self, json_str):
+        '''
+        json2dict
+        :param json_str:
+        :return:
+        '''
+        try:
+            _ = json.loads(json_str)
+        except:
+            self.my_lg.error('json.loads转换json_str时出错! 出错goods_id: ' + self.goods_id)
+            return {}
+
+        return _
 
     def _set_params(self, goods_id, current_page):
         '''
@@ -90,7 +138,7 @@ class JdCommentParse(object):
           ('category', '670_671_1105'),
           ('isUseMobile', 'true'),
           ('evokeType', ''),
-          ('type', '0'),
+          ('type', '3'),        # '0' 全部评论 | '3' 好评
           ('isCurrentSku', 'false'),
         ]
 

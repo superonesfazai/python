@@ -90,6 +90,7 @@ print(pytesseract.image_to_string(img))
 # image = Image.open('./images/tesseract_test.jpg')
 # image = Image.open('./images/seccode.jpeg')
 # image = Image.open('./images/zhe_800.jpg')
+# image = Image.open('./images/get_img.jpeg')
 # text = pytesseract.image_to_string(image)
 
 # print(text)

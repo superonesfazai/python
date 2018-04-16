@@ -24,6 +24,9 @@ import re, datetime, json
 from pprint import pprint
 
 class ALi1688CommentParse(object):
+    '''
+    阿里1688评论抓取解析类
+    '''
     def __init__(self, logger=None):
         super().__init__()
         self.result_data = {}
@@ -92,7 +95,7 @@ class ALi1688CommentParse(object):
                 comment_date = self._get_comment_date(comment_date)     # str '2017-01-25 17:06:00'
                 tmp_sku_info = str(Selector(text=item).css('div.date::text').extract_first())
                 comment = [{
-                    'comment': str(Selector(text=item).css('div.bd::text').extract_first()),
+                    'comment': self._wash_comment(str(Selector(text=item).css('div.bd::text').extract_first())),
                     'comment_date': comment_date,                                               # 评论创建日期
                     'sku_info': re.compile(r'<span.*?</span>').sub('', tmp_sku_info),           # 购买的商品规格
                     'img_url_list': [],
@@ -178,6 +181,16 @@ class ALi1688CommentParse(object):
         # }
         # pprint(self.result_data)
         # return self.result_data
+
+    def _wash_comment(self, comment:str):
+        '''
+        清洗comment
+        :param comment:
+        :return:
+        '''
+        comment = re.compile('1688|合作|阿里').sub('', comment)
+
+        return comment
 
     def _set_url(self, url, params):
         '''

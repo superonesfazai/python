@@ -754,10 +754,9 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
 
-    def update_tmall_table(self, item):
+    def update_tmall_table(self, item, logger):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
                 item['modfiy_time'],
                 item['shop_name'],
@@ -785,17 +784,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))
             self.conn.commit()
             cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
                 cs.close()
             except Exception:
                 pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
+            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item['goods_id'])
+            logger.exception(e)
+
+            return False
 
     def old_tmall_goods_insert_into_new_table(self, item):
         cs = self.conn.cursor()

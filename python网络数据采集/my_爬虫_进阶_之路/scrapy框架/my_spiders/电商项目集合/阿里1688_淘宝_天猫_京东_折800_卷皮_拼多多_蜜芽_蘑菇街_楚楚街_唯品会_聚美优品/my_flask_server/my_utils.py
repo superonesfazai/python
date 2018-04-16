@@ -9,10 +9,12 @@
 
 import pytz, datetime, re
 import sys, os, time
+from pprint import pprint
 
 def get_shanghai_time():
     '''
     时区处理，时间处理到上海时间
+    :return: datetime类型
     '''
     # 时区处理，时间处理到上海时间
     # pytz查询某个国家时区
@@ -122,3 +124,31 @@ def _get_url_contain_params(url, params):
     :return: url
     '''
     return url + '?' + '&'.join([item[0] + '=' + item[1] for item in params])
+
+def str_cookies_2_dict(str_cookies):
+    '''
+    cookies字符串转dict
+    :param str_cookies:
+    :return:
+    '''
+    _ = [(i.split('=')[0], i.split('=')[1]) for i in str_cookies.replace(' ', '').split(';')]
+
+    cookies_dict = {}
+    for item in _:
+        cookies_dict.update({item[0]: item[1]})
+
+    return cookies_dict
+
+def tuple_or_list_params_2_dict_params(params):
+    '''
+    tuple和list类型的params转dict类型的params
+    :param params:
+    :return:
+    '''
+    _ = {}
+    for item in params:
+        _.update({
+            item[0]: item[1]
+        })
+
+    return _
