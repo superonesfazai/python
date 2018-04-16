@@ -23,14 +23,17 @@ from zhe_800_parse import Zhe800Parse
 from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
-from my_pipeline import UserItemPipeline
-from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH, JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH, PINDUODUO_SPIDER_TO_SHOW_PATH, VIP_SPIDER_TO_SHOW_PATH
+
+from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH
+from settings import JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH
+from settings import PINDUODUO_SPIDER_TO_SHOW_PATH, VIP_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT, MY_SPIDER_LOGS_PATH, TMALL_SLEEP_TIME
 from settings import ERROR_HTML_CODE
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import BASIC_APP_KEY
 from settings import TAOBAO_SLEEP_TIME
 from settings import SELECT_HTML_NAME
+
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, UserItemPipeline
 from my_logging import set_logger
 from my_utils import get_shanghai_time
 
@@ -597,7 +600,7 @@ def show_vip_info():
             return send_file(VIP_SPIDER_TO_SHOW_PATH)
 
 ######################################################
-# ali_1688
+# 阿里1688
 @app.route("/data", methods=['POST'])
 def get_all_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
@@ -731,14 +734,7 @@ def to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':      # 除去传过来是空值
-                        pass
-                    else:
-                        tmp_goods_id = re.compile(r'.*?/offer/(.*?).html.*?').findall(item)[0]
-                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-
+                tmp_wait_to_save_data_goods_id_list = _get_ali_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))       # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
@@ -825,6 +821,24 @@ def to_save_data():
         result = json.dumps(result)
         return result
 
+def _get_ali_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            tmp_goods_id = re.compile(r'.*?/offer/(.*?).html.*?').findall(item)[0]
+            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+
+    return tmp_wait_to_save_data_goods_id_list
+
 def _get_ali_right_data(data):
     '''
     得到规范格式的数据
@@ -897,7 +911,7 @@ def _get_ali_right_data(data):
     return tmp
 
 ######################################################
-# taobao
+# 淘宝
 @app.route('/taobao_data', methods=['POST'])
 def get_taobao_data():
     global my_lg
@@ -1026,31 +1040,7 @@ def taobao_to_save_data():
             msg = '获取到的待存取的url的list为: ' + str(wait_to_save_data_url_list)
             my_lg.info(msg)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(item)
-                        if is_taobao_url != []:
-                            if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item) != []:
-                                tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)[0]
-                                # my_lg.info(tmp_taobao_url)
-                                if tmp_taobao_url != []:
-                                    goods_id = tmp_taobao_url
-                                else:
-                                    item = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(item)[0]
-                            else:  # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
-                                # my_lg.info('9999')
-                                item = re.compile(r';').sub('', item)
-                                goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(item)[0]
-                                # my_lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
-                            tmp_goods_id = goods_id
-                            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                        else:
-                            my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
-
+                tmp_wait_to_save_data_goods_id_list = _get_taobao_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 my_lg.info('获取到的待存取的goods_id的list为: ' + str(wait_to_save_data_goods_id_list))
 
@@ -1139,6 +1129,41 @@ def taobao_to_save_data():
         result = json.dumps(result)
         return result
 
+def _get_taobao_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(item)
+            if is_taobao_url != []:
+                if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item) != []:
+                    tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)[0]
+                    # my_lg.info(tmp_taobao_url)
+                    if tmp_taobao_url != []:
+                        goods_id = tmp_taobao_url
+                    else:
+                        item = re.compile(r';').sub('', item)
+                        goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(item)[0]
+                else:  # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
+                    # my_lg.info('9999')
+                    item = re.compile(r';').sub('', item)
+                    goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(item)[0]
+                    # my_lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
+                tmp_goods_id = goods_id
+                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+            else:
+                my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
+
+    return tmp_wait_to_save_data_goods_id_list
+
 def _get_taobao_right_data(data):
     '''
     得到规范格式的数据
@@ -1186,7 +1211,7 @@ def _get_taobao_right_data(data):
     return tmp
 
 ######################################################
-# tmall
+# 天猫
 @app.route('/tmall_data', methods=['POST'])
 def get_tmall_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
@@ -1319,52 +1344,7 @@ def tmall_to_save_data():
             # my_lg.info('缓存中待存储url的list为: %s' % str(tmp_wait_to_save_data_list))
             my_lg.info('获取到的待存取的url的list为: %s' % str(wait_to_save_data_url_list))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(item)
-                        if is_tmall_url != []:  # 天猫常规商品
-                            tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)
-                            if tmp_tmall_url != []:
-                                is_tmp_tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?&id=(\d+)&{0,20}.*?').findall(item)
-                                if is_tmp_tmp_tmall_url != []:
-                                    goods_id = is_tmp_tmp_tmall_url[0]
-                                else:
-                                    goods_id = tmp_tmall_url[0]
-                            else:
-                                tmall_url = re.compile(r';').sub('', item)
-                                goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
-                            tmp_goods_id = goods_id
-                            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                        else:
-                            is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(item)
-                            if is_tmall_supermarket != []:  # 天猫超市
-                                tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)&.*?').findall(item)
-                                if tmp_tmall_url != []:
-                                    goods_id = tmp_tmall_url[0]
-                                else:
-                                    tmall_url = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
-                                tmp_goods_id = goods_id
-                                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                            else:
-                                is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(item)  # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
-                                if is_tmall_hk != []:  # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
-                                    tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)&.*?').findall(item)
-                                    if tmp_tmall_url != []:
-                                        goods_id = tmp_tmall_url[0]
-                                    else:
-                                        tmall_url = re.compile(r';').sub('', item)
-                                        goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
-                                    # before_url = re.compile(r'https://detail.tmall.hk/.*?item.htm').findall(item)[0]
-                                    tmp_goods_id = goods_id
-                                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                                else:       # 非正确的天猫商品url
-                                    my_lg.info('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
-                                    pass
-
+                tmp_wait_to_save_data_goods_id_list = _get_tmall_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 my_lg.info('获取到的待存取的goods_id的list为: %s' % str(wait_to_save_data_goods_id_list))
 
@@ -1452,6 +1432,63 @@ def tmall_to_save_data():
         result = json.dumps(result)
         return result
 
+def _get_tmall_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(item)
+            if is_tmall_url != []:  # 天猫常规商品
+                tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)
+                if tmp_tmall_url != []:
+                    is_tmp_tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?&id=(\d+)&{0,20}.*?').findall(item)
+                    if is_tmp_tmp_tmall_url != []:
+                        goods_id = is_tmp_tmp_tmall_url[0]
+                    else:
+                        goods_id = tmp_tmall_url[0]
+                else:
+                    tmall_url = re.compile(r';').sub('', item)
+                    goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                tmp_goods_id = goods_id
+                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+            else:
+                is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(item)
+                if is_tmall_supermarket != []:  # 天猫超市
+                    tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)&.*?').findall(item)
+                    if tmp_tmall_url != []:
+                        goods_id = tmp_tmall_url[0]
+                    else:
+                        tmall_url = re.compile(r';').sub('', item)
+                        goods_id = \
+                        re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                    tmp_goods_id = goods_id
+                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                else:
+                    is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(item)  # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
+                    if is_tmall_hk != []:  # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
+                        tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)&.*?').findall(item)
+                        if tmp_tmall_url != []:
+                            goods_id = tmp_tmall_url[0]
+                        else:
+                            tmall_url = re.compile(r';').sub('', item)
+                            goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
+                        # before_url = re.compile(r'https://detail.tmall.hk/.*?item.htm').findall(item)[0]
+                        tmp_goods_id = goods_id
+                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                    else:  # 非正确的天猫商品url
+                        my_lg.info('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
+                        pass
+
+    return tmp_wait_to_save_data_goods_id_list
+
 def _get_tmall_right_data(data):
     '''
     得到规范化的数据
@@ -1505,7 +1542,7 @@ def _get_tmall_right_data(data):
     return tmp
 
 ######################################################
-# jd
+# 京东
 @app.route('/jd_data', methods=['POST'])
 def get_jd_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
@@ -1637,32 +1674,7 @@ def jd_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(item)
-                        if is_jd_url != []:
-                            goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(item)[0]
-                            tmp_goods_id = goods_id
-                            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                        else:
-                            is_jd_hk_url = re.compile(r'https://item.jd.hk/.*?').findall(item)
-                            if is_jd_hk_url != []:
-                                goods_id = re.compile(r'https://item.jd.hk/(.*?).html.*?').findall(item)[0]
-                                tmp_goods_id = goods_id
-                                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                            else:
-                                is_yiyao_jd_url = re.compile(r'https://item.yiyaojd.com/.*?').findall(item)
-                                if is_yiyao_jd_url != []:
-                                    goods_id = re.compile(r'https://item.yiyaojd.com/(.*?).html.*?').findall(item)[0]
-                                    tmp_goods_id = goods_id
-                                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                                else:
-                                    print('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
-                                    pass
-
+                tmp_wait_to_save_data_goods_id_list = _get_jd_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
@@ -1749,6 +1761,42 @@ def jd_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_jd_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(item)
+            if is_jd_url != []:
+                goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(item)[0]
+                tmp_goods_id = goods_id
+                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+            else:
+                is_jd_hk_url = re.compile(r'https://item.jd.hk/.*?').findall(item)
+                if is_jd_hk_url != []:
+                    goods_id = re.compile(r'https://item.jd.hk/(.*?).html.*?').findall(item)[0]
+                    tmp_goods_id = goods_id
+                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                else:
+                    is_yiyao_jd_url = re.compile(r'https://item.yiyaojd.com/.*?').findall(item)
+                    if is_yiyao_jd_url != []:
+                        goods_id = re.compile(r'https://item.yiyaojd.com/(.*?).html.*?').findall(item)[0]
+                        tmp_goods_id = goods_id
+                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                    else:
+                        print('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
+                        pass
+
+    return tmp_wait_to_save_data_goods_id_list
 
 def _get_jd_right_data(data):
     '''
@@ -1933,45 +1981,7 @@ def zhe_800_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/.*?').findall(item)
-                        if is_zhe_800_url != []:
-                            if re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
-                                tmp_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
-                                if tmp_zhe_800_url != '':
-                                    goods_id = tmp_zhe_800_url
-                                else:
-                                    zhe_800_url = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
-                            else:  # 处理从数据库中取出的数据
-                                zhe_800_url = re.compile(r';').sub('', item)
-                                goods_id = re.compile(r'https://shop.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
-                            tmp_goods_id = goods_id
-                            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-
-                        else:
-                            is_miao_sha_url = re.compile(r'https://miao.zhe800.com/products/.*?').findall(item)
-                            if is_miao_sha_url != []:  # 先不处理这种链接的情况
-                                if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
-                                    tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
-                                    if tmp_zhe_800_url != '':
-                                        goods_id = tmp_zhe_800_url
-                                    else:
-                                        zhe_800_url = re.compile(r';').sub('', item)
-                                        goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
-
-                                else:  # 处理从数据库中取出的数据
-                                    zhe_800_url = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
-                                pass    # 不处理
-                            else:
-                                print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
-                                pass    # 不处理
-
+                tmp_wait_to_save_data_goods_id_list = _get_zhe_800_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
@@ -2058,6 +2068,55 @@ def zhe_800_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_zhe_800_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/.*?').findall(item)
+            if is_zhe_800_url != []:
+                if re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
+                    tmp_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
+                    if tmp_zhe_800_url != '':
+                        goods_id = tmp_zhe_800_url
+                    else:
+                        zhe_800_url = re.compile(r';').sub('', item)
+                        goods_id = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+                else:  # 处理从数据库中取出的数据
+                    zhe_800_url = re.compile(r';').sub('', item)
+                    goods_id = re.compile(r'https://shop.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
+                tmp_goods_id = goods_id
+                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+
+            else:
+                is_miao_sha_url = re.compile(r'https://miao.zhe800.com/products/.*?').findall(item)
+                if is_miao_sha_url != []:  # 先不处理这种链接的情况
+                    if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
+                        tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
+                        if tmp_zhe_800_url != '':
+                            goods_id = tmp_zhe_800_url
+                        else:
+                            zhe_800_url = re.compile(r';').sub('', item)
+                            goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+
+                    else:  # 处理从数据库中取出的数据
+                        zhe_800_url = re.compile(r';').sub('', item)
+                        goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
+                    pass  # 不处理
+                else:
+                    print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
+                    pass  # 不处理
+
+    return tmp_wait_to_save_data_goods_id_list
 
 def _get_zhe_800_right_data(data):
     '''
@@ -2236,28 +2295,7 @@ def juanpi_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/.*?').findall(item)
-                        if is_juanpi_url != []:
-                            if re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(item) != []:
-                                tmp_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(item)[0]
-                                if tmp_juanpi_url != '':
-                                    goods_id = tmp_juanpi_url
-                                else:  # 只是为了在pycharm运行时不调到chrome，其实else完全可以不要的
-                                    juanpi_url = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(juanpi_url)[0]
-                                print('------>>>| 得到的卷皮商品的地址为:', goods_id)
-                                tmp_goods_id = goods_id
-                                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-
-                        else:
-                            print('卷皮商品url错误, 非正规的url, 请参照格式(http://shop.juanpi.com/deal/)开头的...')
-                            pass    # 不处理
-
+                tmp_wait_to_save_data_goods_id_list = _get_juanpi_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
@@ -2344,6 +2382,38 @@ def juanpi_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_juanpi_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/.*?').findall(item)
+            if is_juanpi_url != []:
+                if re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(item) != []:
+                    tmp_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(item)[0]
+                    if tmp_juanpi_url != '':
+                        goods_id = tmp_juanpi_url
+                    else:  # 只是为了在pycharm运行时不调到chrome，其实else完全可以不要的
+                        juanpi_url = re.compile(r';').sub('', item)
+                        goods_id = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(juanpi_url)[0]
+                    print('------>>>| 得到的卷皮商品的地址为:', goods_id)
+                    tmp_goods_id = goods_id
+                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+
+            else:
+                print('卷皮商品url错误, 非正规的url, 请参照格式(http://shop.juanpi.com/deal/)开头的...')
+                pass  # 不处理
+
+    return tmp_wait_to_save_data_goods_id_list
 
 def _get_juanpi_right_data(data):
     '''
@@ -2523,29 +2593,7 @@ def pinduoduo_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_pinduoduo_url = re.compile(r'http://mobile.yangkeduo.com/goods.html.*?').findall(item)
-                        if is_pinduoduo_url != []:
-                            if re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(item) != []:
-                                tmp_pinduoduo_url = re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(item)[0]
-                                if tmp_pinduoduo_url != '':
-                                    goods_id = tmp_pinduoduo_url
-                                else:  # 只是为了在pycharm里面测试，可以不加
-                                    pinduoduo_url = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(pinduoduo_url)[0]
-                                print('------>>>| 得到的拼多多商品id为:', goods_id)
-                                tmp_goods_id = goods_id
-                                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                            else:
-                                pass
-                        else:
-                            print('拼多多商品url错误, 非正规的url, 请参照格式(http://mobile.yangkeduo.com/goods.html)开头的...')
-                            pass        # 不处理
-
+                tmp_wait_to_save_data_goods_id_list = _get_pinduoduo_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
@@ -2632,6 +2680,40 @@ def pinduoduo_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_pinduoduo_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_pinduoduo_url = re.compile(r'http://mobile.yangkeduo.com/goods.html.*?').findall(item)
+            if is_pinduoduo_url != []:
+                if re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(item) != []:
+                    tmp_pinduoduo_url = \
+                    re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(item)[0]
+                    if tmp_pinduoduo_url != '':
+                        goods_id = tmp_pinduoduo_url
+                    else:  # 只是为了在pycharm里面测试，可以不加
+                        pinduoduo_url = re.compile(r';').sub('', item)
+                        goods_id = re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(pinduoduo_url)[0]
+                    print('------>>>| 得到的拼多多商品id为:', goods_id)
+                    tmp_goods_id = goods_id
+                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                else:
+                    pass
+            else:
+                print('拼多多商品url错误, 非正规的url, 请参照格式(http://mobile.yangkeduo.com/goods.html)开头的...')
+                pass  # 不处理
+
+    return tmp_wait_to_save_data_goods_id_list
 
 def _get_pinduoduo_right_data(data):
     '''
@@ -2818,43 +2900,7 @@ def vip_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = []
-                for item in wait_to_save_data_url_list:
-                    if item == '':  # 除去传过来是空值
-                        pass
-                    else:
-                        is_vip_irl = re.compile(r'https://m.vip.com/product-(\d*)-.*?.html.*?').findall(item)
-                        if is_vip_irl != []:
-                            if re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(item) != []:
-                                tmp_vip_url = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(item)[0]
-                                if tmp_vip_url != '':
-                                    goods_id = tmp_vip_url
-                                else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
-                                    vip_url = re.compile(r';').sub('', item)
-                                    goods_id = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url)[0]
-                                print('------>>>| 得到的唯品会商品的goods_id为:', goods_id)
-                                tmp_goods_id = goods_id
-                                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                            else:
-                                pass
-                        else:
-                            # 唯品会预售商品
-                            is_vip_preheading = re.compile(r'https://m.vip.com/preheating-product-(\d+)-.*?.html.*?').findall(item)
-                            if is_vip_preheading != []:
-                                if re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(item) != []:
-                                    tmp_vip_url = re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(item)[0]
-                                    if tmp_vip_url != '':
-                                        goods_id = tmp_vip_url
-                                    else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
-                                        vip_url = re.compile(r';').sub('', item)
-                                        goods_id = re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url)[0]
-                                    print('------>>>| 得到的唯品会 预售商品 的goods_id为:', goods_id)
-                                    tmp_goods_id = goods_id
-                                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                            else:
-                                print('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html) or (https://m.vip.com/preheating-product-xxxx-xxxx.html)开头的...')
-                                pass    # 不处理
-
+                tmp_wait_to_save_data_goods_id_list = _get_vip_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
                 print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
 
@@ -2942,6 +2988,55 @@ def vip_to_save_data():
         }
         result = json.dumps(result)
         return result
+
+def _get_vip_wait_to_save_data_goods_id_list(data):
+    '''
+    得到待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_vip_irl = re.compile(r'https://m.vip.com/product-(\d*)-.*?.html.*?').findall(item)
+            if is_vip_irl != []:
+                if re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(item) != []:
+                    tmp_vip_url = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(item)[0]
+                    if tmp_vip_url != '':
+                        goods_id = tmp_vip_url
+                    else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
+                        vip_url = re.compile(r';').sub('', item)
+                        goods_id = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url)[0]
+                    print('------>>>| 得到的唯品会商品的goods_id为:', goods_id)
+                    tmp_goods_id = goods_id
+                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                else:
+                    pass
+            else:
+                # 唯品会预售商品
+                is_vip_preheading = re.compile(r'https://m.vip.com/preheating-product-(\d+)-.*?.html.*?').findall(item)
+                if is_vip_preheading != []:
+                    if re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(item) != []:
+                        tmp_vip_url = \
+                        re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(item)[0]
+                        if tmp_vip_url != '':
+                            goods_id = tmp_vip_url
+                        else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
+                            vip_url = re.compile(r';').sub('', item)
+                            goods_id = \
+                            re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url)[0]
+                        print('------>>>| 得到的唯品会 预售商品 的goods_id为:', goods_id)
+                        tmp_goods_id = goods_id
+                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
+                else:
+                    print('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html) or (https://m.vip.com/preheating-product-xxxx-xxxx.html)开头的...')
+                    pass  # 不处理
+
+    return tmp_wait_to_save_data_goods_id_list
 
 def _get_vip_right_data(data):
     '''
