@@ -586,6 +586,7 @@ class JuMeiYouPinPinTuanParse(object):
             'spec_value': item.get('name', '').replace(',', '|'),
             'pintuan_price': item.get('jumei_price', ''),
             'detail_price': item.get('market_price', ''),
+            'normal_price': '',
             'img_url': item.get('img', ''),
             'rest_number': int(item.get('stock', '0')),
         } for item in size]
@@ -595,6 +596,7 @@ class JuMeiYouPinPinTuanParse(object):
                 for item_2 in true_sku_info:
                     if item_1.get('spec_value') == item_2.get('spec_value'):
                         item_2['detail_price'] = item_1['alone_price']
+
         else:   # 拿单独购买价来设置detail_price
             for item in true_sku_info:      # alone_size为空，表示: 单独无法购买 可能出现小于拼团价的情况 eg: http://s.h5.jumei.com/yiqituan/detail?item_id=df1803156441482p3810742&type=jumei_pop&selltype=coutuanlist&selllabel=coutuan_home
                 item['detail_price'] = '单价模式无法购买'

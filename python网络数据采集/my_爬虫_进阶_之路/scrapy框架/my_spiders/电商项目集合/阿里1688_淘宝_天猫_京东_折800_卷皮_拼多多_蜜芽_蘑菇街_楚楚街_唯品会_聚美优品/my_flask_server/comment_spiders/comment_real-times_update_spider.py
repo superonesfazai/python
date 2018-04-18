@@ -2,15 +2,15 @@
 
 '''
 @author = super_fazai
-@File    : my_all_comment_spider.py
-@Time    : 2018/4/9 15:24
+@File    : comment_real-times_update_spider.py
+@Time    : 2018/4/18 12:36
 @connect : superonesfazai@gmail.com
 '''
 
 import sys
 sys.path.append('..')
 
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, CommentInfoSaveItemPipeline
+from my_pipeline import CommentInfoSaveItemPipeline
 from my_logging import set_logger
 from my_utils import daemon_init, get_shanghai_time
 
@@ -25,7 +25,7 @@ import gc
 from logging import INFO, ERROR
 from time import sleep
 
-class MyAllCommentSpider(object):
+class CommentRealTimeUpdateSpider(object):
     def __init__(self):
         self._set_logger()
         self.msg = ''
@@ -34,7 +34,7 @@ class MyAllCommentSpider(object):
 
     def _set_logger(self):
         self.my_lg = set_logger(
-            log_file_name=MY_SPIDER_LOGS_PATH + '/all_comment/_/' + str(get_shanghai_time())[0:10] + '.txt',
+            log_file_name=MY_SPIDER_LOGS_PATH + '/all_comment/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
         )
@@ -62,22 +62,22 @@ class MyAllCommentSpider(object):
 
     def _set_func_name_dict(self):
         self.func_name_dict = {
-            'taobao': 'self._taobao_comment({0}, {1}, {2})',
-            'ali': 'self._ali_1688_comment({0}, {1}, {2})',
-            'tmall': 'self._tmall_comment({0}, {1}, {2})',
-            'jd': 'self._jd_comment({0}, {1}, {2})',
-            'zhe_800': 'self._zhe_800_comment({0}, {1}, {2})',
-            'juanpi': 'self._juanpi_comment({0}, {1}, {2})',
-            'pinduoduo': 'self._pinduoduo_comment({0}, {1}, {2})',
-            'vip': 'self._vip_comment({0}, {1}, {2})',
+            'taobao': 'self._update_taobao_comment({0}, {1}, {2})',
+            'ali': 'self._update_ali_1688_comment({0}, {1}, {2})',
+            'tmall': 'self._update_tmall_comment({0}, {1}, {2})',
+            'jd': 'self._update_jd_comment({0}, {1}, {2})',
+            'zhe_800': 'self._update_zhe_800_comment({0}, {1}, {2})',
+            'juanpi': 'self._update_juanpi_comment({0}, {1}, {2})',
+            'pinduoduo': 'self._update_pinduoduo_comment({0}, {1}, {2})',
+            'vip': 'self._update_vip_comment({0}, {1}, {2})',
         }
 
     def _just_run(self):
         while True:
             #### 实时更新数据
-            tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+            tmp_sql_server = CommentInfoSaveItemPipeline(logger=self.my_lg)
             try:
-                result = list(tmp_sql_server.select_all_goods_info_from_GoodsInfoAutoGet_table())
+                result = list(tmp_sql_server.inner_select_goods_info())
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
@@ -89,24 +89,9 @@ class MyAllCommentSpider(object):
                 self.my_lg.info('--------------------------------------------------------')
 
                 self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-                self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
-                if self._comment_pipeline.is_connect_success:
-                    _db_goods_id = self._comment_pipeline.select_all_goods_id_from_all_goods_comment_table()
-                    try:
-                        _db_goods_id = [item[0] for item in _db_goods_id]
-                    except IndexError:
-                        continue
-                    self.my_lg.info(str(_db_goods_id))
-
-                else:
-                    continue
 
                 # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
                 for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
-                    if item[0] in _db_goods_id:
-                        self.my_lg.info('该goods_id[%s]已存在于db中, 此处跳过!' % item[0])
-                        continue
-
                     if index % 20 == 0:
                         try: del self._comment_pipeline
                         except: pass
@@ -133,7 +118,7 @@ class MyAllCommentSpider(object):
                     exec(exec_code)
                     sleep(1.1)
 
-    def _taobao_comment(self, index, goods_id, site_id):
+    def _update_taobao_comment(self, index, goods_id, site_id):
         '''
         处理淘宝的商品comment
         :param index: 索引
@@ -149,15 +134,17 @@ class MyAllCommentSpider(object):
 
             if _r != {}:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline.insert_into_comment(_r)
+                    self._comment_pipeline.update_comment(_r)
 
-            try: del taobao
-            except: self.my_lg.info('del taobao失败!')
+            try:
+                del taobao
+            except:
+                self.my_lg.info('del taobao失败!')
             gc.collect()
         else:
             pass
 
-    def _ali_1688_comment(self, index, goods_id, site_id):
+    def _update_ali_1688_comment(self, index, goods_id, site_id):
         '''
         处理阿里1688的商品comment
         :param index: 索引
@@ -173,15 +160,17 @@ class MyAllCommentSpider(object):
 
             if _r != {}:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline.insert_into_comment(_r)
+                    self._comment_pipeline.update_comment(_r)
 
-            try: del ali_1688
-            except: self.my_lg.info('del ali_1688失败!')
+            try:
+                del ali_1688
+            except:
+                self.my_lg.info('del ali_1688失败!')
             gc.collect()
         else:
             pass
 
-    def _tmall_comment(self, index, goods_id, site_id):
+    def _update_tmall_comment(self, index, goods_id, site_id):
         '''
         处理tmall商品的comment
         :param index:
@@ -210,7 +199,7 @@ class MyAllCommentSpider(object):
         else:
             pass
 
-    def _jd_comment(self, index, goods_id, site_id):
+    def _update_jd_comment(self, index, goods_id, site_id):
         '''
         处理京东商品的comment
         :param index:
@@ -225,13 +214,15 @@ class MyAllCommentSpider(object):
             jd = JdCommentParse(logger=self.my_lg)
 
             jd._get_comment_data(goods_id=str(goods_id))
-            try: del jd
-            except: pass
+            try:
+                del jd
+            except:
+                pass
             gc.collect()
         else:
             pass
 
-    def _zhe_800_comment(self, index, goods_id, site_id):
+    def _update_zhe_800_comment(self, index, goods_id, site_id):
         '''
         处理折800商品的comment
         :param index:
@@ -244,7 +235,7 @@ class MyAllCommentSpider(object):
         else:
             pass
 
-    def _juanpi_comment(self, index, goods_id, site_id):
+    def _update_juanpi_comment(self, index, goods_id, site_id):
         '''
         处理卷皮商品的comment
         :param index:
@@ -257,7 +248,7 @@ class MyAllCommentSpider(object):
         else:
             pass
 
-    def _pinduoduo_comment(self, index, goods_id, site_id):
+    def _update_pinduoduo_comment(self, index, goods_id, site_id):
         '''
         处理拼多多的comment
         :param index:
@@ -270,7 +261,7 @@ class MyAllCommentSpider(object):
         else:
             pass
 
-    def _vip_comment(self, index, goods_id, site_id):
+    def _update_vip_comment(self, index, goods_id, site_id):
         '''
         处理唯品会的comment
         :param index:
@@ -297,7 +288,7 @@ class MyAllCommentSpider(object):
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
-        _tmp = MyAllCommentSpider()
+        _tmp = CommentRealTimeUpdateSpider()
         _tmp._just_run()
         # try:
         #     del _tmp
@@ -323,4 +314,3 @@ if __name__ == '__main__':
         main()
     else:
         just_fuck_run()
-

@@ -38,14 +38,14 @@ class TaoBaoCommentParse(object):
             self.result_data = {}
             return {}
         _tmp_comment_list = []
-        self.my_lg.info('待抓取的goods_id: %s' % goods_id)
+        self.my_lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
 
         '''
         下面抓取的是pc端的数据地址
         '''
         # 获取评论数据
         for current_page_num in range(1, 3):
-            self.my_lg.info('正在抓取第%s页评论...' % str(current_page_num))
+            self.my_lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
             tmp_url = 'https://rate.taobao.com/feedRateList.htm'
             _params = self._set_params(current_page_num=current_page_num, goods_id=goods_id)
 
@@ -56,7 +56,7 @@ class TaoBaoCommentParse(object):
             try:
                 body = re.compile('\((.*)\)').findall(body)[0]
             except IndexError:
-                self.my_lg.error('re得到需求body时吃出错! 出错goods_id: ' + goods_id)
+                self.my_lg.error('re得到需求body时出错! 出错goods_id: ' + goods_id)
                 self.result_data = {}
                 return {}
 
@@ -114,6 +114,13 @@ class TaoBaoCommentParse(object):
             if sku_info == '':  # 为空的，随机设置一个
                 sku_info = _sku_info_list[randint(0, len(_sku_info_list) - 1)]
                 # print(sku_info)
+            sku_info = self._wash_sku_info(sku_info)
+
+            # 评论照片
+            img_url_list = item.get('photos', [])
+            img_url_list = [{
+                'img_url': 'https:' + _i.get('url', '')
+            } for _i in img_url_list]
 
             _comment_content = item.get('content', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
@@ -125,12 +132,17 @@ class TaoBaoCommentParse(object):
             quantify = int(item.get('buyAmount', 0)) if item.get('buyAmount', 0) != 0 else 1
 
             tmp_head_img = item.get('user', {}).get('avatar', '')
-            head_img = 'https:' + tmp_head_img if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' else ''
+            if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' \
+                    or tmp_head_img != '//wwc.alicdn.com/avatar/getAvatar.do?userIdStr=vGNuOHcWv88YXF-HPmvbM07HvG8SvFI0Xm7Hvm80MkZhvkk0XmcSPFPhPHQWOmvG&width=40&height=40&type=sns' \
+                    or tmp_head_img != '//gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
+                head_img = 'https:' + tmp_head_img
+            else:
+                head_img = ''
             comment = [{
                 'comment': _comment_content,
                 'comment_date': comment_date,
                 'sku_info': sku_info,
-                'img_url_list': [],
+                'img_url_list': img_url_list,
                 'star_level': randint(4, 5),
                 'video': item.get('video', ''),
             }]
@@ -174,6 +186,11 @@ class TaoBaoCommentParse(object):
             'accept': '*/*',
             'referer': 'https://item.taobao.com/item.htm?id=555635098639',
         }
+
+    def _wash_sku_info(self, sku_info):
+        sku_info = sku_info.replace('&nbsp;', ' ').replace('&nbsp', ' ')
+
+        return sku_info
 
     def _set_params(self, current_page_num, goods_id):
         '''

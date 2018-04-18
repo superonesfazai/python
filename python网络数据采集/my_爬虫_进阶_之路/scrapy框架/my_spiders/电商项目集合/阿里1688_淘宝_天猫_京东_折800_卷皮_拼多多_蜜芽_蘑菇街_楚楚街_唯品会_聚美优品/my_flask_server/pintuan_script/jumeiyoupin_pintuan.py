@@ -95,6 +95,7 @@ class JuMeiYouPinPinTuan(object):
                     if item.get('goods_id', '') not in all_goods_id:
                         goods_list.append(item)
                 # await asyncio.sleep(.5)
+
         try: del my_phantomjs
         except: pass
         self.my_lg.info(str(goods_list))

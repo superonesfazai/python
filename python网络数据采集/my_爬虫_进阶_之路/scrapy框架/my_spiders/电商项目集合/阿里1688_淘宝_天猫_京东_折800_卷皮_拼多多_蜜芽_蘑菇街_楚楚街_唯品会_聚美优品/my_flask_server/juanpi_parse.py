@@ -313,10 +313,15 @@ class JuanPiParse(object):
                         tmp['img_url'] = ''
 
                     if item.get('cprice', '') != '':
-                        tmp['detail_price'] = item.get('cprice')
+                        tmp['pintuan_price'] = item.get('cprice')
+                        tmp['detail_price'] = item.get('sprice', '')
                         tmp['normal_price'] = item.get('price')
                     else:
-                        tmp['detail_price'] = item.get('price')
+                        tmp['pintuan_price'] = item.get('price')
+                        if item.get('sprice', '') != '':
+                            tmp['detail_price'] = item.get('sprice', '')
+                        else:
+                            tmp['detail_price'] = item.get('price')
                         tmp['normal_price'] = item.get('price')
 
                     if item.get('stock') == '0':    # 跳过
@@ -333,7 +338,7 @@ class JuanPiParse(object):
                         price_info_list.append(tmp)
 
                 # 得到有规格时的最高价和最低价
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+                tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in price_info_list])
                 # print(tmp_price_list)
                 if tmp_price_list == []:
                     is_delete = 1       # 没有获取到价格说明商品已经下架了

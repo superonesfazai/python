@@ -256,8 +256,9 @@ class Zhe800PintuanParse(object):
                     if rest_number > 0:
                         # 该规格库存大于0时再进行赋值否则跳过
                         tmp['spec_value'] = spec_value
-                        tmp['detail_price'] = str(item.get('pinPrice', ''))
-                        tmp['normal_price'] = str(item.get('curPrice', ''))
+                        tmp['pintuan_price'] = str(item.get('pinPrice', ''))
+                        tmp['detail_price'] = str(item.get('curPrice', ''))
+                        tmp['normal_price'] = ''
                         tmp['img_url'] = img_url
                         tmp['rest_number'] = rest_number
                         price_info_list.append(tmp)
@@ -266,7 +267,7 @@ class Zhe800PintuanParse(object):
 
             # 商品价格和淘宝价
             try:
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+                tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in price_info_list])
                 price = tmp_price_list[-1]  # 商品价格
                 taobao_price = tmp_price_list[0]  # 淘宝价
             except:     # 单独处理无规格的商品

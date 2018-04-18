@@ -37,11 +37,11 @@ class ALi1688CommentParse(object):
         # 可动态执行的代码
         self._exec_code = '''
         self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').click() 
-        sleep(1.5)
+        sleep(2)
         # 向下滚动10000像素
         js = 'document.body.scrollTop=10000'
         self.driver.execute_script(js)
-        sleep(3)
+        sleep(4)
         '''
         self.page_size = '30'
 
@@ -49,6 +49,7 @@ class ALi1688CommentParse(object):
         if goods_id == '':
             self.result_data = {}
             return {}
+        self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
         '''
         原先采用phantomjs, 改用pc端抓包到的接口
@@ -113,7 +114,7 @@ class ALi1688CommentParse(object):
             self.result_data = {}
             return {}
 
-        # 下面是模拟pc端接口的
+        # 下面是模拟pc端接口的(params里面需要参数memberId，跟实际现抓这个差不多就用上面的了)
         # tmp_url = 'https://rate.1688.com/remark/offerDetail/rates.json'
         # _params = self._set_params(goods_id=goods_id)
         #
@@ -177,6 +178,7 @@ class ALi1688CommentParse(object):
         :param comment:
         :return:
         '''
+        comment = re.compile('阿里巴巴').sub('', comment)
         comment = re.compile('1688|合作|阿里').sub('', comment)
 
         return comment

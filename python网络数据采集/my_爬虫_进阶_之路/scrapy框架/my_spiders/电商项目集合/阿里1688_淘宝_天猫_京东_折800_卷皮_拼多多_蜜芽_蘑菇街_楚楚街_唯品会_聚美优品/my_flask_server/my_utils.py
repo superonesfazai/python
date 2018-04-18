@@ -8,7 +8,7 @@
 '''
 
 import pytz, datetime, re
-import sys, os, time
+import sys, os, time, json
 from pprint import pprint
 
 def get_shanghai_time():
@@ -152,3 +152,18 @@ def tuple_or_list_params_2_dict_params(params):
         })
 
     return _
+
+def _json_str_to_dict(json_str):
+    '''
+    json字符串转dict
+    :param json_str:
+    :return:
+    '''
+    try:
+        _ = json.loads(json_str)
+    except Exception as e:
+        print(e)
+        return {}
+
+    return _
+

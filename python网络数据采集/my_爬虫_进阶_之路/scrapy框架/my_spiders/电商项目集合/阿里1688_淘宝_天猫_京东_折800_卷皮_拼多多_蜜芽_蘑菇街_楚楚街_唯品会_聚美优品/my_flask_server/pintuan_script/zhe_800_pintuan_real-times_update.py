@@ -26,7 +26,7 @@ def run_forever():
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
             result = list(tmp_sql_server.select_zhe_800_pintuan_all_goods_id())
-        except TypeError as e:
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:

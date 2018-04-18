@@ -162,6 +162,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                         price_info_list = [{
                                             'spec_value': item_4.get('spec_value'),
                                             'pintuan_price': item_4.get('detail_price'),
+                                            'detail_price': '',
                                             'normal_price': item_4.get('normal_price'),
                                             'img_url': item_4.get('img_url'),
                                             'rest_number': item_4.get('rest_number'),
@@ -188,6 +189,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                                 price_info_list = [{
                                                     'spec_value': item_4.get('spec_value'),
                                                     'pintuan_price': item_4.get('detail_price'),
+                                                    'detail_price': '',
                                                     'normal_price': item_4.get('normal_price'),
                                                     'img_url': item_4.get('img_url'),
                                                     'rest_number': item_4.get('rest_number'),

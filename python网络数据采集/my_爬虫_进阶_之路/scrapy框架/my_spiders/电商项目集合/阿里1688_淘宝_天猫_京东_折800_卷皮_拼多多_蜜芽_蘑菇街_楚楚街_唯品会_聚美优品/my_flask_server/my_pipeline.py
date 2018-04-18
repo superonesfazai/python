@@ -1132,7 +1132,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, pintuan_begin_time, pintuan_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -1403,7 +1403,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, pintuan_begin_time, pintuan_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+            cs.execute('insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -1891,7 +1891,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
             cs.execute(
-                'insert into dbo.mia_pintuan(goods_id, spider_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, pintuan_time, pintuan_begin_time, pintuan_end_time, all_sell_count, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
+                'insert into dbo.mia_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
                     'utf-8'),
                 tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
@@ -1933,7 +1933,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             ]
 
             cs.execute(
-                'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, pintuan_time=%s, pintuan_begin_time=%s, pintuan_end_time=%s, all_sell_count=%s where goods_id = %s',
+                'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s',
                 tuple(params))
             self.conn.commit()
             cs.close()
@@ -2127,7 +2127,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
             cs.execute(
-                'insert into dbo.mogujie_pintuan(goods_id, spider_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, pintuan_time, pintuan_begin_time, pintuan_end_time, all_sell_count, fcid, page, sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
+                'insert into dbo.mogujie_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, fcid, page, sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                 tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -2168,7 +2168,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             ]
 
             cs.execute(
-                'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, pintuan_time=%s, pintuan_begin_time=%s, pintuan_end_time=%s, all_sell_count=%s where goods_id = %s',
+                'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s',
                 tuple(params))
             self.conn.commit()
             cs.close()
@@ -2204,7 +2204,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s',
+            cs.execute('update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s',
                 tuple(params))
             self.conn.commit()
             cs.close()
@@ -2425,7 +2425,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.jumeiyoupin_pintuan(goods_id, spider_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, pintuan_time, pintuan_begin_time, pintuan_end_time, all_sell_count, page, sort, tab, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
+            cs.execute('insert into dbo.jumeiyoupin_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, page, sort, tab, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
             logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -2467,7 +2467,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, pintuan_time=%s, pintuan_begin_time=%s, pintuan_end_time=%s, all_sell_count=%s where goods_id = %s', tuple(params))
+            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s', tuple(params))
             self.conn.commit()
             cs.close()
             logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -2502,7 +2502,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_img_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s',
+            # print(params)
+            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s',
                 tuple(params))
             self.conn.commit()
             cs.close()
@@ -3003,7 +3004,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def select_mia_pintuan_all_goods_id(self):
         cs = self.conn.cursor()
         try:
-            cs.execute('select goods_id, pintuan_time, pid from dbo.mia_pintuan where site_id=21')
+            cs.execute('select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -3069,7 +3070,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def select_mogujie_pintuan_all_goods_id(self):
         cs = self.conn.cursor()
         try:
-            cs.execute('select goods_id, pintuan_time, fcid, page from dbo.mogujie_pintuan where site_id=23')
+            cs.execute('select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -3153,7 +3154,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     async def select_jumeiyoupin_pintuan_all_goods_id(self, logger):
         cs = self.conn.cursor()
         try:
-            cs.execute('select goods_id, pintuan_time, tab, page, spider_url from dbo.jumeiyoupin_pintuan where site_id=27')
+            cs.execute('select goods_id, miaosha_time, tab, page, goods_url from dbo.jumeiyoupin_pintuan where site_id=27')
             # self.conn.commit()
 
             result = list(cs.fetchall())
@@ -3345,6 +3346,10 @@ class CommentInfoSaveItemPipeline(object):
             print('数据库连接失败!!')
             self.is_connect_success = False
 
+        self._set_logger(logger)
+        self.msg = ''
+
+    def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
                 log_file_name=MY_SPIDER_LOGS_PATH + '/db/_/' + str(get_shanghai_time())[0:10] + '.txt',
@@ -3353,7 +3358,6 @@ class CommentInfoSaveItemPipeline(object):
             )
         else:
             self.my_lg = logger
-        self.msg = ''
 
     def insert_into_comment(self, item):
         cs = self.conn.cursor()
@@ -3370,10 +3374,10 @@ class CommentInfoSaveItemPipeline(object):
             # ---->>> 注意要写对要插入数据的所有者,不然报错
             cs.execute('insert into dbo.all_goods_comment(goods_id, create_time, modify_time, comment_info) values(%s, %s, %s, %s)'.encode('utf-8'), params)  # 注意必须是tuple类型
             self.conn.commit()
-            self.my_lg.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            self.my_lg.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
         except Exception as e:
             self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item.get('goods_id'))
-            self.my_lg.exception('-------------------------| 错误如下: ', e)
+            self.my_lg.exception(e)
             _ = False
 
         finally:
@@ -3382,6 +3386,30 @@ class CommentInfoSaveItemPipeline(object):
             except Exception:
                 pass
             return _
+
+    def update_comment(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = (
+                item['modify_time'],
+                dumps(item['_comment_list'], ensure_ascii=False),
+
+                item['goods_id'],
+            )
+
+            cs.execute('update dbo.all_goods_comment set modify_time=%s, comment_info=%s where goods_id=%s', params)
+            self.conn.commit()
+            cs.close()
+            self.my_lg.info('=' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中, 出错goods_id: %s|' % item['goods_id'])
+            self.my_lg.exception(e)
+            pass
 
     def select_all_goods_id_from_all_goods_comment_table(self):
         cs = self.conn.cursor()
@@ -3394,7 +3422,25 @@ class CommentInfoSaveItemPipeline(object):
             cs.close()
             return result
         except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
+            self.my_lg.exception(e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def inner_select_goods_info(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute(r'select goods_id, SiteID as site_id from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b where a.GoodsID=b.goods_id')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            self.my_lg.exception(e)
             try:
                 cs.close()
             except Exception:
