@@ -405,3 +405,12 @@ create table jumeiyoupin_pintuan(
 	tab varchar(40),
 	page int
 )
+
+-- 创建all_goods_comment表
+create table all_goods_comment(
+  id int IDENTITY(1, 1) PRIMARY KEY,
+  goods_id VARCHAR(100) not NULL UNIQUE,
+  create_time datetime,
+  modify_time datetime,
+  comment_info nvarchar(max)
+)

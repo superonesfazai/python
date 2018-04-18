@@ -78,6 +78,7 @@ class JdCommentParse(object):
 
             sleep(self.comment_page_switch_sleep_time)
 
+        # pprint(_tmp_comment_list)
         try:
             _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
         except Exception as e:
@@ -86,9 +87,11 @@ class JdCommentParse(object):
             self.result_data = {}
             return {}
 
+        _t = datetime.datetime.now()
         self.result_data = {
             'goods_id': str(goods_id),
-            'modify_time': datetime.datetime.now(),
+            'create_time': _t,
+            'modify_time': _t,
             '_comment_list': _comment_list,
         }
         pprint(self.result_data)
@@ -107,7 +110,65 @@ class JdCommentParse(object):
 
             # sku_info
             ware_attributes = item.get('wareAttributes', [])
-            _ = ' '.join([i.get('key', '')+':'+i.get('value', '') for i in ware_attributes])
+            sku_info = ' '.join([i.get('key', '')+':'+i.get('value', '') for i in ware_attributes])
+            assert sku_info != '', '得到的sku_info为空str!请检查!'
+
+            _comment_content = item.get('commentData', '')
+            assert _comment_content != '', '得到的评论内容为空str!请检查!'
+            _comment_content = self._wash_comment(comment=_comment_content)
+
+            buyer_name = item.get('userNickName', '')
+            assert buyer_name != '', '得到的用户昵称为空值!请检查!'
+
+            # jd设置默认 购买量为1
+            quantify = 1
+
+            head_img = item.get('userImgURL', '')
+            assert head_img != '', '得到的用户头像为空值!请检查!'
+            head_img = 'https://' + head_img
+
+            # 第一次评论图片
+            _comment_img_list = item.get('pictureInfoList', [])
+            if _comment_img_list != []:
+                _comment_img_list = [{'img_url': img.get('largePicURL', '')} for img in _comment_img_list]
+
+            '''追评'''
+            append_comment = {}
+
+            # star_level
+            star_level = int(item.get('commentScore', '5'))
+
+            comment = [{
+                'comment': _comment_content,
+                'comment_date': _comment_date,
+                'sku_info': sku_info,
+                'img_url_list': _comment_img_list,
+                'star_level': star_level,
+                'video': '',
+            }]
+
+            _ = {
+                'buyer_name': buyer_name,  # 买家昵称
+                'comment': comment,  # 评论内容
+                'quantify': quantify,  # 评论数量
+                'head_img': head_img,  # 头像
+                'append_comment': append_comment,  # 追评
+            }
+
+            _comment_list.append(_)
+
+        return _comment_list
+
+    def _wash_comment(self, comment):
+        '''
+        清洗评论
+        :param comment:
+        :return:
+        '''
+        comment = re.compile(r'jd|\n').sub('', comment)
+        comment = re.compile('京东').sub('优秀网', comment)
+
+        return comment
 
     def _json_2_dict(self, json_str):
         '''

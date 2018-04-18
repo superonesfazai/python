@@ -10,7 +10,7 @@
 import sys
 sys.path.append('..')
 
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, CommentInfoSaveItemPipeline
 from my_logging import set_logger
 from my_utils import daemon_init, get_shanghai_time
 
@@ -19,6 +19,7 @@ from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from ali_1688_comment_parse import ALi1688CommentParse
 from taobao_comment_parse import TaoBaoCommentParse
 from tmall_comment_parse import TmallCommentParse
+from jd_comment_parse import JdCommentParse
 
 import gc
 from logging import INFO, ERROR
@@ -32,6 +33,7 @@ class MyAllCommentSpider(object):
             file_log_level=ERROR
         )
         self.msg = ''
+        self.debugging_api = self._init_debugging_api()
 
     def _just_run(self):
         while True:
@@ -50,21 +52,71 @@ class MyAllCommentSpider(object):
                 self.my_lg.info('--------------------------------------------------------')
 
                 self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+                self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+                if self._comment_pipeline.is_connect_success:
+                    _db_goods_id = self._comment_pipeline.select_all_goods_id_from_all_goods_comment_table()
+                    try:
+                        _db_goods_id = [item[0] for item in _db_goods_id]
+                    except IndexError:
+                        continue
+                    self.my_lg.info(str(_db_goods_id))
 
+                else:
+                    continue
+
+                # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
                 for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
+                    if item[0] in _db_goods_id:
+                        self.my_lg.info('该goods_id[%s]已存在于db中, 此处跳过!' % item[0])
+                        continue
+
+                    if index % 20 == 0:
+                        try: del self._comment_pipeline
+                        except: pass
+                        self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+
                     switch = {
-                        1: 'self.taobao_comment({0}, {1}, {2})',
-                        2: 'self.ali_1688_comment({0}, {1}, {2})',
-                        3: 'self.tmall_comment({0}, {1}, {2})',
-                        4: 'self.tmall_comment({0}, {1}, {2})',
-                        6: 'self.tmall_comment({0}, {1}, {2})',
+                        1: 'self._taobao_comment({0}, {1}, {2})',    # 淘宝
+                        2: 'self._ali_1688_comment({0}, {1}, {2})',  # 阿里1688
+                        3: 'self._tmall_comment({0}, {1}, {2})',     # 天猫
+                        4: 'self._tmall_comment({0}, {1}, {2})',     # 天猫超市
+                        6: 'self._tmall_comment({0}, {1}, {2})',     # 天猫国际
+                        7: 'self._jd_comment({0}, {1}, {2})',        # 京东
+                        8: 'self._jd_comment({0}, {1}, {2})',        # 京东超市
+                        9: 'self._jd_comment({0}, {1}, {2})',        # 京东全球购
+                        10: 'self._jd_comment({0}, {1}, {2})',       # 京东大药房
+                        11: 'self._zhe_800_comment({0}, {1}, {2})',  # 折800
+                        12: 'self._juanpi_comment({0}, {1}, {2})',   # 卷皮
+                        13: 'self._pinduoduo_comment({0}, {1}, {2})',# 拼多多
+                        25: 'self._vip_comment({0}, {1}, {2})',      # 唯品会
                     }
 
                     # 动态执行
                     exec_code = compile(switch[item[1]].format(index, item[0], item[1]), '', 'exec')
                     exec(exec_code)
 
-    def taobao_comment(self, index, goods_id, site_id):
+    def _init_debugging_api(self):
+        '''
+        用于设置待抓取的商品的site_id
+        :return: dict
+        '''
+        return {
+            1: False,
+            2: True,
+            3: False,
+            4: False,
+            6: False,
+            7: False,
+            8: False,
+            9: False,
+            10: False,
+            11: False,
+            12: False,
+            13: False,
+            25: False,
+        }
+
+    def _taobao_comment(self, index, goods_id, site_id):
         '''
         处理淘宝的商品comment
         :param index: 索引
@@ -72,17 +124,26 @@ class MyAllCommentSpider(object):
         :param site_id:
         :return:
         '''
-        self.my_lg.info('淘宝\t\t\t索引值(%s)' % str(index))
-        taobao = TaoBaoCommentParse(logger=self.my_lg)
-        taobao._get_comment_data(goods_id=str(goods_id))
+        if self.debugging_api.get(site_id):
+            self.my_lg.info('淘宝\t\t\t索引值(%s)' % str(index))
+            self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-        try:
-            del taobao
-        except:
-            self.my_lg.info('del taobao失败!')
-        gc.collect()
+            taobao = TaoBaoCommentParse(logger=self.my_lg)
+            _r = taobao._get_comment_data(goods_id=str(goods_id))
 
-    def ali_1688_comment(self, index, goods_id, site_id):
+            if _r != {}:
+                if self._comment_pipeline.is_connect_success:
+                    self._comment_pipeline.insert_into_comment(_r)
+
+            try:
+                del taobao
+            except:
+                self.my_lg.info('del taobao失败!')
+            gc.collect()
+        else:
+            pass
+
+    def _ali_1688_comment(self, index, goods_id, site_id):
         '''
         处理阿里1688的商品comment
         :param index: 索引
@@ -90,17 +151,26 @@ class MyAllCommentSpider(object):
         :param site_id:
         :return:
         '''
-        self.my_lg.info('阿里1688\t\t\t索引值(%s)' % str(index))
-        ali_1688 = ALi1688CommentParse(logger=self.my_lg)
-        ali_1688._get_comment_data(goods_id=goods_id)
+        if self.debugging_api.get(site_id):
+            self.my_lg.info('阿里1688\t\t\t索引值(%s)' % str(index))
+            self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-        try:
-            del ali_1688
-        except:
-            self.my_lg.info('del ali_1688失败!')
-        gc.collect()
+            ali_1688 = ALi1688CommentParse(logger=self.my_lg)
+            _r = ali_1688._get_comment_data(goods_id=goods_id)
 
-    def tmall_comment(self, index, goods_id, site_id):
+            if _r != {}:
+                if self._comment_pipeline.is_connect_success:
+                    self._comment_pipeline.insert_into_comment(_r)
+
+            try:
+                del ali_1688
+            except:
+                self.my_lg.info('del ali_1688失败!')
+            gc.collect()
+        else:
+            pass
+
+    def _tmall_comment(self, index, goods_id, site_id):
         '''
         处理tmall商品的comment
         :param index:
@@ -108,28 +178,111 @@ class MyAllCommentSpider(object):
         :param site_id:
         :return:
         '''
-        self.my_lg.info('天猫\t\t\t索引值(%s)' % str(index))
-        tmall = TmallCommentParse(logger=self.my_lg)
-        if site_id == 3:
-            _type = 0
-        elif site_id == 4:
-            _type = 1
-        elif site_id == 6:
-            _type = 2
-        else:
-            return None
+        if self.debugging_api.get(site_id):
+            self.my_lg.info('天猫\t\t\t索引值(%s)' % str(index))
+            self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-        tmall._get_comment_data(type=_type, goods_id=str(goods_id))
-        try: del tmall
-        except: pass
-        gc.collect()
+            tmall = TmallCommentParse(logger=self.my_lg)
+            if site_id == 3:
+                _type = 0
+            elif site_id == 4:
+                _type = 1
+            elif site_id == 6:
+                _type = 2
+            else:
+                return None
+
+            tmall._get_comment_data(type=_type, goods_id=str(goods_id))
+            try: del tmall
+            except: pass
+            gc.collect()
+        else:
+            pass
+
+    def _jd_comment(self, index, goods_id, site_id):
+        '''
+        处理京东商品的comment
+        :param index:
+        :param goods_id:
+        :param site_id:
+        :return:
+        '''
+        if self.debugging_api.get(site_id):
+            self.my_lg.info('京东\t\t\t索引值(%s)' % str(index))
+            self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
+
+            jd = JdCommentParse(logger=self.my_lg)
+
+            jd._get_comment_data(goods_id=str(goods_id))
+            try:
+                del jd
+            except:
+                pass
+            gc.collect()
+        else:
+            pass
+
+    def _zhe_800_comment(self, index, goods_id, site_id):
+        '''
+        处理折800商品的comment
+        :param index:
+        :param goods_id:
+        :param site_id:
+        :return:
+        '''
+        if self.debugging_api.get(site_id):
+            pass
+        else:
+            pass
+
+    def _juanpi_comment(self, index, goods_id, site_id):
+        '''
+        处理卷皮商品的comment
+        :param index:
+        :param goods_id:
+        :param site_id:
+        :return:
+        '''
+        if self.debugging_api.get(site_id):
+            pass
+        else:
+            pass
+
+    def _pinduoduo_comment(self, index, goods_id, site_id):
+        '''
+        处理拼多多的comment
+        :param index:
+        :param goods_id:
+        :param site_id:
+        :return:
+        '''
+        if self.debugging_api.get(site_id):
+            pass
+        else:
+            pass
+
+    def _vip_comment(self, index, goods_id, site_id):
+        '''
+        处理唯品会的comment
+        :param index:
+        :param goods_id:
+        :param site_id:
+        :return:
+        '''
+        if self.debugging_api.get(site_id):
+            pass
+        else:
+            pass
 
     def __del__(self):
         try:
             del self.my_lg
             del self.msg
+            del self.debugging_api
         except:
             pass
+        try: del self._comment_pipeline
+        except: pass
         gc.collect()
 
 def just_fuck_run():

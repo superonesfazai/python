@@ -112,12 +112,14 @@ class ALi1688CommentParse(object):
                 }
                 _comment_list.append(_)
 
+            _t = datetime.datetime.now()
             self.result_data = {
                 'goods_id': str(goods_id),
-                'modify_time': datetime.datetime.now(),
+                'create_time': _t,
+                'modify_time': _t,
                 '_comment_list': _comment_list,
             }
-            pprint(self.result_data)
+            # pprint(self.result_data)
             return self.result_data
         else:
             self.my_lg.error('该商品的comment为空list! 出错地址: ' + tmp_url)

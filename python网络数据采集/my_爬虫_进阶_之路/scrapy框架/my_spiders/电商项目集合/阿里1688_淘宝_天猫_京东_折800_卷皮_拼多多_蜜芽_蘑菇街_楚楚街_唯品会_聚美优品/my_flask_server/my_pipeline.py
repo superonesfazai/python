@@ -14,10 +14,14 @@ import gc
 from sqlalchemy import create_engine
 import datetime, calendar
 import asyncio
+from logging import INFO, ERROR
 
 from settings import HOST, USER, PASSWORD, DATABASE, PORT
 from settings import INIT_PASSWD
 from settings import HOST_2, USER_2, PASSWORD_2, DATABASE_2, PORT_2
+from settings import MY_SPIDER_LOGS_PATH
+from my_logging import set_logger
+from my_utils import get_shanghai_time
 
 class UserItemPipeline(object):
     """
@@ -793,6 +797,31 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item['goods_id'])
             logger.exception(e)
+
+            return False
+
+    def update_tmall_goodsurl_by_site_id_6(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                item['goods_url'],
+
+                item['goods_id'],
+            ]
+
+            cs.execute('update dbo.GoodsInfoAutoGet set GoodsUrl=%s where GoodsID = %s',
+                       tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            return True
+        except Exception as e:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            print('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item['goods_id'])
+            print(e)
 
             return False
 
@@ -2636,6 +2665,27 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs = self.conn.cursor()
 
             cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6 order by ID desc')
+            # cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where GoodsID=%s', ('12763890166',))
+
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def select_tmall_all_goods_id_url_by_site_6(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select GoodsID, SiteID, GoodsUrl from dbo.GoodsInfoAutoGet where SiteID=6 order by ID desc')
+
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -3272,6 +3322,91 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             self.conn.close()
         except Exception:
+            pass
+        gc.collect()
+
+class CommentInfoSaveItemPipeline(object):
+    """
+    页面存储管道
+    """
+    def __init__(self, logger=None):
+        super(CommentInfoSaveItemPipeline, self).__init__()
+        self.is_connect_success = True
+        try:
+            self.conn = connect(
+                host=HOST,
+                user=USER,
+                password=PASSWORD,
+                database=DATABASE,
+                port=PORT,
+                charset='utf8'
+            )
+        except Exception:
+            print('数据库连接失败!!')
+            self.is_connect_success = False
+
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/db/_/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
+        self.msg = ''
+
+    def insert_into_comment(self, item):
+        cs = self.conn.cursor()
+        _ = True
+        try:
+            params = (
+                item['goods_id'],
+                item['create_time'],
+                item['modify_time'],
+                dumps(item['_comment_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            )
+
+            # print(params)
+            # ---->>> 注意要写对要插入数据的所有者,不然报错
+            cs.execute('insert into dbo.all_goods_comment(goods_id, create_time, modify_time, comment_info) values(%s, %s, %s, %s)'.encode('utf-8'), params)  # 注意必须是tuple类型
+            self.conn.commit()
+            self.my_lg.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+        except Exception as e:
+            self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item.get('goods_id'))
+            self.my_lg.exception('-------------------------| 错误如下: ', e)
+            _ = False
+
+        finally:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return _
+
+    def select_all_goods_id_from_all_goods_comment_table(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute(r'select goods_id from dbo.all_goods_comment')
+            # self.conn.commit()
+
+            result = cs.fetchall()
+            # print(result)
+            cs.close()
+            return result
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return None
+
+    def __del__(self):
+        try:
+            del self.my_lg
+            del self.msg
+            del self.conn
+        except:
             pass
         gc.collect()
 

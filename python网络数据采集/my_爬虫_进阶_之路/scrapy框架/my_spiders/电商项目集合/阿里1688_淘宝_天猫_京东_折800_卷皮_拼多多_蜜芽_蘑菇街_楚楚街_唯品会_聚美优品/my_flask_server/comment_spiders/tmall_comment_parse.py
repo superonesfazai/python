@@ -113,9 +113,11 @@ class TmallCommentParse(object):
             self.result_data = {}
             return {}
 
+        _t = datetime.datetime.now()
         self.result_data = {
             'goods_id': str(goods_id),
-            'modify_time': datetime.datetime.now(),
+            'create_time': _t,
+            'modify_time': _t,
             '_comment_list': _comment_list,
         }
         pprint(self.result_data)
@@ -129,8 +131,8 @@ class TmallCommentParse(object):
         '''
         _comment_list = []
         for item in _tmp_comment_list:
-            comment_date = item.get('rateDate', '')
-            assert comment_date != '', '得到的comment_date为空str!请检查!'
+            _comment_date = item.get('rateDate', '')
+            assert _comment_date != '', '得到的_comment_date为空str!请检查!'
 
             # 天猫接口拿到的sku_info默认为空
             sku_info = ''
@@ -146,12 +148,12 @@ class TmallCommentParse(object):
             quantify = 1
 
             # 天猫没有head_img回传，就设置一个默认地址
-            head_img = 'https://img.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png'
+            head_img = ''
 
             # 第一次评论图片
             _comment_img_list = item.get('pics', []) if item.get('pics', '') != '' else []
             if _comment_img_list != []:
-                _comment_img_list = ['https:' + img for img in _comment_img_list]
+                _comment_img_list = [{'img_url': 'https:' + img} for img in _comment_img_list]
 
             '''追评'''
             _tmp_append_comment = item.get('appendComment', {}) if item.get('appendComment', '') != '' else {}
@@ -159,7 +161,7 @@ class TmallCommentParse(object):
             _append_comment_img_list = _tmp_append_comment.get('pics', []) if _tmp_append_comment.get('pics',
                                                                                                       '') != '' else []
             if _append_comment_img_list != []:
-                _append_comment_img_list = ['https:' + img for img in _comment_img_list]
+                _append_comment_img_list = [{'img_url': 'https:' + img} for img in _comment_img_list]
 
             if _tmp_append_comment != {}:
                 append_comment = {
@@ -172,7 +174,7 @@ class TmallCommentParse(object):
 
             comment = [{
                 'comment': _comment_content,
-                'comment_date': comment_date,
+                'comment_date': _comment_date,
                 'sku_info': sku_info,
                 'img_url_list': _comment_img_list,
                 'star_level': randint(4, 5),

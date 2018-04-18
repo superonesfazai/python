@@ -86,68 +86,79 @@ class TaoBaoCommentParse(object):
             sleep(self.comment_page_switch_sleep_time)
 
         # self.my_lg.info(str(len(_tmp_comment_list)))
-        _comment_list = []
-        _sku_info_list = []     # 用于存已有的规格
-        for item in _tmp_comment_list:
-            try:
-                comment_date = item.get('date', '')
-                assert comment_date != '', '得到的comment_date为空str!请检查!'
-                comment_date = self._get_comment_date(comment_date)
+        try:
+            _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
+        except Exception as e:
+            self.my_lg.error('出错goods_id: ' + goods_id)
+            self.my_lg.exception(e)
+            self.result_data = {}
+            return {}
 
-                sku_info = item.get('auction', {}).get('sku', '')
-                # self.my_lg.info(sku_info)
-                if sku_info == '' and _sku_info_list == []:  # 规格为空就跳过, 即只抓取有效评论
-                    continue
-                if sku_info != '':      # 不为空存入
-                    _sku_info_list.append(sku_info)
-                    _sku_info_list = list(set(_sku_info_list))
-                if sku_info == '':  # 为空的，随机设置一个
-                    sku_info = _sku_info_list[randint(0, len(_sku_info_list)-1)]
-                    # print(sku_info)
-
-                _comment_content = item.get('content', '')
-                assert _comment_content != '', '得到的评论内容为空str!请检查!'
-                _comment_content = self._wash_comment(comment=_comment_content)
-
-                buyer_name = item.get('user', {}).get('nick', '')
-                assert buyer_name != '', '得到的用户昵称为空值!请检查!'
-
-                quantify = int(item.get('buyAmount', 0)) if item.get('buyAmount', 0) != 0 else 1
-
-                tmp_head_img =  item.get('user', {}).get('avatar', '')
-                head_img = 'https:' + tmp_head_img if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' else 'https://img.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png'
-                comment = [{
-                    'comment': _comment_content,
-                    'comment_date': comment_date,
-                    'sku_info': sku_info,
-                    'img_url_list': [],
-                    'star_level': randint(4, 5),
-                    'video': item.get('video', ''),
-                }]
-
-                _ = {
-                    'buyer_name': buyer_name,       # 买家昵称
-                    'comment': comment,             # 评论内容
-                    'quantify': quantify,           # 评论数量
-                    'head_img': head_img,           # 头像
-                    'append_comment': {},           # 追评
-                }
-
-                _comment_list.append(_)
-
-            except Exception as e:
-                self.my_lg.error('出错goods_id: ' + goods_id)
-                self.my_lg.exception(e)
-                self.result_data = {}
-                return {}
-
+        _t = datetime.datetime.now()
         self.result_data = {
             'goods_id': str(goods_id),
-            'modify_time': datetime.datetime.now(),
+            'create_time': _t,
+            'modify_time': _t,
             '_comment_list': _comment_list,
         }
         # pprint(self.result_data)
         return self.result_data
+
+    def _get_comment_list(self, _tmp_comment_list):
+        '''
+        转化成需要的结果集
+        :param _tmp_comment_list:
+        :return:
+        '''
+        _comment_list = []
+        _sku_info_list = []  # 用于存已有的规格
+        for item in _tmp_comment_list:
+            comment_date = item.get('date', '')
+            assert comment_date != '', '得到的comment_date为空str!请检查!'
+            comment_date = self._get_comment_date(comment_date)
+
+            sku_info = item.get('auction', {}).get('sku', '')
+            # self.my_lg.info(sku_info)
+            if sku_info == '' and _sku_info_list == []:  # 规格为空就跳过, 即只抓取有效评论
+                continue
+            if sku_info != '':  # 不为空存入
+                _sku_info_list.append(sku_info)
+                _sku_info_list = list(set(_sku_info_list))
+            if sku_info == '':  # 为空的，随机设置一个
+                sku_info = _sku_info_list[randint(0, len(_sku_info_list) - 1)]
+                # print(sku_info)
+
+            _comment_content = item.get('content', '')
+            assert _comment_content != '', '得到的评论内容为空str!请检查!'
+            _comment_content = self._wash_comment(comment=_comment_content)
+
+            buyer_name = item.get('user', {}).get('nick', '')
+            assert buyer_name != '', '得到的用户昵称为空值!请检查!'
+
+            quantify = int(item.get('buyAmount', 0)) if item.get('buyAmount', 0) != 0 else 1
+
+            tmp_head_img = item.get('user', {}).get('avatar', '')
+            head_img = 'https:' + tmp_head_img if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' else 'https://img.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png'
+            comment = [{
+                'comment': _comment_content,
+                'comment_date': comment_date,
+                'sku_info': sku_info,
+                'img_url_list': [],
+                'star_level': randint(4, 5),
+                'video': item.get('video', ''),
+            }]
+
+            _ = {
+                'buyer_name': buyer_name,  # 买家昵称
+                'comment': comment,  # 评论内容
+                'quantify': quantify,  # 评论数量
+                'head_img': head_img,  # 头像
+                'append_comment': {},  # 追评
+            }
+
+            _comment_list.append(_)
+
+        return _comment_list
 
     def _set_params(self, current_page_num, goods_id):
         '''
