@@ -131,8 +131,12 @@ class MiaPintuan(object):
 
                         # pprint(goods_data)
                         # print(goods_data)
-                        mia.insert_into_mia_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
+                        _r = mia.insert_into_mia_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        if _r:  # 更新
+                            db_goods_id_list.append(goods_id)
+                            db_goods_id_list = list(set(db_goods_id_list))
+
+                    sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
         else:
             print('数据库连接失败，此处跳过!')
             pass
@@ -167,6 +171,7 @@ def just_fuck_run():
         mia_pintuan.get_pintuan_goods_info()
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        sleep(5*60)
 
 def main():
     '''

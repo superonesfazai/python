@@ -32,6 +32,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from settings import PHANTOMJS_DRIVER_PATH
 from settings import HEADERS
 from my_ip_pools import MyIpPools
+from my_utils import get_shanghai_time, timestamp_to_regulartime
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -392,8 +393,8 @@ class JuanPiParse(object):
                 schedule = []
             else:
                 schedule = [{
-                    'begin_time': self.timestamp_to_regulartime(begin_time),
-                    'end_time': self.timestamp_to_regulartime(end_time),
+                    'begin_time': timestamp_to_regulartime(begin_time),
+                    'end_time': timestamp_to_regulartime(end_time),
                 }]
             # pprint(schedule)
 
@@ -512,15 +513,7 @@ class JuanPiParse(object):
         tmp['spider_url'] = data_list['spider_url']  # 商品地址
         tmp['username'] = data_list['username']  # 操作人员username
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+        now_time = get_shanghai_time()
 
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
@@ -569,15 +562,7 @@ class JuanPiParse(object):
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+        now_time = get_shanghai_time()
 
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -622,15 +607,7 @@ class JuanPiParse(object):
         tmp['spider_url'] = data_list['spider_url']  # 商品地址
         tmp['username'] = data_list['username']  # 操作人员username
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+        now_time = get_shanghai_time()
 
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
@@ -674,22 +651,16 @@ class JuanPiParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.insert_into_juanpi_pintuan_table(tmp)
+        _r = pipeline.insert_into_juanpi_pintuan_table(tmp)
+
+        return _r
 
     def to_right_and_update_pintuan_data(self, data, pipeline):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+        now_time = get_shanghai_time()
 
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -730,21 +701,6 @@ class JuanPiParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         pipeline.update_juanpi_pintuan_table(tmp)
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(int(timestamp))
-        # print(time_local)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def init_phantomjs(self):
         """

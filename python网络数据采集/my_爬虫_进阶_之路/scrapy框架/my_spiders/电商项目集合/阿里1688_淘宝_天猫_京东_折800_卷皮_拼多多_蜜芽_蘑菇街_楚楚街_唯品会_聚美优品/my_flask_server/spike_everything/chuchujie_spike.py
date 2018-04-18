@@ -31,7 +31,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
@@ -173,8 +173,8 @@ class ChuChuJie_9_9_Spike(object):
                             goods_data['goods_id'] = str(goods_id)
                             goods_data['sub_title'] = item.get('sub_title', '')
                             goods_data['miaosha_time'] = {
-                                'miaosha_begin_time': self.timestamp_to_regulartime(int(time.time())),
-                                'miaosha_end_time': self.timestamp_to_regulartime(int(miaosha_end_time)),
+                                'miaosha_begin_time': timestamp_to_regulartime(int(time.time())),
+                                'miaosha_end_time': timestamp_to_regulartime(int(miaosha_end_time)),
                             }
                             goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                             goods_data['gender'] = str(item.get('gender', '0'))
@@ -271,14 +271,6 @@ class ChuChuJie_9_9_Spike(object):
         miaosha_end_time = int(time.time()) + day + hour + min
 
         return miaosha_end_time
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        把时间戳转成字符串形式
-        :param time_stamp: 时间戳
-        :return:
-        '''
-        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
     def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
         '''

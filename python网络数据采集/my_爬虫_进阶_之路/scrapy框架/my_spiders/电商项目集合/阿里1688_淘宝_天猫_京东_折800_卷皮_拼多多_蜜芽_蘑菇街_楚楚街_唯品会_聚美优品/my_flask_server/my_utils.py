@@ -79,13 +79,7 @@ def timestamp_to_regulartime(timestamp):
     # 利用localtime()函数将时间戳转化成localtime的格式
     # 利用strftime()函数重新格式化时间
 
-    # 转换成localtime
-    time_local = time.localtime(int(timestamp))
-    # print(time_local)
-    # 转换成新的时间格式(2016-05-05 20:28:54)
-    dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-    return dt
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(timestamp)))
 
 # 把字符串转成datetime
 def string_to_datetime(string):

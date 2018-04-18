@@ -334,7 +334,9 @@ class MiaPintuanParse(MiaParse):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.insert_into_mia_pintuan_table(tmp)
+        _r = pipeline.insert_into_mia_pintuan_table(tmp)
+
+        return _r
 
     def update_mia_pintuan_table(self, data, pipeline):
         data_list = data

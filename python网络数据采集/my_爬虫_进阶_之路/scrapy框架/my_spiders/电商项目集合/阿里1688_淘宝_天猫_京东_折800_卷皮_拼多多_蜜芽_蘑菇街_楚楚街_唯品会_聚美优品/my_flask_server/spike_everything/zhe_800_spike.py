@@ -26,7 +26,7 @@ from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import datetime
 
@@ -81,7 +81,7 @@ class Zhe800Spike(object):
                         print('遇到严重错误: ', e)
                         continue
 
-                    print('秒杀时间为: ', self.timestamp_to_regulartime(begin_times_timestamp))
+                    print('秒杀时间为: ', timestamp_to_regulartime(begin_times_timestamp))
 
                     if self.is_recent_time(timestamp=begin_times_timestamp):    # 说明秒杀日期合法
                         try:
@@ -151,21 +151,6 @@ class Zhe800Spike(object):
                 pass
             base_session_id += 2
 
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(int(timestamp))
-        # print(time_local)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
-
     def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
         '''
         返回秒杀开始和结束时间
@@ -192,8 +177,8 @@ class Zhe800Spike(object):
             tmp = {}
             # 秒杀开始时间和结束时间
             tmp['miaosha_time'] = {
-                'miaosha_begin_time': self.timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
-                'miaosha_end_time': self.timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
+                'miaosha_begin_time': timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
+                'miaosha_end_time': timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
             }
 
             # 折800商品地址

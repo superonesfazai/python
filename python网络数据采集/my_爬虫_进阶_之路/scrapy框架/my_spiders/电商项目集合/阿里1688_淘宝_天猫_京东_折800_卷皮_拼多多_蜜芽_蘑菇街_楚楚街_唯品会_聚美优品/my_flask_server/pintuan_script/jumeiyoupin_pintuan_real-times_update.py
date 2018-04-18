@@ -51,7 +51,7 @@ class JuMeiYouPinRealTimesUpdate(object):
 
     def _set_logger(self):
         self.my_lg = set_logger(
-            log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
+            log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
         )
@@ -250,28 +250,6 @@ class JuMeiYouPinRealTimesUpdate(object):
 
         else:  # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
             return 2
-
-    def get_log_file_name_from_time(self):
-        '''
-        得到log文件的时间名字
-        :return: 格式: 2016-03-25 类型str
-        '''
-        # 时区处理，时间处理到上海时间
-        # pytz查询某个国家时区
-        country_timezones_list = pytz.country_timezones('cn')
-        # print(country_timezones_list)
-
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # print(type(now_time))
-
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-        # print(now_time)
-
-        return str(now_time)[0:10]
 
     def __del__(self):
         try:

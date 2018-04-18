@@ -108,7 +108,11 @@ class Zhe800Pintuan(object):
                         goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(schedule=goods_data.get('schedule', [])[0])
 
                         # print(goods_data)
-                        zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        if _r:  # 插入就更新
+                            db_goods_id_list.append(item[0])
+                            db_goods_id_list = list(set(db_goods_id_list))
+
                     sleep(ZHE_800_PINTUAN_SLEEP_TIME)
                     gc.collect()
 

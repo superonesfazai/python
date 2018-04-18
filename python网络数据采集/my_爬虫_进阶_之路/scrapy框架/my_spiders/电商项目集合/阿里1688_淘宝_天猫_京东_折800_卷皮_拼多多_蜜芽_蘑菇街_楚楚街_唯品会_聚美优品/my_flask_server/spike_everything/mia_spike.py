@@ -28,7 +28,7 @@ from settings import HEADERS, MIA_BASE_NUMBER, MIA_MAX_NUMBER, MIA_SPIKE_SLEEP_T
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 from settings import IS_BACKGROUND_RUNNING
 import datetime
@@ -132,8 +132,8 @@ class MiaSpike(object):
                         goods_data['taobao_price'] = item.get('active_price')       # 秒杀最低价
                         goods_data['sub_title'] = item.get('short_info', '')
                         goods_data['miaosha_time'] = {
-                            'miaosha_begin_time': self.timestamp_to_regulartime(begin_time),
-                            'miaosha_end_time': self.timestamp_to_regulartime(end_time),
+                            'miaosha_begin_time': timestamp_to_regulartime(begin_time),
+                            'miaosha_end_time': timestamp_to_regulartime(end_time),
                         }
                         goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                         goods_data['pid'] = str(pid)
@@ -165,20 +165,6 @@ class MiaSpike(object):
         miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
 
         return miaosha_begin_time, miaosha_end_time
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def __del__(self):
         gc.collect()

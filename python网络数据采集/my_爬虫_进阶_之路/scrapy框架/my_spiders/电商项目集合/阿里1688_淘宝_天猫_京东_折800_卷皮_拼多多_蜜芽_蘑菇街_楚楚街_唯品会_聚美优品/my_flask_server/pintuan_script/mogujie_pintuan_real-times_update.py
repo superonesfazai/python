@@ -13,7 +13,7 @@ sys.path.append('..')
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import gc
 from time import sleep
@@ -132,8 +132,8 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                 item_list = [{
                                     'goods_id': item.get('tradeItemId', ''),
                                     'pintuan_time': {
-                                        'begin_time': self.timestamp_to_regulartime(timestamp=begin_time_timestamp),
-                                        'end_time': self.timestamp_to_regulartime(self.get_pintuan_end_time(begin_time_timestamp, item.get('leftTimeOrg', ''))),
+                                        'begin_time': timestamp_to_regulartime(timestamp=begin_time_timestamp),
+                                        'end_time': timestamp_to_regulartime(self.get_pintuan_end_time(begin_time_timestamp, item.get('leftTimeOrg', ''))),
                                     },
                                     'all_sell_count': str(item.get('salesVolume', 0)),
                                 } for item in tmp_item_list]
@@ -234,21 +234,6 @@ class MoGuJiePinTuanRealTimesUpdate(object):
         pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
 
         return pintuan_begin_time, pintuan_end_time
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(int(timestamp))
-        # print(time_local)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def get_pintuan_end_time(self, begin_time, left_time):
         '''

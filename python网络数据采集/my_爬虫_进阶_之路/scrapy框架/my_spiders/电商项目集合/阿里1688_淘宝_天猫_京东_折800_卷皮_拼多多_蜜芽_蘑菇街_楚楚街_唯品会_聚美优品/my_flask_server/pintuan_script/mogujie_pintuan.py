@@ -28,7 +28,7 @@ import datetime
 from mogujie_parse import MoGuJieParse
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 class MoGuJiePinTuan(object):
     def __init__(self):
@@ -70,7 +70,7 @@ class MoGuJiePinTuan(object):
         goods_list = []
 
         '''
-        方法一: 蘑菇街手机版拼团商品列表获取签名无法破解，所以不用手机端的方法来获取数据
+        方法一: 蘑菇街手机版拼团商品列表获取签名暂时无法破解，所以不用手机端的方法来获取数据
         '''
         # mw_appkey = '100028'
         # mw_t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
@@ -160,8 +160,8 @@ class MoGuJiePinTuan(object):
                 item_list = [{
                     'goods_id': item.get('tradeItemId', ''),
                     'pintuan_time': {
-                        'begin_time': self.timestamp_to_regulartime(timestamp=begin_time_timestamp),
-                        'end_time': self.timestamp_to_regulartime(self.get_pintuan_end_time(begin_time_timestamp, item.get('leftTimeOrg', ''))),
+                        'begin_time': timestamp_to_regulartime(timestamp=begin_time_timestamp),
+                        'end_time': timestamp_to_regulartime(self.get_pintuan_end_time(begin_time_timestamp, item.get('leftTimeOrg', ''))),
                     },
                     'all_sell_count': str(item.get('salesVolume', 0)),
                     'fcid': fcid,
@@ -233,7 +233,11 @@ class MoGuJiePinTuan(object):
 
                         # pprint(goods_data)
                         # print(goods_data)
-                        mogujie.insert_into_mogujie_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        _r = mogujie.insert_into_mogujie_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        if _r:  # 更新
+                            db_goods_id_list.append(goods_id)
+                            db_goods_id_list = list(set(db_goods_id_list))
+
                         sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 
         else:
@@ -281,21 +285,6 @@ class MoGuJiePinTuan(object):
             min * 60
 
         return begin_time + left_end_time_timestamp
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(int(timestamp))
-        # print(time_local)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def get_pintuan_begin_time_and_pintuan_end_time(self, pintuan_time):
         '''

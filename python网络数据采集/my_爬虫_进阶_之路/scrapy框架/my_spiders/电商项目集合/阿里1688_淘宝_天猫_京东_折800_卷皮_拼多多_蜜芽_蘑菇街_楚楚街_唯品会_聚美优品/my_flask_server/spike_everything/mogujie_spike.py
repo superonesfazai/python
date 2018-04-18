@@ -28,7 +28,7 @@ from settings import HEADERS
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
@@ -75,7 +75,7 @@ class MoGuJieSpike(object):
         '''
         print(60 * '*')
         event_time = param[0]
-        print('秒杀开始时间:', self.timestamp_to_regulartime(event_time), '\t', '对应时间戳为: ', event_time)
+        print('秒杀开始时间:', timestamp_to_regulartime(event_time), '\t', '对应时间戳为: ', event_time)
         print(60 * '*')
 
         item_list = param[1]
@@ -125,8 +125,8 @@ class MoGuJieSpike(object):
                             continue
 
                         goods_data['miaosha_time'] = {
-                            'miaosha_begin_time': self.timestamp_to_regulartime(int(item.get('startTime', 0))),
-                            'miaosha_end_time': self.timestamp_to_regulartime(int(item.get('endTime', 0))),
+                            'miaosha_begin_time': timestamp_to_regulartime(int(item.get('startTime', 0))),
+                            'miaosha_end_time': timestamp_to_regulartime(int(item.get('endTime', 0))),
                         }
                         goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                         goods_data['event_time'] = str(event_time)
@@ -200,14 +200,6 @@ class MoGuJieSpike(object):
             today_hour_timestamp_list.append(timestamp)
 
         return today_hour_timestamp_list
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        把时间戳转成字符串形式
-        :param time_stamp: 时间戳
-        :return:
-        '''
-        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
     def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
         '''

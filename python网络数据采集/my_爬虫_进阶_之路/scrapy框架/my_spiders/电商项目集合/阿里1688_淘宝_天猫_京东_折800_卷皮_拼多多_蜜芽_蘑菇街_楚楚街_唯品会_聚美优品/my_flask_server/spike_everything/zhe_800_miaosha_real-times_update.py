@@ -24,7 +24,7 @@ from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING
 import requests
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):
@@ -221,8 +221,8 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             tmp = {}
             # 秒杀开始时间和结束时间
             tmp['miaosha_time'] = {
-                'miaosha_begin_time': self.timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
-                'miaosha_end_time': self.timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
+                'miaosha_begin_time': timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
+                'miaosha_end_time': timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
             }
 
             # 折800商品地址
@@ -244,20 +244,6 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             # pprint(miaosha_goods_list)
 
         return miaosha_goods_list
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def __del__(self):
         try:

@@ -70,3 +70,5 @@ Running BrowserMob Proxy using LittleProxy implementation. To revert to the lega
 [INFO  2018-04-14T10:30:12,373 org.littleshoot.proxy.impl.ProxyToServerConnection] (LittleProxy-0-ProxyToServerWorker-4) (DISCONNECTED) [id: 0xf1bb1951, L:0.0.0.0/0.0.0.0:54846]: Connection to upstream server via chained proxy failed java.nio.channels.ClosedChannelException: null
 	at io.netty.handler.ssl.SslHandler.channelInactive(...)(Unknown Source) ~[browsermob-dist-2.1.4.jar:?]
 
+[INFO  2018-04-18T19:27:24,202 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (LittleProxy-JVM-shutdown-hook) Shutting down proxy server immediately (non-graceful) 
+[INFO  2018-04-18T19:27:24,227 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (LittleProxy-JVM-shutdown-hook) Closing all channels (non-graceful) 

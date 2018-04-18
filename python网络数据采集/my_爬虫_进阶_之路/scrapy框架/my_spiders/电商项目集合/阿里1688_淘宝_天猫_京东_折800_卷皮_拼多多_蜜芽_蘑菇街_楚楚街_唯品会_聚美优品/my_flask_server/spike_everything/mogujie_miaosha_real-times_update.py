@@ -17,7 +17,7 @@ sys.path.append('..')
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import gc
 from time import sleep
@@ -135,8 +135,8 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                                 continue
 
                                             goods_data['miaosha_time'] = {
-                                                'miaosha_begin_time': self.timestamp_to_regulartime(int(item_2.get('startTime', 0))),
-                                                'miaosha_end_time': self.timestamp_to_regulartime(int(item_2.get('endTime', 0))),
+                                                'miaosha_begin_time': timestamp_to_regulartime(int(item_2.get('startTime', 0))),
+                                                'miaosha_end_time': timestamp_to_regulartime(int(item_2.get('endTime', 0))),
                                             }
                                             goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
 
@@ -172,14 +172,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
 
         return miaosha_begin_time, miaosha_end_time
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        把时间戳转成字符串形式
-        :param time_stamp: 时间戳
-        :return:
-        '''
-        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
     def get_item_list(self, event_time):
         '''

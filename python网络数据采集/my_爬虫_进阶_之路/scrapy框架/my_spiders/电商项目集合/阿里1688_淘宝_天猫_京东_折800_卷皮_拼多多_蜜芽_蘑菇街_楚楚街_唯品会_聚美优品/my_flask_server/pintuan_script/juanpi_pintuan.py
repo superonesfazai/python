@@ -24,7 +24,7 @@ from settings import HEADERS, IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import datetime
 
@@ -65,7 +65,7 @@ class JuanPiPinTuan(object):
                 tmp_data = []
 
             # print(tmp_data)
-            sleep(.3)
+            sleep(.5)
 
             if tmp_data == []:
                 print('该tmp_url得到的goods为空list, 此处跳过!')
@@ -73,8 +73,8 @@ class JuanPiPinTuan(object):
 
             tmp_pintuan_goods_id_list = [{
                 'goods_id': item.get('goods_id', ''),
-                'begin_time': self.timestamp_to_regulartime(int(item.get('start_time', ''))),
-                'end_time': self.timestamp_to_regulartime(int(item.get('end_time', ''))),
+                'begin_time': timestamp_to_regulartime(int(item.get('start_time', ''))),
+                'end_time': timestamp_to_regulartime(int(item.get('end_time', ''))),
                 'all_sell_count': str(item.get('join_number_int', '')),
                 'page': page,
             } for item in tmp_data]
@@ -87,6 +87,9 @@ class JuanPiPinTuan(object):
         print('该pintuan_goods_id_list的总个数为: ', len(pintuan_goods_id_list))
         print(pintuan_goods_id_list)
 
+        self._deal_with_data(pintuan_goods_id_list)
+
+    def _deal_with_data(self, pintuan_goods_id_list):
         juanpi_pintuan = JuanPiParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
@@ -96,10 +99,8 @@ class JuanPiPinTuan(object):
             for item in pintuan_goods_id_list:
                 if index % 5 == 0:
                     # 此处避免脚本占用大量内存
-                    try:
-                        del juanpi_pintuan
-                    except:
-                        pass
+                    try: del juanpi_pintuan
+                    except: pass
                     juanpi_pintuan = JuanPiParse()
                     gc.collect()
 
@@ -117,14 +118,16 @@ class JuanPiPinTuan(object):
                             page=item.get('page', 0)
                         )
 
-                        if goods_data == {}:    # 返回的data为空则跳过
+                        if goods_data == {}:  # 返回的data为空则跳过
                             pass
                         else:
                             # print(goods_data)
-                            juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                            pass
+                            _r = juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                            if _r:  # 更新
+                                db_goods_id_list.append(item.get('goods_id', ''))
+                                db_goods_id_list = list(set(db_goods_id_list))
 
-                        sleep(.6)
+                        sleep(1)
                         index += 1
 
                 else:
@@ -138,9 +141,12 @@ class JuanPiPinTuan(object):
                         pass
                     else:
                         # print(goods_data)
-                        juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                        pass
-                    sleep(.6)
+                        _r = juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                        if _r:
+                            db_goods_id_list.append(item.get('goods_id', ''))
+                            db_goods_id_list = list(set(db_goods_id_list))
+
+                    sleep(1)
                     index += 1
 
         else:
@@ -192,20 +198,6 @@ class JuanPiPinTuan(object):
         pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
 
         return pintuan_begin_time, pintuan_end_time
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def __del__(self):
         gc.collect()

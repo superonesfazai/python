@@ -13,7 +13,7 @@ sys.path.append('..')
 from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_ip_pools import MyIpPools
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import gc
 from time import sleep
@@ -240,16 +240,16 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         miaosha_goods_list = []
         for item in data:
             tmp = {}
-            miaosha_begin_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time'))))
+            miaosha_begin_time = str(timestamp_to_regulartime(int(item.get('data', {}).get('start_time'))))
             tmp_hour = miaosha_begin_time[-8:-6]
             if tmp_hour in PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST:
                 if tmp_hour in PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST:
                     '''
                     # 这些起始的点秒杀时间只有30分钟
                     '''
-                    miaosha_end_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*30))
+                    miaosha_end_time = str(timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*30))
                 else:
-                    miaosha_end_time = str(self.timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*60))
+                    miaosha_end_time = str(timestamp_to_regulartime(int(item.get('data', {}).get('start_time')) + 60*60))
 
                 tmp['miaosha_time'] = {
                     'miaosha_begin_time': miaosha_begin_time,
@@ -326,7 +326,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         try:
             data = json.loads(tmp_data)
             # pprint(data)
-            times = [str(self.timestamp_to_regulartime(int(item))) for item in data.get('times', [])]
+            times = [str(timestamp_to_regulartime(int(item))) for item in data.get('times', [])]
             data = data.get('items', [])
             # print(data)
             # print(times)
@@ -396,20 +396,6 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         except Exception:
             print('动态切换ip失败')
             pass
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def __del__(self):
         try:
