@@ -39,6 +39,11 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 class JuanPiParse(object):
     def __init__(self):
         super(JuanPiParse, self).__init__()
+        self._set_headers()
+        self.result_data = {}
+        self.init_phantomjs()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -48,8 +53,6 @@ class JuanPiParse(object):
             'Host': 'web.juanpi.com',
             'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
         }
-        self.result_data = {}
-        self.init_phantomjs()
 
     def get_goods_data(self, goods_id):
         '''

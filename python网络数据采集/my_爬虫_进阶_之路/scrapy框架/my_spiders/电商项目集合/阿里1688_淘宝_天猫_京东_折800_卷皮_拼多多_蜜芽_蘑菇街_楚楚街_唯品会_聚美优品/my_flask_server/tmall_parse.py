@@ -41,6 +41,11 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class TmallParse(object):
     def __init__(self):
+        self._set_headers()
+        self.result_data = {}
+        self.init_phantomjs()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -48,10 +53,8 @@ class TmallParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'detail.m.tmall.com',
-            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)]  # 随机一个请求头
         }
-        self.result_data = {}
-        self.init_phantomjs()
 
     def get_goods_data(self, goods_id):
         '''

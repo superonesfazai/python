@@ -48,6 +48,12 @@ my_chrome_driver_path = CHROME_DRIVER_PATH
 
 class TaoBaoLoginAndParse(object):
     def __init__(self, logger=None):
+        self._set_headers()
+        self.result_data = {}
+        self._set_logger(logger)
+        self.msg = ''
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -55,17 +61,18 @@ class TaoBaoLoginAndParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'acs.m.taobao.com',
-            'User-Agent': HEADERS[randint(0, 34)]      # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
-        self.result_data = {}
+
+    def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
                 log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/_/' + str(get_shanghai_time())[0:10] + '.txt',
                 console_log_level=INFO,
                 file_log_level=ERROR
             )
-        else: self.my_lg = logger
-        self.msg = ''
+        else:
+            self.my_lg = logger
 
     def get_goods_data(self, goods_id):
         '''

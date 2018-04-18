@@ -31,14 +31,8 @@ class ALi1688CommentParse(object):
         super().__init__()
         self.result_data = {}
         self.msg = ''
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/阿里1688/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
+        self._set_headers()
+        self._set_logger(logger)
         self.my_phantomjs = MyPhantomjs()
         # 可动态执行的代码
         self._exec_code = '''
@@ -49,13 +43,6 @@ class ALi1688CommentParse(object):
         self.driver.execute_script(js)
         sleep(3)
         '''
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
-            'accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-            'referer': 'https://detail.1688.com/offer/45579899125.html',
-        }
         self.page_size = '30'
 
     def _get_comment_data(self, goods_id):
@@ -193,6 +180,25 @@ class ALi1688CommentParse(object):
         comment = re.compile('1688|合作|阿里').sub('', comment)
 
         return comment
+
+    def _set_headers(self):
+        self.headers = {
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
+            'accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+            'referer': 'https://detail.1688.com/offer/45579899125.html',
+        }
+
+    def _set_logger(self, logger):
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/阿里1688/comment/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
 
     def _set_url(self, url, params):
         '''

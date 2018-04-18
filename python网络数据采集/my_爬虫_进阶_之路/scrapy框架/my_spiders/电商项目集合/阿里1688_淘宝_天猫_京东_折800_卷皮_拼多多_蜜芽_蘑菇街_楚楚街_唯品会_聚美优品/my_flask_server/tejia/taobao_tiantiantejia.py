@@ -39,6 +39,12 @@ from taobao_parse import TaoBaoLoginAndParse
 
 class TaoBaoTianTianTeJia(object):
     def __init__(self, logger=None):
+        self._set_headers()
+        self._set_logger(logger)
+        self.msg = ''
+        self._set_main_sort()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -48,6 +54,8 @@ class TaoBaoTianTianTeJia(object):
             'Host': 'h5api.m.taobao.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
+
+    def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
                 log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
@@ -56,7 +64,8 @@ class TaoBaoTianTianTeJia(object):
             )
         else:
             self.my_lg = logger
-        self.msg = ''
+
+    def _set_main_sort(self):
         self.main_sort = {
             '495000': ['时尚女装', 'mtopjsonp2'],
             '496000': ['潮流男装', 'mtopjsonp4'],
@@ -64,13 +73,13 @@ class TaoBaoTianTianTeJia(object):
             '508000': ['家居百货', 'mtopjsonp6'],
             '502000': ['品质母婴', 'mtopjsonp7'],
             '503000': ['食品饮料', 'mtopjsonp8'],
-            '497000': ['男女鞋品', 'mtopjsonp9'],   # ['497000', '498000']
+            '497000': ['男女鞋品', 'mtopjsonp9'],  # ['497000', '498000']
             '498000': ['男女鞋品', 'mtopjsonp9'],
             '505000': ['美容美妆', 'mtopjsonp10'],
-            '500000': ['箱包配饰', 'mtopjsonp11'],   # ['500000', '501000']
+            '500000': ['箱包配饰', 'mtopjsonp11'],  # ['500000', '501000']
             '501000': ['箱包配饰', 'mtopjsonp11'],
             '504000': ['数码电器', 'mtopjsonp12'],
-            '506000': ['户外运动', 'mtopjsonp13'],   # ['506000', '507000']
+            '506000': ['户外运动', 'mtopjsonp13'],  # ['506000', '507000']
             '507000': ['户外运动', 'mtopjsonp13'],
         }
 

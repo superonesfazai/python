@@ -32,6 +32,10 @@ from my_utils import get_shanghai_time, daemon_init
 
 class MoGuJiePinTuan(object):
     def __init__(self):
+        self._set_headers()
+        self._set_fcid_dict()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -43,6 +47,7 @@ class MoGuJiePinTuan(object):
             'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
         }
 
+    def _set_fcid_dict(self):
         self.fcid_dict = {
             '女装': 10053171,
             # '精选': 10053172,

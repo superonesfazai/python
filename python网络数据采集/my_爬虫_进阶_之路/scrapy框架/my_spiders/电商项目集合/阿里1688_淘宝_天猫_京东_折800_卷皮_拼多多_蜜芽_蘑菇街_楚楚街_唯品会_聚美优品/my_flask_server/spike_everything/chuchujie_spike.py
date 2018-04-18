@@ -35,6 +35,9 @@ from my_utils import get_shanghai_time, daemon_init
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
+        self._set_headers()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'application/json,text/javascript,*/*;q=0.01',
             # 'Accept-Encoding': 'gzip, deflate, br',

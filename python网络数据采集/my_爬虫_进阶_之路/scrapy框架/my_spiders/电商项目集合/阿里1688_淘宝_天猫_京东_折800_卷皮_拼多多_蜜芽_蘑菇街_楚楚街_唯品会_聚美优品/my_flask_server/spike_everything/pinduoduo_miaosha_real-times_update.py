@@ -40,6 +40,10 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class Pinduoduo_Miaosha_Real_Time_Update(object):
     def __init__(self):
+        self._set_headers()
+        self.init_phantomjs()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -49,7 +53,6 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             'Host': 'm.juanpi.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
-        self.init_phantomjs()
 
     def run_forever(self):
         '''

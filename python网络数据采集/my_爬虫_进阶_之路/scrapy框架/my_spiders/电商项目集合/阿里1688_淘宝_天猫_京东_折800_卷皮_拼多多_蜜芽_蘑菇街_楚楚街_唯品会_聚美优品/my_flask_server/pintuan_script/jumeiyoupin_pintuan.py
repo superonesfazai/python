@@ -36,26 +36,9 @@ from my_utils import get_shanghai_time, daemon_init, restart_program
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 's.h5.jumei.com',
-            'Referer': 'http://s.h5.jumei.com/yiqituan/list',
-            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],  # 随机一个请求头
-            'X-Requested-With': 'XMLHttpRequest',
-        }
+        self._set_headers()
         self.msg = ''
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
+        self._set_logger(logger)
         self.tab_dict = {
             '母婴健康': 'coutuan_baby',
             '家居': 'coutuan_furniture',
@@ -69,6 +52,29 @@ class JuMeiYouPinPinTuan(object):
             '鞋类': 'coutuan_shose',
             '下期预告': 'coutuan_pre',
         }
+
+    def _set_headers(self):
+        self.headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            # 'Accept-Encoding:': 'gzip',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Host': 's.h5.jumei.com',
+            'Referer': 'http://s.h5.jumei.com/yiqituan/list',
+            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)],  # 随机一个请求头
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+
+    def _set_logger(self, logger):
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
 
     async def get_pintuan_goods_info(self):
         '''

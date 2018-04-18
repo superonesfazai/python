@@ -32,6 +32,12 @@ from my_utils import tuple_or_list_params_2_dict_params, get_shanghai_time
 
 class TmallParse(object):
     def __init__(self, logger=None):
+        self._set_headers()
+        self.result_data = {}
+        self._set_logger(logger)
+        self.msg = ''
+
+    def _set_headers(self):
         self.headers = {
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -40,15 +46,16 @@ class TmallParse(object):
             'Referer': 'https://detail.m.tmall.com/item.htm?id=541107920538',
             'Connection': 'keep-alive',
         }
-        self.result_data = {}
+
+    def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
                 log_file_name=MY_SPIDER_LOGS_PATH + '/天猫/_/' + str(get_shanghai_time())[0:10] + '.txt',
                 console_log_level=INFO,
                 file_log_level=ERROR
             )
-        else: self.my_lg = logger
-        self.msg = ''
+        else:
+            self.my_lg = logger
 
     def get_goods_data(self, goods_id):
         '''

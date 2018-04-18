@@ -36,6 +36,9 @@ from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
 
 class JuMeiYouPinSpike(object):
     def __init__(self):
+        self._set_headers()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'application/json,text/javascript,text/plain,*/*;q=0.01',
             # 'Accept-Encoding': 'gzip, deflate, br',

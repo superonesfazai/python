@@ -32,6 +32,9 @@ from decimal import Decimal
 
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):
+        self._set_headers()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'application/json,text/javascript,*/*;q=0.01',
             # 'Accept-Encoding': 'gzip, deflate, br',

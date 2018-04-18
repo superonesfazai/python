@@ -37,6 +37,12 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class JdParse(object):
     def __init__(self):
+        self._set_headers()
+        self._set_pc_headers()
+        self.result_data = {}
+        self.init_phantomjs()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -44,9 +50,10 @@ class JdParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'jd.com;jd.hk',
-            'User-Agent': HEADERS[randint(0, 34)],      # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
         }
 
+    def _set_pc_headers(self):
         # pc头, 只识别小写
         self.pc_headers = {
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -56,8 +63,6 @@ class JdParse(object):
             'connection': 'keep-alive',
             'user-agent': HEADERS[randint(0, 34)],
         }
-        self.result_data = {}
-        self.init_phantomjs()
 
     def get_goods_data(self, goods_id):
         '''

@@ -32,6 +32,10 @@ import datetime
 
 class Zhe800Spike(object):
     def __init__(self):
+        self._set_headers()
+        self.my_phantomjs = MyPhantomjs()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -41,7 +45,6 @@ class Zhe800Spike(object):
             'Host': 'zhe800.com',
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
-        self.my_phantomjs = MyPhantomjs()
 
     def get_spike_hour_goods_info(self):
         '''

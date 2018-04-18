@@ -30,6 +30,9 @@ from settings import HEADERS, IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
 
 class Mia_Miaosha_Real_Time_Update(object):
     def __init__(self):
+        self._set_headers()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',

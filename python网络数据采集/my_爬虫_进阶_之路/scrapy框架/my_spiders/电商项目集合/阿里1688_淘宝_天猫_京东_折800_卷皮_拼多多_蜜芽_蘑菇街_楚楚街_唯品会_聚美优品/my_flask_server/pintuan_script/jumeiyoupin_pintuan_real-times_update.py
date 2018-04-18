@@ -31,6 +31,12 @@ import asyncio
 
 class JuMeiYouPinRealTimesUpdate(object):
     def __init__(self):
+        self._set_headers()
+        self._set_logger()
+        self.msg = ''
+        self.api_all_goods_id = {}      # 预存储每个tab, index的item_list
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -42,13 +48,13 @@ class JuMeiYouPinRealTimesUpdate(object):
             'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)],  # 随机一个请求头
             'X-Requested-With': 'XMLHttpRequest',
         }
+
+    def _set_logger(self):
         self.my_lg = set_logger(
             log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
         )
-        self.msg = ''
-        self.api_all_goods_id = {}      # 预存储每个tab, index的item_list
 
     async def run_forever(self):
         '''

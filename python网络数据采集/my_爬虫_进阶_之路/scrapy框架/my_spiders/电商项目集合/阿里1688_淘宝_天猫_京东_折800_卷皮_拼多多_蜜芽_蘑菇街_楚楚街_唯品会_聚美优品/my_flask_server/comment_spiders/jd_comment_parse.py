@@ -27,24 +27,8 @@ class JdCommentParse(object):
     def __init__(self, logger=None):
         self.result_data = {}
         self.msg = ''
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/京东/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
-        self.headers = {
-            'origin': 'https://item.m.jd.com',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
-            'content-type': 'application/x-www-form-urlencoded',
-            'accept': 'application/json',
-            'referer': 'https://item.m.jd.com/ware/view.action?wareId=5025518',
-            'x-requested-with': 'XMLHttpRequest',
-        }
+        self._set_logger(logger)
+        self._set_headers()
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
         self.my_phantomjs = MyPhantomjs()
 
@@ -158,6 +142,28 @@ class JdCommentParse(object):
             _comment_list.append(_)
 
         return _comment_list
+
+    def _set_logger(self, logger):
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/京东/comment/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
+
+    def _set_headers(self):
+        self.headers = {
+            'origin': 'https://item.m.jd.com',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
+            'content-type': 'application/x-www-form-urlencoded',
+            'accept': 'application/json',
+            'referer': 'https://item.m.jd.com/ware/view.action?wareId=5025518',
+            'x-requested-with': 'XMLHttpRequest',
+        }
 
     def _wash_comment(self, comment):
         '''

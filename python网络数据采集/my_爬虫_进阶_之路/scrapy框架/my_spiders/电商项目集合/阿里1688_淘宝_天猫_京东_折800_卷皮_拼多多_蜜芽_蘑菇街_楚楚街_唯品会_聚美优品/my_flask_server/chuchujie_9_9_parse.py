@@ -32,6 +32,10 @@ from my_requests import MyRequests
 
 class ChuChuJie_9_9_Parse(object):
     def __init__(self):
+        self._set_headers()
+        self.result_data = {}
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             # 'Accept-Encoding': 'gzip, deflate, br',
@@ -44,7 +48,6 @@ class ChuChuJie_9_9_Parse(object):
             'Cache-Control': 'max-age=0',
             'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
         }
-        self.result_data = {}
 
     def get_goods_data(self, goods_id):
         '''

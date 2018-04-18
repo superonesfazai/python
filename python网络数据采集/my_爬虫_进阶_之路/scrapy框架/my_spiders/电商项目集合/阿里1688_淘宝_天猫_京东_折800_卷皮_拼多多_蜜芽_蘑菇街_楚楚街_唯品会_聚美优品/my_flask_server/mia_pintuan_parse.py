@@ -32,6 +32,9 @@ from my_requests import MyRequests
 class MiaPintuanParse(MiaParse):
     def __init__(self):
         MiaParse.__init__(self)
+        self._set_headers()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',

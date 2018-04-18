@@ -39,6 +39,12 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class PinduoduoParse(object):
     def __init__(self):
+        self._set_headers()
+        self.result_data = {}
+        # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
+        self.my_phantomjs = MyPhantomjs()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
@@ -49,9 +55,6 @@ class PinduoduoParse(object):
             'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
             # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
         }
-        self.result_data = {}
-        # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
-        self.my_phantomjs = MyPhantomjs()
 
     def get_goods_data(self, goods_id):
         '''

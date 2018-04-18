@@ -31,6 +31,10 @@ from my_requests import MyRequests
 
 class JuMeiYouPinParse(object):
     def __init__(self):
+        self._set_headers()
+        self.result_data = {}
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'application/json,text/javascript,*/*;q=0.01',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -43,7 +47,6 @@ class JuMeiYouPinParse(object):
             'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
             'X-Requested-With': 'XMLHttpRequest',
         }
-        self.result_data = {}
 
     def get_goods_data(self, goods_id):
         '''

@@ -32,6 +32,9 @@ from my_utils import get_shanghai_time, daemon_init
 
 class Zhe800Pintuan(object):
     def __init__(self):
+        self._set_headers()
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',

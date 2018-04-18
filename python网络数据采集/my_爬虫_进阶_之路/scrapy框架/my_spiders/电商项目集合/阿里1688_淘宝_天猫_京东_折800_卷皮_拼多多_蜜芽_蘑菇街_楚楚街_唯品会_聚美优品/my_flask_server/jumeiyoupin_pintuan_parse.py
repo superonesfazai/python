@@ -34,6 +34,12 @@ import pytz, datetime
 
 class JuMeiYouPinPinTuanParse(object):
     def __init__(self, logger=None):
+        self._set_headers()
+        self.result_data = {}
+        self._set_logger(logger)
+        self.msg = ''
+
+    def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -44,7 +50,8 @@ class JuMeiYouPinPinTuanParse(object):
             'User-Agent': HEADERS[randint(0, 34)],
             'X-Requested-With': 'XMLHttpRequest',
         }
-        self.result_data = {}
+
+    def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
                 log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + self.get_log_file_name_from_time() + '.txt',
@@ -53,7 +60,6 @@ class JuMeiYouPinPinTuanParse(object):
             )
         else:
             self.my_lg = logger
-        self.msg = ''
 
     async def get_goods_data(self, jumei_pintuan_url):
         '''

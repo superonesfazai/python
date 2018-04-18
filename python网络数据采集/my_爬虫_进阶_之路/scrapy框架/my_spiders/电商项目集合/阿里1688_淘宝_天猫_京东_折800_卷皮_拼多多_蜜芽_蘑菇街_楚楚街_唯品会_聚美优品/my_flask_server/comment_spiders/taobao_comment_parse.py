@@ -28,21 +28,8 @@ class TaoBaoCommentParse(object):
         super().__init__()
         self.result_data = {}
         self.msg = ''
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
-            'accept': '*/*',
-            'referer': 'https://item.taobao.com/item.htm?id=555635098639',
-        }
+        self._set_logger(logger=logger)
+        self._set_headers()
         self.page_size = '20'   # 固定值
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
 
@@ -138,7 +125,7 @@ class TaoBaoCommentParse(object):
             quantify = int(item.get('buyAmount', 0)) if item.get('buyAmount', 0) != 0 else 1
 
             tmp_head_img = item.get('user', {}).get('avatar', '')
-            head_img = 'https:' + tmp_head_img if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' else 'https://img.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png'
+            head_img = 'https:' + tmp_head_img if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' else ''
             comment = [{
                 'comment': _comment_content,
                 'comment_date': comment_date,
@@ -149,16 +136,44 @@ class TaoBaoCommentParse(object):
             }]
 
             _ = {
-                'buyer_name': buyer_name,  # 买家昵称
-                'comment': comment,  # 评论内容
-                'quantify': quantify,  # 评论数量
-                'head_img': head_img,  # 头像
-                'append_comment': {},  # 追评
+                'buyer_name': buyer_name,   # 买家昵称
+                'comment': comment,         # 评论内容
+                'quantify': quantify,       # 购买数量
+                'head_img': head_img,       # 头像
+                'append_comment': {},       # 追评
             }
 
             _comment_list.append(_)
 
         return _comment_list
+
+    def _set_logger(self, logger):
+        '''
+        设置logger
+        :param logger:
+        :return:
+        '''
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/comment/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
+
+    def _set_headers(self):
+        '''
+        设置headers
+        :return: dict
+        '''
+        self.headers = {
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'accept': '*/*',
+            'referer': 'https://item.taobao.com/item.htm?id=555635098639',
+        }
 
     def _set_params(self, current_page_num, goods_id):
         '''
