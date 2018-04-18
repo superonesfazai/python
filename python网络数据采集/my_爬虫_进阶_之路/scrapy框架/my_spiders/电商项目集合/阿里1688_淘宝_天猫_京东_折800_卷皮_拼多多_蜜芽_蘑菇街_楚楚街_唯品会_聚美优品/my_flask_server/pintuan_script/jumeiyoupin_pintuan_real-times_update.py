@@ -16,7 +16,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
 from my_logging import set_logger
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, restart_program
 
 import gc
 from time import sleep
@@ -275,12 +275,6 @@ def just_fuck_run():
         gc.collect()
         print('一次大更新完毕'.center(30, '-'))
         restart_program()       # 通过这个重启环境, 避免log重复打印
-
-def restart_program():
-    import sys
-    import os
-    python = sys.executable
-    os.execl(python, python, * sys.argv)
 
 def main():
     '''

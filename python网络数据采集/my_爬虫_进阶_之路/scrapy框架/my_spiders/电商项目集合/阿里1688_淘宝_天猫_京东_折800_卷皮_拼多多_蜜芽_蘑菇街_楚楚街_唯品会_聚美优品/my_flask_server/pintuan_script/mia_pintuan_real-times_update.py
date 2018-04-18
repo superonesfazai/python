@@ -141,15 +141,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                                     else:
                                         goods_data['goods_id'] = str(item[0])
                                         if goods_data['pintuan_time'] == {}:  # 当没有拼团时间时，就表示已下架拼团(未让其正常更新进数据库, 我把拼团开始结束时间都设置为当前时间)
-                                            '''
-                                            时区处理，时间处理到上海时间
-                                            '''
-                                            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                                            now_time = datetime.datetime.now(tz)
-                                            # 处理为精确到秒位，删除时区信息
-                                            now_time = re.compile(r'\..*').sub('', str(now_time))
-                                            # 将字符串类型转换为datetime类型
-                                            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+                                            now_time = get_shanghai_time()
                                             goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
                                         else:
                                             goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'])
@@ -171,15 +163,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                                                 goods_data['goods_id'] = str(item[0])
                                                 goods_data['sub_title'] = item_2.get('sub_title', '')
                                                 if goods_data['pintuan_time'] == {}:    # 当没有拼团时间时，就表示已下架拼团
-                                                    '''
-                                                    时区处理，时间处理到上海时间
-                                                    '''
-                                                    tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                                                    now_time = datetime.datetime.now(tz)
-                                                    # 处理为精确到秒位，删除时区信息
-                                                    now_time = re.compile(r'\..*').sub('', str(now_time))
-                                                    # 将字符串类型转换为datetime类型
-                                                    now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+                                                    now_time = get_shanghai_time()
                                                     goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
                                                 else:
                                                     goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'])

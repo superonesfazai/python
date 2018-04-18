@@ -32,7 +32,7 @@ from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 from my_logging import set_logger
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init, restart_program
+from my_utils import get_shanghai_time, daemon_init, restart_program, timestamp_to_regulartime
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
@@ -214,8 +214,8 @@ class JuMeiYouPinPinTuan(object):
                             item_list.append({
                                 'goods_id': item.get('item_id', ''),
                                 'pintuan_time': {
-                                    'begin_time': await self.timestamp_to_regulartime(item.get('start_time', '0')),
-                                    'end_time': await self.timestamp_to_regulartime(item.get('end_time', '0'))
+                                    'begin_time': timestamp_to_regulartime(item.get('start_time', '0')),
+                                    'end_time': timestamp_to_regulartime(item.get('end_time', '0')),
                                 },
                                 'type': item.get('type', ''),
                                 'sort': key,
@@ -238,21 +238,6 @@ class JuMeiYouPinPinTuan(object):
             self.my_lg.error('json转换json_str时出错,请检查!')
             tmp = {}
         return tmp
-
-    async def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(int(timestamp))
-        # print(time_local)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     async def get_pintuan_begin_time_and_pintuan_end_time(self, pintuan_time):
         '''

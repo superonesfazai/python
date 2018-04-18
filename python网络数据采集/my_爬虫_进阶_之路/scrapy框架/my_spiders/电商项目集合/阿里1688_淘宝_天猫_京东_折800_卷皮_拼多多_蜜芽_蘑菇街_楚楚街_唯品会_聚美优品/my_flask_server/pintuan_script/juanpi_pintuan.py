@@ -43,7 +43,7 @@ class JuanPiPinTuan(object):
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
 
-    def get_pintuan_goods_info(self):
+    def _get_pintuan_goods_info(self):
         '''
         模拟构造得到data的url, 得到近期所有的限时拼团商品信息
         :return:
@@ -87,9 +87,15 @@ class JuanPiPinTuan(object):
         print('该pintuan_goods_id_list的总个数为: ', len(pintuan_goods_id_list))
         print(pintuan_goods_id_list)
 
-        self._deal_with_data(pintuan_goods_id_list)
+        return pintuan_goods_id_list
 
-    def _deal_with_data(self, pintuan_goods_id_list):
+    def _deal_with_data(self):
+        '''
+        处理并存储拼团商品数据
+        :return:
+        '''
+        pintuan_goods_id_list = self._get_pintuan_goods_info()
+
         juanpi_pintuan = JuanPiParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
@@ -157,6 +163,8 @@ class JuanPiPinTuan(object):
             pass
         gc.collect()
 
+        return True
+
     def get_pintuan_goods_data(self, juanpi_pintuan, goods_id, all_sell_count, page):
         '''
         得到goods_data
@@ -206,7 +214,7 @@ def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         juanpi_pintuan = JuanPiPinTuan()
-        juanpi_pintuan.get_pintuan_goods_info()
+        juanpi_pintuan._deal_with_data()
         # try:
         #     del juanpi_pintuan
         # except:

@@ -45,16 +45,14 @@ class Zhe800Pintuan(object):
             'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
         }
 
-    def get_pintuan_goods_info(self):
+    def _get_pintuan_goods_info(self):
         '''
         模拟构造得到data的url, 得到近期所有的限时拼团商品信息
         :return:
         '''
         zid_list = []
         for page in range(0, 100):
-            tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(
-                str(page)
-            )
+            tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(str(page))
             print('正在抓取的页面地址为: ', tmp_url)
 
             tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
@@ -83,6 +81,15 @@ class Zhe800Pintuan(object):
         print('该zid_list的总个数为: ', len(zid_list))
         print(zid_list)
 
+        return zid_list
+
+    def _deal_with_data(self):
+        '''
+        处理并存储抓取到的拼团商品的数据
+        :return:
+        '''
+        zid_list = self._get_pintuan_goods_info()
+
         zhe_800_pintuan = Zhe800PintuanParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
@@ -98,14 +105,16 @@ class Zhe800Pintuan(object):
                     zhe_800_pintuan.get_goods_data(goods_id=goods_id)
                     goods_data = zhe_800_pintuan.deal_with_data()
 
-                    if goods_data == {}:    # 返回的data为空则跳过
+                    if goods_data == {}:  # 返回的data为空则跳过
                         pass
-                    else:                   # 否则就解析并且插入
+                    else:  # 否则就解析并且插入
                         goods_data['goods_id'] = str(item[0])
                         goods_data['spider_url'] = tmp_url
                         goods_data['username'] = '18698570079'
                         goods_data['page'] = str(item[1])
-                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(schedule=goods_data.get('schedule', [])[0])
+                        goods_data['pintuan_begin_time'], goods_data[
+                            'pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(
+                            schedule=goods_data.get('schedule', [])[0])
 
                         # print(goods_data)
                         _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
@@ -123,6 +132,8 @@ class Zhe800Pintuan(object):
         except:
             pass
         gc.collect()
+
+        return None
 
     def get_pintuan_begin_time_and_pintuan_end_time(self, schedule):
         '''
@@ -145,7 +156,7 @@ def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         zhe_800_pintuan = Zhe800Pintuan()
-        zhe_800_pintuan.get_pintuan_goods_info()
+        zhe_800_pintuan._deal_with_data()
         # try:
         #     del zhe_800_pintuan
         # except:

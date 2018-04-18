@@ -16,7 +16,6 @@ from my_utils import get_shanghai_time, daemon_init
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
 import json
 from settings import IS_BACKGROUND_RUNNING
 import time

@@ -11,9 +11,23 @@ import pytz, datetime, re
 import sys, os, time, json
 from pprint import pprint
 
+__all__ = [
+    'get_shanghai_time',                    # 时区处理，得到上海时间
+    'daemon_init',                          # 守护进程
+    'timestamp_to_regulartime',             # 时间戳转规范的时间字符串
+    'string_to_datetime',                   # 将字符串转换成时间
+    'restart_program',                      # 初始化避免异步导致log重复打印
+    'process_exit',                         # 判断进程是否存在
+    '_get_url_contain_params',              # 根据params组合得到包含params的url
+    'str_cookies_2_dict',                   # cookies字符串转dict
+    'tuple_or_list_params_2_dict_params',   # tuple和list类型的params转dict类型的params
+    '_json_str_to_dict',                    # json转dict
+    '_green',                               # 将字体变成绿色
+]
+
 def get_shanghai_time():
     '''
-    时区处理，时间处理到上海时间
+    时区处理，得到上海时间
     :return: datetime类型
     '''
     # 时区处理，时间处理到上海时间
@@ -160,4 +174,12 @@ def _json_str_to_dict(json_str):
         return {}
 
     return _
+
+def _green(string):
+    '''
+    将字体转变为绿色
+    :param string:
+    :return:
+    '''
+    return '\033[32m{}\033[0m'.format(string)
 

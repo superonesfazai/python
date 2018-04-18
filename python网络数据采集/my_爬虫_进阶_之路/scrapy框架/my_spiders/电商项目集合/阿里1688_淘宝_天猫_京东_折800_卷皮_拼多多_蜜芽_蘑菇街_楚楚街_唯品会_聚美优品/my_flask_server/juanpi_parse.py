@@ -31,8 +31,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from settings import PHANTOMJS_DRIVER_PATH
 from settings import HEADERS
-from my_ip_pools import MyIpPools
 from my_utils import get_shanghai_time, timestamp_to_regulartime
+from my_phantomjs import MyPhantomjs
+from my_requests import MyRequests
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -42,7 +43,7 @@ class JuanPiParse(object):
         super(JuanPiParse, self).__init__()
         self._set_headers()
         self.result_data = {}
-        self.init_phantomjs()
+        self.my_phantomjs = MyPhantomjs()
 
     def _set_headers(self):
         self.headers = {
@@ -71,16 +72,6 @@ class JuanPiParse(object):
             '''
             1.原先使用requests来模拟(起初安全的运行了一个月)，但是后来发现光requests会not Found，记住使用前别翻墙
             '''
-            # 设置代理ip
-            ip_object = MyIpPools()
-            self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-            tmp_proxies = {
-                'http': self.proxy,
-            }
-            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
             # try:
             #     response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             #     main_body = response.content.decode('utf-8')
@@ -100,39 +91,13 @@ class JuanPiParse(object):
             '''
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
-            self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            try:
-                self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
-            except:
+            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
+            if body == '':
+                print('获取到的body为空str!请检查!')
+                self.result_data = {}
                 return {}
 
-            try:
-                self.driver.get(tmp_url)
-                self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
-
-                locator = (By.CSS_SELECTOR, 'div.sc-kgoBCf.bTQvTk')     # 该css为手机端标题块
-                try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    print('遇到错误: ', e)
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
-                else:
-                    print('div.d-content已经加载完毕')
-                main_body = self.driver.page_source
-                main_body = re.compile(r'\n').sub('', main_body)
-                main_body = re.compile(r'\t').sub('', main_body)
-                main_body = re.compile(r'  ').sub('', main_body)
-                # print(main_body)
-                data = re.compile(r'__PRELOADED_STATE__ = (.*);</script> <style ').findall(main_body)  # 贪婪匹配匹配所有
-                # print(data)
-            except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                print('-->>time out after 15 seconds when loading page')
-                print('报错如下: ', e)
-                # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+            data = re.compile(r'__PRELOADED_STATE__ = (.*);</script> <style ').findall(body)  # 贪婪匹配匹配所有
 
             # 得到skudata
             # 卷皮原先的skudata请求地址1(官方放弃)
@@ -141,18 +106,13 @@ class JuanPiParse(object):
             skudata_url = 'https://webservice.juanpi.com/api/getMemberAboutInfo?goods_id=' + str(goods_id)
 
             self.skudata_headers = self.headers
-            self.skudata_headers['Host'] = 'webservice.juanpi.com'
-            try:
-                response = requests.get(skudata_url, headers=self.skudata_headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                skudata = response.content.decode('utf-8')
-                # print(skudata)
-                skudata = re.compile(r'(.*)').findall(skudata)  # 贪婪匹配匹配所有
-                # print(skudata)
-            except Exception:
-                print('requests.get()请求超时....')
-                print('skudata为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            self.skudata_headers.update({'Host': 'webservice.juanpi.com'})
+            skudata_body = MyRequests.get_url_body(url=skudata_url, headers=self.skudata_headers)
+            if skudata_body == '':
+                print('获取到的skudata_body为空str!请检查!')
+                self.result_data = {}
                 return {}
+            skudata = re.compile(r'(.*)').findall(skudata_body)  # 贪婪匹配匹配所有
 
             if skudata != []:
                 skudata = skudata[0]
@@ -608,7 +568,6 @@ class JuanPiParse(object):
         tmp['username'] = data_list['username']  # 操作人员username
 
         now_time = get_shanghai_time()
-
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -702,51 +661,6 @@ class JuanPiParse(object):
 
         pipeline.update_juanpi_pintuan_table(tmp)
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被阿里服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
     def get_goods_id_from_url(self, juanpi_url):
         '''
         得到goods_id
@@ -771,7 +685,8 @@ class JuanPiParse(object):
 
     def __del__(self):
         try:
-            self.driver.quit()
+            del self.my_phantomjs
+            del self.result_data
         except:
             pass
         gc.collect()
