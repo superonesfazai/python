@@ -29,6 +29,7 @@ from taobao_parse import TaoBaoLoginAndParse
 from my_requests import MyRequests
 from my_logging import set_logger
 from my_utils import tuple_or_list_params_2_dict_params, get_shanghai_time
+from my_items import GoodsItem
 
 class TmallParse(object):
     def __init__(self, logger=None):
@@ -382,26 +383,17 @@ class TmallParse(object):
         :return:
         '''
         data_list = data
-        tmp = {}
+        tmp = GoodsItem()
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-        tmp['modfiy_time'] = now_time  # 修改时间
+        now_time = get_shanghai_time()
+        tmp['modify_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
         tmp['sub_title'] = data_list['sub_title']  # 商品子标题
         tmp['link_name'] = ''  # 卖家姓名
         tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+        tmp['all_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
         tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -420,20 +412,13 @@ class TmallParse(object):
         tmp['p_info'] = data_list.get('p_info')  # 详细信息
         tmp['div_desc'] = data_list.get('div_desc')  # 下方div
 
-        # # 采集的来源地
-        # if data_list.get('type') == 0:
-        #     tmp['site_id'] = 3  # 采集来源地(天猫)
-        # elif data_list.get('type') == 1:
-        #     tmp['site_id'] = 4  # 采集来源地(天猫超市)
-        # elif data_list.get('type') == 2:
-        #     tmp['site_id'] = 6  # 采集来源地(天猫国际)
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
-        tmp['_is_price_change'] = data_list.get('_is_price_change')
-        tmp['_price_change_info'] = data_list.get('_price_change_info')
+        tmp['is_price_change'] = data_list.get('_is_price_change')
+        tmp['price_change_info'] = data_list.get('_price_change_info')
 
         pipeline.update_tmall_table(tmp, logger=self.my_lg)
 

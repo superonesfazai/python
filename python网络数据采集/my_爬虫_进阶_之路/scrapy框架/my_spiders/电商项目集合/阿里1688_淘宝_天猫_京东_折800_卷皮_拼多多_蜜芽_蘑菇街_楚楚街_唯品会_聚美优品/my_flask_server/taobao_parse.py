@@ -39,6 +39,7 @@ from my_ip_pools import MyIpPools
 from my_utils import get_shanghai_time
 from my_logging import set_logger
 from my_requests import MyRequests
+from my_items import GoodsItem
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -361,19 +362,18 @@ class TaoBaoLoginAndParse(object):
         :return:
         '''
         data_list = data
-        tmp = {}
+        tmp = GoodsItem()
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
         now_time = get_shanghai_time()
-        # tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
+        tmp['modify_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
         tmp['sub_title'] = data_list['sub_title']  # 商品子标题
         tmp['link_name'] = ''  # 卖家姓名
         tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+        tmp['all_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
         tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -399,8 +399,8 @@ class TaoBaoLoginAndParse(object):
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
-        tmp['_is_price_change'] = data_list.get('_is_price_change')
-        tmp['_price_change_info'] = data_list.get('_price_change_info')
+        tmp['is_price_change'] = data_list.get('_is_price_change')
+        tmp['price_change_info'] = data_list.get('_price_change_info')
 
         pipeline.update_taobao_table(tmp, logger=self.my_lg)
 

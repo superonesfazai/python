@@ -34,6 +34,7 @@ from settings import HEADERS
 from my_utils import get_shanghai_time, timestamp_to_regulartime
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
+from my_items import GoodsItem
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -417,11 +418,12 @@ class JuanPiParse(object):
 
     def to_right_and_update_data(self, data, pipeline):
         data_list = data
-        tmp = {}
+        tmp = GoodsItem()
+
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
         now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
+        tmp['modify_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
@@ -448,15 +450,12 @@ class JuanPiParse(object):
 
         tmp['schedule'] = data_list.get('schedule')
 
-        # 采集的来源地
-        # tmp['site_id'] = 12  # 采集来源地(卷皮常规商品)
-
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
-        tmp['_is_price_change'] = data_list.get('_is_price_change')
-        tmp['_price_change_info'] = data_list.get('_price_change_info')
+        tmp['is_price_change'] = data_list.get('_is_price_change')
+        tmp['price_change_info'] = data_list.get('_price_change_info')
 
         pipeline.update_juanpi_table(item=tmp)
 

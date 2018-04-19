@@ -43,7 +43,7 @@ def run_forever():
             # result = list(tmp_sql_server.select_taobao_all_goods_id())
             result = tmp_sql_server.select_taobao_all_goods_id()
 
-        except TypeError as e:
+        except TypeError:
             my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
@@ -107,7 +107,9 @@ def run_forever():
                         # my_lg.info('------>>>| 爬取到的数据为: ' + str(data))
                         taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:
-                        pass
+                        my_lg.info('------>>>| 休眠5s中...')
+                        sleep(5)
+
                 else:  # 表示返回的data值为空值
                     my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
                     sleep(10)

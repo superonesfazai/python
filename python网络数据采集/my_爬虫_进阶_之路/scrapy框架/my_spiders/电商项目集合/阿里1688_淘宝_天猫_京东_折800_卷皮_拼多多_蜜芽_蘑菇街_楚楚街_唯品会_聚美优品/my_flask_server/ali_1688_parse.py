@@ -26,6 +26,7 @@ from scrapy.selector import Selector
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_utils import get_shanghai_time
+from my_items import GoodsItem
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -385,14 +386,15 @@ class ALi1688LoginAndParse(object):
 
     def to_right_and_update_data(self, data, pipeline):
         data_list = data
-        tmp = {}
+        tmp = GoodsItem()
+
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
         now_time = get_shanghai_time()
         # tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time                   # 修改时间
+        tmp['modify_time'] = now_time  # 修改时间
 
-        tmp['company_name'] = data_list['company_name']  # 公司名称
+        tmp['shop_name'] = data_list['company_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
         tmp['link_name'] = data_list['link_name']  # 卖家姓名
 
@@ -410,25 +412,25 @@ class ALi1688LoginAndParse(object):
             tmp_dic['spec_name'] = item.get('prop')
             spec_name.append(tmp_dic)
 
-        tmp['spec_name'] = spec_name  # 标签属性名称
+        tmp['detail_name_list'] = spec_name  # 标签属性名称
 
         """
         得到sku_map
         """
-        tmp['sku_map'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
+        tmp['price_info_list'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
 
-        tmp['all_img_url_info'] = data_list.get('all_img_url')  # 所有示例图片地址
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
-        tmp['property_info'] = data_list.get('property_info')  # 详细信息
-        tmp['detail_info'] = data_list.get('detail_info')  # 下方div
+        tmp['p_info'] = data_list.get('property_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('detail_info')  # 下方div
 
         tmp['is_delete'] = data_list.get('is_delete')
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
-        tmp['_is_price_change'] = data_list.get('_is_price_change')
-        tmp['_price_change_info'] = data_list.get('_price_change_info')
+        tmp['is_price_change'] = data_list.get('_is_price_change')
+        tmp['price_change_info'] = data_list.get('_price_change_info')
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)

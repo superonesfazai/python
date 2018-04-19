@@ -10,6 +10,7 @@
 import pytz, datetime, re
 import sys, os, time, json
 from pprint import pprint
+from json import JSONDecodeError
 
 __all__ = [
     'get_shanghai_time',                                # 时区处理，得到上海时间
@@ -173,7 +174,7 @@ def _json_str_to_dict(json_str):
     '''
     try:
         _ = json.loads(json_str)
-    except Exception as e:
+    except JSONDecodeError as e:
         print(e)
         return {}
 

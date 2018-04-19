@@ -8,12 +8,10 @@
 import scrapy
 from scrapy import Field
 
-
 class SinaWeiboBozhuAllWeiboItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
-
 
 class SinaWeiboArticlesItem(scrapy.Item):
     id = Field()                        # 该微博文章的id

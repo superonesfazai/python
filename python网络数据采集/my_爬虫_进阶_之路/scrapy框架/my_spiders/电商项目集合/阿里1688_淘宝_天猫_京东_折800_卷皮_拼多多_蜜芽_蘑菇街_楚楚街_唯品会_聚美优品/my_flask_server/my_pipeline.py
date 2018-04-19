@@ -357,27 +357,26 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def update_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
-                item['modfiy_time'],
-                item['company_name'],
+                item['modify_time'],
+                item['shop_name'],
                 item['title'],
                 item['link_name'],
                 # item['price'],
                 # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['spec_name'], ensure_ascii=False),
-                dumps(item['sku_map'], ensure_ascii=False),
-                dumps(item['all_img_url_info'], ensure_ascii=False),
-                item['detail_info'],
-                dumps(item['property_info'], ensure_ascii=False),
+                dumps(item['detail_name_list'], ensure_ascii=False),
+                dumps(item['price_info_list'], ensure_ascii=False),
+                dumps(item['all_img_url'], ensure_ascii=False),
+                item['div_desc'],
+                dumps(item['p_info'], ensure_ascii=False),
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -399,7 +398,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
+            return False
 
     def old_ali_1688_goods_insert_into_new_table(self, item):
         cs = self.conn.cursor()
@@ -767,7 +766,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         cs = self.conn.cursor()
         try:
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -781,12 +780,12 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
-                item['month_sell_count'],
+                item['all_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -933,8 +932,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            params = [
-                item['modfiy_time'],
+            params = (
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -952,16 +951,16 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
-            ]
+            )
 
             # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', params)
             # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', params)
 
             self.conn.commit()
             cs.close()
@@ -1029,7 +1028,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs = self.conn.cursor()
 
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -1047,8 +1046,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -1299,11 +1298,10 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return False
 
     def update_juanpi_table(self, item):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -1321,8 +1319,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -1344,7 +1342,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
+            return False
 
     def insert_into_juanpi_xianshimiaosha_table(self, item):
         try:
@@ -1579,7 +1577,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         cs = self.conn.cursor()
         try:
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -1598,8 +1596,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -1763,7 +1761,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         cs = self.conn.cursor()
         try:
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -1782,8 +1780,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -3503,7 +3501,7 @@ class SqlPools(object):
         self.conn = self.engine.connect()
         try:
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -3517,12 +3515,12 @@ class SqlPools(object):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
-                item['month_sell_count'],
+                item['all_sell_count'],
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
-                item['_is_price_change'],
-                dumps(item['_price_change_info'], ensure_ascii=False),
+                item['is_price_change'],
+                dumps(item['price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
@@ -3648,7 +3646,7 @@ class SqlPools(object):
         self.engine.begin()
         self.conn = self.engine.connect()
         try:
-            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=1 order by ID desc'))
+            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=1'))
             # self.conn.commit()
             self.conn.close()
             # print(result)
