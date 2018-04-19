@@ -11,7 +11,7 @@ sys.path.append('..')
 
 from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init
+from my_utils import get_shanghai_time, daemon_init, _get_price_change_info, get_my_shelf_and_down_time_and_delete_time
 
 import gc
 from time import sleep
@@ -42,7 +42,6 @@ def run_forever():
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             ali_1688 = ALi1688LoginAndParse()
             for item in result:  # 实时更新数据
-                data = {}
                 if index % 5 == 0:
                     ali_1688 = ALi1688LoginAndParse()
 
@@ -90,6 +89,16 @@ def run_forever():
                             MyShelfAndDownTime=item[2]
                         )
 
+                        '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
+                        # 业务逻辑
+                        #   公司后台 modify_time > 转换时间，is_price_change=1, 然后对比pricechange里面的数据，要是一样就不提示平台员工改价格
+                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                            old_price=item[3],
+                            old_taobao_price=item[4],
+                            new_price=data['price'],
+                            new_taobao_price=data['taobao_price']
+                        )
+
                         # print('------>>>| 爬取到的数据为: ', data)
                         ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
 
@@ -113,72 +122,6 @@ def run_forever():
             sleep(5)
         # del ali_1688
         gc.collect()
-
-def set_delete_time_from_orginal_time(my_shelf_and_down_time):
-    '''
-    返回原先商品状态变换被记录下的时间点
-    :param my_shelf_and_down_time: 一个dict
-    :return: detele_time    datetime类型
-    '''
-    shelf_time = my_shelf_and_down_time.get('shelf_time', '')
-    if shelf_time != '':
-        # 将字符串类型的时间转换为datetime类型
-        shelf_time = datetime.datetime.strptime(shelf_time, '%Y-%m-%d %H:%M:%S')
-    down_time = my_shelf_and_down_time.get('down_time', '')
-    if down_time != '':
-        down_time = datetime.datetime.strptime(down_time, '%Y-%m-%d %H:%M:%S')
-
-    if shelf_time == '':
-        delete_time = down_time
-    elif down_time == '':
-        delete_time = shelf_time
-    else:  # shelf_time和down_time都不为''
-        if shelf_time > down_time:  # 取最近的那个
-            delete_time = shelf_time
-        else:
-            delete_time = down_time
-
-    return delete_time
-
-def get_my_shelf_and_down_time_and_delete_time(tmp_data, is_delete, MyShelfAndDownTime):
-    '''
-    得到my_shelf_and_down_time和delete_time
-    :param tmp_data:
-    :param is_delete:
-    :param MyShelfAndDownTime:
-    :return:
-    '''
-    '''
-    设置最后刷新的商品状态上下架时间
-    '''
-    # 1.is_delete由0->1 为下架时间down_time  2. is_delete由1->0 为上架时间shelf_time
-    my_shelf_and_down_time = {
-        'shelf_time': '',
-        'down_time': '',
-    }
-    if tmp_data['is_delete'] != is_delete:  # 表示状态改变
-        if tmp_data['is_delete'] == 0 and is_delete == 1:
-            # is_delete由0->1 表示商品状态上架变为下架
-            my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
-        else:
-            # is_delete由1->0 表示商品状态下架变为上架
-            my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
-        delete_time = str(get_shanghai_time())  # 记录下状态变化的时间点
-    else:  # 表示状态不变
-        if MyShelfAndDownTime is None or MyShelfAndDownTime == '{"shelf_time": "", "down_time": ""}' or len(MyShelfAndDownTime) == 35:  # 35就是那串初始str
-            if tmp_data['is_delete'] == 0:  # 上架的状态
-                my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
-            else:  # 下架的状态
-                my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
-            delete_time = str(get_shanghai_time())
-        else:
-            # 否则保存原始值不变
-            tmp_shelf_and_down_time = MyShelfAndDownTime
-            my_shelf_and_down_time = json.loads(tmp_shelf_and_down_time)  # 先转换为dict
-            # print(my_shelf_and_down_time)
-            delete_time = set_delete_time_from_orginal_time(my_shelf_and_down_time=my_shelf_and_down_time)
-
-    return (my_shelf_and_down_time, delete_time)
 
 def main():
     '''

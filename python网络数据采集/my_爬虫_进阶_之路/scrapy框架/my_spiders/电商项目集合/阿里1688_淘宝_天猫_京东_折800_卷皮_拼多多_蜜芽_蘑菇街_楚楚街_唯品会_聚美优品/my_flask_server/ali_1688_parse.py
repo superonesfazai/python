@@ -25,6 +25,7 @@ import pytz
 from scrapy.selector import Selector
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
+from my_utils import get_shanghai_time
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -293,6 +294,9 @@ class ALi1688LoginAndParse(object):
                 sku_map = []        # 存在没有规格时的情况
             # pprint(sku_map)
 
+            # 最高价和最低价
+            price, taobao_price = self._get_price(price_info=price_info)
+
             # 所有示例图片地址
             tmp_all_img_url = data.get('imageList')
             if tmp_all_img_url is not None:
@@ -349,6 +353,8 @@ class ALi1688LoginAndParse(object):
                 'title': title,                             # 商品名称
                 'link_name': link_name,                     # 卖家姓名
                 'price_info': price_info,                   # 商品价格信息, 及其对应起批量
+                'price': price,                             # 起批的最高价
+                'taobao_price': taobao_price,               # 起批的最低价
                 'sku_props': sku_props,                     # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
                 'sku_map': sku_map,                         # 每个规格对应价格, 及其库存量
                 'all_img_url': all_img_url,                 # 所有示例图片地址
@@ -381,18 +387,8 @@ class ALi1688LoginAndParse(object):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
 
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         # tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time                   # 修改时间
 
@@ -401,29 +397,8 @@ class ALi1688LoginAndParse(object):
         tmp['link_name'] = data_list['link_name']  # 卖家姓名
 
         # 设置最高价price， 最低价taobao_price
-        if len(data_list['price_info']) > 1:
-            tmp_ali_price = []
-            for item in data_list['price_info']:
-                tmp_ali_price.append(float(item.get('price')))
-
-            if tmp_ali_price == []:
-                tmp['price'] = Decimal(0).__round__(2)
-                tmp['taobao_price'] = Decimal(0).__round__(2)
-            else:
-                tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-                tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
-        elif len(data_list['price_info']) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
-            if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
-                tmp_price_range = data_list['price_info'][0].get('price')
-                tmp_price_range = tmp_price_range.split('-')
-                tmp['price'] = tmp_price_range[1]
-                tmp['taobao_price'] = tmp_price_range[0]
-            else:
-                tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-                tmp['taobao_price'] = tmp['price']
-        else:  # 少于1
-            tmp['price'] = Decimal(0).__round__(2)
-            tmp['taobao_price'] = Decimal(0).__round__(2)
+        tmp['price'] = data_list['price']
+        tmp['taobao_price'] = data_list['taobao_price']
 
         tmp['price_info'] = data_list['price_info']  # 价格信息
         # print(tmp['price'], print(tmp['taobao_price']))
@@ -452,8 +427,48 @@ class ALi1688LoginAndParse(object):
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
 
+        tmp['_is_price_change'] = data_list.get('_is_price_change')
+        tmp['_price_change_info'] = data_list.get('_price_change_info')
+
         # print('------>>> | 待存储的数据信息为: |', tmp)
         pipeline.update_table(tmp)
+
+    def _get_price(self, price_info):
+        '''
+        获取商品的最高价跟最低价
+        :param price_info:
+        :return: price, taobao_price
+        '''
+        # 设置最高价price， 最低价taobao_price
+        if len(price_info) > 1:
+            tmp_ali_price = []
+            for item in price_info:
+                tmp_ali_price.append(float(item.get('price')))
+
+            if tmp_ali_price == []:
+                price = Decimal(0).__round__(2)
+                taobao_price = Decimal(0).__round__(2)
+
+            else:
+                price = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                taobao_price = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
+
+        elif len(price_info) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
+            if re.compile(r'-').findall(price_info[0].get('price')) != []:
+                tmp_price_range = price_info[0].get('price')
+                tmp_price_range = tmp_price_range.split('-')
+                price = tmp_price_range[1]
+                taobao_price = tmp_price_range[0]
+
+            else:
+                price = Decimal(price_info[0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                taobao_price = price
+
+        else:  # 少于1
+            price = Decimal(0).__round__(2)
+            taobao_price = Decimal(0).__round__(2)
+
+        return price, taobao_price
 
     def init_pull_off_shelves_goods(self):
         '''
@@ -466,6 +481,8 @@ class ALi1688LoginAndParse(object):
             'title': '',  # 商品名称
             'link_name': '',  # 卖家姓名
             'price_info': [],  # 商品价格信息, 及其对应起批量
+            'price': 0,
+            'taobao_price': 0,
             'sku_props': [],  # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
             'sku_map': [],  # 每个规格对应价格, 及其库存量
             'all_img_url': [],  # 所有示例图片地址

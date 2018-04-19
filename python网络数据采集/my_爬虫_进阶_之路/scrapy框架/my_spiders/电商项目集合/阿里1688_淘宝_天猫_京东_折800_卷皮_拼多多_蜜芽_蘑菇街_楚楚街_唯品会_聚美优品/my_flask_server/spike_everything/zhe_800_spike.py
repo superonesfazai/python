@@ -124,6 +124,7 @@ class Zhe800Spike(object):
                                             goods_data['miaosha_time'] = item.get('miaosha_time')
                                             goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
                                             goods_data['session_id'] = str(base_session_id)
+                                            # print(goods_data['miaosha_time'])
 
                                             # print(goods_data)
                                             zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)

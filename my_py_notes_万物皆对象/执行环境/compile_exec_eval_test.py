@@ -24,3 +24,5 @@ for each_num in range(req):
 exec(exec_code)
 
 print(eval(exec_code))
+
+

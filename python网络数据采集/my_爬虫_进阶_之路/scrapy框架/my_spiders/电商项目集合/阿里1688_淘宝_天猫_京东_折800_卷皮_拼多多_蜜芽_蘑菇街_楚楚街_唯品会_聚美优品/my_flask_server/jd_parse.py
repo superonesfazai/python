@@ -31,6 +31,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
 from my_requests import MyRequests
+from my_utils import get_shanghai_time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -278,6 +279,7 @@ class JdParse(object):
             要存储的每个标签对应规格的价格及其库存(京东无库存抓取, 只有对应规格商品是否可买)
             '''
             price_info_list = self.get_price_info_list(goods_id, detail_name_list, data)
+            # pprint(price_info_list)
 
             '''
             是否下架判断
@@ -531,6 +533,9 @@ class JdParse(object):
                         tmp['img'] = ''
 
                     tmp['rest_number'] = ''
+                    if tmp.get('detail_price') is None:     # detail_price为None的跳过!
+                        continue
+
                     price_info_list.append(tmp)
                     # pprint(price_info_list)
 
@@ -618,16 +623,8 @@ class JdParse(object):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
 
+        now_time = get_shanghai_time()
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -654,20 +651,13 @@ class JdParse(object):
         tmp['p_info'] = data_list.get('p_info')  # 详细信息
         tmp['div_desc'] = data_list.get('div_desc')  # 下方div
 
-        # # 采集的来源地
-        # if data_list.get('jd_type') == 7:
-        #     tmp['site_id'] = 7  # 采集来源地(京东)
-        # elif data_list.get('jd_type') == 8:
-        #     tmp['site_id'] = 8  # 采集来源地(京东超市)
-        # elif data_list.get('jd_type') == 9:
-        #     tmp['site_id'] = 9  # 采集来源地(京东全球购)
-        # elif data_list.get('jd_type') == 10:
-        #     tmp['site_id'] = 10  # 采集来源地(京东大药房)
-
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
+
+        tmp['_is_price_change'] = data_list.get('_is_price_change')
+        tmp['_price_change_info'] = data_list.get('_price_change_info')
 
         pipeline.update_jd_table(tmp)
 

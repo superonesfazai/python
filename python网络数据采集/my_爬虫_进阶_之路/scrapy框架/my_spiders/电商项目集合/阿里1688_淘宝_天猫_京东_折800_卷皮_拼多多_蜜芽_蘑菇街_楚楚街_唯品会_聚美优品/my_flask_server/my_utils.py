@@ -12,17 +12,21 @@ import sys, os, time, json
 from pprint import pprint
 
 __all__ = [
-    'get_shanghai_time',                    # 时区处理，得到上海时间
-    'daemon_init',                          # 守护进程
-    'timestamp_to_regulartime',             # 时间戳转规范的时间字符串
-    'string_to_datetime',                   # 将字符串转换成时间
-    'restart_program',                      # 初始化避免异步导致log重复打印
-    'process_exit',                         # 判断进程是否存在
-    '_get_url_contain_params',              # 根据params组合得到包含params的url
-    'str_cookies_2_dict',                   # cookies字符串转dict
-    'tuple_or_list_params_2_dict_params',   # tuple和list类型的params转dict类型的params
-    '_json_str_to_dict',                    # json转dict
-    '_green',                               # 将字体变成绿色
+    'get_shanghai_time',                                # 时区处理，得到上海时间
+    'daemon_init',                                      # 守护进程
+    'timestamp_to_regulartime',                         # 时间戳转规范的时间字符串
+    'string_to_datetime',                               # 将字符串转换成时间
+    'restart_program',                                  # 初始化避免异步导致log重复打印
+    'process_exit',                                     # 判断进程是否存在
+    '_get_url_contain_params',                          # 根据params组合得到包含params的url
+    'str_cookies_2_dict',                               # cookies字符串转dict
+    'tuple_or_list_params_2_dict_params',               # tuple和list类型的params转dict类型的params
+    '_json_str_to_dict',                                # json转dict
+    '_green',                                           # 将字体变成绿色
+
+    '_get_price_change_info',                           # 公司用来记录价格改变信息
+    'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
+    'get_my_shelf_and_down_time_and_delete_time',       # 公司得到my_shelf_and_down_time和delete_time
 ]
 
 def get_shanghai_time():
@@ -183,3 +187,94 @@ def _green(string):
     '''
     return '\033[32m{}\033[0m'.format(string)
 
+def set_delete_time_from_orginal_time(my_shelf_and_down_time):
+    '''
+    公司返回原先商品状态变换被记录下的时间点
+    :param my_shelf_and_down_time: 一个dict
+    :return: detele_time    datetime类型
+    '''
+    shelf_time = my_shelf_and_down_time.get('shelf_time', '')
+    if shelf_time != '':
+        # 将字符串类型的时间转换为datetime类型
+        shelf_time = datetime.datetime.strptime(shelf_time, '%Y-%m-%d %H:%M:%S')
+    down_time = my_shelf_and_down_time.get('down_time', '')
+    if down_time != '':
+        down_time = datetime.datetime.strptime(down_time, '%Y-%m-%d %H:%M:%S')
+
+    if shelf_time == '':
+        delete_time = down_time
+    elif down_time == '':
+        delete_time = shelf_time
+    else:  # shelf_time和down_time都不为''
+        if shelf_time > down_time:  # 取最近的那个
+            delete_time = shelf_time
+        else:
+            delete_time = down_time
+
+    return delete_time
+
+def get_my_shelf_and_down_time_and_delete_time(tmp_data, is_delete, MyShelfAndDownTime):
+    '''
+    公司得到my_shelf_and_down_time和delete_time
+    :param tmp_data:
+    :param is_delete:
+    :param MyShelfAndDownTime:
+    :return:
+    '''
+    '''
+    设置最后刷新的商品状态上下架时间
+    '''
+    # 1.is_delete由0->1 为下架时间down_time  2. is_delete由1->0 为上架时间shelf_time
+    my_shelf_and_down_time = {
+        'shelf_time': '',
+        'down_time': '',
+    }
+    if tmp_data['is_delete'] != is_delete:  # 表示状态改变
+        if tmp_data['is_delete'] == 0 and is_delete == 1:
+            # is_delete由0->1 表示商品状态上架变为下架
+            my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
+        else:
+            # is_delete由1->0 表示商品状态下架变为上架
+            my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
+        delete_time = str(get_shanghai_time())  # 记录下状态变化的时间点
+    else:  # 表示状态不变
+        if MyShelfAndDownTime is None or MyShelfAndDownTime == '{"shelf_time": "", "down_time": ""}' or len(MyShelfAndDownTime) == 35:  # 35就是那串初始str
+            if tmp_data['is_delete'] == 0:  # 上架的状态
+                my_shelf_and_down_time['shelf_time'] = str(get_shanghai_time())
+            else:  # 下架的状态
+                my_shelf_and_down_time['down_time'] = str(get_shanghai_time())
+            delete_time = str(get_shanghai_time())
+        else:
+            # 否则保存原始值不变
+            tmp_shelf_and_down_time = MyShelfAndDownTime
+            my_shelf_and_down_time = json.loads(tmp_shelf_and_down_time)  # 先转换为dict
+            # print(my_shelf_and_down_time)
+            delete_time = set_delete_time_from_orginal_time(my_shelf_and_down_time=my_shelf_and_down_time)
+
+    return (my_shelf_and_down_time, delete_time)
+
+def _get_price_change_info(old_price, old_taobao_price, new_price, new_taobao_price):
+    '''
+    公司用来记录价格改变信息
+    :param old_price: 原始最高价 type Decimal
+    :param old_taobao_price: 原始最低价 type Decimal
+    :param new_price: 新的最高价
+    :param new_taobao_price: 新的最低价
+    :return: _is_price_change 0 or 1 | _
+    '''
+    # print(old_price)
+    # print(type(old_price))
+    # print(new_price)
+    # print(type(new_price))
+    _is_price_change = 0
+    if float(old_price) != float(new_price) or float(old_taobao_price) != float(new_taobao_price):
+        _is_price_change = 1
+
+    _ = {
+        'old_price': str(old_price),
+        'old_taobao_price': str(old_taobao_price),
+        'new_price': str(new_price),
+        'new_taobao_price': str(new_taobao_price),
+    }
+
+    return _is_price_change, _

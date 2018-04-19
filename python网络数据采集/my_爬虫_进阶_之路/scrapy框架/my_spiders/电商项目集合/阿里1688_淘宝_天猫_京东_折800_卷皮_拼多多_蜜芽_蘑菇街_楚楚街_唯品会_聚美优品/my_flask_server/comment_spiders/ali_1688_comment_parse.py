@@ -11,13 +11,14 @@ import sys
 sys.path.append('..')
 
 from my_phantomjs import MyPhantomjs
-# from my_requests import MyRequests
+from my_requests import MyRequests
 from my_logging import set_logger
 from my_utils import get_shanghai_time, string_to_datetime
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
 from random import randint
-import gc
+import gc, time
+from time import sleep
 from logging import INFO, ERROR
 from scrapy.selector import Selector
 import re, datetime, json
@@ -37,13 +38,16 @@ class ALi1688CommentParse(object):
         # 可动态执行的代码
         self._exec_code = '''
         self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').click() 
-        sleep(2)
+        _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
+        print(_text)
+        # if _text == '四五星(0)':
+        sleep(2.5)
         # 向下滚动10000像素
         js = 'document.body.scrollTop=10000'
         self.driver.execute_script(js)
         sleep(4)
         '''
-        self.page_size = '30'
+        self._page_sleep_time = 1.2
 
     def _get_comment_data(self, goods_id):
         if goods_id == '':
@@ -51,9 +55,7 @@ class ALi1688CommentParse(object):
             return {}
         self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-        '''
-        原先采用phantomjs, 改用pc端抓包到的接口
-        '''
+        # 原先采用phantomjs, 改用pc端抓包到的接口(speed slow, give up)
         tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(goods_id)
         body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, exec_code=self._exec_code)
         # self.my_lg.info(str(body))
@@ -114,56 +116,51 @@ class ALi1688CommentParse(object):
             self.result_data = {}
             return {}
 
-        # 下面是模拟pc端接口的(params里面需要参数memberId，跟实际现抓这个差不多就用上面的了)
-        # tmp_url = 'https://rate.1688.com/remark/offerDetail/rates.json'
-        # _params = self._set_params(goods_id=goods_id)
-        #
-        # # 常规requests获取不到数据改用phantomjs
-        # # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=_params)
-        #
-        # _url = self._set_url(url=tmp_url, params=_params)
-        # print(_url)
-        # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=_url)
-        # self.my_lg.info(str(body))
-        # if body == '':
-        #     self.result_data = {}
-        #     self.my_lg.error('该地址的body为空值, 出错goods_id: ' + goods_id)
-        #     return {}
-        # try:
-        #     body = re.compile('<pre.*?>(.*)</pre>').findall(body)[0]
-        # except IndexError:
-        #     self.result_data = {}
-        #     self.my_lg.error('re筛选body为空[], 出错goods_id: ' + goods_id)
-        #     return {}
-        #
-        # data = self.json_str_2_dict(json_str=body).get('data', {}).get('rates', [])
-        # # pprint(data)
+        # 下面是模拟手机端好评接口
         # _comment_list = []
-        # try:
-        #     for item in data:
-        #         buyer_name = item.get('member', '')
-        #         comment = [{
-        #             'comment': i.get('remarkContent', ''),
-        #             'comment_date': string_to_datetime(i.get('remarkTime', '')),    # 评论日期
-        #             'star_level': i.get('starLevel', 5),
-        #             'sku_info': '',                                                 # 购买的商品规格(pc端1688商品没有规格)
-        #             'img_url_list': [],
-        #         } for i in item.get('rateItem', [])]
-        #         quantify = item.get('quantity', 1)                                  # 购买数量
+        # for page_num in range(1, 4):
+        #     tmp_url = 'https://m.1688.com/page/offerRemark.htm'
+        #     _params = self._set_params(goods_id=goods_id, page_num=page_num)
         #
-        #         _ = {
-        #             'buyer_name': buyer_name,           # 买家昵称
-        #             'comment': comment,                 # 评论内容
-        #             'quantify': quantify                # 购买数量
-        #         }
-        #         _comment_list.append(_)
+        #     body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=_params)
         #
-        # except Exception as e:
-        #     self.result_data = {}
-        #     self.my_lg.error('出错商品goods_id: ' + goods_id)
-        #     self.my_lg.exception(e)
-        #     return {}
+        #     _url = self._set_url(url=tmp_url, params=_params)
+        #     # print(_url)
+        #     # self.my_lg.info(str(body))
+        #     if body == '':
+        #         self.result_data = {}
+        #         self.my_lg.error('该地址的body为空值, 出错goods_id: ' + goods_id)
+        #         return {}
         #
+        #     data = self.json_str_2_dict(json_str=body).get('data', {}).get('model', [])
+        #     pprint(data)
+        #     try:
+        #         for item in data:
+        #             buyer_name = item.get('member', '')
+        #             comment = [{
+        #                 'comment': i.get('remarkContent', ''),
+        #                 'comment_date': string_to_datetime(i.get('remarkTime', '')),    # 评论日期
+        #                 'star_level': i.get('starLevel', 5),
+        #                 'sku_info': '',                                                 # 购买的商品规格(pc端1688商品没有规格)
+        #                 'img_url_list': [],
+        #             } for i in item.get('rateItem', [])]
+        #             quantify = item.get('quantity', 1)                                  # 购买数量
+        #
+        #             _ = {
+        #                 'buyer_name': buyer_name,           # 买家昵称
+        #                 'comment': comment,                 # 评论内容
+        #                 'quantify': quantify                # 购买数量
+        #             }
+        #             _comment_list.append(_)
+        #
+        #     except Exception as e:
+        #         self.result_data = {}
+        #         self.my_lg.error('出错商品goods_id: ' + goods_id)
+        #         self.my_lg.exception(e)
+        #         return {}
+        #     sleep(self._page_sleep_time)
+        #
+        # pprint(_comment_list)
         # self.result_data = {
         #     'goods_id': str(goods_id),
         #     'modify_time': datetime.datetime.now(),
@@ -185,11 +182,13 @@ class ALi1688CommentParse(object):
 
     def _set_headers(self):
         self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
+            # 下面的ali-ss为必要字段
+            'cookie': 'ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiI5WmZucV96VDl6NDhTOTg4WkNsaFpxSEwiLCJfZXhwaXJlIjoxNTI0MTE5MzI3NDQ5LCJfbWF4QWdlIjo4NjQwMDAwMH0=; ',
             'accept-language': 'zh-CN,zh;q=0.9',
             'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
-            'accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-            'referer': 'https://detail.1688.com/offer/45579899125.html',
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'referer': 'https://m.1688.com/page/offerRemark.htm?offerId=42735065607',
+            'x-requested-with': 'XMLHttpRequest',
         }
 
     def _set_logger(self, logger):
@@ -213,25 +212,32 @@ class ALi1688CommentParse(object):
 
         return url + '?' + '&'.join(_)
 
-    def _set_params(self, goods_id):
+    def _set_params(self, goods_id, page_num:int):
         '''
         设置params
         :param goods_id:
+        :param page_num:
         :return:
         '''
+        data = json.dumps({
+            'data': {
+                'offerId': goods_id,
+                # 'receiveUserId': 2318703732,
+                'starLevel': 7,
+                'itemId': int(goods_id),
+                'bizType': 'trade',
+                'page': page_num,
+                'pageSize': 5,
+            }
+        })
+
         params = (
-            ('_input_charset', 'GBK'),
-            ('offerId', goods_id),
-            ('page', '1'),
-            ('pageSize', self.page_size),   # 一个页面返回的comment数量
-            ('starLevel', '7'),
-            ('orderBy', 'date'),
-            # ('semanticId', ''),
-            ('showStat', '0'),
-            ('content', '1'),
-            # ('t', '1523264528741'),
-            ('memberId', 'zhangchenghao2009'),
-            # ('callback', 'jQuery1720041881430222992844_1523264353082'),
+            ('_csrf', 'xMrEnTz7-VByOlidz0AzkXFg_ifMZBv6bCA0'),
+            ('__wing_navigate_type', 'view'),
+            ('__wing_navigate_url', 'detail:modules/offerRemarkList/view'),
+            # ('__wing_navigate_options', '{"data":{"offerId":"42735065607","receiveUserId":2318703732,"starLevel":7,"itemId":42735065607,"bizType":"trade","page":1,"pageSize":5}}'),
+            ('__wing_navigate_options', data),
+            ('_', str(time.time().__round__()) + str(randint(100, 999))),
         )
 
         return params

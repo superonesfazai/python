@@ -29,6 +29,7 @@ from json import loads, dumps
 from settings import HEADERS
 from my_ip_pools import MyIpPools
 from my_requests import MyRequests
+from my_utils import get_shanghai_time
 
 
 '''
@@ -420,16 +421,7 @@ class VipParse(object):
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -464,6 +456,9 @@ class VipParse(object):
         tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         tmp['delete_time'] = data_list.get('delete_time')
         tmp['all_sell_count'] = str(data_list.get('all_sell_count'))
+
+        tmp['_is_price_change'] = data_list.get('_is_price_change')
+        tmp['_price_change_info'] = data_list.get('_price_change_info')
 
         pipeline.update_vip_table(item=tmp)
 

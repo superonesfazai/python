@@ -365,8 +365,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['company_name'],
                 item['title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['spec_name'], ensure_ascii=False),
                 dumps(item['sku_map'], ensure_ascii=False),
@@ -376,12 +376,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
-                       tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -768,8 +773,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -780,12 +785,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
-                       tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+
             self.conn.commit()
             cs.close()
             logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -930,8 +940,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -942,12 +952,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
-                       tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1020,8 +1035,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -1032,12 +1047,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
-                       tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1289,8 +1309,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -1301,12 +1321,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
-                       tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1560,8 +1585,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -1573,12 +1598,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
-                       tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -1739,8 +1769,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -1752,13 +1782,17 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 item['delete_time'],
                 item['is_delete'],
                 dumps(item['schedule'], ensure_ascii=False),
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            cs.execute(
-                'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s where GoodsID = %s',
-                tuple(params))
+            # 改价格的sql语句
+            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+            # 不改价格的sql语句
+            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
+
             self.conn.commit()
             cs.close()
             print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
@@ -2519,7 +2553,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=2 order by ID desc')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=2 order by ID desc')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -2662,7 +2696,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6 order by ID desc')
+            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6 order by ID desc')
             # cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where GoodsID=%s', ('12763890166',))
 
             # self.conn.commit()
@@ -2702,7 +2736,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
+            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -2721,7 +2755,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=11')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=11')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -2810,7 +2844,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs = self.conn.cursor()
 
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=12')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=12')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -2898,7 +2932,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def select_pinduoduo_all_goods_id(self):
         cs = self.conn.cursor()
         try:
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=13')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=13')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -2950,7 +2984,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     def select_vip_all_goods_id(self):
         cs = self.conn.cursor()
         try:
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=25')
+            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=25')
             # self.conn.commit()
 
             result = cs.fetchall()
@@ -3475,8 +3509,8 @@ class SqlPools(object):
                 item['title'],
                 item['sub_title'],
                 item['link_name'],
-                item['price'],
-                item['taobao_price'],
+                # item['price'],
+                # item['taobao_price'],
                 dumps(item['price_info'], ensure_ascii=False),
                 dumps(item['detail_name_list'], ensure_ascii=False),
                 dumps(item['price_info_list'], ensure_ascii=False),
@@ -3487,12 +3521,17 @@ class SqlPools(object):
                 dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
                 item['delete_time'],
                 item['is_delete'],
+                item['_is_price_change'],
+                dumps(item['_price_change_info'], ensure_ascii=False),
 
                 item['goods_id'],
             ]
 
-            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID = %s',
-                tuple(params))
+            # 改价格的sql语句
+            # self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            # 不改价格的sql语句
+            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+
             # self.engine.commit()
             logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             try: self.conn.close()
@@ -3609,7 +3648,7 @@ class SqlPools(object):
         self.engine.begin()
         self.conn = self.engine.connect()
         try:
-            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1 order by ID desc'))
+            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=1 order by ID desc'))
             # self.conn.commit()
             self.conn.close()
             # print(result)

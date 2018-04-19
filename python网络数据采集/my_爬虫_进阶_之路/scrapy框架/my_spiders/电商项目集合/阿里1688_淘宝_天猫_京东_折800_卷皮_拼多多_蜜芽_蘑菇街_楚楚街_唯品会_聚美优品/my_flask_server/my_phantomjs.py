@@ -123,6 +123,7 @@ class MyPhantomjs(object):
                     _ = compile(exec_code.replace('  ', ''), '', 'exec')
                     exec(_)
                 except:
+                    # self.driver.save_screenshot('tmp_screen.png')
                     print('动态执行代码时出错!')
                     return ''
                 # self.driver.save_screenshot('tmp_screen.png')
