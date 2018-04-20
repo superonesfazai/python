@@ -458,7 +458,48 @@ class VipParse(object):
         tmp['is_price_change'] = data_list.get('_is_price_change')
         tmp['price_change_info'] = data_list.get('_price_change_info')
 
-        pipeline.update_vip_table(item=tmp)
+        params = self._get_db_update_params(item=tmp)
+        # 改价格的sql
+        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        # 不改价格的sql
+        sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+
+        pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_db_update_params(self, item):
+        '''
+        得到db待更新的数据
+        :param item:
+        :return:
+        '''
+        params = (
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+            item['delete_time'],
+            item['is_delete'],
+            dumps(item['schedule'], ensure_ascii=False),
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        )
+
+        return params
+
 
     def get_detail_name_list(self, tmp_data):
         '''

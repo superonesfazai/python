@@ -15,6 +15,7 @@ import json
 import datetime
 from decimal import Decimal
 from random import randint
+from json import dumps
 
 from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.proxy import ProxyType
@@ -399,8 +400,8 @@ class ALi1688LoginAndParse(object):
         tmp['link_name'] = data_list['link_name']  # 卖家姓名
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = data_list['price']
-        tmp['taobao_price'] = data_list['taobao_price']
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
 
         tmp['price_info'] = data_list['price_info']  # 价格信息
         # print(tmp['price'], print(tmp['taobao_price']))
@@ -433,13 +434,49 @@ class ALi1688LoginAndParse(object):
         tmp['price_change_info'] = data_list.get('_price_change_info')
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
-        pipeline.update_table(tmp)
+        params = self._get_db_update_params(item=tmp)
+        # 改价格的sql语句
+        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        # 不改价格的sql语句
+        sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+
+        pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_db_update_params(self, item):
+        '''
+        得到待存储的params
+        :param item:
+        :return: tuple
+        '''
+        params = (
+            item['modify_time'],
+            item['shop_name'],
+            item['title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            item['div_desc'],
+            dumps(item['p_info'], ensure_ascii=False),
+            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+            item['delete_time'],
+            item['is_delete'],
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        )
+
+        return params
 
     def _get_price(self, price_info):
         '''
         获取商品的最高价跟最低价
         :param price_info:
-        :return: price, taobao_price
+        :return: price, taobao_price type float
         '''
         # 设置最高价price， 最低价taobao_price
         if len(price_info) > 1:
@@ -470,7 +507,7 @@ class ALi1688LoginAndParse(object):
             price = Decimal(0).__round__(2)
             taobao_price = Decimal(0).__round__(2)
 
-        return price, taobao_price
+        return float(price), float(taobao_price)
 
     def init_pull_off_shelves_goods(self):
         '''

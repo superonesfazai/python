@@ -18,6 +18,7 @@ import requests
 import re
 from pprint import pprint
 from decimal import Decimal
+from json import dumps
 from time import sleep
 import datetime
 import re
@@ -457,7 +458,13 @@ class JuanPiParse(object):
         tmp['is_price_change'] = data_list.get('_is_price_change')
         tmp['price_change_info'] = data_list.get('_price_change_info')
 
-        pipeline.update_juanpi_table(item=tmp)
+        params = self._get_db_update_params(item=tmp)
+        # 改价格的sql语句
+        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        # 不改价格的sql语句
+        sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+
+        pipeline._update_table(sql_str=sql_str, params=params)
 
     def insert_into_juanpi_xianshimiaosha_table(self, data, pipeline):
         data_list = data
@@ -467,7 +474,6 @@ class JuanPiParse(object):
         tmp['username'] = data_list['username']  # 操作人员username
 
         now_time = get_shanghai_time()
-
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -508,7 +514,9 @@ class JuanPiParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.insert_into_juanpi_xianshimiaosha_table(item=tmp)
+        params = self._get_db_insert_miaosha_params(item=tmp)
+        sql_str = r'insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        pipeline._insert_into_table(sql_str=sql_str, params=params)
 
     def to_update_juanpi_xianshimiaosha_table(self, data, pipeline):
         data_list = data
@@ -516,7 +524,6 @@ class JuanPiParse(object):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
         now_time = get_shanghai_time()
-
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -551,7 +558,9 @@ class JuanPiParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.update_juanpi_xianshimiaosha_table(tmp)
+        params = self._get_db_update_miaosha_params(item=tmp)
+        sql_str = r'update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
+        pipeline._update_table(sql_str=sql_str, params=params)
 
     def insert_into_juuanpi_pintuan_table(self, data, pipeline):
         data_list = data
@@ -603,7 +612,9 @@ class JuanPiParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        _r = pipeline.insert_into_juanpi_pintuan_table(tmp)
+        params = self._get_db_insert_pintuan_params(item=tmp)
+        sql_str = r'insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        _r = pipeline._insert_into_table(sql_str=sql_str, params=params)
 
         return _r
 
@@ -613,7 +624,6 @@ class JuanPiParse(object):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
         now_time = get_shanghai_time()
-
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -652,7 +662,149 @@ class JuanPiParse(object):
         # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.update_juanpi_pintuan_table(tmp)
+        params = self._get_db_update_pintuan_params(item=tmp)
+        sql_str = r'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s'
+        pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_db_update_params(self, item):
+        '''
+        得到待更新的db数据
+        :param item:
+        :return:
+        '''
+        params = (
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+            item['delete_time'],
+            item['is_delete'],
+            dumps(item['schedule'], ensure_ascii=False),
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        )
+
+        return params
+
+    def _get_db_insert_miaosha_params(self, item):
+        params = [
+            item['goods_id'],
+            item['spider_url'],
+            item['username'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['schedule'], ensure_ascii=False),
+            dumps(item['stock_info'], ensure_ascii=False),
+            dumps(item['miaosha_time'], ensure_ascii=False),
+            item['miaosha_begin_time'],
+            item['miaosha_end_time'],
+            item['tab_id'],
+            item['page'],
+
+            item['site_id'],
+            item['is_delete'],
+        ]
+
+        return params
+
+    def _get_db_update_miaosha_params(self, item):
+        params = (
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['is_delete'],
+            dumps(item['schedule'], ensure_ascii=False),
+            dumps(item['stock_info'], ensure_ascii=False),
+            dumps(item['miaosha_time'], ensure_ascii=False),
+            item['miaosha_begin_time'],
+            item['miaosha_end_time'],
+
+            item['goods_id'],
+        )
+
+        return params
+
+    def _get_db_insert_pintuan_params(self, item):
+        params = (
+            item['goods_id'],
+            item['spider_url'],
+            item['username'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            item['all_sell_count'],
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['schedule'], ensure_ascii=False),
+            item['pintuan_begin_time'],
+            item['pintuan_end_time'],
+            item['page'],
+
+            item['site_id'],
+            item['is_delete'],
+        )
+
+        return params
+
+    def _get_db_update_pintuan_params(self, item):
+        params = (
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            # item['all_sell_count'],
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['schedule'], ensure_ascii=False),
+            item['is_delete'],
+
+            item['goods_id']
+        )
+
+        return params
 
     def get_goods_id_from_url(self, juanpi_url):
         '''

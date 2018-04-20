@@ -25,6 +25,7 @@ import datetime
 import re
 import gc
 import pytz
+from json import dumps
 
 from settings import HEADERS
 from selenium import webdriver
@@ -321,7 +322,13 @@ class PinduoduoParse(object):
         tmp['is_price_change'] = data_list.get('_is_price_change')
         tmp['price_change_info'] = data_list.get('_price_change_info')
 
-        pipeline.update_pinduoduo_table(item=tmp)
+        params = self._get_db_update_params(item=tmp)
+        # 改价格的sql语句
+        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        # 不改价格的sql语句
+        sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+
+        pipeline._update_table(sql_str=sql_str, params=params)
 
     def insert_into_pinduoduo_xianshimiaosha_table(self, data, pipeline):
         data_list = data
@@ -330,16 +337,7 @@ class PinduoduoParse(object):
         tmp['spider_url'] = data_list['spider_url']  # 商品地址
         tmp['username'] = data_list['username']  # 操作人员username
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -378,23 +376,16 @@ class PinduoduoParse(object):
         # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
-        pipeline.insert_into_pinduoduo_xianshimiaosha_table(item=tmp)
+        params = self._get_db_insert_miaosha_params(item=tmp)
+        sql_str = r'insert into dbo.pinduoduo_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        pipeline._insert_into_table(sql_str=sql_str, params=params)
 
     def to_update_pinduoduo_xianshimiaosha_table(self, data, pipeline):
         data_list = data
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -429,7 +420,97 @@ class PinduoduoParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.update_pinduoduo_xianshimiaosha_table(tmp)
+        params = self._get_db_update_miaosha_params(item=tmp)
+        sql_str = r'update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
+        pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_db_update_params(self, item):
+        '''
+        得到db待存储的数据
+        :param item:
+        :return:
+        '''
+        params = (
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
+            item['delete_time'],
+            item['is_delete'],
+            dumps(item['schedule'], ensure_ascii=False),
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        )
+
+        return params
+
+    def _get_db_insert_miaosha_params(self, item):
+        params = (
+            item['goods_id'],
+            item['spider_url'],
+            item['username'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['schedule'], ensure_ascii=False),
+            dumps(item['stock_info'], ensure_ascii=False),
+            dumps(item['miaosha_time'], ensure_ascii=False),
+            item['miaosha_begin_time'],
+            item['miaosha_end_time'],
+
+            item['site_id'],
+            item['is_delete'],
+        )
+
+        return params
+
+    def _get_db_update_miaosha_params(self, item):
+        params = (
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['is_delete'],
+            dumps(item['schedule'], ensure_ascii=False),
+            dumps(item['stock_info'], ensure_ascii=False),
+            dumps(item['miaosha_time'], ensure_ascii=False),
+            item['miaosha_begin_time'],
+            item['miaosha_end_time'],
+
+            item['goods_id'],
+        )
+
+        return params
 
     def set_cookies_key_api_uid(self):
         '''

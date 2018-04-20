@@ -39,7 +39,6 @@ def run_forever():
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
             for item in result:  # 实时更新数据
-                data = {}
                 # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
                 zhe_800_pintuan = Zhe800PintuanParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错

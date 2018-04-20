@@ -16,6 +16,7 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     goods_id = Field()              # 商品id
     create_time = Field()           # 创建时间点
     modify_time = Field()           # 更改时间点
+    username = Field()              # 平台操作人员的手机号
     goods_url = Field()             # 商品地址
     shop_name = Field()             # 店铺名称
     title = Field()                 # 商品名称
@@ -32,8 +33,12 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     p_info = Field()                # 商品属性
     div_desc = Field()              # div_desc描述
     is_delete = Field()             # 是否下架
-    schedule = Field()              # 官方上下架时间
+    site_id = Field()               # site_id
+    schedule = Field()              # 官方商品上下架时间
     my_shelf_and_down_time = Field()# 我的上下架时间
+    miaosha_time = Field()          # 秒杀时间段
+    miaosha_begin_time = Field()    # 秒杀开始时间点
+    miaosha_end_time = Field()      # 秒杀结束时间点
     delete_time = Field()           # 用来记录下架时间点
     is_price_change = Field()       # 记录最高价和最低价是否改变
     price_change_info = Field()     # 最高价最低价价格改变信息

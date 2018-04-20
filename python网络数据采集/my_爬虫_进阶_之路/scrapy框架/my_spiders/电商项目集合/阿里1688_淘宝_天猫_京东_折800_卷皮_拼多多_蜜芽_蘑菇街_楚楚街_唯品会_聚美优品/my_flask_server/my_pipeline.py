@@ -23,276 +23,6 @@ from settings import MY_SPIDER_LOGS_PATH
 from my_logging import set_logger
 from my_utils import get_shanghai_time
 
-class UserItemPipeline(object):
-    """
-    用户信息处理管道
-    """
-    def __init__(self):
-        super(UserItemPipeline, self).__init__()
-        self.is_connect_success = True
-        try:
-            self.conn = connect(
-                host=HOST,
-                user=USER,
-                password=PASSWORD,
-                database=DATABASE,
-                port=PORT,
-                charset='utf8'
-            )
-        except Exception as e:
-            print('数据库连接失败!!')
-            self.is_connect_success = False
-
-    def insert_into_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = item
-
-            # print(params)
-            # pymssql下的execute执行插入语句成功返回的值也是None, 所以不判断返回的行数
-            cs.execute('insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)', tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('-' * 60 + '| ***该用户信息成功存入mysql中*** |')
-            return True
-        except Exception as e:
-            cs.close()
-            print('-' * 60 + '| 修改信息失败, 未能将该评论信息存入到mysql中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            pass
-
-    def select_all_info(self):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select * from dbo.ali_spider_employee_table')
-            result = list(cs.fetchall())
-            self.conn.commit()
-
-            if result != []:
-                cs.close()
-                # print(result)
-                return result
-            else:
-                cs.close()
-                return []
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return []
-
-    def find_user_by_username(self, username):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select * from dbo.ali_spider_employee_table where username=%s', tuple([username,]))
-            result = list(cs.fetchone())
-            self.conn.commit()
-
-            if result != []:
-                cs.close()
-                # print(result)
-                return result
-            else:
-                cs.close()
-                return []
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return []
-
-    def find_user_by_real_name(self, name):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select * from dbo.ali_spider_employee_table where realnane=%s', tuple([name,]))
-            result = list(cs.fetchall())
-            self.conn.commit()
-
-            if result != []:
-                cs.close()
-                # print(result)
-                return result
-            else:
-                cs.close()
-                return []
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return []
-
-    def init_user_passwd(self, username):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('update dbo.ali_spider_employee_table set passwd=%s where username=%s', tuple([INIT_PASSWD, username]))
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return False
-
-    def delete_users(self, item):
-        cs = self.conn.cursor()
-        try:
-            for i in item:
-                cs.execute('delete from dbo.ali_spider_employee_table where username=%s', tuple([i]))
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return False
-
-    def select_is_had_username(self, username, passwd):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                username,
-                passwd,
-            ]
-
-            cs.execute('select username from dbo.ali_spider_employee_table where username = %s and passwd = %s', tuple(params))
-            count = cs.fetchone()
-
-            self.conn.commit()
-            # print(type(cs.fetchone()))      # return  ->  <class 'NoneType'>
-            # print(cs.fetchone())
-            print(count)
-            if count:
-                cs.close()
-                return True
-            else:
-                cs.close()
-                return False
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return False
-
-'''
-class MyPageInfoSaveItemPipeline(object):
-    """
-    页面存储管道
-    """
-    def __init__(self):
-        super(MyPageInfoSaveItemPipeline, self).__init__()
-        self.conn = connect(
-            host='localhost',
-            port=3306,
-            db='python',
-            user='root',
-            passwd='lrf654321',
-            # charset='utf-8',
-        )
-
-    def insert_into_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['title'],
-                item['price'],
-                item['trade_number'],
-                item['color'],
-                item['color_img_url'],
-                item['size_info'],
-                item['detail_price'],
-                item['rest_number'],
-                item['center_img_url'],
-                item['all_img_url'],
-            ]
-
-            # print(params)
-            count = cs.execute('insert into ali_spider_page_info_table(spider_url, username, deal_with_time, title, price, trade_number, color, color_img_url, size_info, detail_price, rest_number, center_img_url, all_img_url) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', params)
-            self.conn.commit()
-
-            print(count)
-            cs.close()
-            if count:
-                print('-' * 60 + '| ***该页面信息成功存入mysql中*** |')
-                return True
-            else:
-                print('-' * 60 + '| 修改信息失败, 未能将该页面信息存入到mysql中 ! |')
-                return False
-        except Exception as e:
-            cs.close()
-            print('-' * 60 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_table(self, info):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                info['deal_with_time'],
-                info['title'],
-                info['price'],
-                info['trade_number'],
-                info['color'],
-                info['color_img_url'],
-                info['size_info'],
-                info['detail_price'],
-                info['rest_number'],
-                info['center_img_url'],
-                info['all_img_url'],
-
-                info['username'],
-                info['spider_url'],
-            ]
-
-            count = cs.execute('update ali_spider_page_info_table set deal_with_time = %s, title = %s, price = %s, trade_number = %s, color = %s, color_img_url = %s, size_info = %s, detail_price = %s, rest_number = %s, center_img_url = %s, all_img_url = %s where username = %s and spider_url = %s', params)
-            self.conn.commit()
-
-            print(count)
-            cs.close()
-            if count:
-                print('-' * 60 + '| ***该页面信息成功存入mysql中*** |')
-                return True
-            else:
-                print('-' * 60 + '| 修改信息失败, 未能将该页面信息存入到mysql中 ! |')
-                return False
-
-        except Exception as e:
-            cs.close()
-            print('-' * 60 + '| 修改信息失败, 未能将该页面信息存入到mysql中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def select_is_had_username(self, spider_url, username):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                spider_url,
-                username,
-            ]
-
-            count = cs.execute('select username from ali_spider_employee_table where username = %s and passwd = %s', params)
-
-            self.conn.commit()
-            # print(type(cs.fetchone()))      # return  ->  <class 'NoneType'>
-            # print(cs.fetchone())
-            print(count)
-            if count:
-                cs.close()
-                return True
-            else:
-                cs.close()
-                return False
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            cs.close()
-            return False
-'''
-
 class SqlServerMyPageInfoSaveItemPipeline(object):
     """
     页面存储管道
@@ -313,92 +43,126 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('数据库连接失败!!')
             self.is_connect_success = False
 
-    def insert_into_table(self, item):
+    def _insert_into_table(self, sql_str, params:tuple):
+        '''
+        插入表数据
+        :param sql_str:
+        :param params:
+        :return:
+        '''
         cs = self.conn.cursor()
+        _ = False
         try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['company_name'],
-                item['title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),        # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['spec_name'], ensure_ascii=False),
-                dumps(item['sku_map'], ensure_ascii=False),
-                dumps(item['all_img_url_info'], ensure_ascii=False),
-                item['detail_info'],                          # 存入到DetailInfo
-                dumps(item['property_info'], ensure_ascii=False),      # 存入到PropertyInfo
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
+            cs.execute(sql_str.encode('utf-8'), params)  # 注意必须是tuple类型
             self.conn.commit()
-            cs.close()
             print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
+            _ = True
         except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
             print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                item['div_desc'],
-                dumps(item['p_info'], ensure_ascii=False),
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
-
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
+        finally:
             try:
                 cs.close()
             except Exception:
                 pass
+            return _
+
+    def _insert_into_table_2(self, sql_str, params:tuple, logger):
+        cs = self.conn.cursor()
+        _ = False
+        try:
+            # logger.info(str(params))
+            cs.execute(sql_str.encode('utf-8'), params)   # 注意必须是tuple类型
+            self.conn.commit()
+            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            _ = True
+        except IntegrityError:
+            logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
+
+        except Exception as e:
+            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0])
+            logger.exception(e)
+        finally:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return _
+
+    async def _insert_into_table_3(self, sql_str, params:tuple, logger):
+        '''
+        异步
+        :param sql_str:
+        :param params:
+        :param logger:
+        :return:
+        '''
+        cs = self.conn.cursor()
+        _ = False
+        try:
+            # logger.info(str(params))
+            cs.execute(sql_str.encode('utf-8'), params)   # 注意必须是tuple类型
+            self.conn.commit()
+            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
+            _ = True
+        except IntegrityError:
+            logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
+
+        except Exception as e:
+            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0])
+            logger.exception(e)
+        finally:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return _
+
+    def _update_table(self, sql_str, params:tuple):
+        '''
+        更新表数据
+        :param sql_str:
+        :param params:
+        :return: bool
+        '''
+        cs = self.conn.cursor()
+        _ = False
+        try:
+            cs.execute(sql_str, params)
+
+            self.conn.commit()
+            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            _ = True
+        except Exception as e:
             print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            return False
+        finally:
+            try: cs.close()
+            except Exception: pass
+
+            return _
+
+    def _update_table_2(self, sql_str, params:tuple, logger):
+        cs = self.conn.cursor()
+        _ = False
+        try:
+            cs.execute(sql_str, params)
+
+            self.conn.commit()
+            cs.close()
+            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            _ = True
+        except Exception as e:
+            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % params[-1])
+            logger.exception(e)
+
+        finally:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return _
 
     def old_ali_1688_goods_insert_into_new_table(self, item):
         cs = self.conn.cursor()
@@ -428,9 +192,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             # print(params)
             # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
-                    'utf-8'),
+            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
                 tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
@@ -444,56 +206,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def insert_into_taobao_table(self, item, logger):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                item['month_sell_count'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # logger.info(str(params))
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except IntegrityError:
-            logger.info('重复插入goods_id[%s], 此处跳过!' % item['goods_id'])
-            return False
-
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            logger.error('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错地址: ' + item['spider_url'])
-            logger.exception(e)
             return False
 
     async def insert_into_taobao_tiantiantejia_table(self, item, logger):
@@ -545,48 +257,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             except Exception:
                 pass
             logger.error('修改信息失败, 未能将该页面信息存入到sqlserver中, 失败地址: ' + item['goods_url'])
-            logger.exception(e)
-            return False
-
-    def update_taobao_table(self, item, logger):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['month_sell_count'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-
-                item['goods_id'],
-            ]
-            # print(item['month_sell_count'])
-
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s where GoodsID=%s',
-                       tuple(params))
-            self.conn.commit()
-            cs.close()
-            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            logger.info('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: ' + item['goods_id'])
             logger.exception(e)
             return False
 
@@ -716,99 +386,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return False
 
-    def insert_into_tmall_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                item['month_sell_count'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_tmall_table(self, item, logger):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['all_sell_count'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
-
-            self.conn.commit()
-            cs.close()
-            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item['goods_id'])
-            logger.exception(e)
-
-            return False
-
     def update_tmall_goodsurl_by_site_id_6(self, item):
         cs = self.conn.cursor()
         try:
@@ -881,1103 +458,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
 
-    def insert_into_jd_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                item['all_sell_count'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_jd_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = (
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['all_sell_count'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            )
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', params)
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', params)
-
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_zhe_800_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_zhe_800_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_zhe_800_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                dumps(item['stock_info'], ensure_ascii=False),
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['session_id'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.zhe_800_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, session_id, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def insert_into_zhe_800_pintuan_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                item['all_sell_count'],
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['page'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_zhe_800_xianshimiaosha_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                dumps(item['stock_info'], ensure_ascii=False),
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
-                       tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def update_zhe_800_pintuan_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                item['all_sell_count'],
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                item['is_delete'],
-
-                item['goods_id']
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'update dbo.zhe_800_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, all_sell_count=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_juanpi_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_juanpi_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            return False
-
-    def insert_into_juanpi_xianshimiaosha_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                dumps(item['stock_info'], ensure_ascii=False),
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['tab_id'],
-                item['page'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def insert_into_juanpi_pintuan_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                item['all_sell_count'],
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['page'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_juanpi_xianshimiaosha_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                dumps(item['stock_info'], ensure_ascii=False),
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
-                       tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def update_juanpi_pintuan_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                # item['all_sell_count'],
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                item['is_delete'],
-
-                item['goods_id']
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_pinduoduo_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                item['all_sell_count'],
-                dumps(item['schedule'], ensure_ascii=False),
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_pinduoduo_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['all_sell_count'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_pinduoduo_xianshimiaosha_table(self, item):
-        try:
-            cs = self.conn.cursor()
-
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                dumps(item['schedule'], ensure_ascii=False),
-                dumps(item['stock_info'], ensure_ascii=False),
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.pinduoduo_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_pinduoduo_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                dumps(item['stock_info'], ensure_ascii=False),
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
-                       tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_vip_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['username'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),    # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],                          # 存入到DetailInfo
-                item['all_sell_count'],
-                dumps(item['schedule'], ensure_ascii=False),
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                       tuple(params))   # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_vip_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['all_sell_count'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                dumps(item['schedule'], ensure_ascii=False),
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-            # 不改价格的sql语句
-            cs.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s',tuple(params))
-
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_mia_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['pid'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'insert into dbo.mia_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
-                    'utf-8'),
-                tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_mia_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute(
-                'update dbo.mia_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_mia_pintuan_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['pintuan_time'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['all_sell_count'],
-                item['pid'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.mia_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_mia_pintuan_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['pintuan_time'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['all_sell_count'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute(
-                'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
     def update_mia_pintuan_is_delete(self, goods_id):
         '''
         将该goods_id进行逻辑删除
@@ -1996,93 +476,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             self.conn.commit()
             cs.close()
             print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_mogujie_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['event_time'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'insert into dbo.mogujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, event_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode(
-                    'utf-8'),
-                tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_mogujie_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute(
-                'update dbo.mogujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
             return True
         except Exception as e:
             try:
@@ -2122,430 +515,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('--------------------| 错误如下: ', e)
             print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
             pass
-
-    def insert_into_mogujie_pintuan_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['pintuan_time'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['all_sell_count'],
-                item['fcid'],
-                item['page'],
-                item['sort'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute(
-                'insert into dbo.mogujie_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, fcid, page, sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'),
-                tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_mogujie_pintuan_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['pintuan_time'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['all_sell_count'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute(
-                'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def update_mogujie_pintuan_table_2(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_chuchujie_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['gender'],
-                item['page'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.chuchujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, gender, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_chuchujie_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                # item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                # dumps(item['miaosha_time'], ensure_ascii=False),
-                # item['miaosha_begin_time'],
-                # item['miaosha_end_time'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.chuchujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_jumeiyoupin_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-                item['page'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.jumeiyoupin_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            print('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('-------------------------| 错误如下: ', e)
-            print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
-            return False
-
-    def update_jumeiyoupin_xianshimiaosha_table(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['miaosha_time'], ensure_ascii=False),
-                item['miaosha_begin_time'],
-                item['miaosha_end_time'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.jumeiyoupin_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
-
-    def insert_into_jumeiyoupin_pintuan_table(self, item, logger):
-        '''
-        存入数据
-        :param item: 待存数据
-        :param logger: 日志对象
-        :return:
-        '''
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_id'],
-                item['spider_url'],
-                item['deal_with_time'],
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-                item['div_desc'],  # 存入到DetailInfo
-                dumps(item['pintuan_time'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['all_sell_count'],
-                item['page'],
-                item['sort'],
-                item['tab'],
-
-                item['site_id'],
-                item['is_delete'],
-            ]
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.jumeiyoupin_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, page, sort, tab, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
-            self.conn.commit()
-            cs.close()
-            logger.info('-' * 25 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except IntegrityError:      # 单独捕捉重复插入, 不在error日志中打印
-            logger.info('###### 重复插入goods_id[%s]' % str(item['goods_id']))
-            return False
-
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            logger.error('-' * 25 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |' + ' 出错地址: ' + item['spider_url'])
-            logger.exception(e)
-            return False
-
-    def update_jumeiyoupin_pintuan_table(self, item, logger):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                dumps(item['pintuan_time'], ensure_ascii=False),
-                item['pintuan_begin_time'],
-                item['pintuan_end_time'],
-                item['all_sell_count'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s', tuple(params))
-            self.conn.commit()
-            cs.close()
-            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            logger.exception(e)
-            return False
-
-    def update_jumeiyoupin_pintuan_table_2(self, item, logger):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['modfiy_time'],
-                item['shop_name'],
-                item['title'],
-                item['sub_title'],
-                item['price'],
-                item['taobao_price'],
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['is_delete'],
-                item['all_sell_count'],
-
-                item['goods_id'],
-            ]
-
-            # print(params)
-            cs.execute('update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            logger.exception(e)
-            return False
 
     def select_ali_1688_all_goods_id(self):
         try:
@@ -3496,52 +1465,27 @@ class SqlPools(object):
             print('数据库连接失败!!')
             self.is_connect_success = False
 
-    def update_taobao_table(self, item, logger):
+    def _update_table(self, sql_str, params:tuple, logger):
         self.engine.begin()
         self.conn = self.engine.connect()
+        _ = False
         try:
-            params = [
-                item['modify_time'],
-                item['shop_name'],
-                item['account'],
-                item['title'],
-                item['sub_title'],
-                item['link_name'],
-                # item['price'],
-                # item['taobao_price'],
-                dumps(item['price_info'], ensure_ascii=False),
-                dumps(item['detail_name_list'], ensure_ascii=False),
-                dumps(item['price_info_list'], ensure_ascii=False),
-                dumps(item['all_img_url'], ensure_ascii=False),
-                dumps(item['p_info'], ensure_ascii=False),
-                item['div_desc'],
-                item['all_sell_count'],
-                dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-                item['delete_time'],
-                item['is_delete'],
-                item['is_price_change'],
-                dumps(item['price_change_info'], ensure_ascii=False),
-
-                item['goods_id'],
-            ]
-
-            # 改价格的sql语句
-            # self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
-            # 不改价格的sql语句
-            self.conn.execute('update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s', tuple(params))
+            self.conn.execute(sql_str, params)
 
             # self.engine.commit()
             logger.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            try: self.conn.close()
-            except: pass
-            return True
+            _ = True
 
         except Exception as e:
-            logger.error('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: ' + item['goods_id'])
+            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[-1] )
             logger.exception(e)
-            try: self.conn.close()
-            except: pass
-            return False
+
+        finally:
+            try:
+                self.conn.close()
+            except:
+                pass
+            return _
 
     def insert_into_taobao_tiantiantejia_table(self, item):
         self.engine.begin()
@@ -3673,6 +1617,153 @@ class SqlPools(object):
             except Exception:
                 pass
             return None
+
+class UserItemPipeline(object):
+    """
+    用户信息处理管道
+    """
+    def __init__(self):
+        super(UserItemPipeline, self).__init__()
+        self.is_connect_success = True
+        try:
+            self.conn = connect(
+                host=HOST,
+                user=USER,
+                password=PASSWORD,
+                database=DATABASE,
+                port=PORT,
+                charset='utf8'
+            )
+        except Exception as e:
+            print('数据库连接失败!!')
+            self.is_connect_success = False
+
+    def insert_into_table(self, item):
+        cs = self.conn.cursor()
+        try:
+            params = item
+
+            # print(params)
+            # pymssql下的execute执行插入语句成功返回的值也是None, 所以不判断返回的行数
+            cs.execute('insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)', tuple(params))
+            self.conn.commit()
+            cs.close()
+            print('-' * 60 + '| ***该用户信息成功存入mysql中*** |')
+            return True
+        except Exception as e:
+            cs.close()
+            print('-' * 60 + '| 修改信息失败, 未能将该评论信息存入到mysql中 |')
+            print('--------------------| 错误如下: ', e)
+            print('--------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
+            pass
+
+    def select_all_info(self):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select * from dbo.ali_spider_employee_table')
+            result = list(cs.fetchall())
+            self.conn.commit()
+
+            if result != []:
+                cs.close()
+                # print(result)
+                return result
+            else:
+                cs.close()
+                return []
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return []
+
+    def find_user_by_username(self, username):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select * from dbo.ali_spider_employee_table where username=%s', tuple([username,]))
+            result = list(cs.fetchone())
+            self.conn.commit()
+
+            if result != []:
+                cs.close()
+                # print(result)
+                return result
+            else:
+                cs.close()
+                return []
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return []
+
+    def find_user_by_real_name(self, name):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('select * from dbo.ali_spider_employee_table where realnane=%s', tuple([name,]))
+            result = list(cs.fetchall())
+            self.conn.commit()
+
+            if result != []:
+                cs.close()
+                # print(result)
+                return result
+            else:
+                cs.close()
+                return []
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return []
+
+    def init_user_passwd(self, username):
+        cs = self.conn.cursor()
+        try:
+            cs.execute('update dbo.ali_spider_employee_table set passwd=%s where username=%s', tuple([INIT_PASSWD, username]))
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return False
+
+    def delete_users(self, item):
+        cs = self.conn.cursor()
+        try:
+            for i in item:
+                cs.execute('delete from dbo.ali_spider_employee_table where username=%s', tuple([i]))
+
+            cs.close()
+            return True
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return False
+
+    def select_is_had_username(self, username, passwd):
+        cs = self.conn.cursor()
+        try:
+            params = [
+                username,
+                passwd,
+            ]
+
+            cs.execute('select username from dbo.ali_spider_employee_table where username = %s and passwd = %s', tuple(params))
+            count = cs.fetchone()
+
+            self.conn.commit()
+            # print(type(cs.fetchone()))      # return  ->  <class 'NoneType'>
+            # print(cs.fetchone())
+            print(count)
+            if count:
+                cs.close()
+                return True
+            else:
+                cs.close()
+                return False
+        except Exception as e:
+            print('--------------------| 筛选level时报错：', e)
+            cs.close()
+            return False
 
 class OtherDb(object):
     def __int__(self):

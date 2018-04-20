@@ -23,11 +23,13 @@ import re
 import gc
 import pytz
 from scrapy import Selector
+from json import dumps
 
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import HEADERS
 from my_requests import MyRequests
+from my_utils import get_shanghai_time
 
 class MiaPintuanParse(MiaParse):
     def __init__(self):
@@ -281,16 +283,7 @@ class MiaPintuanParse(MiaParse):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         tmp['spider_url'] = data_list['goods_url']  # 商品地址
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -334,7 +327,9 @@ class MiaPintuanParse(MiaParse):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        _r = pipeline.insert_into_mia_pintuan_table(tmp)
+        params = self._get_db_insert_pintuan_params(item=tmp)
+        sql_str = r'insert into dbo.mia_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        _r = pipeline._insert_into_table(sql_str=sql_str, params=params)
 
         return _r
 
@@ -343,16 +338,7 @@ class MiaPintuanParse(MiaParse):
         tmp = {}
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -394,7 +380,61 @@ class MiaPintuanParse(MiaParse):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
-        pipeline.update_mia_pintuan_table(tmp)
+        params = self._get_db_update_pintuan_params(item=tmp)
+        sql_str = r'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
+        pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_db_insert_pintuan_params(self, item):
+        params = (
+            item['goods_id'],
+            item['spider_url'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['pintuan_time'], ensure_ascii=False),
+            item['pintuan_begin_time'],
+            item['pintuan_end_time'],
+            item['all_sell_count'],
+            item['pid'],
+
+            item['site_id'],
+            item['is_delete'],
+        )
+
+        return params
+
+    def _get_db_update_pintuan_params(self, item):
+        params = (
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['is_delete'],
+            dumps(item['pintuan_time'], ensure_ascii=False),
+            item['pintuan_begin_time'],
+            item['pintuan_end_time'],
+            item['all_sell_count'],
+
+            item['goods_id'],
+        )
+
+        return params
 
     def get_true_sku_info(self, sku_info) -> '重载得到true_sku_info的方法':
         '''

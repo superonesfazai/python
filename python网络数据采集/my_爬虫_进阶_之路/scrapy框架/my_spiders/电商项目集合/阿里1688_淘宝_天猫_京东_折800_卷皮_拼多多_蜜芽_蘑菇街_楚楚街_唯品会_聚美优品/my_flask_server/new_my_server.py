@@ -36,6 +36,7 @@ from settings import SELECT_HTML_NAME
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, UserItemPipeline
 from my_logging import set_logger
 from my_utils import get_shanghai_time
+from my_items import GoodsItem
 
 import hashlib
 import json
@@ -45,6 +46,7 @@ import datetime
 import re
 from decimal import Decimal
 from logging import INFO, ERROR
+from json import dumps
 
 from gevent.wsgi import WSGIServer      # 高并发部署
 import gc
@@ -770,10 +772,12 @@ def to_save_data():
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
                 for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                    # my_lg.info('------>>> | 正在存储的数据为: %s|', str(item))
+                    my_lg.info('------>>> | 正在存储的数据为: %s|' % item.get('goods_id'))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_table(item)
+                    params = _get_db_ali_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -846,44 +850,21 @@ def _get_ali_right_data(data):
     :return:
     '''
     data_list = data
-    tmp = {}
+    tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
-    tmp['company_name'] = data_list['company_name']  # 公司名称
+    tmp['shop_name'] = data_list['company_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
     tmp['link_name'] = data_list['link_name']  # 卖家姓名
 
-    # 设置最高价price， 最低价taobao_price
-    if len(data_list['price_info']) > 1:
-        tmp_ali_price = []
-        for item in data_list['price_info']:
-            tmp_ali_price.append(float(item.get('price')))
-
-        if tmp_ali_price == []:
-            tmp['price'] = Decimal(0).__round__(2)
-            tmp['taobao_price'] = Decimal(0).__round__(2)
-        else:
-            tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-            tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
-    elif len(data_list['price_info']) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
-        if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
-            tmp_price_range = data_list['price_info'][0].get('price')
-            tmp_price_range = tmp_price_range.split('-')
-            tmp['price'] = tmp_price_range[1]
-            tmp['taobao_price'] = tmp_price_range[0]
-        else:
-            tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-            tmp['taobao_price'] = tmp['price']
-    else:  # 少于1
-        tmp['price'] = Decimal(0).__round__(2)
-        tmp['taobao_price'] = Decimal(0).__round__(2)
-
+    tmp['price'] = Decimal(data_list.get('price')).__round__(2)
+    tmp['taobao_price'] = Decimal(data_list.get('taobao_price')).__round__(2)
     tmp['price_info'] = data_list['price_info']  # 价格信息
 
     spec_name = []
@@ -892,23 +873,53 @@ def _get_ali_right_data(data):
         tmp_dic['spec_name'] = item.get('prop')
         spec_name.append(tmp_dic)
 
-    tmp['spec_name'] = spec_name  # 标签属性名称
+    tmp['detail_name_list'] = spec_name  # 标签属性名称
 
     """
     得到sku_map
     """
-    tmp['sku_map'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
+    tmp['price_info_list'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
 
-    tmp['all_img_url_info'] = data_list.get('all_img_url')  # 所有示例图片地址
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
-    tmp['property_info'] = data_list.get('property_info')  # 详细信息
-    tmp['detail_info'] = data_list.get('detail_info')  # 下方div
+    tmp['p_info'] = data_list.get('property_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('detail_info')  # 下方div
 
     # 采集的来源地
     tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
     tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
 
     return tmp
+
+def _get_db_ali_insert_params(item):
+    '''
+    得到阿里待插入的数据
+    :param item:
+    :return: tuple
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['detail_name_list'], ensure_ascii=False),
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        item['div_desc'],  # 存入到DetailInfo
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 淘宝
@@ -1080,7 +1091,9 @@ def taobao_to_save_data():
                     # my_lg.info('------>>> | 正在存储的数据为: |' + str(item))
                     my_lg.info('------>>> | 正在存储的数据为: |' + item.get('goods_id', ''))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_taobao_table(item, logger=my_lg)
+                    params = _get_db_taobao_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -1173,19 +1186,19 @@ def _get_taobao_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
     tmp['sub_title'] = data_list['sub_title']  # 商品子标题
     tmp['link_name'] = ''  # 卖家姓名
     tmp['account'] = data_list['account']  # 掌柜名称
-    tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+    tmp['all_sell_count'] = data_list['sell_count']  # 月销量
 
     # 设置最高价price， 最低价taobao_price
     tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -1209,6 +1222,39 @@ def _get_taobao_right_data(data):
     tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
     return tmp
+
+def _get_db_taobao_insert_params(item):
+    '''
+    得到db待插入的数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 天猫
@@ -1383,7 +1429,9 @@ def tmall_to_save_data():
                     # my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item))
                     my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item.get('goods_id')))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_tmall_table(item)
+                    params = _get_db_tmall_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -1498,19 +1546,19 @@ def _get_tmall_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
     tmp['sub_title'] = data_list['sub_title']  # 商品子标题
     tmp['link_name'] = ''  # 卖家姓名
     tmp['account'] = data_list['account']  # 掌柜名称
-    tmp['month_sell_count'] = data_list['sell_count']  # 月销量
+    tmp['all_sell_count'] = data_list['sell_count']  # 月销量
 
     # 设置最高价price， 最低价taobao_price
     tmp['price'] = Decimal(data_list['price']).__round__(2)
@@ -1540,6 +1588,39 @@ def _get_tmall_right_data(data):
     # my_lg.info('is_delete=%s' % str(tmp['is_delete']))
 
     return tmp
+
+def _get_db_tmall_insert_params(item):
+    '''
+    得到tmall待存储数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 京东
@@ -1713,7 +1794,9 @@ def jd_to_save_data():
                     # print('------>>> | 正在存储的数据为: |', item)
                     print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_jd_table(item)
+                    params = _get_db_jd_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -1807,12 +1890,12 @@ def _get_jd_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
@@ -1852,6 +1935,39 @@ def _get_jd_right_data(data):
     # print('is_delete=', tmp['is_delete'])
 
     return tmp
+
+def _get_db_jd_insert_params(item):
+    '''
+    得到db待插入数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 折800
@@ -2020,7 +2136,9 @@ def zhe_800_to_save_data():
                     # print('------>>> | 正在存储的数据为: |', item)
                     print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_zhe_800_table(item)
+                    params = _get_db_zhe_800_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -2127,12 +2245,12 @@ def _get_zhe_800_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
@@ -2167,6 +2285,39 @@ def _get_zhe_800_right_data(data):
     # print('is_delete=', tmp['is_delete'])
 
     return tmp
+
+def _get_db_zhe_800_insert_params(item):
+    '''
+    得到db待插入的数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        dumps(item['schedule'], ensure_ascii=False),
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 卷皮
@@ -2334,7 +2485,9 @@ def juanpi_to_save_data():
                     # print('------>>> | 正在存储的数据为: |', item)
                     print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_juanpi_table(item)
+                    params = _get_db_juanpi_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -2424,12 +2577,12 @@ def _get_juanpi_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
@@ -2464,6 +2617,39 @@ def _get_juanpi_right_data(data):
     # print('is_delete=', tmp['is_delete'])
 
     return tmp
+
+def _get_db_juanpi_insert_params(item):
+    '''
+    得到db待插入数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        dumps(item['schedule'], ensure_ascii=False),
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 拼多多
@@ -2632,7 +2818,9 @@ def pinduoduo_to_save_data():
                     # print('------>>> | 正在存储的数据为: |', item)
                     print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_pinduoduo_table(item)
+                    params = _get_db_pinduoduo_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -2724,12 +2912,12 @@ def _get_pinduoduo_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
@@ -2764,6 +2952,40 @@ def _get_pinduoduo_right_data(data):
     # print('is_delete=', tmp['is_delete'])
 
     return tmp
+
+def _get_db_pinduoduo_insert_params(item):
+    '''
+    得到db待插入的数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+        dumps(item['schedule'], ensure_ascii=False),
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 # 唯品会
@@ -2939,7 +3161,9 @@ def vip_to_save_data():
                     # print('------>>> | 正在存储的数据为: |', item)
                     print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
 
-                    is_insert_into = my_page_info_save_item_pipeline.insert_into_vip_table(item)
+                    params = _get_db_vip_insert_params(item=item)
+                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
                     if is_insert_into:  # 如果返回值为True
                         pass
                     else:
@@ -3047,12 +3271,12 @@ def _get_vip_right_data(data):
     data_list = data
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-    tmp['spider_url'] = data_list['spider_url']  # 商品地址
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
 
     now_time = get_shanghai_time()
-    tmp['deal_with_time'] = now_time  # 操作时间
-    tmp['modfiy_time'] = now_time  # 修改时间
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
 
     tmp['shop_name'] = data_list['shop_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
@@ -3093,6 +3317,40 @@ def _get_vip_right_data(data):
     # print('is_delete=', tmp['is_delete'])
 
     return tmp
+
+def _get_db_vip_insert_params(item):
+    '''
+    得到db待插入数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+        dumps(item['schedule'], ensure_ascii=False),
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
 
 ######################################################
 
