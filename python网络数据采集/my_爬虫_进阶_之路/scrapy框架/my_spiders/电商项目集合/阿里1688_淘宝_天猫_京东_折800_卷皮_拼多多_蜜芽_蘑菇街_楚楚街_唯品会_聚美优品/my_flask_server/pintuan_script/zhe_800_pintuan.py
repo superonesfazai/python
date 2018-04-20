@@ -93,7 +93,8 @@ class Zhe800Pintuan(object):
         zhe_800_pintuan = Zhe800PintuanParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline.select_zhe_800_pintuan_all_goods_id())]
+            sql_str = r'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17'
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             for item in zid_list:
                 if item[0] in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')

@@ -98,7 +98,8 @@ class Zhe800Spike(object):
                             zhe_800 = Zhe800Parse()
                             my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                             if my_pipeline.is_connect_success:
-                                db_goods_id_list = [item[0] for item in list(my_pipeline.select_zhe_800_xianshimiaosha_all_goods_id())]
+                                sql_str = r'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
+                                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
                                 for item in miaosha_goods_list:
                                     if item.get('zid', '') in db_goods_id_list:
                                         print('该goods_id已经存在于数据库中, 此处跳过')

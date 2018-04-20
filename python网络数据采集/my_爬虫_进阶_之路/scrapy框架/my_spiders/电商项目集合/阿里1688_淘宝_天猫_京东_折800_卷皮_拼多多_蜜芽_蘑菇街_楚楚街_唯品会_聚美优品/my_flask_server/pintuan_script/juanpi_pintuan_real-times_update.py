@@ -24,8 +24,9 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_str = r'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
         try:
-            result = list(tmp_sql_server.select_juanpi_pintuan_all_goods_id())
+            result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

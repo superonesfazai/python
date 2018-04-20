@@ -51,8 +51,9 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_str = r'select goods_id, miaosha_time, event_time, goods_url from dbo.mogujie_xianshimiaosha where site_id=22'
         try:
-            result = list(tmp_sql_server.select_mogujie_xianshimiaosha_all_goods_id())
+            result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

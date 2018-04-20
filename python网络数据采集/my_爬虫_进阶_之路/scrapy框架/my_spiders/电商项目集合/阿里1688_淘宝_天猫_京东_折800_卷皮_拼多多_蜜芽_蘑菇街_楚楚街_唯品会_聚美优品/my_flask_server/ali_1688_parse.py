@@ -91,7 +91,8 @@ class ALi1688LoginAndParse(object):
                 self.result_data = {}
                 return {}
             if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-                tmp_my_pipeline.update_ali_1688_expired_goods_id_to_is_delete(goods_id=goods_id)
+                sql_str = r'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
+                tmp_my_pipeline._update_table(sql_str=sql_str, params=(goods_id))
                 print('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
                 tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
                 tmp_data_s['before'] = True     # 用来判断原先该goods是否在db中
@@ -534,54 +535,23 @@ class ALi1688LoginAndParse(object):
 
     def old_ali_1688_goods_insert_into_new_table(self, data, pipeline):
         data_list = data
-        tmp = {}
+        tmp = GoodsItem()
         tmp['main_goods_id'] = data_list['main_goods_id']
         tmp['username'] = data_list['username']
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['goods_url']
-        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
+        tmp['goods_url'] = data_list['goods_url']
 
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+        now_time = get_shanghai_time()
+        tmp['create_time'] = now_time  # 操作时间
+        tmp['modify_time'] = now_time  # 修改时间
 
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['company_name'] = data_list['company_name']  # 公司名称
+        tmp['shop_name'] = data_list['company_name']  # 公司名称
         tmp['title'] = data_list['title']  # 商品名称
         tmp['link_name'] = data_list['link_name']  # 卖家姓名
 
         # 设置最高价price， 最低价taobao_price
-        if len(data_list['price_info']) > 1:
-            tmp_ali_price = []
-            for item in data_list['price_info']:
-                tmp_ali_price.append(float(item.get('price')))
-
-            if tmp_ali_price == []:
-                tmp['price'] = Decimal(0).__round__(2)
-                tmp['taobao_price'] = Decimal(0).__round__(2)
-            else:
-                tmp['price'] = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-                tmp['taobao_price'] = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
-        elif len(data_list['price_info']) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
-            if re.compile(r'-').findall(data_list['price_info'][0].get('price')) != []:
-                tmp_price_range = data_list['price_info'][0].get('price')
-                tmp_price_range = tmp_price_range.split('-')
-                tmp['price'] = tmp_price_range[1]
-                tmp['taobao_price'] = tmp_price_range[0]
-            else:
-                tmp['price'] = Decimal(data_list['price_info'][0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
-                tmp['taobao_price'] = tmp['price']
-        else:  # 少于1
-            tmp['price'] = Decimal(0).__round__(2)
-            tmp['taobao_price'] = Decimal(0).__round__(2)
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
 
         tmp['price_info'] = data_list['price_info']  # 价格信息
         # print(tmp['price'], print(tmp['taobao_price']))
@@ -593,17 +563,17 @@ class ALi1688LoginAndParse(object):
             tmp_dic['spec_name'] = item.get('prop')
             spec_name.append(tmp_dic)
 
-        tmp['spec_name'] = spec_name  # 标签属性名称
+        tmp['detail_name_list'] = spec_name  # 标签属性名称
 
         """
         得到sku_map
         """
-        tmp['sku_map'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
+        tmp['price_info_list'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
 
-        tmp['all_img_url_info'] = data_list.get('all_img_url')  # 所有示例图片地址
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
-        tmp['property_info'] = data_list.get('property_info')  # 详细信息
-        tmp['detail_info'] = data_list.get('detail_info')  # 下方div
+        tmp['p_info'] = data_list.get('property_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('detail_info')  # 下方div
 
         tmp['site_id'] = 2      # 阿里1688
 
@@ -613,7 +583,36 @@ class ALi1688LoginAndParse(object):
         # tmp['delete_time'] = data_list.get('delete_time')
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
-        pipeline.old_ali_1688_goods_insert_into_new_table(tmp)
+        params = self._get_db_insert_params(item=tmp)
+        sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+        pipeline._insert_into_table(sql_str=sql_str, params=params)
+
+    def _get_db_insert_params(self, item):
+        params = (
+            item['goods_id'],
+            item['goods_url'],
+            item['username'],
+            item['create_time'],
+            item['modify_time'],
+            item['shop_name'],
+            item['title'],
+            item['link_name'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+
+            item['site_id'],
+            item['is_delete'],
+            item['main_goods_id'],
+        )
+
+        return params
 
     def get_detail_info_url_div(self, detail_info_url):
         '''

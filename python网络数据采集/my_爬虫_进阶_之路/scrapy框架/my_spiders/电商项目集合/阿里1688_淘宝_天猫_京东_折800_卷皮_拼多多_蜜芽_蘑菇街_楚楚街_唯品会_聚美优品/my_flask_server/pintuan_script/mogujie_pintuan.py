@@ -192,7 +192,8 @@ class MoGuJiePinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline.select_mogujie_pintuan_all_goods_id())]
+            sql_str = r'select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23'
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             print(db_goods_id_list)
 
             for item in goods_list:

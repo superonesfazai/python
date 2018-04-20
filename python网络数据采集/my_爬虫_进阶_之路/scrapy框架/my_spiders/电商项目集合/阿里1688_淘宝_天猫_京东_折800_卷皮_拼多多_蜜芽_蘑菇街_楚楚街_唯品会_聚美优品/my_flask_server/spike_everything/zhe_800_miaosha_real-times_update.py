@@ -49,8 +49,9 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_str = r'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
         try:
-            result = list(tmp_sql_server.select_zhe_800_xianshimiaosha_all_goods_id())
+            result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

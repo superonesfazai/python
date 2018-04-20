@@ -86,10 +86,11 @@ class JuanPiSpike(object):
                         juanpi = JuanPiParse()
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         if my_pipeline.is_connect_success:
-                            if my_pipeline.select_juanpi_xianshimiaosha_all_goods_id() is None:
+                            sql_str = r'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15'
+                            if my_pipeline._select_table(sql_str=sql_str) is None:
                                 db_goods_id_list = []
                             else:
-                                db_goods_id_list = [item[0] for item in list(my_pipeline.select_juanpi_xianshimiaosha_all_goods_id())]
+                                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
 
                             for item in miaosha_goods_list:
                                 if item.get('goods_id', '') in db_goods_id_list:

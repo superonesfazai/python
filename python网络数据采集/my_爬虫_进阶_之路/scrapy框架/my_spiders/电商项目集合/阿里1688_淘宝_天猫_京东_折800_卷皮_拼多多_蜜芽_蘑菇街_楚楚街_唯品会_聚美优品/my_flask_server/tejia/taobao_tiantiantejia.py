@@ -139,7 +139,8 @@ class TaoBaoTianTianTeJia(object):
         if my_pipeline.is_connect_success:
             # 普通sql_server连接(超过3000无返回结果集)
             self.my_lg.info('正在获取天天特价db原有goods_id, 请耐心等待...')
-            db_ = list(my_pipeline.select_taobao_tiantian_tejia_all_goods_id())
+            sql_str = r'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
+            db_ = list(my_pipeline._select_table(sql_str=sql_str))
             db_goods_id_list = [[item[0], item[2]] for item in db_]
             self.my_lg.info('获取完毕!!!')
             # print(db_goods_id_list)

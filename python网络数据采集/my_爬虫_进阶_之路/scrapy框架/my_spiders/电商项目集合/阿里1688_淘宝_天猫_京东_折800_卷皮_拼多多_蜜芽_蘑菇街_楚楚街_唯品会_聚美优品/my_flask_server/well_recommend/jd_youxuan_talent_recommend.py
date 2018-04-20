@@ -15,6 +15,7 @@ import re
 import json
 import gc, os
 from random import randint
+from json import dumps
 from pprint import pprint
 from settings import HEADERS
 from settings import IS_BACKGROUND_RUNNING, JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING, PHANTOMJS_DRIVER_PATH
@@ -119,7 +120,8 @@ class JdTalentRecommend(object):
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         db_goods_id = [j[1] for j in list(my_pipeline.select_jd_all_goods_id_url())]
                         # print(db_goods_id)
-                        db_share_id = [j[0] for j in list(my_pipeline.select_jd_youxuan_daren_recommend_all_share_id())]
+                        sql_str = r'select share_id from dbo.jd_youxuan_daren_recommend'
+                        db_share_id = [j[0] for j in list(my_pipeline._select_table(sql_str=sql_str))]
                         # print(db_share_id)
                         jd = JdParse()
 
@@ -259,7 +261,9 @@ class JdTalentRecommend(object):
                                 }
                                 # pprint(result)
                                 print(result)
-                                my_pipeline.insert_into_jd_youxuan_daren_recommend_table(item=result)
+                                params = self._get_db_insert_params(item=result)
+                                sql_str = r'insert into dbo.jd_youxuan_daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_img_url_list, goods_id_list, div_body, create_time) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                                my_pipeline._insert_into_table(sql_str=sql_str, params=params)
 
                                 print('准备开始抓取该文章中的所有推荐商品'.center(30, '-'))
                                 for i in goods_id_list:
@@ -280,6 +284,23 @@ class JdTalentRecommend(object):
 
             else:
                 print('body为空list!')
+
+    def _get_db_insert_params(self, item):
+        params = (
+            item['nick_name'],
+            item['head_url'],
+            item['profile'],
+            item['share_id'],
+            item['article_url'],
+            item['title'],
+            item['comment_content'],
+            dumps(item['share_img_url_list'], ensure_ascii=False),
+            dumps(item['goods_id_list'], ensure_ascii=False),
+            item['div_body'],
+            item['create_time'],
+        )
+
+        return params
 
     def get_div_body(self, share_id):
         '''

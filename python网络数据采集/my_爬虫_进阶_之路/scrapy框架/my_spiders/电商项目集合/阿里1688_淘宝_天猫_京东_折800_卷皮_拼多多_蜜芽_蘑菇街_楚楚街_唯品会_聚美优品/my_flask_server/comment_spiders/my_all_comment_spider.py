@@ -46,7 +46,7 @@ class MyAllCommentSpider(object):
         '''
         return {
             1: True,
-            2: False,
+            2: True,
             3: False,
             4: False,
             6: False,
@@ -76,8 +76,9 @@ class MyAllCommentSpider(object):
         while True:
             #### 实时更新数据
             tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+            sql_str = r'select GoodsID, SiteID from dbo.GoodsInfoAutoGet where MainGoodsID!=%s and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)'
             try:
-                result = list(tmp_sql_server.select_all_goods_info_from_GoodsInfoAutoGet_table())
+                result = list(tmp_sql_server._select_table(sql_str=sql_str, params=('',)))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
@@ -91,7 +92,8 @@ class MyAllCommentSpider(object):
                 self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
                 self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
                 if self._comment_pipeline.is_connect_success:
-                    _db_goods_id = self._comment_pipeline.select_all_goods_id_from_all_goods_comment_table()
+                    sql_str = r'select goods_id from dbo.all_goods_comment'
+                    _db_goods_id = self._comment_pipeline._select_table(sql_str=sql_str)
                     try:
                         _db_goods_id = [item[0] for item in _db_goods_id]
                     except IndexError:
@@ -103,14 +105,19 @@ class MyAllCommentSpider(object):
 
                 # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
                 for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
-                    if item[0] in _db_goods_id:
-                        self.my_lg.info('该goods_id[%s]已存在于db中, 此处跳过!' % item[0])
-                        continue
+                    try:
+                        if item[0] in _db_goods_id:
+                            self.my_lg.info('该goods_id[%s]已存在于db中, 此处跳过!' % item[0])
+                            continue
+                    except IndexError:
+                        print('IndexError')
 
                     if index % 20 == 0:
+                        self.my_lg.info('_comment_pipeline客户端重连中...')
                         try: del self._comment_pipeline
                         except: pass
                         self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+                        self.my_lg.info('_comment_pipeline客户端重连完毕!')
 
                     switch = {
                         1: self.func_name_dict.get('taobao'),       # 淘宝

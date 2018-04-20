@@ -481,6 +481,13 @@ class Zhe800Parse(object):
 
             # 用于判断商品是否已经下架
             is_delete = 0
+            if price_info_list != []:
+                stock_num = 0
+                for _i in price_info_list:
+                    stock_num += _i.get('rest_number', 0)
+                if stock_num == 0:
+                    is_delete = 1
+
             schedule = data.get('schedule')
             # pprint(schedule)
             if schedule is None:
@@ -822,5 +829,5 @@ if __name__ == '__main__':
         goods_id = zhe_800.get_goods_id_from_url(zhe_800_url)
         data = zhe_800.get_goods_data(goods_id=goods_id)
         data = zhe_800.deal_with_data()
-        # pprint(data)
+        pprint(data)
 

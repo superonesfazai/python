@@ -36,8 +36,9 @@ async def run_forever():
     )
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+    sql_str = r'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
     try:
-        result = list(tmp_sql_server.select_taobao_tiantian_tejia_all_goods_id())
+        result = list(tmp_sql_server._select_table(sql_str=sql_str))
     except TypeError:
         my_lg.error('TypeError错误, 导致原因: 数据库连接失败...(可能维护中)')
         result = None

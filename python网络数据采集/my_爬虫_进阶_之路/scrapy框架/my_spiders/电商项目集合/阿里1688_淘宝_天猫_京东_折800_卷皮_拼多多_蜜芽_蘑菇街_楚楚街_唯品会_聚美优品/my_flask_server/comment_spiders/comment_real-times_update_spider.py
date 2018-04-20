@@ -76,8 +76,9 @@ class CommentRealTimeUpdateSpider(object):
         while True:
             #### 实时更新数据
             tmp_sql_server = CommentInfoSaveItemPipeline(logger=self.my_lg)
+            sql_str = r'select goods_id, SiteID as site_id from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b where a.GoodsID=b.goods_id'
             try:
-                result = list(tmp_sql_server.inner_select_goods_info())
+                result = list(tmp_sql_server._select_table(sql_str=sql_str))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None

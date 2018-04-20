@@ -100,7 +100,8 @@ class JuanPiPinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline.select_juanpi_pintuan_all_goods_id())]
+            sql_str = r'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             # print(db_goods_id_list)
             for item in pintuan_goods_id_list:
                 if index % 5 == 0:
