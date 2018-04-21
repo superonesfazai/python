@@ -24,69 +24,67 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_str = r'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=25'
         try:
-            result = list(tmp_sql_server.select_vip_all_goods_id())
-        except TypeError as e:
+            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
-            result = None
-        if result is None:
-            pass
-        else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
+            continue
 
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-            index = 1
-            for item in result:  # 实时更新数据
-                data = {}
-                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                vip = VipParse()
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
+        print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+        print(result)
+        print('--------------------------------------------------------')
 
-                if tmp_sql_server.is_connect_success:
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                    vip.get_goods_data(goods_id=[0, item[0]])
-                    data = vip.deal_with_data()
-                    if data != {}:
-                        data['goods_id'] = item[0]
-
-                        data['my_shelf_and_down_time'], data[
-                            'delete_time'] = get_my_shelf_and_down_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[1],
-                            MyShelfAndDownTime=item[2]
-                        )
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[3],
-                            old_taobao_price=item[4],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price']
-                        )
-
-                        # print('------>>>| 爬取到的数据为: ', data)
-                        vip.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
-                    else:  # 表示返回的data值为空值
-                        pass
-                else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
-                    pass
-                index += 1
+        print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+        index = 1
+        for item in result:  # 实时更新数据
+            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+            vip = VipParse()
+            if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
+                print('正在重置，并与数据库建立新连接中...')
                 # try:
-                #     del vip
+                #     del tmp_sql_server
                 # except:
                 #     pass
-                gc.collect()
-                sleep(VIP_SLEEP_TIME)
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+                # gc.collect()
+                tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                print('与数据库的新连接成功建立...')
+
+            if tmp_sql_server.is_connect_success:
+                print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                vip.get_goods_data(goods_id=[0, item[0]])
+                data = vip.deal_with_data()
+                if data != {}:
+                    data['goods_id'] = item[0]
+
+                    data['my_shelf_and_down_time'], data[
+                        'delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        tmp_data=data,
+                        is_delete=item[1],
+                        MyShelfAndDownTime=item[2]
+                    )
+                    data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                        old_price=item[3],
+                        old_taobao_price=item[4],
+                        new_price=data['price'],
+                        new_taobao_price=data['taobao_price']
+                    )
+
+                    # print('------>>>| 爬取到的数据为: ', data)
+                    vip.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
+                else:  # 表示返回的data值为空值
+                    pass
+            else:  # 表示返回的data值为空值
+                print('数据库连接失败，数据库可能关闭或者维护中')
+                pass
+            index += 1
+            # try:
+            #     del vip
+            # except:
+            #     pass
+            gc.collect()
+            sleep(VIP_SLEEP_TIME)
+        print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:

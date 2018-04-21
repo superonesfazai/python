@@ -14,6 +14,7 @@ from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_logging import set_logger
 from my_utils import get_shanghai_time, string_to_datetime
+from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
 from random import randint
@@ -72,13 +73,14 @@ class JdCommentParse(object):
             return {}
 
         _t = datetime.datetime.now()
-        self.result_data = {
-            'goods_id': str(goods_id),
-            'create_time': _t,
-            'modify_time': _t,
-            '_comment_list': _comment_list,
-        }
+        _r = CommentItem()
+        _r['goods_id'] = str(goods_id)
+        _r['create_time'] = _t
+        _r['modify_time'] = _t
+        _r['_comment_list'] = _comment_list
+        self.result_data = _r
         pprint(self.result_data)
+
         return self.result_data
 
     def _get_comment_list(self, _tmp_comment_list):

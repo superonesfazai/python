@@ -54,7 +54,9 @@ class BiLiBiLiUser(object):
         }
         tmp__ = SqlServerMyPageInfoSaveItemPipeline()
         print('正在获取db中的所有nick_name....耐心等待....')
-        self.db_nick_name_list = [item[0] for item in tmp__.select_all_nick_name_from_sina_weibo()]
+        sql_str = r'select nick_name from dbo.sina_weibo'
+        _ = tmp__._select_table(sql_str=sql_str)
+        self.db_nick_name_list = [item[0] for item in _] if _ is not None else []
         # self.db_nick_name_list = []
         print(len(self.db_nick_name_list))
         print('完成')

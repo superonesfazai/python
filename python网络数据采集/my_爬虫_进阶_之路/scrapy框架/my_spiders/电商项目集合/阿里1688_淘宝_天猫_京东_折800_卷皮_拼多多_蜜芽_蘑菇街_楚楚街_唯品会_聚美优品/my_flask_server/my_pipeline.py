@@ -39,7 +39,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 port=PORT,
                 charset='utf8'
             )
-        except Exception as e:
+        except Exception:
             print('数据库连接失败!!')
             self.is_connect_success = False
 
@@ -49,7 +49,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs.execute('set lock_timeout 20000;')     # 设置客户端执行超时等待为20秒
             if params is not None:
-                if isinstance(params, tuple) is False:
+                if not isinstance(params, tuple):
                     params = tuple(params)
                 cs.execute(sql_str, params)
             else:
@@ -180,6 +180,29 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % params[-1])
             logger.exception(e)
 
+        finally:
+            try:
+                cs.close()
+            except Exception:
+                pass
+            return _
+
+    def _delete_table(self, sql_str, params=None):
+        cs = self.conn.cursor()
+        _ = False
+        try:
+            cs.execute('set lock_timeout 20000;')  # 设置客户端执行超时等待为20秒
+            if params is not None:
+                if not isinstance(params, tuple):
+                    params = tuple(params)
+                cs.execute(sql_str, params)
+            else:
+                cs.execute(sql_str)
+            self.conn.commit()
+
+            _ = True
+        except Exception as e:
+            print('删除时报错: ', e)
         finally:
             try:
                 cs.close()
@@ -365,31 +388,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return False
 
-    def update_tmall_goodsurl_by_site_id_6(self, item):
-        cs = self.conn.cursor()
-        try:
-            params = [
-                item['goods_url'],
-
-                item['goods_id'],
-            ]
-
-            cs.execute('update dbo.GoodsInfoAutoGet set GoodsUrl=%s where GoodsID = %s',
-                       tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item['goods_id'])
-            print(e)
-
-            return False
-
     def old_tmall_goods_insert_into_new_table(self, item):
         cs = self.conn.cursor()
         try:
@@ -436,35 +434,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('-------------------------| 错误如下: ', e)
             print('-------------------------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
-
-    def update_mia_pintuan_is_delete(self, goods_id):
-        '''
-        将该goods_id进行逻辑删除
-        :param goods_id:
-        :return:
-        '''
-        cs = self.conn.cursor()
-        try:
-            params = [
-                goods_id,
-            ]
-
-            cs.execute(
-                'update dbo.mia_pintuan set is_delete=1 where goods_id = %s',
-                tuple(params))
-            self.conn.commit()
-            cs.close()
-            print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
-            return True
-        except Exception as e:
-            try:
-                cs.close()
-            except Exception:
-                pass
-            print('-' * 20 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
-            print('--------------------| 错误如下: ', e)
-            print('--------------------| 报错的原因：可能是传入数据有误导致, 可以忽略 ... |')
-            pass
 
     def update_mogujie_miaosha_table_is_delete(self, goods_id):
         '''
@@ -515,9 +484,8 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             return None
 
     def select_taobao_all_goods_id(self):
+        cs = self.conn.cursor()
         try:
-            cs = self.conn.cursor()
-
             cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1')
             # self.conn.commit()
 
@@ -550,293 +518,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return False
 
-    def select_tmall_all_goods_id_url(self):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6 order by ID desc')
-            # cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where GoodsID=%s', ('12763890166',))
-
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def select_tmall_all_goods_id_url_by_site_6(self):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select GoodsID, SiteID, GoodsUrl from dbo.GoodsInfoAutoGet where SiteID=6 order by ID desc')
-
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def select_jd_all_goods_id_url(self):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def select_zhe_800_all_goods_id(self):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=11')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def delete_zhe_800_expired_goods_id(self, goods_id):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('delete from dbo.zhe_800_xianshimiaosha where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def delete_zhe_800_pintuan_expired_goods_id(self, goods_id):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('delete from dbo.zhe_800_pintuan where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def select_juanpi_all_goods_id(self):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=12')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def delete_juanpi_expired_goods_id(self, goods_id):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('delete from dbo.juanpi_xianshimiaosha where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def delete_juanpi_pintuan_expired_goods_id(self, goods_id):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('delete from dbo.juanpi_pintuan where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def select_pinduoduo_all_goods_id(self):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=13')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def delete_pinduoduo_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def select_vip_all_goods_id(self):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=25')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def delete_mia_miaosha_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.mia_xianshimiaosha where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def delete_mia_pintuan_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.mia_pintuan where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def delete_mogujie_miaosha_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.mogujie_xianshimiaosha where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def delete_mogujie_pintuan_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.mogujie_pintuan where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
-    def delete_chuchujie_miaosha_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.chuchujie_xianshimiaosha where goods_id=%s', tuple([goods_id]))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
     async def select_jumeiyoupin_pintuan_all_goods_id(self, logger):
         cs = self.conn.cursor()
         try:
@@ -855,21 +536,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 pass
             return None
 
-    def delete_jumeiyoupin_miaosha_expired_goods_id(self, goods_id):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.jumeiyoupin_xianshimiaosha where goods_id=%s', (goods_id))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            print('--------------------| 删除对应goods_id记录时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
     async def delete_jumeiyoupin_pintuan_expired_goods_id(self, goods_id, logger):
         cs = self.conn.cursor()
         try:
@@ -885,25 +551,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 cs.close()
             except Exception:
                 pass
-
-    def select_all_nick_name_from_sina_weibo(self):
-        cs = self.conn.cursor()
-        try:
-            # cs.execute('set lock_timeout 10000;')
-            cs.execute('select nick_name from dbo.sina_weibo')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return []
 
     def insert_into_sina_weibo_table(self, item):
         cs = self.conn.cursor()

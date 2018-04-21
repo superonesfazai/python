@@ -22,8 +22,9 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_str = r'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6 order by ID desc'
         try:
-            result = list(tmp_sql_server.select_tmall_all_goods_id_url())
+            result = list(tmp_sql_server._select_table(sql_str=sql_str))
             result_2 = list(tmp_sql_server.select_old_table_all_goods_id())
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')

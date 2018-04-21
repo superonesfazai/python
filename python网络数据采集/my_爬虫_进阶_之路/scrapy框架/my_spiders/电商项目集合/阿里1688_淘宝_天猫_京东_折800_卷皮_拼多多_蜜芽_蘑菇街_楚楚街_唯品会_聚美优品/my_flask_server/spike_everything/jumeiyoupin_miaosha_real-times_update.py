@@ -35,6 +35,7 @@ from decimal import Decimal
 class JuMeiYouPinMiaoShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
+        self.delete_sql_str = r'delete from dbo.jumeiyoupin_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -99,7 +100,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server.delete_jumeiyoupin_miaosha_expired_goods_id(goods_id=item[0])
+                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
@@ -119,7 +120,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
                         elif this_page_all_goods_list == []:
                             print('#### 该page对应得到的this_page_all_goods_list为空[]!')
                             print('** 该商品已被下架限时秒杀活动, 此处将其删除')
-                            tmp_sql_server.delete_jumeiyoupin_miaosha_expired_goods_id(item[0])
+                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                             pass
 
@@ -131,7 +132,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
                             #
                             # if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                             #     print('该商品已被下架限时秒杀活动，此处将其删除')
-                            #     tmp_sql_server.delete_jumeiyoupin_miaosha_expired_goods_id(goods_id=item[0])
+                            #     tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             #     print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                             #     pass
                             #

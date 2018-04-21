@@ -14,6 +14,7 @@ from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_logging import set_logger
 from my_utils import get_shanghai_time, string_to_datetime
+from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
 from random import randint
@@ -41,6 +42,7 @@ class ALi1688CommentParse(object):
         _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
         print(_text)
         # if _text == '四五星(0)':
+        assert _text != '四五星(0)', 'my assert error!'    # 通过断言来跳过执行下面的代码
         sleep(2.5)
         # 向下滚动10000像素
         js = 'document.body.scrollTop=10000'
@@ -103,12 +105,13 @@ class ALi1688CommentParse(object):
                 _comment_list.append(_)
 
             _t = datetime.datetime.now()
-            self.result_data = {
-                'goods_id': str(goods_id),
-                'create_time': _t,
-                'modify_time': _t,
-                '_comment_list': _comment_list,
-            }
+
+            _r = CommentItem()
+            _r['goods_id'] = str(goods_id)
+            _r['create_time'] = _t
+            _r['modify_time'] = _t
+            _r['_comment_list'] = _comment_list
+            self.result_data = _r
             # pprint(self.result_data)
             return self.result_data
         else:

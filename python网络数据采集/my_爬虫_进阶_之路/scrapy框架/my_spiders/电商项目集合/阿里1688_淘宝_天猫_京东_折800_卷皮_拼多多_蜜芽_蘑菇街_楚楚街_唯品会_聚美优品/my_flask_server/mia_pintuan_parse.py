@@ -78,7 +78,9 @@ class MiaPintuanParse(MiaParse):
                 print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
                 self.result_data = {}
                 tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                tmp_pipeline.update_mia_pintuan_is_delete(goods_id=goods_id)
+                sql_str = r'update dbo.mia_pintuan set is_delete=1 where goods_id = %s'
+                tmp_pipeline._update_table(sql_str=sql_str, params=(goods_id))
+                print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
                 gc.collect()
                 return {}
 

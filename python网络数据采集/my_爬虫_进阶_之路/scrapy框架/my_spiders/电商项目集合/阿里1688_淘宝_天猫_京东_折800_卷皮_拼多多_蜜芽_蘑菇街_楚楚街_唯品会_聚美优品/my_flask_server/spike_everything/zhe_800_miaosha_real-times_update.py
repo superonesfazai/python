@@ -30,6 +30,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.my_phantomjs = MyPhantomjs()
+        self.delete_sql_str = r'delete from dbo.zhe_800_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -79,7 +80,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_begin_time) == 0:
-                        tmp_sql_server.delete_zhe_800_expired_goods_id(goods_id=item[0])
+                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                     elif self.is_recent_time(miaosha_begin_time) == 2:
@@ -118,7 +119,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
 
                                     if item[0] not in miaosha_goods_all_goods_id:   # 内部已经下架的
                                         print('该商品已被下架限时秒杀活动，此处将其删除')
-                                        tmp_sql_server.delete_zhe_800_expired_goods_id(goods_id=item[0])
+                                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                         print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                         pass
 
@@ -152,7 +153,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                                 else:  # 说明这个sessionid没有数据, 就删除对应这个sessionid的限时秒杀商品
                                     print('该sessionid没有相关key为jsons的数据')
                                     # return {}
-                                    tmp_sql_server.delete_zhe_800_expired_goods_id(goods_id=item[0])
+                                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                     print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
                                     pass
                         else:

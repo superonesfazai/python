@@ -13,6 +13,7 @@ sys.path.append('..')
 from my_requests import MyRequests
 from my_logging import set_logger
 from my_utils import get_shanghai_time, string_to_datetime
+from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
 from random import randint
@@ -22,6 +23,7 @@ from logging import INFO, ERROR
 from scrapy.selector import Selector
 import re, datetime, json
 from pprint import pprint
+import requests
 
 class TaoBaoCommentParse(object):
     def __init__(self, logger=None):
@@ -44,7 +46,7 @@ class TaoBaoCommentParse(object):
         下面抓取的是pc端的数据地址
         '''
         # 获取评论数据
-        for current_page_num in range(1, 3):
+        for current_page_num in range(1, 4):
             self.my_lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
             tmp_url = 'https://rate.taobao.com/feedRateList.htm'
             _params = self._set_params(current_page_num=current_page_num, goods_id=goods_id)
@@ -82,12 +84,13 @@ class TaoBaoCommentParse(object):
             return {}
 
         _t = datetime.datetime.now()
-        self.result_data = {
-            'goods_id': str(goods_id),
-            'create_time': _t,
-            'modify_time': _t,
-            '_comment_list': _comment_list,
-        }
+
+        _r = CommentItem()
+        _r['goods_id'] = str(goods_id)
+        _r['create_time'] = _t
+        _r['modify_time'] = _t
+        _r['_comment_list'] = _comment_list
+        self.result_data = _r
         # pprint(self.result_data)
         return self.result_data
 
@@ -132,12 +135,25 @@ class TaoBaoCommentParse(object):
             quantify = int(item.get('buyAmount', 0)) if item.get('buyAmount', 0) != 0 else 1
 
             tmp_head_img = item.get('user', {}).get('avatar', '')
-            if tmp_head_img != '//assets.alicdn.com/app/sns/img/default/avatar-40.png' \
-                    or tmp_head_img != '//wwc.alicdn.com/avatar/getAvatar.do?userIdStr=vGNuOHcWv88YXF-HPmvbM07HvG8SvFI0Xm7Hvm80MkZhvkk0XmcSPFPhPHQWOmvG&width=40&height=40&type=sns' \
+            if re.compile(r'/default/avatar-40.png').findall(tmp_head_img) != []:
+                head_img = ''
+
+            # 无法识别是否为同一张图 只能先拿到这种规律的然后请求图片看齐地址
+            # elif re.compile(r'vGNuOHcWv88YXF').findall(tmp_head_img) != []:
+            #     # self.my_lg.info('https:' + tmp_head_img)
+            #     if self._judge_is_taobao_head_img(url='https:' + tmp_head_img):
+            #         self.my_lg.info('https:' + tmp_head_img)
+            #         head_img = ''
+            #     else:
+            #         head_img = 'https:' + tmp_head_img
+
+            elif tmp_head_img != '//wwc.alicdn.com/avatar/getAvatar.do?userIdStr=vGNuOHcWv88YXF-HPmvbM07HvG8SvFI0Xm7Hvm80MkZhvkk0XmcSPFPhPHQWOmvG&width=40&height=40&type=sns' \
                     or tmp_head_img != '//gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
                 head_img = 'https:' + tmp_head_img
+
             else:
                 head_img = ''
+
             comment = [{
                 'comment': _comment_content,
                 'comment_date': comment_date,
@@ -158,6 +174,25 @@ class TaoBaoCommentParse(object):
             _comment_list.append(_)
 
         return _comment_list
+
+    def _judge_is_taobao_head_img(self, url):
+        '''
+        判断是否为淘宝默认头像地址
+        :param url:
+        :return:
+        '''
+        tmp_proxies = MyRequests._get_proxies()
+
+        try:
+            _res = requests.get(url=url, headers=self.headers, proxies=tmp_proxies)
+            self.my_lg.info(str(_res.url))
+            if _res.url == 'https://gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
+                return True
+            else:
+                return False
+        except:
+            self.my_lg.info('检测图片地址时网络错误! 跳过!')
+            return False
 
     def _set_logger(self, logger):
         '''

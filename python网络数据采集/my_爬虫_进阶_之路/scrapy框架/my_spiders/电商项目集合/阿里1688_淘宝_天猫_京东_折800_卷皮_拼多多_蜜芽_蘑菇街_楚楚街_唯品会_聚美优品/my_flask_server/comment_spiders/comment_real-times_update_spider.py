@@ -45,7 +45,7 @@ class CommentRealTimeUpdateSpider(object):
         :return: dict
         '''
         return {
-            1: True,
+            1: False,
             2: True,
             3: False,
             4: False,
@@ -75,10 +75,10 @@ class CommentRealTimeUpdateSpider(object):
     def _just_run(self):
         while True:
             #### 实时更新数据
-            tmp_sql_server = CommentInfoSaveItemPipeline(logger=self.my_lg)
+            self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
             sql_str = r'select goods_id, SiteID as site_id from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b where a.GoodsID=b.goods_id'
             try:
-                result = list(tmp_sql_server._select_table(sql_str=sql_str))
+                result = list(self._comment_pipeline._select_table(sql_str=sql_str))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
@@ -93,6 +93,10 @@ class CommentRealTimeUpdateSpider(object):
 
                 # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
                 for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
+                    if not self.debugging_api.get(item[1]):
+                        self.my_lg.info('api为False, 跳过! 索引值[%s]' % str(index))
+                        continue
+
                     if index % 20 == 0:
                         try: del self._comment_pipeline
                         except: pass

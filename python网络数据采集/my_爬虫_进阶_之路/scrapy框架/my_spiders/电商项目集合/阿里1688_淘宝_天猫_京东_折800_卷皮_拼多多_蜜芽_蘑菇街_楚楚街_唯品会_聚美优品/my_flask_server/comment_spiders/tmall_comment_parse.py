@@ -10,10 +10,12 @@
 import sys
 sys.path.append('..')
 
-from tmall_parse import TmallParse
+# from tmall_parse import TmallParse
+from tmall_parse_2 import TmallParse
 from my_phantomjs import MyPhantomjs
 from my_logging import set_logger
 from my_utils import get_shanghai_time, string_to_datetime, _get_url_contain_params
+from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
 from random import randint
@@ -44,7 +46,7 @@ class TmallCommentParse(object):
         先通过网页源码，获取到sellerId
         '''
         try:
-            _ = TmallParse()
+            _ = TmallParse(logger=self.my_lg)
             _g = [type, goods_id]
             seller_id = str(_.get_goods_data(goods_id=_g).get('seller', {}).get('userId', 0))
             self.my_lg.info('获取到的seller_id: ' + seller_id)
@@ -101,12 +103,12 @@ class TmallCommentParse(object):
             return {}
 
         _t = datetime.datetime.now()
-        self.result_data = {
-            'goods_id': str(goods_id),
-            'create_time': _t,
-            'modify_time': _t,
-            '_comment_list': _comment_list,
-        }
+        _r = CommentItem()
+        _r['goods_id'] = str(goods_id)
+        _r['create_time'] = _t
+        _r['modify_time'] = _t
+        _r['_comment_list'] = _comment_list
+        self.result_data = _r
         pprint(self.result_data)
         return self.result_data
 
@@ -148,7 +150,7 @@ class TmallCommentParse(object):
             _append_comment_img_list = _tmp_append_comment.get('pics', []) if _tmp_append_comment.get('pics',
                                                                                                       '') != '' else []
             if _append_comment_img_list != []:
-                _append_comment_img_list = [{'img_url': 'https:' + img} for img in _comment_img_list]
+                _append_comment_img_list = [{'img_url': 'https:' + img} for img in _append_comment_img_list]
 
             if _tmp_append_comment != {}:
                 append_comment = {
@@ -205,7 +207,7 @@ class TmallCommentParse(object):
         :param comment:
         :return:
         '''
-        comment = comment.replace('天猫', '')
+        comment = comment.replace('天猫', '').replace('淘宝', '')
 
         return comment
 

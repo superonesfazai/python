@@ -36,6 +36,7 @@ import datetime
 class Juanpi_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
+        self.delete_sql_str = r'delete from dbo.juanpi_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -86,7 +87,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_begin_time) == 0:
-                        tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
+                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                     elif self.is_recent_time(miaosha_begin_time) == 2:
@@ -133,7 +134,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                     '''
                                     表示该tab_id，page中没有了该goods_id
                                     '''
-                                    tmp_sql_server.delete_juanpi_expired_goods_id(goods_id=item[0])
+                                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                     print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
                                     pass
 

@@ -118,7 +118,9 @@ class JdTalentRecommend(object):
                         profile = item.get('profile', '')
 
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                        db_goods_id = [j[1] for j in list(my_pipeline.select_jd_all_goods_id_url())]
+                        sql_str = r'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10'
+                        _ = my_pipeline._select_table(sql_str=sql_str)
+                        db_goods_id = [j[1] for j in list(_)] if _ is not None else []
                         # print(db_goods_id)
                         sql_str = r'select share_id from dbo.jd_youxuan_daren_recommend'
                         db_share_id = [j[0] for j in list(my_pipeline._select_table(sql_str=sql_str))]

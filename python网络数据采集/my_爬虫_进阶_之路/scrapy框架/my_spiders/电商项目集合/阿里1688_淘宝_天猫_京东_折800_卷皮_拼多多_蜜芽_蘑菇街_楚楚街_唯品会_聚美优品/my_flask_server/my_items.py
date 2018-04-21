@@ -13,6 +13,9 @@ from scrapy import Field    # 只能通过x['aa']或者x.get('aa')访问, x.aa�
 # ORM 数据库关系对象映射
 
 class GoodsItem(Item):              # Item属性固定，无法外在添加属性(不同于dict)
+    """
+    商品关系对象
+    """
     goods_id = Field()              # 商品id
     create_time = Field()           # 创建时间点
     modify_time = Field()           # 更改时间点
@@ -43,3 +46,13 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     is_price_change = Field()       # 记录最高价和最低价是否改变
     price_change_info = Field()     # 最高价最低价价格改变信息
     main_goods_id = Field()         # 公司商品id
+
+class CommentItem(Item):
+    """
+    评论关系对象
+    """
+    goods_id = Field()              # 商品id
+    create_time = Field()           # 创建时间点
+    modify_time = Field()           # 更改时间点
+    _comment_list = Field()         # comment_info
+

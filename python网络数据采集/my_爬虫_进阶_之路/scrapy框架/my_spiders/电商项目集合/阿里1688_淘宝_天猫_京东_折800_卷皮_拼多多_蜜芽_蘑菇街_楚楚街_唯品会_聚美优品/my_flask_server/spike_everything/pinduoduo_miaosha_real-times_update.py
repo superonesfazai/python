@@ -42,6 +42,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.init_phantomjs()
+        self.delete_sql_str = r'delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -98,7 +99,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server.delete_pinduoduo_expired_goods_id(goods_id=item[0])
+                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
@@ -111,7 +112,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                             '''
                             表示其中没有了该goods_id
                             '''
-                            tmp_sql_server.delete_pinduoduo_expired_goods_id(goods_id=item[0])
+                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
                             pass
 
