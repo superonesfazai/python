@@ -156,10 +156,12 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                     print('该商品已售完，此处将商品状态改为1')
                     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                     try:
-                        my_pipeline.update_mogujie_miaosha_table_is_delete(goods_id=goods_id)
+                        sql_str = r'update dbo.mogujie_xianshimiaosha set is_delete=1 where goods_id = %s'
+                        my_pipeline._update_table(sql_str=sql_str, params=(goods_id))
                     except:
                         print('将该商品逻辑删除时出错!')
                         pass
+                    print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
                     self.result_data = {}
                     return {}
 

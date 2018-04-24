@@ -222,9 +222,7 @@ def get_my_shelf_and_down_time_and_delete_time(tmp_data, is_delete, MyShelfAndDo
     :param MyShelfAndDownTime:
     :return:
     '''
-    '''
-    设置最后刷新的商品状态上下架时间
-    '''
+    # 设置最后刷新的商品状态上下架时间
     # 1.is_delete由0->1 为下架时间down_time  2. is_delete由1->0 为上架时间shelf_time
     my_shelf_and_down_time = {
         'shelf_time': '',

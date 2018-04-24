@@ -31,6 +31,10 @@ logs_file_name_list = [
     'expired_logs_deal_with',
 ]
 
+server_file_name_list = [
+    'new_my_server',
+]
+
 def run_one_file_name_list(path, file_name_list):
     for item in file_name_list:
         process_name = item + '.py'
@@ -47,6 +51,7 @@ def auto_run(*params):
     run_one_file_name_list(path=params[0], file_name_list=tejia_file_name_list)
     run_one_file_name_list(path=params[1], file_name_list=logs_file_name_list)
     run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
+    run_one_file_name_list(path=params[3], file_name_list=server_file_name_list)
 
     print('脚本执行完毕'.center(60, '*'))
 
@@ -55,11 +60,12 @@ def main_2():
         tejia_path = '~/myFiles/python/my_flask_server/tejia'
         logs_path = '~/myFiles/python/my_flask_server/logs'
         real_path = '~/myFiles/python/my_flask_server/real-times_update'
+        server_path = '~/myFiles/python/my_flask_server'
 
-        auto_run(tejia_path, logs_path, real_path)
+        auto_run(tejia_path, logs_path, real_path, server_path)
         print(' Money is on the way! '.center(100, '*'))
 
-        sleep(30*60)
+        sleep(5*60)
 
 def main():
     '''

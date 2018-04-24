@@ -700,7 +700,7 @@ class JuanPiParse(object):
         return params
 
     def _get_db_insert_miaosha_params(self, item):
-        params = [
+        params = (
             item['goods_id'],
             item['spider_url'],
             item['username'],
@@ -726,7 +726,7 @@ class JuanPiParse(object):
 
             item['site_id'],
             item['is_delete'],
-        ]
+        )
 
         return params
 

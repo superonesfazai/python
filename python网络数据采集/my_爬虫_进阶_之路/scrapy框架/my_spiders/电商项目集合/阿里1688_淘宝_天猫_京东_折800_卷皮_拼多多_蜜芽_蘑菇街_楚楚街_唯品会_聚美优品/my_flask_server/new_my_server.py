@@ -28,7 +28,7 @@ from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_
 from settings import JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH
 from settings import PINDUODUO_SPIDER_TO_SHOW_PATH, VIP_SPIDER_TO_SHOW_PATH
 from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT, MY_SPIDER_LOGS_PATH, TMALL_SLEEP_TIME
-from settings import ERROR_HTML_CODE
+from settings import ERROR_HTML_CODE, IS_BACKGROUND_RUNNING
 from settings import BASIC_APP_KEY
 from settings import TAOBAO_SLEEP_TIME
 from settings import SELECT_HTML_NAME
@@ -37,6 +37,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, UserItemPipeline
 from my_logging import set_logger
 from my_utils import get_shanghai_time
 from my_items import GoodsItem
+from my_utils import daemon_init
 
 import hashlib
 import json
@@ -3684,11 +3685,28 @@ def decrypt(key, s):
     except:
         return "failed"
 
-if __name__ == "__main__":
+def just_fuck_run():
     my_lg.info('服务器已经启动...等待接入中...')
-    my_lg.info('http://0.0.0.0:{0}'.format(str(SERVER_PORT),))
+    my_lg.info('http://0.0.0.0:{0}'.format(str(SERVER_PORT), ))
 
-    WSGIServer(listener=('0.0.0.0', SERVER_PORT), application=app).serve_forever()      # 采用高并发部署
+    WSGIServer(listener=('0.0.0.0', SERVER_PORT), application=app).serve_forever()  # 采用高并发部署
 
     # 简单的多线程
     # app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+
+def main():
+    '''
+    这里的思想是将其转换为孤儿进程，然后在后台运行
+    :return:
+    '''
+    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('--->>>| 孤儿进程成功被init回收成为单独进程!')
+    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
+    just_fuck_run()
+
+if __name__ == "__main__":
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        just_fuck_run()
