@@ -24,6 +24,7 @@ from jd_comment_parse import JdCommentParse
 import gc
 from logging import INFO, ERROR
 from time import sleep
+from json import dumps
 
 class MyAllCommentSpider(object):
     def __init__(self):
@@ -31,6 +32,19 @@ class MyAllCommentSpider(object):
         self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
+        self.sql_str = r'insert into dbo.all_goods_comment(goods_id, create_time, modify_time, comment_info) values(%s, %s, %s, %s)'
+
+        if self._init_debugging_api().get(2):
+            self.my_lg.info('初始化 1688 phantomjs中...')
+            self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
+
+        if self._init_debugging_api().get(3) is True \
+                or self._init_debugging_api().get(4) is True\
+                or self._init_debugging_api().get(6) is True:
+            self.my_lg.info('初始化 天猫 phantomjs中...')
+            self.tmall = TmallCommentParse(logger=self.my_lg)
+
+        self.my_lg.info('初始化完毕!!!')
 
     def _set_logger(self):
         self.my_lg = set_logger(
@@ -45,11 +59,11 @@ class MyAllCommentSpider(object):
         :return: dict
         '''
         return {
-            1: True,
-            2: True,
-            3: False,
-            4: False,
-            6: False,
+            1: False,
+            2: False,
+            3: True,
+            4: True,
+            6: True,
             7: False,
             8: False,
             9: False,
@@ -160,7 +174,7 @@ class MyAllCommentSpider(object):
 
             if _r != {}:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline.insert_into_comment(_r)
+                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
 
             try: del taobao
             except: self.my_lg.info('del taobao失败!')
@@ -179,16 +193,19 @@ class MyAllCommentSpider(object):
         if self.debugging_api.get(site_id):
             self.my_lg.info('------>>>| 阿里1688\t\t索引值(%s)' % str(index))
 
-            ali_1688 = ALi1688CommentParse(logger=self.my_lg)
-            _r = ali_1688._get_comment_data(goods_id=goods_id)
+            if index % 5 == 0:
+                try:
+                    del self.ali_1688
+                except:
+                    self.my_lg.info('del ali_1688失败!')
+                gc.collect()
+                self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
 
+            _r = self.ali_1688._get_comment_data(goods_id=goods_id)
             if _r != {}:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline.insert_into_comment(_r)
+                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
 
-            try: del ali_1688
-            except: self.my_lg.info('del ali_1688失败!')
-            gc.collect()
         else:
             pass
 
@@ -202,9 +219,7 @@ class MyAllCommentSpider(object):
         '''
         if self.debugging_api.get(site_id):
             self.my_lg.info('------>>>| 天猫\t\t索引值(%s)' % str(index))
-            self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-            tmall = TmallCommentParse(logger=self.my_lg)
             if site_id == 3:
                 _type = 0
             elif site_id == 4:
@@ -214,10 +229,19 @@ class MyAllCommentSpider(object):
             else:
                 return None
 
-            tmall._get_comment_data(type=_type, goods_id=str(goods_id))
-            try: del tmall
-            except: pass
-            gc.collect()
+            if index % 5 == 0:
+                try:
+                    del self.tmall
+                except:
+                    self.my_lg.info('del tmall失败!')
+                gc.collect()
+                self.tmall = TmallCommentParse(logger=self.my_lg)
+
+            _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
+            if _r != {}:
+                if self._comment_pipeline.is_connect_success:
+                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
+
         else:
             pass
 
@@ -294,6 +318,21 @@ class MyAllCommentSpider(object):
         else:
             pass
 
+    def _get_db_insert_params(self, item):
+        '''
+        得到待插入的数据
+        :param item:
+        :return:
+        '''
+        params = (
+            item['goods_id'],
+            item['create_time'],
+            item['modify_time'],
+            dumps(item['_comment_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        )
+
+        return params
+
     def __del__(self):
         try:
             del self.my_lg
@@ -302,6 +341,10 @@ class MyAllCommentSpider(object):
         except:
             pass
         try: del self._comment_pipeline
+        except: pass
+        try: del self.ali_1688
+        except: pass
+        try: del self.tmall
         except: pass
         gc.collect()
 

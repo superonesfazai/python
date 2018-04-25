@@ -12,6 +12,7 @@ sys.path.append('..')
 
 # from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
+from taobao_parse import TaoBaoLoginAndParse
 from my_phantomjs import MyPhantomjs
 from my_logging import set_logger
 from my_utils import get_shanghai_time, string_to_datetime, _get_url_contain_params
@@ -25,6 +26,7 @@ from logging import INFO, ERROR
 from scrapy.selector import Selector
 import re, datetime, json
 from pprint import pprint
+from random import choice
 
 class TmallCommentParse(object):
     def __init__(self, logger=None):
@@ -35,31 +37,39 @@ class TmallCommentParse(object):
         self.page_size = '10'
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
         self.my_phantomjs = MyPhantomjs()
+        self.g_data = {}                # 临时数据
+        self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
 
     def _get_comment_data(self, type:int, goods_id):
         if goods_id == '' or type == '':
             self.result_data = {}
             return {}
-        self.my_lg.info('待抓取的goods_id: %s' % goods_id)
+        self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-        '''
-        先通过网页源码，获取到sellerId
-        '''
+
+        '''先获取到sellerId'''
         try:
-            _ = TmallParse(logger=self.my_lg)
-            _g = [type, goods_id]
-            seller_id = str(_.get_goods_data(goods_id=_g).get('seller', {}).get('userId', 0))
-            self.my_lg.info('获取到的seller_id: ' + seller_id)
-            try: del _
-            except: pass
-            assert seller_id != 0, '获取到的seller_id为0! 出错goods_id: ' + goods_id
+            seller_id = self._get_seller_id(type=type, goods_id=goods_id)
         except AssertionError as e:
             self.my_lg.error(e.args[0])
             self.result_data = {}
+            self.random_sku_info_list = []
+            return {}
+
+        """再获取price_info_list"""
+        try:
+            self.random_sku_info_list = self._get_random_sku_info_list()
+            # self.my_lg.info(self.random_sku_info_list)
+        except Exception as e:
+            self.my_lg.error('出错goods_id: %s' % str(goods_id))
+            self.my_lg.exception(e)
+            self.result_data = {}
+            self.random_sku_info_list = []
             return {}
 
         _tmp_comment_list = []
         for current_page in range(1, 4):
+            self.my_lg.info('------>>>| 正在抓取第 {0} 页的评论...'.format(str(current_page)))
             _url = 'https://rate.tmall.com/list_detail_rate.htm'
 
             params = self._set_params(goods_id=goods_id, seller_id=seller_id, current_page=current_page)
@@ -109,7 +119,8 @@ class TmallCommentParse(object):
         _r['modify_time'] = _t
         _r['_comment_list'] = _comment_list
         self.result_data = _r
-        pprint(self.result_data)
+        # pprint(self.result_data)
+
         return self.result_data
 
     def _get_comment_list(self, _tmp_comment_list):
@@ -124,7 +135,11 @@ class TmallCommentParse(object):
             assert _comment_date != '', '得到的_comment_date为空str!请检查!'
 
             # 天猫接口拿到的sku_info默认为空
-            sku_info = ''
+            # sku_info = ''
+            # 从所有规格里面随机一个
+            if self.random_sku_info_list == []:
+                self.random_sku_info_list = ['']
+            sku_info = str(choice(self.random_sku_info_list))
 
             _comment_content = item.get('rateContent', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
@@ -182,6 +197,43 @@ class TmallCommentParse(object):
 
         return _comment_list
 
+    def _get_seller_id(self, type, goods_id):
+        '''
+        得到seller_id
+        :param type:
+        :param goods_id:
+        :return:
+        '''
+        _ = TmallParse(logger=self.my_lg)
+        _g = [type, goods_id]
+        self.g_data = _.get_goods_data(goods_id=_g)
+        seller_id = str(self.g_data.get('seller', {}).get('userId', 0))
+        # self.my_lg.info('获取到的seller_id: ' + seller_id)
+        try:
+            del _
+        except:
+            pass
+        assert seller_id != 0, '获取到的seller_id为0! 出错goods_id: ' + goods_id
+
+        return seller_id
+
+    def _get_random_sku_info_list(self):
+        '''
+        得到所有的sku_info_list信息，用于随机一个属性
+        :return:
+        '''
+        assert self.g_data != {}, 'g_data为空dict'
+        _t = TaoBaoLoginAndParse(logger=self.my_lg)
+        # 得到每个标签对应值的价格及其库存
+        price_info_list = _t._get_price_info_list(
+            data=self.g_data,
+            detail_value_list=_t._get_detail_name_and_value_list(data=self.g_data)[1]
+        )
+        try: del _t
+        except: pass
+
+        return list(set([_i.get('spec_value', '') for _i in price_info_list]))
+
     def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
@@ -207,7 +259,9 @@ class TmallCommentParse(object):
         :param comment:
         :return:
         '''
+        comment = re.compile('天猫超市|天猫国际|天猫全球购|天猫大药房|某淘|某宝').sub('', comment)
         comment = comment.replace('天猫', '').replace('淘宝', '')
+        comment = re.compile('tmall|Tmall|TMALL|TAOBAO|taobao').sub('', comment)
 
         return comment
 
@@ -236,6 +290,7 @@ class TmallCommentParse(object):
         try:
             del self.my_lg
             del self.my_phantomjs
+            del self.g_data
         except:
             pass
         gc.collect()

@@ -590,27 +590,21 @@ class CommentInfoSaveItemPipeline(object):
         else:
             self.my_lg = logger
 
-    def insert_into_comment(self, item):
+    def _insert_into_table(self, sql_str, params:tuple):
         cs = self.conn.cursor()
-        _ = True
+        _ = False
         try:
-            params = (
-                item['goods_id'],
-                item['create_time'],
-                item['modify_time'],
-                dumps(item['_comment_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-            )
-
-            # print(params)
-            # ---->>> 注意要写对要插入数据的所有者,不然报错
-            cs.execute('insert into dbo.all_goods_comment(goods_id, create_time, modify_time, comment_info) values(%s, %s, %s, %s)'.encode('utf-8'), params)  # 注意必须是tuple类型
+            # logger.info(str(params))
+            cs.execute(sql_str.encode('utf-8'), params)   # 注意必须是tuple类型
             self.conn.commit()
             self.my_lg.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
-        except Exception as e:
-            self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % item.get('goods_id'))
-            self.my_lg.exception(e)
-            _ = False
+            _ = True
+        except IntegrityError:
+            self.my_lg.info('重复插入goods_id[%s], 此处跳过!' % params[0])
 
+        except Exception as e:
+            self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0])
+            self.my_lg.exception(e)
         finally:
             try:
                 cs.close()
@@ -618,29 +612,25 @@ class CommentInfoSaveItemPipeline(object):
                 pass
             return _
 
-    def update_comment(self, item):
+    def _update_table(self, sql_str, params:tuple):
         cs = self.conn.cursor()
+        _ = False
         try:
-            params = (
-                item['modify_time'],
-                dumps(item['_comment_list'], ensure_ascii=False),
+            cs.execute(sql_str, params)
 
-                item['goods_id'],
-            )
-
-            cs.execute('update dbo.all_goods_comment set modify_time=%s, comment_info=%s where goods_id=%s', params)
             self.conn.commit()
-            cs.close()
-            self.my_lg.info('=' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
-            return True
+            self.my_lg.info('=' * 20 + '| ***该页面信息成功存入sqlserver中*** |')
+            _ = True
         except Exception as e:
+            self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % params[-1])
+            self.my_lg.exception(e)
+
+        finally:
             try:
                 cs.close()
             except Exception:
                 pass
-            self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中, 出错goods_id: %s|' % item['goods_id'])
-            self.my_lg.exception(e)
-            pass
+            return _
 
     def _select_table(self, sql_str, params=None):
         cs = self.conn.cursor()
