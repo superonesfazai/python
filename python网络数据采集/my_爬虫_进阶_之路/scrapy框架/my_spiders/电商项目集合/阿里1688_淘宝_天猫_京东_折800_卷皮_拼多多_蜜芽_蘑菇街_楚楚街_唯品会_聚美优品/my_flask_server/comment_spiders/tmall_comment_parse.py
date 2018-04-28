@@ -46,11 +46,11 @@ class TmallCommentParse(object):
             return {}
         self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-
         '''先获取到sellerId'''
         try:
             seller_id = self._get_seller_id(type=type, goods_id=goods_id)
-        except AssertionError as e:
+        except AssertionError or IndexError as e:
+            self.my_lg.error('出错goods_id: %s' % goods_id)
             self.my_lg.error(e.args[0])
             self.result_data = {}
             self.random_sku_info_list = []
@@ -213,7 +213,7 @@ class TmallCommentParse(object):
             del _
         except:
             pass
-        assert seller_id != 0, '获取到的seller_id为0! 出错goods_id: ' + goods_id
+        assert seller_id != 0, '获取到的seller_id为0!'
 
         return seller_id
 

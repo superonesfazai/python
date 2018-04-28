@@ -84,52 +84,50 @@ class CommentRealTimeUpdateSpider(object):
         while True:
             #### 实时更新数据
             self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
-            sql_str = r'select goods_id, SiteID as site_id from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b where a.GoodsID=b.goods_id'
+            sql_str = r'select goods_id, SiteID as site_id from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b where a.GoodsID=b.goods_id order by b.id desc'
             try:
                 result = list(self._comment_pipeline._select_table(sql_str=sql_str))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
-                result = None
-            if result is None:
-                pass
-            else:
-                self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-                self.my_lg.info(str(result))
-                self.my_lg.info('--------------------------------------------------------')
+                continue
 
-                self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            self.my_lg.info(str(result))
+            self.my_lg.info('--------------------------------------------------------')
 
-                # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
-                for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
-                    if not self.debugging_api.get(item[1]):
-                        self.my_lg.info('api为False, 跳过! 索引值[%s]' % str(index))
-                        continue
+            self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 
-                    if index % 20 == 0:
-                        try: del self._comment_pipeline
-                        except: pass
-                        self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+            # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
+            for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
+                if not self.debugging_api.get(item[1]):
+                    self.my_lg.info('api为False, 跳过! 索引值[%s]' % str(index))
+                    continue
 
-                    switch = {
-                        1: self.func_name_dict.get('taobao'),       # 淘宝
-                        2: self.func_name_dict.get('ali'),          # 阿里1688
-                        3: self.func_name_dict.get('tmall'),        # 天猫
-                        4: self.func_name_dict.get('tmall'),        # 天猫超市
-                        6: self.func_name_dict.get('tmall'),        # 天猫国际
-                        7: self.func_name_dict.get('jd'),           # 京东
-                        8: self.func_name_dict.get('jd'),           # 京东超市
-                        9: self.func_name_dict.get('jd'),           # 京东全球购
-                        10: self.func_name_dict.get('jd'),          # 京东大药房
-                        11: self.func_name_dict.get('zhe_800'),     # 折800
-                        12: self.func_name_dict.get('juanpi'),      # 卷皮
-                        13: self.func_name_dict.get('pinduoduo'),   # 拼多多
-                        25: self.func_name_dict.get('vip'),         # 唯品会
-                    }
+                if index % 20 == 0:
+                    try: del self._comment_pipeline
+                    except: pass
+                    self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
 
-                    # 动态执行
-                    exec_code = compile(switch[item[1]].format(index, item[0], item[1]), '', 'exec')
-                    exec(exec_code)
-                    sleep(1.1)
+                switch = {
+                    1: self.func_name_dict.get('taobao'),       # 淘宝
+                    2: self.func_name_dict.get('ali'),          # 阿里1688
+                    3: self.func_name_dict.get('tmall'),        # 天猫
+                    4: self.func_name_dict.get('tmall'),        # 天猫超市
+                    6: self.func_name_dict.get('tmall'),        # 天猫国际
+                    7: self.func_name_dict.get('jd'),           # 京东
+                    8: self.func_name_dict.get('jd'),           # 京东超市
+                    9: self.func_name_dict.get('jd'),           # 京东全球购
+                    10: self.func_name_dict.get('jd'),          # 京东大药房
+                    11: self.func_name_dict.get('zhe_800'),     # 折800
+                    12: self.func_name_dict.get('juanpi'),      # 卷皮
+                    13: self.func_name_dict.get('pinduoduo'),   # 拼多多
+                    25: self.func_name_dict.get('vip'),         # 唯品会
+                }
+
+                # 动态执行
+                exec_code = compile(switch[item[1]].format(index, item[0], item[1]), '', 'exec')
+                exec(exec_code)
+                sleep(1.1)
 
     def _update_taobao_comment(self, index, goods_id, site_id):
         '''
