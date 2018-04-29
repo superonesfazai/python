@@ -36,138 +36,140 @@ async def run_forever():
     )
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-    sql_str = r'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
+    # 由于不处理下架的商品，所以is_delete=0
+    sql_str = r'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2.5'
     try:
         result = list(tmp_sql_server._select_table(sql_str=sql_str))
     except TypeError:
         my_lg.error('TypeError错误, 导致原因: 数据库连接失败...(可能维护中)')
-        result = None
-    if result is None:
-        pass
-    else:
-        my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-        my_lg.info(str(result))
-        my_lg.info('--------------------------------------------------------')
+        return None
 
-        my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-        index = 1
-        # tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia(logger=my_lg)
-        for item in result:     # 实时更新数据
-            if index % 50 == 0:
-                my_lg.info('正在重置，并与数据库建立新连接中...')
-                # try: del tmp_sql_server
-                # except: pass
-                # gc.collect()
-                tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                my_lg.info('与数据库的新连接成功建立...')
+    my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+    my_lg.info(str(result))
+    my_lg.info('--------------------------------------------------------')
 
-            if tmp_sql_server.is_connect_success:
-                tejia_end_time = item[2]
-                # my_lg.info(str(tejia_end_time))
+    my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+    index = 1
+    # tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia(logger=my_lg)
+    for item in result:     # 实时更新数据
+        if index % 50 == 0:
+            my_lg.info('正在重置，并与数据库建立新连接中...')
+            # try: del tmp_sql_server
+            # except: pass
+            # gc.collect()
+            tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+            my_lg.info('与数据库的新连接成功建立...')
 
-                if item[1] == 1:    # 原先下架的商品，扫描到不处理
-                    # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
-                    # my_lg.info('该商品goods_id[{0}]已售完, 删除成功!'.format(item[0]))
-                    my_lg.info('&&&&&& 该商品({0})原先状态为is_delete=1, 不进行实际删除操作! 索引为({1})'.format(item[0], str(index)))
-                    index += 1
-                    pass
+        if tmp_sql_server.is_connect_success:
+            tejia_end_time = item[2]
+            # my_lg.info(str(tejia_end_time))
 
-                elif tejia_end_time < datetime.datetime.now():
-                    # 过期的不删除, 降为更新为常规爆款促销商品
-                    index = await update_expired_goods_to_normal_goods(
-                        goods_id=item[0],
-                        index=index,
-                        tmp_sql_server=tmp_sql_server,
-                        logger=my_lg
-                    )
-                    pass
+            if item[1] == 1:    # 原先下架的商品，扫描到不处理
+                # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
+                # my_lg.info('该商品goods_id[{0}]已售完, 删除成功!'.format(item[0]))
+                my_lg.info('&&&&&& 该商品({0})原先状态为is_delete=1, 不进行实际删除操作! 索引为({1})'.format(item[0], str(index)))
+                index += 1
+                pass
 
-                else:
-                    # 下面为天天特价商品信息更新
-                    '''
-                    ** 由于天天特价不会提前下架商品，就不对应更新特价时间段
-                    '''
-                    # # 先检查该商品在对应的子分类中是否已经被提前下架, 并获取到该商品的上下架时间
-                    # if index % 6 == 0:
-                    #     try: del tmp_taobao_tiantiantejia
-                    #     except: pass
-                    #     gc.collect()
-                    #     tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia(logger=my_lg)
+            elif tejia_end_time < datetime.datetime.now():
+                # 过期的不删除, 降为更新为常规爆款促销商品
+                index = await update_expired_goods_to_normal_goods(
+                    goods_id=item[0],
+                    index=index,
+                    tmp_sql_server=tmp_sql_server,
+                    logger=my_lg
+                )
+                pass
+
+            else:
+                # 下面为天天特价商品信息更新
+                '''
+                ** 由于天天特价不会提前下架商品，就不对应更新特价时间段
+                '''
+                # # 先检查该商品在对应的子分类中是否已经被提前下架, 并获取到该商品的上下架时间
+                # if index % 6 == 0:
+                #     try: del tmp_taobao_tiantiantejia
+                #     except: pass
+                #     gc.collect()
+                #     tmp_taobao_tiantiantejia = TaoBaoTianTianTeJia(logger=my_lg)
+                #
+                # tmp_body = await tmp_taobao_tiantiantejia.get_one_api_body(current_page=item[4], category=item[3])
+                # if tmp_body == '':
+                #     msg = '获取到的tmp_body为空str! 出错category为: ' + item[3]
+                #     my_lg.error(msg)
+                #     continue
+                #
+                # try:
+                #     tmp_body = re.compile(r'\((.*?)\)').findall(tmp_body)[0]
+                # except IndexError:
+                #     msg = 're筛选body时出错, 请检查! 出错category为: ' + item[3]
+                #     my_lg.error(msg)
+                #     continue
+                # tmp_sort_data = await tmp_taobao_tiantiantejia.get_sort_data_list(body=tmp_body)
+                # if tmp_sort_data == 'no items':
+                #     my_lg.info('该api接口获取到的item_list为no items!请检查')
+                #     break
+                # tejia_goods_list = await tmp_taobao_tiantiantejia.get_tiantiantejia_goods_list(data=tmp_sort_data)
+                # # my_lg.info(str(tejia_goods_list))
+                # await asyncio.sleep(.45)
+                # # my_lg.info('111')
+
+                '''
+                研究发现已经上架的天天特价商品不会再被官方提前下架，所以此处什么都不做，跳过
+                '''
+                # if is_in_child_sort(tejia_goods_list, goods_id=item[0]) is False:     # 表示被官方提前下架
+                #     # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
+                #     # print('该商品goods_id[{0}]已被官方提前下架, 删除成功!'.format(item[0]))
+                #     print('222')
+                #     pass
+
+                # else:       # 表示商品未被提前下架
+                my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))
+                taobao = TaoBaoLoginAndParse(logger=my_lg)
+                taobao.get_goods_data(item[0])
+                goods_data = taobao.deal_with_data(goods_id=item[0])
+                if goods_data != {}:
+                    # tmp_time = await get_this_goods_id_tejia_time(tejia_goods_list, goods_id=item[0])
+                    # if tmp_time != []:
+                    #     begin_time, end_time = tmp_time
                     #
-                    # tmp_body = await tmp_taobao_tiantiantejia.get_one_api_body(current_page=item[4], category=item[3])
-                    # if tmp_body == '':
-                    #     msg = '获取到的tmp_body为空str! 出错category为: ' + item[3]
-                    #     my_lg.error(msg)
-                    #     continue
-                    #
-                    # try:
-                    #     tmp_body = re.compile(r'\((.*?)\)').findall(tmp_body)[0]
-                    # except IndexError:
-                    #     msg = 're筛选body时出错, 请检查! 出错category为: ' + item[3]
-                    #     my_lg.error(msg)
-                    #     continue
-                    # tmp_sort_data = await tmp_taobao_tiantiantejia.get_sort_data_list(body=tmp_body)
-                    # if tmp_sort_data == 'no items':
-                    #     my_lg.info('该api接口获取到的item_list为no items!请检查')
-                    #     break
-                    # tejia_goods_list = await tmp_taobao_tiantiantejia.get_tiantiantejia_goods_list(data=tmp_sort_data)
-                    # # my_lg.info(str(tejia_goods_list))
-                    # await asyncio.sleep(.45)
-                    # # my_lg.info('111')
-
-                    '''
-                    研究发现已经上架的天天特价商品不会再被官方提前下架，所以此处什么都不做，跳过
-                    '''
-                    # if is_in_child_sort(tejia_goods_list, goods_id=item[0]) is False:     # 表示被官方提前下架
-                    #     # tmp_sql_server.delete_taobao_tiantiantejia_expired_goods_id(goods_id=item[0])
-                    #     # print('该商品goods_id[{0}]已被官方提前下架, 删除成功!'.format(item[0]))
-                    #     print('222')
+                    #     goods_data['goods_id'] = item[0]
+                    #     goods_data['schedule'] = [{
+                    #         'begin_time': begin_time,
+                    #         'end_time': end_time,
+                    #     }]
+                    #     goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await tmp_taobao_tiantiantejia.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+                    #     await taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
+                    # else:
+                    #     my_lg.info('该goods_id不在该api接口的商品中!!')
                     #     pass
 
-                    # else:       # 表示商品未被提前下架
-                    my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))
-                    taobao = TaoBaoLoginAndParse(logger=my_lg)
-                    taobao.get_goods_data(item[0])
-                    goods_data = taobao.deal_with_data(goods_id=item[0])
-                    if goods_data != {}:
-                        # tmp_time = await get_this_goods_id_tejia_time(tejia_goods_list, goods_id=item[0])
-                        # if tmp_time != []:
-                        #     begin_time, end_time = tmp_time
-                        #
-                        #     goods_data['goods_id'] = item[0]
-                        #     goods_data['schedule'] = [{
-                        #         'begin_time': begin_time,
-                        #         'end_time': end_time,
-                        #     }]
-                        #     goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await tmp_taobao_tiantiantejia.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
-                        #     await taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
-                        # else:
-                        #     my_lg.info('该goods_id不在该api接口的商品中!!')
-                        #     pass
+                    goods_data['goods_id'] = item[0]
+                    '''不专门更新上下架时间段'''
+                    # goods_data['schedule'] = [{
+                    #     'begin_time': begin_time,
+                    #     'end_time': end_time,
+                    # }]
+                    # goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await tmp_taobao_tiantiantejia.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+                    await taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
 
-                        goods_data['goods_id'] = item[0]
-                        '''不专门更新上下架时间段'''
-                        # goods_data['schedule'] = [{
-                        #     'begin_time': begin_time,
-                        #     'end_time': end_time,
-                        # }]
-                        # goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await tmp_taobao_tiantiantejia.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
-                        await taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
+                else:
+                    await asyncio.sleep(4)    # 否则休息4秒
+                    pass
 
-                    else:
-                        await asyncio.sleep(4)    # 否则休息4秒
-                        pass
-                    await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
-                    index += 1
-                    gc.collect()
+                await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+                index += 1
+                gc.collect()
 
-            else:  # 表示返回的data值为空值
-                my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
-                pass
-            gc.collect()
-        my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+        else:  # 表示返回的data值为空值
+            my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
+            pass
+        gc.collect()
+    my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
     if get_shanghai_time().hour == 0:  # 0点以后不更新
-        sleep(60 * 60 * 5.5)
+        # sleep(60 * 60 * .5)
+        pass
+
     else:
         sleep(5)
     gc.collect()

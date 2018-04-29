@@ -96,19 +96,20 @@ class TaoBaoLoginAndParse(object):
 
         s = requests.session()
         try:
-            response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
             # self.my_lg.info(last_url)
-            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             data = response.content.decode('utf-8')
             # self.my_lg.info(data)
-            data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
-            # self.my_lg.info(str(data))
         except Exception:
             self.my_lg.error('requests.get()请求超时...' + ' 出错goods_id: ' + str(goods_id))
             self.my_lg.error('data为空!')
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
+
+        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
+        # self.my_lg.info(str(data))
 
         if data != []:
             data = data[0]
@@ -926,7 +927,7 @@ class TaoBaoLoginAndParse(object):
 
         # 设置3层避免报错退出
         try:
-            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         except Exception:
             try:
                 # 设置代理ip
@@ -937,7 +938,7 @@ class TaoBaoLoginAndParse(object):
                 tmp_proxies = {
                     'http': self.proxy,
                 }
-                response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             except Exception:
                 # 设置代理ip
                 ip_object = MyIpPools()
@@ -947,12 +948,12 @@ class TaoBaoLoginAndParse(object):
                 tmp_proxies = {
                     'http': self.proxy,
                 }
-                response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
 
         last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
         # self.my_lg.info(last_url)
         try:
-            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         except Exception:
             ip_object = MyIpPools()
             self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
@@ -962,7 +963,7 @@ class TaoBaoLoginAndParse(object):
                 'http': self.proxy,
             }
             try:
-                response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             except ProxyError:
                 self.my_lg.error('ProxyError!')
                 return ''
