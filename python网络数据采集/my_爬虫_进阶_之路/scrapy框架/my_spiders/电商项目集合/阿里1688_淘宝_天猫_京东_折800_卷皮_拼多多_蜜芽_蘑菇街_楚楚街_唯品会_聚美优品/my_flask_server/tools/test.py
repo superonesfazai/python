@@ -203,6 +203,5 @@ for item in a:
     _i += item[0]
     _sum += item[0]*item[1]
 
-print(_sum/_i)
-
+# print(_sum/_i)
 # print(len(a), len(b), len(c))

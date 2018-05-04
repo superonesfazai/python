@@ -294,14 +294,12 @@ class CommentRealTimeUpdateSpider(object):
             pass
 
     def _get_db_update_params(self, item):
-        params = (
+        return (
             item['modify_time'],
             dumps(item['_comment_list'], ensure_ascii=False),
 
             item['goods_id'],
         )
-
-        return params
 
     def __del__(self):
         try:

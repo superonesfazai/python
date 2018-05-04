@@ -44,6 +44,13 @@ class MyAllCommentSpider(object):
             self.my_lg.info('初始化 天猫 phantomjs中...')
             self.tmall = TmallCommentParse(logger=self.my_lg)
 
+        if self._init_debugging_api().get(7) is True \
+                or self._init_debugging_api().get(8) is True\
+                or self._init_debugging_api().get(9) is True\
+                or self._init_debugging_api().get(10) is True:
+            self.my_lg.info('初始化 京东 phantomjs中...')
+            self.jd = JdCommentParse(logger=self.my_lg)
+
         self.my_lg.info('初始化完毕!!!')
 
     def _set_logger(self):
@@ -61,13 +68,13 @@ class MyAllCommentSpider(object):
         return {
             1: False,
             2: False,
-            3: True,
-            4: True,
-            6: True,
-            7: False,
-            8: False,
-            9: False,
-            10: False,
+            3: False,
+            4: False,
+            6: False,
+            7: True,
+            8: True,
+            9: True,
+            10: True,
             11: False,
             12: False,
             13: False,
@@ -255,14 +262,21 @@ class MyAllCommentSpider(object):
         '''
         if self.debugging_api.get(site_id):
             self.my_lg.info('------>>>| 京东\t\t索引值(%s)' % str(index))
-            self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-            jd = JdCommentParse(logger=self.my_lg)
+            if index % 5 == 0:
+                try:
+                    del self.jd
+                except:
+                    self.my_lg.info('del jd失败!')
+                gc.collect()
+                self.jd = JdCommentParse(logger=self.my_lg)
 
-            jd._get_comment_data(goods_id=str(goods_id))
-            try: del jd
-            except: pass
-            gc.collect()
+            _r = self.jd._get_comment_data(goods_id=str(goods_id))
+            if _r != {}:
+                # self.my_lg.info('获取评论success!')
+                if self._comment_pipeline.is_connect_success:
+                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
+
         else:
             pass
 
@@ -324,14 +338,12 @@ class MyAllCommentSpider(object):
         :param item:
         :return:
         '''
-        params = (
+        return (
             item['goods_id'],
             item['create_time'],
             item['modify_time'],
             dumps(item['_comment_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
         )
-
-        return params
 
     def __del__(self):
         try:
@@ -345,6 +357,8 @@ class MyAllCommentSpider(object):
         try: del self.ali_1688
         except: pass
         try: del self.tmall
+        except: pass
+        try: del self.jd
         except: pass
         gc.collect()
 

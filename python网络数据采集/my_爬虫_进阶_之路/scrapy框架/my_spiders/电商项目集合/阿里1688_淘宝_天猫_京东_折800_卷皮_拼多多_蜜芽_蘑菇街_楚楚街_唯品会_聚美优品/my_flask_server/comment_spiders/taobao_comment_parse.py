@@ -92,6 +92,7 @@ class TaoBaoCommentParse(object):
         _r['_comment_list'] = _comment_list
         self.result_data = _r
         # pprint(self.result_data)
+
         return self.result_data
 
     def _get_comment_list(self, _tmp_comment_list):
@@ -258,7 +259,7 @@ class TaoBaoCommentParse(object):
         :param sku_info:
         :return:
         '''
-        comment = re.compile('淘宝').sub('', comment)
+        comment = re.compile('淘宝|taobao|TAOBAO').sub('', comment)
 
         return comment
 

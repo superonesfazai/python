@@ -32,20 +32,16 @@ class JdCommentParse(object):
         self._set_headers()
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
         self.my_phantomjs = MyPhantomjs()
+        self._add_headers_cookies()
 
     def _get_comment_data(self, goods_id):
         if goods_id == '':
             self.result_data = {}
             return {}
-        self.my_lg.info('待抓取的goods_id: %s' % goods_id)
-        self.goods_id = goods_id
+        self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
-        # 测试发现得带cookies, 详细到cookies中的sid字符必须有
-        # 先获取cookies
-        _cookies = self.my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://item.m.jd.com/')
-        # self.my_lg.info(str(_cookies))
+        self.goods_id = goods_id
         self.headers.update({
-            'cookie': _cookies,
             'referer': 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id),
         })
 
@@ -79,7 +75,7 @@ class JdCommentParse(object):
         _r['modify_time'] = _t
         _r['_comment_list'] = _comment_list
         self.result_data = _r
-        pprint(self.result_data)
+        # pprint(self.result_data)
 
         return self.result_data
 
@@ -94,10 +90,11 @@ class JdCommentParse(object):
             _comment_date = item.get('commentDate', '')
             assert _comment_date != '', '得到的_comment_date为空str!请检查!'
 
-            # sku_info
+            # sku_info(有些商品评论是没有规格的所以默认为空即可，不加assert检查!)
             ware_attributes = item.get('wareAttributes', [])
+            # self.my_lg.info(str(ware_attributes))
             sku_info = ' '.join([i.get('key', '')+':'+i.get('value', '') for i in ware_attributes])
-            assert sku_info != '', '得到的sku_info为空str!请检查!'
+            # assert sku_info != '', '得到的sku_info为空str!请检查!'
 
             _comment_content = item.get('commentData', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
@@ -133,17 +130,26 @@ class JdCommentParse(object):
                 'video': '',
             }]
 
-            _ = {
+            _comment_list.append({
                 'buyer_name': buyer_name,  # 买家昵称
                 'comment': comment,  # 评论内容
                 'quantify': quantify,  # 评论数量
                 'head_img': head_img,  # 头像
                 'append_comment': append_comment,  # 追评
-            }
-
-            _comment_list.append(_)
+            })
 
         return _comment_list
+
+    def _add_headers_cookies(self):
+        # 测试发现得带cookies, 详细到cookies中的sid字符必须有
+        # 先获取cookies
+        _cookies = self.my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://item.m.jd.com/')
+        # self.my_lg.info(str(_cookies))
+        self.headers.update({
+            'cookie': _cookies,
+        })
+
+        return None
 
     def _set_logger(self, logger):
         if logger is None:
@@ -173,7 +179,7 @@ class JdCommentParse(object):
         :param comment:
         :return:
         '''
-        comment = re.compile(r'jd|\n').sub('', comment)
+        comment = re.compile(r'jd|\n|Jd|JD').sub('', comment)
         comment = re.compile('京东').sub('优秀网', comment)
 
         return comment
@@ -217,6 +223,7 @@ class JdCommentParse(object):
         try:
             del self.my_lg
             del self.my_phantomjs
+            del self.headers
         except:
             pass
         gc.collect()

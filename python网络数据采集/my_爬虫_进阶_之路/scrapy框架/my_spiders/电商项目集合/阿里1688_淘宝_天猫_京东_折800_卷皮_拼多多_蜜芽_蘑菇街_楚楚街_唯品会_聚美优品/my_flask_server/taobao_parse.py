@@ -930,24 +930,10 @@ class TaoBaoLoginAndParse(object):
             response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         except Exception:
             try:
-                # 设置代理ip
-                ip_object = MyIpPools()
-                self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-                self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-                tmp_proxies = {
-                    'http': self.proxy,
-                }
+                tmp_proxies = MyRequests._get_proxies()
                 response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             except Exception:
-                # 设置代理ip
-                ip_object = MyIpPools()
-                self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-                self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-                tmp_proxies = {
-                    'http': self.proxy,
-                }
+                tmp_proxies = MyRequests._get_proxies()
                 response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
 
         last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
@@ -955,13 +941,7 @@ class TaoBaoLoginAndParse(object):
         try:
             response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
         except Exception:
-            ip_object = MyIpPools()
-            self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-            self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-            tmp_proxies = {
-                'http': self.proxy,
-            }
+            tmp_proxies = MyRequests._get_proxies()
             try:
                 response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             except ProxyError:
