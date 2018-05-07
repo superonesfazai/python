@@ -34,6 +34,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime, restart_program
 from my_ip_pools import MyIpPools
 from my_logging import set_logger
+from my_utils import calculate_right_sign, get_taobao_sign_and_body
 
 from taobao_parse import TaoBaoLoginAndParse
 
@@ -52,7 +53,7 @@ class TaoBaoTianTianTeJia(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'h5api.m.taobao.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],  # 随机一个请求头
         }
 
     def _set_logger(self, logger):
@@ -129,7 +130,6 @@ class TaoBaoTianTianTeJia(object):
     async def deal_with_all_goods_id(self):
         '''
         获取每个详细分类的商品信息
-        :param sort_data: 所有分类的商品信息(包括商品id跟特价开始时间跟结束时间)
         :return: None
         '''
         sort_data = await self.get_all_goods_list()
@@ -148,7 +148,7 @@ class TaoBaoTianTianTeJia(object):
 
             for item in sort_data:
                 tejia_goods_list = await self.get_tiantiantejia_goods_list(data=item.get('data', []))
-                self.my_lg.info(tejia_goods_list)
+                self.my_lg.info(str(tejia_goods_list))
 
                 for tmp_item in tejia_goods_list:
                     if tmp_item.get('goods_id', '') in db_all_goods_id:    # 处理如果该goods_id已经存在于数据库中的情况
@@ -273,6 +273,7 @@ class TaoBaoTianTianTeJia(object):
             'pageSize': 20,
             'salesSites': 9,  # 这为默认推荐
         })
+
         params = {
             "jsv": "2.4.8",
             "appKey": "12574478",
@@ -285,11 +286,13 @@ class TaoBaoTianTianTeJia(object):
             "callback": self.main_sort[category][1],
             "data": data,
         }
-        result_1 = await self.get_taobao_sign_and_body(
+
+        result_1 = await get_taobao_sign_and_body(
             base_url=base_url,
             headers=self.headers,
             params=params,
-            data=data
+            data=data,
+            logger=self.my_lg
         )
         _m_h5_tk = result_1[0]
 
@@ -299,89 +302,19 @@ class TaoBaoTianTianTeJia(object):
             return ''
 
         # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
-        result_2 = await self.get_taobao_sign_and_body(
+        result_2 = await get_taobao_sign_and_body(
             base_url=base_url,
             headers=self.headers,
             params=params,
             data=data,
             _m_h5_tk=_m_h5_tk,
-            session=result_1[1]
+            session=result_1[1],
+            logger=self.my_lg
         )
         body = result_2[2]
+        # self.my_lg.info(str(body))
 
         return body
-
-    async def calculate_right_sign(self, _m_h5_tk: str, data: json):
-        '''
-        根据给的json对象 data 和 _m_h5_tk计算出正确的sign
-        :param _m_h5_tk:
-        :param data:
-        :return: sign 类型str, t 类型str
-        '''
-        with open('../static/js/get_h_func.js', 'r') as f:  # 打开js源文件
-            js = f.read()
-
-        js_parser = execjs.compile(js)  # 编译js得到python解析对象
-        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
-
-        # 构造参数e
-        appKey = '12574478'
-        # e = 'undefine' + '&' + t + '&' + appKey + '&' + '{"optStr":"{\"displayCount\":4,\"topItemIds\":[]}","bizCode":"tejia_003","currentPage":"1","pageSize":"4"}'
-        e = _m_h5_tk + '&' + t + '&' + appKey + '&' + data
-
-        sign = js_parser.call('h', e)
-
-        return sign, t
-
-    async def get_taobao_sign_and_body(self, base_url, headers:dict, params:dict, data:json, timeout=13, _m_h5_tk='undefine', session=None):
-        '''
-        得到淘宝带签名sign接口数据
-        :param base_url:
-        :param headers:
-        :param params:
-        :param data:
-        :param timeout:
-        :param _m_h5_tk:
-        :param session:
-        :return: (_m_h5_tk, session, body)
-        '''
-        sign, t = await self.calculate_right_sign(data=data, _m_h5_tk=_m_h5_tk)
-        headers['Host'] = re.compile(r'://(.*?)/').findall(base_url)[0]
-        params.update({  # 添加下面几个query string
-            't': t,
-            'sign': sign,
-            'data': data,
-        })
-
-        # 设置代理ip
-        ip_object = MyIpPools()
-        proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        proxy = proxies['http'][randint(0, len(proxies) - 1)]
-
-        tmp_proxies = {
-            'http': proxy,
-        }
-
-        if session is None:
-            session = requests.session()
-        else:
-            session = session
-        try:
-            response = session.get(url=base_url, headers=headers, params=params, proxies=tmp_proxies, timeout=timeout)
-            _m_h5_tk = response.cookies.get('_m_h5_tk', '')
-            _m_h5_tk = _m_h5_tk.split('_')[0]
-            # print(s.cookies.items())
-            # print(_m_h5_tk)
-
-            body = response.content.decode('utf-8')
-            # print(body)
-
-        except Exception as e:
-            self.my_lg.exception(e)
-            _m_h5_tk = ''
-            body = ''
-
-        return (_m_h5_tk, session, body)
 
     async def get_tejia_begin_time_and_tejia_end_time(self, schedule):
         '''
@@ -418,10 +351,11 @@ class TaoBaoTianTianTeJia(object):
 
     async def get_tiantiantejia_goods_list(self, data):
         '''
-        将tmp_data转换为需求的list
-        :param body:
+        将data转换为需求的list
+        :param data:
         :return: a list
         '''
+        tejia_goods_list = []
         if data != []:
             # 处理得到需要的数据
             try:
@@ -432,9 +366,6 @@ class TaoBaoTianTianTeJia(object):
                 } for item in data]
             except Exception as e:
                 self.my_lg.exception(e)
-                tejia_goods_list = []
-        else:
-            tejia_goods_list = []
 
         return tejia_goods_list
 

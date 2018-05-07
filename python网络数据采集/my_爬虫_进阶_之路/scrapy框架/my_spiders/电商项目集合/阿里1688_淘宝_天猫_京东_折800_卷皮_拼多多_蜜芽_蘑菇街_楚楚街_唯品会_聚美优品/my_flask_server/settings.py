@@ -101,6 +101,11 @@ TAOBAO_REAL_TIMES_SLEEP_TIME = 2.      # 加拿大服务器可以设置为.4s
 TMALL_REAL_TIMES_SLEEP_TIME = 2.      # 加拿大服务器可以设置为.4s
 
 '''
+淘抢购抓取时间点设置
+'''
+TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
+
+'''
 折800 session_id相关
 '''
 BASE_SESSION_ID = 17500             # 起始session_id

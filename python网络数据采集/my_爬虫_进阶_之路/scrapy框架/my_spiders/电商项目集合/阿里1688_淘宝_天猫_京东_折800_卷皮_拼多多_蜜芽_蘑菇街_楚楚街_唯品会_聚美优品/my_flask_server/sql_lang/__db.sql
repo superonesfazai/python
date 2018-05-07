@@ -414,3 +414,33 @@ create table all_goods_comment(
   modify_time datetime,
   comment_info nvarchar(max)
 )
+
+-- 创建tao_qianggou_xianshimiaosha表
+use Gather;
+create table tao_qianggou_xianshimiaosha(
+	id int identity(1,1) primary key,
+	shop_name nvarchar(100),
+	goods_name nvarchar(300),
+	sub_title nvarchar(300),
+	price decimal(18, 2),
+	taobao_price decimal(18, 2),
+	goods_url nvarchar(500),
+	create_time datetime,
+	detail_info nvarchar(max),
+	all_image_url nvarchar(max),
+	sku_name nvarchar(max),
+	sku_Info nvarchar(max),
+	property_info nvarchar(max),
+	site_id int,
+	goods_id varchar(100) not null unique,
+	is_convert int,
+	is_delete int,
+	is_modfiy int,
+	modfiy_time datetime,
+	schedule nvarchar(500),
+	miaosha_time nvarchar(500),
+	miaosha_begin_time datetime,
+	miaosha_end_time datetime,
+	page int,
+	spider_time nvarchar(50)
+);

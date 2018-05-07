@@ -11,6 +11,11 @@ import pytz, datetime, re
 import sys, os, time, json
 from pprint import pprint
 from json import JSONDecodeError
+import asyncio
+import execjs
+from random import randint
+from my_ip_pools import MyIpPools
+import requests
 
 __all__ = [
     'get_shanghai_time',                                # 时区处理，得到上海时间
@@ -28,6 +33,9 @@ __all__ = [
     '_get_price_change_info',                           # 公司用来记录价格改变信息
     'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
     'get_my_shelf_and_down_time_and_delete_time',       # 公司得到my_shelf_and_down_time和delete_time
+
+    'calculate_right_sign',                             # 获取淘宝sign
+    'get_taobao_sign_and_body',                         # 得到淘宝带签名sign的接口数据
 ]
 
 def get_shanghai_time():
@@ -277,3 +285,75 @@ def _get_price_change_info(old_price, old_taobao_price, new_price, new_taobao_pr
     }
 
     return _is_price_change, _
+
+async def calculate_right_sign(_m_h5_tk: str, data: json):
+    '''
+    根据给的json对象 data 和 _m_h5_tk计算出正确的sign
+    :param _m_h5_tk:
+    :param data:
+    :return: sign 类型str, t 类型str
+    '''
+    with open('../static/js/get_h_func.js', 'r') as f:  # 打开js源文件
+        js = f.read()
+
+    js_parser = execjs.compile(js)  # 编译js得到python解析对象
+    t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+
+    # 构造参数e
+    appKey = '12574478'
+    # e = 'undefine' + '&' + t + '&' + appKey + '&' + '{"optStr":"{\"displayCount\":4,\"topItemIds\":[]}","bizCode":"tejia_003","currentPage":"1","pageSize":"4"}'
+    e = _m_h5_tk + '&' + t + '&' + appKey + '&' + data
+
+    sign = js_parser.call('h', e)
+
+    return sign, t
+
+async def get_taobao_sign_and_body(base_url, headers:dict, params:dict, data:json, timeout=13, _m_h5_tk='undefine', session=None, logger=None):
+    '''
+    得到淘宝带签名sign接口数据
+    :param base_url:
+    :param headers:
+    :param params:
+    :param data:
+    :param timeout:
+    :param _m_h5_tk:
+    :param session:
+    :return: (_m_h5_tk, session, body)
+    '''
+    sign, t = await calculate_right_sign(data=data, _m_h5_tk=_m_h5_tk)
+    headers['Host'] = re.compile(r'://(.*?)/').findall(base_url)[0]
+    params.update({  # 添加下面几个query string
+        't': t,
+        'sign': sign,
+        'data': data,
+    })
+
+    # 设置代理ip
+    ip_object = MyIpPools()
+    proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+    proxy = proxies['http'][randint(0, len(proxies) - 1)]
+
+    tmp_proxies = {
+        'http': proxy,
+    }
+
+    if session is None:
+        session = requests.session()
+    else:
+        session = session
+    try:
+        response = session.get(url=base_url, headers=headers, params=params, proxies=tmp_proxies, timeout=timeout)
+        _m_h5_tk = response.cookies.get('_m_h5_tk', '')
+        _m_h5_tk = _m_h5_tk.split('_')[0]
+        # print(s.cookies.items())
+        # print(_m_h5_tk)
+
+        body = response.content.decode('utf-8')
+        # print(body)
+
+    except Exception as e:
+        logger.exception(e)
+        _m_h5_tk = ''
+        body = ''
+
+    return (_m_h5_tk, session, body)

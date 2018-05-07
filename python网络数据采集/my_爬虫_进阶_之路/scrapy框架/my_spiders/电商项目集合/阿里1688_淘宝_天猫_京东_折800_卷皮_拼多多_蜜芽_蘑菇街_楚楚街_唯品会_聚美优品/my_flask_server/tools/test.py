@@ -205,3 +205,4 @@ for item in a:
 
 # print(_sum/_i)
 # print(len(a), len(b), len(c))
+
