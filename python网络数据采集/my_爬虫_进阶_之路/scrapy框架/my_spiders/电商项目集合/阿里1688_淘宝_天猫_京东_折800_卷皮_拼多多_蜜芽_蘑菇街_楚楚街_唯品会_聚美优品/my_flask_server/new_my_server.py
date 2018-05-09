@@ -86,6 +86,8 @@ my_lg = set_logger(
     file_log_level=ERROR
 )
 
+######################################################
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -3363,14 +3365,14 @@ def get_basic_data():
     '''
     if request.form.get('basic_app_key') is not None and request.form.get('basic_app_key') == BASIC_APP_KEY:  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             goodsLink = request.form.get('goodsLink')
 
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 result = {
                     'reason': 'error',
@@ -3381,7 +3383,7 @@ def get_basic_data():
                 result = json.dumps(result)
                 return result
 
-            if re.compile(r'https://item.taobao.com/item.htm.*?').findall(wait_to_deal_with_url) != []:
+            if _is_taobao_url(wait_to_deal_with_url):
                 basic_taobao = TaoBaoLoginAndParse(logger=my_lg)
 
                 goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
@@ -3453,9 +3455,7 @@ def get_basic_data():
                 gc.collect()  # 手动回收即可立即释放需要删除的资源
                 return result_json.decode()
 
-            if re.compile(r'https://detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
-                or re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
-                or re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(wait_to_deal_with_url) != []:
+            elif _is_tmall_url(wait_to_deal_with_url):
 
                 basic_tmall = TmallParse(logger=my_lg)
 
@@ -3534,10 +3534,7 @@ def get_basic_data():
                 gc.collect()  # 手动回收即可立即释放需要删除的资源
                 return result_json.decode()
 
-            if re.compile(r'https://item.jd.com/.*?').findall(wait_to_deal_with_url) != [] \
-                or re.compile(r'https://item.jd.hk/.*?').findall(wait_to_deal_with_url) != [] \
-                or re.compile(r'https://item.yiyaojd.com/.*?').findall(wait_to_deal_with_url) != []:
-
+            elif _is_jd_url(wait_to_deal_with_url):
                 jd = JdParse()
 
                 goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
@@ -3615,16 +3612,19 @@ def get_basic_data():
                 gc.collect()  # 手动回收即可立即释放需要删除的资源
                 return result_json.decode()
 
-            # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
+            else:
+                # 直接把空值给pass，不打印信息
+                # print('goodsLink为空值...')
+                result = {
+                    'reason': 'error',
+                    'data': '',
+                    'error_code': 4042,  # 表示goodsLink为空值
+                }
 
-            result = json.dumps(result)
-            return result
+                result = json.dumps(result)
+
+                return result
+
     else:
         result = {
             'reason': 'error',
@@ -3632,7 +3632,48 @@ def get_basic_data():
             'error_code': 0,
         }
         result = json.dumps(result)
+
         return result
+
+def _is_taobao_url(wait_to_deal_with_url):
+    '''
+    判断是否为淘宝的链接
+    :param wait_to_deal_with_url:
+    :return: bool
+    '''
+    _ = False
+    if re.compile(r'https://item.taobao.com/item.htm.*?').findall(wait_to_deal_with_url) != []:
+        _ = True
+
+    return _
+
+def _is_tmall_url(wait_to_deal_with_url):
+    '''
+    判断是否为tmall的url
+    :param wait_to_deal_with_url:
+    :return: bool
+    '''
+    _ = False
+    if re.compile(r'https://detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
+         or re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
+         or re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(wait_to_deal_with_url) != []:
+        _ = True
+
+    return _
+
+def _is_jd_url(wait_to_deal_with_url):
+    '''
+    判断是否为jd的url
+    :param wait_to_deal_with_url:
+    :return: bool
+    '''
+    _ = False
+    if re.compile(r'https://item.jd.com/.*?').findall(wait_to_deal_with_url) != [] \
+         or re.compile(r'https://item.jd.hk/.*?').findall(wait_to_deal_with_url) != [] \
+         or re.compile(r'https://item.yiyaojd.com/.*?').findall(wait_to_deal_with_url) != []:
+        _ = True
+
+    return _
 
 def encrypt(key, s):
     '''
@@ -3655,6 +3696,7 @@ def encrypt(key, s):
         c[j] = c1
         c[j+1] = c2
         j = j+2
+
     return c.decode("gbk")
 
 def decrypt(key, s):

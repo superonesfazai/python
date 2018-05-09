@@ -43,8 +43,13 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             self.is_connect_success = False
 
     def _select_table(self, sql_str, params=None):
-        cs = self.conn.cursor()
         result = None
+        try:
+            cs = self.conn.cursor()
+        except AttributeError as e:
+            print(e.args[0])
+            return result
+
         try:
             cs.execute('set lock_timeout 20000;')     # 设置客户端执行超时等待为20秒
             if params is not None:

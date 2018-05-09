@@ -15,17 +15,14 @@ from my_utils import get_shanghai_time, daemon_init, _get_price_change_info, get
 
 import gc
 from time import sleep
-import os
-import re, pytz, datetime
-import json
 from settings import IS_BACKGROUND_RUNNING
-import time
 
 def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         sql_str = r'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=2 order by ID desc'
+
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:

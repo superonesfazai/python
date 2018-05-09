@@ -56,15 +56,15 @@ def deal_with_data_by_stu_name(file_path, stu_name):
 
     return None
 
-# deal_with_data_by_course_name(
-#     file_path='/Users/afa/Downloads/exam_stu_table.xls',
-#     # course_name='电路与模拟电子技术'
-#     course_name='概率论与数理统计'
-#     # course_name='离散数学'
-#     # course_name='大学物理（1）'
-# )
-
-deal_with_data_by_stu_name(
+deal_with_data_by_course_name(
     file_path='/Users/afa/Downloads/exam_stu_table.xls',
-    stu_name='小姐姐'
+    course_name='电路与模拟电子技术'
+    # course_name='概率论与数理统计'
+    # course_name='离散数学'
+    # course_name='大学物理（1）'
 )
+#
+# deal_with_data_by_stu_name(
+#     file_path='/Users/afa/Downloads/exam_stu_table.xls',
+#     stu_name='小姐姐'
+# )

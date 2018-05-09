@@ -117,7 +117,7 @@ class Zhe800CommentParse(object):
         _r['modify_time'] = _t
         _r['_comment_list'] = _comment_list
         self.result_data = _r
-        pprint(self.result_data)
+        # pprint(self.result_data)
 
         return self.result_data
 
@@ -133,9 +133,17 @@ class Zhe800CommentParse(object):
             assert comment_date != '', '得到的comment_date为空str!请检查!'
             comment_date = self._get_comment_date(comment_date)
 
+            buyer_name = item.get('nickname', '')
+            assert buyer_name != '', '得到的用户昵称为空值!请检查!'
+
+            _comment_content = item.get('content', '')
+            assert _comment_content != '', '得到的评论内容为空str!请检查!'
+            _comment_content = self._wash_comment(comment=_comment_content)
+
             sku_info = item.get('skuDesc', '')
             # self.my_lg.info(sku_info)
-            assert sku_info != '', '得到的sku_info为空str!请检查!'
+            # 存在规格为空的
+            # assert sku_info != '', '得到的sku_info为空str!请检查!'
             sku_info = self._wash_sku_info(sku_info)
 
             # 第一次评论照片
@@ -147,10 +155,6 @@ class Zhe800CommentParse(object):
                 img_url_list = [{
                     'img_url': _i.get('big', '')
                 } for _i in img_url_list]
-
-            _comment_content = item.get('content', '')
-            assert _comment_content != '', '得到的评论内容为空str!请检查!'
-            _comment_content = self._wash_comment(comment=_comment_content)
 
             '''追评'''
             append_comment = {}
@@ -167,9 +171,6 @@ class Zhe800CommentParse(object):
                     'comment': self._wash_comment(_tmp_append_comment_content),
                     'img_url_list': _append_comment_img_list,
                 }
-
-            buyer_name = item.get('nickname', '')
-            assert buyer_name != '', '得到的用户昵称为空值!请检查!'
 
             # 购买数量, 随机
             quantify = randint(1, 2)
@@ -241,6 +242,7 @@ class Zhe800CommentParse(object):
 
     def _wash_sku_info(self, sku_info):
         sku_info = sku_info.replace('&nbsp;', ' ').replace('&nbsp', ' ')
+        sku_info = re.compile('zhe800|折800|ZHE800').sub('', sku_info)
 
         return sku_info
 

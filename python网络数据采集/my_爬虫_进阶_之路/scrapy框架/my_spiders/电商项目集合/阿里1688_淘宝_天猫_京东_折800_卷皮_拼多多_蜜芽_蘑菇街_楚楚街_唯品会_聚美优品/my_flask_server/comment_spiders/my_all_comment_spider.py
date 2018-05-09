@@ -20,11 +20,13 @@ from ali_1688_comment_parse import ALi1688CommentParse
 from taobao_comment_parse import TaoBaoCommentParse
 from tmall_comment_parse import TmallCommentParse
 from jd_comment_parse import JdCommentParse
+from zhe_800_comment_parse import Zhe800CommentParse
 
 import gc
 from logging import INFO, ERROR
 from time import sleep
 from json import dumps
+from pprint import pprint
 
 class MyAllCommentSpider(object):
     def __init__(self):
@@ -71,11 +73,11 @@ class MyAllCommentSpider(object):
             3: False,
             4: False,
             6: False,
-            7: True,
-            8: True,
-            9: True,
-            10: True,
-            11: False,
+            7: False,
+            8: False,
+            9: False,
+            10: False,
+            11: True,
             12: False,
             13: False,
             25: False,
@@ -161,9 +163,14 @@ class MyAllCommentSpider(object):
                     }
 
                     # 动态执行
-                    exec_code = compile(switch[item[1]].format(index, item[0], item[1]), '', 'exec')
-                    exec(exec_code)
-                    sleep(1.1)
+                    _code = switch[item[1]].format(index, item[0], item[1])
+                    if item[1] != 11:
+                        exec_code = compile(_code, '', 'exec')
+                        exec(exec_code)
+                    else:   # 特殊单独执行
+                        self._zhe_800_comment(index=index, goods_id=item[0], site_id=item[1])
+
+                    sleep(1.2)
 
     def _taobao_comment(self, index, goods_id, site_id):
         '''
@@ -289,7 +296,23 @@ class MyAllCommentSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            pass
+            self.my_lg.info('------>>>| 折800\t\t索引值(%s)' % str(index))
+
+            zhe_800 = Zhe800CommentParse(logger=self.my_lg)
+            _r = zhe_800._get_comment_data(goods_id=str(goods_id))
+            # pprint(_r)
+
+            if _r != {}:
+                # self.my_lg.info('获取评论success!')
+                if self._comment_pipeline.is_connect_success:
+                    self._comment_pipeline._insert_into_table(
+                        sql_str=self.sql_str,
+                        params=self._get_db_insert_params(item=_r)
+                    )
+
+            try: del zhe_800
+            except: self.my_lg.info('del zhe_800失败!')
+            gc.collect()
         else:
             pass
 

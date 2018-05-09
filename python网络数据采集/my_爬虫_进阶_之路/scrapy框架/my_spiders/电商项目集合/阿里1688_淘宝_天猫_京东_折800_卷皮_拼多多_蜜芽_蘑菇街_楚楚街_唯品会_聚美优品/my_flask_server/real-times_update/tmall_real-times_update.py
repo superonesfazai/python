@@ -129,7 +129,9 @@ def run_forever():
                 index += 1
                 gc.collect()
                 sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+
             my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
