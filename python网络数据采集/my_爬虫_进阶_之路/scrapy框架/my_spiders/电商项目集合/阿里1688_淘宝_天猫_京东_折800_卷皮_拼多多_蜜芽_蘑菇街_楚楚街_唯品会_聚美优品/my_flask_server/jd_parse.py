@@ -92,6 +92,7 @@ class JdParse(object):
                 print('------>>>| 得到的移动端地址为: ', phone_url)
                 tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
                 comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
+
                 print('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
@@ -554,16 +555,19 @@ class JdParse(object):
         if data.get('popWareDetailWebViewMap') is not None:
             if data.get('popWareDetailWebViewMap').get('cssContent') is not None:
                 wdis = data.get('popWareDetailWebViewMap', {}).get('cssContent', '')
-                wdis = re.compile(r'&lt;').sub('<',
-                                               wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
-                wdis = re.compile(r'&gt;').sub('>', wdis)
-                wdis = re.compile(r'&amp;').sub('&', wdis)
-                wdis = re.compile(r'&nbsp;').sub(' ', wdis)
-                wdis = re.compile(r'\n').sub('', wdis)
-                wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
-                wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
+                wdis = self._wash_div_desc(wdis=wdis)
 
         wdis = wdis + data.get('wdis', '')  # 如果获取到script就与wdis重组
+        div_desc = self._wash_div_desc(wdis=wdis)
+
+        return div_desc
+
+    def _wash_div_desc(self, wdis):
+        '''
+        清洗div_desc
+        :param wdis:
+        :return:
+        '''
         wdis = re.compile(r'&lt;').sub('<', wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
         wdis = re.compile(r'&gt;').sub('>', wdis)
         wdis = re.compile(r'&amp;').sub('&', wdis)
@@ -572,14 +576,11 @@ class JdParse(object):
         wdis = re.compile(r'src=\"https:').sub('src=\"', wdis)  # 先替换部分带有https的
         wdis = re.compile(r'src="').sub('src=\"https:', wdis)  # 再把所欲的换成https的
 
-        wdis = re.compile(r'<html>').sub('', wdis)
-        wdis = re.compile(r'</html>').sub('', wdis)
+        wdis = re.compile(r'<html>|</html>').sub('', wdis)
         wdis = re.compile(r'<head.*?>.*?</head>').sub('', wdis)
-        wdis = re.compile(r'<body>').sub('', wdis)
-        wdis = re.compile(r'</body>').sub('', wdis)
-        div_desc = wdis
+        wdis = re.compile(r'<body>|</body>').sub('', wdis)
 
-        return div_desc
+        return wdis
 
     def get_p_info(self, data):
         '''
@@ -789,11 +790,12 @@ class JdParse(object):
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
         ip_object = MyIpPools()
         ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
         try:
             proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
         except Exception:
             print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+            return False
+
         # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
         proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
         proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
@@ -837,6 +839,7 @@ class JdParse(object):
                     return ''
                 else:
                     print('div.d-content已经加载完毕')
+
             main_body = self.driver.page_source
             main_body = re.compile(r'\n').sub('', main_body)
             main_body = re.compile(r'  ').sub('', main_body)

@@ -55,7 +55,6 @@ class ALi1688LoginAndParse(object):
 
         # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
-
         print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
 
         body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=wait_to_deal_with_url, css_selector='div.d-content')
@@ -90,6 +89,7 @@ class ALi1688LoginAndParse(object):
                 print('数据库连接失败!')
                 self.result_data = {}
                 return {}
+
             if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
                 sql_str = r'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
                 tmp_my_pipeline._update_table(sql_str=sql_str, params=(goods_id))
@@ -97,6 +97,7 @@ class ALi1688LoginAndParse(object):
                 tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
                 tmp_data_s['before'] = True     # 用来判断原先该goods是否在db中
                 self.result_data = {}
+
                 return tmp_data_s
 
             else:       # 表示该goods_id没存在于db中
@@ -104,6 +105,7 @@ class ALi1688LoginAndParse(object):
                 tmp_data_s = self.init_pull_off_shelves_goods()      # 初始化下架商品的属性
                 tmp_data_s['before'] = False
                 self.result_data = {}
+
                 return tmp_data_s
 
         body = re.compile(r'{"beginAmount"(.*?)</script></div></div>').findall(body)
@@ -115,25 +117,13 @@ class ALi1688LoginAndParse(object):
             # pprint(body)
 
             if body.get('discountPriceRanges') is not None:
-                # 过滤无用属性
-                try:
-                    body.pop('action')
-                    body.pop('offerSign')
-                    body.pop('rateDsrItems')
-                    body.pop('rateStarLevelMapOfMerge')
-                    body.pop('wirelessVideoInfo')
-                    body.pop('freightCost')
-                except KeyError as e:
-                    print('KeyError错误, 此处跳过!')
-                    pass
-
-                # pprint(body)
-                self.result_data = body
+                self.result_data = self._wash_discountPriceRanges(body=body)
                 return self.result_data
             else:
                 print('data为空!')
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
+
         else:
             print('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
             body = re.compile(r'{"activityId"(.*?)</script></div></div>').findall(tmp_body)
@@ -145,20 +135,7 @@ class ALi1688LoginAndParse(object):
                 # pprint(body)
 
                 if body.get('discountPriceRanges') is not None:
-                    # 过滤无用属性
-                    try:
-                        body.pop('action')
-                        body.pop('offerSign')
-                        body.pop('rateDsrItems')
-                        body.pop('rateStarLevelMapOfMerge')
-                        body.pop('wirelessVideoInfo')
-                        body.pop('freightCost')
-                    except KeyError as e:
-                        print('KeyError错误, 此处跳过!')
-                        pass
-
-                    # pprint(body)
-                    self.result_data = body
+                    self.result_data = self._wash_discountPriceRanges(body=body)
                     self.is_activity_goods = True
                     return self.result_data
                 else:
@@ -260,37 +237,8 @@ class ALi1688LoginAndParse(object):
                                     pass
                             else:
                                 pass
-                    try:
-                        value.pop('skuId')
-                    except KeyError:
-                        pass
-                    try:
-                        value.pop('specId')
-                    except KeyError:
-                        pass
-                    try:
-                        value.pop('saleCount')
-                    except KeyError:
-                        pass
-                    try:
-                        value.pop('discountStandardPrice')
-                    except KeyError:
-                        pass
-                    try:
-                        value.pop('price')
-                    except KeyError:
-                        pass
-                    try:
-                        value.pop('retailPrice')
-                    except KeyError:
-                        pass
-                    try:
-                        value.pop('standardPrice')
-                    except KeyError:
-                        # print('KeyError, [skuId, specId, saleCount]错误, 此处跳过')
-                        pass
 
-                    tmp['spec_value'] = value
+                    tmp['spec_value'] = self._wash_sku_value(value=value)
                     sku_map.append(tmp)
 
             else:
@@ -367,8 +315,6 @@ class ALi1688LoginAndParse(object):
             }
             # pprint(result)
             # print(result)
-            # print('------>>>| 爬到goods_id(%s)对应的数据: |', result)
-            # print()
 
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -380,10 +326,12 @@ class ALi1688LoginAndParse(object):
 
             # 重置self.is_activity_goods = False
             self.is_activity_goods = False
+
             return result
         else:
             print('待处理的data为空值!')
             self.is_activity_goods = False
+
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
@@ -442,6 +390,64 @@ class ALi1688LoginAndParse(object):
         sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
 
         pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _wash_sku_value(self, value):
+        '''
+        清洗value
+        :param value:
+        :return:
+        '''
+        try:
+            value.pop('skuId')
+        except KeyError:
+            pass
+        try:
+            value.pop('specId')
+        except KeyError:
+            pass
+        try:
+            value.pop('saleCount')
+        except KeyError:
+            pass
+        try:
+            value.pop('discountStandardPrice')
+        except KeyError:
+            pass
+        try:
+            value.pop('price')
+        except KeyError:
+            pass
+        try:
+            value.pop('retailPrice')
+        except KeyError:
+            pass
+        try:
+            value.pop('standardPrice')
+        except KeyError:
+            # print('KeyError, [skuId, specId, saleCount]错误, 此处跳过')
+            pass
+
+        return value
+
+    def _wash_discountPriceRanges(self, body):
+        '''
+        清洗discountPriceRanges
+        :param body:
+        :return:
+        '''
+        # 过滤无用属性
+        try:
+            body.pop('action')
+            body.pop('offerSign')
+            body.pop('rateDsrItems')
+            body.pop('rateStarLevelMapOfMerge')
+            body.pop('wirelessVideoInfo')
+            body.pop('freightCost')
+        except KeyError:
+            print('KeyError错误, 此处跳过!')
+            pass
+
+        return body
 
     def _get_db_update_params(self, item):
         '''
@@ -642,33 +648,40 @@ class ALi1688LoginAndParse(object):
         # data_tfs_url_body = body
 
         is_offer_details = re.compile(r'offer_details').findall(data_tfs_url_body)
+        detail_info = ''
+
         if is_offer_details != []:
             data_tfs_url_body = re.compile(r'.*?{"content":"(.*?)"};').findall(data_tfs_url_body)
             # print(body)
             if data_tfs_url_body != []:
                 detail_info = data_tfs_url_body[0]
                 detail_info = re.compile(r'\\').sub('', detail_info)
-                detail_info = re.compile(r'&lt;').sub('<', detail_info)     # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
-                detail_info = re.compile(r'&gt;').sub('>', detail_info)
-                detail_info = re.compile(r'&amp;').sub('&', detail_info)
-                detail_info = re.compile(r'&nbsp;').sub(' ', detail_info)
-            else:
-                detail_info = ''
+                detail_info = self._wash_div_desc(detail_info=detail_info)
+
         else:
             is_desc = re.compile(r'var desc=').findall(data_tfs_url_body)
             if is_desc != []:
                 desc = re.compile(r'var desc=\'(.*)\';').findall(data_tfs_url_body)
                 if desc != []:
                     detail_info = desc[0]
-                    detail_info = re.compile(r'&lt;').sub('<', detail_info)
-                    detail_info = re.compile(r'&gt;').sub('>', detail_info)
-                    detail_info = re.compile(r'&amp;').sub('&', detail_info)
-                    detail_info = re.compile(r'&nbsp;').sub(' ', detail_info)
+                    detail_info = self._wash_div_desc(detail_info=detail_info)
                     detail_info = re.compile(r'src=\"https:').sub('src=\"', detail_info)     # 先替换部分带有https的
                     detail_info = re.compile(r'src="').sub('src=\"https:', detail_info)     # 再把所欲的换成https的
-            else:
-                detail_info = ''
+
         # print(detail_info)
+
+        return detail_info
+
+    def _wash_div_desc(self, detail_info):
+        '''
+        清洗detail_info
+        :param detail_info:
+        :return:
+        '''
+        detail_info = re.compile(r'&lt;').sub('<', detail_info)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+        detail_info = re.compile(r'&gt;').sub('>', detail_info)
+        detail_info = re.compile(r'&amp;').sub('&', detail_info)
+        detail_info = re.compile(r'&nbsp;').sub(' ', detail_info)
 
         return detail_info
 
@@ -678,9 +691,11 @@ class ALi1688LoginAndParse(object):
         if is_ali_1688_url != []:
             ali_1688_url = re.compile(r'https://detail.1688.com/offer/(.*?).html.*?').findall(ali_1688_url)[0]
             print('------>>>| 得到的阿里1688商品id为:', ali_1688_url)
+
             return ali_1688_url
         else:
             print('阿里1688商品url错误, 非正规的url, 请参照格式(https://detail.1688.com/offer/)开头的...')
+
             return ''
 
     def __del__(self):
