@@ -33,6 +33,7 @@ __all__ = [
     '_get_price_change_info',                           # 公司用来记录价格改变信息
     'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
     'get_my_shelf_and_down_time_and_delete_time',       # 公司得到my_shelf_and_down_time和delete_time
+    'get_miaosha_begin_time_and_miaosha_end_time',      # 公司返回秒杀开始和结束时间
 
     'calculate_right_sign',                             # 获取淘宝sign
     'get_taobao_sign_and_body',                         # 得到淘宝带签名sign的接口数据
@@ -357,3 +358,22 @@ async def get_taobao_sign_and_body(base_url, headers:dict, params:dict, data:jso
         body = ''
 
     return (_m_h5_tk, session, body)
+
+def get_miaosha_begin_time_and_miaosha_end_time(miaosha_time):
+    '''
+    返回秒杀开始和结束时间
+    :param miaosha_time: 里面的miaosha_begin_time的类型为字符串类型
+    :return: tuple  miaosha_begin_time, miaosha_end_time
+    '''
+    miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
+    miaosha_end_time = miaosha_time.get('miaosha_end_time')
+
+    if miaosha_begin_time is None or miaosha_end_time is None:
+        miaosha_begin_time = miaosha_time.get('begin_time')
+        miaosha_end_time = miaosha_time.get('end_time')
+
+    # 将字符串转换为datetime类型
+    miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
+    miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
+
+    return miaosha_begin_time, miaosha_end_time

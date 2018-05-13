@@ -156,20 +156,7 @@ class JuanPiParse(object):
                     return {}
 
                 if main_data.get('detail') is not None:
-                    main_data = main_data.get('detail', {})
-                    # 处理commitments
-                    try:
-                        main_data['commitments'] = ''
-                        main_data.get('discount', {})['coupon'] = ''
-                        main_data.get('discount', {})['coupon_index'] = ''
-                        main_data.get('discount', {})['vip_info'] = ''
-                        main_data['topbanner'] = ''
-                    except:
-                        pass
-                    try:
-                        main_data.get('brand_info')['sub_goods'] = ''
-                    except:
-                        pass
+                    main_data = self._wash_main_data(main_data.get('detail', {}))
 
                     main_data['skudata'] = skudata
                     # pprint(main_data)
@@ -360,28 +347,7 @@ class JuanPiParse(object):
                 }]
             # pprint(schedule)
 
-            # 是否下架判断
-            # 结束时间戳小于当前时间戳则表示已经删除无法购买, 另外每个规格卖光也不显示is_delete=1(在上面已经判断, 这个就跟销售时间段没关系了)
-            if schedule != []:
-                if data.get('baseInfo', {}).get('end_time') is not None:
-                    '''
-                    先判断如果baseInfo中的end_time=='0'表示已经下架
-                    '''
-                    # base_info_end_time = data.get('baseInfo', {}).get('end_time')
-                    # print(data.get('baseInfo', {}))
-                    # print(base_info_end_time)
-                    # if base_info_end_time == '0':
-                    #     print('test2')
-                    #     is_delete = 1
-                    pass
-
-                if float(end_time) < time.time():
-                    '''
-                    再判断日期过期的
-                    '''
-                    is_delete = 1
-            else:
-                pass
+            is_delete = self._get_is_delete(data=data, schedule=schedule)
             # print(is_delete)
 
             result = {
@@ -402,7 +368,6 @@ class JuanPiParse(object):
                 'schedule': schedule,                   # 商品销售时间段
             }
             # pprint(result)
-            # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -666,6 +631,68 @@ class JuanPiParse(object):
         sql_str = r'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s'
         pipeline._update_table(sql_str=sql_str, params=params)
 
+    def _get_is_delete(self, data, schedule):
+        '''
+        得到商品的上下架状态
+        :param data:
+        :param schedule:
+        :return:
+        '''
+        end_time = data.get('skudata', {}).get('info', {}).get('end_time')
+        is_delete = 0
+        # 是否下架判断
+        # 结束时间戳小于当前时间戳则表示已经删除无法购买, 另外每个规格卖光也不显示is_delete=1(在上面已经判断, 这个就跟销售时间段没关系了)
+        if schedule != []:
+            if data.get('baseInfo', {}).get('end_time') is not None:
+                '''
+                先判断如果baseInfo中的end_time=='0'表示已经下架
+                '''
+                # base_info_end_time = data.get('baseInfo', {}).get('end_time')
+                # self.my_lg.info(data.get('baseInfo', {}))
+                # self.my_lg.info(base_info_end_time)
+                # if base_info_end_time == '0':
+                #     print('test2')
+                #     is_delete = 1
+                pass
+
+            if float(end_time) < time.time():
+                '''
+                再判断日期过期的
+                '''
+                is_delete = 1
+
+        '''
+        卷皮-新增下架判断:
+        time: 2018-5-12 
+        '''
+        if data.get('skudata', {}).get('info', {}).get('gstatus', '1') == '2':
+            # 'gstatus'在售状态为'1'
+            is_delete = 1
+
+        return is_delete
+
+    def _wash_main_data(self, main_data):
+        '''
+        清洗main_data
+        :param main_data:
+        :return:
+        '''
+        # 处理commitments
+        try:
+            main_data['commitments'] = ''
+            main_data.get('discount', {})['coupon'] = ''
+            main_data.get('discount', {})['coupon_index'] = ''
+            main_data.get('discount', {})['vip_info'] = ''
+            main_data['topbanner'] = ''
+        except:
+            pass
+        try:
+            main_data.get('brand_info')['sub_goods'] = ''
+        except:
+            pass
+
+        return main_data
+
     def _get_db_update_params(self, item):
         '''
         得到待更新的db数据
@@ -842,5 +869,6 @@ if __name__ == '__main__':
         juanpi_url = input('请输入待爬取的卷皮商品地址: ')
         juanpi_url.strip('\n').strip(';')
         goods_id = juanpi.get_goods_id_from_url(juanpi_url)
-        data = juanpi.get_goods_data(goods_id=goods_id)
-        juanpi.deal_with_data()
+        juanpi.get_goods_data(goods_id=goods_id)
+        data = juanpi.deal_with_data()
+        # pprint(data)

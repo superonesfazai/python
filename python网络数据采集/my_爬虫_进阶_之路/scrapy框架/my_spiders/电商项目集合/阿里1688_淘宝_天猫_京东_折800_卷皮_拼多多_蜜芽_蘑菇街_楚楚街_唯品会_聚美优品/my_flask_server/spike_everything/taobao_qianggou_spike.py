@@ -28,13 +28,16 @@ from logging import INFO, ERROR
 import asyncio
 
 from settings import HEADERS, MY_SPIDER_LOGS_PATH, TAOBAO_QIANGGOU_SPIDER_HOUR_LIST
-from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
+from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING
+from settings import TMALL_SLEEP_TIME
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime, restart_program
+from my_utils import get_miaosha_begin_time_and_miaosha_end_time
 from my_logging import set_logger
 from my_utils import calculate_right_sign, get_taobao_sign_and_body
 
 from taobao_parse import TaoBaoLoginAndParse
+from tmall_parse_2 import TmallParse
 
 class TaoBaoQiangGou(object):
     def __init__(self, logger=None):
@@ -131,7 +134,7 @@ class TaoBaoQiangGou(object):
             for item in _data:
                 miaosha_goods_list = await self._get_taoqianggou_goods_list(data=item.get('data', []))
                 # self.my_lg.info(str(miaosha_goods_list))
-                pprint(miaosha_goods_list)
+                # pprint(miaosha_goods_list)
 
                 for tmp_item in miaosha_goods_list:
                     if tmp_item.get('goods_id', '') in db_all_goods_id:    # 处理如果该goods_id已经存在于数据库中的情况
@@ -144,7 +147,29 @@ class TaoBaoQiangGou(object):
                         self.my_lg.info('与数据库的新连接成功建立...')
 
                     if my_pipeline.is_connect_success:
-                        pass
+                        tmall = TmallParse(logger=self.my_lg)
+                        tmp_url = 'https://detail.tmall.com/item.htm?id={0}'.format(tmp_item.get('goods_id'))
+                        goods_id = tmall.get_goods_id_from_url(tmp_url)
+
+                        tmall.get_goods_data(goods_id=goods_id)
+                        goods_data = tmall.deal_with_data()
+
+                        if goods_data != {}:
+                            # self.my_lg.info(str(tmp_item))
+                            goods_data['goods_id'] = tmp_item.get('goods_id')
+                            goods_data['spider_url'] = tmp_url
+                            goods_data['miaosha_time'] = tmp_item.get('miaosha_time')
+                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=tmp_item.get('miaosha_time'))
+                            goods_data['page'] = tmp_item.get('page')
+                            goods_data['spider_time'] = tmp_item.get('spider_time')
+
+                            tmall.insert_into_taoqianggou_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                            await asyncio.sleep(TMALL_SLEEP_TIME)
+
+                        try: del tmall
+                        except: pass
+                        gc.collect()
+
 
     async def _get_one_api_body(self, **kwargs):
         '''

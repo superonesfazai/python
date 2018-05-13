@@ -27,9 +27,9 @@ from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
 from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
+from my_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 from settings import IS_BACKGROUND_RUNNING
-import datetime
 
 class JuanPiSpike(object):
     def __init__(self):
@@ -112,7 +112,7 @@ class JuanPiSpike(object):
                                         goods_data['taobao_price'] = item.get('taobao_price')   # 秒杀价
                                         goods_data['sub_title'] = item.get('sub_title', '')
                                         goods_data['miaosha_time'] = item.get('miaosha_time')
-                                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
+                                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
                                         goods_data['tab_id'] = tab_id
                                         goods_data['page'] = index
 
@@ -131,20 +131,6 @@ class JuanPiSpike(object):
                         # else:           # 下面这3句用于跳出2层for循环
             #     continue    # continue表示执行成功就继续
             # break           # break表示执行失败就跳出
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
 
     def get_miaoshao_goods_info_list(self, data):
         '''

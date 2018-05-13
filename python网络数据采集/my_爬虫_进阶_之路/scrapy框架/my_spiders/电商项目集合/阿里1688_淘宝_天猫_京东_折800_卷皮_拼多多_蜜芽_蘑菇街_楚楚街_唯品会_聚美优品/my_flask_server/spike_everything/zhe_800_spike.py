@@ -27,8 +27,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 from my_phantomjs import MyPhantomjs
 from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
-
-import datetime
+from my_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Zhe800Spike(object):
     def __init__(self):
@@ -123,7 +122,7 @@ class Zhe800Spike(object):
                                             goods_data['sub_title'] = item.get('sub_title')
                                             # goods_data['is_baoyou'] = item.get('is_baoyou')
                                             goods_data['miaosha_time'] = item.get('miaosha_time')
-                                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
+                                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
                                             goods_data['session_id'] = str(base_session_id)
                                             # print(goods_data['miaosha_time'])
 
@@ -152,20 +151,6 @@ class Zhe800Spike(object):
                 # return {}
                 pass
             base_session_id += 2
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
 
     def get_miaoshao_goods_info_list(self, data):
         '''

@@ -499,6 +499,67 @@ class TmallParse(object):
         pipeline.old_tmall_goods_insert_into_new_table(tmp)
         return True
 
+    def insert_into_taoqianggou_xianshimiaosha_table(self, data, pipeline):
+        '''
+        将数据规范化插入淘抢购表
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        tmp['spider_url'] = data_list['spider_url']  # 商品地址
+
+        now_time = get_shanghai_time()
+        tmp['deal_with_time'] = now_time  # 操作时间
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except:
+            print('此处抓到的可能是淘宝秒杀券所以跳过')
+            return
+
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+        """
+        得到sku_map
+        """
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+        tmp['miaosha_time'] = data_list.get('miaosha_time')
+        tmp['page'] = data_list.get('page')
+        tmp['spider_time'] = data_list.get('spider_time')
+
+        # 采集的来源地
+        tmp['site_id'] = 26  # 采集来源地(淘抢购)
+
+        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
+        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        self.my_lg.info('------>>>| 待存储的数据信息为: %s' % tmp.get('goods_id'))
+
+        params = self._get_db_insert_taoqianggou_miaosha_params(item=tmp)
+        sql_str = r'insert into dbo.tao_qianggou_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, miaosha_time, miaosha_begin_time, miaosha_end_time, page, spider_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
     def _get_db_update_params(self, item):
         '''
         得到db待更新的数据
@@ -528,6 +589,40 @@ class TmallParse(object):
             dumps(item['price_change_info'], ensure_ascii=False),
 
             item['goods_id'],
+        )
+
+        return params
+
+    def _get_db_insert_taoqianggou_miaosha_params(self, item):
+        '''
+        得到db待插入的数据
+        :param item:
+        :return:
+        '''
+        params = (
+            item['goods_id'],
+            item['spider_url'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['schedule'], ensure_ascii=False),
+            dumps(item['miaosha_time'], ensure_ascii=False),
+            item['miaosha_begin_time'],
+            item['miaosha_end_time'],
+            item['page'],
+            item['spider_time'],
+
+            item['site_id'],
+            item['is_delete'],
         )
 
         return params

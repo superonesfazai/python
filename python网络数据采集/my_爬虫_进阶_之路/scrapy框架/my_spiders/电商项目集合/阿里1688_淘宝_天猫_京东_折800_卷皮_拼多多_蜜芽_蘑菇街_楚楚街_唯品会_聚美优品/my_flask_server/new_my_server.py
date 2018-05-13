@@ -3456,7 +3456,6 @@ def get_basic_data():
                 return result_json.decode()
 
             elif _is_tmall_url(wait_to_deal_with_url):
-
                 basic_tmall = TmallParse(logger=my_lg)
 
                 goods_id = basic_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
@@ -3634,6 +3633,11 @@ def get_basic_data():
         result = json.dumps(result)
 
         return result
+
+# @app.route('/basic_data_2', methods=['POST'])
+# @Sign.signature_required
+# def _get_basic_data_2():
+#     pass
 
 def _is_taobao_url(wait_to_deal_with_url):
     '''

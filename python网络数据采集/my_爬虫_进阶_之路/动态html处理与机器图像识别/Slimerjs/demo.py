@@ -10,28 +10,31 @@
 from selenium import webdriver
 import time
 from time import sleep, time
+import gc
 
-FIRFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
-driver = webdriver.Firefox(executable_path=FIRFOX_DRIVER_PATH)
+
+SLIMERJS_DRIVER_PATH = '/Users/afa/myFiles/tools/slimerjs-1.0.0/slimerjs'
+
+driver = webdriver.PhantomJS(executable_path=SLIMERJS_DRIVER_PATH)
+# driver.get('https://slimerjs.org')
+# sleep(3)
+# driver.save_screenshot('screenie.png')
 
 js = r'''
-var page = require("webpage").create();
-page.open("http://slimerjs.org")
-    .then(function(status){
-         if (status == "success") {
-             console.log("The title of the page is: "+ page.title);
-         }
-         else {
-             console.log("Sorry, the page is not loaded");
-         }
-         page.close();
-         phantom.exit();
-    })
+var page = require('webpage').create();
+ var videoUrl = phantom.args[0];
+ var page.open(videoUrl, function (){
+      window.setTimeout(function(){
+            phantom.exit();
+      },10);
+});
 '''
 
+driver.execute_script(js)
+
 try:
-    driver.execute_script(js)
-except Exception as e:
-    print('遇到错误:', e)
-finally:
+    del driver
     driver.quit()
+except:
+    print('driver释放失败')
+gc.collect()

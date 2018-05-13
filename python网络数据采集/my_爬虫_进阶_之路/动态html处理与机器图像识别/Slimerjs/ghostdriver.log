@@ -1,0 +1,7 @@
+--cookies-file not supported yet
+[INFO  - 2018-05-09T09:08:37.970Z] GhostDriver - Main - running on port 55641 
+[INFO  - 2018-05-09T09:08:38.272Z] Session [8f5f1ec0-5368-11e8-8cc1-559a16b8ea5b] - page.settings - {"allowMedia":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"XSSAuditingEnabled":false,"webSecurityEnabled":true,"javascriptCanOpenWindows":true,"javascriptCanCloseWindows":true,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:59.0) Gecko/20100101 SlimerJS/1.0.0","plainTextAllContent":false} 
+[INFO  - 2018-05-09T09:08:38.272Z] Session [8f5f1ec0-5368-11e8-8cc1-559a16b8ea5b] - page.customHeaders:  - {} 
+[INFO  - 2018-05-09T09:08:38.272Z] Session [8f5f1ec0-5368-11e8-8cc1-559a16b8ea5b] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"1.9.8","driverName":"ghostdriver","driverVersion":"1.1.0","platform":"darwin-10.13-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"}} 
+[INFO  - 2018-05-09T09:08:38.272Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 8f5f1ec0-5368-11e8-8cc1-559a16b8ea5b 
+[ERROR - 2018-05-09T09:08:38.396Z] RouterReqHand - _handle.error - {} 
