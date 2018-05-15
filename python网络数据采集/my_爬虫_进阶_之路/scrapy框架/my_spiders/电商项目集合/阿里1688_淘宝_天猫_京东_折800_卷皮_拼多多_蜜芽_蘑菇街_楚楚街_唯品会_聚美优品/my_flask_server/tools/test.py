@@ -206,3 +206,33 @@ for item in a:
 # print(_sum/_i)
 # print(len(a), len(b), len(c))
 
+import sys
+sys.path.append('..')
+import requests
+from my_requests import MyRequests
+
+headers = {
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'zh-CN,zh;q=0.9',
+    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+    'accept': '*/*',
+    'referer': 'https://g.zhe800.com/xianshiqiang/index',
+    'authority': 'zapi.zhe800.com',
+    # 'cookie': 'gr_user_id=84b21fed-0302-46e0-a01a-f8f3d4cb223e; session_id=439012875.1524042625; user_id=; utm_csr_first=direct; utm_csr=direct; utm_ccn=notset_c0; utm_cmd=; utm_ctr=; utm_cct=; utm_etr=tao.home; firstTime=2018-04-20; __utmz=148564220.1524192137.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); qd_user=96713570.1524192142912; __utmc=148564220; user_type=0; user_role=4; student=0; source=; platform=; version=; channelId=; deviceId=; userId=; cType=; cId=; dealId=; wris_session_id=1145460586.1525400937; f_jk_r=https://m.zhe800.com/mz/list/wireless3982; f_jk=8578391525402580084TfActXWw; f_jk_t=1525402580085; f_jk_e_t=1527994580; jk=8578391525402580084TfActXWw; frequency=1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0; lastTime=2018-05-15; unix_time=1526354956; ju_version=0; cart_mark=1%7C0%7C0%7Cnil%7C0; __utma=148564220.212449404.1524192137.1524881786.1526354957.4; __utmt=1; __utmb=148564220.1.10.1526354957; visit=49; dialog_time=1; downloadGuide_config=%257B%25220direct%2522%253A%257B%2522open%2522%253A5%257D%252C%25221002direct%2522%253A%257B%2522open%2522%253A3%257D%257D',
+}
+
+params = (
+    # ('new_user', ['0', '0']),
+    ('session_id', '18130'),
+    ('page', '1'),
+    # ('source', 'h5'),
+    ('per_page', '20'),
+    # ('callback', 'getXianshiSessionDataCallBack18130'),
+)
+
+# response = requests.get('https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals', headers=headers, params=params)
+# print(response.text)
+
+_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals'
+body = MyRequests.get_url_body(url=_url, headers=headers, params=params)
+print(body)

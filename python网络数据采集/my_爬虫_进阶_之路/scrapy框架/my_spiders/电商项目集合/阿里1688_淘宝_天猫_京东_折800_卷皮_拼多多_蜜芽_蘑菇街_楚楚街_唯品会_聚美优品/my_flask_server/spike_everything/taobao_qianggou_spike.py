@@ -170,7 +170,6 @@ class TaoBaoQiangGou(object):
                         except: pass
                         gc.collect()
 
-
     async def _get_one_api_body(self, **kwargs):
         '''
         获取一个api接口的数据
@@ -259,8 +258,8 @@ class TaoBaoQiangGou(object):
                     'page': item.get('page'),
                     'spider_time': item.get('spider_time'),
                     'miaosha_time': {
-                        'begin_time': await self._get_right_str_time(item.get('startTime', '')),
-                        'end_time': await self._get_right_str_time(item.get('endTime', '')),
+                        'miaosha_begin_time': await self._get_right_str_time(item.get('startTime', '')),
+                        'miaosha_end_time': await self._get_right_str_time(item.get('endTime', '')),
                     },
                 } for item in data]
             except Exception as e:

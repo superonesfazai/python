@@ -78,32 +78,12 @@ class JdParse(object):
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         else:
-            tmp_url = ''
-            comment_url = ''
-            if goods_id[0] == 0:    # 表示为京东常规商品
-                phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id[1])
-                print('------>>>| 得到的移动端地址为: ', phone_url)
-                # 用于得到常规信息
-                tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id[1])
-                comment_url = 'https://item.m.jd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
-
-            elif goods_id[0] == 1:  # 表示为京东全球购商品 (此处由于进口关税无法计算先不处理京东全球购)
-                phone_url = 'https://mitem.jd.hk/ware/view.action?wareId=' + str(goods_id[1])
-                print('------>>>| 得到的移动端地址为: ', phone_url)
-                tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
-                comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
-
-                print('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
+                self.result_data = {}
                 return {}
-
-            elif goods_id[0] == 2:  # 表示京东大药房商品
-                phone_url = 'https://m.yiyaojd.com/ware/view.action?wareId=' + str(goods_id[1])
-                print('------>>>| 得到的移动端地址为: ', phone_url)
-                tmp_url = 'https://m.yiyaojd.com/ware/detail.json?wareId=' + str(goods_id[1])
-                comment_url = 'https://m.yiyaojd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
-
+            phone_url, tmp_url, comment_url = self._get_need_url(goods_id=goods_id)
             # print(tmp_url)
+
             change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
             if change_ip_result is False:
                 print('phantomjs切换ip错误, 此处先跳过更新！')
@@ -144,9 +124,7 @@ class JdParse(object):
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
                 # pass
             comment_body = self.driver.page_source
-            comment_body = re.compile(r'\n').sub('', comment_body)
-            comment_body = re.compile(r'\t').sub('', comment_body)
-            comment_body = re.compile(r'  ').sub('', comment_body)
+            comment_body = self._wash_url_body(body=comment_body)
 
             comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
             all_sell_count = '0'
@@ -174,10 +152,7 @@ class JdParse(object):
                 print('-->>time out after 15 seconds when loading page')
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
                 # pass
-            body = self.driver.page_source
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
+            body = self._wash_url_body(body=self.driver.page_source)
             # print(body)
 
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
@@ -250,11 +225,7 @@ class JdParse(object):
         data = self.result_data
         if data != {}:
             # 店铺名称
-            had_shop_name = data.get('shopInfo', {}).get('shop')  # 店铺名字有为空的情况
-            if had_shop_name is not None:
-                shop_name = data.get('shopInfo', {}).get('shop', {}).get('name', '')
-            else:
-                shop_name = ''
+            shop_name = self._get_shop_name(data=data)
 
             # 掌柜
             account = ''
@@ -269,13 +240,7 @@ class JdParse(object):
             # 商品库存
 
             # 商品标签属性名称,  以及商品标签属性对应的值(这个先不做)
-            detail_name_list = []
-            if data.get('skuColorSize', {}).get('colorSizeTitle', {}) != {}:
-                tmp_detail_name_list = data.get('skuColorSize', {}).get('colorSizeTitle', {})
-                for key in tmp_detail_name_list.keys():
-                    tmp = {}
-                    tmp['spec_name'] = tmp_detail_name_list[key]
-                    detail_name_list.append(tmp)
+            detail_name_list = self._get_detail_name_list(data=data)
             # print(detail_name_list)
 
             '''
@@ -404,6 +369,39 @@ class JdParse(object):
             print('待处理的data为空的dict')
             return {}
 
+    def _get_need_url(self, goods_id):
+        '''
+        获取需求的url
+        :param goods_id:
+        :return:
+        '''
+        phone_url = ''
+        tmp_url = ''
+        comment_url = ''
+        if goods_id[0] == 0:  # 表示为京东常规商品
+            phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id[1])
+            print('------>>>| 得到的移动端地址为: ', phone_url)
+            # 用于得到常规信息
+            tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id[1])
+            comment_url = 'https://item.m.jd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
+
+        elif goods_id[0] == 1:  # 表示为京东全球购商品 (此处由于进口关税无法计算先不处理京东全球购)
+            phone_url = 'https://mitem.jd.hk/ware/view.action?wareId=' + str(goods_id[1])
+            print('------>>>| 得到的移动端地址为: ', phone_url)
+            tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
+            comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
+
+            print('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
+            return {}
+
+        elif goods_id[0] == 2:  # 表示京东大药房商品
+            phone_url = 'https://m.yiyaojd.com/ware/view.action?wareId=' + str(goods_id[1])
+            print('------>>>| 得到的移动端地址为: ', phone_url)
+            tmp_url = 'https://m.yiyaojd.com/ware/detail.json?wareId=' + str(goods_id[1])
+            comment_url = 'https://m.yiyaojd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
+
+        return phone_url, tmp_url, comment_url
+
     def from_ware_id_get_price_info(self, ware_id):
         '''
         得到价格信息，由于过滤了requests所以用phantomjs
@@ -484,6 +482,36 @@ class JdParse(object):
         else:
             # print('获取到的price_data为空!')
             return []
+
+    def _get_shop_name(self, data):
+        '''
+        获取shop_name
+        :param data:
+        :return:
+        '''
+        had_shop_name = data.get('shopInfo', {}).get('shop')  # 店铺名字有为空的情况
+        if had_shop_name is not None:
+            shop_name = data.get('shopInfo', {}).get('shop', {}).get('name', '')
+        else:
+            shop_name = ''
+
+        return shop_name
+
+    def _get_detail_name_list(self, data):
+        '''
+        获取detail_name_list
+        :param data:
+        :return:
+        '''
+        detail_name_list = []
+        if data.get('skuColorSize', {}).get('colorSizeTitle', {}) != {}:
+            tmp_detail_name_list = data.get('skuColorSize', {}).get('colorSizeTitle', {})
+            for key in tmp_detail_name_list.keys():
+                tmp = {}
+                tmp['spec_name'] = tmp_detail_name_list[key]
+                detail_name_list.append(tmp)
+
+        return detail_name_list
 
     def get_price_info_list(self, *params):
         '''
@@ -764,6 +792,18 @@ class JdParse(object):
         )
 
         return params
+
+    def _wash_url_body(self, body):
+        '''
+        清洗body
+        :param body:
+        :return:
+        '''
+        body = re.compile(r'\n').sub('', body)
+        body = re.compile(r'\t').sub('', body)
+        body = re.compile(r'  ').sub('', body)
+
+        return body
 
     def init_phantomjs(self):
         """

@@ -22,15 +22,17 @@ from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING
-from my_phantomjs import MyPhantomjs
 from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 from my_utils import get_miaosha_begin_time_and_miaosha_end_time
+from my_utils import datetime_to_timestamp
+
+from zhe_800_spike import Zhe800Spike
 
 class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.my_phantomjs = MyPhantomjs()
         self.delete_sql_str = r'delete from dbo.zhe_800_xianshimiaosha where goods_id=%s'
+        self.zhe_800_spike = Zhe800Spike()
 
     def _set_headers(self):
         self.headers = {
@@ -53,7 +55,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         sql_str = r'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
-        except TypeError as e:
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
@@ -64,120 +66,125 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             print('--------------------------------------------------------')
 
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-            index = 1
-            for item in result:  # 实时更新数据
-                miaosha_begin_time = json.loads(item[1]).get('miaosha_begin_time')
-                miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time,'%Y-%m-%d %H:%M:%S')))[0:10])
-                # print(miaosha_begin_time)
+            self._update_old_goods_info(tmp_sql_server=tmp_sql_server, result=result)
 
-                data = {}
-                # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                zhe_800_miaosha = Zhe800Parse()
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
-                    if self.is_recent_time(miaosha_begin_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                        print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
-
-                    elif self.is_recent_time(miaosha_begin_time) == 2:
-                        # break       # 跳出循环
-                        pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
-
-                    else:   # 返回1，表示在待更新区间内
-                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                        data['goods_id'] = item[0]
-                        # print('------>>>| 爬取到的数据为: ', data)
-
-                        tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page=1&per_page=1000'.format(
-                            str(item[2])
-                        )
-
-                        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
-                        body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
-
-                        if body_1 != []:
-                            tmp_data = body_1[0]
-                            tmp_data = json.loads(tmp_data)
-                            # pprint(tmp_data)
-
-                            if tmp_data.get('data', {}).get('blocks', []) == []:  # session_id不存在
-                                print('该session_id不存在，此处跳过')
-                                pass
-
-                            else:
-                                tmp_data = [item_s.get('deal', {}) for item_s in tmp_data.get('data', {}).get('blocks', [])]
-                                if tmp_data != []:  # 否则说明里面有数据
-                                    miaosha_goods_list = self.get_miaoshao_goods_info_list(data=tmp_data)
-                                    # pprint(miaosha_goods_list)
-
-                                    # 该session_id中现有的所有zid的list
-                                    miaosha_goods_all_goods_id = [i.get('zid') for i in miaosha_goods_list]
-
-                                    if item[0] not in miaosha_goods_all_goods_id:   # 内部已经下架的
-                                        print('该商品已被下架限时秒杀活动，此处将其删除')
-                                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                        print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                        pass
-
-                                    else:   # 未下架的
-                                        for item_1 in miaosha_goods_list:
-                                            if item_1.get('zid', '') == item[0]:
-                                                zhe_800_miaosha.get_goods_data(goods_id=item[0])
-                                                goods_data = zhe_800_miaosha.deal_with_data()
-
-                                                if goods_data == {}:  # 返回的data为空则跳过
-                                                    pass
-                                                else:  # 否则就解析并且插入
-                                                    goods_data['stock_info'] = item_1.get('stock_info')
-                                                    goods_data['goods_id'] = str(item_1.get('zid'))
-                                                    # goods_data['username'] = '18698570079'
-                                                    if item_1.get('stock_info').get('activity_stock') > 0:
-                                                        goods_data['price'] = item_1.get('price')
-                                                        goods_data['taobao_price'] = item_1.get('taobao_price')
-                                                    else:
-                                                        pass
-                                                    goods_data['sub_title'] = item_1.get('sub_title')
-                                                    goods_data['miaosha_time'] = item_1.get('miaosha_time')
-                                                    goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item_1.get('miaosha_time'))
-
-                                                    # print(goods_data['stock_info'])
-                                                    # print(goods_data['miaosha_time'])
-                                                    zhe_800_miaosha.to_update_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                            else:
-                                                pass
-
-                                else:  # 说明这个sessionid没有数据, 就删除对应这个sessionid的限时秒杀商品
-                                    print('该sessionid没有相关key为jsons的数据')
-                                    # return {}
-                                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                    print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
-                                    pass
-                        else:
-                            print('获取到的data为空!')
-                            # return {}
-                            pass
-
-                else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
-                    pass
-                index += 1
-                # try:
-                #     del tmall
-                # except:
-                #     pass
-                # sleep(.8)
-                gc.collect()
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
             sleep(5)
         # del ali_1688
+
+        return
+
+    def _update_old_goods_info(self, tmp_sql_server, result):
+        '''
+        更新old goods info
+        :param result:
+        :return:
+        '''
+        index = 1
+        for item in result:  # 实时更新数据
+            miaosha_begin_time = json.loads(item[1]).get('miaosha_begin_time')
+            miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')))[0:10])
+            # print(miaosha_begin_time)
+
+            data = {}
+            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+            zhe_800_miaosha = Zhe800Parse()
+            if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                print('正在重置，并与数据库建立新连接中...')
+                tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+                print('与数据库的新连接成功建立...')
+
+            if tmp_sql_server.is_connect_success:
+                if self.is_recent_time(miaosha_begin_time) == 0:
+                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                    print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+
+                elif self.is_recent_time(miaosha_begin_time) == 2:
+                    # break       # 跳出循环
+                    pass  # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
+
+                else:  # 返回1，表示在待更新区间内
+                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                    data['goods_id'] = item[0]
+
+                    try:
+                        tmp_data = self.zhe_800_spike._get_one_session_id_data(base_session_id=str(item[2]))
+                    except Exception as e:
+                        print(e)
+                        continue
+
+                    if tmp_data.get('data', {}).get('blocks', []) == []:  # session_id不存在
+                        print('该session_id不存在，此处跳过')
+                        pass
+
+                    else:
+                        tmp_data = [item_s.get('deal', {}) for item_s in tmp_data.get('data', {}).get('blocks', [])]
+                        if tmp_data != []:  # 否则说明里面有数据
+                            miaosha_goods_list = self.get_miaoshao_goods_info_list(data=tmp_data)
+                            # pprint(miaosha_goods_list)
+
+                            # 该session_id中现有的所有zid的list
+                            miaosha_goods_all_goods_id = [i.get('zid') for i in miaosha_goods_list]
+
+                            if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
+                                print('该商品已被下架限时秒杀活动，此处将其删除')
+                                tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                                print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
+                                pass
+
+                            else:  # 未下架的
+                                for item_1 in miaosha_goods_list:
+                                    if item_1.get('zid', '') == item[0]:
+                                        zhe_800_miaosha.get_goods_data(goods_id=item[0])
+                                        goods_data = zhe_800_miaosha.deal_with_data()
+
+                                        if goods_data == {}:  # 返回的data为空则跳过
+                                            pass
+                                        else:  # 否则就解析并且插入
+                                            goods_data['stock_info'] = item_1.get('stock_info')
+                                            goods_data['goods_id'] = str(item_1.get('zid'))
+                                            # goods_data['username'] = '18698570079'
+                                            if item_1.get('stock_info').get('activity_stock') > 0:
+                                                goods_data['price'] = item_1.get('price')
+                                                goods_data['taobao_price'] = item_1.get('taobao_price')
+                                            else:
+                                                pass
+                                            goods_data['sub_title'] = item_1.get('sub_title')
+                                            goods_data['miaosha_time'] = item_1.get('miaosha_time')
+                                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
+                                                miaosha_time=item_1.get('miaosha_time'))
+
+                                            # print(goods_data['stock_info'])
+                                            # print(goods_data['miaosha_time'])
+                                            zhe_800_miaosha.to_update_zhe_800_xianshimiaosha_table(data=goods_data,
+                                                                                                   pipeline=tmp_sql_server)
+                                    else:
+                                        pass
+
+                        else:  # 说明这个sessionid没有数据, 就删除对应这个sessionid的限时秒杀商品
+                            print('该sessionid没有相关key为jsons的数据')
+                            # return {}
+                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                            print('过期的goods_id为(%s)' % item[0],
+                                  ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+                            pass
+
+            else:  # 表示返回的data值为空值
+                print('数据库连接失败，数据库可能关闭或者维护中')
+                pass
+            index += 1
+            # try:
+            #     del tmall
+            # except:
+            #     pass
+            # sleep(.8)
+            gc.collect()
+        print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         gc.collect()
+
+        return
 
     def is_recent_time(self, timestamp):
         '''
@@ -186,7 +193,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         :return: 0: 已过期恢复原价的 1: 待更新区间内的 2: 未来时间的
         '''
         time_1 = int(timestamp)
-        time_2 = int(time.time())  # 当前的时间戳
+        time_2 = datetime_to_timestamp(get_shanghai_time())  # 当前的时间戳
 
         diff_time = time_1 - time_2
         if diff_time < -259200:     # (为了后台能同步下架)所以设置为 72个小时, 只需要更新过去48小时和对与当前时间的未来2小时的商品信息
@@ -235,9 +242,8 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
 
     def __del__(self):
         try:
-            del self.my_phantomjs
-        except:
-            pass
+            del self.zhe_800_spike
+        except: pass
         gc.collect()
 
 def just_fuck_run():

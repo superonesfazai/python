@@ -53,9 +53,100 @@ class Zhe800Spike(object):
         base_session_id = BASE_SESSION_ID
         while base_session_id < MAX_SESSION_ID:
             print('待抓取的session_id为: ', base_session_id)
+            data = self._get_one_session_id_data(base_session_id=base_session_id)
+            sleep(.2)
 
-            tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page=1&per_page=1000'.format(
-                str(base_session_id)
+            if data.get('data', {}).get('blocks', []) == []:     # session_id不存在
+                pass
+
+            else:                           # 否则session_id存在
+                # begin_times_timestamp = int(time.mktime(time.strptime(begin_times, '%Y-%m-%d %H:%M:%S'))) # 将如 "2017-09-28 10:00:00"的时间字符串转化为时间戳，然后再将时间戳取整
+
+                try:
+                    begin_times_timestamp = int(str(data.get('data', {}).get('blocks', [])[0].get('deal', {}).get('begin_time', ''))[:10])
+                except Exception as e:
+                    print('遇到严重错误: ', e)
+                    continue
+
+                print('秒杀时间为: ', timestamp_to_regulartime(begin_times_timestamp))
+
+                if self.is_recent_time(timestamp=begin_times_timestamp):    # 说明秒杀日期合法
+                    try:
+                        data = [item_s.get('deal', {}) for item_s in data.get('data', {}).get('blocks', [])]
+                    except Exception as e:
+                        print('遇到严重错误: ', e)
+                        continue
+                    # pprint(data)
+
+                    if data != []:  # 否则说明里面有数据
+                        miaosha_goods_list = self.get_miaoshao_goods_info_list(data=data)
+                        # pprint(miaosha_goods_list)
+
+                        zhe_800 = Zhe800Parse()
+                        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                        if my_pipeline.is_connect_success:
+                            sql_str = r'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
+                            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+                            for item in miaosha_goods_list:
+                                if item.get('zid', '') in db_goods_id_list:
+                                    print('该goods_id已经存在于数据库中, 此处跳过')
+                                    pass
+                                else:
+                                    tmp_url = 'https://shop.zhe800.com/products/' + str(item.get('zid', ''))
+                                    goods_id = zhe_800.get_goods_id_from_url(tmp_url)
+
+                                    zhe_800.get_goods_data(goods_id=goods_id)
+                                    goods_data = zhe_800.deal_with_data()
+
+                                    if goods_data == {}:    # 返回的data为空则跳过
+                                        pass
+                                    else:       # 否则就解析并且插入
+                                        goods_data['stock_info'] = item.get('stock_info')
+                                        goods_data['goods_id'] = str(item.get('zid'))
+                                        goods_data['spider_url'] = tmp_url
+                                        goods_data['username'] = '18698570079'
+                                        goods_data['price'] = item.get('price')
+                                        goods_data['taobao_price'] = item.get('taobao_price')
+                                        goods_data['sub_title'] = item.get('sub_title')
+                                        # goods_data['is_baoyou'] = item.get('is_baoyou')
+                                        goods_data['miaosha_time'] = item.get('miaosha_time')
+                                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
+                                        goods_data['session_id'] = str(base_session_id)
+                                        # print(goods_data['miaosha_time'])
+
+                                        # print(goods_data)
+                                        zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                                        sleep(ZHE_800_SPIKE_SLEEP_TIME)   # 放慢速度
+
+                            # sleep(2)
+                        else:
+                            pass
+                        try:
+                            del zhe_800
+                        except:
+                            pass
+                        gc.collect()
+
+                    else:       # 说明这个sessionid没有数据
+                        print('该sessionid没有相关key为jsons的数据')
+                        # return {}
+                        pass
+                else:
+                    pass
+
+            base_session_id += 2
+
+    def _get_one_session_id_data(self, base_session_id):
+        '''
+        得到一个session_id的data
+        :param base_session_id:
+        :return:
+        '''
+        _data = []
+        for _page in range(1, 20):
+            '''per_page为20固定，其他不返回数据'''
+            tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page={1}&per_page=20'.format(
+                str(base_session_id), _page
             )
 
             body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
@@ -67,90 +158,27 @@ class Zhe800Spike(object):
                 data = json.loads(data)
                 # pprint(data)
 
-                if data.get('data', {}).get('blocks', []) == []:     # session_id不存在
+                # print(type(data.get('data', {}).get('has_next')))
+                if data.get('msg', '') == '无效场次':
                     print('该session_id不存在，此处跳过')
-                    pass
+                    break
 
-                else:                           # 否则session_id存在
-                    # begin_times_timestamp = int(time.mktime(time.strptime(begin_times, '%Y-%m-%d %H:%M:%S'))) # 将如 "2017-09-28 10:00:00"的时间字符串转化为时间戳，然后再将时间戳取整
+                if not data.get('data', {}).get('has_next', True):
+                    print('该session_id没有下页了!!')
+                    break
+                else:
+                    print('正在抓取该session_id的第 {0} 页...'.format(_page))
 
-                    try:
-                        begin_times_timestamp = int(str(data.get('data', {}).get('blocks', [])[0].get('deal', {}).get('begin_time', ''))[:10])
-                    except Exception as e:
-                        print('遇到严重错误: ', e)
-                        continue
+                for _i in data.get('data', {}).get('blocks', []):
+                    _data.append(_i)
 
-                    print('秒杀时间为: ', timestamp_to_regulartime(begin_times_timestamp))
+            sleep(.2)
 
-                    if self.is_recent_time(timestamp=begin_times_timestamp):    # 说明秒杀日期合法
-                        try:
-                            data = [item_s.get('deal', {}) for item_s in data.get('data', {}).get('blocks', [])]
-                        except Exception as e:
-                            print('遇到严重错误: ', e)
-                            continue
-                        # pprint(data)
-
-                        if data != []:  # 否则说明里面有数据
-                            miaosha_goods_list = self.get_miaoshao_goods_info_list(data=data)
-                            # pprint(miaosha_goods_list)
-
-                            zhe_800 = Zhe800Parse()
-                            my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                            if my_pipeline.is_connect_success:
-                                sql_str = r'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
-                                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
-                                for item in miaosha_goods_list:
-                                    if item.get('zid', '') in db_goods_id_list:
-                                        print('该goods_id已经存在于数据库中, 此处跳过')
-                                        pass
-                                    else:
-                                        tmp_url = 'https://shop.zhe800.com/products/' + str(item.get('zid', ''))
-                                        goods_id = zhe_800.get_goods_id_from_url(tmp_url)
-
-                                        zhe_800.get_goods_data(goods_id=goods_id)
-                                        goods_data = zhe_800.deal_with_data()
-
-                                        if goods_data == {}:    # 返回的data为空则跳过
-                                            pass
-                                        else:       # 否则就解析并且插入
-                                            goods_data['stock_info'] = item.get('stock_info')
-                                            goods_data['goods_id'] = str(item.get('zid'))
-                                            goods_data['spider_url'] = tmp_url
-                                            goods_data['username'] = '18698570079'
-                                            goods_data['price'] = item.get('price')
-                                            goods_data['taobao_price'] = item.get('taobao_price')
-                                            goods_data['sub_title'] = item.get('sub_title')
-                                            # goods_data['is_baoyou'] = item.get('is_baoyou')
-                                            goods_data['miaosha_time'] = item.get('miaosha_time')
-                                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
-                                            goods_data['session_id'] = str(base_session_id)
-                                            # print(goods_data['miaosha_time'])
-
-                                            # print(goods_data)
-                                            zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                                            sleep(ZHE_800_SPIKE_SLEEP_TIME)   # 放慢速度
-
-                                # sleep(2)
-                            else:
-                                pass
-                            try:
-                                del zhe_800
-                            except:
-                                pass
-                            gc.collect()
-
-                        else:       # 说明这个sessionid没有数据
-                            print('该sessionid没有相关key为jsons的数据')
-                            # return {}
-                            pass
-                    else:
-                        pass
-
-            else:
-                print('获取到的data为空!')
-                # return {}
-                pass
-            base_session_id += 2
+        return {
+            'data': {
+                'blocks': _data,
+            }
+        }
 
     def get_miaoshao_goods_info_list(self, data):
         '''

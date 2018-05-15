@@ -31,7 +31,8 @@ create table dbo.zhe_800_xianshimiaosha(
 	schedule nvarchar(500),
 	stock_info nvarchar(500),
 	miaosha_time nvarchar(500),
-	session_id varchar(40)
+	session_id varchar(40),
+	page int
 );
 
 -- 创建juanpi_xianshimiaosha表

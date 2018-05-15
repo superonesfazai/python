@@ -560,6 +560,48 @@ class TmallParse(object):
         sql_str = r'insert into dbo.tao_qianggou_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, miaosha_time, miaosha_begin_time, miaosha_end_time, page, spider_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
+    async def _update_taoqianggou_xianshimiaosha_table(self, data, pipeline):
+        '''
+        update对应表的数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        data_list = data
+        tmp = {}
+        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+
+        now_time = get_shanghai_time()
+        tmp['modfiy_time'] = now_time  # 修改时间
+
+        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['title'] = data_list['title']  # 商品名称
+        tmp['sub_title'] = data_list['sub_title']
+
+        # 设置最高价price， 最低价taobao_price
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+        tmp['p_info'] = data_list.get('p_info')  # 详细信息
+        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+        tmp['schedule'] = data_list.get('schedule')
+
+        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+        # print('is_delete=', tmp['is_delete'])
+
+        # print('------>>> | 待存储的数据信息为: |', tmp)
+        self.my_lg.info('------>>>| 待存储的数据信息为: %s' % tmp.get('goods_id'))
+
+        params = await self._get_db_update_miaosha_params(item=tmp)
+        sql_str = r'update dbo.tao_qianggou_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s where goods_id = %s'
+        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+        return
+
     def _get_db_update_params(self, item):
         '''
         得到db待更新的数据
@@ -623,6 +665,31 @@ class TmallParse(object):
 
             item['site_id'],
             item['is_delete'],
+        )
+
+        return params
+
+    async def _get_db_update_miaosha_params(self, item):
+        '''
+        规范待插入数据
+        :param item:
+        :return:
+        '''
+        params = (
+            item['modfiy_time'],
+            item['shop_name'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['is_delete'],
+            dumps(item['schedule'], ensure_ascii=False),
+            item['goods_id'],
         )
 
         return params

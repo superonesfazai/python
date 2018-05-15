@@ -22,6 +22,7 @@ __all__ = [
     'daemon_init',                                      # 守护进程
     'timestamp_to_regulartime',                         # 时间戳转规范的时间字符串
     'string_to_datetime',                               # 将字符串转换成时间
+    'datetime_to_timestamp',                            # datetime转timestamp
     'restart_program',                                  # 初始化避免异步导致log重复打印
     'process_exit',                                     # 判断进程是否存在
     '_get_url_contain_params',                          # 根据params组合得到包含params的url
@@ -117,6 +118,14 @@ def string_to_datetime(string):
     :return:
     '''
     return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
+
+def datetime_to_timestamp(_dateTime):
+    '''
+    把datetime类型转外时间戳形式
+    :param _dateTime:
+    :return: int
+    '''
+    return int(time.mktime(_dateTime.timetuple()))
 
 def restart_program():
     '''

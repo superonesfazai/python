@@ -181,10 +181,7 @@ class JuanPiParse(object):
         data = self.result_data
         if data != {}:
             # 店铺名称
-            if data.get('brand_info') is not None:
-                shop_name = data.get('brand_info', {}).get('title', '')
-            else:
-                shop_name = data.get('schedule_info', {}).get('brand_title', '')
+            shop_name = self._get_shop_name(data=data)
 
             # 掌柜
             account = ''
@@ -198,105 +195,16 @@ class JuanPiParse(object):
             # 商品库存
 
             # 商品标签属性名称
-            sku = data.get('skudata', {}).get('sku', [])
-            # pprint(sku)
-            detail_name_list = []
-            if sku != []:
-                try:
-                    if sku[0].get('av_fvalue', '') == '':
-                        fav_name = ''
-                        pass
-                    else:
-                        tmp = {}
-                        fav_name = data.get('skudata', {}).get('info', {}).get('fav_name', '')
-                        tmp['spec_name'] = fav_name
-                        detail_name_list.append(tmp)
-                except IndexError:
-                    print('IndexError错误，此处跳过!')
-                    return {}
-
-                if sku[0].get('av_zvalue', '') == '':
-                    zav_name = ''
-                else:
-                    tmp = {}
-                    zav_name = data.get('skudata', {}).get('info', {}).get('zav_name', '')
-                    tmp['spec_name'] = zav_name
-                    detail_name_list.append(tmp)
+            detail_name_list = self._get_detail_name_list(data=data)
+            if detail_name_list == {}:
+                self.result_data = {}
+                return {}
             # print(detail_name_list)
 
             # 商品标签属性对应的值(pass不采集)
 
-            # 是否下架的初始化
-            is_delete = 0
-
             # 要存储的每个标签对应的规格的价格及其库存
-            sku = data.get('skudata', {}).get('sku', [])    # 分析得到sku肯定不为[]
-            # pprint(sku)
-            price_info_list = []
-            if len(sku) == 1 and sku[0].get('av_fvalue', '') == '' and sku[0].get('av_zvalue') == '':   # 没有规格的默认只有一个{}
-                # 最高价
-                price = round(float(sku[0].get('cprice')), 2)
-                # 最低价
-                taobao_price = price
-
-            else:   # 有规格的
-                # 通过'stock'='1'来判断是否有库存, ='0'表示无库存
-                # '由于卷皮不给返回库存值, 所以 'stock_tips'='库存紧张', 我就设置剩余库存为10, 如果'stock_tips'='', 就默认设置库存量为50
-                # print('777')
-                for item in sku:
-                    tmp = {}
-                    tmp_1 = []
-                    if item.get('av_fvalue', '') == '':
-                        pass
-                    else:
-                        tmp_1.append(item.get('av_fvalue'))
-
-                    if item.get('av_zvalue', '') == '':
-                        pass
-                    else:
-                        tmp_1.append(item.get('av_zvalue'))
-                    tmp_1 = '|'.join(tmp_1)
-
-                    if item.get('av_origin_zpic', '') != '':
-                        tmp['img_url'] = item.get('av_origin_zpic', '')
-                    else:
-                        tmp['img_url'] = ''
-
-                    if item.get('cprice', '') != '':
-                        tmp['pintuan_price'] = item.get('cprice')
-                        tmp['detail_price'] = item.get('sprice', '')
-                        tmp['normal_price'] = item.get('price')
-                    else:
-                        tmp['pintuan_price'] = item.get('price')
-                        if item.get('sprice', '') != '':
-                            tmp['detail_price'] = item.get('sprice', '')
-                        else:
-                            tmp['detail_price'] = item.get('price')
-                        tmp['normal_price'] = item.get('price')
-
-                    if item.get('stock') == '0':    # 跳过
-                        rest_number = '0'
-                    else:   # 即'stock'='1'
-                        rest_number = '50'
-
-                        if item.get('stock_tips', '') != '' and item.get('stock_tips', '') == '库存紧张':
-                            # 库存紧张的时候设置下
-                            rest_number = '10'
-
-                        tmp['spec_value'] = tmp_1
-                        tmp['rest_number'] = rest_number
-                        price_info_list.append(tmp)
-
-                # 得到有规格时的最高价和最低价
-                tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in price_info_list])
-                # print(tmp_price_list)
-                if tmp_price_list == []:
-                    is_delete = 1       # 没有获取到价格说明商品已经下架了
-                    price = 0
-                    taobao_price = 0
-                else:
-                    price = tmp_price_list[-1]  # 商品价格
-                    taobao_price = tmp_price_list[0]  # 淘宝价
+            price_info_list, price, taobao_price = self._get_price_info_list_and_price_and_taobao_price(data=data)
             # print('最高价为: ', price)
             # print('最低价为: ', taobao_price)
             # pprint(price_info_list)
@@ -307,47 +215,21 @@ class JuanPiParse(object):
             # print(all_img_url)
 
             # 详细信息标签名对应的属性
-            p_info = []
-            attr = data.get('goodsDetail', {}).get('attr', [])
-            # print(attr)
-            if attr != []:
-                # item是str时跳过
-                p_info = [{'p_name': item.get('st_key'), 'p_value': item.get('st_value')} for item in attr if isinstance(item, dict)]
-                for item in p_info:
-                    if item.get('p_name') == '运费':
-                        # 过滤掉颜色的html代码
-                        item['p_value'] = '全国包邮(偏远地区除外)'
+            p_info = self._get_p_info(data=data)
 
-                    # 过滤清洗
-                    tmp_p_value = item.get('p_value', '')
-                    tmp_p_value = re.compile(r'\xa0').sub(' ', tmp_p_value)     # 替换为一个空格
-                    item['p_value'] = tmp_p_value
             # pprint(p_info)
 
             # div_desc
-            div_images_list = data.get('goodsDetail', {}).get('images', [])
-            tmp_div_desc = ''
-            for item in div_images_list:
-                tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(item)
-                tmp_div_desc += tmp
-            div_desc = '<div>' + tmp_div_desc + '</div>'
+            div_desc = self._get_div_desc(data=data)
             # print(div_desc)
 
             # 商品销售时间段
-            # print(data.get('skudata', {}).get('info', {}))
-            # print(data.get('skudata', {}))
-            begin_time = data.get('skudata', {}).get('info', {}).get('start_time')  # 取这个时间段才是正确的销售时间, 之前baseInfo是虚假的
-            end_time = data.get('skudata', {}).get('info', {}).get('end_time')
-            if begin_time is None or end_time is None:
-                schedule = []
-            else:
-                schedule = [{
-                    'begin_time': timestamp_to_regulartime(begin_time),
-                    'end_time': timestamp_to_regulartime(end_time),
-                }]
+            schedule = self._get_goods_schedule(data=data)
             # pprint(schedule)
 
             is_delete = self._get_is_delete(data=data, schedule=schedule)
+            if price == 0 or taobao_price == 0:     # 没有获取到价格说明商品已经下架了
+                is_delete = 1
             # print(is_delete)
 
             result = {
@@ -631,6 +513,184 @@ class JuanPiParse(object):
         sql_str = r'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s'
         pipeline._update_table(sql_str=sql_str, params=params)
 
+    def _get_shop_name(self, data):
+        '''
+        获取shop_name
+        :param data:
+        :return:
+        '''
+        if data.get('brand_info') is not None:
+            shop_name = data.get('brand_info', {}).get('title', '')
+        else:
+            shop_name = data.get('schedule_info', {}).get('brand_title', '')
+
+        return shop_name
+
+    def _get_detail_name_list(self, data):
+        '''
+        获取detail_name_list
+        :param data:
+        :return: {} 表示出错 | [] 非空正常
+        '''
+        sku = data.get('skudata', {}).get('sku', [])
+        # pprint(sku)
+        detail_name_list = []
+        if sku != []:
+            try:
+                if sku[0].get('av_fvalue', '') == '':
+                    fav_name = ''
+                    pass
+                else:
+                    tmp = {}
+                    fav_name = data.get('skudata', {}).get('info', {}).get('fav_name', '')
+                    tmp['spec_name'] = fav_name
+                    detail_name_list.append(tmp)
+            except IndexError:
+                print('IndexError错误，此处跳过!')
+                return {}
+
+            if sku[0].get('av_zvalue', '') == '':
+                zav_name = ''
+            else:
+                tmp = {}
+                zav_name = data.get('skudata', {}).get('info', {}).get('zav_name', '')
+                tmp['spec_name'] = zav_name
+                detail_name_list.append(tmp)
+
+        return detail_name_list
+
+    def _get_price_info_list_and_price_and_taobao_price(self, data):
+        '''
+        获取price_info_list, price, taobao_price
+        :param data:
+        :return: a tuple
+        '''
+        sku = data.get('skudata', {}).get('sku', [])  # 分析得到sku肯定不为[]
+        # pprint(sku)
+        price_info_list = []
+        if len(sku) == 1 and sku[0].get('av_fvalue', '') == '' and sku[0].get('av_zvalue') == '':  # 没有规格的默认只有一个{}
+            # price最高价, taobao_price最低价
+            price = round(float(sku[0].get('cprice')), 2)
+            taobao_price = price
+
+        else:  # 有规格的
+            # 通过'stock'='1'来判断是否有库存, ='0'表示无库存
+            # '由于卷皮不给返回库存值, 所以 'stock_tips'='库存紧张', 我就设置剩余库存为10, 如果'stock_tips'='', 就默认设置库存量为50
+            # print('777')
+            for item in sku:
+                tmp = {}
+                tmp_1 = []
+                if item.get('av_fvalue', '') == '':
+                    pass
+                else:
+                    tmp_1.append(item.get('av_fvalue'))
+
+                if item.get('av_zvalue', '') == '':
+                    pass
+                else:
+                    tmp_1.append(item.get('av_zvalue'))
+                tmp_1 = '|'.join(tmp_1)
+
+                if item.get('av_origin_zpic', '') != '':
+                    tmp['img_url'] = item.get('av_origin_zpic', '')
+                else:
+                    tmp['img_url'] = ''
+
+                if item.get('cprice', '') != '':
+                    tmp['pintuan_price'] = item.get('cprice')
+                    tmp['detail_price'] = item.get('sprice', '')
+                    tmp['normal_price'] = item.get('price')
+                else:
+                    tmp['pintuan_price'] = item.get('price')
+                    if item.get('sprice', '') != '':
+                        tmp['detail_price'] = item.get('sprice', '')
+                    else:
+                        tmp['detail_price'] = item.get('price')
+                    tmp['normal_price'] = item.get('price')
+
+                if item.get('stock') == '0':  # 跳过
+                    rest_number = '0'
+                else:  # 即'stock'='1'
+                    rest_number = '50'
+
+                    if item.get('stock_tips', '') != '' and item.get('stock_tips', '') == '库存紧张':
+                        # 库存紧张的时候设置下
+                        rest_number = '10'
+
+                    tmp['spec_value'] = tmp_1
+                    tmp['rest_number'] = rest_number
+                    price_info_list.append(tmp)
+
+            # 得到有规格时的最高价和最低价
+            tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in price_info_list])
+            # print(tmp_price_list)
+            if tmp_price_list == []:
+                price = 0
+                taobao_price = 0
+            else:
+                price = tmp_price_list[-1]  # 商品价格
+                taobao_price = tmp_price_list[0]  # 淘宝价
+
+        return price_info_list, price, taobao_price
+
+    def _get_p_info(self, data):
+        '''
+        获取p_info
+        :param data:
+        :return:
+        '''
+        p_info = []
+        attr = data.get('goodsDetail', {}).get('attr', [])
+        # print(attr)
+        if attr != []:
+            # item是str时跳过
+            p_info = [{'p_name': item.get('st_key'), 'p_value': item.get('st_value')} for item in attr if isinstance(item, dict)]
+            for item in p_info:
+                if item.get('p_name') == '运费':
+                    # 过滤掉颜色的html代码
+                    item['p_value'] = '全国包邮(偏远地区除外)'
+
+                # 过滤清洗
+                tmp_p_value = item.get('p_value', '')
+                tmp_p_value = re.compile(r'\xa0').sub(' ', tmp_p_value)  # 替换为一个空格
+                item['p_value'] = tmp_p_value
+
+        return p_info
+
+    def _get_div_desc(self, data):
+        '''
+        获取div_desc
+        :param data:
+        :return:
+        '''
+        div_images_list = data.get('goodsDetail', {}).get('images', [])
+        tmp_div_desc = ''
+        for item in div_images_list:
+            tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(item)
+            tmp_div_desc += tmp
+
+        return '<div>' + tmp_div_desc + '</div>'
+
+    def _get_goods_schedule(self, data):
+        '''
+        获取商品销售时间段
+        :param data:
+        :return:
+        '''
+        # print(data.get('skudata', {}).get('info', {}))
+        # print(data.get('skudata', {}))
+        begin_time = data.get('skudata', {}).get('info', {}).get('start_time')  # 取这个时间段才是正确的销售时间, 之前baseInfo是虚假的
+        end_time = data.get('skudata', {}).get('info', {}).get('end_time')
+        if begin_time is None or end_time is None:
+            schedule = []
+        else:
+            schedule = [{
+                'begin_time': timestamp_to_regulartime(begin_time),
+                'end_time': timestamp_to_regulartime(end_time),
+            }]
+
+        return schedule
+
     def _get_is_delete(self, data, schedule):
         '''
         得到商品的上下架状态
@@ -648,10 +708,8 @@ class JuanPiParse(object):
                 先判断如果baseInfo中的end_time=='0'表示已经下架
                 '''
                 # base_info_end_time = data.get('baseInfo', {}).get('end_time')
-                # self.my_lg.info(data.get('baseInfo', {}))
                 # self.my_lg.info(base_info_end_time)
                 # if base_info_end_time == '0':
-                #     print('test2')
                 #     is_delete = 1
                 pass
 
