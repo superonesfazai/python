@@ -38,6 +38,7 @@ from my_logging import set_logger
 from my_utils import get_shanghai_time
 from my_items import GoodsItem
 from my_utils import daemon_init
+from my_signature import Signature
 
 import hashlib
 import json
@@ -85,6 +86,8 @@ my_lg = set_logger(
     console_log_level=INFO,
     file_log_level=ERROR
 )
+
+Sign = Signature()
 
 ######################################################
 
@@ -3634,10 +3637,11 @@ def get_basic_data():
 
         return result
 
-# @app.route('/basic_data_2', methods=['POST'])
-# @Sign.signature_required
-# def _get_basic_data_2():
-#     pass
+@app.route('/basic_data_2', methods=['GET', 'POST'])
+@Sign.signature_required
+def _get_basic_data_2():
+    # 正确请求将返回以下内容，否则将被signature_required拦截，返回请求验证信息： {"msg": "Invaild message", "success": False}
+    return json.dumps({'ping':"pong"})
 
 def _is_taobao_url(wait_to_deal_with_url):
     '''
