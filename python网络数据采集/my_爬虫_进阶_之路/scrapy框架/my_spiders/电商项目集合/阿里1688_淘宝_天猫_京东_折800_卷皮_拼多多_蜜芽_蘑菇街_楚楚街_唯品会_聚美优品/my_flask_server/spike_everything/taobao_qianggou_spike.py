@@ -14,27 +14,38 @@
 import sys
 sys.path.append('..')
 
-import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
 from time import sleep
-import datetime
 import gc
 from logging import INFO, ERROR
 import asyncio
 
-from settings import HEADERS, MY_SPIDER_LOGS_PATH, TAOBAO_QIANGGOU_SPIDER_HOUR_LIST
-from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING
-from settings import TMALL_SLEEP_TIME
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime, restart_program
-from my_utils import get_miaosha_begin_time_and_miaosha_end_time
+from settings import (
+    HEADERS,
+    MY_SPIDER_LOGS_PATH,
+    TAOBAO_QIANGGOU_SPIDER_HOUR_LIST,
+    PHANTOMJS_DRIVER_PATH,
+    IS_BACKGROUND_RUNNING,
+    TMALL_REAL_TIMES_SLEEP_TIME
+)
+from my_pipeline import (
+    SqlServerMyPageInfoSaveItemPipeline,
+    SqlPools
+)
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+    timestamp_to_regulartime,
+    restart_program,
+    get_miaosha_begin_time_and_miaosha_end_time,
+    calculate_right_sign,
+    get_taobao_sign_and_body
+)
 from my_logging import set_logger
-from my_utils import calculate_right_sign, get_taobao_sign_and_body
 
 from taobao_parse import TaoBaoLoginAndParse
 from tmall_parse_2 import TmallParse
@@ -74,7 +85,7 @@ class TaoBaoQiangGou(object):
         _data = []
         _ = await self.get_crawl_time()
         for spider_time in _:
-            self.my_lg.info('### 正在抓取的时间点为 {0} ###'.format(await self._get_right_str_time(spider_time)))
+            self.my_lg.info('### 正在抓取的时间点为 {0} ###'.format(self._get_right_str_time(spider_time)))
             for page in range(1, 100, 1):
                 self.my_lg.info('正在抓取第 {0} 页...'.format(page))
 
@@ -138,6 +149,7 @@ class TaoBaoQiangGou(object):
 
                 for tmp_item in miaosha_goods_list:
                     if tmp_item.get('goods_id', '') in db_all_goods_id:    # 处理如果该goods_id已经存在于数据库中的情况
+                        self.my_lg.info('该goods_id[%s]已存在db中' % tmp_item.get('goods_id', ''))
                         continue
 
                     if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
@@ -164,7 +176,10 @@ class TaoBaoQiangGou(object):
                             goods_data['spider_time'] = tmp_item.get('spider_time')
 
                             tmall.insert_into_taoqianggou_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                            await asyncio.sleep(TMALL_SLEEP_TIME)
+                            await asyncio.sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+
+                        else:
+                            await asyncio.sleep(5)
 
                         try: del tmall
                         except: pass
@@ -258,8 +273,8 @@ class TaoBaoQiangGou(object):
                     'page': item.get('page'),
                     'spider_time': item.get('spider_time'),
                     'miaosha_time': {
-                        'miaosha_begin_time': await self._get_right_str_time(item.get('startTime', '')),
-                        'miaosha_end_time': await self._get_right_str_time(item.get('endTime', '')),
+                        'miaosha_begin_time': self._get_right_str_time(item.get('startTime', '')),
+                        'miaosha_end_time': self._get_right_str_time(item.get('endTime', '')),
                     },
                 } for item in data]
             except Exception as e:
@@ -274,7 +289,7 @@ class TaoBaoQiangGou(object):
         '''
         return [str(get_shanghai_time())[0:10].replace('-', '')+item+'00' for item in TAOBAO_QIANGGOU_SPIDER_HOUR_LIST]
 
-    async def _get_right_str_time(self, str_time):
+    def _get_right_str_time(self, str_time):
         '''
         将字符串格式'201805051000'转换为'2018-05-05 10:00:00'
         :param str_time:
@@ -305,7 +320,7 @@ def just_fuck_run():
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         restart_program()   # 通过这个重启环境, 避免log重复打印
-        sleep(60*5)
+        sleep(60*10)
 
 def main():
     '''

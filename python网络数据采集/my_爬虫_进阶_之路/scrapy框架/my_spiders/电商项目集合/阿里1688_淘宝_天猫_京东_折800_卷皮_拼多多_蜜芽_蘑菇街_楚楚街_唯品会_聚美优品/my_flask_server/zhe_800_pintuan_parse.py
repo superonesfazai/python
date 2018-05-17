@@ -53,7 +53,7 @@ class Zhe800PintuanParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'pina.m.zhe800.com',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],  # 随机一个请求头
             # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
         }
 
@@ -348,7 +348,6 @@ class Zhe800PintuanParse(object):
                 'is_delete': is_delete                  # 用于判断商品是否已经下架
             }
             # pprint(result)
-            # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
@@ -546,11 +545,7 @@ class Zhe800PintuanParse(object):
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             tmp_body = ''
 
-        # 清洗
-        tmp_body = re.compile(r'<div class=\"by_deliver\">.*?</div></div>').sub('', tmp_body)
-        tmp_body = re.compile(r'src=.*? />').sub('/>', tmp_body)
-        tmp_body = re.compile(r'data-url=').sub('src=\"', tmp_body)
-        tmp_body = re.compile(r' />').sub('\" style="height:auto;width:100%;"/>', tmp_body)
+        tmp_body = self._wash_div_desc(tmp_body=tmp_body)
 
         if tmp_body != '':
             tmp_body = '<div>' + tmp_body + '</div>'
@@ -605,6 +600,15 @@ class Zhe800PintuanParse(object):
             tmp_stock_info = {}
 
         return tmp_stock_info
+
+    def _wash_div_desc(self, tmp_body):
+        # 清洗
+        tmp_body = re.compile(r'<div class=\"by_deliver\">.*?</div></div>').sub('', tmp_body)
+        tmp_body = re.compile(r'src=.*? />').sub('/>', tmp_body)
+        tmp_body = re.compile(r'data-url=').sub('src=\"', tmp_body)
+        tmp_body = re.compile(r' />').sub('\" style="height:auto;width:100%;"/>', tmp_body)
+
+        return tmp_body
 
     def timestamp_to_regulartime(self, timestamp):
         '''

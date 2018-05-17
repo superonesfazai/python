@@ -105,7 +105,7 @@ class TmallParse(object):
         try:
             assert body != '', '获取到的body为空值, 此处跳过! 出错type %s: , goods_id: %s' % (str(type), goods_id)
             data = re.compile('mtopjsonp3\((.*)\)').findall(body)[0]  # 贪婪匹配匹配所有
-        except AssertionError or IndexError as e:
+        except (AssertionError, IndexError) as e:
             self.my_lg.exception(e)
             self.result_data = {}
             return {}

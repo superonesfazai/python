@@ -30,6 +30,8 @@ __all__ = [
     'tuple_or_list_params_2_dict_params',               # tuple和list类型的params转dict类型的params
     '_json_str_to_dict',                                # json转dict
     '_green',                                           # 将字体变成绿色
+    'delete_list_null_str',                             # 删除list中的空str
+    'kill_process_by_name',                             # 根据进程名杀掉对应进程
 
     '_get_price_change_info',                           # 公司用来记录价格改变信息
     'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
@@ -386,3 +388,31 @@ def get_miaosha_begin_time_and_miaosha_end_time(miaosha_time):
     miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
 
     return miaosha_begin_time, miaosha_end_time
+
+def delete_list_null_str(_list):
+    '''
+    删除list中的所有空str
+    :param _list:
+    :return:
+    '''
+    while '' in _list:
+        _list.remove('')
+
+    return _list
+
+def kill_process_by_name(process_name):
+    '''
+    根据进程名杀掉对应进程
+    :param process_name: str
+    :return:
+    '''
+    if process_exit(process_name) > 0:
+        try:
+            process_check_response = delete_list_null_str(os.popen('ps aux | grep ' + process_name).readlines()[0].split(' '))[1]
+            os.system('kill -9 %s' % process_check_response)
+            print('该进程名%s, pid = %s, 进程kill完毕!!' % (process_name, process_check_response))
+
+        except Exception as e:
+            print(e)
+    else:
+        print('进程[%s]不存在' % process_name)

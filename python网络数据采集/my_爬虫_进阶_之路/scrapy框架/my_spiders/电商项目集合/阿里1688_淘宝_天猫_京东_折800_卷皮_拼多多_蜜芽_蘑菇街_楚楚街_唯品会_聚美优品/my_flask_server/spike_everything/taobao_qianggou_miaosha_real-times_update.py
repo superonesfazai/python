@@ -126,6 +126,8 @@ class TaoBaoQiangGouRealTimesUpdate(object):
 
                         await tmall._update_taoqianggou_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
                         await asyncio.sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+                    else:
+                        await asyncio.sleep(5)
 
                 index += 1
 
@@ -173,7 +175,7 @@ def just_fuck_run():
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         restart_program()   # 通过这个重启环境, 避免log重复打印
-        sleep(60*5)
+        sleep(60*10)
 
 def main():
     '''

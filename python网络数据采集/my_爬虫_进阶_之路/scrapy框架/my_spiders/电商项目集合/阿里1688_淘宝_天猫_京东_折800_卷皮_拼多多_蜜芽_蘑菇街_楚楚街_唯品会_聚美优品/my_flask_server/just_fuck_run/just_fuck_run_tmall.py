@@ -8,19 +8,26 @@
 '''
 
 import sys
-
 sys.path.append('..')
 
-from my_utils import daemon_init, process_exit
+from my_utils import (
+    daemon_init,
+    process_exit,
+    get_shanghai_time,
+    kill_process_by_name
+)
 
 from time import sleep
-import datetime
-import re
 import os
 
 tejia_file_name_list = [
     # 'taobao_tiantiantejia',
     # 'taobao_tiantiantejia_real-times_update',
+]
+
+spike_file_name_list = [
+    'taobao_qianggou_spike',
+    'taobao_qianggou_miaosha_real-times_update',
 ]
 
 real_file_name_list = [
@@ -50,8 +57,25 @@ def auto_run(*params):
 
     run_one_file_name_list(path=params[0], file_name_list=tejia_file_name_list)
     run_one_file_name_list(path=params[1], file_name_list=logs_file_name_list)
-    run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
     run_one_file_name_list(path=params[3], file_name_list=server_file_name_list)
+
+    if str(get_shanghai_time())[11:13] in ['06', '07', '08', '09', '10', '11', '12']:
+        # kill冲突进程
+        [kill_process_by_name(process_name) for process_name in spike_file_name_list]
+        # 运行tmall常规商品更新script
+        run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
+
+    if str(get_shanghai_time())[11:13] in ['18', '19', '20', '21', '22', '23', '00']:
+        # 单独运行淘抢购抓取script
+        [kill_process_by_name(process_name) for process_name in real_file_name_list]
+        [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]
+        run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[0]])
+
+    if str(get_shanghai_time())[11:13] in ['13', '14', '15', '16', '17']:
+        [kill_process_by_name(process_name) for process_name in real_file_name_list]
+        [kill_process_by_name(process_name) for process_name in spike_file_name_list[0:1]+spike_file_name_list[2:]]
+        # 单独运行淘抢购更新script
+        run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[1]])
 
     print('脚本执行完毕'.center(60, '*'))
 
@@ -61,8 +85,9 @@ def main_2():
         logs_path = '~/myFiles/python/my_flask_server/logs'
         real_path = '~/myFiles/python/my_flask_server/real-times_update'
         server_path = '~/myFiles/python/my_flask_server'
+        spike_path = '~/myFiles/python/my_flask_server/spike_everything'
 
-        auto_run(tejia_path, logs_path, real_path, server_path)
+        auto_run(tejia_path, logs_path, real_path, server_path, spike_path)
         print(' Money is on the way! '.center(100, '*'))
 
         sleep(5*60)
