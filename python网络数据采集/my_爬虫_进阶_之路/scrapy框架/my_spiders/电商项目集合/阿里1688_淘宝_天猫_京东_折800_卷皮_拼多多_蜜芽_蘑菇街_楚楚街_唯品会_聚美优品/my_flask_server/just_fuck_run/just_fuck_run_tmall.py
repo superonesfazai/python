@@ -61,21 +61,23 @@ def auto_run(*params):
 
     if str(get_shanghai_time())[11:13] in ['06', '07', '08', '09', '10', '11', '12']:
         # kill冲突进程
-        [kill_process_by_name(process_name) for process_name in spike_file_name_list]
+        [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]   # 不杀spike
         # 运行tmall常规商品更新script
         run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
 
-    if str(get_shanghai_time())[11:13] in ['18', '19', '20', '21', '22', '23', '00']:
+    # 无法运行成守护进程, 改为tmux模式运行
+    if str(get_shanghai_time())[11:13] in ['23', '00', '01', '02', '03', '04', '05']:
         # 单独运行淘抢购抓取script
         [kill_process_by_name(process_name) for process_name in real_file_name_list]
-        [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]
-        run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[0]])
+        # [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]
+        # run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[0]])
 
-    if str(get_shanghai_time())[11:13] in ['13', '14', '15', '16', '17']:
-        [kill_process_by_name(process_name) for process_name in real_file_name_list]
-        [kill_process_by_name(process_name) for process_name in spike_file_name_list[0:1]+spike_file_name_list[2:]]
-        # 单独运行淘抢购更新script
-        run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[1]])
+    # 并且不运行更新脚本，只运行spike
+    # if str(get_shanghai_time())[11:13] in ['13', '14', '15', '16', '17']:
+    #     [kill_process_by_name(process_name) for process_name in real_file_name_list]
+    #     [kill_process_by_name(process_name) for process_name in spike_file_name_list[0:1]+spike_file_name_list[2:]]
+    #     # 单独运行淘抢购更新script
+    #     run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[1]])
 
     print('脚本执行完毕'.center(60, '*'))
 

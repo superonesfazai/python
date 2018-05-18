@@ -9,6 +9,7 @@
 
 """
 淘抢购板块抓取清洗入库
+    url: https://qiang.taobao.com/?spm=a21bo.2017.2003.1.5af911d94ZThxY
 """
 
 import sys
@@ -23,6 +24,7 @@ from time import sleep
 import gc
 from logging import INFO, ERROR
 import asyncio
+import multiprocessing
 
 from settings import (
     HEADERS,
@@ -43,7 +45,7 @@ from my_utils import (
     restart_program,
     get_miaosha_begin_time_and_miaosha_end_time,
     calculate_right_sign,
-    get_taobao_sign_and_body
+    get_taobao_sign_and_body,
 )
 from my_logging import set_logger
 
@@ -308,19 +310,32 @@ class TaoBaoQiangGou(object):
         gc.collect()
 
 def just_fuck_run():
+    '''由于写成守护进程无法运行, 采用tmux模式运行, 设置采集时间点用以防止采集冲突'''
+    _spider_run_time = ['00', '01', '02', '03', '04', '05']
     while True:
-        print('一次大抓取即将开始'.center(30, '-'))
-        taobao_qianggou = TaoBaoQiangGou()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(taobao_qianggou._deal_with_all_goods_id())
-        try:
-            del taobao_qianggou
-            loop.close()
-        except: pass
-        gc.collect()
-        print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        restart_program()   # 通过这个重启环境, 避免log重复打印
-        sleep(60*10)
+        if str(get_shanghai_time())[11:13] in _spider_run_time:
+            while True:
+                if str(get_shanghai_time())[11:13] not in _spider_run_time:
+                    print('冲突时间点, 不抓取数据..., 上海时间%s' % str(get_shanghai_time()))
+                    sleep(60*5)
+                    break
+
+                print('一次大抓取即将开始'.center(30, '-'))
+                taobao_qianggou = TaoBaoQiangGou()
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(taobao_qianggou._deal_with_all_goods_id())
+                try:
+                    del taobao_qianggou
+                    loop.close()
+                except: pass
+                gc.collect()
+                print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+                restart_program()   # 通过这个重启环境, 避免log重复打印
+                sleep(60*30)
+
+        else:
+            print('未在脚本运行时间点...休眠中, 上海时间%s' % str(get_shanghai_time()))
+            sleep(60*2)
 
 def main():
     '''
@@ -333,8 +348,13 @@ def main():
     # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
+def main_2():
+    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    just_fuck_run()
+
 if __name__ == '__main__':
-    if IS_BACKGROUND_RUNNING:
-        main()
-    else:
-        just_fuck_run()
+    # if IS_BACKGROUND_RUNNING:
+    #     main()
+    #
+    # else:
+    just_fuck_run()
