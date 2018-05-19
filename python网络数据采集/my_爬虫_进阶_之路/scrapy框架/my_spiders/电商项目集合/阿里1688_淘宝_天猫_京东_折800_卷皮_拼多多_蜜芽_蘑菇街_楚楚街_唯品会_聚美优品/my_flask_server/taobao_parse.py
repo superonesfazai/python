@@ -981,6 +981,10 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'src="').sub('src=\"https:', body)
         body = re.compile(r'&nbsp;').sub(' ', body)
 
+        # 天猫洗广告
+        body = re.compile(r'<p style="margin:0;width:0;height:0;overflow:hidden;">.*?</p>.*<p style="margin:0 0 5.0px 0;width:0;height:0;overflow:hidden;">.*?</p>').sub('', body)
+        # self.my_lg.info(str(body))
+
         return body
 
     def get_goods_id_from_url(self, taobao_url):
