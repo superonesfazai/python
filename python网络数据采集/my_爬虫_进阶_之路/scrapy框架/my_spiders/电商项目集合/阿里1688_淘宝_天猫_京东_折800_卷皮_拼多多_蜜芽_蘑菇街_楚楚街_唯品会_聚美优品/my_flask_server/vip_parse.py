@@ -27,9 +27,11 @@ from scrapy import Selector
 from json import loads, dumps
 
 from settings import HEADERS
-from my_ip_pools import MyIpPools
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
+from my_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
 from my_items import GoodsItem
 
 
@@ -50,110 +52,109 @@ def test():
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Mobile/15A5341f MicroMessenger/6.6.5 NetType/WIFI Language/zh_CN',
     }
 
-    cookies = {
-        'mars_cid': '1522488378117_dc1dd95b12eabf2810ceccbe1d7b5f05',
-        'userId': '246736848',
-        'warehouse': 'VIP_SH',
-        'vip_wh': 'VIP_SH',
-        'WAP[p_wh]': 'VIP_SH',
-        'saturn': 'v494a41983b12ac4be82124030c99f71f',
-        'wap_consumer': 'C1-2',
-        'client_from': 'wxsmall',
-        'm_vip_province': '103103',
-        'WAP[p_area]': '%E6%B5%99%E6%B1%9F',
-    }
-    t = str(int(time.time()))
+    t = str(time.time().__round__()) + str(randint(100, 999))
     params = {
         'serv':	'getGoodsActiveMsg',
-        '_xcxid': t + '001',
+        '_xcxid': t,
     }
 
+    goods_id = '460143743'
+    page = 'product-0-' + str(goods_id) + '.html'
     data = dumps([
         {
             "method":"getGoodsActiveMsg",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025335,
+            # "id":4884390025335,
+            'id': 1,
             "jsonrpc":"2.0"
         },{
             "method":"getCoupon",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025336,
+            # "id":4884390025336,
+            'id': 2,
             "jsonrpc":"2.0"
         },{
             "method":"getProductDetail",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025337,
+            # "id":4884390025337,
+            'id': 3,
             "jsonrpc":"2.0"
         },{
             "method":"getProductMeta",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025338,
+            # "id":4884390025338,
+            'id': 4,
             "jsonrpc":"2.0"
         },{
             "method":"getProductSlide",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025339,
+            # "id":4884390025339,
+            'id': 5,
             "jsonrpc":"2.0"
         },{
             "method":"getProductMultiColor",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025340,
+            # "id":4884390025340,
+            'id': 6,
             "jsonrpc":"2.0"
         },{
             "method":"getProductSize",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025341,
+            # "id":4884390025341,
+            'id': 7,
             "jsonrpc":"2.0"
         },{
             "method":"getProductCountdown",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025342,
+            # "id":4884390025342,
+            'id': 8,
             "jsonrpc":"2.0"
         },{
             "method":"ProductRpc.getProductLicense",
             "params":{
-                "page":"product-2558393-460143743.html",
+                "page": page,
                 "query":""
             },
-            "id":4884390025343,
+            # "id":4884390025343,
+            'id': 9,
             "jsonrpc":"2.0"
         },
     ])
 
     body = MyRequests.post_url_body(url=url, headers=headers, params=params, data=data)
     # print(body)
-
-    # body = MyRequests().get_url_body(url=url, headers=headers, params=params)
-    # print(body)
     try:
         data = json.loads(body)
         pprint(data)
     except:
         pass
+
+    # body = MyRequests().get_url_body(url=url, headers=headers, params=params)
+    # print(body)
 
 # test()
 
@@ -165,14 +166,121 @@ class VipParse(object):
     def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'Accept-Encoding':	'gzip',
+            'Accept-Language': 'zh-cn',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.vip.com',
-            'Referer': 'https://m.vip.com/product-0-432603261.html?goodsId=432603261',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'Referer': 'https://servicewechat.com/wxe9714e742209d35f/284/page-frame.html',
+            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],
         }
+
+    def _set_params(self):
+        '''
+        设置params
+        :return:
+        '''
+        t = str(time.time().__round__()) + str(randint(100, 999))
+
+        params = {
+            'serv': 'getGoodsActiveMsg',
+            '_xcxid': t,
+        }
+
+        return params
+
+    def _set_post_data(self, page):
+        '''
+        设置待post的data
+        :param page:
+        :return:
+        '''
+        data = dumps([
+            {
+                "method": "getGoodsActiveMsg",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025335,
+                'id': 1,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getCoupon",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025336,
+                'id': 2,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getProductDetail",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025337,
+                'id': 3,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getProductMeta",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025338,
+                'id': 4,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getProductSlide",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025339,
+                'id': 5,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getProductMultiColor",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025340,
+                'id': 6,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getProductSize",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025341,
+                'id': 7,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "getProductCountdown",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025342,
+                'id': 8,
+                "jsonrpc": "2.0"
+            }, {
+                "method": "ProductRpc.getProductLicense",
+                "params": {
+                    "page": page,
+                    "query": ""
+                },
+                # "id":4884390025343,
+                'id': 9,
+                "jsonrpc": "2.0"
+            },
+        ])
+
+        return data
 
     def get_goods_data(self, goods_id):
         '''
@@ -185,11 +293,14 @@ class VipParse(object):
             return {}
         else:
             data = {}
-            # 常规商品手机地址
-            goods_url = 'https://m.vip.com/product-0-' + str(goods_id[1]) + '.html'
-            print('------>>>| 待抓取的地址为: ', goods_url)
+            # 抓包: 唯品会微信小程序
+            url = 'https://m.vip.com/server.html'
+            params = self._set_params()
 
-            body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
+            page = 'product-0-' + str(goods_id[1]) + '.html'
+            post_data = self._set_post_data(page=page)
+
+            body = MyRequests.post_url_body(url=url, headers=self.headers, params=params, data=post_data)
             # print(body)
 
             if body == '':
@@ -198,109 +309,88 @@ class VipParse(object):
 
             else:
                 try:
-                    tmp_data = re.compile(r'var _WAP_PAGE_CACHE = (.*?);</script>').findall(body)[0]
-                    # print(tmp_data)
-                except IndexError:
-                    print('re匹配不到关键数据, 请检查!')
-                    self.result_data = {}
-                    return {}
-
-                try:
-                    tmp_data = json.loads(tmp_data)
+                    tmp_data = json.loads(body)
                     # pprint(tmp_data)
                 except Exception:
-                    print('json.loads转换tmp_data时出错, 请检查!')
+                    print('json.loads转换body时出错, 请检查!')
                     tmp_data = {}
 
                 if tmp_data == {}:
                     self.result_data = {}
                     return {}
                 else:
-                    tmp_data = self.wash_data(data=tmp_data)
-                    # pprint(tmp_data)
+                    try:
+                        # title, sub_title
+                        data['title'] = tmp_data[2].get('result', {}).get('product_name', '')
+                        assert data['title'] != '', '获取到的title为空值, 请检查!'
+                        data['sub_title'] = ''
 
-                    if tmp_data == {}:
-                        self.result_data = {}
-                        return {}
-                    else:
-                        try:
-                            # title, sub_title
-                            data['title'] = tmp_data.get('productSize', {}).get('product', {}).get('product_name', '')
-                            data['sub_title'] = ''
+                        # shop_name
+                        data['shop_name'] = tmp_data[2].get('result', {}).get('brand_info', {}).get('brand_name', '')
 
-                            if data['title'] == '':
-                                print('获取到的title为空值, 请检查!')
-                                raise Exception
+                        # 获取所有示例图片
+                        all_img_url = tmp_data[2].get('result', {}).get('img_pre', [])
+                        assert all_img_url != [], '获取到的all_img_url为空[], 请检查!'
+                        all_img_url = [{
+                            'img_url': 'https:' + item.get('b_img', '')
+                        } for item in all_img_url]
+                        # pprint(all_img_url)
+                        data['all_img_url'] = all_img_url
 
-                            # shop_name
-                            data['shop_name'] = tmp_data.get('productSize', {}).get('product', {}).get('brand_name', '')
+                        # 获取p_info
+                        p_info = self._get_p_info(tmp_data=tmp_data)
+                        assert p_info != [], 'p_info为空list, 请检查!'
+                        # pprint(p_info)
+                        data['p_info'] = p_info
 
-                            # 获取所有示例图片
-                            all_img_url = tmp_data.get('productDetailImg', {}).get('img_pre', [])
-                            if all_img_url == []:
-                                print('获取到的all_img_url为空[], 请检查!')
-                                raise Exception
-                            else:
-                                all_img_url = [{
-                                    'img_url': 'https:' + item.get('b_img', '')
-                                } for item in all_img_url]
-                            # pprint(all_img_url)
-                            data['all_img_url'] = all_img_url
+                        # 获取每个商品的div_desc
+                        div_desc = self.get_goods_div_desc(tmp_data=tmp_data[2].get('result', {}).get('detailImages', []))
+                        assert div_desc != '', '获取到的div_desc为空值! 请检查'
+                        data['div_desc'] = div_desc
 
-                            # 获取p_info
-                            p_info = self.get_p_info(tmp_data=tmp_data)
-                            if p_info == []:
-                                raise Exception
-                            # pprint(p_info)
-                            data['p_info'] = p_info
+                        '''
+                        上下架时间
+                        '''
+                        data['sell_time'] = {
+                            'begin_time': tmp_data[2].get('result', {}).get('sell_time_from', {}),
+                            'end_time': tmp_data[2].get('result', {}).get('sell_time_to', {}),
+                        }
+                        if int(data['sell_time'].get('begin_time')) > int(time.time()):
+                            # *** 先根据上下架时间来判断是否为预售商品，如果是预售商品就按预售商品的method来去对应规格的价格
+                            goods_id = [1, goods_id[1]]     # 设置成预售的商品goods_id格式
 
-                            # 获取每个商品的div_desc
-                            div_desc = self.get_goods_div_desc(tmp_data=tmp_data.get('productDetailImg', {}).get('detailImages', []))
-                            if div_desc == '':
-                                print('获取到的div_desc为空值! 请检查')
-                                raise Exception
-                            data['div_desc'] = div_desc
+                        # 设置detail_name_list
+                        detail_name_list = self._get_detail_name_list(tmp_data=tmp_data)
+                        # print(detail_name_list)
+                        data['detail_name_list'] = detail_name_list
 
-                            '''
-                            上下架时间
-                            '''
-                            data['sell_time'] = tmp_data.get('sell_time', {})
-                            if int(data['sell_time'].get('begin_time')) > int(time.time()):
-                                # *** 先根据上下架时间来判断是否为预售商品，如果是预售商品就按预售商品的method来去对应规格的价格
-                                goods_id = [1, goods_id[1]]     # 设置成预售的商品goods_id格式
-
-                            # 设置detail_name_list
-                            detail_name_list = self.get_detail_name_list(tmp_data=tmp_data)
-                            # print(detail_name_list)
-                            data['detail_name_list'] = detail_name_list
-
-                            '''
-                            获取每个规格对应价格跟规格以及库存
-                            '''
-                            true_sku_info = self.get_true_sku_info(goods_id=goods_id, tmp_data=tmp_data)
-                            # pprint(true_sku_info)
-                            if true_sku_info == []:     # 也可能是 表示没有库存, 买完或者下架
-                                print('获取到的sku_info为空值, 请检查!')
-                                print('*** 注意可能是卖完了，库存为0 导致!! ***')
-                                # raise Exception
-                                data['price_info_list'] = true_sku_info
-                            else:
-                                data['price_info_list'] = true_sku_info
-
-                        except Exception as e:
-                            print('遇到错误如下: ', e)
-                            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                            return {}
-
-                        if data != {}:
-                            # pprint(data)
-                            self.result_data = data
-                            return data
-
+                        '''
+                        获取每个规格对应价格跟规格以及库存
+                        '''
+                        true_sku_info = self._get_true_sku_info(goods_id=goods_id, tmp_data=tmp_data)
+                        # pprint(true_sku_info)
+                        if true_sku_info == []:     # 也可能是 表示没有库存, 买完或者下架
+                            print('获取到的sku_info为空值, 请检查!')
+                            print('*** 注意可能是卖完了，库存为0 导致!! ***')
+                            # raise Exception
+                            data['price_info_list'] = true_sku_info
                         else:
-                            print('data为空!')
-                            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                            return {}
+                            data['price_info_list'] = true_sku_info
+
+                    except Exception as e:
+                        print('遇到错误如下: ', e)
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                        return {}
+
+                    if data != {}:
+                        # pprint(data)
+                        self.result_data = data
+                        return data
+
+                    else:
+                        print('data为空!')
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                        return {}
 
     def deal_with_data(self):
         '''
@@ -354,8 +444,8 @@ class VipParse(object):
 
             # 上下架时间
             schedule = [{
-                'begin_time': self.timestamp_to_regulartime(int(data.get('sell_time', {}).get('begin_time', ''))),
-                'end_time': self.timestamp_to_regulartime(int(data.get('sell_time', {}).get('end_time', ''))),
+                'begin_time': timestamp_to_regulartime(int(data.get('sell_time', {}).get('begin_time', ''))),
+                'end_time': timestamp_to_regulartime(int(data.get('sell_time', {}).get('end_time', ''))),
             }]
 
             # 销售总量
@@ -500,19 +590,18 @@ class VipParse(object):
 
         return params
 
-
-    def get_detail_name_list(self, tmp_data):
+    def _get_detail_name_list(self, tmp_data):
         '''
         得到detail_name_list
         :param tmp_data:
         :return: Exception 表示异常退出 | [xx, ...] 表示success
         '''
         detail_name_list = []
-        multiColor = tmp_data.get('multiColor', {})
+        multiColor = tmp_data[5].get('result', {})     # 新接口在'method': 'getProductMultiColor',里面
         # pprint(multiColor)
-        productSku = tmp_data.get('productSize', {}).get('productSku', [])
+        productSku = tmp_data[6].get('result', {}).get('productSku', {})
 
-        if multiColor == {} or productSku == []:
+        if multiColor == {} or productSku == {}:
             print('获取detail_name_list失败, 请检查!')
             raise Exception
         else:
@@ -524,24 +613,21 @@ class VipParse(object):
                 detail_name_list.append({'spec_name': multiColor.get('name', '')})
 
             other_spec_name = productSku.get('name', '')
-            if other_spec_name == '':
-                print('获取detail_name_list失败, 原因other_spec_name为空值, 请检查!')
-                raise Exception
-
+            assert other_spec_name != '', '获取detail_name_list失败, 原因other_spec_name为空值, 请检查!'
             detail_name_list.append({'spec_name': other_spec_name})
 
         return detail_name_list
 
-    def get_true_sku_info(self, goods_id, tmp_data):
+    def _get_true_sku_info(self, goods_id, tmp_data):
         '''
         得到每个规格对应的库存, 价格, 图片等详细信息
         :param tmp_data:
         :return:
         '''
-        multiColor = tmp_data.get('multiColor', {})
-        # sku_price = tmp_data.get('productSize', {}).get('product', {}).get('sku_price', [])
+        multiColor = tmp_data[5].get('result', {})
+        # sku_price = tmp_data[2].get('result', {}).get('sku_price', [])
         ## ** 研究发现multiColor以及productSku中的type为1时，表示该商品规格库存为0
-        productSku = tmp_data.get('productSize', {}).get('productSku', [])
+        productSku = tmp_data[6].get('result', {}).get('productSku', {})
         # tmp = {
         #     'multiColor': multiColor,
         #     # 'sku_price': sku_price,
@@ -628,8 +714,14 @@ class VipParse(object):
                             '''
                             下面是获取该颜色对应goods_id的所有可售的规格价格信息
                             '''
-                            goods_url = 'https://m.vip.com/product-0-' + str(item.get('goods_id', '')) + '.html'
-                            tmp_data_2 = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
+                            url = 'https://m.vip.com/server.html'
+                            params = self._set_params()
+
+                            page = 'product-0-' + str(goods_id[1]) + '.html'
+                            post_data = self._set_post_data(page=page)
+
+                            tmp_data_2 = MyRequests.post_url_body(url=url, headers=self.headers, params=params, data=post_data)
+                            # print(tmp_data_2)
 
                             # 先处理得到dict数据
                             if tmp_data_2 == '':
@@ -637,21 +729,13 @@ class VipParse(object):
                                 return []
                             else:
                                 try:
-                                    tmp_data_2 = re.compile(r'var _WAP_PAGE_CACHE = (.*?);</script>').findall(tmp_data_2)[0]
-                                    # print(tmp_data_2)
-                                except IndexError:
-                                    print('re匹配不到关键数据, 请检查!')
-                                    return []
-
-                                try:
                                     tmp_data_2 = json.loads(tmp_data_2)
                                     # pprint(tmp_data_2)
                                 except Exception:
                                     print('json.loads转换tmp_data_2时出错, 请检查!')
                                     return []
 
-                                productSku_2 = tmp_data_2.get('productSize', {}).get('productSku', [])
-                                other_items_2 = productSku_2.get('items', [])
+                                other_items_2 = tmp_data_2[6].get('result', {}).get('productSku', {}).get('items', [])
                                 other_2 = []
                                 for item_3 in other_items_2:
                                     if item_3.get('type', 0) == 1:  # 该规格无库存
@@ -693,7 +777,6 @@ class VipParse(object):
             return ''
         else:
             for item in tmp_data:
-                tmp = ''
                 tmp_img_url = 'https:' + item.get('imageUrl', '')
                 tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_img_url)
                 tmp_div_desc += tmp
@@ -702,244 +785,65 @@ class VipParse(object):
 
         return detail_data
 
-    def wash_data(self, data):
-        '''
-        清洗数据
-        :param data:
-        :return: {} 表示获取上下架时间失败! | {xxx, xxx} 表示success
-        '''
-        try:
-            begin_time = data.get('vtm', {}).get('product', {}).get('sell_time_from', '')
-            end_time = data.get('vtm', {}).get('product', {}).get('sell_time_to', '')
-
-            if begin_time != '' and end_time != '':
-                data['sell_time'] = {
-                    'begin_time': begin_time,
-                    'end_time': end_time,
-                }
-                del data['vtm']
-
-            else:
-                print('获取该商品的上下架时间失败, 请检查!')
-                return {}
-        except Exception as e:
-            print('获取上下架时间时遇到错误: ', e)
-            return {}
-
-        '''
-        分开del, 避免都放在一块，一个del失败就跳出无法进行继续再往下的清洗
-        '''
-        try:
-            del data['ShowComment']
-        except:
-            pass
-        try:
-            del data['flag']
-        except:
-            pass
-        try:
-            del data['addCart']
-        except:
-            pass
-        try:
-            del data['appDownload']
-        except:
-            pass
-        try:
-            del data['appWakeup']
-        except:
-            pass
-        try:
-            del data['cart']
-        except:
-            pass
-        try:
-            del data['browserHistory']
-        except:
-            pass
-        try:
-            del data['addCartGoods']
-        except:
-            pass
-        try:
-            del data['deliveryInfo']
-        except:
-            pass
-        try:
-            del data['footer']
-        except:
-            pass
-        try:
-            del data['footerToolbar']
-        except:
-            pass
-        try:
-            del data['functionEntry']
-        except:
-            pass
-        try:
-            del data['gift']
-        except:
-            pass
-        try:
-            del data['productExtra']
-        except:
-            pass
-        try:
-            del data['productLicense']
-        except:
-            pass
-        try:
-            del data['productPreheatCollect']
-        except:
-            pass
-        try:
-            del data['productSlide']
-        except:
-            pass
-        try:
-            del data['productTips']
-        except:
-            pass
-        try:
-            del data['refer']
-        except:
-            pass
-        try:
-            del data['serviceText']
-        except:
-            pass
-        try:
-            del data['wakeupBar']
-        except:
-            pass
-        try:
-            del data['weixinFollow']
-        except:
-            pass
-        try:
-            del data['wxShare']
-        except:
-            pass
-        try:
-            del data['independentAmount']
-        except:
-            pass
-        try:
-            del data['productPriceLine']    # 价格线，价格图，无用
-        except:
-            pass
-        try:
-            del data['recommendAddress']    # 当前定位的地址
-        except:
-            pass
-        try:
-            del data['share']
-        except:
-            pass
-        try:
-            del data['wxUserBehavior']
-        except:
-            pass
-        try:
-            for item in data['multiColor']['items']:
-                del item['detailImages']     # 重复的detail_info的图片
-                del item['previewImages']
-
-        except Exception:
-            pass
-        try:
-            del data['productSize']['product']['detailImages']
-            del data['productSize']['product']['img_pre']
-            del data['productSize']['product']['previewImages']
-        except Exception:
-            pass
-        try:
-            del data['productAttr']
-        except:
-            pass
-        try:
-            del data['productSize']['product']['brand_info']
-        except:
-            pass
-
-        # print('清洗完毕')
-
-        return data
-
-    def get_p_info(self, tmp_data):
+    def _get_p_info(self, tmp_data):
         '''
         得到p_info
         :param tmp_data:
         :return: [] 表示出错 | [xxx, ...] 表示success
         '''
-        tmp_p_info = tmp_data.get('productSize', {}).get('product', {}).get('attrSpecProps', [])
-        # pprint(tmp_p_info)
-        # pprint(tmp_data.get('productSize', {}).get('product', {}))
-
         p_info = []
-        brandStoreName = tmp_data.get('productSize', {}).get('product', {}).get('brandStoreName', '')
-        if brandStoreName != '':
-            p_info.append({'p_name': '品牌名称', 'p_value': brandStoreName})
+        try:
+            tmp_p_info = tmp_data[2].get('result', {}).get('attrSpecProps', [])
+            assert tmp_p_info != [], '获取到的p_info为空[], 请检查!'
+            # pprint(tmp_p_info)
 
-        p_info.append({'p_name': '商品名称', 'p_value': tmp_data.get('productSize', {}).get('product', {}).get('product_name', '')})
+            brandStoreName = tmp_data[2].get('result', {}).get('brandStoreName', '')
+            if brandStoreName != '':
+                p_info.append({'p_name': '品牌名称', 'p_value': brandStoreName})
 
-        # 产地
-        areaOutput = tmp_data.get('productSize', {}).get('product', {}).get('areaOutput', '')
-        if areaOutput != '':
-            p_info.append({'p_name': '产地', 'p_value': areaOutput})
+            p_info.append({'p_name': '商品名称', 'p_value': tmp_data[2].get('result', {}).get('product_name', '')})
 
-        # 材质相关
-        itemProperties = tmp_data.get('productSize', {}).get('product', {}).get('itemProperties', [])
-        if itemProperties != []:
-            for item in itemProperties:
-                p_info.append({'p_name': item.get('name', ''), 'p_value': item.get('value', '')})
+            # 产地
+            areaOutput = tmp_data[2].get('result', {}).get('areaOutput', '')
+            if areaOutput != '':
+                p_info.append({'p_name': '产地', 'p_value': areaOutput})
 
-        # 洗涤说明相关
-        itemDetailModules = tmp_data.get('productSize', {}).get('product', {}).get('itemDetailModules', [])
-        if itemDetailModules != []:
-            for item in itemDetailModules:
-                p_info.append({'p_name': item.get('name', ''), 'p_value': item.get('value', '')})
+            # 材质相关
+            itemProperties = tmp_data[2].get('result', {}).get('itemProperties', [])
+            if itemProperties != []:
+                for item in itemProperties:
+                    p_info.append({'p_name': item.get('name', ''), 'p_value': item.get('value', '')})
 
-        if tmp_p_info == []:
-            # print('获取到的p_info为空[], 请检查!')
+            # 洗涤说明相关
+            itemDetailModules = tmp_data[2].get('result', {}).get('itemDetailModules', [])
+            if itemDetailModules != []:
+                for item in itemDetailModules:
+                    p_info.append({'p_name': item.get('name', ''), 'p_value': item.get('value', '')})
+
+            for item in tmp_p_info:
+                try:
+                    p_value = item.get('values', [])
+                    if p_value != [] and p_value.__len__() > 1:
+                        p_value = [item_6.get('optionName', '') for item_6 in p_value]
+                        p_value = ' '.join(p_value)
+
+                    elif p_value.__len__() == 1:
+                        p_value = item.get('values', [])[0].get('optionName', '')
+
+                    else:
+                        p_value = ''
+                    p_info.append({
+                        'p_name': item.get('attributeName', ''),
+                        'p_value': p_value
+                    })
+                except IndexError:
+                    print('在解析p_info时索引出错, 请检查!')
+                    return []
+        except Exception as e:
+            print('遇到错误:', e)
+
+        finally:
             return p_info
-
-        for item in tmp_p_info:
-            try:
-                p_value = item.get('values', [])
-                if p_value != [] and p_value.__len__() > 1:
-                    p_value = [item_6.get('optionName', '') for item_6 in p_value]
-                    p_value = ' '.join(p_value)
-
-                elif p_value.__len__() == 1:
-                    p_value = item.get('values', [])[0].get('optionName', '')
-
-                else:
-                    p_value = ''
-                p_info.append({
-                    'p_name': item.get('attributeName', ''),
-                    'p_value': p_value
-                })
-            except IndexError:
-                print('在解析p_info时索引出错, 请检查!')
-                return []
-
-        return p_info
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def get_goods_id_from_url(self, vip_url):
         '''
@@ -984,5 +888,6 @@ if __name__ == '__main__':
         vip_url = input('请输入待爬取的唯品会商品地址: ')
         vip_url.strip('\n').strip(';')
         goods_id = vip.get_goods_id_from_url(vip_url)
-        data = vip.get_goods_data(goods_id=goods_id)
-        vip.deal_with_data()
+        vip.get_goods_data(goods_id=goods_id)
+        data = vip.deal_with_data()
+        # pprint(data)

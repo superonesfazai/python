@@ -98,15 +98,15 @@ pip install redis-py-cluster
 ```python
 from rediscluster import StrictRedisCluster
 startup_nodes = [
-    {"host": "192.168.1.10", "port": "6379"}，
+    {"host": "192.168.1.10", "port": "6379"},
     {"host": "192.168.1.11", "port": "6379"},
-    {"host": "192.168.1.12", "port": "6379"}
+    {"host": "192.168.1.12", "port": "6379"},
 ]
 
 #说明：如果使用python3需要将decode_responses设置成True
 rc = StrictRedisCluster(startup_nodes=startup_nodes, decode_responses=True)
 rc.set("foo", "bar")
-print rc.get("foo")
+print(rc.get("foo"))
 ```
 ### 参考阅读
 * [redis集群搭建](http://www.cnblogs.com/wuxl360/p/5920330.html)
