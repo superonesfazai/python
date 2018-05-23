@@ -48,12 +48,8 @@ class MyRequests(object):
                     # print(response.url)
                 else:
                     response = s.get(url, headers=tmp_headers, proxies=tmp_proxies, cookies=cookies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                body = response.content.decode(encoding)
+                body = cls._wash_html(response.content.decode(encoding))
 
-                body = re.compile('\t').sub('', body)
-                body = re.compile('  ').sub('', body)
-                body = re.compile('\r\n').sub('', body)
-                body = re.compile('\n').sub('', body)
                 # print(body)
             except Exception:
                 print('requests.get()请求超时....')
@@ -63,7 +59,7 @@ class MyRequests(object):
         return body
 
     @classmethod
-    def post_url_body(cls, url, headers:dict, params:dict=None, data=None, had_referer=False):
+    def post_url_body(cls, url, headers:dict, params:dict=None, data=None, had_referer=False, encoding='utf-8'):
         '''
         根据url得到body
         :return: '' 表示出错退出 | body 类型str
@@ -86,17 +82,21 @@ class MyRequests(object):
                 response = s.post(url, headers=tmp_headers, params=params, data=data, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             else:
                 response = s.post(url, headers=tmp_headers, data=data, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-
-            body = re.compile('\t').sub('', body)
-            body = re.compile('  ').sub('', body)
-            body = re.compile('\r\n').sub('', body)
-            body = re.compile('\n').sub('', body)
+            body = cls._wash_html(response.content.decode(encoding))
             # print(body)
         except Exception:
             print('requests.get()请求超时....')
             print('data为空!')
             body = ''
+
+        return body
+
+    @classmethod
+    def _wash_html(cls, body):
+        body = re.compile('\t').sub('', body)
+        body = re.compile('  ').sub('', body)
+        body = re.compile('\r\n').sub('', body)
+        body = re.compile('\n').sub('', body)
 
         return body
 

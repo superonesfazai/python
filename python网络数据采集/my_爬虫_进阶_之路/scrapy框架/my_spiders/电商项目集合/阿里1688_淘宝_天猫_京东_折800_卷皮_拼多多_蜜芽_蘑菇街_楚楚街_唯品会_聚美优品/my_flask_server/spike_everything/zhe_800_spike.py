@@ -60,10 +60,18 @@ class Zhe800Spike(object):
                 pass
 
             else:                           # 否则session_id存在
-                # begin_times_timestamp = int(time.mktime(time.strptime(begin_times, '%Y-%m-%d %H:%M:%S'))) # 将如 "2017-09-28 10:00:00"的时间字符串转化为时间戳，然后再将时间戳取整
-
                 try:
-                    begin_times_timestamp = int(str(data.get('data', {}).get('blocks', [])[0].get('deal', {}).get('begin_time', ''))[:10])
+                    _ = str(data.get('data', {}).get('blocks', [])[0].get('deal', {}).get('begin_time', ''))[:10]
+                    if _ != '':
+                        pass
+                    elif data.get('data', {}).get('blocks', [])[0].get('showcase', {}) != {}:   # 未来时间
+                        print('*** 未来时间 ***')
+                        # pprint(data.get('data', {}))
+                        _ = str(data.get('data', {}).get('blocks', [])[1].get('deal', {}).get('begin_time', ''))[:10]
+                    else:
+                        raise Exception
+                    begin_times_timestamp = int(_)  # 将如 "2017-09-28 10:00:00"的时间字符串转化为时间戳，然后再将时间戳取整
+
                 except Exception as e:
                     print('遇到严重错误: ', e)
                     continue
