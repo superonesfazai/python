@@ -17,7 +17,7 @@ from redis import *
 
 try:
     sr=StrictRedis()
-    pl=sr.pipeline()
+    pl=sr.pipeline()        # pipeline速度更快
 
     pl.set('py1','gj')
     pl.get('py1')

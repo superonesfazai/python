@@ -15,6 +15,9 @@ import sys
 sys.path.append('..')
 
 import hashlib, datetime, time
+import requests
+from json import dumps
+
 from my_utils import get_shanghai_time
 from my_utils import datetime_to_timestamp
 
@@ -44,6 +47,7 @@ class RequestClient(object):
         canonicalized_query_string = ''
         for (k, v) in _my_sorted:
             canonicalized_query_string += '{}={}&'.format(k,v)
+
         canonicalized_query_string += self._access_key_secret
 
         # NO.3 加密返回签名: signature
@@ -55,6 +59,7 @@ class RequestClient(object):
         """
         if not isinstance(params, dict):
             raise TypeError("params is not a dict")
+
         # 获取当前时间戳
         timestamp = get_current_timestamp() - 5
         # 设置公共参数
@@ -66,6 +71,7 @@ class RequestClient(object):
         # 添加公共参数
         for k, v in public_params.items():
             params[k] = v
+
         uri = ''
         for k, v in params.items():
             uri += '{}={}&'.format(k, v)
@@ -75,10 +81,17 @@ class RequestClient(object):
 
     def request(self):
         """测试用例"""
-        import requests
-        params = dict(c=3,d=4,b=2,a=1)
+        # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198&umpChannel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&u_channel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&spm=a2141.8147851.1.1'
+        # link中不能呆&否则会被编码在sign中加密
+        goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198'
+
+        params = {
+            'goods_link': goods_link,
+        }
+
         print(self.make_url(params))
-        url = 'http://127.0.0.1:5000/basic_data_2?' + self.make_url(params)
+        # url = 'http://127.0.0.1:5000/basic_data_2?' + self.make_url(params)
+        url = 'http://127.0.0.1:5000/api/goods?' + self.make_url(params)
 
         result = requests.get(url)
         print(result.text)

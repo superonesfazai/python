@@ -10,8 +10,18 @@
 import sys, os
 sys.path.append(os.getcwd())
 
-from flask import Flask, render_template, url_for, request,redirect,make_response,session, jsonify, Response
-from flask import send_file
+from flask import (
+    Flask,
+    render_template,
+    url_for,
+    request,
+    redirect,
+    make_response,
+    session,
+    jsonify,
+    Response,
+    send_file,
+)
 from flask_login import LoginManager
 
 from ali_1688_parse import ALi1688LoginAndParse
@@ -24,20 +34,37 @@ from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
 
-from settings import ALi_SPIDER_TO_SHOW_PATH, TAOBAO_SPIDER_TO_SHWO_PATH, TMALL_SPIDER_TO_SHOW_PATH
-from settings import JD_SPIDER_TO_SHOW_PATH, ZHE_800_SPIDER_TO_SHOW_PATH, JUANPI_SPIDER_TO_SHOW_PATH
-from settings import PINDUODUO_SPIDER_TO_SHOW_PATH, VIP_SPIDER_TO_SHOW_PATH
-from settings import ADMIN_NAME, ADMIN_PASSWD, SERVER_PORT, MY_SPIDER_LOGS_PATH, TMALL_SLEEP_TIME
-from settings import ERROR_HTML_CODE, IS_BACKGROUND_RUNNING
-from settings import BASIC_APP_KEY
-from settings import TAOBAO_SLEEP_TIME
-from settings import SELECT_HTML_NAME
+from settings import (
+    ALi_SPIDER_TO_SHOW_PATH,
+    TAOBAO_SPIDER_TO_SHWO_PATH,
+    TMALL_SPIDER_TO_SHOW_PATH,
+    JD_SPIDER_TO_SHOW_PATH,
+    ZHE_800_SPIDER_TO_SHOW_PATH,
+    JUANPI_SPIDER_TO_SHOW_PATH,
+    PINDUODUO_SPIDER_TO_SHOW_PATH,
+    VIP_SPIDER_TO_SHOW_PATH,
+    ADMIN_NAME,
+    ADMIN_PASSWD,
+    SERVER_PORT,
+    MY_SPIDER_LOGS_PATH,
+    TMALL_SLEEP_TIME,
+    ERROR_HTML_CODE,
+    IS_BACKGROUND_RUNNING,
+    BASIC_APP_KEY,
+    TAOBAO_SLEEP_TIME,
+    SELECT_HTML_NAME,
+)
 
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, UserItemPipeline
+from my_pipeline import (
+    SqlServerMyPageInfoSaveItemPipeline,
+    UserItemPipeline,
+)
 from my_logging import set_logger
-from my_utils import get_shanghai_time
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+)
 from my_items import GoodsItem
-from my_utils import daemon_init
 from my_signature import Signature
 
 import hashlib
@@ -47,7 +74,10 @@ from time import sleep
 import datetime
 import re
 from decimal import Decimal
-from logging import INFO, ERROR
+from logging import (
+    INFO,
+    ERROR,
+)
 from json import dumps
 
 from gevent.wsgi import WSGIServer      # 高并发部署
@@ -989,7 +1019,6 @@ def get_taobao_data():
                 return result
 
             data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
-
             if data == {}:
                 my_lg.info('获取到的data为空!')
                 result = {
@@ -1261,6 +1290,64 @@ def _get_db_taobao_insert_params(item):
     )
 
     return params
+
+def _get_m_taobao_goods_id(goods_link):
+    '''
+    获取m站的goods_id
+    :param goods_link:
+    :return:
+    '''
+    try:
+        return re.compile(r'id=(\d+)').findall(goods_link)[0]
+    except IndexError:
+        return ''
+
+def _deal_with_taobao_goods(goods_link):
+    '''
+    处理淘宝商品
+    :param goods_link:
+    :return: dict
+    '''
+    goods_id = _get_m_taobao_goods_id(goods_link)
+    if goods_id == '':
+        return {'goods_id': ''}
+
+    taobao = TaoBaoLoginAndParse(logger=my_lg)
+    wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
+    tmp_result = taobao.get_goods_data(goods_id=goods_id)
+    data = taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
+    # time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
+    if tmp_result == {} or data == {}:
+        del taobao
+        gc.collect()
+        return {
+            'goods_id': goods_id,
+            'data': {},
+        }
+
+    data.update({
+        'goods_id': goods_id,
+        'spider_url': wait_to_deal_with_url,
+        'username': '18698570079',
+    })
+
+    data = _get_taobao_right_data(data)
+    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+    my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
+
+    params = _get_db_taobao_insert_params(item=data)
+    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
+    if is_insert_into:  # 如果返回值为True
+        pass
+    else:
+        pass
+
+    '''返回给APP时, 避免json.dumps转换失败...'''
+    data['price'] = float(data['price'])
+    data['taobao_price'] = float(data['taobao_price'])
+
+    return data
 
 ######################################################
 # 天猫
@@ -3371,20 +3458,7 @@ def get_basic_data():
             my_lg.info('正在获取相应数据中...')
 
             goodsLink = request.form.get('goodsLink')
-
-            if goodsLink:
-                wait_to_deal_with_url = goodsLink
-            else:
-                my_lg.info('goodsLink为空值...')
-
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+            wait_to_deal_with_url = goodsLink
 
             if _is_taobao_url(wait_to_deal_with_url):
                 basic_taobao = TaoBaoLoginAndParse(logger=my_lg)
@@ -3392,53 +3466,27 @@ def get_basic_data():
                 goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
                 if goods_id == '':  # 如果得不到goods_id, 则return error
                     my_lg.info('获取到的goods_id为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 4042,  # 表示goodsLink为空值
-                    }
-
                     del basic_taobao  # 每次都回收一下
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_id()
 
                 wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
                 tmp_result = basic_taobao.get_goods_data(goods_id=goods_id)
-                time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
-                if tmp_result == {}:
-                    my_lg.info('获取到的data为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                    }
-
-                    del basic_taobao
-                    gc.collect()
-                    result = json.dumps(result)
-                    return result
-
                 data = basic_taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-
-                if data == {}:
+                time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
+                if tmp_result == {} or data == {}:
                     my_lg.info('获取到的data为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                    }
-
                     del basic_taobao
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_data()
 
                 data = {
                     'title': data.get('title'),
                     'price': data.get('taobao_price'),
                     'month_sell_count': data.get('sell_count'),     # 月销量
-                    'img_url': [data.get('all_img_url')[0]],
+                    'img_url': data.get('all_img_url'),
                     'spider_url': wait_to_deal_with_url,
                     'goods_id': goods_id,
                 }
@@ -3456,6 +3504,7 @@ def get_basic_data():
 
                 del basic_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
                 gc.collect()  # 手动回收即可立即释放需要删除的资源
+
                 return result_json.decode()
 
             elif _is_tmall_url(wait_to_deal_with_url):
@@ -3464,16 +3513,10 @@ def get_basic_data():
                 goods_id = basic_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
                 if goods_id == []:  # 如果得不到goods_id, 则return error
                     my_lg.info('获取到的goods_id为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 4042,  # 表示goodsLink为空值
-                    }
-
                     del basic_tmall  # 每次都回收一下
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_id()
 
                 # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
                 #####################################################
@@ -3486,37 +3529,24 @@ def get_basic_data():
                 tmp_result = basic_tmall.get_goods_data(goods_id=goods_id)
                 if tmp_result == {}:
                     my_lg.info('获取到的data为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                    }
-
                     del basic_tmall
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_data()
 
                 data = basic_tmall.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
-
                 if data == {}:
                     my_lg.info('获取到的data为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                    }
-
                     del basic_tmall
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_data()
 
                 data = {
                     'title': data.get('title'),
                     'price': data.get('taobao_price'),
                     'month_sell_count': data.get('sell_count'),     # 月销量
-                    'img_url': [data.get('all_img_url')[0]],
+                    'img_url': data.get('all_img_url'),
                     'spider_url': wait_to_deal_with_url,
                     'goods_id': goods_id[1],
                 }
@@ -3541,17 +3571,11 @@ def get_basic_data():
 
                 goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
                 if goods_id == []:  # 如果得不到goods_id, 则return error
-                    print('获取到的goods_id为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 4042,  # 表示goodsLink为空值
-                    }
-
+                    my_lg.info('获取到的goods_id为空!')
                     del jd  # 每次都回收一下
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_id()
 
                 # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
                 #####################################################
@@ -3563,38 +3587,25 @@ def get_basic_data():
                     wait_to_deal_with_url = 'https://item.yiyaojd.com/' + goods_id[1] + '.html'
                 tmp_result = jd.get_goods_data(goods_id=goods_id)
                 if tmp_result == {}:
-                    print('获取到的data为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                    }
-
+                    my_lg.info('获取到的data为空!')
                     del jd
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_data()
 
                 data = jd.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-
                 if data == {}:
-                    print('获取到的data为空!')
-                    result = {
-                        'reason': 'error',
-                        'data': '',
-                        'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                    }
-
+                    my_lg.info('获取到的data为空!')
                     del jd
                     gc.collect()
-                    result = json.dumps(result)
-                    return result
+
+                    return _null_goods_data()
 
                 data = {
                     'title': data.get('title'),
                     'price': str(data.get('taobao_price')),
                     'all_sell_count': data.get('all_sell_count'),  # 月销量
-                    'img_url': [data.get('all_img_url')[0]],
+                    'img_url': data.get('all_img_url'),
                     'spider_url': wait_to_deal_with_url,
                     'goods_id': goods_id[1],
                 }
@@ -3617,31 +3628,126 @@ def get_basic_data():
             else:
                 # 直接把空值给pass，不打印信息
                 # print('goodsLink为空值...')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
 
-                result = json.dumps(result)
+                return _null_goods_link()
 
-                return result
+        else:
+            my_lg.info('goodsLink为空值...')
+            return _null_goods_link()
 
     else:
-        result = {
+        return json.dumps({
             'reason': 'error',
             'data': '',
             'error_code': 0,
-        }
-        result = json.dumps(result)
-
-        return result
+        })
 
 @app.route('/basic_data_2', methods=['GET', 'POST'])
 @Sign.signature_required
 def _get_basic_data_2():
     # 正确请求将返回以下内容，否则将被signature_required拦截，返回请求验证信息： {"msg": "Invaild message", "success": False}
     return json.dumps({'ping':"pong"})
+
+######################################################
+
+'''
+/api/goods
+'''
+@app.route('/api/goods', methods=['GET', 'POST'])
+@Sign.signature_required
+def _goods():
+    # print(request.args)
+    if request.method == 'GET':
+        # print(dict(request.args))
+        try:
+            goods_link = dict(request.args).get('goods_link', [])[0]
+        except IndexError:
+            goods_link = None
+    else:
+        goods_link = request.form.get('goods_link')
+    if goods_link:
+        my_lg.info('正在获取相应数据中...')
+        my_lg.info('获取到的goods_link：' + str(goods_link))
+
+        if _is_m_taobao_url(goods_link):
+            my_lg.info('该link为淘宝link...')
+            result = _deal_with_taobao_goods(goods_link=goods_link)
+            if result.get('goods_id', '') == '':
+                my_lg.error('获取到的goods_id为空值!')
+                return _null_goods_id()
+
+            elif result.get('data', {}) == {}:
+                my_lg.error('获取到的goods_data为空!')
+                return _null_goods_data()
+
+            else:
+                my_lg.info('获取goods_data success!!')
+                return _success_goods_data(result)
+
+        elif _is_m_tmall_url(goods_link):
+            pass
+
+        elif _is_m_jd_url(goods_link):
+            pass
+
+        else:
+            my_lg.info('无效的goods_link!')
+            return _invalid_goods_link()
+
+    else:
+        my_lg.info('goods_link为空值!')
+
+        return _null_goods_link()
+
+######################################################
+'''错误处理/成功处理'''
+
+def _success_goods_data(data):
+    # 获取数据成功时的操作
+    return dumps({
+        'reason': 'success',
+        'msg': '成功!',
+        'data': data,
+        'error_code': '0000',
+    }, ensure_ascii=False).encode().decode()
+
+def _null_goods_link():
+    # 空goods_link
+    return dumps({
+        'reason': 'error',
+        'msg': 'goods_link为空值!',
+        'data': '',
+        'error_code': '0001',
+    })
+
+def _invalid_goods_link():
+    # 无效goods_link
+    return dumps({
+        'reason': 'error',
+        'msg': '无效的goods_link, 请检查!',
+        'data': '',
+        'error_code': '0002',
+    })
+
+def _null_goods_id():
+    # 空goods_id
+    return dumps({
+        'reason': 'error',
+        'msg': '获取到的goods_id为空str, 无效的goods_link, 请检查!',
+        'data': '',
+        'error_code': '0003',
+    })
+
+def _null_goods_data():
+    # 获取到的goods_data为{}
+    return dumps({
+        'reason': 'error',
+        'msg': '获取到的goods_data为空dict!',
+        'data': '',
+        'error_code': '0004',
+    })
+
+######################################################
 
 def _is_taobao_url(wait_to_deal_with_url):
     '''
@@ -3654,6 +3760,17 @@ def _is_taobao_url(wait_to_deal_with_url):
         _ = True
 
     return _
+
+def _is_m_taobao_url(goods_link):
+    '''
+    淘宝m站
+    :param goods_link:
+    :return:
+    '''
+    if re.compile(r'https://h5.m.taobao.com/awp/core/detail.htm.*?').findall(goods_link) != []:
+        return True
+
+    return False
 
 def _is_tmall_url(wait_to_deal_with_url):
     '''
@@ -3669,6 +3786,14 @@ def _is_tmall_url(wait_to_deal_with_url):
 
     return _
 
+def _is_m_tmall_url(goods_link):
+    '''
+    天猫m站
+    :param goods_link:
+    :return:
+    '''
+    pass
+
 def _is_jd_url(wait_to_deal_with_url):
     '''
     判断是否为jd的url
@@ -3682,6 +3807,14 @@ def _is_jd_url(wait_to_deal_with_url):
         _ = True
 
     return _
+
+def _is_m_jd_url(goods_link):
+    '''
+    京东m站
+    :param goods_link:
+    :return:
+    '''
+    pass
 
 def encrypt(key, s):
     '''

@@ -25,10 +25,8 @@ def test():
 
         # url = 'http://spider.taobao.k85u.com/'
         # url = 'http://0.0.0.0:5000/basic_data'
-        # url = 'http://spider.tmall.k85u.com/basic_data'
-        # url = 'http://spider.taobao.k85u.com/basic_data'
-        url = 'http://spider.other.k85u.com/basic_data'
-        # url = 'http://23.239.0.250/basic_data'
+        # url = 'http://spider.other.k85u.com/basic_data'
+        url = 'http://23.239.0.250/basic_data'
 
 
         headers={ "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"}

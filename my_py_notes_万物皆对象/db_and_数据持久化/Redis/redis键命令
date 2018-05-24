@@ -29,7 +29,16 @@ expire key 60
 ttl key
 ```
 
-#### 8. 删除所有Key
+#### 8. persist (立刻执行persist命令，该存在超时的键变成持久化的键，即将该Key的超时去掉)
+```html
+redis 127.0.0.1:6379> persist mykey
+(integer) 1
+# ttl的返回值告诉我们，该键已经没有超时了。
+redis 127.0.0.1:6379> ttl mykey
+(integer) -1
+```
+
+#### 9. 删除所有Key
 * 删除所有Key，可以使用Redis的flushdb和flushall命令
 //删除当前数据库中的所有Key  
 ```

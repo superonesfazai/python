@@ -19,6 +19,7 @@ from flask import request, jsonify
 import hashlib, time, datetime
 from my_utils import get_shanghai_time
 from my_utils import datetime_to_timestamp
+from pprint import pprint
 
 md5 = lambda pwd: hashlib.md5(pwd).hexdigest()
 # get_current_timestamp = lambda: int(time.mktime(datetime.datetime.now().timetuple()))
@@ -66,6 +67,7 @@ class Signature(object):
         """ MD5签名
         @param parameters dict: 除signature外请求的所有查询参数(公共参数和私有参数)
         """
+        # pprint(parameters)
         if "sign" in parameters:
             parameters.pop("sign")
         accesskey_id = parameters["access_key_id"]
