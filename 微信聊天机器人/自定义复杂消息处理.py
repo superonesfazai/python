@@ -36,7 +36,6 @@ def text_reply(msg):
         itchat.send(u'@%s\u2005I received: %s' % (msg['ActualNickName'], msg['Content']), msg['FromUserName'])
 
 itchat.auto_login(hotReload=True)
-
 itchat.run()
 
 # itchat.logout()     # 安全退出

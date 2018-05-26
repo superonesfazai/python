@@ -32,7 +32,6 @@ from settings import HEADERS, MY_SPIDER_LOGS_PATH
 from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime, restart_program
-from my_ip_pools import MyIpPools
 from my_logging import set_logger
 from my_utils import calculate_right_sign, get_taobao_sign_and_body
 

@@ -3628,7 +3628,6 @@ def get_basic_data():
             else:
                 # 直接把空值给pass，不打印信息
                 # print('goodsLink为空值...')
-
                 return _null_goods_link()
 
         else:
