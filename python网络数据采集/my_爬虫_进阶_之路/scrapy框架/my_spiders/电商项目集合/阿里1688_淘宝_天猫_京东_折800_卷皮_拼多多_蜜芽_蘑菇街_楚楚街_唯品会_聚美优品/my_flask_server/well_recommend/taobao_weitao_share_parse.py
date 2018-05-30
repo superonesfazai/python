@@ -28,6 +28,7 @@ from settings import (
     HEADERS,
 )
 from my_requests import MyRequests
+from my_items import WellRecommendArticle
 
 class TaoBaoWeiTaoShareParse():
     def __init__(self, logger=None):
@@ -63,18 +64,23 @@ class TaoBaoWeiTaoShareParse():
         :param taobao_short_url:
         :return:
         '''
-        body = MyRequests.get_url_body(url=taobao_short_url, headers=self.headers)
-        if body == '':
-            self.my_lg.error('获取到的body为空值, 出错短链接地址: {0}'.format(str(taobao_short_url)))
-            return '', '', ''
+        if re.compile(r'contentId').findall(taobao_short_url) != []:
+            # 先检查是否已为目标地址
+            target_url = taobao_short_url
 
-        try:
-            # 获取短连接的目标地址
-            target_url = re.compile('var url = \'(.*?)\';').findall(body)[0]
-            # self.my_lg.info(str(target_url))
-        except IndexError:
-            self.my_lg.error('获取target_url的时候IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
-            target_url = ''
+        else:
+            body = MyRequests.get_url_body(url=taobao_short_url, headers=self.headers)
+            if body == '':
+                self.my_lg.error('获取到的body为空值, 出错短链接地址: {0}'.format(str(taobao_short_url)))
+                return '', '', ''
+
+            try:
+                # 获取短连接的目标地址
+                target_url = re.compile('var url = \'(.*?)\';').findall(body)[0]
+                # self.my_lg.info(str(target_url))
+            except IndexError:
+                self.my_lg.error('获取target_url的时候IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
+                target_url = ''
 
         try:
             # 得到contentId
@@ -89,7 +95,8 @@ class TaoBaoWeiTaoShareParse():
             csid = re.compile('csid%22%3A%22(.*?)%22%7D').findall(target_url)[0]
             # self.my_lg.info(csid)
         except IndexError:
-            self.my_lg.error('获取csid时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
+            self.my_lg.info('此链接为无csid情况的链接...')
+            # self.my_lg.error('获取csid时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
             csid = ''
 
         return target_url, content_id, csid
@@ -103,7 +110,7 @@ class TaoBaoWeiTaoShareParse():
         base_url = 'https://h5api.m.taobao.com/h5/mtop.taobao.beehive.detail.contentservicenewv2/1.0/'
 
         target_url, content_id, csid = await self._get_target_url_and_content_id_and_csid(taobao_short_url)
-        if content_id == '' or csid == '':      # 异常退出
+        if content_id == '' and csid == '':      # 异常退出
             return ''
 
         data = dumps({
@@ -112,7 +119,7 @@ class TaoBaoWeiTaoShareParse():
             'contentId': content_id,
             'params': dumps({
                 "csid": csid,
-            }),
+            }) if csid != '' else '',   # 没有csid时，就不传这个参数
             'source': 'weitao_2017_nocover',
             'track_params': '',
             'type': 'h5',
@@ -185,6 +192,71 @@ class TaoBaoWeiTaoShareParse():
             self.my_lg.error('出错短链接地址:{0}'.format(taobao_short_url))
             self.my_lg.exception(e)
             return {}
+
+        try:
+            nick_name = data.get('data', {}).get('models', {}).get('account', {}).get('name', '')
+            assert nick_name != '', '获取到的nick_name为空值!'
+
+            tmp_goods_list = data.get('data', {}).get('models', {}).get('content', {}).get('drawerList', [])
+            assert tmp_goods_list != [], '获取到的goods_id_list为空list! 请检查! 可能该文章推荐商品为空[]!'
+
+            share_img_url_list = [{'img_url': 'https:' + item.get('itemImages', [])[0].get('picUrl', '')} for item in tmp_goods_list]
+            goods_id_list = [{'goods_id': item.get('itemId', '')} for item in tmp_goods_list]
+
+            # div_body
+            div_body = await self._get_div_body(rich_text=data.get('data', {}).get('models', {}).get('content', {}).get('richText', []))
+            print(div_body)
+
+            # 待抓取的商品地址
+            goods_url_list = [{'goods_url': item.get('itemUrl', '')} for item in tmp_goods_list]
+
+            gather_url = (await self._get_target_url_and_content_id_and_csid(taobao_short_url))[0]
+
+            create_time = get_shanghai_time()
+
+            site_id = 2     # 淘宝微淘
+
+        except Exception as e:
+            self.my_lg.error('出错短链接地址:{0}'.format(taobao_short_url))
+            self.my_lg.exception(e)
+            return {}
+
+        article = WellRecommendArticle()
+        article['nick_name'] = data
+
+    async def _get_div_body(self, rich_text):
+        '''
+        处理得到目标文章
+        :param rich_text: 待处理的原文章
+        :return:
+        '''
+        div_body = ''
+        for item in rich_text:
+            resource = item.get('resource', [])[0]
+            text = resource.get('text', '')         # 介绍的文字
+            picture = resource.get('picture', {})   # 介绍的图片
+            _goods = resource.get('item', {})       # 一个商品
+
+            if text != '':
+                text = text + '<br>'
+                div_body += text
+                continue
+
+            if picture != {}:
+                # 得到该图片的宽高，并得到图片的<img>标签
+                _ = r'<img src="{0}" style="height:{1}px;width:{2}px;"/>'.format(
+                    picture.get('picUrl', ''),
+                    picture.get('picHeight', ''),
+                    picture.get('picWidth', '')
+                )
+                _ = _ + '<br>'
+                div_body += _
+
+            if _goods != {}:
+                _hiden_goods_id = r'<p style="display:none;">此处有个商品[goods_id]: {0}</p>'.format(_goods.get('itemId', '')) + '<br>'
+                div_body += _hiden_goods_id
+
+        return '<div>' + div_body + '</div>'
 
     async def _wash_api_info(self, data):
         '''

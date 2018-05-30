@@ -34,7 +34,7 @@ def run_forever():
             result = tmp_sql_server.select_taobao_all_goods_id()
             result_2 = list(tmp_sql_server_2.select_old_table_all_goods_id())
             # print(result_2)
-        except TypeError as e:
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:

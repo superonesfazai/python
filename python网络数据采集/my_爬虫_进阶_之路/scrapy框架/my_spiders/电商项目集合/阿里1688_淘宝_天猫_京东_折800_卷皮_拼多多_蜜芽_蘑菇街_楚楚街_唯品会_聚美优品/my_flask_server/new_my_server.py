@@ -21,6 +21,7 @@ from flask import (
     jsonify,
     Response,
     send_file,
+    abort,
 )
 from flask_login import LoginManager
 
@@ -3745,6 +3746,15 @@ def _null_goods_data():
         'data': '',
         'error_code': '0004',
     })
+
+######################################################
+# wechat
+
+@app.route('/wechat', methods=['GET', 'POST'])
+def wechat():
+    echo_str = dict(request.args).get('echostr', '')
+    
+    return echo_str
 
 ######################################################
 
