@@ -16,6 +16,7 @@ from logging import INFO, ERROR
 from random import randint
 import gc
 from pprint import pprint
+from urllib.parse import unquote
 
 from my_logging import set_logger
 from my_utils import (
@@ -26,15 +27,19 @@ from my_utils import (
 from settings import (
     MY_SPIDER_LOGS_PATH,
     HEADERS,
+    TAOBAO_REAL_TIMES_SLEEP_TIME,
 )
 from my_requests import MyRequests
 from my_items import WellRecommendArticle
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from taobao_parse import TaoBaoLoginAndParse
 
 class TaoBaoWeiTaoShareParse():
     def __init__(self, logger=None):
         self._set_headers()
         self._set_logger(logger)
         self.msg = ''
+        self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
     def _set_headers(self):
         self.headers = {
@@ -70,6 +75,7 @@ class TaoBaoWeiTaoShareParse():
 
         else:
             body = MyRequests.get_url_body(url=taobao_short_url, headers=self.headers)
+            # self.my_lg.info(str(body))
             if body == '':
                 self.my_lg.error('获取到的body为空值, 出错短链接地址: {0}'.format(str(taobao_short_url)))
                 return '', '', ''
@@ -99,7 +105,17 @@ class TaoBaoWeiTaoShareParse():
             # self.my_lg.error('获取csid时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
             csid = ''
 
-        return target_url, content_id, csid
+        try:
+            tag_name = re.compile('tagName=(.*?)&').findall(target_url)[0]
+        except IndexError:
+            tag_name = ''
+
+        try:
+            tag = re.compile('tag=(.*?)&').findall(target_url)[0]
+        except IndexError:
+            tag = ''
+
+        return target_url, content_id, csid, tag_name, tag
 
     async def _get_api_body(self, taobao_short_url):
         '''
@@ -109,7 +125,7 @@ class TaoBaoWeiTaoShareParse():
         '''
         base_url = 'https://h5api.m.taobao.com/h5/mtop.taobao.beehive.detail.contentservicenewv2/1.0/'
 
-        target_url, content_id, csid = await self._get_target_url_and_content_id_and_csid(taobao_short_url)
+        target_url, content_id, csid, tag_name, tag = await self._get_target_url_and_content_id_and_csid(taobao_short_url)
         if content_id == '' and csid == '':      # 异常退出
             return ''
 
@@ -121,6 +137,7 @@ class TaoBaoWeiTaoShareParse():
                 "csid": csid,
             }) if csid != '' else '',   # 没有csid时，就不传这个参数
             'source': 'weitao_2017_nocover',
+            'tagName': tag_name,        # 这个是我自己额外加的用于获取tags的api接口
             'track_params': '',
             'type': 'h5',
         })
@@ -187,15 +204,162 @@ class TaoBaoWeiTaoShareParse():
 
         try:
             data = await self._wash_api_info(loads(data))
-            pprint(data)
+            # pprint(data)
         except Exception as e:
             self.my_lg.error('出错短链接地址:{0}'.format(taobao_short_url))
             self.my_lg.exception(e)
             return {}
 
+        article = await self._get_article(data=data)
+        pprint(article)
+
+        if article != {}:
+            '''采集该文章推荐的商品'''
+            await self._crawl_and_save_these_goods(goods_url_list=article.get('goods_url_list', []))
+
+            '''存储该文章info'''
+            await self._save_this_article(article=article)
+
+            return True
+        else:
+            self.my_lg.info('获取到的文章失败! article为空dict!')
+            return False
+
+    async def _crawl_and_save_these_goods(self, goods_url_list):
+        '''
+        采集该文章推荐的商品
+        :param goods_url_list:
+        :return:
+        '''
+        sql_str = r'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=1 or SiteID=3 or SiteID=4 or SiteID=6'
+
+        try:
+            result = self.my_pipeline._select_table(sql_str=sql_str)
+        except TypeError:
+            result = []
+
+        self.my_lg.info('即将开始抓取该文章的goods, 请耐心等待...')
+        index = 1
+
+        db_all_goods_id_list = [item[0] for item in result]
+        for item in goods_url_list:
+            try:
+                goods_id = re.compile(r'id=(\d+)').findall(item.get('goods_url', ''))[0]
+            except IndexError:
+                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                continue
+
+            if goods_id in db_all_goods_id_list:
+                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                continue
+
+            else:
+                taobao = TaoBaoLoginAndParse(logger=self.my_lg)
+                if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                    self.my_lg.info('与数据库的新连接成功建立...')
+
+                if self.my_pipeline.is_connect_success:
+                    goods_id = taobao.get_goods_id_from_url(item.get('goods_url', ''))
+                    if goods_id == '':
+                        self.my_lg.info('@@@ 原商品的地址为: {0}'.format(item.get('goods_url', '')))
+                        continue
+
+                    else:
+                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
+                        tt = taobao.get_goods_data(goods_id)
+                        data = taobao.deal_with_data(goods_id=goods_id)
+                        if data != {}:
+                            data['goods_id'] = goods_id
+                            data['goods_url'] = 'https://item.taobao.com/item.htm?id=' + str(goods_id)
+                            data['username'] = '18698570079'
+                            data['main_goods_id'] = None
+
+                            # print('------>>>| 爬取到的数据为: ', data)
+                            taobao.old_taobao_goods_insert_into_new_table(data, pipeline=self.my_pipeline)
+
+                        else:
+                            pass
+
+                else:  # 表示返回的data值为空值
+                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    pass
+                index += 1
+                gc.collect()
+                await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+
+        self.my_lg.info('该文章的商品已经抓取完毕!')
+
+        return True
+
+    async def _save_this_article(self, article):
+        '''
+        存储该文章info
+        :param article:
+        :return:
+        '''
+        sql_str = r'select share_id from dbo.jd_youxuan_daren_recommend'
+        db_share_id = [j[0] for j in list(self.my_pipeline._select_table(sql_str=sql_str))]
+
+        if article.get('share_id') in db_share_id:
+            self.my_lg.info('该share_id({})已存在于数据库中, 此处跳过!'.format(article.get('share_id', '')))
+
+            return True
+
+        else:
+            self.my_lg.info('即将开始存储该文章...')
+            if self.my_pipeline.is_connect_success:
+                params = await self._get_db_insert_params(item=article)
+                # pprint(params)
+                sql_str = r'insert into dbo.jd_youxuan_daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_img_url_list, goods_id_list, div_body, create_time, site_id) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+                return True
+            else:
+                self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(article.get('gather_url', '')))
+                return False
+
+    async def _get_db_insert_params(self, item):
+        params = (
+            item['nick_name'],
+            item['head_url'],
+            item['profile'],
+            item['share_id'],
+            item['gather_url'],
+            item['title'],
+            item['comment_content'],
+            dumps(item['share_img_url_list'], ensure_ascii=False),
+            dumps(item['goods_id_list'], ensure_ascii=False),
+            item['div_body'],
+            item['create_time'],
+            item['site_id'],
+        )
+
+        return params
+
+    async def _get_article(self, data):
+        '''
+        得到该文章的需求信息
+        :param data:
+        :return:
+        '''
         try:
             nick_name = data.get('data', {}).get('models', {}).get('account', {}).get('name', '')
             assert nick_name != '', '获取到的nick_name为空值!'
+
+            head_url = await self._get_head_url(data=data)
+
+            # 推荐人的简介或者个性签名
+            tmp_profile = data.get('data', {}).get('models', {}).get('account', {}).get('accountDesc', '')
+            profile = tmp_profile if tmp_profile is not None else ''
+
+            title = self._wash_sensitive_info(data.get('data', {}).get('models', {}).get('content', {}).get('title', ''))
+            # self.my_lg.info(title)
+            assert title != '', '获取到的title为空值!请检查!'
+
+            # 达人的评论，可用于荐好首页的文字信息
+            comment_content = self._wash_sensitive_info(data.get('data', {}).get('models', {}).get('content', {}).get('summary', ''))
 
             tmp_goods_list = data.get('data', {}).get('models', {}).get('content', {}).get('drawerList', [])
             assert tmp_goods_list != [], '获取到的goods_id_list为空list! 请检查! 可能该文章推荐商品为空[]!'
@@ -204,17 +368,23 @@ class TaoBaoWeiTaoShareParse():
             goods_id_list = [{'goods_id': item.get('itemId', '')} for item in tmp_goods_list]
 
             # div_body
-            div_body = await self._get_div_body(rich_text=data.get('data', {}).get('models', {}).get('content', {}).get('richText', []))
-            print(div_body)
+            div_body = self._wash_sensitive_info(await self._get_div_body(rich_text=data.get('data', {}).get('models', {}).get('content', {}).get('richText', [])))
+            # print(div_body)
 
-            # 待抓取的商品地址
-            goods_url_list = [{'goods_url': item.get('itemUrl', '')} for item in tmp_goods_list]
+            # 待抓取的商品地址, 统一格式为淘宝的，如果是tmall地址, 浏览器会重定向到天猫
+            goods_url_list = [{'goods_url': 'https://item.taobao.com/item.htm?id=' + item.get('goods_id', '')} for item in goods_id_list]
 
-            gather_url = (await self._get_target_url_and_content_id_and_csid(taobao_short_url))[0]
+            _ = (await self._get_target_url_and_content_id_and_csid(taobao_short_url))
+            gather_url = _[0]
+            share_id = _[1]  # 即content_id
 
             create_time = get_shanghai_time()
 
-            site_id = 2     # 淘宝微淘
+            site_id = 2  # 淘宝微淘
+
+            # tags 额外的文章地址
+            tags = await self._get_tags(data=data)
+            # pprint(tags)
 
         except Exception as e:
             self.my_lg.error('出错短链接地址:{0}'.format(taobao_short_url))
@@ -222,7 +392,63 @@ class TaoBaoWeiTaoShareParse():
             return {}
 
         article = WellRecommendArticle()
-        article['nick_name'] = data
+        article['nick_name'] = nick_name
+        article['head_url'] = head_url
+        article['profile'] = profile
+        article['share_id'] = share_id
+        article['title'] = title
+        article['comment_content'] = comment_content
+        article['share_img_url_list'] = share_img_url_list
+        article['goods_id_list'] = goods_id_list
+        article['div_body'] = div_body
+        article['gather_url'] = gather_url
+        article['create_time'] = create_time
+        article['site_id'] = site_id
+        article['goods_url_list'] = goods_url_list
+        article['tags'] = tags
+
+        return article
+
+    async def _get_head_url(self, data):
+        '''
+        获取头像地址
+        :param data:
+        :return:
+        '''
+        tmp_head_url = data.get('data', {}).get('models', {}).get('account', {}).get('accountPic', {}).get('picUrl', '')
+        if tmp_head_url != '':
+            if re.compile('http').findall(tmp_head_url) == []:
+                head_url = 'https:' + tmp_head_url
+            else:
+                head_url = tmp_head_url
+        else:
+            head_url = ''
+
+        return head_url
+
+    def _wash_sensitive_info(self, data):
+        '''
+        清洗敏感信息
+        :param data:
+        :return:
+        '''
+        data = re.compile('淘宝|天猫|taobao|tmall|TAOBAO|TMALL').sub('', data)
+
+        return data
+
+    async def _get_tags(self, data):
+        '''
+        获得额外文章的信息
+        :param data:
+        :return:
+        '''
+        tags = data.get('data', {}).get('models', {}).get('tags', [])
+        tags = [{
+            'url': unquote(item.get('url', '')),
+            'name': item.get('name', ''),
+        } for item in tags]
+
+        return tags
 
     async def _get_div_body(self, rich_text):
         '''
@@ -232,31 +458,37 @@ class TaoBaoWeiTaoShareParse():
         '''
         div_body = ''
         for item in rich_text:
-            resource = item.get('resource', [])[0]
-            text = resource.get('text', '')         # 介绍的文字
-            picture = resource.get('picture', {})   # 介绍的图片
-            _goods = resource.get('item', {})       # 一个商品
-
-            if text != '':
-                text = text + '<br>'
-                div_body += text
+            if item.get('resource') is None:
                 continue
 
-            if picture != {}:
-                # 得到该图片的宽高，并得到图片的<img>标签
-                _ = r'<img src="{0}" style="height:{1}px;width:{2}px;"/>'.format(
-                    picture.get('picUrl', ''),
-                    picture.get('picHeight', ''),
-                    picture.get('picWidth', '')
-                )
-                _ = _ + '<br>'
-                div_body += _
+            for resource_item in item.get('resource', []):   # 可能是多个
+                # resource = item.get('resource', [])[0]
+                text = resource_item.get('text', '')         # 介绍的文字
+                picture = resource_item.get('picture', {})   # 介绍的图片
+                _goods = resource_item.get('item', {})       # 一个商品
 
-            if _goods != {}:
-                _hiden_goods_id = r'<p style="display:none;">此处有个商品[goods_id]: {0}</p>'.format(_goods.get('itemId', '')) + '<br>'
-                div_body += _hiden_goods_id
+                if text != '':
+                    text = '<p style="height:auto;width:100%">' + text + '</p>' + '<br>'
+                    div_body += text
+                    continue
 
-        return '<div>' + div_body + '</div>'
+                if picture != {}:
+                    # 得到该图片的宽高，并得到图片的<img>标签
+                    _ = r'<img src="{0}" style="height:{1}px;width:{2}px;"/>'.format(
+                        'https:' + picture.get('picUrl', ''),
+                        picture.get('picHeight', ''),
+                        picture.get('picWidth', '')
+                    )
+                    _ = _ + '<br>'
+                    div_body += _
+                    continue
+
+                if _goods != {}:
+                    _hiden_goods_id = r'<p style="display:none;">此处有个商品[goods_id]: {0}</p>'.format(_goods.get('itemId', '')) + '<br>'
+                    div_body += _hiden_goods_id
+                    continue
+
+        return '<div>' + div_body + '</div>' if div_body != '' else ''
 
     async def _wash_api_info(self, data):
         '''
@@ -277,9 +509,9 @@ class TaoBaoWeiTaoShareParse():
         try:
             del self.my_lg
             del self.msg
+            del self.my_pipeline
         except: pass
         gc.collect()
-
 
 # _short_url = 'http://m.tb.cn/h.WAjz5RP'
 # _short_url = 'http://m.tb.cn/h.WA6JGoC'

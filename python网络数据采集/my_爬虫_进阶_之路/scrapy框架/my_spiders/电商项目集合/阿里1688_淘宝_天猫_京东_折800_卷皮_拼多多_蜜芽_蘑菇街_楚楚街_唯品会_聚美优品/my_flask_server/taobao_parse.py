@@ -421,7 +421,7 @@ class TaoBaoLoginAndParse(object):
         '''
         data_list = data
         tmp = {}
-        tmp['main_goods_id'] = data_list['main_goods_id']
+        tmp['main_goods_id'] = data_list.get('main_goods_id')
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         tmp['spider_url'] = data_list['goods_url']
         tmp['username'] = data_list['username']
@@ -471,7 +471,53 @@ class TaoBaoLoginAndParse(object):
         # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         # tmp['delete_time'] = data_list.get('delete_time')
 
-        pipeline.old_taobao_goods_insert_into_new_table(tmp)
+        params = self._get_db_insert_params(item=tmp)
+
+        if tmp['main_goods_id'] is not None:
+            # main_goods_id不为空
+            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+        else:
+            # main_goods_id为空
+            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+        pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+    def _get_db_insert_params(self, item):
+        '''
+        得到db待插入的数据
+        :param item:
+        :return:
+        '''
+        params = [
+            item['goods_id'],
+            item['spider_url'],
+            item['username'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            item['month_sell_count'],
+
+            item['site_id'],
+            item['is_delete'],
+        ]
+
+        if item.get('main_goods_id') is not None:
+            params.append(item.get('main_goods_id'))
+
+        return tuple(params)
 
     def _get_db_update_params(self, item):
         '''

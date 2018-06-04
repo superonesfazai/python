@@ -11,6 +11,8 @@
 通过urlencode()进行编码时,可能在查询参数时导致解析问题
 可以使用quote()或quote_plus()功能作为一个安全的方式
 来直接引用它们来避免服务器的解析错误
+
+注意: urlencode编码的可以用unquote()来解码
 """
 
 from urllib.parse import quote, quote_plus, urlencode

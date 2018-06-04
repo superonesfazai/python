@@ -56,14 +56,13 @@ class CommentItem(Item):
     modify_time = Field()           # 更改时间点
     _comment_list = Field()         # comment_info
 
-
 class WellRecommendArticle(Item):
     """
     荐好文章关系对象
     """
     nick_name = Field()             # 推荐人昵称
     head_url = Field()              # 推荐人头像
-    proile = Field()                # 推荐人简介或个性签名
+    profile = Field()                # 推荐人简介或个性签名
     share_id = Field()              # 分享的文章的id
     title = Field()                 # 文章title
     comment_content = Field()       # 达人的评论，可用于荐好首页的文字信息
@@ -73,3 +72,5 @@ class WellRecommendArticle(Item):
     gather_url = Field()            # 文章采集地址
     create_time = Field()           # 文章录入的创建时间
     site_id = Field()               # 采集的位置类型int
+    goods_url_list = Field()        # 该文章待抓取的商品地址
+    tags = Field()                  # 用于存微淘的tags信息
