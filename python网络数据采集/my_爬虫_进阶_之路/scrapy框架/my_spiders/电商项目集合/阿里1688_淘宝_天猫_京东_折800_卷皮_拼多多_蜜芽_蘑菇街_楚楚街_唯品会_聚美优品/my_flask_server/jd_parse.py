@@ -808,7 +808,9 @@ class JdParse(object):
         print('--->>>初始化chrome驱动中<<<---')
         chrome_options = webdriver.ChromeOptions()
         # chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
+        # 谷歌文档提到需要加上这个属性来规避bug
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--no-sandbox')
 
         # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
 
@@ -832,6 +834,9 @@ class JdParse(object):
 
         # 修改user-agent
         chrome_options.add_argument('--user-agent={0}'.format(HEADERS[randint(0, len(HEADERS)-1)]))
+
+        # 忽视证书错误
+        chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])
 
         self.driver = webdriver.Chrome(
             executable_path=CHROME_DRIVER_PATH,
