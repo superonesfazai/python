@@ -62,7 +62,7 @@ class WellRecommendArticle(Item):
     """
     nick_name = Field()             # 推荐人昵称
     head_url = Field()              # 推荐人头像
-    profile = Field()                # 推荐人简介或个性签名
+    profile = Field()               # 推荐人简介或个性签名
     share_id = Field()              # 分享的文章的id
     title = Field()                 # 文章title
     comment_content = Field()       # 达人的评论，可用于荐好首页的文字信息

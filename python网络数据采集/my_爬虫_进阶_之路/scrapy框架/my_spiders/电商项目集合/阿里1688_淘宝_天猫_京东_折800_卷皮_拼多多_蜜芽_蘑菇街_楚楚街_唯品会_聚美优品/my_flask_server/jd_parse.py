@@ -11,8 +11,11 @@
 可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀('miaosha'字段)，京东闪购, 京东大药房(在本地测试通过, 服务器data为空)
 """
 
-from settings import HEADERS
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import (
+    HEADERS,
+    PHANTOMJS_DRIVER_PATH,
+    CHROME_DRIVER_PATH,
+)
 
 from random import randint
 import json, re, time
@@ -44,6 +47,7 @@ class JdParse(object):
         self._set_pc_headers()
         self.result_data = {}
         self.init_phantomjs()
+        # self._init_chrome()
 
     def _set_headers(self):
         self.headers = {
@@ -81,7 +85,10 @@ class JdParse(object):
             if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
                 self.result_data = {}
                 return {}
+
             phone_url, tmp_url, comment_url = self._get_need_url(goods_id=goods_id)
+            print('------>>>| 得到的移动端地址为: ', phone_url)
+
             # print(tmp_url)
 
             change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
@@ -92,39 +99,20 @@ class JdParse(object):
             self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
 
             if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
-                try:
-                    # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-                    self.driver.get('https://mitem.jd.hk/cart/cartNum.json')
-                    self.driver.implicitly_wait(15)
-                except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                    print('-->>time out after 15 seconds when loading page')
-                    self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                    # pass
+                # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
+                self.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
             elif goods_id[0] == 2:
-                try:
-                    # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-                    self.driver.get('https://m.yiyaojd.com/cart/cartNum.json')
-                    self.driver.implicitly_wait(15)
-                except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                    print('-->>time out after 15 seconds when loading page')
-                    self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                    # pass
+                # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
+                self.use_phantomjs_to_get_url_body(url='https://m.yiyaojd.com/cart/cartNum.json')
 
             # 得到总销售量
-            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            if change_ip_result is False:
-                print('phantomjs切换ip错误, 此处先跳过更新！')
+            comment_body = self.use_phantomjs_to_get_url_body(url=comment_url)
+            if comment_body == '':  # 网络问题或者ip切换出错
                 self.result_data = {}
                 return {}
-            try:
-                self.driver.get(comment_url)
-                self.driver.implicitly_wait(15)
-            except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                print('-->>time out after 15 seconds when loading page')
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                # pass
-            comment_body = self.driver.page_source
+
             comment_body = self._wash_url_body(body=comment_body)
+            # print(comment_body)
 
             comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
             all_sell_count = '0'
@@ -145,14 +133,12 @@ class JdParse(object):
                 self.result_data = {}
                 return {}
 
-            try:
-                self.driver.get(tmp_url)
-                self.driver.implicitly_wait(15)
-            except Exception as e:  # 如果超时, 终止加载并继续后续操作
-                print('-->>time out after 15 seconds when loading page')
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-                # pass
-            body = self._wash_url_body(body=self.driver.page_source)
+            body = self.use_phantomjs_to_get_url_body(url=tmp_url)
+            if body == '':
+                self.result_data = {}
+                return {}
+
+            body = self._wash_url_body(body=body)
             # print(body)
 
             body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
@@ -256,7 +242,7 @@ class JdParse(object):
 
             # 商品价格
             '''
-            最高价和最低价处理   从已经获取到的规格对应价格中筛选最高价和最低价即可
+            最高价和最低价处理  从已经获取到的规格对应价格中筛选最高价和最低价即可
             '''
             if detail_name_list == []:  # 说明没有规格，所有价格只能根据当前的goods_id来获取
                 if self.from_ware_id_get_price_info(ware_id=goods_id)[0] == '暂无报价':
@@ -264,6 +250,7 @@ class JdParse(object):
                     price, taobao_price = (0, 0,)
                 else:
                     try:
+                        # print(self.from_ware_id_get_price_info(ware_id=goods_id)[0])
                         price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
                         taobao_price = price
                     except TypeError:
@@ -380,14 +367,12 @@ class JdParse(object):
         comment_url = ''
         if goods_id[0] == 0:  # 表示为京东常规商品
             phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id[1])
-            print('------>>>| 得到的移动端地址为: ', phone_url)
             # 用于得到常规信息
             tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id[1])
             comment_url = 'https://item.m.jd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
         elif goods_id[0] == 1:  # 表示为京东全球购商品 (此处由于进口关税无法计算先不处理京东全球购)
             phone_url = 'https://mitem.jd.hk/ware/view.action?wareId=' + str(goods_id[1])
-            print('------>>>| 得到的移动端地址为: ', phone_url)
             tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
             comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
@@ -396,7 +381,6 @@ class JdParse(object):
 
         elif goods_id[0] == 2:  # 表示京东大药房商品
             phone_url = 'https://m.yiyaojd.com/ware/view.action?wareId=' + str(goods_id[1])
-            print('------>>>| 得到的移动端地址为: ', phone_url)
             tmp_url = 'https://m.yiyaojd.com/ware/detail.json?wareId=' + str(goods_id[1])
             comment_url = 'https://m.yiyaojd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
@@ -420,18 +404,7 @@ class JdParse(object):
         self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
 
         # print(price_url)
-        try:
-            self.driver.get(price_url)
-            self.driver.implicitly_wait(12)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 12 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            # pass
-        price_body = self.driver.page_source
-        price_body = re.compile(r'\n').sub('', price_body)
-        price_body = re.compile(r'\t').sub('', price_body)
-        price_body = re.compile(r'  ').sub('', price_body)
-        # print(price_body)
+        price_body = self.use_phantomjs_to_get_url_body(url=price_url)
 
         price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
         if price_body_1 != []:
@@ -818,13 +791,54 @@ class JdParse(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = False
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
         tmp_execute_path = EXECUTABLE_PATH
 
         self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
 
         wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        print('------->>>初始化完毕<<<-------')
+
+    def _init_chrome(self):
+        '''
+        如果使用chrome请设置page_timeout=30
+        :return:
+        '''
+        print('--->>>初始化chrome驱动中<<<---')
+        chrome_options = webdriver.ChromeOptions()
+        # chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
+        chrome_options.add_argument('--disable-gpu')
+
+        # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
+
+        # 设置无图模式
+        prefs = {
+            'profile.managed_default_content_settings.images': 2,
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
+
+        # 设置代理
+        ip_object = MyIpPools()
+        proxy_ip = ip_object._get_random_proxy_ip().replace('http://', '') if isinstance(ip_object._get_random_proxy_ip(), str) else ''
+        if proxy_ip != '':
+            chrome_options.add_argument('--proxy-server={0}'.format(proxy_ip))
+
+        '''无法打开https解决方案'''
+        # 配置忽略ssl错误
+        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        capabilities['acceptSslCerts'] = True
+        capabilities['acceptInsecureCerts'] = True
+
+        # 修改user-agent
+        chrome_options.add_argument('--user-agent={0}'.format(HEADERS[randint(0, len(HEADERS)-1)]))
+
+        self.driver = webdriver.Chrome(
+            executable_path=CHROME_DRIVER_PATH,
+            chrome_options=chrome_options,
+            desired_capabilities=capabilities
+        )
+        wait = ui.WebDriverWait(self.driver, 30)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
@@ -854,7 +868,12 @@ class JdParse(object):
 
         return True
 
-    def use_phantomjs_to_get_url_body(self, url, css_selector=''):
+    # def from_ip_pool_set_proxy_ip_to_phantomjs(self):
+    #     sleep(.3)
+    #
+    #     return True
+
+    def use_phantomjs_to_get_url_body(self, url, css_selector='', page_timeout=15):
         '''
         通过phantomjs来获取url的body
         :param url: 待获取的url
@@ -862,18 +881,19 @@ class JdParse(object):
         '''
         self.from_ip_pool_set_proxy_ip_to_phantomjs()
         try:
-            self.driver.set_page_load_timeout(15)  # 设置成10秒避免数据出错
+            self.driver.set_page_load_timeout(page_timeout)  # 设置成10秒避免数据出错
         except:
+            print('phantomjs切换ip错误, 此处先跳过更新！')
             return ''
 
         try:
             self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(page_timeout)  # 隐式等待和显式等待可以同时使用
 
             if css_selector != '':
                 locator = (By.CSS_SELECTOR, css_selector)
                 try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                    WebDriverWait(self.driver, page_timeout, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:
                     print('遇到错误: ', e)
                     return ''
@@ -886,7 +906,7 @@ class JdParse(object):
             main_body = re.compile(r'\t').sub('', main_body)
             # print(main_body)
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 15 seconds when loading page')
+            print('-->>time out after {0} seconds when loading page'.format(page_timeout))
             print('报错如下: ', e)
             # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             print('main_body为空!')

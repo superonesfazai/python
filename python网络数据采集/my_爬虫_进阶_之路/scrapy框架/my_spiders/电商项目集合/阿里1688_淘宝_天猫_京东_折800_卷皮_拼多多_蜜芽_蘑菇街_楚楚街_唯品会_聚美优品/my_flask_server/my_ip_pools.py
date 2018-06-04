@@ -9,6 +9,7 @@
 
 import requests
 import gc
+from random import randint
 
 __all__ = [
     'MyIpPools',
@@ -39,5 +40,22 @@ class MyIpPools(object):
         # pprint(result_ip_list)
         return result_ip_list
 
+    def _get_random_proxy_ip(self):
+        '''
+        随机获取一个代理ip: 格式 'http://175.6.2.174:8088'
+        :return:
+        '''
+        ip_list = self.get_proxy_ip_from_ip_pool().get('http')
+        try:
+            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]  # 随机一个代理ip
+        except Exception:
+            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+            proxy_ip = False
+
+        return proxy_ip
+
     def __del__(self):
         gc.collect()
+
+# _ = MyIpPools()
+# print(_._get_random_proxy_ip().replace('http://', ''))
