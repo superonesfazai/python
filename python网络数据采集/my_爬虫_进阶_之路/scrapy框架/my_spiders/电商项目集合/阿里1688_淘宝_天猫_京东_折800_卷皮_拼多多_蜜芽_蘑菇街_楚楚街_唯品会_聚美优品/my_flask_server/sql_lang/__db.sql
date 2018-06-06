@@ -445,3 +445,18 @@ create table tao_qianggou_xianshimiaosha(
 	page int,
 	spider_time nvarchar(50)
 );
+
+-- 创建goods_keywords表
+create table goods_keywords(
+  id int IDENTITY(1, 1) PRIMARY key,
+  keyword nvarchar(300),
+  is_delete INT DEFAULT 0
+)
+
+-- 创建goods与关键字的中间表
+CREATE TABLE goods_id_and_keyword_middle_table(
+  id int IDENTITY(1, 1) PRIMARY KEY,
+  goods_id VARCHAR(300),
+  keyword_id INT,
+  is_delete INT DEFAULT 0
+)

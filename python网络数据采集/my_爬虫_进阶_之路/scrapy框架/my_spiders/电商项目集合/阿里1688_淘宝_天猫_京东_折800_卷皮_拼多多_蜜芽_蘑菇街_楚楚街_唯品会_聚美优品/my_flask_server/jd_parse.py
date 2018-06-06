@@ -810,7 +810,7 @@ class JdParse(object):
         # chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
         # 谷歌文档提到需要加上这个属性来规避bug
         chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--no-sandbox')     # required when running as root user. otherwise you would get no sandbox errors.
 
         # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
 

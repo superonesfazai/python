@@ -10,7 +10,10 @@
 import sys
 sys.path.append('..')
 
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, CommentInfoSaveItemPipeline
+from my_pipeline import (
+    SqlServerMyPageInfoSaveItemPipeline,
+    CommentInfoSaveItemPipeline,
+)
 from my_logging import set_logger
 from my_utils import daemon_init, get_shanghai_time
 

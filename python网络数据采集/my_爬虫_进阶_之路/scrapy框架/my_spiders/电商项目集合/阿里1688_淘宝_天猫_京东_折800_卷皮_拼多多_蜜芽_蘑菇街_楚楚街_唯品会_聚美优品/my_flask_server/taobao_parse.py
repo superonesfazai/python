@@ -481,7 +481,9 @@ class TaoBaoLoginAndParse(object):
             # main_goods_id为空
             sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-        pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+        return result
 
     def _get_db_insert_params(self, item):
         '''
