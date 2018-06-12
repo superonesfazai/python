@@ -17,6 +17,7 @@ from my_utils import (
     get_shanghai_time,
 )
 from taobao_parse import TaoBaoLoginAndParse
+from ali_1688_parse import ALi1688LoginAndParse
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -36,6 +37,7 @@ from json import (
 from pprint import pprint
 from random import randint
 import re
+from scrapy.selector import Selector
 
 class GoodsKeywordsSpider(object):
     def __init__(self):
@@ -63,8 +65,8 @@ class GoodsKeywordsSpider(object):
         return {
             1: True,
             2: True,
-            3: True,
-            4: True,
+            3: False,
+            4: False,
         }
 
     def _set_func_name_dict(self):
@@ -138,7 +140,11 @@ class GoodsKeywordsSpider(object):
         :return:
         '''
         if type == 1:
+            self.my_lg.info('下面是淘宝的关键字采集...')
             goods_id_list = self._get_taobao_goods_keywords_goods_id_list(keyword=keyword)
+        elif type == 2:
+            self.my_lg.info('下面是阿里1688的关键字采集...')
+            goods_id_list = self._get_1688_goods_keywords_goods_id_list(keyword=keyword)
         else:
             goods_id_list = []
 
@@ -157,7 +163,7 @@ class GoodsKeywordsSpider(object):
         if type == 1:
             self._taobao_keywords_spider(goods_id_list=goods_id_list, keyword_id=keyword_id)
         elif type == 2:
-            pass
+            self._1688_keywords_spider(goods_id_list=goods_id_list, keyword_id=keyword_id)
         elif type == 3:
             pass
         elif type == 4:
@@ -223,6 +229,47 @@ class GoodsKeywordsSpider(object):
                     return []
                 else:
                     return goods_id_list
+
+    def _get_1688_goods_keywords_goods_id_list(self, keyword):
+        '''
+        根据keyword获取1688销量靠前的商品信息
+        :param keyword:
+        :return: a list eg: ['11111', ...]
+        '''
+        '''方案1: 从m.1688.com搜索页面进行抓取, 只取第一页的销量排名靠前的商品'''
+        headers = {
+            'authority': 'm.1688.com',
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            # 'cookie': 'cna=nbRZExTgqWsCAXPCa6QA5B86; ali_ab=113.215.180.118.1523857816418.4; lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; _csrf_token=1528708263870; JSESSIONID=9L783sX92-8iXZBHLCgK4fJiFKG9-W66WeuQ-BRgo4; hng=CN%7Czh-CN%7CCNY%7C156; t=70c4fb481898a67a66d437321f7b5cdf; _tb_token_=5ee03e566b165; __cn_logon__=false; h_keys="aa#2018%u5973%u88c5t%u6064"; alicnweb=homeIdttS%3D38414563432175544705031886000168094537%7Ctouch_tb_at%3D1528767881872%7ChomeIdttSAction%3Dtrue; ctoken=YnzGSFi23yEECqVO988Gzealot; _m_h5_tk=1cdad4dba1f1502fb29f57b3f73f5610_1528770803659; _m_h5_tk_enc=64259ec4fe4c33bc4555166994ed7b4d; __cn_logon__.sig=i6UL1cVhdIpbPPA_02yGiEyKMeZR2hBfnaoYK1CcrF4; ali_apache_id=11.182.158.193.1528768195886.327406.1; XSRF-TOKEN=b84fcec8-8bdf-41a5-a5c1-f8d6bfc9f83e; _tmp_ck_0=IlQ2M6x9F5xTkEpGRay66FVl%2BBaIEY076xELE8UtaLcz%2BgR%2FJ2UZOfDeKILA7R2VgXEJ7VYCkEQjS1RcUCwfL%2Br8ZFi0vwyVwyNpQsD2QG0HaihwedkkF9Cp9Ww0Jr%2BZF4la9CTe0AY8d1E1lDF91tD7lMAKIGVSne3V95CfI8VzpiWJ415B1IA0cc9J6IpYzn0mT1xLYnXcBAkDq0gop74NaynWIxw%2BLqmnXr%2BYU2bkOyMxZOBVY9B%2Bb0FU82h3TC9HCM8dGLnK2kxlgR%2B5lyT%2BCCFhhIX%2FioEMtA0TvDpXvRSUKoDTQG%2FCeJiKfy3LxMXmcTs5TBuWkh31F8nDCpLf6%2FlYOGkqeV1WLJeYXVe3SBvZC2O2JcYBQaKHcesETe%2FwTJL1fyc%3D; ad_prefer="2018/06/12 10:18:21"; webp=1; isg=BJWVxP7WYsuzzEf8vnJ3nRJEpJdFFdP4_0ZTRxc4b4wzbrxg3ONSdf5sPHJY2WFc; ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiJ5V3I0UVJGelVSVGp4dWs4aUxPWGl4dDIiLCJfZXhwaXJlIjoxNTI4ODU3MDE5ODMzLCJfbWF4QWdlIjo4NjQwMDAwMH0=; ali-ss.sig=z0qrG8Cj9BhDL_CLwTzgBGcdjSOXtp6YLxgDdTQRcWE',
+        }
+
+        params = (
+            ('sortType', 'booked'),
+            ('filtId', ''),
+            ('keywords', keyword[1]),
+            ('descendOrder', 'true'),
+        )
+
+        url = 'https://m.1688.com/offer_search/-6161.html'
+        body = MyRequests.get_url_body(url=url, headers=headers, params=params)
+        # self.my_lg.info(str(body))
+        if body == '':
+            return []
+        else:
+            try:
+                goods_id_list = Selector(text=body).css('div.list_group-item::attr("data-offer-id")').extract()
+                # pprint(goods_id_list)
+            except Exception as e:
+                self.my_lg.exception(e)
+                self.my_lg.error('获取1688搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                goods_id_list = []
+
+        return goods_id_list
 
     def _taobao_keywords_spider(self, **kwargs):
         '''
@@ -292,21 +339,93 @@ class GoodsKeywordsSpider(object):
 
         return True
 
+    def _1688_keywords_spider(self, **kwargs):
+        '''
+        1688对应关键字的商品信息抓取存储
+        :param kwargs:
+        :return:
+        '''
+        goods_id_list = kwargs.get('goods_id_list')
+        keyword_id = kwargs.get('keyword_id')
+        goods_url_list = ['https://detail.1688.com/offer/{0}.html'.format(item) for item in goods_id_list]
+
+        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+
+        result = False
+        for item in goods_url_list:
+            try:
+                goods_id = re.compile('offer/(.*?).html').findall(item)[0]
+            except IndexError:
+                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                continue
+            if goods_id in self.db_existed_goods_id_list:
+                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                result = True   # 原先存在的情况
+                pass
+            else:
+                ali_1688 = ALi1688LoginAndParse()
+                if self.add_goods_index % 20 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                    self.my_lg.info('与数据库的新连接成功建立...')
+
+                if self.my_pipeline.is_connect_success:
+                    goods_id = ali_1688.get_goods_id_from_url(item)
+                    if goods_id == '':
+                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        continue
+                    else:
+                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(self.add_goods_index)))
+                        tt = ali_1688.get_ali_1688_data(goods_id)
+                        if tt.get('is_delete') == 1 and tt.get('before') is False:    # 处理已下架的但是还是要插入的
+                            # 下架的商品就pass
+                            continue
+
+                        data = ali_1688.deal_with_data()
+                        if data != {}:
+                            data['goods_id'] = goods_id
+                            data['goods_url'] = 'https://detail.1688.com/offer/' + goods_id + '.html'
+                            data['username'] = '18698570079'
+                            data['main_goods_id'] = None
+
+                            result = ali_1688.old_ali_1688_goods_insert_into_new_table(data=data, pipeline=self.my_pipeline)
+                        else:
+                            pass
+
+                else:  # 表示返回的data值为空值
+                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    pass
+                self.add_goods_index += 1
+                gc.collect()
+                sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+            if result:      # 仅处理goods_id被插入或者原先已存在于db中
+                self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
+            else:
+                pass
+
+        self.my_lg.info('该关键字的商品已经抓取完毕!')
+
+        return True
+
     def _insert_into_goods_id_and_keyword_middle_table(self, **kwargs):
         '''
         数据插入goods_id_and_keyword_middle_table
         :param kwargs:
         :return:
         '''
-        goods_id = kwargs['goods_id']
-        keyword_id = kwargs['keyword_id']
+        goods_id = str(kwargs['goods_id'])
+        keyword_id = int(kwargs['keyword_id'])
+        # self.my_lg.info(goods_id)
+        # self.my_lg.info(keyword_id)
         result = False
 
         '''先判断中间表goods_id_and_keyword_middle_table是否已新增该关键字的id'''
-        sql_str = r'select keyword_id from dbo.goods_id_and_keyword_middle_table where goods_id=%s' % str(goods_id)
+        # 注意非完整sql语句不用r'', 而直接''
+        sql_str = 'select keyword_id from dbo.goods_id_and_keyword_middle_table where goods_id=%s'
         try:
-            _ = self.my_pipeline._select_table(sql_str=sql_str)
+            _ = self.my_pipeline._select_table(sql_str=sql_str, params=(goods_id,))
             _ = [i[0] for i in _]
+            # pprint(_)
         except Exception:
             self.my_lg.error('执行中间表goods_id_and_keyword_middle_table是否已新增该关键字的id的sql语句时出错, 跳过给商品加keyword_id')
             return result

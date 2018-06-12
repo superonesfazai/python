@@ -156,9 +156,9 @@ class ALi1688LoginAndParse(object):
 
         if data != {}:
             # 公司名称
-            company_name = data.get('companyName')
+            company_name = data.get('companyName', '')
             # 商品名称
-            title = data.get('subject')
+            title = self._wash_sensitive_words(data.get('subject', ''))
             # 卖家姓名
             link_name = ''
 
@@ -429,6 +429,16 @@ class ALi1688LoginAndParse(object):
 
         return value
 
+    def _wash_sensitive_words(self, word):
+        '''
+        清洗敏感字眼
+        :param word:
+        :return:
+        '''
+        word = re.compile(r'淘宝网').sub('', word)
+
+        return word
+
     def _wash_discountPriceRanges(self, body):
         '''
         清洗discountPriceRanges
@@ -542,10 +552,10 @@ class ALi1688LoginAndParse(object):
     def old_ali_1688_goods_insert_into_new_table(self, data, pipeline):
         data_list = data
         tmp = GoodsItem()
-        tmp['main_goods_id'] = data_list['main_goods_id']
-        tmp['username'] = data_list['username']
+        tmp['main_goods_id'] = data_list.get('main_goods_id')
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         tmp['goods_url'] = data_list['goods_url']
+        tmp['username'] = data_list['username']
 
         now_time = get_shanghai_time()
         tmp['create_time'] = now_time  # 操作时间
@@ -568,21 +578,17 @@ class ALi1688LoginAndParse(object):
             tmp_dic = {}
             tmp_dic['spec_name'] = item.get('prop')
             spec_name.append(tmp_dic)
-
         tmp['detail_name_list'] = spec_name  # 标签属性名称
 
         """
         得到sku_map
         """
         tmp['price_info_list'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
-
         tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
         tmp['p_info'] = data_list.get('property_info')  # 详细信息
         tmp['div_desc'] = data_list.get('detail_info')  # 下方div
 
         tmp['site_id'] = 2      # 阿里1688
-
         tmp['is_delete'] = data_list['is_delete']
 
         # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
@@ -590,12 +596,17 @@ class ALi1688LoginAndParse(object):
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         params = self._get_db_insert_params(item=tmp)
-        sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        if tmp['main_goods_id'] is not None:
+            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        else:
+            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        result = pipeline._insert_into_table(sql_str=sql_str, params=params)
+
+        return result
 
     def _get_db_insert_params(self, item):
-        params = (
+        params = [
             item['goods_id'],
             item['goods_url'],
             item['username'],
@@ -615,10 +626,12 @@ class ALi1688LoginAndParse(object):
 
             item['site_id'],
             item['is_delete'],
-            item['main_goods_id'],
-        )
+        ]
 
-        return params
+        if item.get('main_goods_id') is not None:
+            params.append(item.get('main_goods_id'))
+
+        return tuple(params)
 
     def get_detail_info_url_div(self, detail_info_url):
         '''

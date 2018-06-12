@@ -425,18 +425,8 @@ class TaoBaoLoginAndParse(object):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         tmp['spider_url'] = data_list['goods_url']
         tmp['username'] = data_list['username']
-        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
 
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -458,9 +448,7 @@ class TaoBaoLoginAndParse(object):
         得到sku_map
         """
         tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
         tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
         tmp['p_info'] = data_list.get('p_info')  # 详细信息
         tmp['div_desc'] = data_list.get('div_desc')  # 下方div
 
@@ -472,7 +460,6 @@ class TaoBaoLoginAndParse(object):
         # tmp['delete_time'] = data_list.get('delete_time')
 
         params = self._get_db_insert_params(item=tmp)
-
         if tmp['main_goods_id'] is not None:
             # main_goods_id不为空
             sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

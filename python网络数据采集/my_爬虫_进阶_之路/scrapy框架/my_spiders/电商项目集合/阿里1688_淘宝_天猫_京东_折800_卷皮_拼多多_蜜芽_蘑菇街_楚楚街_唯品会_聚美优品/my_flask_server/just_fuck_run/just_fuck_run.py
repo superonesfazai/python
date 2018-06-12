@@ -9,7 +9,10 @@
 import sys
 sys.path.append('..')
 
-from my_utils import daemon_init, process_exit
+from my_utils import (
+    daemon_init,
+    process_exit,
+)
 
 from time import sleep
 import datetime
