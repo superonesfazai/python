@@ -983,7 +983,12 @@ class TaoBaoLoginAndParse(object):
                 self.my_lg.error('ProxyError!')
                 return ''
 
-        data = response.content.decode('utf-8')
+        try:
+            data = response.content.decode('utf-8')
+        except Exception as e:      # 解码错误，异常退出
+            self.my_lg.error(e)
+            return ''
+
         # self.my_lg.info(str(data))
         data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
         if data != []:

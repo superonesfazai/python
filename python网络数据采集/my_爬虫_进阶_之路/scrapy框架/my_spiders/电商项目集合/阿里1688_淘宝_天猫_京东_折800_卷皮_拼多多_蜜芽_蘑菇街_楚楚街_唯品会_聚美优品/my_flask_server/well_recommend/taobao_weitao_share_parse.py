@@ -23,6 +23,7 @@ from my_utils import (
     get_shanghai_time,
     get_taobao_sign_and_body,
     restart_program,
+    list_duplicate_remove,
 )
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -213,7 +214,7 @@ class TaoBaoWeiTaoShareParse():
         article = await self._get_article(data=data)
         pprint(article)
 
-        if article != {}:
+        if article != {} and article.get('share_id', '') != '':
             '''采集该文章推荐的商品'''
             await self._crawl_and_save_these_goods(goods_url_list=article.get('goods_url_list', []))
 
@@ -299,7 +300,7 @@ class TaoBaoWeiTaoShareParse():
         :param article:
         :return:
         '''
-        sql_str = r'select share_id from dbo.jd_youxuan_daren_recommend'
+        sql_str = r'select share_id from dbo.daren_recommend'
         db_share_id = [j[0] for j in list(self.my_pipeline._select_table(sql_str=sql_str))]
 
         if article.get('share_id') in db_share_id:
@@ -312,7 +313,7 @@ class TaoBaoWeiTaoShareParse():
             if self.my_pipeline.is_connect_success:
                 params = await self._get_db_insert_params(item=article)
                 # pprint(params)
-                sql_str = r'insert into dbo.jd_youxuan_daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_img_url_list, goods_id_list, div_body, create_time, site_id) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                sql_str = r'insert into dbo.daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_goods_base_info, div_body, create_time, site_id) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
                 self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
                 return True
@@ -329,8 +330,9 @@ class TaoBaoWeiTaoShareParse():
             item['gather_url'],
             item['title'],
             item['comment_content'],
-            dumps(item['share_img_url_list'], ensure_ascii=False),
-            dumps(item['goods_id_list'], ensure_ascii=False),
+            # dumps(item['share_img_url_list'], ensure_ascii=False),
+            # dumps(item['goods_id_list'], ensure_ascii=False),
+            dumps(item['share_goods_base_info'], ensure_ascii=False),
             item['div_body'],
             item['create_time'],
             item['site_id'],
@@ -361,11 +363,18 @@ class TaoBaoWeiTaoShareParse():
             # 达人的评论，可用于荐好首页的文字信息
             comment_content = self._wash_sensitive_info(data.get('data', {}).get('models', {}).get('content', {}).get('summary', ''))
 
+            '''微淘抓包的接口: 图片，商品依次对应'''
             tmp_goods_list = data.get('data', {}).get('models', {}).get('content', {}).get('drawerList', [])
             assert tmp_goods_list != [], '获取到的goods_id_list为空list! 请检查! 可能该文章推荐商品为空[]!'
 
             share_img_url_list = [{'img_url': 'https:' + item.get('itemImages', [])[0].get('picUrl', '')} for item in tmp_goods_list]
             goods_id_list = [{'goods_id': item.get('itemId', '')} for item in tmp_goods_list]
+
+            # 由于微淘的图片跟商品信息一一对应，so直接存一个字段, 清除重复的推荐商品(list去重，并保持原来的顺序)
+            share_goods_base_info = list_duplicate_remove([{
+                'img_url': 'https:' + item.get('itemImages', [])[0].get('picUrl', ''),
+                'goods_id': item.get('itemId', ''),
+            } for item in tmp_goods_list])
 
             # div_body
             div_body = self._wash_sensitive_info(await self._get_div_body(rich_text=data.get('data', {}).get('models', {}).get('content', {}).get('richText', [])))
@@ -406,6 +415,7 @@ class TaoBaoWeiTaoShareParse():
         article['site_id'] = site_id
         article['goods_url_list'] = goods_url_list
         article['tags'] = tags
+        article['share_goods_base_info'] = share_goods_base_info
 
         return article
 

@@ -8,12 +8,13 @@
 '''
 
 from pymssql import *
-from json import dumps
+from json import dumps, loads
 import gc
 from sqlalchemy import create_engine
 import datetime, calendar
 import asyncio
 from logging import INFO, ERROR
+from pprint import pprint
 
 from settings import HOST, USER, PASSWORD, DATABASE, PORT
 from settings import INIT_PASSWD
@@ -1112,3 +1113,4 @@ class DataAnalysisDbPipeline(object):
             pass
 
         return year_order_sell_count_by_month_list
+

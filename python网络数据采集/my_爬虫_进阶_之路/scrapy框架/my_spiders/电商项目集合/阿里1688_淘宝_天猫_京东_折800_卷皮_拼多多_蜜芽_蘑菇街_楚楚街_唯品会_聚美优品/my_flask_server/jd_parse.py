@@ -32,6 +32,7 @@ import selenium.webdriver.support.ui as ui
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
 from my_requests import MyRequests
@@ -96,7 +97,12 @@ class JdParse(object):
                 print('phantomjs切换ip错误, 此处先跳过更新！')
                 self.result_data = {}
                 return {}
-            self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
+
+            try:
+                self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
+            except WebDriverException as e:
+                print(e)
+                return {}
 
             if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
                 # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值

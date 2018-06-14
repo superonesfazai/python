@@ -396,6 +396,8 @@ class GoodsKeywordsSpider(object):
                     self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
+                try: del ali_1688
+                except: pass
                 gc.collect()
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
             if result:      # 仅处理goods_id被插入或者原先已存在于db中

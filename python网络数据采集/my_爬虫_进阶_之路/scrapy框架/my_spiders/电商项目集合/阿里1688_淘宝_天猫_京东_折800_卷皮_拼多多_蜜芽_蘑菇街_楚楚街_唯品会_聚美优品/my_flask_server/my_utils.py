@@ -32,6 +32,7 @@ __all__ = [
     '_green',                                           # 将字体变成绿色
     'delete_list_null_str',                             # 删除list中的空str
     'kill_process_by_name',                             # 根据进程名杀掉对应进程
+    'list_duplicate_remove',                            # list去重
 
     '_get_price_change_info',                           # 公司用来记录价格改变信息
     'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
@@ -416,3 +417,14 @@ def kill_process_by_name(process_name):
             print(e)
     else:
         print('进程[%s]不存在' % process_name)
+
+def list_duplicate_remove(_list:list):
+    '''
+    list去重
+    :param _list:
+    :return:
+    '''
+    b = []
+    [b.append(i) for i in _list if not i in b]
+
+    return b

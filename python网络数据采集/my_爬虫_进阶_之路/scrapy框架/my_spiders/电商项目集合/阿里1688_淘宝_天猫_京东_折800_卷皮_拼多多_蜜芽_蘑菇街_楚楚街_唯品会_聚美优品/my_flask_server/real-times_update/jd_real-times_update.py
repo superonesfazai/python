@@ -12,7 +12,12 @@ sys.path.append('..')
 
 from jd_parse import JdParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init, _get_price_change_info, get_my_shelf_and_down_time_and_delete_time
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+    _get_price_change_info,
+    get_my_shelf_and_down_time_and_delete_time,
+)
 
 import gc
 from time import sleep
@@ -37,9 +42,19 @@ def run_forever():
 
         print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
         index = 1
+
+        # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+        jd = JdParse()
+
         for item in result:  # 实时更新数据
-            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            jd = JdParse()
+            # # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
+            # jd = JdParse()
+            if index % 5 == 0:
+                try: del jd
+                except: pass
+                gc.collect()
+                jd = JdParse()
+
             if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                 print('正在重置，并与数据库建立新连接中...')
                 # try:
@@ -90,8 +105,10 @@ def run_forever():
             # except:
             #     pass
             gc.collect()
-            # sleep(1)
+            sleep(1.5)
         print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+        try: del jd
+        except: pass
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
