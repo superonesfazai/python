@@ -438,21 +438,12 @@ class TmallParse(object):
         '''
         data_list = data
         tmp = {}
+        tmp['main_goods_id'] = data_list.get('main_goods_id')
         tmp['username'] = data_list['username']
         tmp['spider_url'] = data_list['goods_url']
-        tmp['main_goods_id'] = data_list['main_goods_id']
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
 
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['deal_with_time'] = now_time  # 操作时间
         tmp['modfiy_time'] = now_time  # 修改时间
 
@@ -480,15 +471,9 @@ class TmallParse(object):
         tmp['p_info'] = data_list.get('p_info')  # 详细信息
         tmp['div_desc'] = data_list.get('div_desc')  # 下方div
 
-        # # 采集的来源地
-        if data_list.get('type') == 0:
-            tmp['site_id'] = 3  # 采集来源地(天猫)
-        elif data_list.get('type') == 1:
-            tmp['site_id'] = 4  # 采集来源地(天猫超市)
-        elif data_list.get('type') == 2:
-            tmp['site_id'] = 6  # 采集来源地(天猫国际)
-        else:
-            print('type为未知值, 导致site_id设置失败, 此处跳过!')
+        tmp['site_id'] = self._from_tmall_type_get_site_id(type=data_list['type'])
+        if tmp['site_id'] is False:
+            self.my_lg.info('type为未知值, 导致site_id设置失败, 此处跳过!')
             return False
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
@@ -496,8 +481,15 @@ class TmallParse(object):
         # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
         # tmp['delete_time'] = data_list.get('delete_time')
 
-        pipeline.old_tmall_goods_insert_into_new_table(tmp)
-        return True
+        params = self._get_db_insert_params(item=tmp)
+        if tmp.get('main_goods_id') is not None:
+            sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        else:
+            sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+        result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+        return result
 
     def insert_into_taoqianggou_xianshimiaosha_table(self, data, pipeline):
         '''
@@ -601,6 +593,42 @@ class TmallParse(object):
         pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
         return
+
+    def _get_db_insert_params(self, item):
+        '''
+        得到待插入的数据
+        :param item:
+        :return:
+        '''
+        params = [
+            item['goods_id'],
+            item['spider_url'],
+            item['username'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            item['month_sell_count'],
+
+            item['site_id'],
+            item['is_delete'],
+        ]
+
+        if item.get('main_goods_id') is not None:
+            params.append(item.get('main_goods_id'))
+
+        return tuple(params)
 
     def _get_db_update_params(self, item):
         '''
@@ -768,6 +796,45 @@ class TmallParse(object):
         )
 
         return params
+
+    def _from_tmall_type_get_tmall_url(self, type, goods_id):
+        '''
+        根据天猫的type来获取正确的url
+        :param type:
+        :param goods_id:
+        :return: a str
+        '''
+        if type == 0:
+            # 天猫常规商品
+            goods_url = 'https://detail.tmall.com/item.htm?id=' + str(goods_id)
+        elif type == 1:
+            # 天猫超市
+            goods_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + str(goods_id)
+        elif type == 2:
+            # 天猫国际
+            goods_url = 'https://detail.tmall.hk/item.htm?id=' + str(goods_id)
+        else:
+            goods_url = ''
+
+        return goods_url
+
+    def _from_tmall_type_get_site_id(self, type):
+        '''
+        根据tmall的type得到site_id的值
+        :param type:
+        :return: bool or int
+        '''
+        # # 采集的来源地
+        if type == 0:
+            site_id = 3  # 采集来源地(天猫)
+        elif type == 1:
+            site_id = 4  # 采集来源地(天猫超市)
+        elif type == 2:
+            site_id = 6  # 采集来源地(天猫国际)
+        else:
+            return False
+
+        return site_id
 
     def get_goods_id_from_url(self, tmall_url):
         '''

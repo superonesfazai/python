@@ -18,7 +18,7 @@
 from urllib.parse import quote, quote_plus, urlencode
 
 url = 'http://localhost:8080/~hellmann/'
-print('urlencode() :', urlencode({'url': url}))
+print('urlencode() :', urlencode({'url': url}))     # 里面接收dict
 print('quote()     :', quote(url))
 print('quote_plus():', quote_plus(url))     # 这个方法引用与原url更为相似的
 
@@ -31,6 +31,11 @@ print(unquote('http%3A//localhost%3A8080/%7Ehellmann/'))
 print(unquote_plus(
     'http%3A%2F%2Flocalhost%3A8080%2F%7Ehellmann%2F'
 ))
+
+_ = 'https://list.tmall.com/m/search_items.htm?page_size=20&page_no=1&q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d'
+print(unquote(_, encoding='gbk'))
+
+print(urlencode({'q':'阿里达斯'}, encoding='gbk'))
 
 '''
 测试结果:

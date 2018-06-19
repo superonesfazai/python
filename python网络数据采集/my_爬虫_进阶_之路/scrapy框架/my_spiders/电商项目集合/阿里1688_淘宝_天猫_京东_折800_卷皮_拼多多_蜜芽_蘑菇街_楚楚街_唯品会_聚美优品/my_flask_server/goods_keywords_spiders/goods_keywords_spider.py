@@ -18,6 +18,7 @@ from my_utils import (
 )
 from taobao_parse import TaoBaoLoginAndParse
 from ali_1688_parse import ALi1688LoginAndParse
+from tmall_parse_2 import TmallParse
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -63,9 +64,9 @@ class GoodsKeywordsSpider(object):
         :return: dict
         '''
         return {
-            1: True,
-            2: True,
-            3: False,
+            1: False,
+            2: False,
+            3: True,
             4: False,
         }
 
@@ -145,6 +146,9 @@ class GoodsKeywordsSpider(object):
         elif type == 2:
             self.my_lg.info('下面是阿里1688的关键字采集...')
             goods_id_list = self._get_1688_goods_keywords_goods_id_list(keyword=keyword)
+        elif type == 3:
+            self.my_lg.info('下面是天猫的关键字采集...')
+            goods_id_list = self._get_tmall_goods_keywords_goods_id_list(keyword=keyword)
         else:
             goods_id_list = []
 
@@ -165,7 +169,7 @@ class GoodsKeywordsSpider(object):
         elif type == 2:
             self._1688_keywords_spider(goods_id_list=goods_id_list, keyword_id=keyword_id)
         elif type == 3:
-            pass
+            self._tmall_keywords_spider(goods_id_list=goods_id_list, keyword_id=keyword_id)
         elif type == 4:
             pass
         else:
@@ -270,6 +274,57 @@ class GoodsKeywordsSpider(object):
                 goods_id_list = []
 
         return goods_id_list
+
+    def _get_tmall_goods_keywords_goods_id_list(self, keyword):
+        '''
+        根据keyword获取tmall销量靠前的商品
+        :param keyword:
+        :return: list eg: ['//detail.tmall.com/item.htm?id=566978017832&skuId=3606684772412', ...] 不是返回goods_id
+        '''
+        '''方案: tmall m站的搜索'''
+        headers = {
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'accept': '*/*',
+            # 'referer': 'https://list.tmall.com/search_product.htm?q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d',
+            'authority': 'list.tmall.com',
+            # 'cookie': 'cna=nbRZExTgqWsCAXPCa6QA5B86; _med=dw:1280&dh:800&pw:2560&ph:1600&ist:0; cq=ccp%3D1; hng=CN%7Czh-CN%7CCNY%7C156; lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; enc=zIc9Cy5z0iS95tACxeX82fUsJdrekjC6%2BomP3kNKji1Z9RKwOt%2Fysyyewwf8twcytUGt2yT9AlAh5ASUlds05g%3D%3D; t=70c4fb481898a67a66d437321f7b5cdf; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _tb_token_=5ee03e566b165; cookie2=1cf9585e0c6d98c72c64beac41a68107; tt=tmall-main; pnm_cku822=098%23E1hvHpvUvbpvUvCkvvvvvjiPPFcvsjYnn2dvljEUPmP9sj1HPFsWtj3EP25ptj3PiQhvCvvvpZptvpvhvvCvpvhCvvOv9hCvvvmtvpvIvvCvxQvvvUgvvhVXvvvCxvvvBZZvvUhpvvChiQvv9Opvvho5vvmC3UyCvvOCvhEC0nkivpvUvvCCEppK6NOEvpCWvKXQwCzE%2BFuTRogRD76fdigqb64B9C97%2Bul1B5c6%2Bu0OVC61D70O58TJOymQD40OeutYon29V3Q7%2B3%2Busj7J%2Bu0OaokQD40OeutYLpGCvvpvvPMM; res=scroll%3A990*6982-client%3A472*680-offset%3A472*6982-screen%3A1280*800; _m_h5_tk=69794695b8eeb690d3ef037f6780d514_1529036786907; _m_h5_tk_enc=3e31314740c37d1fb14a26989cdac03c; isg=BN_f5lvy-LULYv0VwEkGMp59bjVjxpc1-mcB0nEsew7VAP6CeRTDNl2Gx5Z-nAte',
+        }
+
+        params = {
+            'page_size': '20',
+            'page_no': '1',
+            'q': str(keyword[1]),
+            'type': 'p',
+            'spm': 'a220m.6910245.a2227oh.d100',
+            'from': 'mallfp..m_1_suggest',
+            'sort': 'd',
+        }
+
+        s_url = 'https://list.tmall.com/m/search_items.htm'
+        body = MyRequests.get_url_body(url=s_url, headers=headers, params=params)
+        # self.my_lg.info(str(body))
+        if body == '':
+            return []
+        else:
+            data = self.json_str_2_dict(json_str=body)
+            if data == {}:
+                self.my_lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
+                return []
+            else:
+                _ = data.get('item', [])
+                if _ is None or _ == []:
+                    self.my_lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                    return []
+                try:
+                    goods_id_list = [str(item.get('url', '')) for item in _]
+                except Exception as e:
+                    self.my_lg.exception(e)
+                    self.my_lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                    return []
+
+                return goods_id_list
 
     def _taobao_keywords_spider(self, **kwargs):
         '''
@@ -398,6 +453,75 @@ class GoodsKeywordsSpider(object):
                 self.add_goods_index += 1
                 try: del ali_1688
                 except: pass
+                gc.collect()
+                sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+            if result:      # 仅处理goods_id被插入或者原先已存在于db中
+                self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
+            else:
+                pass
+
+        self.my_lg.info('该关键字的商品已经抓取完毕!')
+
+        return True
+
+    def _tmall_keywords_spider(self, **kwargs):
+        '''
+        tmall对应关键字采集
+        :param kwargs:
+        :return:
+        '''
+        goods_id_list = kwargs.get('goods_id_list')
+        keyword_id = kwargs.get('keyword_id')
+        goods_url_list = ['https:' + re.compile('&skuId=.*').sub('', item) for item in goods_id_list]
+
+        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+
+        result = False      # 用于判断某个goods是否被插入的参数
+        for item in goods_url_list:     # item为goods_url
+            try:
+                goods_id = re.compile(r'id=(\d+)').findall(item)[0]
+            except IndexError:
+                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                continue
+
+            if goods_id in self.db_existed_goods_id_list:
+                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                result = True   # 原先存在的情况
+                pass
+            else:
+                tmall = TmallParse(logger=self.my_lg)
+                if self.add_goods_index % 20 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                    self.my_lg.info('与数据库的新连接成功建立...')
+
+                if self.my_pipeline.is_connect_success:
+                    goods_id = tmall.get_goods_id_from_url(item)
+                    if goods_id == []:
+                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        continue
+                    else:
+                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id[1], str(self.add_goods_index)))
+                        tt = tmall.get_goods_data(goods_id)
+                        data = tmall.deal_with_data()
+                        goods_id = goods_id[1]
+                        if data != {}:
+                            data['goods_id'] = goods_id
+                            data['username'] = '18698570079'
+                            data['main_goods_id'] = None
+                            data['goods_url'] = tmall._from_tmall_type_get_tmall_url(type=data['type'], goods_id=goods_id)
+                            if data['goods_url'] == '':
+                                self.my_lg.error('该goods_url为空值! 此处跳过!')
+                                continue
+
+                            result = tmall.old_tmall_goods_insert_into_new_table(data, pipeline=self.my_pipeline)
+                        else:
+                            pass
+
+                else:
+                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    pass
+                self.add_goods_index += 1
                 gc.collect()
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
             if result:      # 仅处理goods_id被插入或者原先已存在于db中

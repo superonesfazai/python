@@ -460,7 +460,7 @@ class TaoBaoLoginAndParse(object):
         # tmp['delete_time'] = data_list.get('delete_time')
 
         params = self._get_db_insert_params(item=tmp)
-        if tmp['main_goods_id'] is not None:
+        if tmp.get('main_goods_id') is not None:
             # main_goods_id不为空
             sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
