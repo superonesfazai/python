@@ -102,7 +102,7 @@ app = Flask(__name__, root_path=os.getcwd())
 # )
 
 app.CSRF_ENABLED = True                 # CSRF_ENABLED 配置是为了激活 跨站点请求伪造 保护。在大多数情况下，你需要激活该配置使得你的应用程序更安全些
-app.secret_key = 'fjusfbubvnighwwf#%&'     # SECRET_KEY 配置仅仅当 CSRF 激活的时候才需要，它是用来建立一个加密的令牌，用于验证一个表单
+app.secret_key = 'fjusfbubvnighwwf#%&'  # SECRET_KEY 配置仅仅当 CSRF 激活的时候才需要，它是用来建立一个加密的令牌，用于验证一个表单
 
 # 内部员工口令
 inner_pass = 'adminss'
@@ -651,7 +651,6 @@ def get_all_data():
             my_lg.info('发起获取请求的员工的username为: %s' % str(username))
 
             goodsLink = request.form.get('goodsLink')
-
             if goodsLink:
                 tmp_item = re.compile(r'(.*?)\?.*?').findall(goodsLink)  # 过滤筛选出唯一的阿里1688商品链接
                 if tmp_item == []:
@@ -660,61 +659,32 @@ def get_all_data():
                     wait_to_deal_with_url = tmp_item[0]
             else:
                 my_lg.info('goodsLink为空值...')
-
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             login_ali = ALi1688LoginAndParse()
-
             goods_id = login_ali.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 my_lg.info('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
-                del login_ali       # 每次都回收一下
+                del login_ali  # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             tmp_result = login_ali.get_ali_1688_data(goods_id=goods_id)
-
             if tmp_result == {}:
                 my_lg.info('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
-
                 del login_ali
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             data = login_ali.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-
             if data == {}:
                 my_lg.info('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 del login_ali
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -741,14 +711,8 @@ def get_all_data():
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
+            return _null_goods_link()
 
-            result = json.dumps(result)
-            return result
     else:
         result = {
             'reason': 'error',
@@ -972,66 +936,38 @@ def get_taobao_data():
             my_lg.info('发起获取请求的员工的username为: %s' % str(username))
 
             goodsLink = request.form.get('goodsLink')
-
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
                 my_lg.info('goodsLink为空值...')
-
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             login_taobao = TaoBaoLoginAndParse(logger=my_lg)
-
             goods_id = login_taobao.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 my_lg.info('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
-                del login_taobao       # 每次都回收一下
+                del login_taobao  # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
             tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
             time.sleep(TAOBAO_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
             if tmp_result == {}:
                 my_lg.info('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
-
                 del login_taobao
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
             if data == {}:
                 my_lg.info('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 del login_taobao
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -1057,14 +993,7 @@ def get_taobao_data():
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
             # my_lg.info('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
-
-            result = json.dumps(result)
-            return result
+            return _null_goods_link()
     else:
         result = {
             'reason': 'error',
@@ -1363,36 +1292,21 @@ def get_tmall_data():
             my_lg.info('发起获取请求的员工的username为: %s' % username)
 
             goodsLink = request.form.get('goodsLink')
-
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
                 my_lg.info('goodsLink为空值...')
 
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             login_tmall = TmallParse(logger=my_lg)
-
             goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == []:      # 如果得不到goods_id, 则return error
                 my_lg.info('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
                 del login_tmall       # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
             #####################################################
@@ -1406,31 +1320,18 @@ def get_tmall_data():
             time.sleep(TMALL_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
             if tmp_result == {}:
                 my_lg.info('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
-
                 del login_tmall
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             data = login_tmall.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-
             if data == {}:
                 my_lg.info('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 del login_tmall
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -1455,14 +1356,7 @@ def get_tmall_data():
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
             # my_lg.info('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
-
-            result = json.dumps(result)
-            return result
+            return _null_goods_link()
     else:
         result = {
             'reason': 'error',
@@ -1722,43 +1616,28 @@ def _get_db_tmall_insert_params(item):
 def get_jd_data():
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
             print('发起获取请求的员工的username为: %s' % username)
 
             goodsLink = request.form.get('goodsLink')
-
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             jd = JdParse()
-
             goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == []:      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
                 del jd       # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
             #####################################################
@@ -1771,31 +1650,17 @@ def get_jd_data():
             tmp_result = jd.get_goods_data(goods_id=goods_id)
             if tmp_result == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
 
                 del jd
                 gc.collect()
-                result = json.dumps(result)
-                return result
+                return _null_goods_data()
 
             data = jd.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
-
             if data == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 del jd
                 gc.collect()
-                result = json.dumps(result)
-                return result
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -1820,14 +1685,8 @@ def get_jd_data():
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
+            return _null_goods_link()
 
-            result = json.dumps(result)
-            return result
     else:
         result = {
             'reason': 'error',
@@ -2082,30 +1941,17 @@ def get_zhe_800_data():
             else:
                 print('goodsLink为空值...')
 
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             zhe_800 = Zhe800Parse()
 
             goods_id = zhe_800.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
                 del zhe_800       # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             #####################################################
             wait_to_deal_with_url = 'https://shop.zhe800.com/products/' + str(goods_id)
@@ -2113,31 +1959,19 @@ def get_zhe_800_data():
             tmp_result = zhe_800.get_goods_data(goods_id=goods_id)
             if tmp_result == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
-
                 del zhe_800
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             data = zhe_800.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 del zhe_800
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -2162,14 +1996,7 @@ def get_zhe_800_data():
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
-
-            result = json.dumps(result)
-            return result
+            return _null_goods_link()
     else:
         result = {
             'reason': 'error',
@@ -2431,30 +2258,19 @@ def get_juanpi_data():
                 wait_to_deal_with_url = goodsLink
             else:
                 print('goodsLink为空值...')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
 
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             juanpi = JuanPiParse()
 
             goods_id = juanpi.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
 
                 del juanpi       # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             #####################################################
             wait_to_deal_with_url = 'http://shop.juanpi.com/deal/' + str(goods_id)
@@ -2462,31 +2278,20 @@ def get_juanpi_data():
             tmp_result = juanpi.get_goods_data(goods_id=goods_id)
             if tmp_result == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
 
                 del juanpi
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             data = juanpi.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
-                print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
+                my_lg.info('获取到的data为空!')
                 del juanpi
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -2511,14 +2316,7 @@ def get_juanpi_data():
             return result_json.decode()
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
-
-            result = json.dumps(result)
-            return result
+            return _null_goods_link()
     else:
         result = {
             'reason': 'error',
@@ -2763,62 +2561,36 @@ def get_pinduoduo_data():
                 wait_to_deal_with_url = goodsLink
             else:
                 print('goodsLink为空值...')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
 
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             pinduoduo = PinduoduoParse()
-
             goods_id = pinduoduo.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
                 del pinduoduo       # 每次都回收一下
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_id()
 
             #####################################################
             wait_to_deal_with_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + str(goods_id)
-
             tmp_result = pinduoduo.get_goods_data(goods_id=goods_id)
             if tmp_result == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
-
                 del pinduoduo
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             data = pinduoduo.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 del pinduoduo
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -2844,14 +2616,8 @@ def get_pinduoduo_data():
 
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
+            return _null_goods_link()
 
-            result = json.dumps(result)
-            return result
     else:
         result = {
             'reason': 'error',
@@ -3094,38 +2860,22 @@ def get_vip_data():
             print('发起获取请求的员工的username为: %s' % username)
 
             goodsLink = request.form.get('goodsLink')
-
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
                 print('goodsLink为空值...')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,     # 表示goodsLink为空值
-                }
-
-                result = json.dumps(result)
-                return result
+                return _null_goods_link()
 
             vip = VipParse()
-
             goods_id = vip.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == []:      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4042,  # 表示goodsLink为空值
-                }
-
                 try:
                     del vip       # 每次都回收一下
                 except Exception:
                     pass
                 gc.collect()
-                result = json.dumps(result)
-                return result
+                return _null_goods_id()
 
             #####################################################
             wait_to_deal_with_url = 'https://m.vip.com/product-0-' + str(goods_id[1]) + '.html'
@@ -3133,34 +2883,20 @@ def get_vip_data():
             tmp_result = vip.get_goods_data(goods_id=goods_id)
             if tmp_result == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 333,  # 表示能获取到goods_id，但是待爬取的地址非常规商品的地址，无法正常解析
-                }
-
                 try:
                     del vip
                 except: pass
                 gc.collect()
-                result = json.dumps(result)
-                return result
+                return _null_goods_data()
 
             data = vip.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-
             if data == {}:
                 print('获取到的data为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 444,  # 表示能获取到goods_id，无法正确解析
-                }
-
                 try: del vip
                 except: pass
                 gc.collect()
-                result = json.dumps(result)
-                return result
+
+                return _null_goods_data()
 
             result = {
                 'reason': 'success',
@@ -3187,14 +2923,8 @@ def get_vip_data():
 
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4042,  # 表示goodsLink为空值
-            }
+            return _null_goods_link()
 
-            result = json.dumps(result)
-            return result
     else:
         result = {
             'reason': 'error',

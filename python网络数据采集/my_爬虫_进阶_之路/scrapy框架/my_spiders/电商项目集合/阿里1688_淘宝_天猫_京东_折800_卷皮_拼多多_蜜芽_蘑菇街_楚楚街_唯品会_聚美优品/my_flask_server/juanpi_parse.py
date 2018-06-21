@@ -36,6 +36,7 @@ from my_utils import get_shanghai_time, timestamp_to_regulartime
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_items import GoodsItem
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -161,6 +162,7 @@ class JuanPiParse(object):
                     main_data['skudata'] = skudata
                     # pprint(main_data)
                     # print(main_data)
+                    main_data['goods_id'] = goods_id
                     self.result_data = main_data
                     return main_data
 
@@ -196,6 +198,18 @@ class JuanPiParse(object):
 
             # 商品标签属性名称
             detail_name_list = self._get_detail_name_list(data=data)
+            if isinstance(detail_name_list, str):       # 单独处理下架的情况
+                if detail_name_list == 'is_delete=1':
+                    print('该商品已下架...')
+                    sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
+                    params = (self.result_data.get('goods_id', ''),)
+                    _ = SqlServerMyPageInfoSaveItemPipeline()
+                    result = _._update_table(sql_str=sql_str, params=params)
+                    if result:
+                        print('### 该商品已经is_delete=1 ###')
+                    else:
+                        print('is_delete=1标记失败!')
+
             if detail_name_list == {}:
                 self.result_data = {}
                 return {}
@@ -230,7 +244,7 @@ class JuanPiParse(object):
             is_delete = self._get_is_delete(data=data, schedule=schedule)
             if price == 0 or taobao_price == 0:     # 没有获取到价格说明商品已经下架了
                 is_delete = 1
-            # print(is_delete)
+            # print('is_delete = ', is_delete)
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -547,6 +561,11 @@ class JuanPiParse(object):
                     detail_name_list.append(tmp)
             except IndexError:
                 print('IndexError错误，此处跳过!')
+                # print(sku)
+                if isinstance(sku, str):    # 单独处理下架的
+                    if sku == '':
+                        return 'is_delete=1'
+
                 return {}
 
             if sku[0].get('av_zvalue', '') == '':

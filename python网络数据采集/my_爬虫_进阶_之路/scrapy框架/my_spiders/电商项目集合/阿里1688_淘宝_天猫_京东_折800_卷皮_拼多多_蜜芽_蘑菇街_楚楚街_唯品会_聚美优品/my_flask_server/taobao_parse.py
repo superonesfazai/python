@@ -997,6 +997,7 @@ class TaoBaoLoginAndParse(object):
 
             if data != []:
                 div = data.get('data', '').get('pcDescContent', '')
+                # self.my_lg.info(str(div))
                 div = self.deal_with_div(div)
                 # self.my_lg.info(div)
             else:

@@ -29,7 +29,7 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10'
+        sql_str = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and GETDATE() - ModfiyTime > 3'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:

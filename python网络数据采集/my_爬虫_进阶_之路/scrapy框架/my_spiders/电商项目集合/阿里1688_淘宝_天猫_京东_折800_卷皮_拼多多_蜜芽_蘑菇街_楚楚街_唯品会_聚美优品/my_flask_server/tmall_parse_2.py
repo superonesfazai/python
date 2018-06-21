@@ -273,7 +273,7 @@ class TmallParse(object):
                 # self.my_lg.info(pc_div_url)
 
                 div_desc = taobao.get_div_from_pc_div_url(pc_div_url, goods_id)
-                # self.my_lg.info(div_desc)
+                self.my_lg.info(div_desc)
                 if div_desc == '':
                     self.my_lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
                     self.result_data = {}
