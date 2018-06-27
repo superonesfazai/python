@@ -15,6 +15,7 @@ from my_logging import set_logger
 from my_utils import (
     daemon_init,
     get_shanghai_time,
+    deal_with_JSONDecodeError_about_value_invalid_escape,
 )
 from taobao_parse import TaoBaoLoginAndParse
 from ali_1688_parse import ALi1688LoginAndParse
@@ -64,10 +65,10 @@ class GoodsKeywordsSpider(object):
         :return: dict
         '''
         return {
-            1: False,
-            2: False,
-            3: True,
-            4: False,
+            1: False,   # 淘宝
+            2: False,   # 阿里1688
+            3: False,   # 天猫
+            4: True,    # 京东
         }
 
     def _set_func_name_dict(self):
@@ -149,6 +150,10 @@ class GoodsKeywordsSpider(object):
         elif type == 3:
             self.my_lg.info('下面是天猫的关键字采集...')
             goods_id_list = self._get_tmall_goods_keywords_goods_id_list(keyword=keyword)
+        elif type == 4:
+            self.my_lg.info('下面是京东的关键字采集...')
+            goods_id_list = self._get_jd_goods_keywords_goods_id_list(keyword=keyword)
+
         else:
             goods_id_list = []
 
@@ -325,6 +330,66 @@ class GoodsKeywordsSpider(object):
                     return []
 
                 return goods_id_list
+
+    def _get_jd_goods_keywords_goods_id_list(self, keyword):
+        '''
+        根据keyword获取京东销量靠前的商品
+        :param keyword:
+        :return:
+        '''
+        # 方案: jd m站的搜索
+        headers = {
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'accept': '*/*',
+            # 'referer': 'https://so.m.jd.com/ware/search.action?keyword=b&area_ids=1,72,2819&sort_type=sort_totalsales15_desc&qp_disable=no&fdesc=%E5%8C%97%E4%BA%AC&t1=1529934870416',
+            'authority': 'so.m.jd.com',
+            # 'cookie': '3AB9D23F7A4B3C9B=SL4YPRE3Y4C627UCHFP4ROHI54TTYYJKLFSVROZQ57T7K3OUUKSYIVFUJKQHBAUPRANZOTPLCVC2TICTSJG6WEMUII; mba_muid=1523868445027-16c30fbc5f8c54c429; abtest=20180416164812814_35; visitkey=41587293677961039; shshshfpa=9e159581-c64f-e9f4-ad0c-8b6ced0d9f28-1525907842; shshshfpb=1a725fe3148b84c839f009c93fc261f2218f59c61e7f4e6c05af381826; retina=1; webp=1; TrackerID=GGwYSka4RvH3lm0ZwLoO2_qdMpBwRG39BvyBvQaJfzyN5cmdGt4lEMSqqJS-sbDqj4nAUX2HU4sVDGA8vl169D37w4EqceYcH6ysXv46kMVfvVdAPmSMV9LceeO3Cc6Z; whwswswws=; __jdc=122270672; subAbTest=20180604104024339_59; mobilev=html5; m_uuid_new=05C2D24B7D8FFDA8D4243A929A5C6234; intlIpLbsCountrySite=jd; mhome=1; cid=9; M_Identification=3721cafc2442fba2_42b6f64bb933019fdb27c9e124cfd67f; M_Identification_abtest=20180604104040270_32361722; M_Identification=3721cafc2442fba2_42b6f64bb933019fdb27c9e124cfd67f; so_eggsCount=1; warehistory="4764260,10658784927,"; wq_logid=1528080290.1936376147; __jdu=15238681432201722645210; __jda=122270672.15238681432201722645210.1523868143.1528255502.1529934182.18; __jdv=122270672|direct|-|none|-|1529934182053; cn=0; user-key=ecfc3673-cc54-43e2-96bd-fb7a7e700c32; ipLoc-djd=1-72-2799-0; shshshfp=a3b9323dfc6a675230170e6a43efcb81; USER_FLAG_CHECK=d9f73823a80c0305366f70a3b99b9ecb; sid=57ea016fe0ab4b04271e00f01d94d3b9; intlIpLbsCountryIp=60.177.32.78; autoOpenApp_downCloseDate_auto=1529934572240_21600000; wxa_level=1; PPRD_P=UUID.15238681432201722645210; sc_width=1280; wq_area=15_1213_0%7C3; __jdb=122270672.10.15238681432201722645210|18.1529934182; mba_sid=15299345705167145512031951538.7; __wga=1529934993217.1529934585585.1528080039013.1526716673573.6.3; shshshsID=7f3d94fa215b4e53b467f0d5e0563e9c_9_1529934993592',
+        }
+
+        params = (
+            ('keyword', keyword[1]),
+            ('datatype', '1'),
+            ('callback', 'jdSearchResultBkCbA'),
+            ('page', '1'),
+            ('pagesize', '10'),
+            ('ext_attr', 'no'),
+            ('brand_col', 'no'),
+            ('price_col', 'no'),
+            ('color_col', 'no'),
+            ('size_col', 'no'),
+            ('ext_attr_sort', 'no'),
+            ('merge_sku', 'yes'),
+            ('multi_suppliers', 'yes'),
+            ('area_ids', '1,72,2819'),
+            ('sort_type', 'sort_totalsales15_desc'),
+            ('qp_disable', 'no'),
+            ('fdesc', '\u5317\u4EAC'),
+            # ('t1', '1529934992189'),
+        )
+
+        s_url = 'https://so.m.jd.com/ware/search._m2wq_list'
+        body = MyRequests.get_url_body(url=s_url, headers=headers, params=params)
+        # self.my_lg.info(str(body))
+        if body == '':
+            return []
+        else:
+            try:
+                data = re.compile('jdSearchResultBkCbA\((.*)\)').findall(body)[0]
+            except IndexError:
+                self.my_lg.error('获取jd的关键字数据时, IndexError! 出错关键字为{0}'.format((keyword[1])))
+                return []
+
+            '''问题在于编码中是\xa0之类的，当遇到有些 不用转义的\http之类的，则会出现以上错误。'''
+            data = deal_with_JSONDecodeError_about_value_invalid_escape(json_str=data)
+            data = self.json_str_2_dict(json_str=data)
+            if data == {}:
+                self.my_lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
+                return []
+            else:
+                # 注意拿到的数据如果是京东拼购则跳过
+                pprint(data)
 
     def _taobao_keywords_spider(self, **kwargs):
         '''
@@ -533,6 +598,15 @@ class GoodsKeywordsSpider(object):
 
         return True
 
+    def _jd_keywords_spider(self, **kwargs):
+        '''
+        jd对应关键字采集
+        :param kwargs:
+        :return:
+        '''
+        goods_id_list = kwargs.get('goods_id_list')
+        keyword_id = kwargs.get('keyword_id')
+
     def _insert_into_goods_id_and_keyword_middle_table(self, **kwargs):
         '''
         数据插入goods_id_and_keyword_middle_table
@@ -569,7 +643,8 @@ class GoodsKeywordsSpider(object):
     def json_str_2_dict(self, json_str):
         try:
             data = loads(json_str)
-        except JSONDecodeError:
+        except JSONDecodeError as e:
+            self.my_lg.exception(e)
             self.my_lg.error('json转换字符串时出错, 请检查!')
             data = {}
 

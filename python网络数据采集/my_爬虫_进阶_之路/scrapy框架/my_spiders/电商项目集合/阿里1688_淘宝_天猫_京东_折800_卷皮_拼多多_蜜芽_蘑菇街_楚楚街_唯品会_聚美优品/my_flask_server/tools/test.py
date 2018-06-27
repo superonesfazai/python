@@ -11,11 +11,8 @@ import sys
 sys.path.append('..')
 from my_requests import MyRequests
 
-import requests
+# response = requests.get(s_url, headers=headers, params=params)
+# print(response.text)
 
 
 
-#NB. Original query string below. It seems impossible to parse and
-#reproduce query strings 100% accurately so the one below is given
-#in case the reproduced version is not "correct".
-# response = requests.get('http://m.1688.com/page/search.html?type=offer&keywords=aa', headers=headers)

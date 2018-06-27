@@ -35,7 +35,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
     def __init__(self, logger=None):
         self._set_headers()
         self._set_logger(logger)
-        self.delete_sql_str = r'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -64,7 +64,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=26'
+        sql_str = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:
@@ -108,7 +108,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
 
             if tmp_sql_server.is_connect_success:
                 if await self.is_recent_time(miaosha_begin_time) == 0:
-                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
                     self.my_lg.info('过期的goods_id为(%s)' % item[0] + ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                 else:   # 返回1, 表示在待更新的区间内

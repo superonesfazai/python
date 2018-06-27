@@ -204,6 +204,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             else:
                 cs.execute(sql_str)
             self.conn.commit()
+            # print('success')
 
             _ = True
         except Exception as e:

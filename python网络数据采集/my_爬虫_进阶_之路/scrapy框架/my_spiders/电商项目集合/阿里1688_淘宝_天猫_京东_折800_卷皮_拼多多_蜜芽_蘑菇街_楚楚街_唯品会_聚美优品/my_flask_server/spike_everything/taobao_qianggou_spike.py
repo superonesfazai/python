@@ -138,7 +138,7 @@ class TaoBaoQiangGou(object):
         index = 1
         if my_pipeline.is_connect_success:
             self.my_lg.info('正在获取淘抢购db原有goods_id, 请耐心等待...')
-            sql_str = r'select goods_id from dbo.tao_qianggou_xianshimiaosha where site_id=26'
+            sql_str = r'select goods_id from dbo.tao_qianggou_xianshimiaosha where site_id=28'
             db_ = list(my_pipeline._select_table(sql_str=sql_str))
             db_all_goods_id = [item[0] for item in db_]
             self.my_lg.info('获取完毕!!!')
@@ -311,7 +311,7 @@ class TaoBaoQiangGou(object):
 
 def just_fuck_run():
     '''由于写成守护进程无法运行, 采用tmux模式运行, 设置采集时间点用以防止采集冲突'''
-    _spider_run_time = ['00', '01', '02', '03', '04', '05']
+    _spider_run_time = ['00', '01', '02', '03', '04', '05',]
     while True:
         if str(get_shanghai_time())[11:13] in _spider_run_time:
             while True:

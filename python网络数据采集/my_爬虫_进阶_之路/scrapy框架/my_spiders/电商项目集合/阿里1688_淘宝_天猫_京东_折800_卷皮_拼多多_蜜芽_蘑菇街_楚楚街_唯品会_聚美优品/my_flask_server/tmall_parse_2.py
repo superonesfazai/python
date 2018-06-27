@@ -538,7 +538,7 @@ class TmallParse(object):
         tmp['spider_time'] = data_list.get('spider_time')
 
         # 采集的来源地
-        tmp['site_id'] = 26  # 采集来源地(淘抢购)
+        tmp['site_id'] = 28  # 采集来源地(淘抢购)
 
         tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
         tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')

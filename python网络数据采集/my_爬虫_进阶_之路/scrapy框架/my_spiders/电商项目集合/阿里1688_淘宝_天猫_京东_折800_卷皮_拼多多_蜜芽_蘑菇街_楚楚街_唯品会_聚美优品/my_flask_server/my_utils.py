@@ -34,6 +34,9 @@ __all__ = [
     'kill_process_by_name',                             # 根据进程名杀掉对应进程
     'list_duplicate_remove',                            # list去重
 
+    # json_str转dict时报错处理方案
+    'deal_with_JSONDecodeError_about_value_invalid_escape', # 错误如: ValueError: Invalid \escape: line 1 column 35442 (char 35441)
+
     '_get_price_change_info',                           # 公司用来记录价格改变信息
     'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
     'get_my_shelf_and_down_time_and_delete_time',       # 公司得到my_shelf_and_down_time和delete_time
@@ -428,3 +431,12 @@ def list_duplicate_remove(_list:list):
     [b.append(i) for i in _list if not i in b]
 
     return b
+
+def deal_with_JSONDecodeError_about_value_invalid_escape(json_str):
+    '''
+    ValueError: Invalid \escape: line 1 column 35442 (char 35441)
+    问题在于编码中是\xa0之类的，当遇到有些 不用转义的\http之类的，则会出现以上错误。
+    :param json_str:
+    :return: 正常的str类型的json字符串
+    '''
+    return re.compile(r'\\(?![/u"])').sub(r"\\\\", json_str)

@@ -24,7 +24,7 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17'
+        sql_str = 'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17 and GETDATE()-modfiy_time>2'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
@@ -44,17 +44,12 @@ def run_forever():
                 zhe_800_pintuan = Zhe800PintuanParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     print('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
                     tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
-                    delete_sql_str = r'delete from dbo.zhe_800_pintuan where goods_id=%s'
+                    delete_sql_str = 'delete from dbo.zhe_800_pintuan where goods_id=%s'
                     # 不用这个了因为会影响到正常情况的商品
                     # try:        # 单独处理商品页面不存在的情况
                     #     if isinstance(tmp_tmp, str) and re.compile(r'^ze').findall(tmp_tmp) != []:
@@ -70,7 +65,7 @@ def run_forever():
                         data['goods_id'] = item[0]
 
                         if item[1] == 1:
-                            tmp_sql_server._delete_table(sql_str=delete_sql_str, params=(item[0]))
+                            tmp_sql_server._delete_table(sql_str=delete_sql_str, params=(item[0],))
                             print('该goods_id[{0}]已过期，删除成功!'.format(item[0]))
                         else:
                             print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))

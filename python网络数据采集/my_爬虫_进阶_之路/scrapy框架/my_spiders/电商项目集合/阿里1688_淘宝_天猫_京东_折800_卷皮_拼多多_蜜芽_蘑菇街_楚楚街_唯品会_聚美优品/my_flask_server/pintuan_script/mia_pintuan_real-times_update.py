@@ -31,7 +31,7 @@ from my_requests import MyRequests
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = r'delete from dbo.mia_pintuan where goods_id=%s'
+        self.delete_sql_str = 'delete from dbo.mia_pintuan where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -50,7 +50,7 @@ class Mia_Pintuan_Real_Time_Update(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
+        sql_str = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
