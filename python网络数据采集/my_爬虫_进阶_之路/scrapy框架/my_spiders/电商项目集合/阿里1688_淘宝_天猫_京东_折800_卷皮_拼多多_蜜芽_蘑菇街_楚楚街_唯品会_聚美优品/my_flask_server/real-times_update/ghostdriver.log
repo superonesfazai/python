@@ -1,5 +1,19 @@
-[INFO  - 2018-06-27T13:51:13.883Z] GhostDriver - Main - running on port 49670
-[INFO  - 2018-06-27T13:51:14.330Z] Session [2841be30-7a11-11e8-95b5-7736c23e7901] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3","webSecurityEnabled":true}
-[INFO  - 2018-06-27T13:51:14.330Z] Session [2841be30-7a11-11e8-95b5-7736c23e7901] - page.customHeaders:  - {}
-[INFO  - 2018-06-27T13:51:14.330Z] Session [2841be30-7a11-11e8-95b5-7736c23e7901] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3"}
-[INFO  - 2018-06-27T13:51:14.330Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 2841be30-7a11-11e8-95b5-7736c23e7901
+[INFO  - 2018-06-28T03:24:34.155Z] GhostDriver - Main - running on port 65223
+[INFO  - 2018-06-28T03:24:34.798Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3","webSecurityEnabled":true}
+[INFO  - 2018-06-28T03:24:34.799Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - page.customHeaders:  - {}
+[INFO  - 2018-06-28T03:24:34.799Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3"}
+[INFO  - 2018-06-28T03:24:34.799Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: c799e950-7a82-11e8-9424-ffff6f348cd9
+[ERROR - 2018-06-28T03:24:49.547Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - page.onError - msg: VIDEOJS: ERROR: (CODE:4 MEDIA_ERR_SRC_NOT_SUPPORTED) No compatible source was found for this media. [object Object]
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-06-28T03:24:49.548Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - page.onError - stack:
+  apply (:0)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-06-28T03:25:18.759Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - page.onError - msg: VIDEOJS: ERROR: (CODE:4 MEDIA_ERR_SRC_NOT_SUPPORTED) No compatible source was found for this media. [object Object]
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-06-28T03:25:18.760Z] Session [c799e950-7a82-11e8-9424-ffff6f348cd9] - page.onError - stack:
+  apply (:0)
+
+  phantomjs://platform/console++.js:263 in error

@@ -273,7 +273,7 @@ class TmallParse(object):
                 # self.my_lg.info(pc_div_url)
 
                 div_desc = taobao.get_div_from_pc_div_url(pc_div_url, goods_id)
-                self.my_lg.info(div_desc)
+                # self.my_lg.info(div_desc)
                 if div_desc == '':
                     self.my_lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
                     self.result_data = {}
@@ -465,7 +465,6 @@ class TmallParse(object):
         得到sku_map
         """
         tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
         tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
         tmp['p_info'] = data_list.get('p_info')  # 详细信息

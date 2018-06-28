@@ -20,6 +20,7 @@ from my_utils import (
 from taobao_parse import TaoBaoLoginAndParse
 from ali_1688_parse import ALi1688LoginAndParse
 from tmall_parse_2 import TmallParse
+from jd_parse import JdParse
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -50,7 +51,7 @@ class GoodsKeywordsSpider(object):
         self._set_func_name_dict()
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         # 插入数据到goods_id_and_keyword_middle_table表
-        self.add_keyword_id_for_goods_id_sql_str = r'insert into dbo.goods_id_and_keyword_middle_table(goods_id, keyword_id) VALUES (%s, %s)'
+        self.add_keyword_id_for_goods_id_sql_str = 'insert into dbo.goods_id_and_keyword_middle_table(goods_id, keyword_id) VALUES (%s, %s)'
 
     def _set_logger(self):
         self.my_lg = set_logger(
@@ -82,9 +83,9 @@ class GoodsKeywordsSpider(object):
     def _just_run(self):
         while True:
             # 获取keywords
-            sql_str = r'select id, keyword from dbo.goods_keywords where is_delete=0'
+            sql_str = 'select id, keyword from dbo.goods_keywords where is_delete=0'
             # 获取原先goods_db的所有已存在的goods_id
-            sql_str_2 = r'select GoodsID from dbo.GoodsInfoAutoGet'
+            sql_str_2 = 'select GoodsID from dbo.GoodsInfoAutoGet'
 
             try:
                 result = list(self.my_pipeline._select_table(sql_str=sql_str))
@@ -176,7 +177,7 @@ class GoodsKeywordsSpider(object):
         elif type == 3:
             self._tmall_keywords_spider(goods_id_list=goods_id_list, keyword_id=keyword_id)
         elif type == 4:
-            pass
+            self._jd_keywords_spider(goods_id_list=goods_id_list, keyword_id=keyword_id)
         else:
             pass
 
@@ -335,9 +336,9 @@ class GoodsKeywordsSpider(object):
         '''
         根据keyword获取京东销量靠前的商品
         :param keyword:
-        :return:
+        :return: [] or ['xxxx', ....]
         '''
-        # 方案: jd m站的搜索
+        # 方案1: jd m站的搜索(基于搜索接口)
         headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
@@ -389,7 +390,17 @@ class GoodsKeywordsSpider(object):
                 return []
             else:
                 # 注意拿到的数据如果是京东拼购则跳过
-                pprint(data)
+                # pprint(data)
+                data = data.get('data', {}).get('searchm', {}).get('Paragraph', [])
+                # pingou中字段'bp'不为空即为拼购商品，抓取时不抓取拼购商品, 即'pingou_price': item.get('pinGou', {}).get('bp', '') == ''
+                if data is not None and data != []:
+                    goods_id_list = [item.get('wareid', '') for item in data if item.get('pinGou', {}).get('bp', '') == '']
+
+                    return goods_id_list
+
+                else:
+                    self.my_lg.error('获取到的data为空list, 请检查!')
+                    return []
 
     def _taobao_keywords_spider(self, **kwargs):
         '''
@@ -555,7 +566,7 @@ class GoodsKeywordsSpider(object):
                 pass
             else:
                 tmall = TmallParse(logger=self.my_lg)
-                if self.add_goods_index % 20 == 0:  # 每50次重连一次，避免单次长连无响应报错
+                if self.add_goods_index % 20 == 0:  # 每20次重连一次，避免单次长连无响应报错
                     self.my_lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                     self.my_lg.info('与数据库的新连接成功建立...')
@@ -606,6 +617,64 @@ class GoodsKeywordsSpider(object):
         '''
         goods_id_list = kwargs.get('goods_id_list')
         keyword_id = kwargs.get('keyword_id')
+        '''初始地址可以直接用这个[https://item.jd.com/xxxxx.html]因为jd会给你重定向到正确地址, 存也可以存这个地址'''
+        # 所以这边jd就不分类存，一律存为常规商品site_id = 7
+        goods_url_list = ['https://item.jd.com/{0}.html'.format(str(item)) for item in goods_id_list]
+
+        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+
+        result = False      # 用于判断某个goods是否被插入db的参数
+        for item in goods_url_list:     # item为goods_url
+            try:
+                goods_id = re.compile('\/(\d+)\.html').findall(item)[0]
+            except IndexError:
+                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                continue
+
+            if goods_id in self.db_existed_goods_id_list:
+                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                result = True   # 原先存在的情况
+                pass
+            else:
+                jd = JdParse()
+                if self.add_goods_index % 20 == 0:  # 每20次重连一次，避免单次长连无响应报错
+                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+                    self.my_lg.info('与数据库的新连接成功建立...')
+
+                if self.my_pipeline.is_connect_success:
+                    goods_id = jd.get_goods_id_from_url(item)
+                    if goods_id == []:
+                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        continue
+                    else:
+                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id[1], str(self.add_goods_index)))
+                        tt = jd.get_goods_data(goods_id)
+                        data = jd.deal_with_data(goods_id)
+                        goods_id = goods_id[1]
+                        if data != {}:
+                            data['goods_id'] = goods_id
+                            data['username'] = '18698570079'
+                            data['main_goods_id'] = None
+                            data['goods_url'] = item
+
+                            result = jd.old_jd_goods_insert_into_new_table(data, self.my_pipeline)
+                        else:
+                            pass
+                else:
+                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    pass
+                self.add_goods_index += 1
+                gc.collect()
+                sleep(1)
+            if result:      # 仅处理goods_id被插入或者原先已存在于db中
+                self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
+            else:
+                pass
+
+        self.my_lg.info('该关键字的商品已经抓取完毕!')
+
+        return True
 
     def _insert_into_goods_id_and_keyword_middle_table(self, **kwargs):
         '''
