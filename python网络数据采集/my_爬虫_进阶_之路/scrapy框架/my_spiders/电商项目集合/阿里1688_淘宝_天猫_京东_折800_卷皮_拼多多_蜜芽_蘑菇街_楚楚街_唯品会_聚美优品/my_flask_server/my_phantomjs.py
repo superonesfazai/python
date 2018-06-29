@@ -33,7 +33,23 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 class MyPhantomjs(object):
     def __init__(self):
         super().__init__()
-        self.init_phantomjs()
+        self._set_driver()
+
+    def _set_driver(self, num_retries=4):
+        '''
+        初始化self.driver，并且出错重试
+        :param num_retries: 重试次数
+        :return:
+        '''
+        try:
+            self.init_phantomjs()
+        except Exception as e:
+            # print('初始化phantomjs时出错:', e)
+            if num_retries > 0:
+                return self._set_driver(num_retries=num_retries - 1)
+            else:
+                print('初始化phantomjs时出错:', e)
+                raise e
 
     def init_phantomjs(self):
         """
@@ -52,6 +68,8 @@ class MyPhantomjs(object):
 
         wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         print('------->>>初始化完毕<<<-------')
+
+        return True
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
         '''

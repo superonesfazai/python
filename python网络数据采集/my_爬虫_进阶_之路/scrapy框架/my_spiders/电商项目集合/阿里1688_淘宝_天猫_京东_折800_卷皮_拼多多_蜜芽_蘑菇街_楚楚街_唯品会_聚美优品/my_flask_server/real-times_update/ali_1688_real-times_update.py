@@ -11,7 +11,12 @@ sys.path.append('..')
 
 from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init, _get_price_change_info, get_my_shelf_and_down_time_and_delete_time
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+    _get_price_change_info,
+    get_my_shelf_and_down_time_and_delete_time,
+)
 
 import gc
 from time import sleep
@@ -21,7 +26,7 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=2 order by ID desc'
+        sql_str = 'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=2 and GETDATE()-ModfiyTime>1'
 
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))

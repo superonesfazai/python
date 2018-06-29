@@ -218,7 +218,6 @@ class JdParse(object):
         if data != {}:
             # 店铺名称
             shop_name = self._get_shop_name(data=data)
-
             # 掌柜
             account = ''
 
@@ -241,42 +240,18 @@ class JdParse(object):
             price_info_list = self.get_price_info_list(goods_id, detail_name_list, data)
             # pprint(price_info_list)
 
-            '''
-            是否下架判断
-            '''
-            is_delete = 0
-
-            # 商品价格
-            '''
-            最高价和最低价处理  从已经获取到的规格对应价格中筛选最高价和最低价即可
-            '''
-            if detail_name_list == []:  # 说明没有规格，所有价格只能根据当前的goods_id来获取
-                if self.from_ware_id_get_price_info(ware_id=goods_id)[0] == '暂无报价':
-                    is_delete = 1       # 说明已经下架
-                    price, taobao_price = (0, 0,)
-                else:
-                    try:
-                        # print(self.from_ware_id_get_price_info(ware_id=goods_id)[0])
-                        price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
-                        taobao_price = price
-                    except TypeError:
-                        is_delete = 1  # 说明该商品暂无报价
-                        price, taobao_price = (0, 0,)
+            # 获取is_delete, price, taobao_price
+            _ = self._get_price_and_taobao_price_and_is_delete(
+                detail_name_list=detail_name_list,
+                price_info_list=price_info_list,
+                goods_id=goods_id
+            )
+            if _ == [0, '', '']:    # 异常退出
+                self.result_data = {}
+                return {}
             else:
-                try:
-                    tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
-                except ValueError:
-                    print('tmp_price_list的ValueError，此处设置为跳过')
-                    return {}
-                # print(tmp_price_list)
-                if tmp_price_list != []:
-                    price = tmp_price_list[-1]
-                    taobao_price = tmp_price_list[0]
-                else:
-                    print('获取最高价最低价时错误')
-                    return {}
-            # print('最高价: ', price)
-            # print('最低价: ', taobao_price)
+                is_delete, price, taobao_price = _
+            # print('最高价: ', price, '最低价: ', taobao_price)
 
             # 所有示例图片地址
             '''
@@ -327,6 +302,9 @@ class JdParse(object):
             all_sell_count = str(data.get('all_sell_count', '0'))
             # print(all_sell_count)
 
+            if is_delete == 1:
+                print('**** 该商品已下架...')
+
             result = {
                 'shop_name': shop_name,                 # 店铺名称
                 'account': account,                     # 掌柜
@@ -361,6 +339,50 @@ class JdParse(object):
         else:
             print('待处理的data为空的dict')
             return {}
+
+    def _get_price_and_taobao_price_and_is_delete(self, **kwargs):
+        '''
+        获取is_delete, price, taobao_price
+        :return: [0, '', ''] 表示异常退出 | [x, xx, xx] 表示成功
+        '''
+        detail_name_list = kwargs.get('detail_name_list', [])
+        price_info_list = kwargs.get('price_info_list', [])
+        goods_id = kwargs.get('goods_id', [])
+        # 是否下架判断
+        is_delete = 0
+
+        # 商品价格
+        '''
+        最高价和最低价处理  从已经获取到的规格对应价格中筛选最高价和最低价即可
+        '''
+        if detail_name_list == []:  # 说明没有规格，所有价格只能根据当前的goods_id来获取
+            if self.from_ware_id_get_price_info(ware_id=goods_id)[0] == '暂无报价':
+                is_delete = 1  # 说明已经下架
+                price, taobao_price = (0, 0,)
+            else:
+                try:
+                    # print(self.from_ware_id_get_price_info(ware_id=goods_id)[0])
+                    price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
+                    taobao_price = price
+                except TypeError:
+                    is_delete = 1  # 说明该商品暂无报价
+                    price, taobao_price = (0, 0,)
+        else:
+            try:
+                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            except ValueError:
+                print('tmp_price_list的ValueError，此处设置为跳过')
+                return [0, '', '']
+
+            # print(tmp_price_list)
+            if tmp_price_list != []:
+                price = tmp_price_list[-1]
+                taobao_price = tmp_price_list[0]
+            else:
+                print('获取最高价最低价时错误')
+                return [0, '', '']
+
+        return [is_delete, price, taobao_price]
 
     def _get_need_url(self, goods_id):
         '''

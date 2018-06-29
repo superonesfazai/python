@@ -85,26 +85,9 @@ class TaoBaoLoginAndParse(object):
         self.msg = '------>>>| 对应的手机端地址为: ' + 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + str(goods_id)
         self.my_lg.info(self.msg)
 
-        # 设置params
-        params = self._set_params(goods_id=goods_id)
-        tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
-
-        # 设置代理ip
-        tmp_proxies = MyRequests._get_proxies()
-        self.proxy = tmp_proxies['http']
-        # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        s = requests.session()
-        try:
-            response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
-            # self.my_lg.info(last_url)
-            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            data = response.content.decode('utf-8')
-            # self.my_lg.info(data)
-        except Exception:
-            self.my_lg.error('requests.get()请求超时...' + ' 出错goods_id: ' + str(goods_id))
-            self.my_lg.error('data为空!')
+        # 获取主接口的body
+        data = self._get_main_api_body(goods_id=goods_id)
+        if data == '':
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
@@ -121,7 +104,8 @@ class TaoBaoLoginAndParse(object):
                 return {}
             # pprint(data)
 
-            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
+                    and data.get('data', {}).get('seller', {}).get('evaluates') is None:
                 '''
                 ## 表示该商品已经下架, 原地址被重定向到新页面
                 '''
@@ -147,7 +131,10 @@ class TaoBaoLoginAndParse(object):
             result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
 
             # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
-            result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(goods_id=goods_id, result_data_apiStack_value=result_data_apiStack_value)
+            result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
+                goods_id=goods_id,
+                result_data_apiStack_value=result_data_apiStack_value
+            )
 
             # 处理mockData
             mock_data = result_data['mockData']
@@ -355,6 +342,36 @@ class TaoBaoLoginAndParse(object):
             #     'is_delete': 1,
             # }
             return {}
+
+    def _get_main_api_body(self, goods_id):
+        '''
+        获取主要接口的body
+        :param goods_id:
+        :return:
+        '''
+        # 设置params
+        params = self._set_params(goods_id=goods_id)
+        tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
+
+        # 设置代理ip
+        tmp_proxies = MyRequests._get_proxies()
+        self.proxy = tmp_proxies['http']
+        # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
+
+        s = requests.session()
+        try:
+            response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
+            # self.my_lg.info(last_url)
+            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+            body = response.content.decode('utf-8')
+            # self.my_lg.info(body)
+        except Exception:
+            self.my_lg.error('requests.get()请求超时...' + ' 出错goods_id: ' + str(goods_id))
+            self.my_lg.error('body为空!')
+            return ''
+
+        return body
 
     def to_right_and_update_data(self, data, pipeline):
         '''

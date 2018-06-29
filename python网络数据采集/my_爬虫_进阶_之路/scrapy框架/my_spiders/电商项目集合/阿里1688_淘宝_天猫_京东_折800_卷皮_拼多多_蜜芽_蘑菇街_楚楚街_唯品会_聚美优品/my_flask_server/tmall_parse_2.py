@@ -304,30 +304,10 @@ class TmallParse(object):
                     detail_value_list.append(tmp)  # 商品标签属性对应的值
                     # pprint(detail_value_list)
 
-            is_delete = 0
-            # 2017-10-16 1. 先通过buyEnable字段来判断商品是否已经下架
-            if data.get('trade', {}) != {}:
-                is_buy_enable = data.get('trade', {}).get('buyEnable')
-                # self.my_lg.info(str(is_buy_enable))
-                if is_buy_enable == 'false':
-                    is_delete = 1
-
-            # * 2018-4-17 新增再加一个判断是否下架
-            _r = data.get('mockData', {}).get('trade', {}).get('buyEnable')     # bool类型 True or False
-            # self.my_lg.info(type(_r))
-            if _r is not None:
-                if _r:
-                    is_delete = 0
-
-            # 2017-10-16 2. 此处再考虑名字中显示下架的商品
-            if re.compile(r'下架').findall(title) != []:
-                if re.compile(r'待下架').findall(title) != []:
-                    is_delete = 0
-                elif re.compile(r'自动下架').findall(title) != []:
-                    is_delete = 0
-                else:
-                    is_delete = 1
+            is_delete = self._get_is_delete(data=data, title=title)
             # self.my_lg.info('is_delete = %s' % str(is_delete))
+            if is_delete == 1:
+                self.my_lg.info('@@@ 该商品已下架...')
 
             # 月销量
             try:
@@ -592,6 +572,41 @@ class TmallParse(object):
         pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
         return
+
+    def _get_is_delete(self, **kwargs):
+        '''
+        得到is_delete
+        :param kwargs:
+        :return:
+        '''
+        data = kwargs.get('data', {})
+        title = kwargs.get('title', '')
+
+        is_delete = 0
+        # 2017-10-16 1. 先通过buyEnable字段来判断商品是否已经下架
+        if data.get('trade', {}) != {}:
+            is_buy_enable = data.get('trade', {}).get('buyEnable')
+            # self.my_lg.info(str(is_buy_enable))
+            if is_buy_enable == 'false':
+                is_delete = 1
+
+        # * 2018-4-17 新增再加一个判断是否下架
+        _r = data.get('mockData', {}).get('trade', {}).get('buyEnable')  # bool类型 True or False
+        # self.my_lg.info(type(_r))
+        if _r is not None:
+            if _r:
+                is_delete = 0
+
+        # 2017-10-16 2. 此处再考虑名字中显示下架的商品
+        if re.compile(r'下架').findall(title) != []:
+            if re.compile(r'待下架').findall(title) != []:
+                is_delete = 0
+            elif re.compile(r'自动下架').findall(title) != []:
+                is_delete = 0
+            else:
+                is_delete = 1
+
+        return is_delete
 
     def _get_db_insert_params(self, item):
         '''

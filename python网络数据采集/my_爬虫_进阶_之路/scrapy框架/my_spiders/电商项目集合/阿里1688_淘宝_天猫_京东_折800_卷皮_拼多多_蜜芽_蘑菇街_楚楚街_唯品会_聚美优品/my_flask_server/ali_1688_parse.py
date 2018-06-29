@@ -83,15 +83,17 @@ class ALi1688LoginAndParse(object):
         if pull_off_shelves == '该商品无法查看或已下架':   # 表示商品已下架, 同样执行插入数据操作
             try:
                 tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                is_in_db = list(tmp_my_pipeline.select_the_goods_id_is_in_ali_1688_table(goods_id=goods_id))
+                sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
+                is_in_db = tmp_my_pipeline._select_table(sql_str=sql_str, params=(str(goods_id),))
                 # print(is_in_db)
-            except Exception:
+            except Exception as e:
+                print('遇到错误:', e)
                 print('数据库连接失败!')
                 self.result_data = {}
                 return {}
 
             if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-                sql_str = r'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
+                sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
                 tmp_my_pipeline._update_table(sql_str=sql_str, params=(goods_id))
                 print('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
                 tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性

@@ -37,7 +37,12 @@ async def run_forever():
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
     # 由于不处理下架的商品，所以is_delete=0
-    sql_str = r'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2.5'
+    sql_str = '''
+    select goods_id, is_delete, tejia_end_time, block_id, tag_id 
+    from dbo.taobao_tiantiantejia 
+    where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2.5
+    '''
+
     try:
         result = list(tmp_sql_server._select_table(sql_str=sql_str))
     except TypeError:

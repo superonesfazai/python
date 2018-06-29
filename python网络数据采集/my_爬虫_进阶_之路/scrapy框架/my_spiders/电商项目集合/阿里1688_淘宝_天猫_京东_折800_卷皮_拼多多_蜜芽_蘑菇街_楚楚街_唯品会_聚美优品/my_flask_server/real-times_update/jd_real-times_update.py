@@ -21,15 +21,18 @@ from my_utils import (
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
-import json
 from settings import IS_BACKGROUND_RUNNING
 
 def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and GETDATE() - ModfiyTime > 3'
+        sql_str = '''
+        select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        from dbo.GoodsInfoAutoGet 
+        where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and GETDATE()-ModfiyTime>3 and IsDelete=0
+        '''
+
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:
@@ -49,7 +52,7 @@ def run_forever():
         for item in result:  # 实时更新数据
             # # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             # jd = JdParse()
-            if index % 5 == 0:
+            if index % 10 == 0:
                 try: del jd
                 except: pass
                 gc.collect()
@@ -74,6 +77,7 @@ def run_forever():
                     tmp_item.append(1)
                 elif item[0] == 10:
                     tmp_item.append(2)
+
                 tmp_item.append(item[1])
                 jd.get_goods_data(goods_id=tmp_item)
                 data = jd.deal_with_data(goods_id=tmp_item)
@@ -105,7 +109,7 @@ def run_forever():
             # except:
             #     pass
             gc.collect()
-            sleep(1.5)
+            sleep(1.2)
         print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         try: del jd
         except: pass

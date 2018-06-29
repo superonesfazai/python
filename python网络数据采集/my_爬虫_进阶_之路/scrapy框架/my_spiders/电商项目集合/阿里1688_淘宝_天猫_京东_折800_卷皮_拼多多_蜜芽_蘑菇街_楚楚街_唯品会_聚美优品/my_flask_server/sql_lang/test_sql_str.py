@@ -15,10 +15,12 @@ from json import dumps
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 _ = SqlServerMyPageInfoSaveItemPipeline()
-sql_str = 'select gather_url, MainID from dbo.daren_recommend where site_id=2 and MainID is not null'
-params = None
+# sql_str = 'select gather_url, MainID from dbo.daren_recommend where site_id=2 and MainID is not null'
+sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
+params = ('556812068095',)
 result = _._select_table(sql_str=sql_str, params=params)
-pprint(result)
+# pprint(result)
+print(result)
 
 # 更新
 # sql_str_2 = 'UPDATE dbo.daren_recommend set share_img_url_list=NULL, goods_id_list=NULL, share_goods_base_info=%s where MainID=579;'

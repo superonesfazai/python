@@ -665,8 +665,12 @@ class GoodsKeywordsSpider(object):
                     self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
-                gc.collect()
                 sleep(1)
+                try:
+                    del jd
+                except: pass
+                gc.collect()
+
             if result:      # 仅处理goods_id被插入或者原先已存在于db中
                 self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
             else:

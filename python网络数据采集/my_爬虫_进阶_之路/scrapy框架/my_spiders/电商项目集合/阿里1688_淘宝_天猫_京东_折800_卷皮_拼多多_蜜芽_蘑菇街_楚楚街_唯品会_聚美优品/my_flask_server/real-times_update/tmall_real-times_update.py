@@ -35,7 +35,7 @@ def run_forever():
 
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=3 or SiteID=4 or SiteID=6 order by ID desc'
+        sql_str = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where (SiteID=3 or SiteID=4 or SiteID=6) and GETDATE()-ModfiyTime>0.5 order by ID desc'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
