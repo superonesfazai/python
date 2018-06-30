@@ -440,3 +440,6 @@ def deal_with_JSONDecodeError_about_value_invalid_escape(json_str):
     :return: 正常的str类型的json字符串
     '''
     return re.compile(r'\\(?![/u"])').sub(r"\\\\", json_str)
+
+
+

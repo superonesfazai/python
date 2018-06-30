@@ -31,14 +31,21 @@ import gc
 # from io import BytesIO
 
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
-from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    CHROME_DRIVER_PATH,
+)
 import pytz
 from logging import INFO, ERROR
-from my_utils import get_shanghai_time
+from my_utils import (
+    get_shanghai_time,
+    tuple_or_list_params_2_dict_params,
+)
 from my_logging import set_logger
 from my_requests import MyRequests
 from my_items import GoodsItem
 from json import JSONDecodeError
+from urllib.parse import urlencode
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -55,13 +62,13 @@ class TaoBaoLoginAndParse(object):
 
     def _set_headers(self):
         self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'acs.m.taobao.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'accept': '*/*',
+            # 'referer': 'https://h5.m.taobao.com/awp/core/detail.htm?id=560666972076',
+            # 'authority': 'h5api.m.taobao.com',
+            # 'cookie': 'v=0; cookie2=1e478415a5583e8e0f5ec1598fe22224; t=1bdcbe0b678123e1755897be375b453f; _tb_token_=8f81eeeb31d0; cna=UOK9Ey4N1hYCAXHXtRx8QV37; thw=cn; mt=ci%3D-1_0; enc=b5TkGZ7%2F21TQIJJszNV9Lh6NcqQo2HsiX8RUxdH1xWxdk1bDmUu4bwcp%2FdmRjjjgULSKAfJQPasgu2nWMNNlnw%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; _m_h5_tk=19d41e6c7d8fda1949de6878565815aa_1530352039810; _m_h5_tk_enc=f2fdd16bbc1f39ce53446f1cbc8a9118; isg=BCQkk16MI6DwJFftGmJ7sz3H9STWFUpaNIkeKj5FM-9R6cWzZM0Kt3oArUFxMYB_',
         }
 
     def _set_logger(self, logger):
@@ -84,85 +91,87 @@ class TaoBaoLoginAndParse(object):
         self.my_lg.info(self.msg)
 
         # 获取主接口的body
-        data = self._get_main_api_body(goods_id=goods_id)
+        last_url = self._get_last_url()
+        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
         if data == '':
+            self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
+            self.result_data = {}
+            return {}
+
+        try:
+            data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
+            # self.my_lg.info(str(data))
+        except IndexError:
+            self.my_lg.error('data为空! 出错goods_id: {0}'.format(goods_id))
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
-        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
-        # self.my_lg.info(str(data))
+        try:
+            data = json.loads(data)
+        except JSONDecodeError:
+            self.my_lg.error('json.loads转换data时出错, 请检查! 出错goods_id: ' + str(goods_id))
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            return {}
+        # pprint(data)
 
-        if data != []:
-            data = data[0]
-            try:
-                data = json.loads(data)
-            except Exception:
-                self.my_lg.error('json.loads转换data时出错, 请检查! 出错goods_id: ' + str(goods_id))
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-            # pprint(data)
+        if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
+                and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+            '''
+            ## 表示该商品已经下架, 原地址被重定向到新页面
+            '''
+            self.my_lg.info('@@@@@@ 该商品已经下架...')
+            tmp_data_s = self.init_pull_off_shelves_goods()
+            self.result_data = {}
+            return tmp_data_s
 
-            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
-                    and data.get('data', {}).get('seller', {}).get('evaluates') is None:
-                '''
-                ## 表示该商品已经下架, 原地址被重定向到新页面
-                '''
-                self.my_lg.info('@@@@@@ 该商品已经下架...')
-                tmp_data_s = self.init_pull_off_shelves_goods()
-                self.result_data = {}
-                return tmp_data_s
+        # 处理商品被转移或者下架导致页面不存在的商品
+        if data.get('data').get('seller', {}).get('evaluates') is None:
+            self.my_lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            return {}
 
-            # 处理商品被转移或者下架导致页面不存在的商品
-            if data.get('data').get('seller', {}).get('evaluates') is None:
-                self.my_lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+        data['data']['rate'] = ''           # 这是宝贝评价
+        data['data']['resource'] = ''       # 买家询问别人
+        data['data']['vertical'] = ''       # 也是问和回答
+        data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
+        result_data = data['data']
 
-            data['data']['rate'] = ''           # 这是宝贝评价
-            data['data']['resource'] = ''       # 买家询问别人
-            data['data']['vertical'] = ''       # 也是问和回答
-            data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
-            result_data = data['data']
+        # 处理result_data['apiStack'][0]['value']
+        # self.my_lg.info(result_data.get('apiStack', [])[0].get('value', ''))
+        result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
 
-            # 处理result_data['apiStack'][0]['value']
-            # self.my_lg.info(result_data.get('apiStack', [])[0].get('value', ''))
-            result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
+        # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
+        result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
+            goods_id=goods_id,
+            result_data_apiStack_value=result_data_apiStack_value
+        )
 
-            # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
-            result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
-                goods_id=goods_id,
-                result_data_apiStack_value=result_data_apiStack_value
-            )
+        # 处理mockData
+        mock_data = result_data['mockData']
+        try:
+            mock_data = json.loads(mock_data)
+        except Exception:
+            self.my_lg.error('json.loads转化mock_data时出错, 跳出' + ' 出错goods_id: ' + str(goods_id))
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            return {}
+        mock_data['feature'] = ''
+        # pprint(mock_data)
+        result_data['mockData'] = mock_data
 
-            # 处理mockData
-            mock_data = result_data['mockData']
-            try:
-                mock_data = json.loads(mock_data)
-            except Exception:
-                self.my_lg.error('json.loads转化mock_data时出错, 跳出' + ' 出错goods_id: ' + str(goods_id))
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-            mock_data['feature'] = ''
-            # pprint(mock_data)
-            result_data['mockData'] = mock_data
-
-            # self.my_lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
-            if result_data.get('apiStack', [])[0].get('value', '') == '':
-                self.my_lg.info("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
-                result_data['trade'] = {}
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-            else:
-                result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
-                # pprint(result_data['trade'])
-
-            self.result_data = result_data
-            # pprint(self.result_data)
-            return result_data
+        # self.my_lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
+        if result_data.get('apiStack', [])[0].get('value', '') == '':
+            self.my_lg.info("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
+            result_data['trade'] = {}
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            return {}
         else:
-            self.my_lg.info('data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
+            # pprint(result_data['trade'])
+
+        self.result_data = result_data
+        # pprint(self.result_data)
+
+        return result_data
 
     def deal_with_data(self, goods_id):
         '''
@@ -276,25 +285,7 @@ class TaoBaoLoginAndParse(object):
                     detail_value_list.append(tmp)  # 商品标签属性对应的值
                     # pprint(detail_value_list)
 
-            # 1. 先通过buyEnable字段来判断商品是否已经下架
-            if data.get('trade', {}) != {}:
-                is_buy_enable = data.get('trade', {}).get('buyEnable')
-                if is_buy_enable == 'true':
-                    is_delete = 0
-                else:
-                    is_delete = 1
-            else:
-                is_delete = 0
-                pass
-
-            # 2. 此处再考虑名字中显示下架的商品
-            if re.compile(r'下架').findall(title) != []:
-                if re.compile(r'待下架').findall(title) != []:
-                    is_delete = 0
-                elif re.compile(r'自动下架').findall(title) != []:
-                    is_delete = 0
-                else:
-                    is_delete = 1
+            is_delete = self._get_is_delete(title=title, data=data)
             # self.my_lg.info('is_delete = %s' % str(is_delete))
 
             # 月销量
@@ -340,36 +331,6 @@ class TaoBaoLoginAndParse(object):
             #     'is_delete': 1,
             # }
             return {}
-
-    def _get_main_api_body(self, goods_id):
-        '''
-        获取主要接口的body
-        :param goods_id:
-        :return:
-        '''
-        # 设置params
-        params = self._set_params(goods_id=goods_id)
-        tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
-
-        # 设置代理ip
-        tmp_proxies = MyRequests._get_proxies()
-        self.proxy = tmp_proxies['http']
-        # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        s = requests.session()
-        try:
-            response = s.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
-            # self.my_lg.info(last_url)
-            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # self.my_lg.info(body)
-        except Exception:
-            self.my_lg.error('requests.get()请求超时...' + ' 出错goods_id: ' + str(goods_id))
-            self.my_lg.error('body为空!')
-            return ''
-
-        return body
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -562,11 +523,6 @@ class TaoBaoLoginAndParse(object):
         :param goods_id:
         :return:
         '''
-        '''
-        下面是构造params
-        '''
-        goods_id = goods_id
-        # self.my_lg.info(goods_id)
         params_data_1 = {
             'id': goods_id
         }
@@ -581,24 +537,43 @@ class TaoBaoLoginAndParse(object):
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
         # self.my_lg.info(right_url)
 
-        params = {
-            'appKey': '12574478',
-            't': str(time.time().__round__()) + str(randint(100, 999)),
-            # sign = '24b2e987fce9c84d2fc0cebd44be49ef'     # sign可以为空
-            'api': 'mtop.taobao.detail.getdetail',
-            'v': '6.0',
-            'ttid': '2016@taobao_h5_2.0.0',
-            'isSec': '0',
-            'ecode': '0',
-            'AntiFlood': 'true',
-            'AntiCreep': 'true',
-            'H5Request': 'true',
-            'type': 'jsonp',
-            'callback': 'mtopjsonp1',
-            'data': json.dumps(params_data_2),  # 每层里面的字典都要先转换成json
-        }
+        params = (
+            ('jsv', '2.4.8'),
+            ('appKey', '12574478'),
+            ('t', str(time.time().__round__()) + str(randint(100, 999))),
+            # ('sign', 'b7cd843a2b40b5238d3b53faa3bb605b'),
+            ('api', 'mtop.taobao.detail.getdetail'),
+            ('v', '6.0'),
+            ('ttid', '2016@taobao_h5_2.0.0'),
+            ('isSec', '0'),
+            ('ecode', '0'),
+            ('AntiFlood', 'true'),
+            ('AntiCreep', 'true'),
+            ('H5Request', 'true'),
+            ('type', 'jsonp'),
+            ('dataType', 'jsonp'),
+            ('callback', 'mtopjsonp1'),
+            ('data', json.dumps(params_data_2)),    # 每层里面的字典都要先转换成json
+        )
 
         return params
+
+    def _get_last_url(self):
+        '''
+        获取组合过params的last_url
+        :return:
+        '''
+        # 设置params
+        params = self._set_params(goods_id=goods_id)
+        tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
+        # tmp_url = 'https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
+
+        params = tuple_or_list_params_2_dict_params(params)
+        url = tmp_url + '?' + urlencode(params)
+        last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
+        # self.my_lg.info(last_url)
+
+        return last_url
 
     def _wash_result_data_apiStack_value(self, goods_id, result_data_apiStack_value):
         '''
@@ -733,6 +708,37 @@ class TaoBaoLoginAndParse(object):
             price_info_list = []
 
         return price_info_list
+
+    def _get_is_delete(self, **kwargs):
+        '''
+        得到is_delete
+        :param kwargs:
+        :return:
+        '''
+        title = kwargs.get('title')
+        data = kwargs.get('data', {})
+
+        is_delete = 0
+        # 1. 先通过buyEnable字段来判断商品是否已经下架
+        if data.get('trade', {}) != {}:
+            if data.get('trade', {}).get('buyEnable', 'true') == 'false':
+                is_delete = 1
+
+        if is_delete == 0:  # * 2018-6-29 加个判断防止与上面冲突(修复冲突bug)
+            # * 2018-4-17 新增一个判断是否下架
+            if not data.get('mockData', {}).get('trade', {}).get('buyEnable', True):
+                is_delete = 1
+
+        # 2. 此处再考虑名字中显示下架的商品
+        if re.compile(r'下架').findall(title) != []:
+            if re.compile(r'待下架').findall(title) != []:
+                is_delete = 0
+            elif re.compile(r'自动下架').findall(title) != []:
+                is_delete = 0
+            else:
+                is_delete = 1
+
+        return is_delete
 
     def init_pull_off_shelves_goods(self):
         '''
@@ -939,64 +945,39 @@ class TaoBaoLoginAndParse(object):
         根据pc描述的url模拟请求获取描述的div
         :return: str
         '''
-        '''
-        appKey:12574478
-        t:1509513791232
-        api:mtop.taobao.detail.getdesc
-        v:6.0
-        type:jsonp
-        dataType:jsonp
-        timeout:20000
-        callback:mtopjsonp1
-        data:{"id":"546818961702","type":"1"}
-        '''
-        appKey = '12574478'
         t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
 
-        '''
-        下面是构造params
-        '''
-        goods_id = goods_id
-        # self.my_lg.info(goods_id)
         params_data_1 = {
             'id': goods_id,
             'type': '1',
         }
 
-        # self.my_lg.info(str(params_data_2))
-        params = {
-            'data': json.dumps(params_data_1)  # 每层里面的字典都要先转换成json
-        }
-
-        tmp_url = 'https://api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/?appKey={}&t={}&api=mtop.taobao.detail.getdesc&v=6.0&type=jsonp&dataType=jsonp&timeout=20000&callback=mtopjsonp1'.format(
-            appKey, t
+        tmp_url = 'https://api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/'
+        _params = (
+            ('appKey', '12574478'),
+            ('t', t),
+            ('api', 'mtop.taobao.detail.getdesc'),
+            ('v', '6.0'),
+            ('type', 'jsonp'),
+            ('dataType', 'jsonp'),
+            ('timeout', '20000'),
+            ('callback', 'mtopjsonp1'),
+            ('data', json.dumps(params_data_1)),
         )
-
-        tmp_proxies = MyRequests._get_proxies()
-
-        # 设置3层避免报错退出
-        try:
-            response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-        except Exception:
-            try:
-                tmp_proxies = MyRequests._get_proxies()
-                response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            except Exception:
-                tmp_proxies = MyRequests._get_proxies()
-                response = requests.get(tmp_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-
-        last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
+        url = tmp_url + '?' + urlencode(_params)
+        last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.my_lg.info(last_url)
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, timeout=14, num_retries=3)
+
+        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3)
         if data == '':
-            self.my_lg.info('获取到的div_desc为空值!请检查!')
+            self.my_lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
             return ''
 
         try:
             data = re.compile('mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
             # self.my_lg.info(str(data))
         except IndexError as e:
-            self.my_lg.error('获取data时, IndexError出错!')
+            self.my_lg.error('获取data时, IndexError出错! 出错goods_id: {0}'.format(goods_id))
             self.my_lg.exception(e)
             return ''
 

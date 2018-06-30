@@ -10,9 +10,3 @@
 import sys
 sys.path.append('..')
 from my_requests import MyRequests
-
-# response = requests.get(s_url, headers=headers, params=params)
-# print(response.text)
-
-
-

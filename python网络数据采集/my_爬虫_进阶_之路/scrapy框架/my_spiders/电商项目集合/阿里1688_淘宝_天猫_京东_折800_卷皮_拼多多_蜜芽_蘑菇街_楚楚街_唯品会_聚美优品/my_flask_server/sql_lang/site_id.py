@@ -39,3 +39,15 @@ _25 = '唯品会'
 _26 = '聚美优品秒杀'
 _27 = '聚美优品拼团'
 _28 = '淘抢购'
+
+"""
+常用查询sql_str
+"""
+# 查询某个商品是否已录入
+sql_str = '''
+use Gather;
+select UserName, CreateTime, GoodsName, GoodsID, ConvertTime, MainGoodsID
+from dbo.GoodsInfoAutoGet 
+where GoodsID='';
+'''
+
