@@ -8,6 +8,7 @@
 '''
 
 # sub 将匹配到的数据进行替换
+# 注意sub('xx', count=0)  # count=0 表示全部匹配，count=1 表示只匹配第一个
 
 import re
 

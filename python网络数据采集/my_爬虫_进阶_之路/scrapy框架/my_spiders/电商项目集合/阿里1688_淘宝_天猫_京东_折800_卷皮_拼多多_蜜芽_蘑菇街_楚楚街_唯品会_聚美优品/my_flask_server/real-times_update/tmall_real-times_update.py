@@ -18,8 +18,6 @@ from my_logging import set_logger
 
 import gc
 from time import sleep
-import datetime
-import json
 from logging import INFO, ERROR
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from settings import TMALL_SLEEP_TIME, TMALL_REAL_TIMES_SLEEP_TIME
@@ -35,7 +33,12 @@ def run_forever():
 
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where (SiteID=3 or SiteID=4 or SiteID=6) and GETDATE()-ModfiyTime>0.5 order by ID desc'
+        sql_str = '''
+        select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        from dbo.GoodsInfoAutoGet 
+        where (SiteID=3 or SiteID=4 or SiteID=6) and GETDATE()-ModfiyTime>0.2 and MainGoodsID is not null order by ID desc
+        '''
+
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
@@ -46,6 +49,7 @@ def run_forever():
         else:
             my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
             my_lg.info(str(result))
+            my_lg.info('总计待更新个数: {0}'.format(len(result)))
             my_lg.info('--------------------------------------------------------')
 
             my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
@@ -61,11 +65,6 @@ def run_forever():
 
                 if index % 10 == 0:    # 每10次重连一次，避免单次长连无响应报错
                     my_lg.info('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     my_lg.info('与数据库的新连接成功建立...')
 
@@ -122,9 +121,12 @@ def run_forever():
                         # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
-                        pass
+                        my_lg.info('------>>>| 休眠8s中...')
+                        sleep(8)
+
                 else:  # 表示返回的data值为空值
                     my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
+                    sleep(5)
                     pass
                 index += 1
                 gc.collect()
@@ -136,7 +138,6 @@ def run_forever():
             sleep(60*60*5.5)
         else:
             sleep(5)
-        # del ali_1688
         gc.collect()
 
 def main():

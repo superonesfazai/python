@@ -10,6 +10,7 @@
 from pymssql import *
 from json import dumps, loads
 import gc
+import sqlalchemy
 from sqlalchemy import create_engine
 import datetime, calendar
 import asyncio
@@ -633,6 +634,29 @@ class SqlPools(object):
         except Exception as e:
             print('数据库连接失败!!')
             self.is_connect_success = False
+
+    def _select_table(self, sql_str, params=None):
+        self.engine.begin()
+        self.conn = self.engine.connect()
+        result = None
+
+        try:
+            self.conn.execute('set lock_timeout 20000;')     # 设置客户端执行超时等待为20秒
+            if params is not None:
+                if not isinstance(params, tuple):
+                    params = tuple(params)
+                result = self.conn.execute(sql_str, params).fetchall()
+            else:
+                result = self.conn.execute(sql_str).fetchall()
+
+        except Exception as e:
+            print('---------| 筛选level时报错：', e)
+        finally:
+            try:
+                self.conn.close()
+            except Exception:
+                pass
+            return result
 
     def _update_table(self, sql_str, params:tuple, logger):
         self.engine.begin()

@@ -30,7 +30,7 @@ def run_forever():
         sql_str = '''
         select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
         from dbo.GoodsInfoAutoGet 
-        where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and GETDATE()-ModfiyTime>3 and IsDelete=0
+        where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and GETDATE()-ModfiyTime>1 and IsDelete=0 and MainGoodsID is not null
         '''
 
         try:
@@ -42,6 +42,7 @@ def run_forever():
         print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
         print(result)
         print('--------------------------------------------------------')
+        print('总计待更新个数:', len(result))
 
         print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
         index = 1

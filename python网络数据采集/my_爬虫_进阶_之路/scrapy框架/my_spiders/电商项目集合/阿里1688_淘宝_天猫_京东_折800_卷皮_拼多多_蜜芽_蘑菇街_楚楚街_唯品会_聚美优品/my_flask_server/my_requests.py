@@ -23,11 +23,23 @@ class MyRequests(object):
         super().__init__()
 
     @classmethod
-    def get_url_body(cls, url, headers:dict, params=None, cookies=None, had_referer=False, encoding='utf-8'):
+    def get_url_body(cls, url, headers:dict,
+                     params=None, data=None, cookies=None,
+                     had_referer=False, encoding='utf-8',
+                     method='get', timeout=12, num_retries=1):
         '''
         根据url得到body
-        :param tmp_url:
-        :return: '' 表示出错退出 | body 类型str
+        :param url:
+        :param headers:
+        :param params:
+        :param data:
+        :param cookies:
+        :param had_referer:
+        :param encoding:
+        :param method:
+        :param timeout:
+        :param num_retries:
+        :return: '' 表示error | str 表示success
         '''
         # 设置代理ip
         tmp_proxies = cls._get_proxies()
@@ -43,51 +55,18 @@ class MyRequests(object):
 
         with requests.session() as s:
             try:
-                if params is not None:
-                    response = s.get(url, headers=tmp_headers, params=params, cookies=cookies, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                    # print(response.url)
-                else:
-                    response = s.get(url, headers=tmp_headers, proxies=tmp_proxies, cookies=cookies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = s.request(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, proxies=tmp_proxies, timeout=timeout)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                # print(response.url)
                 body = cls._wash_html(response.content.decode(encoding))
 
                 # print(body)
             except Exception:
-                print('requests.get()请求超时....')
-                print('data为空!')
-                body = ''
-
-        return body
-
-    @classmethod
-    def post_url_body(cls, url, headers:dict, params:dict=None, data=None, had_referer=False, encoding='utf-8'):
-        '''
-        根据url得到body
-        :return: '' 表示出错退出 | body 类型str
-        '''
-        # 设置代理ip
-        tmp_proxies = cls._get_proxies()
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        tmp_headers = headers
-        tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(url)[0]
-        if had_referer:
-            if re.compile(r'https').findall(url) != []:
-                tmp_headers['Referer'] = 'https://' + tmp_headers['Host'] + '/'
-            else:
-                tmp_headers['Referer'] = 'http://' + tmp_headers['Host'] + '/'
-
-        s = requests.session()
-        try:
-            if params is not None:
-                response = s.post(url, headers=tmp_headers, params=params, data=data, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            else:
-                response = s.post(url, headers=tmp_headers, data=data, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = cls._wash_html(response.content.decode(encoding))
-            # print(body)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('data为空!')
-            body = ''
+                if num_retries > 1:
+                    return cls.get_url_body(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, had_referer=had_referer, encoding=encoding, timeout=timeout, num_retries=num_retries-1)
+                else:
+                    print('requests.get()请求超时....')
+                    print('data为空!')
+                    body = ''
 
         return body
 

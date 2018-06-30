@@ -15,17 +15,27 @@ import sys
 sys.path.append('..')
 
 from taobao_parse import TaoBaoLoginAndParse
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
-from my_utils import get_shanghai_time, daemon_init, restart_program, get_my_shelf_and_down_time_and_delete_time, _get_price_change_info
+from my_pipeline import (
+    SqlServerMyPageInfoSaveItemPipeline,
+    SqlPools,
+)
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+    restart_program,
+    get_my_shelf_and_down_time_and_delete_time,
+    _get_price_change_info,
+)
 from my_logging import set_logger
 
 from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 import gc
 from time import sleep
-import os, re, pytz, datetime
-import json
 from logging import INFO, ERROR
-from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MY_SPIDER_LOGS_PATH,
+)
 
 def run_forever():
     #### 实时更新数据
@@ -37,12 +47,16 @@ def run_forever():
             file_log_level=ERROR
         )
 
+        sql_str = '''
+        select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        from dbo.GoodsInfoAutoGet 
+        where SiteID=1 and MainGoodsID is not null'''
+
         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
         try:
             # result = list(tmp_sql_server.select_taobao_all_goods_id())
-            result = tmp_sql_server.select_taobao_all_goods_id()
-
+            result = tmp_sql_server._select_table(sql_str=sql_str,)
         except TypeError:
             my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -52,6 +66,7 @@ def run_forever():
             my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
             my_lg.info(str(result))
             my_lg.info('--------------------------------------------------------')
+            my_lg.info('总计待更新个数: {0}'.format(len(result)))
 
             my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
@@ -59,12 +74,6 @@ def run_forever():
                 taobao = TaoBaoLoginAndParse(logger=my_lg)
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     my_lg.info('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
-                    # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     tmp_sql_server = SqlPools()
 
                     my_lg.info('与数据库的新连接成功建立...')

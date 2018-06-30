@@ -119,7 +119,8 @@ class TmallParse(object):
                 return {}
             # pprint(data)
 
-            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
+                    and data.get('data', {}).get('seller', {}).get('evaluates') is None:
                 '''
                 ## 表示该商品已经下架, 原地址被重定向到新页面
                 '''
@@ -129,7 +130,7 @@ class TmallParse(object):
                 return tmp_data_s
 
             # 处理商品被转移或者下架导致页面不存在的商品
-            if data.get('data').get('seller', {}).get('evaluates') is None:
+            if data.get('data', {}).get('seller', {}).get('evaluates') is None:
                 self.my_lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
                 self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                 return {}
@@ -261,13 +262,13 @@ class TmallParse(object):
             div_desc
             '''
             # 手机端描述地址
-            if data.get('item').get('taobaoDescUrl') is not None:
+            if data.get('item', {}).get('taobaoDescUrl') is not None:
                 phone_div_url = 'https:' + data['item']['taobaoDescUrl']
             else:
                 phone_div_url = ''
 
             # pc端描述地址
-            if data.get('item').get('taobaoPcDescUrl') is not None:
+            if data.get('item', {}).get('taobaoPcDescUrl') is not None:
                 pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
                 # self.my_lg.info(phone_div_url)
                 # self.my_lg.info(pc_div_url)
@@ -582,22 +583,19 @@ class TmallParse(object):
         data = kwargs.get('data', {})
         title = kwargs.get('title', '')
 
+        # 天猫
         is_delete = 0
-        # 2017-10-16 1. 先通过buyEnable字段来判断商品是否已经下架
+        # * 2017-10-16 先通过buyEnable字段来判断商品是否已经下架
         if data.get('trade', {}) != {}:
-            is_buy_enable = data.get('trade', {}).get('buyEnable')
-            # self.my_lg.info(str(is_buy_enable))
-            if is_buy_enable == 'false':
+            if data.get('trade', {}).get('buyEnable', 'true') == 'false':
                 is_delete = 1
 
-        # * 2018-4-17 新增再加一个判断是否下架
-        _r = data.get('mockData', {}).get('trade', {}).get('buyEnable')  # bool类型 True or False
-        # self.my_lg.info(type(_r))
-        if _r is not None:
-            if _r:
-                is_delete = 0
+        if is_delete == 0:      # * 2018-6-29 加个判断防止与上面冲突(修复冲突bug)
+            # * 2018-4-17 新增一个判断是否下架
+            if not data.get('mockData', {}).get('trade', {}).get('buyEnable', True):
+                    is_delete = 1
 
-        # 2017-10-16 2. 此处再考虑名字中显示下架的商品
+        # 2017-10-16 此处再考虑名字中显示下架的商品
         if re.compile(r'下架').findall(title) != []:
             if re.compile(r'待下架').findall(title) != []:
                 is_delete = 0

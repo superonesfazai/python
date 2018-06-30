@@ -30,17 +30,15 @@ import gc
 # import traceback
 # from io import BytesIO
 
-from requests.exceptions import ProxyError
-
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
 import pytz
 from logging import INFO, ERROR
-from my_ip_pools import MyIpPools
 from my_utils import get_shanghai_time
 from my_logging import set_logger
 from my_requests import MyRequests
 from my_items import GoodsItem
+from json import JSONDecodeError
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -975,7 +973,6 @@ class TaoBaoLoginAndParse(object):
         )
 
         tmp_proxies = MyRequests._get_proxies()
-        # self.my_lg.info('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
         # 设置3层避免报错退出
         try:
@@ -990,37 +987,30 @@ class TaoBaoLoginAndParse(object):
 
         last_url = re.compile(r'\+').sub('', response.url)      # 转换后得到正确的url请求地址
         # self.my_lg.info(last_url)
-        try:
-            response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-        except Exception:
-            tmp_proxies = MyRequests._get_proxies()
-            try:
-                response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=14)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            except ProxyError:
-                self.my_lg.error('ProxyError!')
-                return ''
-
-        try:
-            data = response.content.decode('utf-8')
-        except Exception as e:      # 解码错误，异常退出
-            self.my_lg.error(e)
+        data = MyRequests.get_url_body(url=last_url, headers=self.headers, timeout=14, num_retries=3)
+        if data == '':
+            self.my_lg.info('获取到的div_desc为空值!请检查!')
             return ''
 
-        # self.my_lg.info(str(data))
-        data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)  # 贪婪匹配匹配所有
-        if data != []:
-            data = data[0]
-            data = json.loads(data)
+        try:
+            data = re.compile('mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
+            # self.my_lg.info(str(data))
+        except IndexError as e:
+            self.my_lg.error('获取data时, IndexError出错!')
+            self.my_lg.exception(e)
+            return ''
 
-            if data != []:
-                div = data.get('data', '').get('pcDescContent', '')
-                # self.my_lg.info(str(div))
-                div = self.deal_with_div(div)
-                # self.my_lg.info(div)
-            else:
-                div = ''
-        else:
-            div = ''
+        try:
+            data = json.loads(data)
+            # pprint(data)
+        except JSONDecodeError:
+            self.my_lg.error('json转换data时出错, 请检查!')
+            data = {}
+
+        div = data.get('data', {}).get('pcDescContent', '')
+        # self.my_lg.info(str(div))
+        div = self.deal_with_div(div)
+        # self.my_lg.info(div)
 
         return div
 
@@ -1039,8 +1029,10 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(r'src="').sub('src=\"https:', body)
         body = re.compile(r'&nbsp;').sub(' ', body)
 
+        # self.my_lg.info(str(body))
         # 天猫洗广告
-        body = re.compile(r'<p style="margin:0;width:0;height:0;overflow:hidden;">.*?</p>.*<p style="margin:0 0 5.0px 0;width:0;height:0;overflow:hidden;">.*?</p>').sub('', body)
+        ad = r'<p style="margin:0;width:0;height:0;overflow:hidden;">.*?<table align="center" style="margin:0 auto;">.*?</table> <p style="margin:0 0 5.0px 0;width:0;height:0;overflow:hidden;">.*?</p>'
+        body = re.compile(ad).sub('', body, count=1)     # count=0 表示全部匹配，count=1 表示只匹配第一个
         # self.my_lg.info(str(body))
 
         return body

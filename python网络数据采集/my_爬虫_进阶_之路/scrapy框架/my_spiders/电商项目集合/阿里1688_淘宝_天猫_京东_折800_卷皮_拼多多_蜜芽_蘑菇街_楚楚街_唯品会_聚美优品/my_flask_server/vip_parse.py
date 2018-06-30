@@ -145,16 +145,13 @@ def test():
         },
     ])
 
-    body = MyRequests.post_url_body(url=url, headers=headers, params=params, data=data)
+    body = MyRequests.get_url_body(method='post', url=url, headers=headers, params=params, data=data)
     # print(body)
     try:
         data = json.loads(body)
         pprint(data)
     except:
         pass
-
-    # body = MyRequests().get_url_body(url=url, headers=headers, params=params)
-    # print(body)
 
 # test()
 
@@ -300,7 +297,7 @@ class VipParse(object):
             page = 'product-0-' + str(goods_id[1]) + '.html'
             post_data = self._set_post_data(page=page)
 
-            body = MyRequests.post_url_body(url=url, headers=self.headers, params=params, data=post_data)
+            body = MyRequests.get_url_body(method='post', url=url, headers=self.headers, params=params, data=post_data)
             # print(body)
 
             if body == '':
@@ -720,7 +717,7 @@ class VipParse(object):
                             page = 'product-0-' + str(goods_id[1]) + '.html'
                             post_data = self._set_post_data(page=page)
 
-                            tmp_data_2 = MyRequests.post_url_body(url=url, headers=self.headers, params=params, data=post_data)
+                            tmp_data_2 = MyRequests.get_url_body(method='post', url=url, headers=self.headers, params=params, data=post_data)
                             # print(tmp_data_2)
 
                             # 先处理得到dict数据

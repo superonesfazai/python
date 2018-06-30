@@ -1,37 +1,5 @@
-[INFO  - 2018-06-29T06:25:55.006Z] GhostDriver - Main - running on port 56112
-[INFO  - 2018-06-29T06:25:55.505Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24","webSecurityEnabled":true}
-[INFO  - 2018-06-29T06:25:55.506Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - page.customHeaders:  - {}
-[INFO  - 2018-06-29T06:25:55.506Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"}
-[INFO  - 2018-06-29T06:25:55.506Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 4768e450-7b65-11e8-869b-4b743f50e5f2
-[ERROR - 2018-06-29T06:26:27.602Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - page.onError - msg: TypeError: null is not a constructor (evaluating 'k()')
-
-  phantomjs://platform/console++.js:263 in error
-[ERROR - 2018-06-29T06:26:27.603Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - page.onError - stack:
-  w (https://misc.360buyimg.com/jdf/1.0.0/unit/??globalInit/2.0.0/globalInit.js,category/2.0.0/category.js:2)
-  (anonymous function) (https://item.jd.com/1772786.html:615)
-  callback (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onload (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onload (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onload (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  load (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  d (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  f (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onerror (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-
-  phantomjs://platform/console++.js:263 in error
-[ERROR - 2018-06-29T06:27:06.055Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - page.onError - msg: TypeError: null is not an object (evaluating 'u.init')
-
-  phantomjs://platform/console++.js:263 in error
-[ERROR - 2018-06-29T06:27:06.055Z] Session [4768e450-7b65-11e8-869b-4b743f50e5f2] - page.onError - stack:
-  (anonymous function) (https://static.360buyimg.com/item/unite/1.0.50/components/book/js/??core.js,before.js,prom.new.js,main.js:12)
-  exec (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  callback (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onload (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onload (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onload (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  load (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  d (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  f (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-  onerror (https://misc.360buyimg.com/??jdf/lib/jquery-1.6.4.js,jdf/1.0.0/unit/base/1.0.0/base.js,jdf/1.0.0/ui/ui/1.0.0/ui.js:6)
-
-  phantomjs://platform/console++.js:263 in error
+[INFO  - 2018-06-30T01:43:27.478Z] GhostDriver - Main - running on port 55376
+[INFO  - 2018-06-30T01:43:27.568Z] Session [fc13bc80-7c06-11e8-a34b-c765c05ff1a2] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/531.21.8 (KHTML, like Gecko) Version/4.0.4 Safari/531.21.10","webSecurityEnabled":true}
+[INFO  - 2018-06-30T01:43:27.568Z] Session [fc13bc80-7c06-11e8-a34b-c765c05ff1a2] - page.customHeaders:  - {}
+[INFO  - 2018-06-30T01:43:27.568Z] Session [fc13bc80-7c06-11e8-a34b-c765c05ff1a2] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/531.21.8 (KHTML, like Gecko) Version/4.0.4 Safari/531.21.10"}
+[INFO  - 2018-06-30T01:43:27.568Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: fc13bc80-7c06-11e8-a34b-c765c05ff1a2

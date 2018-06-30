@@ -98,7 +98,7 @@ TAOBAO_REAL_TIMES_SLEEP_TIME = 2.      # 加拿大服务器可以设置为.4s
 '''
 天猫实时更新的sleep_time(接口请求限频,2秒以上比较保险)
 '''
-TMALL_REAL_TIMES_SLEEP_TIME = 2.      # 加拿大服务器可以设置为.4s
+TMALL_REAL_TIMES_SLEEP_TIME = 2.2      # 加拿大服务器可以设置为.4s
 
 '''
 淘抢购抓取时间点设置
