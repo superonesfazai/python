@@ -26,7 +26,11 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=2 and GETDATE()-ModfiyTime>1'
+        sql_str = '''
+        select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        from dbo.GoodsInfoAutoGet 
+        where SiteID=2 and GETDATE()-ModfiyTime>1
+        '''
 
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))

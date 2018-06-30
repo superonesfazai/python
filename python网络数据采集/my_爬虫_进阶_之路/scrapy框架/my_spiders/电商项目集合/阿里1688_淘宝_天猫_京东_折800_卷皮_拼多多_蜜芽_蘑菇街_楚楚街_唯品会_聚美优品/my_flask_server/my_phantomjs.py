@@ -131,6 +131,7 @@ class MyPhantomjs(object):
                 except Exception as e:
                     print('遇到错误: ', e)
                     return ''
+
                 else:
                     print('{0}已经加载完毕'.format(css_selector))
 
@@ -145,10 +146,7 @@ class MyPhantomjs(object):
                     return ''
                 # self.driver.save_screenshot('tmp_screen.png')
 
-            main_body = self.driver.page_source
-            main_body = re.compile(r'\n').sub('', main_body)
-            main_body = re.compile(r'  ').sub('', main_body)
-            main_body = re.compile(r'\t').sub('', main_body)
+            main_body = self._wash_html(self.driver.page_source)
             # print(main_body)
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
             print('-->>time out after 20 seconds when loading page')
@@ -226,6 +224,18 @@ class MyPhantomjs(object):
             cookies_str += key + '=' + value + ';'
 
         return cookies_str
+
+    def _wash_html(self, html):
+        '''
+        清洗html
+        :param html:
+        :return:
+        '''
+        html = re.compile(r'\n').sub('', html)
+        html = re.compile(r'  ').sub('', html)
+        html = re.compile(r'\t').sub('', html)
+
+        return html
 
     def __del__(self):
         try:

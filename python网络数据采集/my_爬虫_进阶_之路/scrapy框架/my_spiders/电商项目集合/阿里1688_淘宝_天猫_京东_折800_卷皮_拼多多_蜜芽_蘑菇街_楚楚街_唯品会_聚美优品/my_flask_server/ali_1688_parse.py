@@ -81,6 +81,7 @@ class ALi1688LoginAndParse(object):
         except:
             pull_off_shelves = ''
         if pull_off_shelves == '该商品无法查看或已下架':   # 表示商品已下架, 同样执行插入数据操作
+            # print('test')
             try:
                 tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
@@ -165,123 +166,33 @@ class ALi1688LoginAndParse(object):
             link_name = ''
 
             # 商品价格信息, 及其对应起批量   [{'price': '119.00', 'begin': '3'}, ...]
-            price_info = []
-            if self.is_activity_goods:      # 火拼商品处理
-                tmp = {}
-                tmp_price = data.get('ltPromotionPriceDisplay')
-                tmp_trade_number = data.get('beginAmount')
-                tmp['begin'] = tmp_trade_number
-                tmp['price'] = tmp_price
-                price_info.append(tmp)
-            else:   # 常规商品处理
-                if data.get('isLimitedTimePromotion') == 'false':  # isLimitedTimePromotion 限时优惠, 'true'表示限时优惠价, 'flase'表示非限时优惠
-                    price_info = data.get('discountPriceRanges')
-                    for item in price_info:
-                        try:
-                            item.pop('convertPrice')
-                        except KeyError:
-                            pass
-                    # print(price_info)
-                else:   # 限时优惠
-                    tmp = {
-                        'begin': data.get('beginAmount', ''),
-                        'price': data.get('skuDiscountPrice', '')
-                    }
-                    price_info.append(tmp)
+            price_info = self._get_price_info(data=data)
             # print(price_info)
 
-            # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
-            sku_props = data.get('skuProps')
-
-            # print(sku_props)
-            if sku_props is not None:   # 这里还是保留unit为单位值
-                # for item in sku_props:
-                #     try:
-                #         item.pop('unit')
-                #     except KeyError:
-                #         print('KeyError, [unit], 此处跳过')
-                pass
-            else:
-                sku_props = []      # 存在没有规格属性的
+            # 标签属性名称及其对应的值
+            # (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
+            sku_props = self._get_sku_props(data=data)
             # print(sku_props)
 
             # 每个规格对应价格, 及其库存量
-            '''
-            skuMap  == SKUInfo
-            '''
-            tmp_sku_map = data.get('skuMap')
-            if tmp_sku_map is not None:
-                sku_map = []
-                for key, value in tmp_sku_map.items():
-                    tmp = {}
-
-                    # 处理key得到需要的值
-                    key = re.compile(r'&gt;').sub('|', key)
-                    tmp['spec_type'] = key
-
-                    # 处理value得到需要的值
-                    # pprint(price_info)
-                    if value.get('discountPrice') is None:  # 如果没有折扣价, 价格就为起批价
-                        try:
-                            value['discountPrice'] = price_info[0].get('price')
-                        except IndexError:
-                            print('获取价格失败, 此处跳过!')
-                            self.result_data = {}
-                            return {}
-                    else:
-                        if self.is_activity_goods:
-                            pass
-                        else:
-                            if data.get('isLimitedTimePromotion') == 'false':
-                                if float(value.get('discountPrice')) < float(price_info[0].get('price')):
-                                    value['discountPrice'] = price_info[0].get('price')
-                                else:
-                                    pass
-                            else:
-                                pass
-
-                    tmp['spec_value'] = self._wash_sku_value(value=value)
-                    sku_map.append(tmp)
-
-            else:
-                sku_map = []        # 存在没有规格时的情况
-            # pprint(sku_map)
+            try:
+                sku_map = self._get_sku_map(data=data, price_info=price_info)
+                # pprint(sku_map)
+            except Exception as e:
+                print('获取sku_map时, 遇到错误:', e)
+                self.is_activity_goods = False
+                self.result_data = {}
+                return {}
 
             # 最高价和最低价
             price, taobao_price = self._get_price(price_info=price_info)
 
             # 所有示例图片地址
-            tmp_all_img_url = data.get('imageList')
-            if tmp_all_img_url is not None:
-                all_img_url = []
-                for item in tmp_all_img_url:
-                    tmp = {}
-                    try:
-                        item.pop('size310x310URL')
-                    except KeyError:
-                        # print('KeyError, [size310x310URL], 此处设置为跳过')
-                        pass
-                    tmp['img_url'] = item['originalImageURI']
-                    all_img_url.append(tmp)
-            else:
-                all_img_url = []
+            all_img_url = self._get_all_img_url(data=data)
             # pprint(all_img_url)
 
             # 详细信息的标签名, 及其对应的值
-            tmp_property_info = data.get('productFeatureList')
-            if tmp_property_info is not None:
-                property_info = []
-                for item in tmp_property_info:
-                    try:
-                        item.pop('unit')
-                    except KeyError:
-                        # print('KeyError, [unit], 此处设置为跳过')
-                        pass
-                    item['id'] = '0'
-
-                property_info = tmp_property_info
-            else:
-                property_info = []
+            property_info = self._get_p_info(data=data)
             # pprint(property_info)
 
             # 下方详细div块
@@ -293,13 +204,7 @@ class ALi1688LoginAndParse(object):
                 detail_info = ''
             # print(detail_info)
 
-            if re.compile(r'下架').findall(title) != []:
-                if re.compile(r'待下架').findall(title) != []:
-                    is_delete = 0
-                else:
-                    is_delete = 1
-            else:
-                is_delete = 0  # 逻辑删除, 未删除为0, 删除为1
+            is_delete = self._get_is_delete(title=title)
 
             result = {
                 'company_name': company_name,               # 公司名称
@@ -392,6 +297,180 @@ class ALi1688LoginAndParse(object):
         sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
 
         pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_sku_props(self, **kwargs):
+        '''
+        得到sku_props
+        :param kwargs:
+        :return:
+        '''
+        data = kwargs.get('data', {})
+
+        sku_props = data.get('skuProps')
+        # print(sku_props)
+        if sku_props is not None:  # 这里还是保留unit为单位值
+            # for item in sku_props:
+            #     try:
+            #         item.pop('unit')
+            #     except KeyError:
+            #         print('KeyError, [unit], 此处跳过')
+            pass
+        else:
+            sku_props = []  # 存在没有规格属性的
+
+        return sku_props
+
+    def _get_price_info(self, **kwargs):
+        '''
+        得到price_info
+        :return:
+        '''
+        data = kwargs.get('data', {})
+
+        # 商品价格信息, 及其对应起批量   [{'price': '119.00', 'begin': '3'}, ...]
+        price_info = []
+        if self.is_activity_goods:  # 火拼商品处理
+            tmp = {}
+            tmp_price = data.get('ltPromotionPriceDisplay')
+            tmp_trade_number = data.get('beginAmount')
+            tmp['begin'] = tmp_trade_number
+            tmp['price'] = tmp_price
+            price_info.append(tmp)
+        else:  # 常规商品处理
+            if data.get('isLimitedTimePromotion', 'true') == 'false':  # isLimitedTimePromotion 限时优惠, 'true'表示限时优惠价, 'flase'表示非限时优惠
+                price_info = data.get('discountPriceRanges')
+                for item in price_info:
+                    try:
+                        item.pop('convertPrice')
+                    except KeyError:
+                        pass
+                        # print(price_info)
+            else:  # 限时优惠
+                tmp = {
+                    'begin': data.get('beginAmount', ''),
+                    'price': data.get('skuDiscountPrice', '')
+                }
+                price_info.append(tmp)
+
+        return price_info
+
+    def _get_sku_map(self, **kwargs):
+        '''
+        得到sku_map
+        :param kwargs:
+        :return:
+        '''
+        # 每个规格对应价格, 及其库存量
+        '''skuMap == SKUInfo'''
+        data = kwargs.get('data', {})
+        price_info = kwargs.get('price_info', [])
+
+        tmp_sku_map = data.get('skuMap')
+        if tmp_sku_map is not None:
+            sku_map = []
+            for key, value in tmp_sku_map.items():
+                tmp = {}
+                # 处理key得到需要的值
+                key = re.compile(r'&gt;').sub('|', key)
+                tmp['spec_type'] = key
+
+                # 处理value得到需要的值
+                # pprint(price_info)
+                if value.get('discountPrice') is None:  # 如果没有折扣价, 价格就为起批价
+                    try:
+                        value['discountPrice'] = price_info[0].get('price')
+                    except IndexError:
+                        print('获取价格失败, 此处跳过!')
+                        raise IndexError
+
+                else:
+                    if self.is_activity_goods:
+                        pass
+                    else:
+                        if data.get('isLimitedTimePromotion') == 'false':
+                            if float(value.get('discountPrice')) < float(price_info[0].get('price')):
+                                value['discountPrice'] = price_info[0].get('price')
+                            else:
+                                pass
+                        else:
+                            pass
+
+                tmp['spec_value'] = self._wash_sku_value(value=value)
+                sku_map.append(tmp)
+
+        else:
+            sku_map = []  # 存在没有规格时的情况
+
+        return sku_map
+
+    def _get_all_img_url(self, **kwargs):
+        '''
+        得到all_img_url
+        :param kwargs:
+        :return:
+        '''
+        data = kwargs.get('data', {})
+
+        tmp_all_img_url = data.get('imageList')
+        if tmp_all_img_url is not None:
+            all_img_url = []
+            for item in tmp_all_img_url:
+                tmp = {}
+                try:
+                    item.pop('size310x310URL')
+                except KeyError:
+                    # print('KeyError, [size310x310URL], 此处设置为跳过')
+                    pass
+                tmp['img_url'] = item['originalImageURI']
+                all_img_url.append(tmp)
+        else:
+            all_img_url = []
+
+        return all_img_url
+
+    def _get_p_info(self, **kwargs):
+        '''
+        得到p_info
+        :param kwargs:
+        :return:
+        '''
+        data = kwargs.get('data', {})
+
+        property_info = []
+        tmp_property_info = data.get('productFeatureList')
+        if tmp_property_info is not None:
+            for item in tmp_property_info:
+                try:
+                    item.pop('unit')
+                except KeyError:
+                    # print('KeyError, [unit], 此处设置为跳过')
+                    pass
+                item['id'] = '0'
+
+            property_info = tmp_property_info
+        else:
+            pass
+
+        return property_info
+
+    def _get_is_delete(self, **kwargs):
+        '''
+        得到is_delete
+        :param kwargs:
+        :return:
+        '''
+        title = kwargs.get('title')
+
+        is_delete = 0
+        if re.compile(r'下架').findall(title) != []:
+            if re.compile(r'待下架').findall(title) != []:
+                pass
+            else:
+                is_delete = 1
+        else:
+            pass
+
+        return is_delete
 
     def _wash_sku_value(self, value):
         '''
