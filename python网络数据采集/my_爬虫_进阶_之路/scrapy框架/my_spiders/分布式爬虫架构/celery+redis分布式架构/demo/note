@@ -7,3 +7,9 @@
 第三个终端，运行脚本 python add.py
 
 注:为避免错误，将所有终端切换到当前文件所在目录
+参数:
+'-A' 指定了celery实例的位置
+'--concurrency=5' 指定最大并发数，默认是cpu核数
+
+# 但是现在python3 不支持Supervisor
+# 在生产环境中，我们通常会使用 Supervisor 来控制 Celery Worker 进程。

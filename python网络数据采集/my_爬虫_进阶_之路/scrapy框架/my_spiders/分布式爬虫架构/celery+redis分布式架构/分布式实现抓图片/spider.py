@@ -36,6 +36,7 @@ def get_img(html):
 
     return img_list
 
+# 下面跟上部程序无关
 class MyTask(Task):
     name = 'MyTask'
 

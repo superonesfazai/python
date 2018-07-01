@@ -34,6 +34,10 @@ __all__ = [
     'kill_process_by_name',                             # 根据进程名杀掉对应进程
     'list_duplicate_remove',                            # list去重
 
+    # 抓包后requests处理相关
+    'chrome_copy_requests_header_2_dict_headers',           # 将直接从chrome复制的Request Headers转换为dict的headers
+    'chrome_copy_query_string_parameters_2_tuple_params',   # 将直接从chrome复制的Query String Parameters转换为tuple类型的params
+
     # json_str转dict时报错处理方案
     'deal_with_JSONDecodeError_about_value_invalid_escape', # 错误如: ValueError: Invalid \escape: line 1 column 35442 (char 35441)
 
@@ -441,5 +445,49 @@ def deal_with_JSONDecodeError_about_value_invalid_escape(json_str):
     '''
     return re.compile(r'\\(?![/u"])').sub(r"\\\\", json_str)
 
+def chrome_copy_requests_header_2_dict_headers(copy_headers):
+    '''
+    将直接从chrome复制的Request Headers转换为dict的headers
+    :param copy_headers:
+    :return: a dict
+    '''
+    # .sub('\"\1\":\"2\"', copy_headers)
+    # before_part = re.compile('^(.*):').findall(copy_headers)
+    # end_part = re.compile(':(.*)$').findall(copy_headers)
+    # print(before_part)
+    # print(end_part)
+    _ = copy_headers.split('\n')
+    _ = [item.split(': ') for item in _]
+    # pprint(_)
 
+    tmp = {}
+    for item in _:
+        if item != ['']:
+            if item[0].startswith(':'):     # 去除':authority'这些
+                continue
+            item_1 = item[1].replace(' ', '')
+            tmp.update({item[0]: item_1})
+
+    return tmp
+
+def chrome_copy_query_string_parameters_2_tuple_params(copy_params):
+    '''
+    将直接从chrome复制的Query String Parameters转换为tuple类型的params
+    :param copy_params:
+    :return: (('xx', 'yy'), ...)
+    '''
+    _ = copy_params.split('\n')
+    _ = [item.split(': ') for item in _]
+    # pprint(_)
+
+    tmp = []
+    for item in _:
+        if item != ['']:
+            if len(item) == 1:
+                item_1 = ''
+            else:
+                item_1 = item[1].replace(' ', '')
+            tmp.append((item[0], item_1))
+
+    return tuple(tmp)
 

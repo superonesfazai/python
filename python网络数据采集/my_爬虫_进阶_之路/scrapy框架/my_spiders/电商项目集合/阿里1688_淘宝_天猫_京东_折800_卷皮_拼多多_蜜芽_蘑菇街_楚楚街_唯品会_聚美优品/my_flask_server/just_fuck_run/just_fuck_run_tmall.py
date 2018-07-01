@@ -59,14 +59,14 @@ def auto_run(*params):
     run_one_file_name_list(path=params[1], file_name_list=logs_file_name_list)
     run_one_file_name_list(path=params[3], file_name_list=server_file_name_list)
 
-    if str(get_shanghai_time())[11:13] in ['06', '07', '08', '09', '10', '11', '12']:
+    if str(get_shanghai_time())[11:13] in ['21', '22', '23', '04', '05', '06', '07', '08',]:
         # kill冲突进程
         [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]   # 不杀spike
         # 运行tmall常规商品更新script
         run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
 
     # 无法运行成守护进程, 改为tmux模式运行
-    if str(get_shanghai_time())[11:13] in ['23', '00', '01', '02', '03', '04', '05']:
+    if str(get_shanghai_time())[11:13] in ['00', '01', '02', '03', '09', '10']:     # 白天不运行tmall更新，9点即时杀掉
         # 单独运行淘抢购抓取script
         [kill_process_by_name(process_name) for process_name in real_file_name_list]
         # [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]

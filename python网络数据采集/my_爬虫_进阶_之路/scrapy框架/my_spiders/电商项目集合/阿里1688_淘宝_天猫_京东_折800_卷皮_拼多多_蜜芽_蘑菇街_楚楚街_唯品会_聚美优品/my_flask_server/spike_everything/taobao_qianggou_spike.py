@@ -311,7 +311,7 @@ class TaoBaoQiangGou(object):
 
 def just_fuck_run():
     '''由于写成守护进程无法运行, 采用tmux模式运行, 设置采集时间点用以防止采集冲突'''
-    _spider_run_time = ['00', '01', '02', '03', '04', '05',]
+    _spider_run_time = ['00', '01', '02', '03',]
     while True:
         if str(get_shanghai_time())[11:13] in _spider_run_time:
             while True:

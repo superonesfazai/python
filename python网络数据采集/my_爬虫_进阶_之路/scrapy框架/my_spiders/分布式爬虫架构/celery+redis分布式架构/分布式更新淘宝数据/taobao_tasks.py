@@ -2,57 +2,60 @@
 
 '''
 @author = super_fazai
-@File    : taobao_parse.py
-@Time    : 2017/10/25 07:40
+@File    : taobao_tasks.py
+@Time    : 2018/7/1 17:57
 @connect : superonesfazai@gmail.com
 '''
 
-"""
-可爬取淘宝, 全球购, 天天特价
-"""
-
-import time
-from random import randint
-import json
-import requests
-import re
-from pprint import pprint
-from decimal import Decimal
-from json import dumps
-import asyncio
-# from scrapy import Selector
-# from PIL import Image
-from time import sleep
-import datetime
-import gc
-# import pycurl
-# from io import StringIO
-# import traceback
-# from io import BytesIO
-
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from celery import Celery
 from settings import (
-    PHANTOMJS_DRIVER_PATH,
-    CHROME_DRIVER_PATH,
+    HEADERS,
+    MY_SPIDER_LOGS_PATH,
 )
-import pytz
-from logging import INFO, ERROR
+from my_logging import set_logger
 from my_utils import (
     get_shanghai_time,
     tuple_or_list_params_2_dict_params,
 )
-from my_logging import set_logger
+# from my_items import GoodsItem
 from my_requests import MyRequests
-from my_items import GoodsItem
-from json import JSONDecodeError
+from random import randint
+from logging import INFO, ERROR
+import re
+import json
+# from json import JSONDecodeError
+import gc
+from decimal import Decimal
 from urllib.parse import urlencode
+import time
 
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+def init_celery_app():
+    '''
+    初始化一个celery对象
+    :return:
+    '''
+    app = Celery(
+        'taobao_tasks',  # 创建一个celery实例, 名叫'task'
+        broker='redis://127.0.0.1:6379',  # 指定消息中间件，用redis
+        backend='redis://127.0.0.1:6379/0'  # 指定存储用redis
+    )
 
-# chrome驱动地址
-my_chrome_driver_path = CHROME_DRIVER_PATH
+    app.conf.update(
+        CELERY_TIMEZONE='Asia/Shanghai',  # 指定时区, 默认是'UTC'
+        CELERY_ACKS_LATE=True,
+        CELERY_ACCEPT_CONTENT=['json'],
+        CELERY_TASK_SERIALIZER='json',
+        CELERY_RESULT_SERIALIZER='json',
+        CELERYD_FORCE_EXECV=True,
+        CELERYD_MAX_TASKS_PER_CHILD=500,
+        BROKER_HEARTBEAT=0,
+    )
 
+    return app
+
+app = init_celery_app()
+
+@app.task(bind=False)
 class TaoBaoLoginAndParse(object):
     def __init__(self, logger=None):
         self._set_headers()
@@ -108,7 +111,7 @@ class TaoBaoLoginAndParse(object):
 
         try:
             data = json.loads(data)
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             self.my_lg.error('json.loads转换data时出错, 请检查! 出错goods_id: ' + str(goods_id))
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
@@ -769,177 +772,6 @@ class TaoBaoLoginAndParse(object):
 
         return result
 
-    async def insert_into_taobao_tiantiantejia_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['goods_url'] = data_list['goods_url']  # 商品地址
-        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-        tmp['deal_with_time'] = now_time  # 操作时间
-
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        # 采集的来源地
-        tmp['site_id'] = 19  # 采集来源地(淘宝)
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['tejia_begin_time'] = data_list.get('tejia_begin_time')
-        tmp['tejia_end_time'] = data_list.get('tejia_end_time')
-        tmp['block_id'] = data_list.get('block_id')
-        tmp['tag_id'] = data_list.get('tag_id')
-        tmp['father_sort'] = data_list.get('father_sort')
-        tmp['child_sort'] = data_list.get('child_sort')
-
-        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
-        self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id')))
-
-        await pipeline.insert_into_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
-
-        return True
-
-    async def update_taobao_tiantiantejia_table(self, data, pipeline):
-        '''
-        更新天天秒杀特价的商品信息
-        :param data:
-        :param pipeline:
-        :param logger
-        :return:
-        '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        # tmp['schedule'] = data_list.get('schedule')
-        # tmp['tejia_begin_time'] = data_list.get('tejia_begin_time')
-        # tmp['tejia_end_time'] = data_list.get('tejia_end_time')
-
-        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
-        self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
-
-        await pipeline.update_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
-
-    async def update_expired_goods_id_taobao_tiantiantejia_table(self, data, pipeline):
-        '''
-        更新过期商品的信息，使其转为普通常规商品
-        :param data:
-        :param pipeline:
-        :return:
-        '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
-        self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
-
-        await pipeline.update_expired_goods_id_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
-
     def get_div_from_pc_div_url(self, url, goods_id):
         '''
         根据pc描述的url模拟请求获取描述的div
@@ -1042,19 +874,18 @@ class TaoBaoLoginAndParse(object):
             self.my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
 
+    def __call__(self, *args, **kwargs):
+        url = kwargs.get('tb_url')
+        goods_id = self.get_goods_id_from_url(url)
+        self.get_goods_data(goods_id)
+
+        result = self.deal_with_data(goods_id)
+
+        return result
+
     def __del__(self):
         try:
             del self.msg
             del self.my_lg
         except: pass
         gc.collect()
-
-if __name__ == '__main__':
-    login_taobao = TaoBaoLoginAndParse()
-    while True:
-        taobao_url = input('请输入待爬取的淘宝商品地址: ')
-        taobao_url.strip('\n').strip(';')
-        goods_id = login_taobao.get_goods_id_from_url(taobao_url)
-        data = login_taobao.get_goods_data(goods_id=goods_id)
-        data = login_taobao.deal_with_data(goods_id=goods_id)
-        # pprint(data)

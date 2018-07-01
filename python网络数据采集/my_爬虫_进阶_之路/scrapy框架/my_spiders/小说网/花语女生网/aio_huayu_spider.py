@@ -130,7 +130,6 @@ async def main(loop):
     await deal_with_result(all_result)
     # print(all_result)
 
-
 start_time = time.time()
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main(loop))

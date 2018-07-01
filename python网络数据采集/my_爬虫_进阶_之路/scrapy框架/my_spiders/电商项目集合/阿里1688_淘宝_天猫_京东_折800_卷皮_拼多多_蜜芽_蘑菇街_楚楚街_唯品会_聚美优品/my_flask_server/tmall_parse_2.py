@@ -21,15 +21,17 @@ from scrapy.selector import Selector
 
 from settings import PHANTOMJS_DRIVER_PATH, HEADERS, MY_SPIDER_LOGS_PATH
 from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
-import pytz, datetime
-from scrapy.selector import Selector
 from logging import INFO, ERROR
 from requests.exceptions import ProxyError
+from urllib.parse import urlencode
 
 from taobao_parse import TaoBaoLoginAndParse
 from my_requests import MyRequests
 from my_logging import set_logger
-from my_utils import tuple_or_list_params_2_dict_params, get_shanghai_time
+from my_utils import (
+    tuple_or_list_params_2_dict_params,
+    get_shanghai_time,
+)
 from my_items import GoodsItem
 
 class TmallParse(object):
@@ -75,31 +77,12 @@ class TmallParse(object):
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         self.my_lg.info('------>>>| 得到的移动端地址为: %s' % tmp_url)
 
-        params = self._set_params(goods_id=goods_id)
-        # pprint(params)
         self.headers.update({'Referer': tmp_url})
-        _url = 'https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
-
-        # body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params)
-        # self.my_lg.info(str(body))
-
-        # 设置代理ip
-        tmp_proxies = MyRequests._get_proxies()
-        self.proxy = tmp_proxies['http']
-        # self.my_lg.info(tmp_proxies)
-
-        s = requests.session()
-        try:
-            response = s.get(_url, headers=self.headers, params=params, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
-            # self.my_lg.info(last_url)
-            response = s.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            body = response.content.decode('utf-8')
-            # self.my_lg.info(str(body))
-        except Exception:
-            self.my_lg.error('requests.get()请求超时... 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
-            self.my_lg.error('data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+        last_url = self._get_last_url(goods_id=goods_id)
+        body = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
+        if body == '':
+            self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
+            self.result_data = {}
             return {}
 
         try:
@@ -808,6 +791,22 @@ class TmallParse(object):
         )
 
         return params
+
+    def _get_last_url(self, goods_id):
+        '''
+        得到组合params的last_url
+        :param goods_id:
+        :return:
+        '''
+        params = self._set_params(goods_id=goods_id)
+        tmp_url = 'https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
+
+        params = tuple_or_list_params_2_dict_params(params)
+        url = tmp_url + '?' + urlencode(params)
+        last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
+        # self.my_lg.info(last_url)
+
+        return last_url
 
     def _from_tmall_type_get_tmall_url(self, type, goods_id):
         '''

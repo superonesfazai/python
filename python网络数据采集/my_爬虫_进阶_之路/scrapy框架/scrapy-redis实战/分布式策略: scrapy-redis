@@ -1,0 +1,4 @@
+## 分布式策略: scrapy-redis
+scrapy-redis，在scrapy的基础上添加了一套一redis数据库为核心的组件。
+
+让scrapy框架支持分布式的功能，主要在redis里做请求指纹去重、请求分配、数据临时存储。

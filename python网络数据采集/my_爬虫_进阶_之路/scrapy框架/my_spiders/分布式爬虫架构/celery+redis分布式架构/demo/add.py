@@ -11,7 +11,6 @@ from tasks import add
 
 def notify(a, b):
     result = add.delay(a, b)
-
     # add.apply_async(args=(a, b))  # 上面等价于下面
 
     return result
@@ -29,4 +28,4 @@ if __name__ == '__main__':
     redis_cli = redis.StrictRedis(connection_pool=pool)
     _k = 'celery-task-meta-' + str(_r)
 
-    print(redis_cli.get(_k))
+    print(redis_cli.get(_k).decode('utf-8'))
