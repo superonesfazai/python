@@ -8,6 +8,9 @@
 '''
 
 from celery import Celery
+from celery.task import Task
+# from celery.contrib.methods import task_method
+
 from settings import (
     HEADERS,
     MY_SPIDER_LOGS_PATH,
@@ -17,7 +20,7 @@ from my_utils import (
     get_shanghai_time,
     tuple_or_list_params_2_dict_params,
 )
-# from my_items import GoodsItem
+from my_items import GoodsItem
 from my_requests import MyRequests
 from random import randint
 from logging import INFO, ERROR
@@ -26,7 +29,11 @@ import json
 # from json import JSONDecodeError
 import gc
 from decimal import Decimal
-from urllib.parse import urlencode
+try:
+    from urllib import urlencode          # py2
+except ImportError:
+    from urllib.parse import urlencode    # py3
+
 import time
 
 def init_celery_app():
@@ -55,7 +62,18 @@ def init_celery_app():
 
 app = init_celery_app()
 
-@app.task(bind=False)
+class task_method(object):
+    def __init__(self, task, *args, **kwargs):
+        self.task = task
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self.task
+        task = self.task.__class__()
+        task.__self__ = obj
+
+        return task
+
 class TaoBaoLoginAndParse(object):
     def __init__(self, logger=None):
         self._set_headers()
@@ -84,7 +102,9 @@ class TaoBaoLoginAndParse(object):
         else:
             self.my_lg = logger
 
-    def get_goods_data(self, goods_id):
+    # 如下: 先传task对象，再传self
+    @app.task(bind=True, filter=task_method)
+    def get_goods_data(task_self, self, goods_id):
         '''
         模拟构造得到data的url
         :param goods_id:
@@ -176,6 +196,9 @@ class TaoBaoLoginAndParse(object):
 
         return result_data
 
+    # 不用filter=task_method时，实例(self)不会自动传入。
+    # 加上filter=task_method, bind=True, task对象会作为第一个，实例(self)会作为第二个参数自动传入
+    @app.task(bind=True, filter=task_method)
     def deal_with_data(self, goods_id):
         '''
         处理result_data, 返回需要的信息
@@ -450,75 +473,6 @@ class TaoBaoLoginAndParse(object):
         result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
         return result
-
-    def _get_db_insert_params(self, item):
-        '''
-        得到db待插入的数据
-        :param item:
-        :return:
-        '''
-        params = [
-            item['goods_id'],
-            item['spider_url'],
-            item['username'],
-            item['deal_with_time'],
-            item['modfiy_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-            item['div_desc'],  # 存入到DetailInfo
-            item['month_sell_count'],
-
-            item['site_id'],
-            item['is_delete'],
-        ]
-
-        if item.get('main_goods_id') is not None:
-            params.append(item.get('main_goods_id'))
-
-        return tuple(params)
-
-    def _get_db_update_params(self, item):
-        '''
-        得到db待更新的数据
-        :param item:
-        :return:
-        '''
-        params = (
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            # item['price'],
-            # item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            item['all_sell_count'],
-            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-            item['delete_time'],
-            item['is_delete'],
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        )
-
-        return params
 
     def _set_params(self, goods_id):
         '''
@@ -873,15 +827,6 @@ class TaoBaoLoginAndParse(object):
         else:
             self.my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
-
-    def __call__(self, *args, **kwargs):
-        url = kwargs.get('tb_url')
-        goods_id = self.get_goods_id_from_url(url)
-        self.get_goods_data(goods_id)
-
-        result = self.deal_with_data(goods_id)
-
-        return result
 
     def __del__(self):
         try:

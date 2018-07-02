@@ -16,11 +16,18 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 _ = SqlServerMyPageInfoSaveItemPipeline()
 # sql_str = 'select gather_url, MainID from dbo.daren_recommend where site_id=2 and MainID is not null'
-sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
-params = ('556812068095',)
+# sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
+sql_str = '''
+select UserName, CreateTime, GoodsName, GoodsID, ConvertTime, MainGoodsID
+from dbo.GoodsInfoAutoGet 
+where GoodsID=%s
+'''
+# params = ('556812068095',)
+params = ('547549119119',)  # 未被转换
 result = _._select_table(sql_str=sql_str, params=params)
 # pprint(result)
 print(result)
+print(str(result[0][1]))
 
 # 更新
 # sql_str_2 = 'UPDATE dbo.daren_recommend set share_img_url_list=NULL, goods_id_list=NULL, share_goods_base_info=%s where MainID=579;'

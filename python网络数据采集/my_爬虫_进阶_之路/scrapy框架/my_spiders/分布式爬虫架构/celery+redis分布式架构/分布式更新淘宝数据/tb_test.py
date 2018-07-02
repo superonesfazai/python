@@ -7,19 +7,29 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from .taobao_tasks import TaoBaoLoginAndParse
+from taobao_tasks import TaoBaoLoginAndParse
 from celery.utils.log import get_task_logger
+import json
 
 logger = get_task_logger('tb')
+# print(type(logger))
+tb = TaoBaoLoginAndParse(logger=logger)
 
-def get_tb_result(url):
-    result = TaoBaoLoginAndParse(logger=logger).__call__(url=url).delay()
+def get_tb_original_data(tb_obejct, url):
+    goods_id = tb_obejct.get_goods_id_from_url(url)
+    _ = tb_obejct.get_goods_data.apply_async(args=(tb_obejct, goods_id), )
 
-    return result
+    return _
+
+def get_tb_process_data(tb_object, goods_id):
+    _ = tb_object.deal_with_data().delay(goods_id)
+
+    return _
 
 if __name__ == '__main__':
     url = 'https://item.taobao.com/item.htm?id=534498954634'
-    _r = get_tb_result(url)
+
+    _r = get_tb_original_data(tb_obejct=tb, url=url)
 
     print(_r.id)
     print(_r.status)

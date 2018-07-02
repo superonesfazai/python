@@ -120,6 +120,13 @@ my_lg = set_logger(
 
 Sign = Signature()
 
+# 数据插入失败 -> 运行此sql_str
+errror_insert_sql_str = '''
+select UserName, CreateTime, GoodsID, ConvertTime, MainGoodsID
+from dbo.GoodsInfoAutoGet 
+where GoodsID=%s
+'''
+
 ######################################################
 
 @app.route('/', methods=['GET', 'POST'])
@@ -1379,7 +1386,8 @@ def tmall_to_save_data():
             my_lg.info('获取到的待存取的url的list为: %s' % str(wait_to_save_data_url_list))
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = _get_tmall_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
+                # 待保存的goods_id的list
+                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))
                 my_lg.info('获取到的待存取的goods_id的list为: %s' % str(wait_to_save_data_goods_id_list))
 
                 # list里面的dict去重
@@ -1403,7 +1411,7 @@ def tmall_to_save_data():
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
+                            except IndexError:
                                 my_lg.info('索引越界, 此处我设置为跳过')
                             # tmp_wait_to_save_data_list.pop(index)
                             finally:
@@ -1412,7 +1420,8 @@ def tmall_to_save_data():
                             pass
 
                 my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
+                # 存储['db插入结果类型bool', '对应goods_id']
+                is_inserted_and_goods_id_list = []
                 for item in tmp_list:
                     # my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item))
                     my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item.get('goods_id')))
@@ -1420,25 +1429,18 @@ def tmall_to_save_data():
                     params = _get_db_tmall_insert_params(item=item)
                     sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
                     is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # my_lg.info('插入失败!')
-                        pass
+
+                    is_inserted_and_goods_id_list.append((is_insert_into, str(item.get('goods_id'))))
 
                 tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
                 my_lg.info('存入完毕'.center(100, '*'))
-                del my_page_info_save_item_pipeline
+                # del my_page_info_save_item_pipeline
                 gc.collect()
 
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return _insert_into_db_result(
+                    pipeline=my_page_info_save_item_pipeline,
+                    is_inserted_and_goods_id_list=is_inserted_and_goods_id_list
+                )
 
             else:
                 my_lg.info('saveData为空!')
@@ -3475,6 +3477,36 @@ def _null_goods_data():
         'msg': '获取到的goods_data为空dict!',
         'data': '',
         'error_code': '0004',
+    })
+
+def _insert_into_db_result(pipeline, is_inserted_and_goods_id_list):
+    '''
+    抓取后数据储存处理结果, msg显示
+    :param pipeline:
+    :param is_inserted_and_goods_id_list: a list eg: [('db插入结果类型bool', '对应goods_id'), ...]
+    :return:
+    '''
+    msg = ''
+    for _i in is_inserted_and_goods_id_list:
+        goods_id = _i[1]
+        if _i[0]:
+            msg += r'新采集的商品[GoodsID={0}]已存入db中!\r\r'.format(goods_id)
+
+        else:
+            _ = pipeline._select_table(sql_str=errror_insert_sql_str, params=(goods_id,))
+            if _ is None or _ == []:
+                msg += r'执行搜索该商品[GoodsID={0}]语句时出错! 可能已被入录! 请在公司后台对应查询!\r\r'.format(goods_id)
+
+            _ = _[0]
+            msg += r'这个商品原先已被存入db中! 相关信息如下:\r操作人员: {0}\r创建时间: {1}\r官方GoodsID: {2}\r转换时间: {3}\r优秀商品ID: {4}\r\r'.format(
+                _[0], str(_[1]), _[2], str(_[3]) if _[3] is not None else '未转换', _[4] if _[4] is not None else '未转换',
+            )
+
+    return dumps({
+        'reason': 'error',
+        'msg': msg,
+        'data': '',
+        'error_code': '0005',
     })
 
 ######################################################
