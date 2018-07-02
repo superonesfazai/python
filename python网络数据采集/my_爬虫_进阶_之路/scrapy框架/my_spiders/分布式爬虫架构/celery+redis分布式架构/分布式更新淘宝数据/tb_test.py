@@ -9,37 +9,60 @@
 
 from taobao_tasks import TaoBaoLoginAndParse
 from celery.utils.log import get_task_logger
-import json
+import pickle
+import redis
 
 logger = get_task_logger('tb')
 # print(type(logger))
 tb = TaoBaoLoginAndParse(logger=logger)
 
-def get_tb_original_data(tb_obejct, url):
-    goods_id = tb_obejct.get_goods_id_from_url(url)
-    _ = tb_obejct.get_goods_data.apply_async(args=(tb_obejct, goods_id), )
+def get_tb_process_data(tb_object, url):
+    goods_id = tb_object.get_goods_id_from_url(url)
+    _ = tb_object.get_goods_data.apply_async(args=(tb_object, goods_id,),).get(timeout=2)
+    if _ != {}:
+        _ = tb_object.deal_with_data.apply_async(args=(tb_object, goods_id, _),)
+
+    else:
+        logger.error('get_goods_data得到的data为空dict!')
+        return None
 
     return _
 
-def get_tb_process_data(tb_object, goods_id):
-    _ = tb_object.deal_with_data().delay(goods_id)
+def deserializate_pickle_object(pickle_object):
+    '''
+    反序列化pickle对象
+    :param pickle_object:
+    :return:
+    '''
+    _ = {}
+    try:
+        _ = pickle.loads(pickle_object)
+    except Exception as e:
+        print(e)
 
     return _
 
 if __name__ == '__main__':
     url = 'https://item.taobao.com/item.htm?id=534498954634'
 
-    _r = get_tb_original_data(tb_obejct=tb, url=url)
+    _r = get_tb_process_data(tb_object=tb, url=url)
 
-    print(_r.id)
-    print(_r.status)
-    print(_r.get(timeout=1))
+    # logger.info(_r.get(timeout=2))
+    _r.get(timeout=2)
+    print('tasks的id: {0}, status: {1}'.format(_r.id, _r.status))
 
     # 从redis获取结果
-    import redis
-
     pool = redis.ConnectionPool(host='127.0.0.1', port=6379, db=0)
     redis_cli = redis.StrictRedis(connection_pool=pool)
     _k = 'celery-task-meta-' + str(_r)
 
-    print(redis_cli.get(_k).decode('utf-8'))
+    # 将redis里面的序列化python对象进行反序列化
+    result = deserializate_pickle_object(redis_cli.get(_k))
+    if result.get('status', '') == 'SUCCESS':
+        result = result.get('result', '{}')
+        print(result)
+
+    else:
+        print('获取失败!')
+
+

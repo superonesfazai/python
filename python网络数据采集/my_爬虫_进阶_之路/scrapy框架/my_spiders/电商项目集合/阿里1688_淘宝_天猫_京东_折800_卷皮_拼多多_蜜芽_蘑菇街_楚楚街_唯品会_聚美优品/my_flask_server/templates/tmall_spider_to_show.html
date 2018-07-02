@@ -626,7 +626,61 @@
 .meter:after {
   content: "%";
 }
-
+.layer {
+	width:100%;
+	height: 100%;
+	background: rgba(0,0,0,.7);
+	position: fixed;
+	left:0;
+	top:0;
+	right:0;
+	bottom: 0;
+	z-index: 100000;
+	display: none;
+}
+.layer img{
+	width:190px;
+	height: 14px;
+	position: absolute;
+	left: 50%;
+	top:50%;
+	margin-top: -7px;
+	margin-left: -95px;
+}
+.layer-content{
+	width:400px;
+	height: 300px;
+	background-color: white;
+	font-size: 14px;
+	padding:20px;
+	position: absolute;
+	left: 50%;
+	top:50%;
+	margin-top: -200px;
+	margin-left: -150px;
+	
+}
+.layer-content div{
+	color:black;
+	white-space: normal;
+	word-break:break-all;
+	height: 250px;
+	overflow: scroll;
+}
+.layer-content button{
+	width:80px;
+	height: 40px;
+	background-color:#007AFF;
+	color:#fff;
+	font-size: 18px;
+	line-height: 40px;
+	text-align: center;
+	display: block;
+	position: absolute;
+	bottom: 10px;
+	left:50%;
+	margin-left: -40px;
+}
     </style>
   </head>
   <body>
@@ -638,7 +692,7 @@
 				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
 					<div class="wLink"></div>
-					<div class="collect-btn"><a href="javascript:" id="reset">重置</a><a href="javascript:" id="grab">抓取数据</a><a href="javascript:;" id="insertSqlSingle">存入数据库</a></div>					
+					<div class="collect-btn"><a href="javascript:" id="reset">重置</a><a href="javascript:" id="grab">抓取数据</a><a href="javascript:;" id="insertSqlSingle">存入数据库</a></div>				
 				</div>
 				<div class="batchGrab fadeInLeft animated">
 					<div class="batchGrabBtn"><a href="javascript:" id="batchGrabStart">开始抓取</a><a href="javascript:" id="insertSql">存入数据库</a><a href="javascript:;" id="resetAllLink">清空输入框</a><input type="checkbox" name="allSelect" id="allSelect" value=""/><label for="allSelect">全部选中</label></div>
@@ -1034,7 +1088,10 @@
 			</div>
 			<div class="mask"><img  src="../static/images/5-121204193Q9.gif"/></div>
     </div>
-    <script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>  
+		<div class="layer">
+			<img src="../static/images/5-121204193Q9.gif" alt="" />
+		</div>
+		<script src="../static/js/jquery-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>  
     <script src="../static/js/ejs.js" type="text/javascript" charset="utf-8"></script>
     <script src="../static/js/swiper-3.4.2.min.js" type="text/javascript" charset="utf-8"></script>
 		<script  type="text/template" charset="utf-8" id="template">			
@@ -1232,6 +1289,7 @@
 					if(insertData.length =='0'){
 						alert('未选择需要保存的信息')
 					}else{
+						$(".layer").show();
 						$.ajax({
 							type:"post",
 							url:"/tmall_to_save_data",
@@ -1239,14 +1297,29 @@
 							data:{
 								saveData:insertData
 							},
-							success:function(){
+							success:function(e){
 								insertData = [];
+								let data=JSON.parse(e);
+								setTimeout(()=>{
+									$(".layer img").css("display","none");
+									$(".layer").append("<div class='layer-content'><div></div><button>确认</button></div>");
+									$(".layer-content div").html(data.msg.replace(/\r/g,"<br/>"));
+								 	$(".layer .layer-content button").on("click",()=>{
+							    	$(".layer").hide();
+							    })
+								},500);
 							},
 							error:function(){
 								insertData = [];
+								setTimeout(()=>{
+            		$(".layer img").css("display","none");
+            		$(".layer").append("<div class='layer-content'><div>操作成功</div><button>确认</button></div>");
+            		$(".layer .layer-content button").on("click",()=>{
+								    	$(".layer").hide();
+								    })
+            		},15000);
 							}
 						});
-						alert('已存入数据库')
 					}
 				})
 			})
@@ -2282,6 +2355,7 @@
             if(insertData[0]==''){
                 return;
             }else{
+            		$(".layer").show();
                 $.ajax({
                     type:"post",
                     url:"/tmall_to_save_data",
@@ -2289,16 +2363,31 @@
                     data:{
                         saveData:insertData
                     },
-                    success:function(){
+                    success:function(e){
+											let data=JSON.parse(e);
+											setTimeout(()=>{
+												$(".layer img").css("display","none");
+												$(".layer").append("<div class='layer-content'><div></div><button>确认</button></div>");
+												$(".layer-content div").html(data.msg.replace(/\r/g,"<br/>"));
+											 	$(".layer .layer-content button").on("click",()=>{
+										    	$(".layer").hide();
+										    })
+											},500);
                     },
                     error:function(){
+                    	setTimeout(()=>{
+                    		$(".layer img").css("display","none");
+                    		$(".layer").append("<div class='layer-content'><div>操作成功</div><button>确认</button></div>");
+                    		$(".layer .layer-content button").on("click",()=>{
+										    	$(".layer").hide();
+										    })
+                    	},15000);
                     }
                 });
-                alert('已存入数据库')
+//              alert('已存入数据库')
             }
             insertData = [];
         });
-
 //单个抓取数据
 		$('#grab').click(function(){
 			if($('#goodsLink').val()==''){

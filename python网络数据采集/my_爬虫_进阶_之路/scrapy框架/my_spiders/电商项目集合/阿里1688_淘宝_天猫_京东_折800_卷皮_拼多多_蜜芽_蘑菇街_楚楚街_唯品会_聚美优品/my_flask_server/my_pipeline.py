@@ -84,7 +84,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
         try:
             cs.execute(sql_str.encode('utf-8'), params)  # 注意必须是tuple类型
             self.conn.commit()
-            print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except Exception as e:
             print('-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
@@ -104,7 +104,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             # logger.info(str(params))
             cs.execute(sql_str.encode('utf-8'), params)   # 注意必须是tuple类型
             self.conn.commit()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except IntegrityError:
             logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
@@ -133,7 +133,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             # logger.info(str(params))
             cs.execute(sql_str.encode('utf-8'), params)   # 注意必须是tuple类型
             self.conn.commit()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except IntegrityError:
             logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
@@ -161,7 +161,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs.execute(sql_str, params)
 
             self.conn.commit()
-            print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except Exception as e:
             print('-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
@@ -180,7 +180,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
 
             self.conn.commit()
             cs.close()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except Exception as e:
             logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % params[-1])
@@ -254,7 +254,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             cs.execute('insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             return True
         except IntegrityError:
             logger.info('###### 重复插入goods_id[%s]' % item['goods_id'])
@@ -299,7 +299,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 tuple(params))
             self.conn.commit()
             cs.close()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             return True
         except Exception as e:
             try:
@@ -337,7 +337,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 tuple(params))
             self.conn.commit()
             cs.close()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             return True
         except Exception as e:
             try:
@@ -383,7 +383,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                 tuple(params))  # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('---------| ***该页面信息成功存入sqlserver中*** |')
+            print('---------| ***该页面信息成功存入sqlserver中*** ')
             return True
         except Exception as e:
             try:
@@ -499,7 +499,7 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
                        tuple(params))   # 注意必须是tuple类型
             self.conn.commit()
             cs.close()
-            print('-' * 4 + '| ***该页面信息成功存入sqlserver中*** |')
+            print('-' * 4 + '| ***该页面信息成功存入sqlserver中*** ')
             return True
         except Exception as e:
             try:
@@ -558,7 +558,7 @@ class CommentInfoSaveItemPipeline(object):
             # logger.info(str(params))
             cs.execute(sql_str.encode('utf-8'), params)   # 注意必须是tuple类型
             self.conn.commit()
-            self.my_lg.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            self.my_lg.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except IntegrityError:
             self.my_lg.info('重复插入goods_id[%s], 此处跳过!' % params[0])
@@ -580,7 +580,7 @@ class CommentInfoSaveItemPipeline(object):
             cs.execute(sql_str, params)
 
             self.conn.commit()
-            self.my_lg.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            self.my_lg.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except Exception as e:
             self.my_lg.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 出错goods_id: %s|' % params[-1])
@@ -666,7 +666,7 @@ class SqlPools(object):
             self.conn.execute(sql_str, params)
 
             # self.engine.commit()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
 
         except Exception as e:
@@ -717,7 +717,7 @@ class SqlPools(object):
             # ---->>> 注意要写对要插入数据的所有者,不然报错
             self.conn.execute('insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_img_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.encode('utf-8'), tuple(params))  # 注意必须是tuple类型
             # self.conn.commit()
-            print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** |')
+            print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             return True
         except Exception as e:
             print('-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
@@ -766,7 +766,7 @@ class SqlPools(object):
                        tuple(params))   # 注意必须是tuple类型
             # self.conn.commit()
             # self.conn.close()
-            print('---------| ***该页面信息成功存入sqlserver中*** |')
+            print('---------| ***该页面信息成功存入sqlserver中*** ')
             return True
         except Exception as e:
             print('---------| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
@@ -841,7 +841,7 @@ class UserItemPipeline(object):
             cs.execute('insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)', tuple(params))
             self.conn.commit()
             cs.close()
-            print('-' * 60 + '| ***该用户信息成功存入mysql中*** |')
+            print('-' * 60 + '| ***该用户信息成功存入mysql中*** ')
             return True
         except Exception as e:
             cs.close()

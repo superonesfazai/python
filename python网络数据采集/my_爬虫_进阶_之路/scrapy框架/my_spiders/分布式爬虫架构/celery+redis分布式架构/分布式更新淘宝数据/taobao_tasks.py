@@ -26,6 +26,7 @@ from random import randint
 from logging import INFO, ERROR
 import re
 import json
+from json import dumps
 # from json import JSONDecodeError
 import gc
 from decimal import Decimal
@@ -50,9 +51,9 @@ def init_celery_app():
     app.conf.update(
         CELERY_TIMEZONE='Asia/Shanghai',  # 指定时区, 默认是'UTC'
         CELERY_ACKS_LATE=True,
-        CELERY_ACCEPT_CONTENT=['json'],
-        CELERY_TASK_SERIALIZER='json',
-        CELERY_RESULT_SERIALIZER='json',
+        CELERY_ACCEPT_CONTENT=['pickle', 'json'],   # 注意: 'pickle'是一种Python特有的自描述的数据编码, 可序列化自定义对象
+        CELERY_TASK_SERIALIZER='pickle',
+        CELERY_RESULT_SERIALIZER='pickle',
         CELERYD_FORCE_EXECV=True,
         CELERYD_MAX_TASKS_PER_CHILD=500,
         BROKER_HEARTBEAT=0,
@@ -103,8 +104,9 @@ class TaoBaoLoginAndParse(object):
             self.my_lg = logger
 
     # 如下: 先传task对象，再传self
-    @app.task(bind=True, filter=task_method)
-    def get_goods_data(task_self, self, goods_id):
+    # @app.task(bind=True, filter=task_method)
+    @app.task
+    def get_goods_data(self, goods_id):
         '''
         模拟构造得到data的url
         :param goods_id:
@@ -198,13 +200,13 @@ class TaoBaoLoginAndParse(object):
 
     # 不用filter=task_method时，实例(self)不会自动传入。
     # 加上filter=task_method, bind=True, task对象会作为第一个，实例(self)会作为第二个参数自动传入
-    @app.task(bind=True, filter=task_method)
-    def deal_with_data(self, goods_id):
+    @app.task
+    def deal_with_data(self, goods_id, result_data):
         '''
         处理result_data, 返回需要的信息
         :return: 字典类型
         '''
-        data = self.result_data
+        data = result_data
         if data != {}:
             # 店铺名称
             shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
@@ -497,7 +499,7 @@ class TaoBaoLoginAndParse(object):
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
-            ('t', str(time.time().__round__()) + str(randint(100, 999))),
+            ('t', str(int(time.time())) + str(randint(100, 999))),
             # ('sign', 'b7cd843a2b40b5238d3b53faa3bb605b'),
             ('api', 'mtop.taobao.detail.getdetail'),
             ('v', '6.0'),
@@ -731,7 +733,7 @@ class TaoBaoLoginAndParse(object):
         根据pc描述的url模拟请求获取描述的div
         :return: str
         '''
-        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+        t = str(int(time.time())) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
 
         params_data_1 = {
             'id': goods_id,
@@ -827,6 +829,9 @@ class TaoBaoLoginAndParse(object):
         else:
             self.my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
             return ''
+
+    def __call__(self, *args, **kwargs):
+        return True
 
     def __del__(self):
         try:

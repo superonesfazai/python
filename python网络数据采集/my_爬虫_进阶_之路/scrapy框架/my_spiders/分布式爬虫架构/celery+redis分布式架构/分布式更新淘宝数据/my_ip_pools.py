@@ -17,7 +17,8 @@ __all__ = [
 
 class MyIpPools(object):
     def __init__(self):
-        super().__init__()
+        # super().__init__()
+        pass
 
     def get_proxy_ip_from_ip_pool(self):
         '''

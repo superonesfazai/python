@@ -3,7 +3,7 @@
 '''
 @author = super_fazai
 @File    : site_id.py
-@Time    : 2017/6/27 21:00
+@Time    : 2017/10/27 21:00
 @connect : superonesfazai@gmail.com
 '''
 
@@ -49,5 +49,14 @@ use Gather;
 select UserName, CreateTime, GoodsName, GoodsID, ConvertTime, MainGoodsID
 from dbo.GoodsInfoAutoGet 
 where GoodsID='';
+'''
+
+# 查询最新入录的商品
+sql_str_2 = '''
+use Gather;
+select top 20 ID, UserName, GoodsUrl, CreateTime, MainGoodsID 
+from dbo.GoodsInfoAutoGet 
+where GETDATE()-CreateTime < 1
+order by ID desc;
 '''
 

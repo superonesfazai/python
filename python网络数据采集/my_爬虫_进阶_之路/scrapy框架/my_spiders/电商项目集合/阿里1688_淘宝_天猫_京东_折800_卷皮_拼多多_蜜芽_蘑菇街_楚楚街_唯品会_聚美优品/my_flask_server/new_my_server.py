@@ -121,8 +121,8 @@ my_lg = set_logger(
 Sign = Signature()
 
 # 数据插入失败 -> 运行此sql_str
-errror_insert_sql_str = '''
-select UserName, CreateTime, GoodsID, ConvertTime, MainGoodsID
+error_insert_sql_str = '''
+select UserName, CreateTime, GoodsID, GoodsName, ConvertTime, MainGoodsID
 from dbo.GoodsInfoAutoGet 
 where GoodsID=%s
 '''
@@ -806,32 +806,16 @@ def to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            print('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_ali_wait_to_save_data_goods_id_list(data):
     '''
@@ -1087,32 +1071,16 @@ def taobao_to_save_data():
                 return result
 
             else:
-                my_lg.info('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            my_lg.info('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_taobao_wait_to_save_data_goods_id_list(data):
     '''
@@ -1375,7 +1343,10 @@ def get_tmall_data():
 
 @app.route('/tmall_to_save_data', methods=['POST'])
 def tmall_to_save_data():
+    '''
     ## 此处注意保存的类型是天猫(3)，还是天猫超市(4)，还是天猫国际(6)
+    :return:
+    '''
     global tmp_wait_to_save_data_list
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
@@ -1443,32 +1414,18 @@ def tmall_to_save_data():
                 )
 
             else:
-                my_lg.info('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+
+                return _error_msg(msg=msg)
         else:
-            my_lg.info('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg=msg)
+
+            return _error_msg(msg=msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_tmall_wait_to_save_data_goods_id_list(data):
     '''
@@ -1773,32 +1730,16 @@ def jd_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            print('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_jd_wait_to_save_data_goods_id_list(data):
     '''
@@ -2083,32 +2024,16 @@ def zhe_800_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            print('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_zhe_800_wait_to_save_data_goods_id_list(data):
     '''
@@ -2403,32 +2328,16 @@ def juanpi_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            print('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_juanpi_wait_to_save_data_goods_id_list(data):
     '''
@@ -2704,32 +2613,16 @@ def pinduoduo_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            print('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_pinduoduo_wait_to_save_data_goods_id_list(data):
     '''
@@ -3012,32 +2905,16 @@ def vip_to_save_data():
                 return result
 
             else:
-                print('saveData为空!')
-                result = {
-                    'reason': 'error',
-                    'data': '',
-                    'error_code': 4043,  # batchGoodsLink为空
-                }
-                result = json.dumps(result)
-                return result
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
         else:
-            print('saveData为空!')
-            result = {
-                'reason': 'error',
-                'data': '',
-                'error_code': 4043,  # batchGoodsLink为空
-            }
-            result = json.dumps(result)
-            return result
+            msg = 'saveData为空!'
+            my_lg.info(msg)
+            return _error_msg(msg)
 
     else:
-        result = {
-            'reason': 'error',
-            'data': '',
-            'error_code': 0,
-        }
-        result = json.dumps(result)
-        return result
+        return _error_msg(msg='')
 
 def _get_vip_wait_to_save_data_goods_id_list(data):
     '''
@@ -3479,34 +3356,74 @@ def _null_goods_data():
         'error_code': '0004',
     })
 
-def _insert_into_db_result(pipeline, is_inserted_and_goods_id_list):
+def _insert_into_db_result(**kwargs):
     '''
     抓取后数据储存处理结果, msg显示
     :param pipeline:
     :param is_inserted_and_goods_id_list: a list eg: [('db插入结果类型bool', '对应goods_id'), ...]
     :return:
     '''
+    pipeline = kwargs.get('pipeline')
+    is_inserted_and_goods_id_list = kwargs.get('is_inserted_and_goods_id_list', [])
+
     msg = ''
+    goods_id_list = [item[1] for item in is_inserted_and_goods_id_list if not item[0]]
+    error_goods_id_msg_list = []  # 早期已被存入db的 [('goods_id', 'msg'), ...]
+
+    if goods_id_list != []:     # 处理早期被存入的goods_id
+        _e = error_insert_sql_str
+        _e += ' or GoodsID=%s ' * (len(goods_id_list)-1)
+        _ = pipeline._select_table(sql_str=_e, params=tuple(goods_id_list))
+        if _ is None or _ == []:        # 查询失败处理!
+            msg = r'执行搜索对应商品语句时出错! 可能已被入录! 请在公司后台对应查询!<br/><br/>'
+            for _u in goods_id_list:
+                msg += r'官方GoodsID: {0}<br/>'.format(_u)
+
+            return dumps({
+                'reason': 'error',
+                'msg': msg,
+                'data': '',
+                'error_code': '0005',
+            })
+
+        for goods_id in goods_id_list:
+            for _r in _:
+                if goods_id == _r[2]:
+                    tmp_msg = r'这个商品原先已被存入db中! 相关信息如下:<br/>操作人员: {0}<br/>创建时间: {1}<br/>官方GoodsID: {2}<br/>商品名称: {3}<br/>转换时间: {4}<br/>优秀商品ID: {5}<br/><br/>'.format(
+                        _r[0], str(_r[1]), _r[2], _r[3], str(_r[4]) if _r[4] is not None else '未转换', _r[5] if _r[5] is not None else '未转换',
+                    )
+                    error_goods_id_msg_list.append((goods_id, tmp_msg))
+    else:
+        pass
+
     for _i in is_inserted_and_goods_id_list:
         goods_id = _i[1]
         if _i[0]:
-            msg += r'新采集的商品[GoodsID={0}]已存入db中!\r\r'.format(goods_id)
-
+            msg += r'新采集的商品[GoodsID={0}]已存入db中!<br/><br/>'.format(goods_id)
         else:
-            _ = pipeline._select_table(sql_str=errror_insert_sql_str, params=(goods_id,))
-            if _ is None or _ == []:
-                msg += r'执行搜索该商品[GoodsID={0}]语句时出错! 可能已被入录! 请在公司后台对应查询!\r\r'.format(goods_id)
-
-            _ = _[0]
-            msg += r'这个商品原先已被存入db中! 相关信息如下:\r操作人员: {0}\r创建时间: {1}\r官方GoodsID: {2}\r转换时间: {3}\r优秀商品ID: {4}\r\r'.format(
-                _[0], str(_[1]), _[2], str(_[3]) if _[3] is not None else '未转换', _[4] if _[4] is not None else '未转换',
-            )
+            for _m in error_goods_id_msg_list:
+                if goods_id == _m[0]:
+                    msg += _m[1]
+    my_lg.info(msg)
 
     return dumps({
-        'reason': 'error',
+        'reason': 'success',
         'msg': msg,
         'data': '',
-        'error_code': '0005',
+        'error_code': '0006',
+    })
+
+def _error_msg(msg):
+    '''
+    错误的msg, json返回
+    :param msg:
+    :return:
+    '''
+    return dumps({
+        'reason': 'error',
+        'msg': str(msg),
+        'data': '',
+        'error_code': '0007',
     })
 
 ######################################################
@@ -3586,6 +3503,8 @@ def _is_m_jd_url(goods_link):
     :return:
     '''
     pass
+
+######################################################
 
 def encrypt(key, s):
     '''
