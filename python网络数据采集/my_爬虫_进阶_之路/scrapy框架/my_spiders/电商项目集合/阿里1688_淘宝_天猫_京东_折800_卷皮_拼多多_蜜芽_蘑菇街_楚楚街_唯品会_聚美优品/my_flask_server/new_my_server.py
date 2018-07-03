@@ -120,7 +120,7 @@ my_lg = set_logger(
 
 Sign = Signature()
 
-# 数据插入失败 -> 运行此sql_str
+# server数据插入失败 -> 运行此sql_str
 error_insert_sql_str = '''
 select UserName, CreateTime, GoodsID, GoodsName, ConvertTime, MainGoodsID
 from dbo.GoodsInfoAutoGet 
@@ -699,12 +699,14 @@ def get_all_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            # wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             tmp_goods_id = re.compile(r'.*?/offer/(.*?).html').findall(wait_to_deal_with_url)[0]
-            wait_to_save_data['goods_id'] = tmp_goods_id        # goods_id  官方商品link的商品id
+
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=tmp_goods_id
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -759,17 +761,17 @@ def to_save_data():
                 for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
                     for index in range(0, len(tmp_wait_to_save_data_list)):      # 先用set去重, 再转为list
                         if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
+                            my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_ali_right_data(data=data_list)
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # print('------>>>| 待存储的数据信息为: |', tmp)
+                            my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(tmp.get('goods_id')))
 
                             tmp_list.append(tmp)
                             try:
                                 goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
+                            except IndexError:
                                 print('索引越界, 此处我设置为跳过')
                             # tmp_wait_to_save_data_list.pop(index)
                             finally:
@@ -777,33 +779,14 @@ def to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                for item in tmp_list:
-                    # my_lg.info('------>>> | 正在存储的数据为: %s|', str(item))
-                    my_lg.info('------>>> | 正在存储的数据为: %s|' % item.get('goods_id'))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_ali_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # print('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]    # 删除已被插入
-                print('存入完毕'.center(100, '*'))
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='ali',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -966,11 +949,12 @@ def get_taobao_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            # wait_to_save_data['deal_with_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            wait_to_save_data['goods_id'] = goods_id        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -1002,8 +986,6 @@ def taobao_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
-            # msg = '缓存中待存储url的list为: ' + str(tmp_wait_to_save_data_list)
-            # my_lg.info(msg)
             msg = '获取到的待存取的url的list为: ' + str(wait_to_save_data_url_list)
             my_lg.info(msg)
             if wait_to_save_data_url_list != []:
@@ -1026,8 +1008,8 @@ def taobao_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_taobao_right_data(data=data_list)
-                            # my_lg.info('------>>> | 待存储的数据信息为: |' + str(tmp))
-                            my_lg.info('------>>> | 待存储的数据信息为: |' + tmp.get('goods_id', ''))
+                            # my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
+                            my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id', ''))
 
                             tmp_list.append(tmp)
                             try:
@@ -1040,35 +1022,14 @@ def taobao_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                # my_lg.info(str(tmp_list))
-                for item in tmp_list:
-                    # my_lg.info('------>>> | 正在存储的数据为: |' + str(item))
-                    my_lg.info('------>>> | 正在存储的数据为: |' + item.get('goods_id', ''))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_taobao_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # my_lg.info('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                my_lg.info('存入完毕'.center(100, '*'))
-                del my_page_info_save_item_pipeline
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='taobao',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -1314,10 +1275,12 @@ def get_tmall_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            wait_to_save_data['goods_id'] = goods_id[1]        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id[1]
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -1376,8 +1339,8 @@ def tmall_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_tmall_right_data(data=data_list)
-                            # my_lg.info('------>>> | 待存储的数据信息为: |%s' % str(tmp))
-                            my_lg.info('------>>> | 待存储的数据信息为: |%s' % str(tmp.get('goods_id')))
+                            # my_lg.info('------>>>| 待存储的数据信息为: |%s' % str(tmp))
+                            my_lg.info('------>>>| 待存储的数据信息为: |%s' % str(tmp.get('goods_id')))
 
                             tmp_list.append(tmp)
                             try:
@@ -1390,38 +1353,22 @@ def tmall_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # 存储['db插入结果类型bool', '对应goods_id']
-                is_inserted_and_goods_id_list = []
-                for item in tmp_list:
-                    # my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item))
-                    my_lg.info('------>>> | 正在存储的数据为: |%s' % str(item.get('goods_id')))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_tmall_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-
-                    is_inserted_and_goods_id_list.append((is_insert_into, str(item.get('goods_id'))))
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                my_lg.info('存入完毕'.center(100, '*'))
-                # del my_page_info_save_item_pipeline
-                gc.collect()
-
-                return _insert_into_db_result(
-                    pipeline=my_page_info_save_item_pipeline,
-                    is_inserted_and_goods_id_list=is_inserted_and_goods_id_list
+                return save_every_url_right_data(
+                    type='tmall',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
                 )
 
             else:
                 msg = 'saveData为空!'
                 my_lg.info(msg)
-
                 return _error_msg(msg=msg)
         else:
             msg = 'saveData为空!'
             my_lg.info(msg=msg)
-
             return _error_msg(msg=msg)
 
     else:
@@ -1627,10 +1574,12 @@ def get_jd_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            wait_to_save_data['goods_id'] = goods_id[1]        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id[1]
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -1657,7 +1606,10 @@ def get_jd_data():
 
 @app.route('/jd_to_save_data', methods=['POST'])
 def jd_to_save_data():
+    '''
     ## 此处注意保存的类型是京东(7)，还是京东超市(8)，还是京东全球购(9)，还是京东大药房(10)
+    :return:
+    '''
     global tmp_wait_to_save_data_list
     if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
@@ -1686,8 +1638,8 @@ def jd_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_jd_right_data(data=data_list)
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # print('------>>>| 待存储的数据信息为: |', tmp)
+                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
                             tmp_list.append(tmp)
                             try:
@@ -1700,34 +1652,14 @@ def jd_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_jd_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # print('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
-                del my_page_info_save_item_pipeline
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='jd',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -1922,10 +1854,12 @@ def get_zhe_800_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            wait_to_save_data['goods_id'] = str(goods_id)        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -1959,11 +1893,11 @@ def zhe_800_to_save_data():
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = _get_zhe_800_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
 
                 # list里面的dict去重
                 ll_list = []
@@ -1980,8 +1914,8 @@ def zhe_800_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_zhe_800_right_data(data=data_list)
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # print('------>>>| 待存储的数据信息为: |', tmp)
+                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
                             tmp_list.append(tmp)
                             try:
@@ -1994,34 +1928,14 @@ def zhe_800_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_zhe_800_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # print('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
-                del my_page_info_save_item_pipeline
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='zhe_800',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -2226,10 +2140,12 @@ def get_juanpi_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            wait_to_save_data['goods_id'] = str(goods_id)        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -2263,11 +2179,11 @@ def juanpi_to_save_data():
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = _get_juanpi_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
 
                 # list里面的dict去重
                 ll_list = []
@@ -2284,8 +2200,8 @@ def juanpi_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_juanpi_right_data(data=data_list)
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # print('------>>>| 待存储的数据信息为: |', tmp)
+                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
                             tmp_list.append(tmp)
                             try:
@@ -2298,34 +2214,14 @@ def juanpi_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_juanpi_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # print('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
-                del my_page_info_save_item_pipeline
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='juanpi',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -2509,10 +2405,12 @@ def get_pinduoduo_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            wait_to_save_data['goods_id'] = str(goods_id)        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -2548,11 +2446,11 @@ def pinduoduo_to_save_data():
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = _get_pinduoduo_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
 
                 # list里面的dict去重
                 ll_list = []
@@ -2569,8 +2467,8 @@ def pinduoduo_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_pinduoduo_right_data(data=data_list)
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # print('------>>>| 待存储的数据信息为: |', tmp)
+                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
                             tmp_list.append(tmp)
                             try:
@@ -2583,34 +2481,14 @@ def pinduoduo_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_pinduoduo_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # print('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
-                del my_page_info_save_item_pipeline
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='pinduoduo',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -2799,10 +2677,12 @@ def get_vip_data():
                 'error_code': 0,
             }
 
-            wait_to_save_data = data
-            wait_to_save_data['spider_url'] = wait_to_deal_with_url
-            wait_to_save_data['username'] = username
-            wait_to_save_data['goods_id'] = str(goods_id[1])        # goods_id  官方商品link的商品id
+            wait_to_save_data = add_base_info_2_processed_data(
+                data=data,
+                spider_url=wait_to_deal_with_url,
+                username=username,
+                goods_id=goods_id[1]
+            )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
 
@@ -2839,11 +2719,11 @@ def vip_to_save_data():
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_wait_to_save_data_goods_id_list = _get_vip_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
                 wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
+                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
 
                 # list里面的dict去重
                 ll_list = []
@@ -2860,8 +2740,8 @@ def vip_to_save_data():
                             data_list = tmp_wait_to_save_data_list[index]
 
                             tmp = _get_vip_right_data(data=data_list)
-                            # print('------>>> | 待存储的数据信息为: |', tmp)
-                            print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+                            # print('------>>>| 待存储的数据信息为: |', tmp)
+                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
                             tmp_list.append(tmp)
                             try:
@@ -2874,35 +2754,14 @@ def vip_to_save_data():
                         else:
                             pass
 
-                my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                # tmp_list = [dict(t) for t in set([tuple(d.items()) for d in tmp_list])]
-                for item in tmp_list:
-                    # print('------>>> | 正在存储的数据为: |', item)
-                    print('------>>> | 正在存储的数据为: |', item.get('goods_id'))
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
-                    params = _get_db_vip_insert_params(item=item)
-                    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                    is_insert_into = my_page_info_save_item_pipeline._insert_into_table(sql_str=sql_str, params=params)
-                    if is_insert_into:  # 如果返回值为True
-                        pass
-                    else:
-                        # print('插入失败!')
-                        pass
-
-                tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
-                print('存入完毕'.center(100, '*'))
-                try: del my_page_info_save_item_pipeline
-                except: pass
-                gc.collect()
-
-                # 处理完毕后返回一个处理结果避免报错
-                result = {
-                    'reason': 'success',
-                    'data': '',
-                    'error_code': 11,
-                }
-                result = json.dumps(result)
-                return result
+                return save_every_url_right_data(
+                    type='vip',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
 
             else:
                 msg = 'saveData为空!'
@@ -3503,6 +3362,100 @@ def _is_m_jd_url(goods_link):
     :return:
     '''
     pass
+
+######################################################
+# save every url's right data
+
+def get_db_who_insert_params(type, item):
+    '''
+    返回用哪个get_db_who_insert_params处理数据
+    :param type:
+    :return: params
+    '''
+    if type == 'ali':
+        params = _get_db_ali_insert_params(item=item)
+
+    elif type == 'taobao':
+        params = _get_db_taobao_insert_params(item=item)
+
+    elif type == 'tmall':
+        params = _get_db_tmall_insert_params(item=item)
+
+    elif type == 'jd':
+        params = _get_db_jd_insert_params(item=item)
+
+    elif type == 'zhe_800':
+        params = _get_db_zhe_800_insert_params(item=item)
+
+    elif type == 'juanpi':
+        params = _get_db_juanpi_insert_params(item=item)
+
+    elif type == 'pinduoduo':
+        params = _get_db_pinduoduo_insert_params(item=item)
+
+    elif type == 'vip':
+        params = _get_db_vip_insert_params(item=item)
+
+    else:
+        params = {}
+
+    return params
+
+def save_every_url_right_data(**kwargs):
+    '''
+    存储处理后的每一个url的数据
+    :param kwargs:
+    :return: a json msg
+    '''
+    global tmp_wait_to_save_data_list
+
+    tmp_list = kwargs.get('tmp_list')
+    type = kwargs.get('type')
+    sql_str = kwargs.get('sql_str')
+    goods_to_delete = kwargs.get('goods_to_delete')
+
+    my_page_info_save_item_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+    # 存储['db插入结果类型bool', '对应goods_id']
+    is_inserted_and_goods_id_list = []
+    for item in tmp_list:
+        # my_lg.info('------>>> | 正在存储的数据为: %s|', str(item))
+        my_lg.info('------>>>| 正在存储的数据为: {0}'.format(str(item.get('goods_id'))))
+
+        params = get_db_who_insert_params(type=type, item=item)
+        is_insert_into = my_page_info_save_item_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
+
+        is_inserted_and_goods_id_list.append((is_insert_into, str(item.get('goods_id'))))
+
+    tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
+    my_lg.info('存入完毕'.center(100, '*'))
+    # del my_page_info_save_item_pipeline
+    gc.collect()
+
+    return _insert_into_db_result(
+        pipeline=my_page_info_save_item_pipeline,
+        is_inserted_and_goods_id_list=is_inserted_and_goods_id_list
+    )
+
+######################################################
+# high reuse(高复用code)
+
+def add_base_info_2_processed_data(**kwargs):
+    '''
+    给采集后的data增加基础信息
+    :param kwargs:
+    :return:
+    '''
+    data = kwargs.get('data')
+    spider_url = kwargs.get('spider_url')
+    username = kwargs.get('username')
+    goods_id = str(kwargs.get('goods_id'))
+
+    wait_to_save_data = data
+    wait_to_save_data['spider_url'] = spider_url
+    wait_to_save_data['username'] = username
+    wait_to_save_data['goods_id'] = goods_id
+
+    return wait_to_save_data
 
 ######################################################
 
