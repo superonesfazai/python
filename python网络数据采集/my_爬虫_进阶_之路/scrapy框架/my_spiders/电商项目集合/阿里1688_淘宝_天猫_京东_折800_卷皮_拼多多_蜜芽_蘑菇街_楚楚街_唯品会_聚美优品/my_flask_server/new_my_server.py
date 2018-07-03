@@ -127,6 +127,9 @@ from dbo.GoodsInfoAutoGet
 where GoodsID=%s
 '''
 
+# saveData[]为空的msg
+save_data_null_msg = 'saveData为空! <br/><br/>可能是抓取后, 重复点存入数据按钮导致!<br/><br/>** 请按正常流程操作:<br/>先抓取，后存入，才有相应抓取后存储信息的展示!<br/><br/>^_^!!!  感谢使用!!!'
+
 ######################################################
 
 @app.route('/', methods=['GET', 'POST'])
@@ -793,9 +796,8 @@ def to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -1036,9 +1038,8 @@ def taobao_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -1367,9 +1368,8 @@ def tmall_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg=msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg=msg)
-            return _error_msg(msg=msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(msg=save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -1666,9 +1666,8 @@ def jd_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -1942,9 +1941,8 @@ def zhe_800_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -2228,9 +2226,8 @@ def juanpi_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -2495,9 +2492,8 @@ def pinduoduo_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
@@ -2768,9 +2764,8 @@ def vip_to_save_data():
                 my_lg.info(msg)
                 return _error_msg(msg)
         else:
-            msg = 'saveData为空!'
-            my_lg.info(msg)
-            return _error_msg(msg)
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
 
     else:
         return _error_msg(msg='')
