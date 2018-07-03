@@ -80,6 +80,7 @@ from logging import (
     ERROR,
 )
 from json import dumps
+from pprint import pprint
 
 from gevent.wsgi import WSGIServer      # 高并发部署
 import gc
@@ -746,41 +747,12 @@ def to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))   # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]   # 过滤'\n'
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_ali_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))       # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
-
-                goods_to_delete = []
-                tmp_list = []           # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):      # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_ali_right_data(data=data_list)
-                            # print('------>>>| 待存储的数据信息为: |', tmp)
-                            my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(tmp.get('goods_id')))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError:
-                                print('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='ali',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
 
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
@@ -991,39 +963,10 @@ def taobao_to_save_data():
             msg = '获取到的待存取的url的list为: ' + str(wait_to_save_data_url_list)
             my_lg.info(msg)
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_taobao_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                my_lg.info('获取到的待存取的goods_id的list为: ' + str(wait_to_save_data_goods_id_list))
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # my_lg.info('所有待存储的数据: ' + str(tmp_wait_to_save_data_list))
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_taobao_right_data(data=data_list)
-                            # my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
-                            my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id', ''))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
-                                my_lg.error('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='taobao',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -1320,40 +1263,10 @@ def tmall_to_save_data():
             # my_lg.info('缓存中待存储url的list为: %s' % str(tmp_wait_to_save_data_list))
             my_lg.info('获取到的待存取的url的list为: %s' % str(wait_to_save_data_url_list))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_tmall_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                # 待保存的goods_id的list
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))
-                my_lg.info('获取到的待存取的goods_id的list为: %s' % str(wait_to_save_data_goods_id_list))
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # my_lg.info('所有待存储的数据: %s' % str(tmp_wait_to_save_data_list))
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            my_lg.info('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_tmall_right_data(data=data_list)
-                            # my_lg.info('------>>>| 待存储的数据信息为: |%s' % str(tmp))
-                            my_lg.info('------>>>| 待存储的数据信息为: |%s' % str(tmp.get('goods_id')))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError:
-                                my_lg.info('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='tmall',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -1617,41 +1530,12 @@ def jd_to_save_data():
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
-            print('获取到的待存取的url的list为: ', wait_to_save_data_url_list)
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_jd_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                print('获取到的待存取的goods_id的list为: ', wait_to_save_data_goods_id_list)
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_jd_right_data(data=data_list)
-                            # print('------>>>| 待存储的数据信息为: |', tmp)
-                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
-                                print('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='jd',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -1894,39 +1778,10 @@ def zhe_800_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_zhe_800_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_zhe_800_right_data(data=data_list)
-                            # print('------>>>| 待存储的数据信息为: |', tmp)
-                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
-                                print('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='zhe_800',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -2179,39 +2034,10 @@ def juanpi_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_juanpi_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_juanpi_right_data(data=data_list)
-                            # print('------>>>| 待存储的数据信息为: |', tmp)
-                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError:
-                                print('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='juanpi',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -2445,39 +2271,10 @@ def pinduoduo_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_pinduoduo_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_pinduoduo_right_data(data=data_list)
-                            # print('------>>>| 待存储的数据信息为: |', tmp)
-                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError as e:
-                                print('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='pinduoduo',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -2539,6 +2336,7 @@ def _get_pinduoduo_right_data(data):
     :return:
     '''
     data_list = data
+
     tmp = {}
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
     tmp['goods_url'] = data_list['spider_url']  # 商品地址
@@ -2717,39 +2515,10 @@ def vip_to_save_data():
             # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
-                tmp_wait_to_save_data_goods_id_list = _get_vip_wait_to_save_data_goods_id_list(data=wait_to_save_data_url_list)
-                wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
-                my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
-
-                # list里面的dict去重
-                ll_list = []
-                [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
-                tmp_wait_to_save_data_list = ll_list
-                # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
-
-                goods_to_delete = []
-                tmp_list = []  # 用来存放筛选出来的数据, 里面一个元素就是一个dict
-                for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
-                    for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
-                        if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
-                            print('匹配到该goods_id, 其值为: %s' % wait_to_save_data_goods_id)
-                            data_list = tmp_wait_to_save_data_list[index]
-
-                            tmp = _get_vip_right_data(data=data_list)
-                            # print('------>>>| 待存储的数据信息为: |', tmp)
-                            print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
-
-                            tmp_list.append(tmp)
-                            try:
-                                goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
-                            except IndexError:
-                                print('索引越界, 此处我设置为跳过')
-                            # tmp_wait_to_save_data_list.pop(index)
-                            finally:
-                                pass
-                        else:
-                            pass
-
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='vip',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
                 sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
@@ -3357,6 +3126,135 @@ def _is_m_jd_url(goods_link):
     :return:
     '''
     pass
+
+######################################################
+# 从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
+
+def get_who_wait_to_save_data_goods_id_list(**kwargs):
+    '''
+    对应得到wait_to_save_data_goods_id_list
+    :param kwargs:
+    :return: a list
+    '''
+    type = kwargs.get('type')
+    data = kwargs.get('wait_to_save_data_url_list')
+
+    if type == 'ali':
+        return _get_ali_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'taobao':
+        return _get_taobao_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'tmall':
+        return _get_tmall_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'jd':
+        return _get_jd_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'zhe_800':
+        return _get_zhe_800_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'juanpi':
+        return _get_juanpi_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'pinduoduo':
+        return _get_pinduoduo_wait_to_save_data_goods_id_list(data=data)
+
+    elif type == 'vip':
+        return _get_vip_wait_to_save_data_goods_id_list(data=data)
+
+    else:
+        return []
+
+def get_who_right_data(**kwargs):
+    '''
+    对应得到right_data
+    :param kwargs:
+    :return:
+    '''
+    type = kwargs.get('type')
+    data = kwargs.get('data_list')
+
+    if type == 'ali':
+        return _get_ali_right_data(data=data)
+
+    elif type == 'taobao':
+        return _get_taobao_right_data(data=data)
+
+    elif type == 'tmall':
+        return _get_tmall_right_data(data=data)
+
+    elif type == 'jd':
+        return _get_jd_right_data(data=data)
+
+    elif type == 'zhe_800':
+        return _get_zhe_800_right_data(data=data)
+
+    elif type == 'juanpi':
+        return _get_juanpi_right_data(data=data)
+
+    elif type == 'pinduoduo':
+        return _get_pinduoduo_right_data(data=data)
+
+    elif type == 'vip':
+        return _get_vip_right_data(data=data)
+
+    else:
+        return {}
+
+def get_tmp_list_and_goods_2_delete_list(**kwargs):
+    '''
+    从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
+    :param kwargs:
+    :return:
+    '''
+    global tmp_wait_to_save_data_list
+
+    type = kwargs.get('type')   # 三方商品类型
+    wait_to_save_data_url_list = kwargs.get('wait_to_save_data_url_list')   # client发来的待存储的url_list
+
+    tmp_wait_to_save_data_goods_id_list = get_who_wait_to_save_data_goods_id_list(
+        type=type,
+        wait_to_save_data_url_list=wait_to_save_data_url_list
+    )
+
+    wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
+    my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
+
+    # list里面的dict去重
+    ll_list = []
+    [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
+    tmp_wait_to_save_data_list = ll_list
+    # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+
+    goods_to_delete = []
+    tmp_list = []  # 用来存放筛选出来的数据, eg: [{}, ...]
+    for wait_to_save_data_goods_id in wait_to_save_data_goods_id_list:
+        for index in range(0, len(tmp_wait_to_save_data_list)):  # 先用set去重, 再转为list
+            if wait_to_save_data_goods_id == tmp_wait_to_save_data_list[index]['goods_id']:
+                my_lg.info('匹配到该goods_id, 其值为: {0}'.format(wait_to_save_data_goods_id))
+                data_list = tmp_wait_to_save_data_list[index]
+
+                tmp = get_who_right_data(
+                    type=type,
+                    data_list=data_list
+                )
+
+                # my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(str(tmp)))
+                my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(tmp.get('goods_id')))
+
+                tmp_list.append(tmp)
+                try:
+                    goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
+                except IndexError:
+                    my_lg.info('索引越界, 此处我设置为跳过')
+                # tmp_wait_to_save_data_list.pop(index)
+                finally:
+                    pass
+            else:
+                pass
+
+    return tmp_list, goods_to_delete
 
 ######################################################
 # save every url's right data
