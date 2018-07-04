@@ -54,11 +54,11 @@ from settings import (
     BASIC_APP_KEY,
     TAOBAO_SLEEP_TIME,
     SELECT_HTML_NAME,
+    INIT_PASSWD,
 )
 
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
-    UserItemPipeline,
 )
 from my_logging import set_logger
 from my_utils import (
@@ -136,7 +136,7 @@ save_data_null_msg = 'saveData为空! <br/><br/>可能是抓取后, 重复点存
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if request.form.get('username', '') != '' and request.form.get('passwd', '') != '':
+        if request.form.get('username') is not None and request.form.get('passwd') is not None:
             username = str(request.form.get('username', ''))
             passwd = str(request.form.get('passwd', ''))
             my_lg.info(str(username) + ' : ' + str(passwd))
@@ -165,10 +165,11 @@ def login():
             return response
 
         else:                   # 否则为普通用户，进入选择页面
-            tmp_user = UserItemPipeline()
-            is_have_user = tmp_user.select_is_had_username(username, passwd)
+            tmp_user = SqlServerMyPageInfoSaveItemPipeline()
+            sql_str = 'select username from dbo.ali_spider_employee_table where username = %s and passwd = %s'
+            is_have_user = tmp_user._select_table(sql_str=sql_str, params=(username, passwd,))
 
-            if is_have_user:
+            if is_have_user is not None and is_have_user != []:
                     response = make_response(redirect('select'))    # 重定向到新的页面
 
                     # 加密
@@ -190,18 +191,17 @@ def login():
                 # session['islogin'] = '0'
                 my_lg.info('登录失败!请重新登录')
                 return redirect('/')
+
     else:
         return render_template('login.html')
 
 @app.route('/select', methods=['GET', 'POST'])
 def select():
     my_lg.info('正在获取选择界面...')
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:   # 判断是否为非法登录
+    if is_login(request=request):   # 判断是否为非法登录
         if request.form.get('confirm_login'):       # 根据ajax请求类型的分别处理
             ajax_request = request.form.get('confirm_login')
             if ajax_request == 'ali_login':
-                # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
-                # return send_file(SPIDER_TO_SHOW_PATH)
                 response = make_response(redirect('show_ali'))    # 重定向到新的页面
                 return response
 
@@ -237,6 +237,7 @@ def select():
                 return ERROR_HTML_CODE
         else:
             return render_template(SELECT_HTML_NAME)
+
     else:   # 非法登录显示错误网页
         return ERROR_HTML_CODE
 
@@ -249,222 +250,49 @@ def admin():
     # my_lg.info('正在获取登录界面...')
     if request.cookies.get('super_name', '') == encrypt(key, ADMIN_NAME) and request.cookies.get('super_passwd', '') == encrypt(key, ADMIN_PASSWD):   # 判断是否为非法登录
         if request.method == 'POST':
-            tmp_user = UserItemPipeline()
+            tmp_user = SqlServerMyPageInfoSaveItemPipeline()
 
             # 查找
             if request.form.get('find_name', '') != '':
                 find_name = request.form.get('find_name', '')
 
-                if len(find_name) == 11 and re.compile(r'^1').findall(find_name) != []:                            # 根据手机号查找
-                    result = tmp_user.find_user_by_username(username=find_name)
-                    if result != []:
-                        my_lg.info('查找成功!')
-                        # print(result)     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
-                        data = [{
-                            'username': result[0],
-                            'passwd': encrypt(key, result[1]),
-                            'createtime': str(result[2]),    # datetime类型转换为字符串 .strftime('%Y-%m-%d %H:%M:%S')
-                            'department': result[3],
-                            'realnane': result[4]}]
-                        result = {
-                            'reason': 'success',
-                            'data': data,
-                            'error_code': 1,
-                        }
-                        result = json.dumps(result, ensure_ascii=False).encode()
-                        return result.decode()
-
-                    else:
-                        my_lg.info('查找失败!')
-                        result = {
-                            'reason': 'error',
-                            'data': [],
-                            'error_code': 0,  # 表示goodsLink为空值
-                        }
-                        result = json.dumps(result)
-                        return result
-
-                elif len(find_name) > 1 and len(find_name) <= 4:     # 根据用户名查找
-                    result = tmp_user.find_user_by_real_name(name=find_name)
-                    my_lg.info(str(result))
-                    if result != []:
-                        my_lg.info('查找成功!')
-                        data = [{
-                            'username': item[0],
-                            'passwd': encrypt(key, item[1]),
-                            'createtime': str(item[2]),
-                            'department': item[3],
-                            'realnane': item[4]} for item in result]
-                        result = {
-                            'reason': 'success',
-                            'data': data,
-                            'error_code': 1,
-                        }
-                        result = json.dumps(result, ensure_ascii=False).encode()
-                        return result.decode()
-
-                    else:
-                        my_lg.info('查找失败!')
-                        result = {
-                            'reason': 'error',
-                            'data': [],
-                            'error_code': 0,  # 表示goodsLink为空值
-                        }
-
-                        result = json.dumps(result)
-                        return result
-                else:
-                    my_lg.info('find_name非法!')
-                    result = {
-                        'reason': 'error',
-                        'data': [],
-                        'error_code': 0,  # 表示goodsLink为空值
-                    }
-                    result = json.dumps(result)
-                    return result
+                return find_user_name(find_name=find_name, tmp_user=tmp_user)
 
             # 重置
             elif request.form.get('update', '') != '':
                 update_name = request.form.get('update', '')
-                result = tmp_user.init_user_passwd(username=update_name)
-                if result:
-                    my_lg.info('重置密码成功!')
-                    # 返回所有数据
-                    result = tmp_user.select_all_info()
-                    data = [{
-                        'username': item[0],
-                        'passwd': encrypt(key, item[1]),
-                        'createtime': str(item[2]),
-                        'department': item[3],
-                        'realnane': item[4]} for item in result]
-                    result = {
-                        'reason': 'error',
-                        'data': data,
-                        'error_code': 1,
-                    }
-                    result = json.dumps(result, ensure_ascii=False).encode()
-                    return result.decode()
 
-                else:
-                    my_lg.info('重置密码失败!')
-                    result = tmp_user.select_all_info()
-                    data = [{
-                        'username': item[0],
-                        'passwd': encrypt(key, item[1]),
-                        'createtime': str(item[2]),
-                        'department': item[3],
-                        'realnane': item[4]} for item in result]
-                    result = {
-                        'reason': 'error',
-                        'data': data,
-                        'error_code': 1,
-                    }
-                    result = json.dumps(result, ensure_ascii=False).encode()
-                    return result.decode()
+                return init_passwd(update_name=update_name, tmp_user=tmp_user)
 
             # 删除
             elif request.form.getlist('user_to_delete_list[]') != []:
                 user_to_delete_list = list(request.form.getlist('user_to_delete_list[]'))
-                result = tmp_user.delete_users(item=user_to_delete_list)
-                if result:
-                    my_lg.info('删除成功!')
-                    result = tmp_user.select_all_info()
-                    data = [{
-                        'username': item[0],
-                        'passwd': encrypt(key, item[1]),
-                        'createtime': str(item[2]),
-                        'department': item[3],
-                        'realnane': item[4]} for item in result]
-                    result = {
-                        'reason': 'success',
-                        'data': data,
-                        'error_code': 1,
-                    }
-                    result = json.dumps(result, ensure_ascii=False).encode()
-                    return result.decode()
 
-                else:       # 删除失败(删除失败也返回数据库中所有注册员工的数据)，让前端提醒下，数据库异常，删除失败
-                    my_lg.info('删除失败!')
-                    result = tmp_user.select_all_info()
-                    data = [{
-                        'username': item[0],
-                        'passwd': encrypt(key, item[1]),
-                        'createtime': str(item[2]),
-                        'department': item[3],
-                        'realnane': item[4]} for item in result]
-                    result = {
-                        'reason': 'error',
-                        'data': data,
-                        'error_code': 1,
-                    }
-                    result = json.dumps(result, ensure_ascii=False).encode()
-                    return result.decode()
+                return del_user(tmp_user=tmp_user, user_to_delete_list=user_to_delete_list)
 
             # 查看现有所有用户数据
             elif request.form.get('check_all_users', '') == 'True':
                 my_lg.info('返回所有注册员工信息!')
-                result = tmp_user.select_all_info()
-                data = [{
-                    'username': item[0],
-                    'passwd': encrypt(key, item[1]),
-                    'createtime': str(item[2]),
-                    'department': item[3],
-                    'realnane': item[4]} for item in result]
-                result = {
-                    'reason': 'success',
-                    'data': data,
-                    'error_code': 1,
-                }
-                result = json.dumps(result, ensure_ascii=False).encode()
-                return result.decode()
 
+                return check_all_user(tmp_user=tmp_user)
+
+            # 注册新用户
             elif request.form.get('username', '') != '':
-                username = request.form.get('username', '')
-                passwd = request.form.get('passwd', '')
-
-                real_name = request.form.get('ralenane', '')
-                department = request.form.get('department', '')
-
-                '''
-                时区处理，时间处理到上海时间
-                '''
-                tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-                now_time = datetime.datetime.now(tz)
-
-                # 处理为精确到秒位，删除时区信息
-                now_time = re.compile(r'\..*').sub('', str(now_time))
-                # 将字符串类型转换为datetime类型
-                now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-                create_time = now_time
-
-                item = [
-                    str(username),
-                    str(passwd),
-                    create_time,
-                    str(department),
-                    str(real_name),
-                ]
-                is_insert_into = tmp_user.insert_into_table(item)
-
-                if is_insert_into:
-                    my_lg.info('用户 %s 注册成功!' % str(username))
-                else:
-                    my_lg.info("用户注册失败!")
+                admin_add_new_user(request=request, tmp_user=tmp_user)
 
                 return send_file('templates/admin.html')
 
             else:
-                pass
+                my_lg.error('来自admin页面中的未知操作!')
 
         else:
-            # return render_template('admin.html')
             return send_file('templates/admin.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
 
     else:   # 非法登录显示错误网页
         return ERROR_HTML_CODE
 
 @app.route('/Reg', methods=['GET', 'POST'])
-def regist():
+def register():
     '''
     注册新用户页面
     :return:
@@ -483,28 +311,18 @@ def regist():
             '''
 
         if tmp_inner_pass == inner_pass:    # 正确输入员工口令
-            tmp_user = UserItemPipeline()
+            tmp_user = SqlServerMyPageInfoSaveItemPipeline()
+            create_time = get_shanghai_time()
 
-            '''
-            时区处理，时间处理到上海时间
-            '''
-            tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-            now_time = datetime.datetime.now(tz)
-
-            # 处理为精确到秒位，删除时区信息
-            now_time = re.compile(r'\..*').sub('', str(now_time))
-            # 将字符串类型转换为datetime类型
-            now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-            create_time = now_time
-
-            item = [
+            item = (
                 str(username),
                 str(passwd),
                 create_time,
                 str(department),
                 str(real_name),
-            ]
-            is_insert_into = tmp_user.insert_into_table(item)
+            )
+            sql_str = 'insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)'
+            is_insert_into = tmp_user._insert_into_table_2(sql_str=sql_str, params=item, logger=my_lg)
 
             if is_insert_into:
                 my_lg.info('用户 %s 注册成功!' % str(username))
@@ -519,6 +337,189 @@ def regist():
         return render_template('Reg.html')
 
 ######################################################
+# admin相关操作func
+
+def find_user_name(**kwargs):
+    '''
+    查找
+    :param kwargs:
+    :return:
+    '''
+    find_name = kwargs.get('find_name', '')
+    tmp_user = kwargs.get('tmp_user')
+
+    if len(find_name) == 11 and re.compile(r'^1').findall(find_name) != []:  # 根据手机号查找
+        sql_str = 'select * from dbo.ali_spider_employee_table where username=%s'
+        result = tmp_user._select_table(sql_str=sql_str, params=(find_name,))
+        if result is not None and result != []:
+            my_lg.info('查找成功!')
+            result = result[0]
+            # print(result)     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
+            data = [{
+                'username': result[0],
+                'passwd': encrypt(key, result[1]),
+                'createtime': str(result[2]),  # datetime类型转换为字符串 .strftime('%Y-%m-%d %H:%M:%S')
+                'department': result[3],
+                'realnane': result[4],
+            }]
+            result = {
+                'reason': 'success',
+                'data': data,
+                'error_code': 1,
+            }
+            result = json.dumps(result, ensure_ascii=False).encode()
+            return result.decode()
+
+        else:
+            my_lg.info('查找失败!')
+            result = {
+                'reason': 'error',
+                'data': [],
+                'error_code': 0,  # 表示goodsLink为空值
+            }
+            result = json.dumps(result)
+            return result
+
+    elif len(find_name) > 1 and len(find_name) <= 4:  # 根据用户名查找
+        sql_str = 'select * from dbo.ali_spider_employee_table where realnane=%s'
+        result = tmp_user._select_table(sql_str=sql_str, params=(find_name,))
+        # my_lg.info(str(result))
+        if result is not None and result != []:
+            my_lg.info('查找成功!')
+            data = [{
+                'username': item[0],
+                'passwd': encrypt(key, item[1]),
+                'createtime': str(item[2]),
+                'department': item[3],
+                'realnane': item[4]
+            } for item in result]
+            result = {
+                'reason': 'success',
+                'data': data,
+                'error_code': 1,
+            }
+            result = json.dumps(result, ensure_ascii=False).encode()
+            return result.decode()
+
+        else:
+            my_lg.info('查找失败!')
+            result = {
+                'reason': 'error',
+                'data': [],
+                'error_code': 0,  # 表示goodsLink为空值
+            }
+
+            result = json.dumps(result)
+            return result
+    else:
+        my_lg.info('find_name非法!')
+        result = {
+            'reason': 'error',
+            'data': [],
+            'error_code': 0,  # 表示goodsLink为空值
+        }
+        result = json.dumps(result)
+        return result
+
+def init_passwd(**kwargs):
+    '''
+    重置用户密码
+    :param kwargs:
+    :return:
+    '''
+    tmp_user = kwargs.get('tmp_user')
+    update_name = kwargs.get('update_name', '')
+
+    sql_str = 'update dbo.ali_spider_employee_table set passwd=%s where username=%s'
+    result = tmp_user._update_table_2(sql_str=sql_str, params=(INIT_PASSWD, update_name), logger=my_lg)
+    if result:
+        my_lg.info('重置密码成功!')
+
+    else:
+        my_lg.error('重置密码失败!')
+
+    # 返回所有数据
+    return check_all_user(tmp_user=tmp_user)
+
+def del_user(**kwargs):
+    '''
+    删除用户
+    :param kwargs:
+    :return:
+    '''
+    tmp_user = kwargs.get('tmp_user')
+    user_to_delete_list = kwargs.get('user_to_delete_list')
+
+    sql_str = 'delete from dbo.ali_spider_employee_table where username=%s'
+    for item in user_to_delete_list:
+        tmp_user._delete_table(sql_str=sql_str, params=(item,))
+
+    my_lg.info('删除操作执行成功!')
+
+    return check_all_user(tmp_user=tmp_user)
+
+def check_all_user(**kwargs):
+    '''
+    查看现有所有用户数据
+    :param kwargs:
+    :return:
+    '''
+    tmp_user = kwargs.get('tmp_user')
+
+    sql_str = 'select * from dbo.ali_spider_employee_table'
+    result = tmp_user._select_table(sql_str=sql_str) if tmp_user._select_table(sql_str=sql_str) is not None else []
+    data = [{
+        'username': item[0],
+        'passwd': encrypt(key, item[1]),
+        'createtime': str(item[2]),
+        'department': item[3],
+        'realnane': item[4]
+    } for item in result]
+
+    result = {
+        'reason': 'success',
+        'data': data,
+        'error_code': 1,
+    }
+    result = json.dumps(result, ensure_ascii=False).encode()
+
+    return result.decode()
+
+def admin_add_new_user(**kwargs):
+    '''
+    在admin页面add new user
+    :param kwargs:
+    :return:
+    '''
+    request = kwargs.get('request')
+    tmp_user = kwargs.get('tmp_user')
+
+    username = request.form.get('username', '')
+    passwd = request.form.get('passwd', '')
+
+    real_name = request.form.get('ralenane', '')
+    department = request.form.get('department', '')
+
+    create_time = get_shanghai_time()
+
+    item = (
+        str(username),
+        str(passwd),
+        create_time,
+        str(department),
+        str(real_name),
+    )
+    sql_str = 'insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)'
+    is_insert_into = tmp_user._insert_into_table_2(sql_str=sql_str, params=item, logger=my_lg)
+
+    if is_insert_into:
+        my_lg.info('用户 %s 注册成功!' % str(username))
+    else:
+        my_lg.info("用户注册失败!")
+
+    return
+
+######################################################
 
 @app.route('/show_ali', methods=['GET', 'POST'])
 def show_ali_info():
@@ -526,7 +527,7 @@ def show_ali_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:     # request.cookies -> return a dict
+    if not is_login(request=request):
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
@@ -542,7 +543,7 @@ def show_taobao_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):
         return ERROR_HTML_CODE
 
     else:
@@ -559,7 +560,7 @@ def show_tmall_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
@@ -575,7 +576,7 @@ def show_jd_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
@@ -591,7 +592,7 @@ def show_zhe_800_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
@@ -607,7 +608,7 @@ def show_juanpi_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
@@ -623,7 +624,7 @@ def show_pinduoduo_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
@@ -639,21 +640,20 @@ def show_vip_info():
     点击后成功后显示的爬取页面
     :return:
     '''
-    if request.cookies.get('username') is None or request.cookies.get('passwd') is None:  # request.cookies -> return a dict
+    if not is_login(request=request):  # request.cookies -> return a dict
         return ERROR_HTML_CODE
     else:
         my_lg.info('正在获取爬取页面...')
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(VIP_SPIDER_TO_SHOW_PATH)
 
 ######################################################
 # 阿里1688
 @app.route("/data", methods=['POST'])
 def get_all_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
             my_lg.info('正在获取相应数据中...')
 
@@ -742,7 +742,7 @@ def to_save_data():
     :return:
     '''
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):      # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))   # 一个待存取的url的list
 
@@ -874,7 +874,7 @@ def _get_db_ali_insert_params(item):
 @app.route('/taobao_data', methods=['POST'])
 def get_taobao_data():
     global my_lg
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.get('goodsLink'):
             my_lg.info('正在获取相应数据中...')
 
@@ -954,7 +954,7 @@ def get_taobao_data():
 @app.route('/taobao_to_save_data', methods=['POST'])
 def taobao_to_save_data():
     global tmp_wait_to_save_data_list, my_lg
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -1162,7 +1162,7 @@ def _deal_with_taobao_goods(goods_link):
 # 天猫
 @app.route('/tmall_data', methods=['POST'])
 def get_tmall_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.get('goodsLink'):
             my_lg.info('正在获取相应数据中...')
 
@@ -1254,7 +1254,7 @@ def tmall_to_save_data():
     :return:
     '''
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -1432,7 +1432,7 @@ def _get_db_tmall_insert_params(item):
 # 京东
 @app.route('/jd_data', methods=['POST'])
 def get_jd_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
             my_lg.info('正在获取相应数据中...')
 
@@ -1523,7 +1523,7 @@ def jd_to_save_data():
     :return:
     '''
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -1683,7 +1683,7 @@ def _get_db_jd_insert_params(item):
 # 折800
 @app.route('/zhe_800_data',  methods=['POST'])
 def get_zhe_800_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.get('goodsLink'):
             print('正在获取相应数据中...')
 
@@ -1769,7 +1769,7 @@ def get_zhe_800_data():
 def zhe_800_to_save_data():
     ## 此处注意保存的类型是折800常规商品(11)
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -1937,7 +1937,7 @@ def _get_db_zhe_800_insert_params(item):
 # 卷皮
 @app.route('/juanpi_data', methods=['POST'])
 def get_juanpi_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.get('goodsLink'):
             print('正在获取相应数据中...')
 
@@ -2025,7 +2025,7 @@ def get_juanpi_data():
 def juanpi_to_save_data():
     ## 此处注意保存的类型是卷皮常规商品(12)
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -2176,7 +2176,7 @@ def _get_db_juanpi_insert_params(item):
 # 拼多多
 @app.route('/pinduoduo_data', methods=['POST'])
 def get_pinduoduo_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.get('goodsLink'):
             print('正在获取相应数据中...')
 
@@ -2262,7 +2262,7 @@ def get_pinduoduo_data():
 def pinduoduo_to_save_data():
     ## 此处注意保存的类型是拼多多常规商品(13)
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -2417,7 +2417,7 @@ def _get_db_pinduoduo_insert_params(item):
 # 唯品会
 @app.route('/vip_data', methods=['POST'])
 def get_vip_data():
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
             print('正在获取相应数据中...')
 
@@ -2506,7 +2506,7 @@ def get_vip_data():
 def vip_to_save_data():
     ## 此处注意保存的类型是唯品会常规商品(25)
     global tmp_wait_to_save_data_list
-    if request.cookies.get('username') is not None and request.cookies.get('passwd') is not None:  # request.cookies -> return a dict
+    if is_login(request=request):
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
@@ -3347,6 +3347,20 @@ def add_base_info_2_processed_data(**kwargs):
     wait_to_save_data['goods_id'] = goods_id
 
     return wait_to_save_data
+
+def is_login(**kwargs):
+    '''
+    判断是否合法登录
+    :param kwargs:
+    :return: bool
+    '''
+    request = kwargs.get('request')
+
+    if request.cookies.get('username') is not None \
+            and request.cookies.get('passwd') is not None:   # request.cookies -> return a dict
+        return True
+    else:
+        return False
 
 ######################################################
 
