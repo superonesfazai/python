@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 #coding:utf-8
 
-from sgmllib import SGMLParser      #使用其它包得自己导入在其他python环境里
+from sgmllib import SGMLParser      # 使用其它包得自己导入在其他python环境里
 
 class URLLister(SGMLParser):
     def reset(self):

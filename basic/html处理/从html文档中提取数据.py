@@ -1,13 +1,13 @@
 #!/usr/bin/python3.5
 #coding: utf-8
 
-#从 html 文档中提取数据的第一步是得到某个 HTML 文件系统
+# 从 html 文档中提取数据的第一步是得到某个 HTML 文件系统
 
-#urllib介绍
-# #得到html
+# urllib介绍
+# # 得到html
 # import urllib
-# #sock = urllib.urlopen('http://www.itcast.com')
-# sock = open('itcast.html', 'r')     #在本地打开html文件的方法
+# #sock = urllib.urlopen('http://www.baidu.com')
+# sock = open('baidu.html', 'r')     #在本地打开html文件的方法
 # htmlSource = sock.read()
 # sock.close()
 # print(htmlSource)
@@ -16,7 +16,7 @@
 
 # import urllib, urllister
 #
-# usock = open('itcast.html', 'r')
+# usock = open('baidu.html', 'r')
 # parser = urllister.URLLister()
 # parser.feed(usock.read())       #调用定义在SGMLParser中的feed方法,将html内容放入分析器中
 # usock.close()
@@ -26,7 +26,7 @@
 
 # 使用BaseHTMLProcessor
 import BaseHTMLProcessor
-sock = open('itcast.html', 'r')
+sock = open('baidu.html', 'r')
 parser = BaseHTMLProcessor.BaseHTMLParser()
 tmp = parser.feed(sock.read())
 print(parser.output())

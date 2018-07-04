@@ -14,12 +14,25 @@ import sqlalchemy
 from sqlalchemy import create_engine
 import datetime, calendar
 import asyncio
-from logging import INFO, ERROR
+from logging import (
+    INFO,
+    ERROR,
+)
 from pprint import pprint
 
-from settings import HOST, USER, PASSWORD, DATABASE, PORT
-from settings import HOST_2, USER_2, PASSWORD_2, DATABASE_2, PORT_2
-from settings import MY_SPIDER_LOGS_PATH
+from settings import (
+    HOST,
+    USER,
+    PASSWORD,
+    DATABASE,
+    PORT,
+    HOST_2,
+    USER_2,
+    PASSWORD_2,
+    DATABASE_2,
+    PORT_2,
+    MY_SPIDER_LOGS_PATH,
+)
 from my_logging import set_logger
 from my_utils import get_shanghai_time
 
@@ -27,16 +40,16 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
     """
     页面存储管道
     """
-    def __init__(self):
+    def __init__(self, host=HOST, user=USER, passwd=PASSWORD, db=DATABASE, port=PORT):
         super(SqlServerMyPageInfoSaveItemPipeline, self).__init__()
         self.is_connect_success = True
         try:
             self.conn = connect(
-                host=HOST,
-                user=USER,
-                password=PASSWORD,
-                database=DATABASE,
-                port=PORT,
+                host=host,
+                user=user,
+                password=passwd,
+                database=db,
+                port=port,
                 charset='utf8'
             )
         except Exception:
@@ -393,43 +406,6 @@ class SqlServerMyPageInfoSaveItemPipeline(object):
             print('---------| 错误如下: ', e)
             print('---------| 报错的原因：可能是重复插入导致, 可以忽略 ... |')
             return False
-
-    def select_old_table_all_goods_id(self):
-        try:
-            cs = self.conn.cursor()
-
-            cs.execute('select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    def select_taobao_all_goods_id(self):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1')
-            # self.conn.commit()
-
-            result = cs.fetchall()
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
 
     async def delete_taobao_tiantiantejia_expired_goods_id(self, goods_id, logger):
         cs = self.conn.cursor()
@@ -989,4 +965,3 @@ class DataAnalysisDbPipeline(object):
             pass
 
         return year_order_sell_count_by_month_list
-

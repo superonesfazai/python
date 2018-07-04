@@ -29,10 +29,13 @@ def run_forever():
         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
         tmp_sql_server_2 = SqlServerMyPageInfoSaveItemPipeline()
+
+        sql_str = 'select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsInfoAutoGet where SiteID=1'
+        sql_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
         try:
             # result = list(tmp_sql_server.select_taobao_all_goods_id())
-            result = tmp_sql_server.select_taobao_all_goods_id()
-            result_2 = list(tmp_sql_server_2.select_old_table_all_goods_id())
+            result = tmp_sql_server._select_table(sql_str=sql_str, params=None)
+            result_2 = list(tmp_sql_server_2._select_table(sql_str=sql_str_2, params=None))
             # print(result_2)
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
