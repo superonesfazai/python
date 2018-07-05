@@ -697,14 +697,7 @@ def get_all_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             tmp_goods_id = re.compile(r'.*?/offer/(.*?).html').findall(wait_to_deal_with_url)[0]
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
@@ -713,15 +706,14 @@ def get_all_data():
             )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del login_ali  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            # print('------>>> 下面是爬取到的页面信息: ')
-            # print(result_json.decode())
-            # print('-------------------------------')
+            msg = '阿里1688抓取数据成功!'
 
-            del login_ali       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
+
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
             return _null_goods_link()
@@ -916,12 +908,6 @@ def get_taobao_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
@@ -930,15 +916,17 @@ def get_taobao_data():
             )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del login_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
-            my_lg.info(str(result_json.decode()))
+            my_lg.info(str(wait_to_save_data))
             my_lg.info('-------------------------------')
+            msg = '淘宝抓取成功!'
 
-            del login_taobao       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
+
         else:       # 直接把空值给pass，不打印信息
             # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
@@ -1212,12 +1200,6 @@ def get_tmall_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
@@ -1226,15 +1208,17 @@ def get_tmall_data():
             )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del login_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
-            my_lg.info(str(result_json.decode()))
+            my_lg.info(str(wait_to_save_data))
             my_lg.info('-------------------------------')
+            msg = '天猫抓取成功!'
 
-            del login_tmall       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
+
         else:       # 直接把空值给pass，不打印信息
             # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
@@ -1437,8 +1421,8 @@ def get_jd_data():
             my_lg.info('正在获取相应数据中...')
 
             # 解密
-            username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            username = decrypt(key, request.cookies.get('username', ''))
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
 
             goodsLink = request.form.get('goodsLink')
             if goodsLink:
@@ -1480,12 +1464,6 @@ def get_jd_data():
                 gc.collect()
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
@@ -1494,15 +1472,17 @@ def get_jd_data():
             )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del jd  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '京东抓取成功!'
 
-            del jd       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
+
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
             return _null_goods_link()
@@ -1730,12 +1710,6 @@ def get_zhe_800_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
@@ -1744,15 +1718,17 @@ def get_zhe_800_data():
             )
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del zhe_800  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '折800抓取成功!'
 
-            del zhe_800       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
+
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
             return _null_goods_link()
@@ -1986,29 +1962,24 @@ def get_juanpi_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
                 username=username,
                 goods_id=goods_id
             )
-
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del juanpi  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '卷皮抓取成功!'
 
-            del juanpi       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
+
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
             return _null_goods_link()
@@ -2213,7 +2184,6 @@ def get_pinduoduo_data():
                 return _null_goods_data()
 
             data = pinduoduo.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-
             if data == {}:
                 print('获取到的data为空!')
                 del pinduoduo
@@ -2221,29 +2191,23 @@ def get_pinduoduo_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
                 username=username,
                 goods_id=goods_id
             )
-
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            try: del pinduoduo  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+            except: pass
+            gc.collect()  # 手动回收即可立即释放需要删除的资源
 
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '拼多多抓取成功!'
 
-            del pinduoduo       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+            return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
@@ -2464,30 +2428,23 @@ def get_vip_data():
 
                 return _null_goods_data()
 
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 0,
-            }
-
             wait_to_save_data = add_base_info_2_processed_data(
                 data=data,
                 spider_url=wait_to_deal_with_url,
                 username=username,
                 goods_id=goods_id[1]
             )
-
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-
-            result_json = json.dumps(result, ensure_ascii=False).encode()
-            print('------>>>| 下面是爬取到的页面信息: ')
-            print(result_json.decode())
-            print('-------------------------------')
-
             try: del vip       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
             gc.collect()        # 手动回收即可立即释放需要删除的资源
-            return result_json.decode()
+
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '唯品会抓取成功!'
+
+            return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
             # print('goodsLink为空值...')
@@ -2912,7 +2869,7 @@ def _goods():
 
             else:
                 my_lg.info('获取goods_data success!!')
-                return _success_goods_data(result)
+                return _success_data(data=result)
 
         elif _is_m_tmall_url(goods_link):
             pass
@@ -2932,13 +2889,17 @@ def _goods():
 ######################################################
 '''错误处理/成功处理'''
 
-def _success_goods_data(data):
-    # 获取数据成功时的操作
+def _success_data(**kwargs):
+    '''
+    获取数据成功!
+    :param kwargs:
+    :return:
+    '''
     return dumps({
         'reason': 'success',
-        'msg': '成功!',
-        'data': data,
-        'error_code': '0000',
+        'msg': kwargs.get('msg') if kwargs is not None else '成功!',
+        'data': kwargs.get('data', {}),
+        'error_code': '0008',
     }, ensure_ascii=False).encode().decode()
 
 def _null_goods_link():
