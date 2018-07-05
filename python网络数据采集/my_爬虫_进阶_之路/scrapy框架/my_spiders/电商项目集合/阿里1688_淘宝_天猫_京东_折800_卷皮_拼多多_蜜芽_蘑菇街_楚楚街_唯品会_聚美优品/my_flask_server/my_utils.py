@@ -18,36 +18,40 @@ from my_ip_pools import MyIpPools
 import requests
 
 __all__ = [
-    'get_shanghai_time',                                # 时区处理，得到上海时间
-    'daemon_init',                                      # 守护进程
-    'timestamp_to_regulartime',                         # 时间戳转规范的时间字符串
-    'string_to_datetime',                               # 将字符串转换成时间
-    'datetime_to_timestamp',                            # datetime转timestamp
-    'restart_program',                                  # 初始化避免异步导致log重复打印
-    'process_exit',                                     # 判断进程是否存在
-    '_get_url_contain_params',                          # 根据params组合得到包含params的url
-    'str_cookies_2_dict',                               # cookies字符串转dict
-    'tuple_or_list_params_2_dict_params',               # tuple和list类型的params转dict类型的params
-    '_json_str_to_dict',                                # json转dict
-    '_green',                                           # 将字体变成绿色
-    'delete_list_null_str',                             # 删除list中的空str
-    'kill_process_by_name',                             # 根据进程名杀掉对应进程
-    'list_duplicate_remove',                            # list去重
+    'get_shanghai_time',                                    # 时区处理，得到上海时间
+    'daemon_init',                                          # 守护进程
+    'timestamp_to_regulartime',                             # 时间戳转规范的时间字符串
+    'string_to_datetime',                                   # 将字符串转换成时间
+    'datetime_to_timestamp',                                # datetime转timestamp
+    'restart_program',                                      # 初始化避免异步导致log重复打印
+    'process_exit',                                         # 判断进程是否存在
+    '_get_url_contain_params',                              # 根据params组合得到包含params的url
+    'str_cookies_2_dict',                                   # cookies字符串转dict
+    'tuple_or_list_params_2_dict_params',                   # tuple和list类型的params转dict类型的params
+    '_json_str_to_dict',                                    # json转dict
+    '_green',                                               # 将字体变成绿色
+    'delete_list_null_str',                                 # 删除list中的空str
+    'kill_process_by_name',                                 # 根据进程名杀掉对应进程
+    'list_duplicate_remove',                                # list去重
 
-    # 抓包后requests处理相关
+    # chrome下抓包后, requests处理相关
     'chrome_copy_requests_header_2_dict_headers',           # 将直接从chrome复制的Request Headers转换为dict的headers
     'chrome_copy_query_string_parameters_2_tuple_params',   # 将直接从chrome复制的Query String Parameters转换为tuple类型的params
 
     # json_str转dict时报错处理方案
     'deal_with_JSONDecodeError_about_value_invalid_escape', # 错误如: ValueError: Invalid \escape: line 1 column 35442 (char 35441)
 
-    '_get_price_change_info',                           # 公司用来记录价格改变信息
-    'set_delete_time_from_orginal_time',                # 公司返回原先商品状态变换被记录下的时间点
-    'get_my_shelf_and_down_time_and_delete_time',       # 公司得到my_shelf_and_down_time和delete_time
-    'get_miaosha_begin_time_and_miaosha_end_time',      # 公司返回秒杀开始和结束时间
+    # shell
+    'get_str_from_command',                                 # shell下执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为""
 
-    'calculate_right_sign',                             # 获取淘宝sign
-    'get_taobao_sign_and_body',                         # 得到淘宝带签名sign的接口数据
+    '_get_price_change_info',                               # 公司用来记录价格改变信息
+    'set_delete_time_from_orginal_time',                    # 公司返回原先商品状态变换被记录下的时间点
+    'get_my_shelf_and_down_time_and_delete_time',           # 公司得到my_shelf_and_down_time和delete_time
+    'get_miaosha_begin_time_and_miaosha_end_time',          # 公司返回秒杀开始和结束时间
+
+    # 淘宝签名相关
+    'calculate_right_sign',                                 # 获取淘宝sign
+    'get_taobao_sign_and_body',                             # 得到淘宝带签名sign的接口数据
 ]
 
 def get_shanghai_time():
@@ -491,3 +495,13 @@ def chrome_copy_query_string_parameters_2_tuple_params(copy_params):
 
     return tuple(tmp)
 
+def get_str_from_command(cmd):
+    '''
+    # 执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为"",eg.command=which nihao
+    # 判断程序有没有已经安装可eg.get_string_from_command("sqlmap --help")
+    :param cmd:
+    :return:
+    '''
+    import subprocess
+
+    return subprocess.getstatusoutput(cmd)[1]

@@ -59,7 +59,6 @@ with open('./images/some_img.jpg', 'wb') as f:
     base64_img_str = base64.b64decode(base64_img_str)
     f.write(base64_img_str)
 
-
 '''
 1) 将图片进行降噪处理, 通过二值化去掉后面的背景色并加深文字对比度
 '''

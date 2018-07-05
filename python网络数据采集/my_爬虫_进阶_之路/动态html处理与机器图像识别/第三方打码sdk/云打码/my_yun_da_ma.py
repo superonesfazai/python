@@ -8,7 +8,6 @@ import requests
 ######################################################################
 
 class YDMHttp:
-
     apiurl = 'http://api.yundama.com/api.php'
     username = ''
     password = ''
@@ -116,21 +115,21 @@ def my_yun_da_ma():
     '''
     记住打码用户用的是普通用户的名字，而不是开发者名字
     '''
-
     # 用户名
-    username = 'superonesfazai'
+    username = ''
 
     # 密码
-    password = 'lrf654321'
+    password = ''
 
     # 软件ＩＤ，开发者分成必要参数。登录开发者后台【我的软件】获得！
     appid = 4039
 
     # 软件密钥，开发者分成必要参数。登录开发者后台【我的软件】获得！
-    appkey = 'af6c64ec61b48ecd94bcf8d9cab57266'
+    appkey = ''
 
     # 图片文件
     filename = './data/pin.png'
+    # filename = './data/some_img.jpg'
 
     # 验证码类型，# 例：1004表示4位字母数字，不同类型收费不同。请准确填写，否则影响识别率。在此查询所有类型 http://www.yundama.com/price.html
     codetype = 5000
@@ -139,7 +138,7 @@ def my_yun_da_ma():
     timeout = 60
 
     # 检查
-    if (username == 'username'):
+    if (username == ''):
         print('请设置好相关参数再测试')
     else:
         # 初始化
