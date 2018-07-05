@@ -30,8 +30,6 @@ def text_reply(msg):
             + ' ' + msg['Text']
     return reply
 
-
-
 itchat.auto_login(hotReload=True)
 
 itchat.run()

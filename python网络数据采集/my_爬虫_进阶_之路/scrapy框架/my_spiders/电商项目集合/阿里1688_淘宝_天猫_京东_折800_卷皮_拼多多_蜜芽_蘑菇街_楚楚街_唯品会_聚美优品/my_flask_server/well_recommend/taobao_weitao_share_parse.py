@@ -211,7 +211,7 @@ class TaoBaoWeiTaoShareParse():
             self.my_lg.exception(e)
             return {}
 
-        article = await self._get_article(data=data)
+        article = await self._get_article(data=data, taobao_short_url=taobao_short_url)
         pprint(article)
 
         if article != {} and article.get('share_id', '') != '':
@@ -340,7 +340,7 @@ class TaoBaoWeiTaoShareParse():
 
         return params
 
-    async def _get_article(self, data):
+    async def _get_article(self, data, taobao_short_url):
         '''
         得到该文章的需求信息
         :param data:
