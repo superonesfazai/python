@@ -79,6 +79,7 @@ def old_append_url_uuid(url):
 
     if old_message_url_uuid_list == []:
         return None
+
     # 在itchat.msg_register中无法修改全局变量的值，于是单独放此处修改
     url_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, url))
     old_message_url_uuid_list.append(url_uuid)

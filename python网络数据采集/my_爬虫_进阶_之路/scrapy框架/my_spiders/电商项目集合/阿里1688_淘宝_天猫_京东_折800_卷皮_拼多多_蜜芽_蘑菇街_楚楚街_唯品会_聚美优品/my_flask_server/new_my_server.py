@@ -672,44 +672,21 @@ def get_all_data():
                 my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
-            login_ali = ALi1688LoginAndParse()
-            goods_id = login_ali.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
-            if goods_id == '':      # 如果得不到goods_id, 则return error
-                my_lg.info('获取到的goods_id为空!')
-                del login_ali  # 每次都回收一下
-                gc.collect()
-
+            wait_to_save_data = get_one_1688_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url
+            )
+            if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
 
-            tmp_result = login_ali.get_ali_1688_data(goods_id=goods_id)
-            if tmp_result == {}:
-                my_lg.info('获取到的data为空!')
-                del login_ali
-                gc.collect()
-
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
                 return _null_goods_data()
 
-            data = login_ali.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-            if data == {}:
-                my_lg.info('获取到的data为空!')
-                del login_ali
-                gc.collect()
-
-                return _null_goods_data()
-
-            tmp_goods_id = re.compile(r'.*?/offer/(.*?).html').findall(wait_to_deal_with_url)[0]
-            wait_to_save_data = add_base_info_2_processed_data(
-                data=data,
-                spider_url=wait_to_deal_with_url,
-                username=username,
-                goods_id=tmp_goods_id
-            )
+            else:
+                pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            try: del login_ali  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            except: pass
             gc.collect()  # 手动回收即可立即释放需要删除的资源
-
             msg = '阿里1688抓取数据成功!'
 
             return _success_data(data=wait_to_save_data, msg=msg)
@@ -861,6 +838,46 @@ def _get_db_ali_insert_params(item):
 
     return params
 
+def get_one_1688_data(**kwargs):
+    '''
+    抓取一个1688 url 的data
+    :param kwargs:
+    :return:
+    '''
+    username = kwargs.get('username', '18698570079')
+    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
+
+    login_ali = ALi1688LoginAndParse()
+    goods_id = login_ali.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
+    if goods_id == '':  # 如果得不到goods_id, 则return error
+        my_lg.info('获取到的goods_id为空!')
+        try:del login_ali  # 每次都回收一下
+        except:pass
+        gc.collect()
+
+        return {'goods_id': ''}             # 错误1: goods_id为空值
+
+    tmp_result = login_ali.get_ali_1688_data(goods_id=goods_id)
+    data = login_ali.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
+    if data == {} or tmp_result == {}:
+        my_lg.info('获取到的data为空!')
+        try:del login_ali
+        except:pass
+        gc.collect()
+
+        return {'goods_id': goods_id, 'msg': 'data为空!'}     # 错误2: 抓取失败
+
+    wait_to_save_data = add_base_info_2_processed_data(
+        data=data,
+        spider_url=wait_to_deal_with_url,
+        username=username,
+        goods_id=goods_id
+    )
+    try: del login_ali
+    except: pass
+
+    return wait_to_save_data
+
 ######################################################
 # 淘宝
 @app.route('/taobao_data', methods=['POST'])
@@ -881,43 +898,15 @@ def get_taobao_data():
                 my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
-            login_taobao = TaoBaoLoginAndParse(logger=my_lg)
-            goods_id = login_taobao.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id
-            if goods_id == '':      # 如果得不到goods_id, 则return error
-                my_lg.info('获取到的goods_id为空!')
-                del login_taobao  # 每次都回收一下
-                gc.collect()
-
+            wait_to_save_data = get_one_tb_data(username=username, tb_url=wait_to_deal_with_url)
+            if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
-
-            wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id   # 构造成标准干净的淘宝商品地址
-            tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
-            time.sleep(TAOBAO_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
-            if tmp_result == {}:
-                my_lg.info('获取到的data为空!')
-                del login_taobao
-                gc.collect()
-
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
                 return _null_goods_data()
-
-            data = login_taobao.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
-            if data == {}:
-                my_lg.info('获取到的data为空!')
-                del login_taobao
-                gc.collect()
-
-                return _null_goods_data()
-
-            wait_to_save_data = add_base_info_2_processed_data(
-                data=data,
-                spider_url=wait_to_deal_with_url,
-                username=username,
-                goods_id=goods_id
-            )
+            else:
+                pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            try: del login_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            except: pass
             gc.collect()  # 手动回收即可立即释放需要删除的资源
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
@@ -1088,9 +1077,51 @@ def _get_db_taobao_insert_params(item):
 
     return params
 
-def _get_m_taobao_goods_id(goods_link):
+def get_one_tb_data(**kwargs):
     '''
-    获取m站的goods_id
+    抓取一个tb url的data
+    :return: a dict
+    '''
+    username = kwargs.get('username', '18698570079')
+    tb_url = kwargs.get('tb_url', '')
+
+    login_taobao = TaoBaoLoginAndParse(logger=my_lg)
+    goods_id = login_taobao.get_goods_id_from_url(tb_url)  # 获取goods_id
+    if goods_id == '':
+        my_lg.info('获取到的goods_id为空!')
+        try: del login_taobao  # 每次都回收一下
+        except: pass
+        gc.collect()
+
+        return {'goods_id': ''}                              # 错误1: goods_id为空!
+
+    wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id={0}'.format(goods_id)  # 构造成标准干净的淘宝商品地址
+    tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
+    data = login_taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
+
+    time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
+    if data == {} or tmp_result == {}:
+        my_lg.info('获取到的data为空!')
+        try:del login_taobao
+        except:pass
+        gc.collect()
+
+        return {'goods_id': goods_id, 'msg': 'data为空!'}     # 错误2: 抓取data为空!
+
+    wait_to_save_data = add_base_info_2_processed_data(
+        data=data,
+        spider_url=wait_to_deal_with_url,
+        username=username,
+        goods_id=goods_id
+    )
+    try: del login_taobao
+    except: pass
+
+    return wait_to_save_data
+
+def _get_taobao_goods_id(goods_link):
+    '''
+    获取m站或者pc站的goods_id
     :param goods_link:
     :return:
     '''
@@ -1105,40 +1136,36 @@ def _deal_with_taobao_goods(goods_link):
     :param goods_link:
     :return: dict
     '''
-    goods_id = _get_m_taobao_goods_id(goods_link)
+    my_lg.info('进入淘宝商品处理接口...')
+    goods_id = _get_taobao_goods_id(goods_link)
     if goods_id == '':
-        return {'goods_id': ''}
+        msg = 'goods_id匹配失败!请检查url是否正确!'
 
-    taobao = TaoBaoLoginAndParse(logger=my_lg)
-    wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
-    tmp_result = taobao.get_goods_data(goods_id=goods_id)
-    data = taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-    # time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
-    if tmp_result == {} or data == {}:
-        del taobao
-        gc.collect()
-        return {
-            'goods_id': goods_id,
-            'data': {},
-        }
+        return _error_data(msg=msg)
 
-    data.update({
-        'goods_id': goods_id,
-        'spider_url': wait_to_deal_with_url,
-        'username': '18698570079',
-    })
+    tb_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
+    data = get_one_tb_data(tb_url=tb_url)
+    my_lg.info(str(data))
+    if data.get('msg', '') == 'data为空!':
+        msg = 'goods_id:{0}, 抓取数据失败!'.format(goods_id)
+
+        return _error_data(msg=msg)
+    else:
+        pass
 
     data = _get_taobao_right_data(data)
     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
     my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
 
     params = _get_db_taobao_insert_params(item=data)
-    sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
     is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
     if is_insert_into:  # 如果返回值为True
         pass
     else:
-        pass
+        msg = '存储该goods_id:{0}失败!'.format(goods_id)
+
+        return _error_data(msg=msg)
 
     '''返回给APP时, 避免json.dumps转换失败...'''
     data['price'] = float(data['price'])
@@ -1163,53 +1190,22 @@ def get_tmall_data():
                 wait_to_deal_with_url = goodsLink
             else:
                 my_lg.info('goodsLink为空值...')
-
                 return _null_goods_link()
 
-            login_tmall = TmallParse(logger=my_lg)
-            goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
-            if goods_id == []:      # 如果得不到goods_id, 则return error
-                my_lg.info('获取到的goods_id为空!')
-                del login_tmall       # 每次都回收一下
-                gc.collect()
-
+            wait_to_save_data = get_one_tm_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url
+            )
+            if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
 
-            # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
-            #####################################################
-            if goods_id[0] == 0:        # [0, '1111']
-                wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]   # 构造成标准干净的天猫商品地址
-            elif goods_id[0] == 1:      # [1, '1111']
-                wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
-            elif goods_id[0] == 2:      # [2, '1111', 'https://xxxxx']
-                wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
-            tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
-            time.sleep(TMALL_SLEEP_TIME)     # 这个在服务器里面可以注释掉为.5s
-            if tmp_result == {}:
-                my_lg.info('获取到的data为空!')
-                del login_tmall
-                gc.collect()
-
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
                 return _null_goods_data()
 
-            data = login_tmall.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-            if data == {}:
-                my_lg.info('获取到的data为空!')
-                del login_tmall
-                gc.collect()
-
-                return _null_goods_data()
-
-            wait_to_save_data = add_base_info_2_processed_data(
-                data=data,
-                spider_url=wait_to_deal_with_url,
-                username=username,
-                goods_id=goods_id[1]
-            )
+            else:
+                pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            try: del login_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            except: pass
             gc.collect()  # 手动回收即可立即释放需要删除的资源
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
@@ -1412,6 +1408,61 @@ def _get_db_tmall_insert_params(item):
 
     return params
 
+def get_one_tm_data(**kwargs):
+    '''
+    抓取一个tm url的data
+    :param kwargs:
+    :return:
+    '''
+    username = kwargs.get('username', '18698570079')
+    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
+
+    login_tmall = TmallParse(logger=my_lg)
+    goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+    if goods_id == []:  # 如果得不到goods_id, 则return error
+        my_lg.info('获取到的goods_id为空!')
+        try:
+            del login_tmall  # 每次都回收一下
+        except:
+            pass
+        gc.collect()
+
+        return {'goods_id': ''}
+
+    # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
+    #####################################################
+    if goods_id[0] == 0:  # [0, '1111']
+        wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]  # 构造成标准干净的天猫商品地址
+    elif goods_id[0] == 1:  # [1, '1111']
+        wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
+    elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
+        wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
+
+    tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
+    data = login_tmall.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
+
+    time.sleep(TMALL_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
+    if data == {} or tmp_result == {}:
+        my_lg.info('获取到的data为空!')
+        try:
+            del login_tmall
+        except:
+            pass
+        gc.collect()
+
+        return {'goods_id': goods_id[1], 'msg': 'data为空!'}
+
+    wait_to_save_data = add_base_info_2_processed_data(
+        data=data,
+        spider_url=wait_to_deal_with_url,
+        username=username,
+        goods_id=goods_id[1]
+    )
+    try: del login_tmall
+    except: pass
+
+    return wait_to_save_data
+
 ######################################################
 # 京东
 @app.route('/jd_data', methods=['POST'])
@@ -1429,51 +1480,19 @@ def get_jd_data():
                 wait_to_deal_with_url = goodsLink
             else:
                 my_lg.info('goodsLink为空值...')
-
                 return _null_goods_link()
 
-            jd = JdParse()
-            goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
-            if goods_id == []:      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
-                del jd       # 每次都回收一下
-                gc.collect()
-
+            wait_to_save_data = get_one_jd_data(username=username, wait_to_deal_with_url=wait_to_deal_with_url)
+            if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
 
-            # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
-            #####################################################
-            if goods_id[0] == 0:        # [0, '1111']
-                wait_to_deal_with_url = 'https://item.jd.com/' + goods_id[1] + '.html'   # 构造成标准干净的淘宝商品地址
-            elif goods_id[0] == 1:      # [1, '1111']
-                wait_to_deal_with_url = 'https://item.jd.hk/' + goods_id[1] + '.html'
-            elif goods_id[0] == 2:      # [2, '1111', 'https://xxxxx']
-                wait_to_deal_with_url = 'https://item.yiyaojd.com/' + goods_id[1] + '.html'
-            tmp_result = jd.get_goods_data(goods_id=goods_id)
-            if tmp_result == {}:
-                print('获取到的data为空!')
-
-                del jd
-                gc.collect()
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
                 return _null_goods_data()
 
-            data = jd.deal_with_data(goods_id=goods_id)   # 如果成功获取的话, 返回的是一个data的dict对象
-            if data == {}:
-                print('获取到的data为空!')
-                del jd
-                gc.collect()
-                return _null_goods_data()
-
-            wait_to_save_data = add_base_info_2_processed_data(
-                data=data,
-                spider_url=wait_to_deal_with_url,
-                username=username,
-                goods_id=goods_id[1]
-            )
+            else:
+                pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            try: del jd  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-            except: pass
             gc.collect()  # 手动回收即可立即释放需要删除的资源
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
@@ -1659,6 +1678,59 @@ def _get_db_jd_insert_params(item):
 
     return params
 
+def get_one_jd_data(**kwargs):
+    '''
+    抓取jd url的data
+    :param kwargs:
+    :return:
+    '''
+    username = kwargs.get('username', '18698570079')
+    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
+
+    jd = JdParse()
+    goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+    if goods_id == []:  # 如果得不到goods_id, 则return error
+        my_lg.info('获取到的goods_id为空!')
+        try:
+            del jd  # 每次都回收一下
+        except:
+            pass
+        gc.collect()
+
+        return {'goods_id': ''}
+
+    # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
+    #####################################################
+    if goods_id[0] == 0:  # [0, '1111']
+        wait_to_deal_with_url = 'https://item.jd.com/' + goods_id[1] + '.html'  # 构造成标准干净的jd商品地址
+    elif goods_id[0] == 1:  # [1, '1111']
+        wait_to_deal_with_url = 'https://item.jd.hk/' + goods_id[1] + '.html'
+    elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
+        wait_to_deal_with_url = 'https://item.yiyaojd.com/' + goods_id[1] + '.html'
+
+    tmp_result = jd.get_goods_data(goods_id=goods_id)
+    data = jd.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
+    if data == {} or tmp_result == {}:
+        my_lg.info('获取到的data为空!')
+        try:
+            del jd
+        except:
+            pass
+        gc.collect()
+
+        return {'goods_id': goods_id[1], 'msg': 'data为空!'}
+
+    wait_to_save_data = add_base_info_2_processed_data(
+        data=data,
+        spider_url=wait_to_deal_with_url,
+        username=username,
+        goods_id=goods_id[1]
+    )
+    try: del jd
+    except: pass
+
+    return wait_to_save_data
+
 ######################################################
 # 折800
 @app.route('/zhe_800_data',  methods=['POST'])
@@ -1681,7 +1753,6 @@ def get_zhe_800_data():
                 return _null_goods_link()
 
             zhe_800 = Zhe800Parse()
-
             goods_id = zhe_800.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
@@ -1694,16 +1765,8 @@ def get_zhe_800_data():
             wait_to_deal_with_url = 'https://shop.zhe800.com/products/' + str(goods_id)
 
             tmp_result = zhe_800.get_goods_data(goods_id=goods_id)
-            if tmp_result == {}:
-                print('获取到的data为空!')
-                del zhe_800
-                gc.collect()
-
-                return _null_goods_data()
-
             data = zhe_800.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-
-            if data == {}:
+            if data == {} or tmp_result == {}:
                 print('获取到的data为空!')
                 del zhe_800
                 gc.collect()
@@ -1935,7 +1998,6 @@ def get_juanpi_data():
             goods_id = juanpi.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 print('获取到的goods_id为空!')
-
                 del juanpi       # 每次都回收一下
                 gc.collect()
 
@@ -1943,20 +2005,11 @@ def get_juanpi_data():
 
             #####################################################
             wait_to_deal_with_url = 'http://shop.juanpi.com/deal/' + str(goods_id)
-
             tmp_result = juanpi.get_goods_data(goods_id=goods_id)
-            if tmp_result == {}:
-                print('获取到的data为空!')
-
-                del juanpi
-                gc.collect()
-
-                return _null_goods_data()
-
             data = juanpi.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
-            if data == {}:
-                my_lg.info('获取到的data为空!')
+            if data == {} or tmp_result == {}:
+                print('获取到的data为空!')
                 del juanpi
                 gc.collect()
 
@@ -2176,15 +2229,8 @@ def get_pinduoduo_data():
             #####################################################
             wait_to_deal_with_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + str(goods_id)
             tmp_result = pinduoduo.get_goods_data(goods_id=goods_id)
-            if tmp_result == {}:
-                print('获取到的data为空!')
-                del pinduoduo
-                gc.collect()
-
-                return _null_goods_data()
-
             data = pinduoduo.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-            if data == {}:
+            if data == {} or tmp_result == {}:
                 print('获取到的data为空!')
                 del pinduoduo
                 gc.collect()
@@ -2411,21 +2457,13 @@ def get_vip_data():
             wait_to_deal_with_url = 'https://m.vip.com/product-0-' + str(goods_id[1]) + '.html'
 
             tmp_result = vip.get_goods_data(goods_id=goods_id)
-            if tmp_result == {}:
+            data = vip.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
+            if data == {} or tmp_result == {}:
                 print('获取到的data为空!')
                 try:
                     del vip
                 except: pass
                 gc.collect()
-                return _null_goods_data()
-
-            data = vip.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
-            if data == {}:
-                print('获取到的data为空!')
-                try: del vip
-                except: pass
-                gc.collect()
-
                 return _null_goods_data()
 
             wait_to_save_data = add_base_info_2_processed_data(
@@ -2856,7 +2894,7 @@ def _goods():
         my_lg.info('正在获取相应数据中...')
         my_lg.info('获取到的goods_link：' + str(goods_link))
 
-        if _is_m_taobao_url(goods_link):
+        if _is_taobao_url_plus(goods_link):
             my_lg.info('该link为淘宝link...')
             result = _deal_with_taobao_goods(goods_link=goods_link)
             if result.get('goods_id', '') == '':
@@ -2900,6 +2938,19 @@ def _success_data(**kwargs):
         'msg': kwargs.get('msg') if kwargs is not None else '成功!',
         'data': kwargs.get('data', {}),
         'error_code': '0008',
+    }, ensure_ascii=False).encode().decode()
+
+def _error_data(**kwargs):
+    '''
+    获取数据成功!
+    :param kwargs:
+    :return:
+    '''
+    return dumps({
+        'reason': 'error',
+        'msg': kwargs.get('msg') if kwargs is not None else '失败!',
+        'data': {},
+        'error_code': '0009',
     }, ensure_ascii=False).encode().decode()
 
 def _null_goods_link():
@@ -3031,13 +3082,14 @@ def _is_taobao_url(wait_to_deal_with_url):
 
     return _
 
-def _is_m_taobao_url(goods_link):
+def _is_taobao_url_plus(goods_link):
     '''
     淘宝m站
     :param goods_link:
     :return:
     '''
-    if re.compile(r'https://h5.m.taobao.com/awp/core/detail.htm.*?').findall(goods_link) != []:
+    if re.compile(r'https://h5.m.taobao.com/awp/core/detail.htm.*?').findall(goods_link) != [] \
+            or re.compile(r'https://item.taobao.com/item.htm.*?').findall(goods_link) != []:
         return True
 
     return False
@@ -3322,6 +3374,32 @@ def is_login(**kwargs):
         return True
     else:
         return False
+
+def json_2_dict(json_str):
+    '''
+    json_str转dict
+    :param json_str:
+    :return:
+    '''
+    try:
+        json_str = json.loads(json_str)
+    except json.JSONDecodeError:
+        my_lg.error('json转换dict时出错!')
+        json_str = {}
+
+    return json_str
+
+def _get_init_headers():
+    '''
+    得到一个初始headers
+    :return:
+    '''
+    return {
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'zh-CN,zh;q=0.9',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+        'accept': '*/*',
+    }
 
 ######################################################
 

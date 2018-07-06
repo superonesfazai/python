@@ -40,7 +40,7 @@ async def run_forever():
     sql_str = '''
     select goods_id, is_delete, tejia_end_time, block_id, tag_id 
     from dbo.taobao_tiantiantejia 
-    where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2.5
+    where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2 and MainGoodsID is not null
     '''
 
     try:
@@ -52,6 +52,7 @@ async def run_forever():
     my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
     my_lg.info(str(result))
     my_lg.info('--------------------------------------------------------')
+    my_lg.info('待更新的goods_id个数: {0}'.format(len(result)))
 
     my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
     index = 1
@@ -156,6 +157,9 @@ async def run_forever():
                     #     'end_time': end_time,
                     # }]
                     # goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await tmp_taobao_tiantiantejia.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+                    if goods_data.get('is_delete', 0) == 1:
+                        my_lg.info('@该商品已下架...')
+
                     await taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
 
                 else:
