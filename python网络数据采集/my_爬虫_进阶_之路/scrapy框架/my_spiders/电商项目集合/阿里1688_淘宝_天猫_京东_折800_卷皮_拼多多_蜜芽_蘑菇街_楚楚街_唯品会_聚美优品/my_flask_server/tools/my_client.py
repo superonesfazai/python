@@ -47,6 +47,7 @@ class RequestClient(object):
             canonicalized_query_string += '{}={}&'.format(k,v)
 
         canonicalized_query_string += self._access_key_secret
+        # print(canonicalized_query_string)
 
         # NO.3 加密返回签名: signature
         return md5(canonicalized_query_string.encode('utf-8')).lower()
@@ -79,13 +80,21 @@ class RequestClient(object):
         """测试用例"""
         # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198&umpChannel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&u_channel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&spm=a2141.8147851.1.1'
         # link中不能带&否则会被编码在sign中加密
-        goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198'
+
+        # tb
+        # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198'
+        # tm
+        # goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
+        # jd
+        goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
+
+        from base64 import b64encode
 
         params = {
             'access_key_id': self._access_key_id,
             'version': self._version,
             'timestamp': get_current_timestamp() - 5,
-            'goods_link': goods_link,
+            'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte
         }
 
         params.update({
@@ -94,7 +103,6 @@ class RequestClient(object):
 
         # print(self.make_url(params))
         # url = 'http://127.0.0.1:5000/basic_data_2?' + self.make_url(params)
-        # url = 'http://127.0.0.1:5000/api/goods?' + self.make_url(params)
         url = 'http://127.0.0.1:5000/api/goods'
 
         # result = requests.get(url)

@@ -31,34 +31,39 @@ __all__ = [
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class MyPhantomjs(object):
-    def __init__(self):
+    def __init__(self, load_images=False):
+        '''
+        初始化
+        :param load_images: 是否加载图片
+        '''
         super().__init__()
-        self._set_driver()
+        self._set_driver(load_images)
 
-    def _set_driver(self, num_retries=4):
+    def _set_driver(self, load_images, num_retries=4):
         '''
         初始化self.driver，并且出错重试
+        :param load_images: 是否加载图片
         :param num_retries: 重试次数
         :return:
         '''
         try:
-            self.init_phantomjs()
+            self.init_phantomjs(load_images)
         except Exception as e:
             # print('初始化phantomjs时出错:', e)
             if num_retries > 0:
-                return self._set_driver(num_retries=num_retries - 1)
+                return self._set_driver(load_images, num_retries=num_retries - 1)
             else:
                 print('初始化phantomjs时出错:', e)
                 raise e
 
-    def init_phantomjs(self):
+    def init_phantomjs(self, load_images):
         """
         初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
         """
         print('--->>>初始化phantomjs驱动中<<<---')
         cap = webdriver.DesiredCapabilities.PHANTOMJS
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
+        cap['phantomjs.page.settings.loadImages'] = load_images
         cap['phantomjs.page.settings.disk-cache'] = True
         cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
@@ -136,12 +141,15 @@ class MyPhantomjs(object):
                     print('{0}已经加载完毕'.format(css_selector))
 
             if exec_code != '':     # 动态执行代码
+                self.driver.find_element_by_css_selector('li.order-search div.btn_order_search').click()
+
                 # 执行代码前先替换掉'  '
                 try:
                     _ = compile(exec_code.replace('  ', ''), '', 'exec')
                     exec(_)
-                except:
+                except Exception as e:
                     # self.driver.save_screenshot('tmp_screen.png')
+                    print(e)
                     print('动态执行代码时出错!')
                     return ''
                 # self.driver.save_screenshot('tmp_screen.png')
@@ -244,3 +252,17 @@ class MyPhantomjs(object):
             pass
         gc.collect()
 
+# _ = MyPhantomjs(load_images=True)
+# url = 'http://www.sto.cn/Home/Index'
+#
+# css_seletor = 'li.order-search'
+# exec_code = '''
+# self.driver.find_element_by_css_selector('li.order-search textarea').send_keys('3367154640058')
+# self.driver.find_element_by_css_selector('li.order-search div.btn_order_search input').click()
+# sleep(6)
+# # div.layui-layer-content
+# self.driver.save_screenshot('申通.jpg')
+# '''
+# body = _.use_phantomjs_to_get_url_body(url=url, css_selector=css_seletor, exec_code=exec_code)
+# print(body)
+# del _

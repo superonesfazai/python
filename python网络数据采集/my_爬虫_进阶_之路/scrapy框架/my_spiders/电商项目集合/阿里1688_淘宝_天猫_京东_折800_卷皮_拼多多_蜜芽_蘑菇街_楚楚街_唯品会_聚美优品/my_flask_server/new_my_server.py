@@ -81,6 +81,7 @@ from logging import (
 )
 from json import dumps
 from pprint import pprint
+from base64 import b64decode
 
 from gevent.wsgi import WSGIServer      # 高并发部署
 import gc
@@ -119,7 +120,7 @@ my_lg = set_logger(
     file_log_level=ERROR
 )
 
-Sign = Signature()
+Sign = Signature(logger=my_lg)
 
 # server数据插入失败 -> 运行此sql_str
 error_insert_sql_str = '''
@@ -130,6 +131,8 @@ where GoodsID=%s
 
 # saveData[]为空的msg
 save_data_null_msg = 'saveData为空! <br/><br/>可能是抓取后, 重复点存入数据按钮导致!<br/><br/>** 请按正常流程操作:<br/>先抓取，后存入，才有相应抓取后存储信息的展示!<br/><br/>^_^!!!  感谢使用!!!'
+
+DEFAULT_USERNAME = '18698570079'
 
 ######################################################
 
@@ -1093,7 +1096,7 @@ def get_one_tb_data(**kwargs):
         except: pass
         gc.collect()
 
-        return {'goods_id': ''}                              # 错误1: goods_id为空!
+        return {'goods_id': ''}                                    # 错误1: goods_id为空!
 
     wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id={0}'.format(goods_id)  # 构造成标准干净的淘宝商品地址
     tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
@@ -1106,7 +1109,7 @@ def get_one_tb_data(**kwargs):
         except:pass
         gc.collect()
 
-        return {'goods_id': goods_id, 'msg': 'data为空!'}     # 错误2: 抓取data为空!
+        return {'goods_id': goods_id, 'msg': 'data为空!'}           # 错误2: 抓取data为空!
 
     wait_to_save_data = add_base_info_2_processed_data(
         data=data,
@@ -1119,7 +1122,7 @@ def get_one_tb_data(**kwargs):
 
     return wait_to_save_data
 
-def _get_taobao_goods_id(goods_link):
+def _get_tb_goods_id(goods_link):
     '''
     获取m站或者pc站的goods_id
     :param goods_link:
@@ -1130,26 +1133,25 @@ def _get_taobao_goods_id(goods_link):
     except IndexError:
         return ''
 
-def _deal_with_taobao_goods(goods_link):
+def _deal_with_tb_goods(goods_link):
     '''
     处理淘宝商品
     :param goods_link:
-    :return: dict
+    :return: json_str
     '''
     my_lg.info('进入淘宝商品处理接口...')
-    goods_id = _get_taobao_goods_id(goods_link)
+    goods_id = _get_tb_goods_id(goods_link)
     if goods_id == '':
         msg = 'goods_id匹配失败!请检查url是否正确!'
-
         return _error_data(msg=msg)
 
     tb_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
     data = get_one_tb_data(tb_url=tb_url)
     my_lg.info(str(data))
     if data.get('msg', '') == 'data为空!':
-        msg = 'goods_id:{0}, 抓取数据失败!'.format(goods_id)
-
+        msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
         return _error_data(msg=msg)
+
     else:
         pass
 
@@ -1162,16 +1164,12 @@ def _deal_with_taobao_goods(goods_link):
     is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
     if is_insert_into:  # 如果返回值为True
         pass
-    else:
-        msg = '存储该goods_id:{0}失败!'.format(goods_id)
+    else:   # 不处理存储结果!
+        # msg = '存储该goods_id:{0}失败!'.format(goods_id)
+        # return _error_data(msg=msg)
+        pass
 
-        return _error_data(msg=msg)
-
-    '''返回给APP时, 避免json.dumps转换失败...'''
-    data['price'] = float(data['price'])
-    data['taobao_price'] = float(data['taobao_price'])
-
-    return data
+    return compatible_api_goods_data(data=data)
 
 ######################################################
 # 天猫
@@ -1414,7 +1412,7 @@ def get_one_tm_data(**kwargs):
     :param kwargs:
     :return:
     '''
-    username = kwargs.get('username', '18698570079')
+    username = kwargs.get('username', DEFAULT_USERNAME)
     wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
 
     login_tmall = TmallParse(logger=my_lg)
@@ -1462,6 +1460,54 @@ def get_one_tm_data(**kwargs):
     except: pass
 
     return wait_to_save_data
+
+def _get_tm_goods_id(goods_link):
+    '''
+    得到tm link的goods_id
+    :param goods_link:
+    :return:
+    '''
+    try:
+        return re.compile('id=(\d+)').findall(goods_link)[0]
+    except IndexError:
+        return ''
+
+def _deal_with_tm_goods(goods_link):
+    '''
+    处理天猫商品
+    :param goods_link:
+    :return: json_str
+    '''
+    my_lg.info('进入天猫商品处理接口...')
+    goods_id = _get_tm_goods_id(goods_link)
+    if goods_id == '':
+        msg = 'goods_id匹配失败!请检查url是否正确!'
+        return _error_data(msg=msg)
+
+    tm_url = 'https://detail.tmall.com/item.htm?id={0}'.format(goods_id)
+    data = get_one_tm_data(wait_to_deal_with_url=tm_url)
+    if data.get('msg', '') == 'data为空!':
+        msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
+        return _error_data(msg=msg)
+
+    else:
+        pass
+
+    data = _get_tmall_right_data(data)
+    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+    my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
+
+    params = _get_db_tmall_insert_params(item=data)
+    sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
+    if is_insert_into:  # 如果返回值为True
+        pass
+    else:               # 不处理存储结果
+        # msg = '存储该goods_id:{0}失败!'.format(goods_id)
+        # return _error_data(msg=msg)
+        pass
+
+    return compatible_api_goods_data(data=data)
 
 ######################################################
 # 京东
@@ -1730,6 +1776,14 @@ def get_one_jd_data(**kwargs):
     except: pass
 
     return wait_to_save_data
+
+def _deal_with_jd_goods(goods_link):
+    '''
+    处理jd商品
+    :param goods_link:
+    :return:
+    '''
+    pass
 
 ######################################################
 # 折800
@@ -2881,39 +2935,27 @@ def _get_basic_data_2():
 @app.route('/api/goods', methods=['GET', 'POST'])
 @Sign.signature_required
 def _goods():
-    # print(request.args)
-    if request.method == 'GET':
-        # print(dict(request.args))
-        try:
-            goods_link = dict(request.args).get('goods_link', [])[0]
-        except IndexError:
-            goods_link = None
-    else:
-        goods_link = request.form.get('goods_link')
-    if goods_link:
+    _ = get_goods_link(request=request)
+    goods_link = b64decode(s=_.encode('utf-8')).decode('utf-8')     # _ 传来的起初是str, 先str->byte, 再b64decode解码
+
+    if goods_link != '':
         my_lg.info('正在获取相应数据中...')
         my_lg.info('获取到的goods_link：' + str(goods_link))
 
         if _is_taobao_url_plus(goods_link):
             my_lg.info('该link为淘宝link...')
-            result = _deal_with_taobao_goods(goods_link=goods_link)
-            if result.get('goods_id', '') == '':
-                my_lg.error('获取到的goods_id为空值!')
-                return _null_goods_id()
 
-            elif result.get('data', {}) == {}:
-                my_lg.error('获取到的goods_data为空!')
-                return _null_goods_data()
+            return _deal_with_tb_goods(goods_link=goods_link)
 
-            else:
-                my_lg.info('获取goods_data success!!')
-                return _success_data(data=result)
+        elif _is_tmall_url_plus(goods_link):
+            my_lg.info('该link为天猫link...')
 
-        elif _is_m_tmall_url(goods_link):
-            pass
+            return _deal_with_tm_goods(goods_link=goods_link)
 
-        elif _is_m_jd_url(goods_link):
-            pass
+        elif _is_jd_url_plus(goods_link):
+            my_lg.info('该link为京东link...')
+
+            return _deal_with_jd_goods(goods_link=goods_link)
 
         else:
             my_lg.info('无效的goods_link!')
@@ -2923,6 +2965,43 @@ def _goods():
         my_lg.info('goods_link为空值!')
 
         return _null_goods_link()
+
+def get_goods_link(**kwargs):
+    '''
+    从cli得到goods_link(只支持get, post)
+    :param kwargs:
+    :return:
+    '''
+    request = kwargs.get('request')
+
+    # my_lg.info(dict(request.args))
+    _ = ''
+    if request.method == 'GET':
+        try:
+            _ = dict(request.args).get('goods_link', '')[0]
+        except IndexError:
+            my_lg.error('获取goods_link时IndexError!')
+
+    else:
+        _ = request.form.get('goods_link', '')
+
+    return _
+
+def compatible_api_goods_data(data):
+    '''
+    兼容处理数据, 规范返回数据
+    :param data:
+    :return: json_str
+    '''
+    '''返回给APP时, 避免json.dumps转换失败...'''
+    data['price'] = float(data['price'])
+    data['taobao_price'] = float(data['taobao_price'])
+    data['create_time'] = str(data['create_time'])
+    data['modify_time'] = str(data['modify_time'])
+    # pprint(data)        # 报错得先把create_time和modify_time转换为字符串
+    msg = '抓取数据成功!'
+
+    return _success_data(msg=msg, data=data)
 
 ######################################################
 '''错误处理/成功处理'''
@@ -3108,13 +3187,17 @@ def _is_tmall_url(wait_to_deal_with_url):
 
     return _
 
-def _is_m_tmall_url(goods_link):
+def _is_tmall_url_plus(goods_link):
     '''
-    天猫m站
+    天猫m站/pc站地址
     :param goods_link:
     :return:
     '''
-    pass
+    if re.compile(r'detail.tmall.').findall(goods_link) != [] \
+        or re.compile(r'detail.m.tmall.com').findall(goods_link) != []:
+        return True
+
+    return False
 
 def _is_jd_url(wait_to_deal_with_url):
     '''
@@ -3130,13 +3213,16 @@ def _is_jd_url(wait_to_deal_with_url):
 
     return _
 
-def _is_m_jd_url(goods_link):
+def _is_jd_url_plus(goods_link):
     '''
-    京东m站
+    京东m站/pc站
     :param goods_link:
     :return:
     '''
-    pass
+    if re.compile('item.jd|item.yiyaojd|item.m.jd.com|mitem.jd.hk|m.yiyaojd.com').findall(goods_link) != []:
+        return True
+
+    return False
 
 ######################################################
 # 从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]

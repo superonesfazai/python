@@ -19,7 +19,7 @@ driver.find_element_by_name('from_emai').send_keys('xxx@xxx.com')
 driver.find_element_by_name('from_password').send_keys('xxxxxx')
 
 # 模拟点击登录
-driver.find_element_by_xpath('//input[@class="bn-submit"]').click()
+driver.find_element_by_xpath('//input[@class="bn-submit"]').click()     # 注意: 点击要具体到哪个input, 而不是其父元素
 
 time.sleep(3)
 

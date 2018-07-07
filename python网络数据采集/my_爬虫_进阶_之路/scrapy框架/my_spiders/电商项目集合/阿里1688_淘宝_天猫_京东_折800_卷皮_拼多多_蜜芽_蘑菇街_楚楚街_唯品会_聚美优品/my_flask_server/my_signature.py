@@ -28,13 +28,14 @@ get_current_timestamp = lambda: datetime_to_timestamp(get_shanghai_time())
 
 class Signature(object):
     """ 接口签名认证 """
-    def __init__(self):
+    def __init__(self, logger=None):
         self._version = "v1"
         self._accessKeys = [
             {"access_key_id": "yiuxiu", "access_key_secret": "yiuxiu6688"}
         ]
         # 时间戳有效时长，单位秒
         self._timestamp_expiration = 30
+        self.my_lg = logger
 
     def _check_req_timestamp(self, req_timestamp):
         """ 校验时间戳
@@ -68,16 +69,19 @@ class Signature(object):
         @param parameters dict: 除signature外请求的所有查询参数(公共参数和私有参数)
         """
         # pprint(parameters)
-        if "sign" in parameters:
+        if 'sign' in parameters:
             parameters.pop("sign")
-        accesskey_id = parameters["access_key_id"]
-        sortedParameters = sorted(parameters.items(), key=lambda parameters: parameters[0])
-        canonicalizedQueryString = ''
-        for (k, v) in sortedParameters:
-            canonicalizedQueryString += k + "=" + v + "&"
 
-        canonicalizedQueryString += self._get_accesskey_secret(accesskey_id)
-        signature = md5(canonicalizedQueryString.encode('utf-8')).lower()
+        access_key_id = parameters.get('access_key_id')
+        sorted_parameters = sorted(parameters.items(), key=lambda parameters: parameters[0])
+        self.my_lg.info(str(sorted_parameters))
+        canonicalized_query_str = ''
+        for (k, v) in sorted_parameters:
+            canonicalized_query_str += k + "=" + v + "&"
+
+        canonicalized_query_str += self._get_accesskey_secret(access_key_id)
+        self.my_lg.info(str(canonicalized_query_str))
+        signature = md5(canonicalized_query_str.encode('utf-8')).lower()
 
         return signature
 
@@ -93,8 +97,10 @@ class Signature(object):
             req_signature = req_params["sign"]
         except KeyError as e:
             res.update(msg="Invalid public params")
+
         except Exception as e:
             res.update(msg="Unknown server error")
+
         else:
             # NO.1 校验版本
             if req_version == self._version:
@@ -105,6 +111,7 @@ class Signature(object):
                         # NO.4 校验签名
                         if req_signature == self._sign(req_params):
                             res.update(msg="Verification pass", success=True)
+
                         else:
                             res.update(msg="Invalid query string")
                     else:
@@ -113,6 +120,7 @@ class Signature(object):
                     res.update(msg="Invalid timestamp")
             else:
                 res.update(msg="Invalid version")
+
         return res
 
     def signature_required(self, f):

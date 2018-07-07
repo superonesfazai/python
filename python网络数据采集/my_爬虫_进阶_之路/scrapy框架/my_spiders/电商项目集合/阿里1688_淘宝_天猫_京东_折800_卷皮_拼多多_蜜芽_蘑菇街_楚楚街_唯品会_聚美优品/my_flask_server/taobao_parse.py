@@ -675,8 +675,7 @@ class TaoBaoLoginAndParse(object):
             prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
             for key in sku2_info:
                 tmp = {}
-                tmp_prop_path_list = [item for item in skus if item.get(
-                    'skuId') == key]  # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
+                tmp_prop_path_list = [item for item in skus if item.get('skuId') == key]  # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
 
                 # 处理propPath得到可识别的文字
                 prop_path = tmp_prop_path_list[0].get('propPath', '').split(';')
