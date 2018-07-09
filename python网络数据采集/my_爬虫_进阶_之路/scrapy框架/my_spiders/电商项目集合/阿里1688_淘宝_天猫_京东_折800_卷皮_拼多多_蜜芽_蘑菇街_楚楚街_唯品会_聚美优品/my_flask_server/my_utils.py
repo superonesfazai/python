@@ -505,3 +505,4 @@ def get_str_from_command(cmd):
     import subprocess
 
     return subprocess.getstatusoutput(cmd)[1]
+

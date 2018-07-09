@@ -30,19 +30,25 @@ from json import (
     JSONDecodeError,
 )
 from pprint import pprint
+import time
+import re
 
 class XiaoHongShuParse():
     def __init__(self, logger=None):
         self._set_logger(logger)
         self._set_headers()
+        self.CRAWL_ARTICLE_SLEEP_TIME = 2.5     # 抓每天文章的sleep_time
 
     def _set_headers(self):
         self.headers = {
+            'authority': 'www.xiaohongshu.com',
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
-            'accept': '*/*',
-            # 'referer': 'https://h5.m.taobao.com/awp/core/detail.htm?id=560666972076',
+            # 'cookie': 'Hm_lvt_9df7d19786b04345ae62033bd17f6278=1530954715,1530954763,1530954908,1531113520; Hm_lvt_d0ae755ac51e3c5ff9b1596b0c09c826=1530954716,1530954763,1530954907,1531113520; Hm_lpvt_d0ae755ac51e3c5ff9b1596b0c09c826=1531119425; Hm_lpvt_9df7d19786b04345ae62033bd17f6278=1531119425; beaker.session.id=b8a1a4ca0c2293ec3d447c7edbdc9dc2c528b5f2gAJ9cQEoVQhfZXhwaXJlc3ECY2RhdGV0aW1lCmRhdGV0aW1lCnEDVQoH4gcOCQIMAD2ghVJxBFUDX2lkcQVVIDNmMmM5NmE1YjQzNDQyMjA5MDM5OTIyNjU4ZjE3NjIxcQZVDl9hY2Nlc3NlZF90aW1lcQdHQdbQwdBhhRtVDl9jcmVhdGlvbl90aW1lcQhHQdbQIEMRyBF1Lg==; xhs_spses.5dde=*; xhs_spid.5dde=af753270e27cdd3c.1530953997.5.1531119433.1531115989.18f4b29f-8212-42a2-8ad6-002c47ebdb65',
         }
 
     def _set_logger(self, logger):
@@ -55,7 +61,7 @@ class XiaoHongShuParse():
         else:
             self.my_lg = logger
 
-    def _get_xiaohongshu_home_aritle_info(self):
+    def _get_xiaohongshu_home_aritles_info(self):
         '''
         小红书主页json模拟获取
         :return:
@@ -78,7 +84,7 @@ class XiaoHongShuParse():
             'X-Tingyun-Id': 'LbxHzUNcfig;c=2;r=551911068',
         }
 
-        # 下面参数每个都是必须的
+        # 下面参数每个都是必须的, 且不变
         params = (
             ('deviceId', '2AEEF650-2CAE-480F-B30C-CA5CABC26193'),
             ('device_fingerprint', '201805101352429dd715d37f422fe3e64dd3923c0b0bc8017d90c099539039'),
@@ -89,7 +95,8 @@ class XiaoHongShuParse():
             ('platform', 'iOS'),
             ('sid', 'session.1210427606534613282'),
             ('sign', 'c9a9eadc6c46823ae3075d7b28fe97fa'),
-            ('t', '1531010946'),
+            ('t', '1531010946'),    # 用原来的避免sign错误
+            # ('t', int(time.time())),
         )
 
         url = 'https://www.xiaohongshu.com/api/sns/v6/homefeed'
@@ -99,8 +106,72 @@ class XiaoHongShuParse():
             self.my_lg.error('获取到的body为空值!请检查!')
             return {}
 
-        _ = self.json_2_dict(body)
-        pprint(_)
+        _ = self.json_2_dict(body).get('data', [])
+        # pprint(_)
+        if _ == []:
+            self.my_lg.error('获取到的data为空值!请检查!')
+            return {}
+
+        _ = [{
+            'id': item.get('id', ''),
+            'article_link': item.get('share_link', ''),
+        } for item in _]
+
+        return _
+
+    def _deal_with_every_article(self):
+        home_articles_link_list = self._get_xiaohongshu_home_aritles_info()
+        pprint(home_articles_link_list)
+
+        for item in home_articles_link_list:    # eg: [{'id': '5b311bfc910cf67e693d273e','share_link': 'https://www.xiaohongshu.com/discovery/item/5b311bfc910cf67e693d273e'},...]
+            article_id = item.get('id', '')
+            article_link = item.get('article_link', '')
+
+            if article_link != '':
+                body = MyRequests.get_url_body(url=article_link, headers=self.headers)
+                try:
+                    article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
+                except IndexError:
+                    self.my_lg.error('获取article_info时IndexError!请检查!')
+                    sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
+                    continue
+
+                article_info = self._wash_article_info(self.json_2_dict(article_info))
+                pprint(article_info)
+                sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
+            else:
+                pass
+
+    def _wash_article_info(self, _dict):
+        '''
+        清洗无用字段
+        :param _dict:
+        :return:
+        '''
+        try:
+            _dict['NoteView']['commentInfo'] = {}   # 评论信息
+            _dict['NoteView']['panelData'] = []     # 相关笔记
+        except:
+            pass
+
+        return _dict
+
+    def wash_sensitive_info(self, data):
+        '''
+        清洗敏感信息
+        :param data:
+        :return:
+        '''
+        data = re.compile(r'小红书|xiaohongshu|XIAOHONGSHU').sub('优秀网', data)
+
+        tmp_str = r'''
+        淘宝|taobao|TAOBAO|天猫|tmall|TMALL|
+        京东|JD|jd|红书爸爸|共产党|邪教|操|艹|
+        杀人|胡锦涛|江泽民|习近平
+        '''.replace(' ', '').replace('\n', '')
+        data = re.compile(tmp_str).sub('', data)
+
+        return data
 
     def _parse_page(self):
         '''
@@ -133,5 +204,5 @@ class XiaoHongShuParse():
 if __name__ == '__main__':
     while True:
         _ = XiaoHongShuParse()
-        _._get_xiaohongshu_home_aritle_info()
+        _._deal_with_every_article()
         sleep(60)
