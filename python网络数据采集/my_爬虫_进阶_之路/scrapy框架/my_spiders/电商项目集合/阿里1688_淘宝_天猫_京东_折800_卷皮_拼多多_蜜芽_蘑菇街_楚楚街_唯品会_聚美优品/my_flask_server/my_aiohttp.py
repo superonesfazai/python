@@ -83,8 +83,7 @@ class MyAiohttp(object):
         '''
         # 设置代理ip
         ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool()['http']
-        proxy = ip_list[randint(0, len(ip_list) - 1)]
+        proxy = ip_object._get_random_proxy_ip()    # 失败返回False
 
         return proxy
 

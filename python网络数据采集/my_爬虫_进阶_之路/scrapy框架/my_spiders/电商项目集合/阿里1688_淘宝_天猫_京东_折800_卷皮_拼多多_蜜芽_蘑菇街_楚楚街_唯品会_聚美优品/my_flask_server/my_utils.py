@@ -354,8 +354,7 @@ async def get_taobao_sign_and_body(base_url, headers:dict, params:dict, data:jso
 
     # 设置代理ip
     ip_object = MyIpPools()
-    proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-    proxy = proxies['http'][randint(0, len(proxies) - 1)]
+    proxy = ip_object._get_random_proxy_ip()    # 失败返回False
 
     tmp_proxies = {
         'http': proxy,

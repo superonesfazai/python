@@ -82,11 +82,8 @@ class MyPhantomjs(object):
         :return:
         '''
         ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            # print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
+        proxy_ip = ip_object._get_random_proxy_ip()
+        if not proxy_ip:
             return False
 
         # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
