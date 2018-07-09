@@ -1061,7 +1061,6 @@ class JdParse(object):
         :param jd_url:
         :return:
         '''
-        # https://detail.1688.com/offer/559526148757.html?spm=b26110380.sw1688.mof001.28.sBWF6s
         is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(jd_url)
         if is_jd_url != []:
             goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(jd_url)[0]

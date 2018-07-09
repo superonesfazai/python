@@ -14,7 +14,8 @@
 import sys
 sys.path.append('..')
 
-import hashlib, datetime, time
+import hashlib
+import time
 import requests
 
 from my_utils import get_shanghai_time
@@ -84,9 +85,10 @@ class RequestClient(object):
         # tb
         # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198'
         # tm
-        # goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
+        goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
         # jd
-        goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
+        # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
+        # goods_link = 'https://item.jd.com/5025518.html'
 
         from base64 import b64encode
 

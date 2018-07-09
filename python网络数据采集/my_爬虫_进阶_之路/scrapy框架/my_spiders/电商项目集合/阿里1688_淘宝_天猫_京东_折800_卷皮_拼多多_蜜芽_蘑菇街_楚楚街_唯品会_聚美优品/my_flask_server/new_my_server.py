@@ -75,6 +75,7 @@ from time import sleep
 import datetime
 import re
 from decimal import Decimal
+import decimal
 from logging import (
     INFO,
     ERROR,
@@ -1777,13 +1778,57 @@ def get_one_jd_data(**kwargs):
 
     return wait_to_save_data
 
+def _get_jd_goods_id(goods_link):
+    '''
+    得到jd link的goods_id
+    :param goods_link:
+    :return:
+    '''
+    if re.compile('/(\d+).html').findall(goods_link) != []:
+        return re.compile('/(\d+).html').findall(goods_link)[0]
+
+    elif re.compile('wareId=(\d+)').findall(goods_link) != []:
+        return re.compile('wareId=(\d+)').findall(goods_link)[0]
+
+    else:
+        return ''
+
 def _deal_with_jd_goods(goods_link):
     '''
     处理jd商品
     :param goods_link:
     :return:
     '''
-    pass
+    my_lg.info('进入京东商品处理接口...')
+    goods_id = _get_jd_goods_id(goods_link)
+    if goods_id == '':
+        msg = 'goods_id匹配失败!请检查url是否正确!'
+        return _error_data(msg=msg)
+
+    jd_url = 'https://item.jd.com/{0}.html'.format(goods_id)
+    data = get_one_jd_data(wait_to_deal_with_url=jd_url)
+    if data.get('msg', '') == 'data为空!':
+        msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
+        return _error_data(msg=msg)
+
+    else:
+        pass
+
+    data = _get_jd_right_data(data)
+    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+    my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
+
+    params = _get_db_jd_insert_params(item=data)
+    sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    is_insert_into = my_pipeline._insert_into_table(sql_str=sql_str, params=params)
+    if is_insert_into:  # 如果返回值为True
+        pass
+    else:               # 不处理存储结果
+        # msg = '存储该goods_id:{0}失败!'.format(goods_id)
+        # return _error_data(msg=msg)
+        pass
+
+    return compatible_api_goods_data(data=data)
 
 ######################################################
 # 折800
@@ -2741,7 +2786,7 @@ def get_basic_data():
             goodsLink = request.form.get('goodsLink')
             wait_to_deal_with_url = goodsLink
 
-            if _is_taobao_url(wait_to_deal_with_url):
+            if _is_taobao_url_plus(wait_to_deal_with_url):
                 basic_taobao = TaoBaoLoginAndParse(logger=my_lg)
 
                 goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
@@ -2989,19 +3034,39 @@ def get_goods_link(**kwargs):
 
 def compatible_api_goods_data(data):
     '''
-    兼容处理数据, 规范返回数据
+    兼容处理data, 规范返回数据
     :param data:
     :return: json_str
     '''
     '''返回给APP时, 避免json.dumps转换失败...'''
-    data['price'] = float(data['price'])
-    data['taobao_price'] = float(data['taobao_price'])
-    data['create_time'] = str(data['create_time'])
-    data['modify_time'] = str(data['modify_time'])
-    # pprint(data)        # 报错得先把create_time和modify_time转换为字符串
+    from decimal import Decimal
+    from datetime import datetime
+
+    _data = data
+    for key, value in _data.items():
+        if isinstance(value, Decimal):
+            data.update({key: float(value)})
+        elif isinstance(value, datetime):
+            data.update({key: str(value)})
+        else:
+            pass
+    # pprint(data)
+
+    _ = {
+        'goods_id': data.get('goods_id'),
+        'title': data.get('title', ''),
+        'price': str(data.get('taobao_price')),         # 最低价
+        'sell_count': data.get('sell_count') if not data.get('sell_count') else data.get('all_sell_count'),
+        'img_url': data.get('all_img_url'),             # 商品示例图, eg: [{'img_url': xxx}, ...]
+        'spider_url': data.get('spider_url') if not data.get('spider_url') else data.get('goods_url'),
+        'sku_name': data.get('detail_name_list', []),   # 规格名, eg: 颜色，尺码 [{'spec_name': '颜色'}, ...]
+        'sku_info': data.get('price_info_list', []),    # 详细规格, eg: [{"spec_value": "10片", "detail_price": "79", "rest_number": "3394"}, ...]
+    }
+
+    my_lg.info('此次请求接口返回数据: {0}'.format(str(_)))
     msg = '抓取数据成功!'
 
-    return _success_data(msg=msg, data=data)
+    return _success_data(msg=msg, data=_)
 
 ######################################################
 '''错误处理/成功处理'''
@@ -3148,18 +3213,6 @@ def wechat():
     return echo_str
 
 ######################################################
-
-def _is_taobao_url(wait_to_deal_with_url):
-    '''
-    判断是否为淘宝的链接
-    :param wait_to_deal_with_url:
-    :return: bool
-    '''
-    _ = False
-    if re.compile(r'https://item.taobao.com/item.htm.*?').findall(wait_to_deal_with_url) != []:
-        _ = True
-
-    return _
 
 def _is_taobao_url_plus(goods_link):
     '''
