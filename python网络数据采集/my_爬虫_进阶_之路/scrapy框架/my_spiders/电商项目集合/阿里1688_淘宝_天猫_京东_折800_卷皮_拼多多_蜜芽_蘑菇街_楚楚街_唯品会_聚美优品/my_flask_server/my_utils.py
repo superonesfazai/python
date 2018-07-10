@@ -59,6 +59,10 @@ def get_shanghai_time():
     时区处理，得到上海时间
     :return: datetime类型
     '''
+    import pytz
+    import datetime
+    import re
+
     # 时区处理，时间处理到上海时间
     # pytz查询某个国家时区
     country_timezones_list = pytz.country_timezones('cn')
@@ -119,6 +123,7 @@ def timestamp_to_regulartime(timestamp):
     '''
     将时间戳转换成时间
     '''
+    import time
     # 利用localtime()函数将时间戳转化成localtime的格式
     # 利用strftime()函数重新格式化时间
 
@@ -504,4 +509,3 @@ def get_str_from_command(cmd):
     import subprocess
 
     return subprocess.getstatusoutput(cmd)[1]
-

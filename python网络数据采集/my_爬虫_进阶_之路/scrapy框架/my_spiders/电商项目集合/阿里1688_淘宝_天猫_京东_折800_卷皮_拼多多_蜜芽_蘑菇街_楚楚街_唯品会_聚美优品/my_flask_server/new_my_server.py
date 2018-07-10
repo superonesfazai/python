@@ -3038,10 +3038,10 @@ def compatible_api_goods_data(data):
     :param data:
     :return: json_str
     '''
-    '''返回给APP时, 避免json.dumps转换失败...'''
     from decimal import Decimal
     from datetime import datetime
 
+    # 返回给APP时, 避免json.dumps转换失败... TODO
     _data = data
     for key, value in _data.items():
         if isinstance(value, Decimal):
@@ -3069,143 +3069,7 @@ def compatible_api_goods_data(data):
     return _success_data(msg=msg, data=_)
 
 ######################################################
-'''错误处理/成功处理'''
-
-def _success_data(**kwargs):
-    '''
-    获取数据成功!
-    :param kwargs:
-    :return:
-    '''
-    return dumps({
-        'reason': 'success',
-        'msg': kwargs.get('msg') if kwargs is not None else '成功!',
-        'data': kwargs.get('data', {}),
-        'error_code': '0008',
-    }, ensure_ascii=False).encode().decode()
-
-def _error_data(**kwargs):
-    '''
-    获取数据成功!
-    :param kwargs:
-    :return:
-    '''
-    return dumps({
-        'reason': 'error',
-        'msg': kwargs.get('msg') if kwargs is not None else '失败!',
-        'data': {},
-        'error_code': '0009',
-    }, ensure_ascii=False).encode().decode()
-
-def _null_goods_link():
-    # 空goods_link
-    return dumps({
-        'reason': 'error',
-        'msg': 'goods_link为空值!',
-        'data': '',
-        'error_code': '0001',
-    })
-
-def _invalid_goods_link():
-    # 无效goods_link
-    return dumps({
-        'reason': 'error',
-        'msg': '无效的goods_link, 请检查!',
-        'data': '',
-        'error_code': '0002',
-    })
-
-def _null_goods_id():
-    # 空goods_id
-    return dumps({
-        'reason': 'error',
-        'msg': '获取到的goods_id为空str, 无效的goods_link, 请检查!',
-        'data': '',
-        'error_code': '0003',
-    })
-
-def _null_goods_data():
-    # 获取到的goods_data为{}
-    return dumps({
-        'reason': 'error',
-        'msg': '获取到的goods_data为空dict!',
-        'data': '',
-        'error_code': '0004',
-    })
-
-def _insert_into_db_result(**kwargs):
-    '''
-    抓取后数据储存处理结果, msg显示
-    :param pipeline:
-    :param is_inserted_and_goods_id_list: a list eg: [('db插入结果类型bool', '对应goods_id'), ...]
-    :return:
-    '''
-    pipeline = kwargs.get('pipeline')
-    is_inserted_and_goods_id_list = kwargs.get('is_inserted_and_goods_id_list', [])
-
-    msg = ''
-    goods_id_list = [item[1] for item in is_inserted_and_goods_id_list if not item[0]]
-    error_goods_id_msg_list = []  # 早期已被存入db的 [('goods_id', 'msg'), ...]
-
-    if goods_id_list != []:     # 处理早期被存入的goods_id
-        _e = error_insert_sql_str
-        _e += ' or GoodsID=%s ' * (len(goods_id_list)-1)
-        _ = pipeline._select_table(sql_str=_e, params=tuple(goods_id_list))
-        if _ is None or _ == []:        # 查询失败处理!
-            msg = r'执行搜索对应商品语句时出错! 可能已被入录! 请在公司后台对应查询!<br/><br/>'
-            for _u in goods_id_list:
-                msg += r'官方GoodsID: {0}<br/>'.format(_u)
-
-            return dumps({
-                'reason': 'error',
-                'msg': msg,
-                'data': '',
-                'error_code': '0005',
-            })
-
-        for goods_id in goods_id_list:
-            for _r in _:
-                if goods_id == _r[2]:
-                    tmp_msg = r'这个商品原先已被存入db中! 相关信息如下:<br/>操作人员: {0}<br/>创建时间: {1}<br/>官方GoodsID: {2}<br/>商品名称: {3}<br/>转换时间: {4}<br/>优秀商品ID: {5}<br/><br/>'.format(
-                        _r[0], str(_r[1]), _r[2], _r[3], str(_r[4]) if _r[4] is not None else '未转换', _r[5] if _r[5] is not None else '未转换',
-                    )
-                    error_goods_id_msg_list.append((goods_id, tmp_msg))
-    else:
-        pass
-
-    for _i in is_inserted_and_goods_id_list:
-        goods_id = _i[1]
-        if _i[0]:
-            msg += r'新采集的商品[GoodsID={0}]已存入db中!<br/><br/>'.format(goods_id)
-        else:
-            for _m in error_goods_id_msg_list:
-                if goods_id == _m[0]:
-                    msg += _m[1]
-    my_lg.info(msg)
-
-    return dumps({
-        'reason': 'success',
-        'msg': msg,
-        'data': '',
-        'error_code': '0006',
-    })
-
-def _error_msg(msg):
-    '''
-    错误的msg, json返回
-    :param msg:
-    :return:
-    '''
-    return dumps({
-        'reason': 'error',
-        'msg': str(msg),
-        'data': '',
-        'error_code': '0007',
-    })
-
-######################################################
 # wechat
-
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     echo_str = dict(request.args).get('echostr', '')
@@ -3539,6 +3403,141 @@ def _get_init_headers():
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         'accept': '*/*',
     }
+
+######################################################
+'''错误处理/成功处理'''
+
+def _success_data(**kwargs):
+    '''
+    获取数据成功!
+    :param kwargs:
+    :return:
+    '''
+    return dumps({
+        'reason': 'success',
+        'msg': kwargs.get('msg') if kwargs is not None else '成功!',
+        'data': kwargs.get('data', {}),
+        'error_code': '0008',
+    }, ensure_ascii=False).encode().decode()
+
+def _error_data(**kwargs):
+    '''
+    获取数据成功!
+    :param kwargs:
+    :return:
+    '''
+    return dumps({
+        'reason': 'error',
+        'msg': kwargs.get('msg') if kwargs is not None else '失败!',
+        'data': {},
+        'error_code': '0009',
+    }, ensure_ascii=False).encode().decode()
+
+def _null_goods_link():
+    # 空goods_link
+    return dumps({
+        'reason': 'error',
+        'msg': 'goods_link为空值!',
+        'data': '',
+        'error_code': '0001',
+    })
+
+def _invalid_goods_link():
+    # 无效goods_link
+    return dumps({
+        'reason': 'error',
+        'msg': '无效的goods_link, 请检查!',
+        'data': '',
+        'error_code': '0002',
+    })
+
+def _null_goods_id():
+    # 空goods_id
+    return dumps({
+        'reason': 'error',
+        'msg': '获取到的goods_id为空str, 无效的goods_link, 请检查!',
+        'data': '',
+        'error_code': '0003',
+    })
+
+def _null_goods_data():
+    # 获取到的goods_data为{}
+    return dumps({
+        'reason': 'error',
+        'msg': '获取到的goods_data为空dict!',
+        'data': '',
+        'error_code': '0004',
+    })
+
+def _insert_into_db_result(**kwargs):
+    '''
+    抓取后数据储存处理结果, msg显示
+    :param pipeline:
+    :param is_inserted_and_goods_id_list: a list eg: [('db插入结果类型bool', '对应goods_id'), ...]
+    :return:
+    '''
+    pipeline = kwargs.get('pipeline')
+    is_inserted_and_goods_id_list = kwargs.get('is_inserted_and_goods_id_list', [])
+
+    msg = ''
+    goods_id_list = [item[1] for item in is_inserted_and_goods_id_list if not item[0]]
+    error_goods_id_msg_list = []  # 早期已被存入db的 [('goods_id', 'msg'), ...]
+
+    if goods_id_list != []:     # 处理早期被存入的goods_id
+        _e = error_insert_sql_str
+        _e += ' or GoodsID=%s ' * (len(goods_id_list)-1)
+        _ = pipeline._select_table(sql_str=_e, params=tuple(goods_id_list))
+        if _ is None or _ == []:        # 查询失败处理!
+            msg = r'执行搜索对应商品语句时出错! 可能已被入录! 请在公司后台对应查询!<br/><br/>'
+            for _u in goods_id_list:
+                msg += r'官方GoodsID: {0}<br/>'.format(_u)
+
+            return dumps({
+                'reason': 'error',
+                'msg': msg,
+                'data': '',
+                'error_code': '0005',
+            })
+
+        for goods_id in goods_id_list:
+            for _r in _:
+                if goods_id == _r[2]:
+                    tmp_msg = r'这个商品原先已被存入db中! 相关信息如下:<br/>操作人员: {0}<br/>创建时间: {1}<br/>官方GoodsID: {2}<br/>商品名称: {3}<br/>转换时间: {4}<br/>优秀商品ID: {5}<br/><br/>'.format(
+                        _r[0], str(_r[1]), _r[2], _r[3], str(_r[4]) if _r[4] is not None else '未转换', _r[5] if _r[5] is not None else '未转换',
+                    )
+                    error_goods_id_msg_list.append((goods_id, tmp_msg))
+    else:
+        pass
+
+    for _i in is_inserted_and_goods_id_list:
+        goods_id = _i[1]
+        if _i[0]:
+            msg += r'新采集的商品[GoodsID={0}]已存入db中!<br/><br/>'.format(goods_id)
+        else:
+            for _m in error_goods_id_msg_list:
+                if goods_id == _m[0]:
+                    msg += _m[1]
+    my_lg.info(msg)
+
+    return dumps({
+        'reason': 'success',
+        'msg': msg,
+        'data': '',
+        'error_code': '0006',
+    })
+
+def _error_msg(msg):
+    '''
+    错误的msg, json返回
+    :param msg:
+    :return:
+    '''
+    return dumps({
+        'reason': 'error',
+        'msg': str(msg),
+        'data': '',
+        'error_code': '0007',
+    })
 
 ######################################################
 
