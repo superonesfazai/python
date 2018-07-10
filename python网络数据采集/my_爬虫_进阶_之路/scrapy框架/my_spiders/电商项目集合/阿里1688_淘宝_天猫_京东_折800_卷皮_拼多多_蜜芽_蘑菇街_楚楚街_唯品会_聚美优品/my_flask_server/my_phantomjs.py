@@ -248,18 +248,3 @@ class MyPhantomjs(object):
         except:
             pass
         gc.collect()
-
-# _ = MyPhantomjs(load_images=True)
-# url = 'http://www.sto.cn/Home/Index'
-#
-# css_seletor = 'li.order-search'
-# exec_code = '''
-# self.driver.find_element_by_css_selector('li.order-search textarea').send_keys('3367154640058')
-# self.driver.find_element_by_css_selector('li.order-search div.btn_order_search input').click()
-# sleep(6)
-# # div.layui-layer-content
-# self.driver.save_screenshot('申通.jpg')
-# '''
-# body = _.use_phantomjs_to_get_url_body(url=url, css_selector=css_seletor, exec_code=exec_code)
-# print(body)
-# del _
