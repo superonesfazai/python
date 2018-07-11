@@ -102,9 +102,12 @@ class MyAllCommentSpider(object):
         while True:
             #### 实时更新数据
             tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-            sql_str = r'select GoodsID, SiteID from dbo.GoodsInfoAutoGet where MainGoodsID!=%s and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)'
+            sql_str = '''
+            select GoodsID, SiteID 
+            from dbo.GoodsInfoAutoGet 
+            where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)'''
             try:
-                result = list(tmp_sql_server._select_table(sql_str=sql_str, params=('',)))
+                result = list(tmp_sql_server._select_table(sql_str=sql_str))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None

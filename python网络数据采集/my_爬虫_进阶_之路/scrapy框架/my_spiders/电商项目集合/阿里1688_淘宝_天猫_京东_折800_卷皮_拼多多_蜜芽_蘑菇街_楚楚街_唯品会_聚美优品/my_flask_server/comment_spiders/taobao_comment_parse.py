@@ -32,7 +32,6 @@ class TaoBaoCommentParse(object):
         self.msg = ''
         self._set_logger(logger=logger)
         self._set_headers()
-        self.page_size = '20'   # 固定值
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
 
     def _get_comment_data(self, goods_id):
@@ -59,6 +58,7 @@ class TaoBaoCommentParse(object):
                 body = re.compile('\((.*)\)').findall(body)[0]
             except IndexError:
                 self.my_lg.error('re得到需求body时出错! 出错goods_id: ' + goods_id)
+                sleep(.5)
                 self.result_data = {}
                 return {}
 
@@ -155,6 +155,9 @@ class TaoBaoCommentParse(object):
             else:
                 head_img = ''
 
+            if _comment_content == '评价方未及时做出评价,系统默认好评!':
+                continue
+
             comment = [{
                 'comment': _comment_content,
                 'comment_date': comment_date,
@@ -220,7 +223,8 @@ class TaoBaoCommentParse(object):
             'accept-language': 'zh-CN,zh;q=0.9',
             'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
             'accept': '*/*',
-            'referer': 'https://item.taobao.com/item.htm?id=555635098639',
+            'authority': 'rate.taobao.com',
+            # 'referer': 'https://item.taobao.com/item.htm?id=555635098639',
         }
 
     def _wash_sku_info(self, sku_info):
@@ -239,13 +243,13 @@ class TaoBaoCommentParse(object):
             ('auctionNumId', goods_id),
             # ('userNumId', '1681172037'),
             ('currentPageNum', str(current_page_num)),
-            ('pageSize', self.page_size),
+            ('pageSize', '20'),
             ('rateType', '1'),
             ('orderType', 'sort_weight'),
             ('attribute', ''),
             ('sku', ''),
             ('hasSku', 'false'),
-            ('folded', '1'),  # 把默认的0改成1能得到需求数据
+            ('folded', '0'),  # 把默认的0改成1能得到需求数据
             # ('ua', '098#E1hv1QvWvRGvUpCkvvvvvjiPPFMWAjEmRLdWlj1VPmPvtjEvnLsh1j1WR2cZgjnVRT6Cvvyv9VliFvmvngJjvpvhvUCvp2yCvvpvvhCv2QhvCPMMvvvCvpvVvUCvpvvvKphv8vvvpHwvvvmRvvCmDpvvvNyvvhxHvvmChvvvB8wvvUVhvvChiQvv9OoivpvUvvCCUqf1csREvpvVvpCmpaFZmphvLv84Rs+azCIajCiABq2XrqpAhjCbFO7t+3vXwyFEDLuTRLa9C7zhVTTJhLhL+87J+u0OakSGtEkfVCl1pY2ZV1OqrADn9Wma+fmtEp75vpvhvvCCBUhCvCiI712MPY147DSOSrGukn22SYHsp7uC6bSVksyCvvpvvhCv'),
             # ('_ksTS', '1523329154439_1358'),
             # ('callback', 'jsonp_tbcrate_reviews_list'),

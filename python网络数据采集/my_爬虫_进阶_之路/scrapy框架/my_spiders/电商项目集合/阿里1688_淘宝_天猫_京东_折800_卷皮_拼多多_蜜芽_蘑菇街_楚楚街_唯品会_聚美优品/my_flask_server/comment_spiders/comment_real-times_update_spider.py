@@ -53,8 +53,8 @@ class CommentRealTimeUpdateSpider(object):
         :return: dict
         '''
         return {
-            1: False,
-            2: False,
+            1: True,
+            2: True,
             3: True,
             4: True,
             6: True,
@@ -84,7 +84,11 @@ class CommentRealTimeUpdateSpider(object):
         while True:
             #### 实时更新数据
             self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
-            sql_str = r'select goods_id, SiteID as site_id from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b where a.GoodsID=b.goods_id order by b.id desc'
+            sql_str = '''
+            select goods_id, SiteID as site_id 
+            from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b 
+            where a.GoodsID=b.goods_id and a.MainGoodsID is not null and GETDATE()-b.modify_time > 2
+            order by b.id asc'''
             try:
                 result = list(self._comment_pipeline._select_table(sql_str=sql_str))
             except TypeError:
@@ -94,6 +98,7 @@ class CommentRealTimeUpdateSpider(object):
             self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
             self.my_lg.info(str(result))
             self.my_lg.info('--------------------------------------------------------')
+            self.my_lg.info('待更新个数: {0}'.format(len(result)))
 
             self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 

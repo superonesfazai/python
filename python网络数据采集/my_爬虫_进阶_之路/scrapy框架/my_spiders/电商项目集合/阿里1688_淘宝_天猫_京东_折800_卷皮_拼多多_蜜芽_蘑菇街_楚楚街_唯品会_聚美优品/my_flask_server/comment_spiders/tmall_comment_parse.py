@@ -176,6 +176,9 @@ class TmallCommentParse(object):
             else:
                 append_comment = {}
 
+            if _comment_content == '此用户没有填写评论!':
+                continue
+
             comment = [{
                 'comment': _comment_content,
                 'comment_date': _comment_date,

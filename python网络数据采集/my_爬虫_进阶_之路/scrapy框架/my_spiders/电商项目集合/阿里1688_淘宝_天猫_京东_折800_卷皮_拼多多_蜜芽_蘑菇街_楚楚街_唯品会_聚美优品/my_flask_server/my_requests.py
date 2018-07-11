@@ -57,10 +57,15 @@ class MyRequests(object):
             try:
                 response = s.request(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, proxies=tmp_proxies, timeout=timeout)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                 # print(response.url)
-                body = cls._wash_html(response.content.decode(encoding))
-
+                try:
+                    _ = response.content.decode(encoding)
+                except Exception:   # 报编码错误
+                    _ = response.text
+                body = cls._wash_html(_)
                 # print(body)
-            except Exception:
+
+            except Exception as e:
+                # print(e)
                 if num_retries > 1:
                     return cls.get_url_body(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, had_referer=had_referer, encoding=encoding, timeout=timeout, num_retries=num_retries-1)
                 else:

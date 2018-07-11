@@ -19,27 +19,33 @@ import requests
 headers = {
     'accept-encoding': 'gzip, deflate, br',
     'accept-language': 'zh-CN,zh;q=0.9',
-    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
-    'accept': 'application/json, text/plain, */*',
-    # 'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid=ze180424214500488079&dealId=39890410&tagId=',
-    # 'cookie': 'gr_user_id=84b21fed-0302-46e0-a01a-f8f3d4cb223e; session_id=439012875.1524042625; user_id=; utm_csr_first=direct; utm_csr=direct; utm_ccn=notset_c0; utm_cmd=; utm_ctr=; utm_cct=; utm_etr=tao.home; firstTime=2018-04-20; __utmz=148564220.1524192137.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); qd_user=96713570.1524192142912; frequency=1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0; lastTime=2018-04-28; unix_time=1524881786; ju_version=0; __utma=148564220.212449404.1524192137.1524208015.1524881786.3; __utmc=148564220; cart_mark=1%7C0%7C0%7Cnil%7C0; user_type=0; user_role=4; student=0; dialog_time=2; downloadGuide_config=%257B%25220direct%2522%253A%257B%2522open%2522%253A2%257D%252C%25221002direct%2522%253A%257B%2522open%2522%253A1%257D%257D; f_jk_r=https://m.zhe800.com/mz/list/wireless3982; source=; platform=; version=; channelId=; deviceId=; userId=; cType=; cId=; dealId=; f_jk=6628971525400935425TfActXWw; f_jk_t=1525400935426; f_jk_e_t=1527992935; jk=6628971525400935425TfActXWw; wris_session_id=1145460586.1525400937; visit=18',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
+    'accept': '*/*',
+    # 'referer': 'https://item.taobao.com/item.htm?id=555788234147',
+    'authority': 'rate.taobao.com',
+    # 'cookie': 't=1bdcbe0b678123e1755897be375b453f; cna=UOK9Ey4N1hYCAXHXtRx8QV37; thw=cn; enc=b5TkGZ7%2F21TQIJJszNV9Lh6NcqQo2HsiX8RUxdH1xWxdk1bDmUu4bwcp%2FdmRjjjgULSKAfJQPasgu2nWMNNlnw%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; cookie2=34038e4edfe48b5b4098bc3b078d5fb7; v=0; _tb_token_=e6ebd3be3e5ae; _m_h5_tk=95ce2ae2b7a1bd2a07e7a340701154e2_1531291260140; _m_h5_tk_enc=1f3e30a146f42c44ea2bb082f5c05d30; uc1=cookie14=UoTfKjY967l2dA%3D%3D; mt=ci%3D-1_0; isg=BMzMlnq5-1klje_VIiqTC5W_nSxSrR9PTMFGMiaNt3cxsW67ThTvPhFDVPks2qgH',
 }
 
 params = (
-    ('productId', 'ze180424214500488079'),
-    ('tagId', ''),
-    ('page', '1'),
-    ('perPage', '20'),
+    ('auctionNumId', '555788234147'),
+    # ('userNumId', '2503579154'),
+    ('currentPageNum', '1'),
+    ('pageSize', '20'),
+    ('rateType', '1'),
+    ('orderType', 'sort_weight'),
+    ('attribute', ''),
+    ('sku', ''),
+    ('hasSku', 'false'),
+    ('folded', '0'),
+    # ('ua', '098#E1hv0vvWvP6vUvCkvvvvvjiPPszW1jtjn2qWAj1VPmPp1jEhPFS9QjtPnLFvtj3WdphvHs9hl98YSpCWUGeARADWzw066XOqUZzh2QhvCvvvMMGEvpCWvCr8vvw/aNBraB4AVAdvaNLvHdBYLWFvQWp7RAYVyO2vqbVQWl4vgRFE+FIlBqevD70fderv+8c61CA4wxzXS47BhC3qVUcnDOmwjOyCvvOUvvVCayVivpvUvvmvW+DmPKRtvpvIvvvvk6CvvjpvvvjIphvUsQvv99CvpvAvvvvmGZCv2mpvvvb1phvWEvhCvvOvCvvvphvtvpvhvvvvv8wCvvpvvUmm3QhvCvvhvvmCvpv44HrxvPsw7Di4wX2N8IFpQqMBw6Hu9amq1I+tvpvhvvvvvv=='),
+    # ('_ksTS', '1531315988314_1250'),
+    # ('callback', 'jsonp_tbcrate_reviews_list'),
 )
 
-# response = requests.get(_url, headers=headers, params=params)
-# body = response.text
-
-_url = 'https://th5.m.zhe800.com/app/detail/comment/list'
-body = MyRequests.get_url_body(url=_url, headers=headers, params=params)
-print(body)
+response = requests.get('https://rate.taobao.com/feedRateList.htm', headers=headers, params=params)
+print(response.text)
 
 #NB. Original query string below. It seems impossible to parse and
 #reproduce query strings 100% accurately so the one below is given
 #in case the reproduced version is not "correct".
-# response = requests.get('https://th5.m.zhe800.com/app/detail/comment/list?productId=ze180424214500488079&tagId=&page=1&perPage=20', headers=headers)
+# response = requests.get('https://rate.taobao.com/feedRateList.htm?auctionNumId=555788234147&userNumId=2503579154&currentPageNum=1&pageSize=20&rateType=1&orderType=sort_weight&attribute=&sku=&hasSku=false&folded=0&ua=098%23E1hv0vvWvP6vUvCkvvvvvjiPPszW1jtjn2qWAj1VPmPp1jEhPFS9QjtPnLFvtj3WdphvHs9hl98YSpCWUGeARADWzw066XOqUZzh2QhvCvvvMMGEvpCWvCr8vvw%2FaNBraB4AVAdvaNLvHdBYLWFvQWp7RAYVyO2vqbVQWl4vgRFE%2BFIlBqevD70fderv%2B8c61CA4wxzXS47BhC3qVUcnDOmwjOyCvvOUvvVCayVivpvUvvmvW%2BDmPKRtvpvIvvvvk6CvvjpvvvjIphvUsQvv99CvpvAvvvvmGZCv2mpvvvb1phvWEvhCvvOvCvvvphvtvpvhvvvvv8wCvvpvvUmm3QhvCvvhvvmCvpv44HrxvPsw7Di4wX2N8IFpQqMBw6Hu9amq1I%2Btvpvhvvvvvv%3D%3D&_ksTS=1531315988314_1250&callback=jsonp_tbcrate_reviews_list', headers=headers)

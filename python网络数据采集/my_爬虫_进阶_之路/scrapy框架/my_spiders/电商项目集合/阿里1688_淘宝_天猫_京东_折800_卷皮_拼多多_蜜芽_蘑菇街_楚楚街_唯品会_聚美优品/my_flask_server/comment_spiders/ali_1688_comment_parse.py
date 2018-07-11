@@ -86,8 +86,13 @@ class ALi1688CommentParse(object):
                 comment_date = str(Selector(text=item).css('div.date span::text').extract_first())
                 comment_date = self._get_comment_date(comment_date)     # str '2017-01-25 17:06:00'
                 tmp_sku_info = str(Selector(text=item).css('div.date::text').extract_first())
+
+                _comment_content = self._wash_comment(str(Selector(text=item).css('div.bd::text').extract_first()))
+                if _comment_content == '此用户没有填写评价。':
+                    continue
+
                 comment = [{
-                    'comment': self._wash_comment(str(Selector(text=item).css('div.bd::text').extract_first())),
+                    'comment': _comment_content,
                     'comment_date': comment_date,                                               # 评论创建日期
                     'sku_info': re.compile(r'<span.*?</span>').sub('', tmp_sku_info),           # 购买的商品规格
                     'img_url_list': [],

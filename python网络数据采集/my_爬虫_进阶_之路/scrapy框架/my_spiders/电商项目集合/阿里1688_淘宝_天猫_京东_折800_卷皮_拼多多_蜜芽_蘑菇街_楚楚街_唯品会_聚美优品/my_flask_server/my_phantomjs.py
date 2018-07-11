@@ -138,15 +138,13 @@ class MyPhantomjs(object):
                     print('{0}已经加载完毕'.format(css_selector))
 
             if exec_code != '':     # 动态执行代码
-                self.driver.find_element_by_css_selector('li.order-search div.btn_order_search').click()
-
                 # 执行代码前先替换掉'  '
                 try:
                     _ = compile(exec_code.replace('  ', ''), '', 'exec')
                     exec(_)
                 except Exception as e:
                     # self.driver.save_screenshot('tmp_screen.png')
-                    print(e)
+                    # print(e)
                     print('动态执行代码时出错!')
                     return ''
                 # self.driver.save_screenshot('tmp_screen.png')

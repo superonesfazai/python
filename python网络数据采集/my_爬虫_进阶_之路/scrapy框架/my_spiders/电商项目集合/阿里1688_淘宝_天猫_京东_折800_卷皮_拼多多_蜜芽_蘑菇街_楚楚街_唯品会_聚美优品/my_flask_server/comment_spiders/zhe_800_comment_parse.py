@@ -181,6 +181,9 @@ class Zhe800CommentParse(object):
             # 评论星级
             star_level = int(item.get('levelStar', 5))
 
+            if _comment_content == '此用户没有填写评价。':
+                continue
+
             comment = [{
                 'comment': _comment_content,
                 'comment_date': comment_date,
