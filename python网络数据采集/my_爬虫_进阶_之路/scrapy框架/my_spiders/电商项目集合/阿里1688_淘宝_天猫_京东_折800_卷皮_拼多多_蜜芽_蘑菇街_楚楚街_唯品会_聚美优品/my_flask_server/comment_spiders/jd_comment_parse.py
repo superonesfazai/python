@@ -13,7 +13,11 @@ sys.path.append('..')
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_logging import set_logger
-from my_utils import get_shanghai_time, string_to_datetime
+from my_utils import (
+    get_shanghai_time,
+    string_to_datetime,
+    filter_invalid_comment_content,
+)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -120,6 +124,9 @@ class JdCommentParse(object):
 
             # star_level
             star_level = int(item.get('commentScore', '5'))
+
+            if not filter_invalid_comment_content(_comment_content):
+                continue
 
             comment = [{
                 'comment': _comment_content,

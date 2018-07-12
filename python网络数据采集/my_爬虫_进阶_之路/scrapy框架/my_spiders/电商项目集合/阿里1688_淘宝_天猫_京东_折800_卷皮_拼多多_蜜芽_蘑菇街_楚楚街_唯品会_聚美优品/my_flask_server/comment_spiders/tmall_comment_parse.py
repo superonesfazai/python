@@ -15,7 +15,12 @@ from tmall_parse_2 import TmallParse
 from taobao_parse import TaoBaoLoginAndParse
 from my_phantomjs import MyPhantomjs
 from my_logging import set_logger
-from my_utils import get_shanghai_time, string_to_datetime, _get_url_contain_params
+from my_utils import (
+    get_shanghai_time,
+    string_to_datetime,
+    _get_url_contain_params,
+    filter_invalid_comment_content,
+)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -176,7 +181,7 @@ class TmallCommentParse(object):
             else:
                 append_comment = {}
 
-            if _comment_content == '此用户没有填写评论!':
+            if not filter_invalid_comment_content(_comment_content):
                 continue
 
             comment = [{

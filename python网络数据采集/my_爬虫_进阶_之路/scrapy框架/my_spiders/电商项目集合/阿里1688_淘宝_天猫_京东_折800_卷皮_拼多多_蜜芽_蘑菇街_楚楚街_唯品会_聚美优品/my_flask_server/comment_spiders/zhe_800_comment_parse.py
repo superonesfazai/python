@@ -12,7 +12,11 @@ sys.path.append('..')
 
 from my_requests import MyRequests
 from my_logging import set_logger
-from my_utils import get_shanghai_time, string_to_datetime
+from my_utils import (
+    get_shanghai_time,
+    string_to_datetime,
+    filter_invalid_comment_content,
+)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -181,7 +185,7 @@ class Zhe800CommentParse(object):
             # 评论星级
             star_level = int(item.get('levelStar', 5))
 
-            if _comment_content == '此用户没有填写评价。':
+            if not filter_invalid_comment_content(_comment_content):
                 continue
 
             comment = [{

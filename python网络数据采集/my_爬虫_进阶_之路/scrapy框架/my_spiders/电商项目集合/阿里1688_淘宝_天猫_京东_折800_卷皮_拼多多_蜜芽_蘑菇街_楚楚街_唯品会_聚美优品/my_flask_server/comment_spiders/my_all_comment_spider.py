@@ -192,10 +192,12 @@ class MyAllCommentSpider(object):
             taobao = TaoBaoCommentParse(logger=self.my_lg)
             _r = taobao._get_comment_data(goods_id=str(goods_id))
 
-            if _r != {}:
+            if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
                     self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
-
+            else:
+                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                
             try: del taobao
             except: self.my_lg.info('del taobao失败!')
             gc.collect()
@@ -222,10 +224,11 @@ class MyAllCommentSpider(object):
                 self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
 
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
-            if _r != {}:
+            if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
                     self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
-
+            else:
+                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
         else:
             pass
 
@@ -258,10 +261,12 @@ class MyAllCommentSpider(object):
                 self.tmall = TmallCommentParse(logger=self.my_lg)
 
             _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
-            if _r != {}:
+            if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
                     self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
-
+            else:
+                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                
         else:
             pass
 
@@ -285,11 +290,13 @@ class MyAllCommentSpider(object):
                 self.jd = JdCommentParse(logger=self.my_lg)
 
             _r = self.jd._get_comment_data(goods_id=str(goods_id))
-            if _r != {}:
+            if _r.get('_comment_list', []) != []:
                 # self.my_lg.info('获取评论success!')
                 if self._comment_pipeline.is_connect_success:
                     self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
-
+            else:
+                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                
         else:
             pass
 
@@ -308,13 +315,15 @@ class MyAllCommentSpider(object):
             _r = zhe_800._get_comment_data(goods_id=str(goods_id))
             # pprint(_r)
 
-            if _r != {}:
+            if _r.get('_comment_list', []) != []:
                 # self.my_lg.info('获取评论success!')
                 if self._comment_pipeline.is_connect_success:
                     self._comment_pipeline._insert_into_table(
                         sql_str=self.sql_str,
                         params=self._get_db_insert_params(item=_r)
                     )
+            else:
+                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
 
             try: del zhe_800
             except: self.my_lg.info('del zhe_800失败!')

@@ -48,6 +48,7 @@ __all__ = [
     'set_delete_time_from_orginal_time',                    # 公司返回原先商品状态变换被记录下的时间点
     'get_my_shelf_and_down_time_and_delete_time',           # 公司得到my_shelf_and_down_time和delete_time
     'get_miaosha_begin_time_and_miaosha_end_time',          # 公司返回秒杀开始和结束时间
+    'filter_invalid_comment_content',                       # 公司过滤无效comment
 
     # 淘宝签名相关
     'calculate_right_sign',                                 # 获取淘宝sign
@@ -509,3 +510,24 @@ def get_str_from_command(cmd):
     import subprocess
 
     return subprocess.getstatusoutput(cmd)[1]
+
+def filter_invalid_comment_content(_comment_content):
+    '''
+    过滤无效评论(复用code)
+    :param _comment_content:
+    :return: bool
+    '''
+    import re
+
+    filter_str = '''
+    此用户没有填写|评价方未及时做出评价|系统默认好评!|
+    假的|坏的|差的|差评|退货|不想要|无良商家|再也不买|
+    我也是服了|垃圾|破东西|打电话骂人|骚扰|狗屁东西|
+    sb|SB|MB|mb|质量太差
+    '''.replace(' ', '').replace('\n', '')
+    if re.compile(filter_str).findall(_comment_content) != []\
+            or _comment_content.__len__() <= 3:
+        return False
+    else:
+        return True
+

@@ -12,7 +12,11 @@ sys.path.append('..')
 
 from my_requests import MyRequests
 from my_logging import set_logger
-from my_utils import get_shanghai_time, string_to_datetime
+from my_utils import (
+    get_shanghai_time,
+    string_to_datetime,
+    filter_invalid_comment_content,
+)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -124,7 +128,7 @@ class TaoBaoCommentParse(object):
             img_url_list = item.get('photos', [])
             img_url_list = [{
                 'img_url': 'https:' + _i.get('url', '')
-            } for _i in img_url_list]
+            } for _i in img_url_list if _i.get('url', '') != '']
 
             _comment_content = item.get('content', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
@@ -155,7 +159,7 @@ class TaoBaoCommentParse(object):
             else:
                 head_img = ''
 
-            if _comment_content == '评价方未及时做出评价,系统默认好评!':
+            if not filter_invalid_comment_content(_comment_content):
                 continue
 
             comment = [{

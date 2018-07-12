@@ -13,7 +13,11 @@ sys.path.append('..')
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_logging import set_logger
-from my_utils import get_shanghai_time, string_to_datetime
+from my_utils import (
+    get_shanghai_time,
+    string_to_datetime,
+    filter_invalid_comment_content,
+)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -46,7 +50,7 @@ class ALi1688CommentParse(object):
         sleep(2.5)
         # 向下滚动10000像素
         js = 'document.body.scrollTop=10000'
-        self.driver.execute_script(js)
+        self.driver.execute_script(js)  # 每划一次，就刷6条
         sleep(4)
         '''
         self._page_sleep_time = 1.2
@@ -88,7 +92,7 @@ class ALi1688CommentParse(object):
                 tmp_sku_info = str(Selector(text=item).css('div.date::text').extract_first())
 
                 _comment_content = self._wash_comment(str(Selector(text=item).css('div.bd::text').extract_first()))
-                if _comment_content == '此用户没有填写评价。':
+                if not filter_invalid_comment_content(_comment_content):
                     continue
 
                 comment = [{

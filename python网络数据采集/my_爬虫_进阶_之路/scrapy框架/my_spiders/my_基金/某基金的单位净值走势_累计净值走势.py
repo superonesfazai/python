@@ -209,7 +209,7 @@ class BaseFund(object):
 
         print('\n抓取完毕!\n')
 
-        # pprint(self.rank_fund_list)
+        # pprint(rank_fund_list)
 
         return rank_fund_list
 
@@ -492,4 +492,8 @@ if __name__ == '__main__':
     _ = BaseFund()
     # fund_code = '001092'
     # _._get_one_fund_info(fund_code=fund_code)
-    _._deal_with_rank_fund_info()
+    # _._deal_with_rank_fund_info()
+
+    rank_data = _._get_rank_fund_info()
+    rank_data = [item for item in rank_data if float(item.get('成立来')) > 10.]
+    pprint(rank_data)

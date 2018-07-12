@@ -286,7 +286,7 @@ class TaoBaoLoginAndParse(object):
                     # pprint(detail_value_list)
 
             is_delete = self._get_is_delete(title=title, data=data)
-            # self.my_lg.info('is_delete = %s' % str(is_delete))
+            self.my_lg.info('is_delete = %s' % str(is_delete))
 
             # 月销量
             try:
