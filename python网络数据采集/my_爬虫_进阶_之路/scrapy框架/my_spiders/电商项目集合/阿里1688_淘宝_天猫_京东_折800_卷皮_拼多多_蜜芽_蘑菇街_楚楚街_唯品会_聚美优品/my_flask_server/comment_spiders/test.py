@@ -14,38 +14,116 @@ from my_requests import MyRequests
 from my_phantomjs import MyPhantomjs
 from my_utils import _get_url_contain_params
 
-import requests
+def _init_chrome(is_headless=True, is_pic=True, is_proxy=True):
+    '''
+    如果使用chrome请设置page_timeout=30
+    :return:
+    '''
+    from selenium.webdriver.support import ui
+    from selenium import webdriver
 
-headers = {
-    'accept-encoding': 'gzip, deflate, br',
-    'accept-language': 'zh-CN,zh;q=0.9',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
-    'accept': '*/*',
-    # 'referer': 'https://item.taobao.com/item.htm?id=555788234147',
-    'authority': 'rate.taobao.com',
-    # 'cookie': 't=1bdcbe0b678123e1755897be375b453f; cna=UOK9Ey4N1hYCAXHXtRx8QV37; thw=cn; enc=b5TkGZ7%2F21TQIJJszNV9Lh6NcqQo2HsiX8RUxdH1xWxdk1bDmUu4bwcp%2FdmRjjjgULSKAfJQPasgu2nWMNNlnw%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; cookie2=34038e4edfe48b5b4098bc3b078d5fb7; v=0; _tb_token_=e6ebd3be3e5ae; _m_h5_tk=95ce2ae2b7a1bd2a07e7a340701154e2_1531291260140; _m_h5_tk_enc=1f3e30a146f42c44ea2bb082f5c05d30; uc1=cookie14=UoTfKjY967l2dA%3D%3D; mt=ci%3D-1_0; isg=BMzMlnq5-1klje_VIiqTC5W_nSxSrR9PTMFGMiaNt3cxsW67ThTvPhFDVPks2qgH',
-}
+    CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
+    print('--->>>初始化chrome驱动中<<<---')
+    chrome_options = webdriver.ChromeOptions()
+    if is_headless:
+        chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
+    # 谷歌文档提到需要加上这个属性来规避bug
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
 
-params = (
-    ('auctionNumId', '555788234147'),
-    # ('userNumId', '2503579154'),
-    ('currentPageNum', '1'),
-    ('pageSize', '20'),
-    ('rateType', '1'),
-    ('orderType', 'sort_weight'),
-    ('attribute', ''),
-    ('sku', ''),
-    ('hasSku', 'false'),
-    ('folded', '0'),
-    # ('ua', '098#E1hv0vvWvP6vUvCkvvvvvjiPPszW1jtjn2qWAj1VPmPp1jEhPFS9QjtPnLFvtj3WdphvHs9hl98YSpCWUGeARADWzw066XOqUZzh2QhvCvvvMMGEvpCWvCr8vvw/aNBraB4AVAdvaNLvHdBYLWFvQWp7RAYVyO2vqbVQWl4vgRFE+FIlBqevD70fderv+8c61CA4wxzXS47BhC3qVUcnDOmwjOyCvvOUvvVCayVivpvUvvmvW+DmPKRtvpvIvvvvk6CvvjpvvvjIphvUsQvv99CvpvAvvvvmGZCv2mpvvvb1phvWEvhCvvOvCvvvphvtvpvhvvvvv8wCvvpvvUmm3QhvCvvhvvmCvpv44HrxvPsw7Di4wX2N8IFpQqMBw6Hu9amq1I+tvpvhvvvvvv=='),
-    # ('_ksTS', '1531315988314_1250'),
-    # ('callback', 'jsonp_tbcrate_reviews_list'),
-)
+    # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
 
-response = requests.get('https://rate.taobao.com/feedRateList.htm', headers=headers, params=params)
-print(response.text)
+    # 设置无图模式
+    if is_pic:
+        prefs = {
+            'profile.managed_default_content_settings.images': 2,
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
 
-#NB. Original query string below. It seems impossible to parse and
-#reproduce query strings 100% accurately so the one below is given
-#in case the reproduced version is not "correct".
-# response = requests.get('https://rate.taobao.com/feedRateList.htm?auctionNumId=555788234147&userNumId=2503579154&currentPageNum=1&pageSize=20&rateType=1&orderType=sort_weight&attribute=&sku=&hasSku=false&folded=0&ua=098%23E1hv0vvWvP6vUvCkvvvvvjiPPszW1jtjn2qWAj1VPmPp1jEhPFS9QjtPnLFvtj3WdphvHs9hl98YSpCWUGeARADWzw066XOqUZzh2QhvCvvvMMGEvpCWvCr8vvw%2FaNBraB4AVAdvaNLvHdBYLWFvQWp7RAYVyO2vqbVQWl4vgRFE%2BFIlBqevD70fderv%2B8c61CA4wxzXS47BhC3qVUcnDOmwjOyCvvOUvvVCayVivpvUvvmvW%2BDmPKRtvpvIvvvvk6CvvjpvvvjIphvUsQvv99CvpvAvvvvmGZCv2mpvvvb1phvWEvhCvvOvCvvvphvtvpvhvvvvv8wCvvpvvUmm3QhvCvvhvvmCvpv44HrxvPsw7Di4wX2N8IFpQqMBw6Hu9amq1I%2Btvpvhvvvvvv%3D%3D&_ksTS=1531315988314_1250&callback=jsonp_tbcrate_reviews_list', headers=headers)
+    # 设置代理
+    if is_proxy:
+        ip_object = MyIpPools()
+        proxy_ip = ip_object._get_random_proxy_ip().replace('http://', '') if isinstance(ip_object._get_random_proxy_ip(), str) else ''
+        if proxy_ip != '':
+            chrome_options.add_argument('--proxy-server={0}'.format(proxy_ip))
+
+    '''无法打开https解决方案'''
+    # 配置忽略ssl错误
+    capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+    capabilities['acceptSslCerts'] = True
+    capabilities['acceptInsecureCerts'] = True
+
+    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
+    # 修改user-agent
+    chrome_options.add_argument('--user-agent={0}'.format(user_agent))
+
+    # 忽视证书错误
+    chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])
+
+    driver = webdriver.Chrome(
+        executable_path=CHROME_DRIVER_PATH,
+        chrome_options=chrome_options,
+        desired_capabilities=capabilities
+    )
+    wait = ui.WebDriverWait(driver, 30)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+    print('------->>>初始化完毕<<<-------')
+
+    return driver
+
+from time import sleep
+
+class test():
+    def __init__(self, goods_id):
+        self.driver = _init_chrome(is_headless=False, is_pic=False, is_proxy=False)
+        self.goods_id = goods_id
+
+    def run(self):
+        try:
+            self.driver.set_page_load_timeout(20)  # 设置成10秒避免数据出错
+        except:
+            try: self.driver.set_page_load_timeout(20)
+            except: return ''
+        self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+
+        tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(self.goods_id)
+        self.driver.get(tmp_url)
+
+        try:
+            from selenium.webdriver.common.keys import Keys
+            from selenium.common.exceptions import NoSuchElementException   # 没有找到元素的异常
+
+            # self.driver.find_element_by_css_selector('div.tab-item:nth-child(2)').click()
+            try:
+                _ = self.driver.find_element_by_css_selector('div.tab-item:nth-child(2)')
+                print(_.is_displayed())
+                _.send_keys(Keys.ENTER)
+            except NoSuchElementException as e:
+                print(e)
+                return None
+
+            _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
+            print(_text)
+            # if _text == '四五星(0)':
+            assert _text != '四五星(0)', 'my assert error!'  # 通过断言来跳过执行下面的代码
+            sleep(3)
+            # 向下滚动10000像素
+            js = 'document.body.scrollTop=10000'
+            self.driver.execute_script(js)  # 每划一次，就刷6条
+            sleep(4)
+        except Exception as e:
+            print(e)
+        self.driver.save_screenshot('tmp_screen.png')
+
+    def __del__(self):
+        try:
+            self.driver.quit()
+        except:
+            pass
+
+
+goods_id = '1285007747'
+_ = test(goods_id)
+_.run()
+
+sleep(60)
+del _

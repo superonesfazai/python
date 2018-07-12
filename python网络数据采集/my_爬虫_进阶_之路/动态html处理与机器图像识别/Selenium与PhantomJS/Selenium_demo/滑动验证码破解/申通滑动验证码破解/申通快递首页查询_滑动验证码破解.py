@@ -14,6 +14,7 @@ from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 from time import sleep
 from my_ip_pools import MyIpPools
@@ -31,6 +32,7 @@ def _init_chrome(is_headless=True, is_pic=True, is_proxy=True):
     :return:
     '''
     from selenium.webdriver.support import ui
+    from selenium import webdriver
 
     CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
     print('--->>>初始化chrome驱动中<<<---')
@@ -283,7 +285,9 @@ class BaseGeetestCrack(object):
             search_el = None
             print('请选择按什么进行筛选元素!')
 
-        search_el.click()
+        # search_el.click()
+        search_el.send_keys(Keys.ENTER)
+
         sleep(3)
 
     def calculate_slider_offset(self):

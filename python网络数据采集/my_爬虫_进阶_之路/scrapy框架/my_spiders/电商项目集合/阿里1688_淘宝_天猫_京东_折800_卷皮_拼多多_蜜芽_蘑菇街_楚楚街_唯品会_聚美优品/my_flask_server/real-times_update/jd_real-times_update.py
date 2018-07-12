@@ -16,7 +16,7 @@ from my_utils import (
     get_shanghai_time,
     daemon_init,
     _get_price_change_info,
-    get_my_shelf_and_down_time_and_delete_time,
+    get_shelf_time_and_delete_time,
 )
 
 import gc
@@ -27,10 +27,11 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        # and GETDATE()-ModfiyTime>1 and IsDelete=0
         sql_str = '''
-        select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
-        where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and GETDATE()-ModfiyTime>1 and IsDelete=0 and MainGoodsID is not null
+        where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and MainGoodsID is not null
         '''
 
         try:
@@ -85,17 +86,18 @@ def run_forever():
                 if data != {}:
                     data['goods_id'] = item[1]
 
-                    data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                    data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                         tmp_data=data,
                         is_delete=item[2],
-                        MyShelfAndDownTime=item[3]
-                    )
+                        shelf_time=item[5],
+                        delete_time=item[6])
+                    print('上架时间:', data['shelf_time'], '下架时间:', data['delete_time'])
+
                     data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                        old_price=item[4],
-                        old_taobao_price=item[5],
+                        old_price=item[3],
+                        old_taobao_price=item[4],
                         new_price=data['price'],
-                        new_taobao_price=data['taobao_price']
-                    )
+                        new_taobao_price=data['taobao_price'])
 
                     # print('------>>>| 爬取到的数据为: ', data)
                     jd.to_right_and_update_data(data, pipeline=tmp_sql_server)

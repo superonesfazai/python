@@ -23,7 +23,7 @@ from my_utils import (
     get_shanghai_time,
     daemon_init,
     restart_program,
-    get_my_shelf_and_down_time_and_delete_time,
+    get_shelf_time_and_delete_time,
     _get_price_change_info,
 )
 from my_logging import set_logger
@@ -48,7 +48,7 @@ def run_forever():
         )
 
         sql_str = '''
-        select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
         from dbo.GoodsInfoAutoGet 
         where SiteID=1 and MainGoodsID is not null'''
 
@@ -84,10 +84,11 @@ def run_forever():
 
                     if data.get('is_delete') == 1:        # 单独处理【原先插入】就是 下架状态的商品
                         data['goods_id'] = item[0]
-                        data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[1],
-                            MyShelfAndDownTime=item[2]
+                            shelf_time=item[4],
+                            delete_time=item[5]
                         )
 
                         # my_lg.info('------>>>| 爬取到的数据为: ' + str(data))
@@ -101,14 +102,15 @@ def run_forever():
                     data = taobao.deal_with_data(goods_id=item[0])
                     if data != {}:
                         data['goods_id'] = item[0]
-                        data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[1],
-                            MyShelfAndDownTime=item[2]
+                            shelf_time=item[4],
+                            delete_time=item[5]
                         )
                         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[3],
-                            old_taobao_price=item[4],
+                            old_price=item[2],
+                            old_taobao_price=item[3],
                             new_price=data['price'],
                             new_taobao_price=data['taobao_price']
                         )

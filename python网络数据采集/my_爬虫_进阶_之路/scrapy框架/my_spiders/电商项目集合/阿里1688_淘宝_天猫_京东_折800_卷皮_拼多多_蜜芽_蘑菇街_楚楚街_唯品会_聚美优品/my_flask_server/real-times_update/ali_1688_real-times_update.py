@@ -15,7 +15,7 @@ from my_utils import (
     get_shanghai_time,
     daemon_init,
     _get_price_change_info,
-    get_my_shelf_and_down_time_and_delete_time,
+    get_shelf_time_and_delete_time,
 )
 
 import gc
@@ -26,10 +26,11 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        # and GETDATE()-ModfiyTime>1
         sql_str = '''
-        select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
-        where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>1
+        where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>0.2
         '''
 
         try:
@@ -73,11 +74,13 @@ def run_forever():
                     if data.get('is_delete') == 1:        # 单独处理【原先插入】就是 下架状态的商品
                         data['goods_id'] = item[0]
 
-                        data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[1],
-                            MyShelfAndDownTime=item[2]
+                            shelf_time=item[4],
+                            delete_time=item[5]
                         )
+                        print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
 
                         # print('------>>>| 爬取到的数据为: ', data)
                         ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
@@ -90,18 +93,20 @@ def run_forever():
                     data = ali_1688.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[0]
-                        data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[1],
-                            MyShelfAndDownTime=item[2]
+                            shelf_time=item[4],
+                            delete_time=item[5]
                         )
+                        print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
 
                         '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
                         # 业务逻辑
                         #   公司后台 modify_time > 转换时间，is_price_change=1, 然后对比pricechange里面的数据，要是一样就不提示平台员工改价格
                         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[3],
-                            old_taobao_price=item[4],
+                            old_price=item[2],
+                            old_taobao_price=item[3],
                             new_price=data['price'],
                             new_taobao_price=data['taobao_price']
                         )

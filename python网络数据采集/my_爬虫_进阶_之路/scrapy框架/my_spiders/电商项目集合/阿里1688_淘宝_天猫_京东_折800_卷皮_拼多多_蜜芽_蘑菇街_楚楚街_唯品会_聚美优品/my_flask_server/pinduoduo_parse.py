@@ -315,8 +315,8 @@ class PinduoduoParse(object):
         tmp['schedule'] = data_list.get('schedule')
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
-        tmp['delete_time'] = data_list.get('delete_time')
+        tmp['shelf_time'] = data_list.get('shelf_time', '')
+        tmp['delete_time'] = data_list.get('delete_time', '')
         tmp['all_sell_count'] = str(data_list.get('all_sell_count'))
 
         tmp['is_price_change'] = data_list.get('_is_price_change')
@@ -326,7 +326,12 @@ class PinduoduoParse(object):
         # 改价格的sql语句
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
-        sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        if tmp['delete_time'] == '':
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s where GoodsID = %s'
+        elif tmp['shelf_time'] == '':
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, delete_time=%s where GoodsID = %s'
+        else:
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s, delete_time=%s where GoodsID = %s'
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
@@ -421,7 +426,7 @@ class PinduoduoParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = r'update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
+        sql_str = 'update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
         pipeline._update_table(sql_str=sql_str, params=params)
 
     def _get_db_update_params(self, item):
@@ -430,7 +435,7 @@ class PinduoduoParse(object):
         :param item:
         :return:
         '''
-        params = (
+        params = [
             item['modify_time'],
             item['shop_name'],
             item['account'],
@@ -446,17 +451,23 @@ class PinduoduoParse(object):
             dumps(item['p_info'], ensure_ascii=False),
             item['div_desc'],
             item['all_sell_count'],
-            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-            item['delete_time'],
+            # item['delete_time'],
             item['is_delete'],
             dumps(item['schedule'], ensure_ascii=False),
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
 
             item['goods_id'],
-        )
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
 
-        return params
+        return tuple(params)
 
     def _get_db_insert_miaosha_params(self, item):
         params = (

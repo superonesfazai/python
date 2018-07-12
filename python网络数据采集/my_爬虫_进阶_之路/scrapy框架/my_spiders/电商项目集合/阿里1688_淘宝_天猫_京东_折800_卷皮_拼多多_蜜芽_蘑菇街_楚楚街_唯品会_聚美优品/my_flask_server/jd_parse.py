@@ -685,8 +685,8 @@ class JdParse(object):
 
         tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
 
-        tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
-        tmp['delete_time'] = data_list.get('delete_time')
+        tmp['shelf_time'] = data_list.get('shelf_time', '')
+        tmp['delete_time'] = data_list.get('delete_time', '')
 
         tmp['is_price_change'] = data_list.get('_is_price_change')
         tmp['price_change_info'] = data_list.get('_price_change_info')
@@ -695,7 +695,12 @@ class JdParse(object):
         # 改价格的sql语句
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
-        sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        if tmp['delete_time'] == '':
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s where GoodsID = %s'
+        elif tmp['shelf_time'] == '':
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, delete_time=%s where GoodsID = %s'
+        else:
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s, delete_time=%s where GoodsID = %s'
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
@@ -854,7 +859,7 @@ class JdParse(object):
         :param item:
         :return:
         '''
-        params = (
+        params = [
             item['modify_time'],
             item['shop_name'],
             item['account'],
@@ -870,16 +875,22 @@ class JdParse(object):
             dumps(item['p_info'], ensure_ascii=False),
             item['div_desc'],
             item['all_sell_count'],
-            dumps(item['my_shelf_and_down_time'], ensure_ascii=False),
-            item['delete_time'],
+            # item['delete_time'],
             item['is_delete'],
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
 
             item['goods_id'],
-        )
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
 
-        return params
+        return tuple(params)
 
     def _wash_url_body(self, body):
         '''

@@ -12,7 +12,11 @@ sys.path.append('..')
 
 from vip_parse import VipParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init, get_my_shelf_and_down_time_and_delete_time, _get_price_change_info
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+    get_shelf_time_and_delete_time,
+    _get_price_change_info,)
 
 import gc
 from time import sleep
@@ -24,7 +28,10 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=25'
+        sql_str = '''
+        select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
+        from dbo.GoodsInfoAutoGet 
+        where SiteID=25'''
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
@@ -57,15 +64,14 @@ def run_forever():
                 if data != {}:
                     data['goods_id'] = item[0]
 
-                    data['my_shelf_and_down_time'], data[
-                        'delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                    data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                         tmp_data=data,
                         is_delete=item[1],
-                        MyShelfAndDownTime=item[2]
-                    )
+                        shelf_time=item[4],
+                        delete_time=item[5])
                     data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                        old_price=item[3],
-                        old_taobao_price=item[4],
+                        old_price=item[2],
+                        old_taobao_price=item[3],
                         new_price=data['price'],
                         new_taobao_price=data['taobao_price']
                     )

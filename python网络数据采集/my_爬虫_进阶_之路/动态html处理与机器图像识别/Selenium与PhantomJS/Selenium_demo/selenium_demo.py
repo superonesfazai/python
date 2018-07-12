@@ -34,7 +34,12 @@ driver.save_screenshot('baidu.png')
 driver.find_element_by_id('kw').send_keys('长城')
 
 # id="su"是百度搜素按钮, click()是模拟点击
-driver.find_element_by_id('su').click()
+# TODO 注意：定位准确，但是当.click()失效时，推荐使用.send_keys(Keys.ENTER)
+# driver.find_element_by_id('su').click()
+
+from selenium.webdriver.common.keys import Keys
+driver.find_element_by_id('su').send_keys(Keys.ENTER)
+
 
 # 获取新的页面快照
 driver.save_screenshot('长城.png')

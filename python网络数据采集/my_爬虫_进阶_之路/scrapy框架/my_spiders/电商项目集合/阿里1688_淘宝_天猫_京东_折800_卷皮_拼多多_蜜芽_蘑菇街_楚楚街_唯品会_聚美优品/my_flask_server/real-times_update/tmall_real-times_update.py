@@ -13,7 +13,11 @@ sys.path.append('..')
 # from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init, get_my_shelf_and_down_time_and_delete_time, _get_price_change_info
+from my_utils import (
+    get_shanghai_time,
+    daemon_init,
+    get_shelf_time_and_delete_time,
+    _get_price_change_info,)
 from my_logging import set_logger
 
 import gc
@@ -33,10 +37,11 @@ def run_forever():
 
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        #  and GETDATE()-ModfiyTime>0.2
         sql_str = '''
-        select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice 
+        select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
-        where (SiteID=3 or SiteID=4 or SiteID=6) and GETDATE()-ModfiyTime>0.2 and MainGoodsID is not null order by ID desc
+        where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null order by ID asc
         '''
 
         try:
@@ -87,11 +92,11 @@ def run_forever():
                     if data.get('is_delete') == 1:  # 单独处理下架商品
                         data['goods_id'] = item[1]
 
-                        data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[2],
-                            MyShelfAndDownTime=item[3]
-                        )
+                            shelf_time=item[5],
+                            delete_time=item[6])
 
                         # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
@@ -104,15 +109,14 @@ def run_forever():
                     data = tmall.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[1]
-
-                        data['my_shelf_and_down_time'], data['delete_time'] = get_my_shelf_and_down_time_and_delete_time(
+                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[2],
-                            MyShelfAndDownTime=item[3]
-                        )
+                            shelf_time=item[5],
+                            delete_time=item[6])
                         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[4],
-                            old_taobao_price=item[5],
+                            old_price=item[3],
+                            old_taobao_price=item[4],
                             new_price=data['price'],
                             new_taobao_price=data['taobao_price']
                         )

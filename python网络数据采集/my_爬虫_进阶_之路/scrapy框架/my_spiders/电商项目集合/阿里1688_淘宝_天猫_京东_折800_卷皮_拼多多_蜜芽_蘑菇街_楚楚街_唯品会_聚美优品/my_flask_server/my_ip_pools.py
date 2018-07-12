@@ -25,7 +25,11 @@ class MyIpPools(object):
         :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
         '''
         base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
+        try:
+            result = requests.get(base_url).json()
+        except Exception as e:
+            print(e)
+            return {'http': None}
 
         result_ip_list = {}
         result_ip_list['http'] = []
@@ -47,7 +51,10 @@ class MyIpPools(object):
         '''
         ip_list = self.get_proxy_ip_from_ip_pool().get('http')
         try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]  # 随机一个代理ip
+            if isinstance(ip_list, list):
+                proxy_ip = ip_list[randint(0, len(ip_list) - 1)]  # 随机一个代理ip
+            else:
+                raise TypeError
         except Exception:
             print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
             proxy_ip = False
