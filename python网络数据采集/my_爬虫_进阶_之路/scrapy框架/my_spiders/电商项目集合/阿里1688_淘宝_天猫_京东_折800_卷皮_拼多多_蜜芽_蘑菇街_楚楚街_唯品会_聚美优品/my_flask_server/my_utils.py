@@ -239,42 +239,51 @@ def get_shelf_time_and_delete_time(tmp_data, is_delete, shelf_time, delete_time)
     _ = str(get_shanghai_time())
 
     # 设置最后刷新的商品状态上下架时间
-    # 1.is_delete由0->1 为下架时间down_time
-    # 2. is_delete由1->0 为上架时间shelf_time
+    # 1. is_delete由0->1 为下架时间点 delete_time
+    # 2. is_delete由1->0 为上架时间点 shelf_time
     if tmp_data['is_delete'] != is_delete:  # 表示状态改变
-        if tmp_data['is_delete'] == 0 and is_delete == 1:
-            # is_delete由0->1 表示商品状态上架变为下架
-            shelf_time = tmp_shelf_time
-            delete_time = _
-        else:
-            # is_delete由1->0 表示商品状态下架变为上架
+        if is_delete == 1 and tmp_data['is_delete'] == 0:
+            # is_delete由1->0 表示商品状态下架变为上架，记录上架时间点
             shelf_time = _
             delete_time = tmp_down_time
+        else:
+            # is_delete由0->1 表示商品状态上架变为下架，记录下架时间点
+            shelf_time = tmp_shelf_time
+            delete_time = _
 
     else:  # 表示状态不变
-        print('商品状态不变!')
-        if tmp_shelf_time == '' and tmp_down_time == '':
-            if tmp_data['is_delete'] == 0:  # 上架的状态
-                shelf_time = _
-                delete_time = tmp_down_time
-            else:  # 下架的状态
-                shelf_time = tmp_shelf_time
-                delete_time = _
-        else:
-            # 否则保存原始值不变
-            if tmp_data['is_delete'] == 0:  # 上架状态
-                if  tmp_shelf_time == '':
-                    shelf_time = _
-                else:                   # 不为空则保持shelf_time不变
-                    shelf_time = tmp_shelf_time
-                delete_time = tmp_shelf_time
-
-            else:                           # 下架状态
+        # print('商品状态不变!')
+        if tmp_data['is_delete'] == 0:  # 原先还是上架状态的
+            if tmp_shelf_time == '':
                 if tmp_down_time == '':
-                    delete_time = _
-                else:                   # 不为空则保持delete_time不变
+                    shelf_time = _
+                    delete_time = ''
+                else:
+                   shelf_time = _
+                   delete_time = tmp_down_time
+            else:
+                if tmp_down_time == '':
+                    shelf_time = tmp_shelf_time
+                    delete_time = ''
+                else:
+                    shelf_time = tmp_shelf_time
                     delete_time = tmp_down_time
-                shelf_time = tmp_shelf_time
+
+        else:                           # 原先还是下架状态的
+            if tmp_shelf_time == '':
+                if tmp_down_time == '':
+                    shelf_time = ''
+                    delete_time = _
+                else:
+                    shelf_time = ''
+                    delete_time = tmp_down_time
+            else:
+                if tmp_down_time == '':
+                    shelf_time = tmp_shelf_time
+                    delete_time = _
+                else:
+                    shelf_time = tmp_shelf_time
+                    delete_time = tmp_down_time
 
     return (shelf_time, delete_time)
 
