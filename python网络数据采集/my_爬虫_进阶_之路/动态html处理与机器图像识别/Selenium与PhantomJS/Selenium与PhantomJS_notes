@@ -45,6 +45,13 @@ find_elements_by_tag_name
 find_elements_by_class_name
 find_elements_by_css_selector
 ```
+```
+注意:
+二、element和elements傻傻分不清
+1.element方法定位到是是单数，是直接定位到元素
+2.elements方法是复数，这个学过英文的都知道，定位到的是一组元素，返回的是list队列
+```
+
 #### By ID
 ```html
 <div id="coolestWidgetEvah">...</div>

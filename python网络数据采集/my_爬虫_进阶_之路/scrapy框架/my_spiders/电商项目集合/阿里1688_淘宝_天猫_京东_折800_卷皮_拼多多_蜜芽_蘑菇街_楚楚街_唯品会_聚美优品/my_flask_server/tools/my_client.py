@@ -18,8 +18,11 @@ import hashlib
 import time
 import requests
 
-from my_utils import get_shanghai_time
-from my_utils import datetime_to_timestamp
+from my_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,
+    timestamp_to_regulartime,
+)
 
 md5 = lambda pwd: hashlib.md5(pwd).hexdigest()
 # 国际化
@@ -92,10 +95,12 @@ class RequestClient(object):
 
         from base64 import b64encode
 
+        now_timestamp = get_current_timestamp()-5
+        print('请求时间戳为: {0}[{1}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
         params = {
             'access_key_id': self._access_key_id,
             'version': self._version,
-            'timestamp': get_current_timestamp() - 5,
+            'timestamp': now_timestamp,
             'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte
         }
 
@@ -105,7 +110,9 @@ class RequestClient(object):
 
         # print(self.make_url(params))
         # url = 'http://127.0.0.1:5000/basic_data_2?' + self.make_url(params)
-        url = 'http://127.0.0.1:5000/api/goods'
+        # url = 'http://127.0.0.1:5000/api/goods'
+        url = 'http://spider.taobao_tmall.k85u.com/api/goods'
+        # url = 'http://spider.other.k85u.com/api/goods'
 
         # result = requests.get(url)
         result = requests.get(url, params=params)

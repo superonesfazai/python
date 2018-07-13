@@ -63,9 +63,9 @@ def get_shanghai_time():
     import datetime
     import re
 
-    # 时区处理，时间处理到上海时间
+    # TODO 时区处理，时间处理到上海时间
     # pytz查询某个国家时区
-    country_timezones_list = pytz.country_timezones('cn')
+    # country_timezones_list = pytz.country_timezones('cn')
     # print(country_timezones_list)
 
     tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
@@ -528,3 +528,5 @@ def filter_invalid_comment_content(_comment_content):
     else:
         return True
 
+# print(timestamp_to_regulartime(1531475169))
+# print(timestamp_to_regulartime(1531446364))

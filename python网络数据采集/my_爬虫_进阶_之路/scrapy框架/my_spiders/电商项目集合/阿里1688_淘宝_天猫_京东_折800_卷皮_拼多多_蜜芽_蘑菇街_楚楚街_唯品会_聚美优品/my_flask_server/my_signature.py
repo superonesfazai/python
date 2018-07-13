@@ -14,27 +14,27 @@
     Api签名认证
 """
 
+
 from functools import wraps
 from flask import request, jsonify
 import hashlib, time, datetime
-from my_utils import get_shanghai_time
-from my_utils import datetime_to_timestamp
+from my_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,
+    timestamp_to_regulartime,
+)
 from pprint import pprint
 
 md5 = lambda pwd: hashlib.md5(pwd).hexdigest()
-# get_current_timestamp = lambda: int(time.mktime(datetime.datetime.now().timetuple()))
-# 国际化
-get_current_timestamp = lambda: datetime_to_timestamp(get_shanghai_time())
 
 class Signature(object):
     """ 接口签名认证 """
     def __init__(self, logger=None):
         self._version = "v1"
-        self._accessKeys = [
+        self._access_keys = [
             {"access_key_id": "yiuxiu", "access_key_secret": "yiuxiu6688"}
         ]
-        # 时间戳有效时长，单位秒
-        self._timestamp_expiration = 30
+        self._timestamp_expiration = 40     # 时间戳有效时长，单位秒
         self.my_lg = logger
 
     def _check_req_timestamp(self, req_timestamp):
@@ -43,8 +43,11 @@ class Signature(object):
         """
         if len(str(req_timestamp)) == 10:
             req_timestamp = int(req_timestamp)
-            now_timestamp = get_current_timestamp()
-            if req_timestamp <= now_timestamp and req_timestamp + self._timestamp_expiration >= now_timestamp:
+            self.now_timestamp = datetime_to_timestamp(get_shanghai_time())
+            if self.now_timestamp-req_timestamp == 28805:   # 单独处理相差8 hour的请求(加拿大服务器问题)
+                req_timestamp += 28805
+
+            if req_timestamp <= self.now_timestamp and req_timestamp+self._timestamp_expiration >= self.now_timestamp:
                 return True
 
         return False
@@ -53,7 +56,7 @@ class Signature(object):
         """ 校验accesskey_id
         @pram req_accesskey_id str: 请求参数中的用户标识id
         """
-        if req_accesskey_id in [ i['access_key_id'] for i in self._accessKeys if "access_key_id" in i ]:
+        if req_accesskey_id in [ i['access_key_id'] for i in self._access_keys if "access_key_id" in i ]:
             return True
 
         return False
@@ -62,7 +65,7 @@ class Signature(object):
         """ 根据accesskey_id获取对应的accesskey_secret
         @pram accesskey_id str: 用户标识id
         """
-        return [i['access_key_secret'] for i in self._accessKeys if i.get('access_key_id') == accesskey_id][0]
+        return [i['access_key_secret'] for i in self._access_keys if i.get('access_key_id') == accesskey_id][0]
 
     def _sign(self, parameters):
         """ MD5签名
@@ -117,6 +120,11 @@ class Signature(object):
                     else:
                         res.update(msg="Invalid accesskey_id")
                 else:
+                    self.my_lg.error('当前系统时间戳为: {0}[{1}], 而请求的时间戳为: {2}[{3}]'.format(
+                        self.now_timestamp,
+                        str(timestamp_to_regulartime(self.now_timestamp)),
+                        req_timestamp,
+                        str(timestamp_to_regulartime(req_timestamp))))
                     res.update(msg="Invalid timestamp")
             else:
                 res.update(msg="Invalid version")

@@ -92,11 +92,15 @@ class test():
             from selenium.webdriver.common.keys import Keys
             from selenium.common.exceptions import NoSuchElementException   # 没有找到元素的异常
 
-            # self.driver.find_element_by_css_selector('div.tab-item:nth-child(2)').click()
+
             try:
-                _ = self.driver.find_element_by_css_selector('div.tab-item:nth-child(2)')
-                print(_.is_displayed())
-                _.send_keys(Keys.ENTER)
+                # self.driver.find_element_by_css_selector('div.tab-item:nth-child(2)').click()
+                self.driver.find_elements_by_css_selector('div.tab-item')[1].click()
+
+                # self.driver.find_elements_by_link_text('四五星').click()
+                # _ = self.driver.find_element_by_css_selector('div.tab-item:nth-child(2)')
+                # print(_.is_displayed())
+                # _.send_keys(Keys.ENTER)
             except NoSuchElementException as e:
                 print(e)
                 return None
