@@ -26,6 +26,9 @@ import codecs
     
     3. 本地更新(发布完后过会才能更新Release)[注意: pycharm可能要单独更新]
     $ pip3 install fzutils -U
+    
+    4. 服务器上安装install fzutils解决方案(更新最后加个'-U')
+    $ pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com
 """
 
 def read(fname):
@@ -79,7 +82,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.0.6",
+    version="0.0.0.7",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",
