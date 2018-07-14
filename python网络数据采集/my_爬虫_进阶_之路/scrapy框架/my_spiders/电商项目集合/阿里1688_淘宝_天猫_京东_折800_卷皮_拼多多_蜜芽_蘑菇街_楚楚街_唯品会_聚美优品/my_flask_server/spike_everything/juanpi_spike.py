@@ -22,7 +22,6 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
@@ -35,6 +34,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuanPiSpike(object):
     def __init__(self):
@@ -48,7 +48,7 @@ class JuanPiSpike(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_spike_hour_goods_info(self):

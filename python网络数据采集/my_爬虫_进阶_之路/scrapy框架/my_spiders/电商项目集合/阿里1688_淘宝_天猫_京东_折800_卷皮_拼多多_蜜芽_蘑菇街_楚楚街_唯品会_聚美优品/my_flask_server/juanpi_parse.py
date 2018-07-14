@@ -31,7 +31,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from settings import PHANTOMJS_DRIVER_PATH
-from settings import HEADERS
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_items import GoodsItem
@@ -41,6 +40,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
 )
+from fzutils.internet_utils import get_random_pc_ua
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -60,7 +60,7 @@ class JuanPiParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'web.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):

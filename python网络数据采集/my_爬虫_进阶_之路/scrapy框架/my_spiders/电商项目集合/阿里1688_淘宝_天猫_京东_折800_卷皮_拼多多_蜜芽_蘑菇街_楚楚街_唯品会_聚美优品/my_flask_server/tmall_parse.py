@@ -30,13 +30,15 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 
-from settings import PHANTOMJS_DRIVER_PATH, HEADERS, PHONE_HEADERS
+from settings import PHANTOMJS_DRIVER_PATH
 from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
 import pytz, datetime
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import get_random_phone_ua
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -55,7 +57,7 @@ class TmallParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'detail.m.tmall.com',
-            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):
@@ -757,8 +759,8 @@ class TmallParse(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = False
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
-        # cap['phantomjs.page.settings.userAgent'] = PHONE_HEADERS[randint(0, len(PHONE_HEADERS)-1)]  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
+        # cap['phantomjs.page.settings.userAgent'] = get_random_phone_ua()  # 随机一个请求头
 
         # cap['phantomjs.page.customHeaders.Cookie'] = _tmall_cookies
         tmp_execute_path = EXECUTABLE_PATH

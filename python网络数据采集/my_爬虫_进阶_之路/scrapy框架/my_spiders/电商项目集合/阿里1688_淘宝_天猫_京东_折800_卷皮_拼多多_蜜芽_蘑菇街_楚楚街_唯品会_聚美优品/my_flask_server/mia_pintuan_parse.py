@@ -27,10 +27,10 @@ from json import dumps
 
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import HEADERS
 from my_requests import MyRequests
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class MiaPintuanParse(MiaParse):
     def __init__(self):
@@ -46,7 +46,7 @@ class MiaPintuanParse(MiaParse):
             'Connection': 'keep-alive',
             'Host': 'm.mia.com',
             'Referer': 'https://m.mia.com/',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id:str) -> '重载获取数据的方法':

@@ -24,7 +24,7 @@ import pytz, datetime
 from logging import INFO, ERROR
 import asyncio, aiohttp
 
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import MY_SPIDER_LOGS_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, JUMEIYOUPIN_PINTUAN_API_TIMEOUT
 import datetime
@@ -41,6 +41,7 @@ from fzutils.linux_utils import (
     daemon_init,
     restart_program,
 )
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
@@ -70,7 +71,7 @@ class JuMeiYouPinPinTuan(object):
             'Connection': 'keep-alive',
             'Host': 's.h5.jumei.com',
             'Referer': 'http://s.h5.jumei.com/yiqituan/list',
-            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             'X-Requested-With': 'XMLHttpRequest',
         }
 

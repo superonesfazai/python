@@ -26,10 +26,10 @@ import gc
 import pytz
 from scrapy.selector import Selector
 
-from settings import HEADERS
 from my_requests import MyRequests
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuMeiYouPinParse(object):
     def __init__(self):
@@ -46,7 +46,7 @@ class JuMeiYouPinParse(object):
             'Host': 'h5.jumei.com',
             'Referer': 'http://h5.jumei.com/product/detail?item_id=ht180310p3365132t1&type=global_deal',
             'Cache-Control': 'max-age=0',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             'X-Requested-With': 'XMLHttpRequest',
         }
 

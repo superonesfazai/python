@@ -24,13 +24,14 @@ import json
 from pprint import pprint
 import time
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
+from settings import IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
 from my_requests import MyRequests
 
 from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
@@ -45,7 +46,7 @@ class Mia_Pintuan_Real_Time_Update(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.mia.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):

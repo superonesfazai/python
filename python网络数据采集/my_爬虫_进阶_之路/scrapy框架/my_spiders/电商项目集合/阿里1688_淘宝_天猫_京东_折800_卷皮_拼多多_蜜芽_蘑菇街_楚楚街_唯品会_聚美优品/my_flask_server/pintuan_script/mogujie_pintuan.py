@@ -21,7 +21,6 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
@@ -34,6 +33,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class MoGuJiePinTuan(object):
     def __init__(self):
@@ -49,7 +49,7 @@ class MoGuJiePinTuan(object):
             'Connection': 'keep-alive',
             'Host': 'api.mogujie.com',
             'Referer': 'https://pintuan.mogujie.com/ptpt/app/pd?acm=3.mce.1_10_1fvsk.51827.0.mUTadqIzS9Pbg.m_370494-pos_2-mf_4537_796033&ptp=m1._mf1_1239_4537._keyword_51827.0.xLt0G92',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def _set_fcid_dict(self):

@@ -25,7 +25,7 @@ import re
 import gc
 import pytz
 
-from settings import HEADERS, PHANTOMJS_DRIVER_PATH
+from settings import PHANTOMJS_DRIVER_PATH
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -36,6 +36,7 @@ from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -54,7 +55,7 @@ class Zhe800PintuanParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'pina.m.zhe800.com',
-            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
         }
 

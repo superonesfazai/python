@@ -20,7 +20,7 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, MIA_SPIKE_SLEEP_TIME
+from settings import MIA_SPIKE_SLEEP_TIME
 from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
@@ -32,6 +32,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class MiaPintuan(object):
     def __init__(self):
@@ -45,7 +46,7 @@ class MiaPintuan(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.mia.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_pintuan_goods_info(self):

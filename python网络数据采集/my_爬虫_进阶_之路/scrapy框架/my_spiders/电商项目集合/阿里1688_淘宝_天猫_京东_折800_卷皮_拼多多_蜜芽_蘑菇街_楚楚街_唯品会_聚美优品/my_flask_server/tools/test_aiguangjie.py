@@ -28,7 +28,6 @@ headers = {
     'Cache-Control': 'max-age=0',
     'Connection': 'keep-alive',
     'Host': 'acs.m.taobao.com',
-    # 'User-Agent': HEADERS[randint(0, 34)],      # 随机一个请求头
     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
     'Cookie': 'UM_distinctid=16015e04f6d4ff-037c1f4e36bf3-17386d57-fa000-16015e04f6e555; hng=CN%7Czh-CN%7CCNY%7C156; thw=cn; ockeqeudmj=jJgePkU%3D; munb=2242024317; WAPFDFDTGFG=%2B4cMKKP%2B8PI%2Buj7zjGYZ%2FmcrTpFkcttXbzWPw1Gvbiu%2F; _w_app_lg=17; _m_user_unitinfo_=unit|unzbyun; _m_unitapi_v_=1508566261407; ali_apache_id=11.228.45.44.1512376392548.274581.5; uc3=sg2=WqJ5CclAaAIRL%2BjSIx%2FSzyVuMbp8JSBthJSylPIhcsc%3D&nk2=rUtEoY7x%2Bk8Rxyx1ZtN%2FAg%3D%3D&id2=UUplY9Ft9xwldQ%3D%3D&vt3=F8dBzLQKaueubXgKyDU%3D&lg2=VFC%2FuZ9ayeYq2g%3D%3D; lgc=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; cookie2=218fc7ff98e02b9b3b9d2ef572476d78; t=567b173f0709a9279b1255b8cb39b2fc; _cc_=VFC%2FuZ9ajQ%3D%3D; tg=0; mt=ci=46_1; l=Anl5F-hiGIwSg0yWkdu/9YJLCf5Thm05; cna=ZyWpEl+kTywCAXHXsSxv8Ati; miid=5767446262036433919; v=0; _tb_token_=bd731a300e5e; uc1=cookie14=UoTdeYA%2B9w4Ojw%3D%3D; _m_h5_tk=219735eaad3d8781ae971b3e2ae27208_1512453593695; _m_h5_tk_enc=f39bbd9adc9b5c18b23b9eee8363bac7; isg=AiMjFtYHfSzMlTEcctcZVmKgsmENsLYgPMZhC1WAfwL5lEO23ehHqgHE_l5l',
     'Referer': 'http://market.m.taobao.com/apps/guang/ishopping/new_index.html',
@@ -77,7 +76,6 @@ headers2 = {
     'Cache-Control': 'max-age=0',
     'Connection': 'keep-alive',
     'Host': 'guang.taobao.com',
-    # 'User-Agent': HEADERS[randint(0, 34)]      # 随机一个请求头
     # 'X-Requested-With': 'XMLHttpRequest',
     'Referer': 'https://guang.taobao.com/',      # 必须的参数
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',

@@ -25,7 +25,7 @@ import json
 from pprint import pprint
 import time
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
+from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import requests
 from decimal import Decimal
 
@@ -34,6 +34,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class MoGuJieMiaoShaRealTimeUpdate(object):
     def __init__(self):
@@ -48,7 +49,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.mogujie.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):

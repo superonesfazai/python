@@ -12,7 +12,7 @@ sys.path.append('..')
 
 from my_requests import MyRequests
 from my_items import CommentItem
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import MY_SPIDER_LOGS_PATH
 
 from random import randint
 from time import sleep
@@ -28,6 +28,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.cp_utils import filter_invalid_comment_content
+from fzutils.internet_utils import get_random_pc_ua
 
 class TaoBaoCommentParse(object):
     def __init__(self, logger=None):
@@ -225,7 +226,7 @@ class TaoBaoCommentParse(object):
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             'authority': 'rate.taobao.com',
             # 'referer': 'https://item.taobao.com/item.htm?id=555635098639',

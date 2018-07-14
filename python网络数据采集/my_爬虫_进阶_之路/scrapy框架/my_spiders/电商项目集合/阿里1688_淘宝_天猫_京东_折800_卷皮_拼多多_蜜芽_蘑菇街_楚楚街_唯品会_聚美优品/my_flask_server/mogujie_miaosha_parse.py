@@ -19,7 +19,6 @@ from time import sleep
 import datetime
 import gc
 
-from settings import HEADERS
 import pytz
 
 from mogujie_parse import MoGuJieParse

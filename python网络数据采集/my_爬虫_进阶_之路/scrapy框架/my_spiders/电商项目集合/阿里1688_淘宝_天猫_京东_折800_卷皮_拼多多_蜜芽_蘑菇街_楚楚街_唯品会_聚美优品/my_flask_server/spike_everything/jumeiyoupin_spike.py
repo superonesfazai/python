@@ -25,7 +25,6 @@ from decimal import Decimal
 import sys
 sys.path.append('..')
 
-from settings import HEADERS
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_phantomjs import MyPhantomjs
@@ -35,6 +34,7 @@ from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuMeiYouPinSpike(object):
     def __init__(self):
@@ -51,7 +51,7 @@ class JuMeiYouPinSpike(object):
             'Referer': 'https://h5.jumei.com/',
             'Cache-Control': 'max-age=0',
             'X-Requested-With': 'XMLHttpRequest',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_spike_hour_goods_info(self):

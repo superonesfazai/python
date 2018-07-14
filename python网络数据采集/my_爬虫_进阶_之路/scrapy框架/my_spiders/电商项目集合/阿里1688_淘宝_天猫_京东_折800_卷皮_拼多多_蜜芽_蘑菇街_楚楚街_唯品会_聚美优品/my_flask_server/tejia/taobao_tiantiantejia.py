@@ -28,13 +28,14 @@ import pytz
 from logging import INFO, ERROR
 import asyncio
 
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import MY_SPIDER_LOGS_PATH
 from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 
 from taobao_parse import TaoBaoLoginAndParse
 
 from fzutils.log_utils import set_logger
+from fzutils.internet_utils import get_random_pc_ua
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -63,7 +64,7 @@ class TaoBaoTianTianTeJia(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'h5api.m.taobao.com',
-            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def _set_logger(self, logger):

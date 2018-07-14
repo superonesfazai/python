@@ -25,10 +25,10 @@ import pytz
 from scrapy import Selector
 from json import dumps
 
-from settings import HEADERS
 from my_requests import MyRequests
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class MiaParse(object):
     def __init__(self):
@@ -44,7 +44,7 @@ class MiaParse(object):
             'Connection': 'keep-alive',
             'Host': 'm.mia.com',
             'Referer': 'https://m.mia.com/',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):

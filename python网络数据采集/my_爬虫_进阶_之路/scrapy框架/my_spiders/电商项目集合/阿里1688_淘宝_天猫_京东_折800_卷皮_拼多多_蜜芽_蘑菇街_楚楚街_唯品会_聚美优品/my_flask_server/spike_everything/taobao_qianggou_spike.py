@@ -27,7 +27,6 @@ import asyncio
 import multiprocessing
 
 from settings import (
-    HEADERS,
     MY_SPIDER_LOGS_PATH,
     TAOBAO_QIANGGOU_SPIDER_HOUR_LIST,
     PHANTOMJS_DRIVER_PATH,
@@ -56,6 +55,7 @@ from fzutils.cp_utils import (
     calculate_right_sign,
     get_taobao_sign_and_body,
 )
+from fzutils.internet_utils import get_random_pc_ua
 
 class TaoBaoQiangGou(object):
     def __init__(self, logger=None):
@@ -67,7 +67,7 @@ class TaoBaoQiangGou(object):
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             'referer': 'https://qiang.taobao.com/?spm=a21bo.2017.2003.1.5af911d94ZThxY',
             'authority': 'unszacs.m.taobao.com',

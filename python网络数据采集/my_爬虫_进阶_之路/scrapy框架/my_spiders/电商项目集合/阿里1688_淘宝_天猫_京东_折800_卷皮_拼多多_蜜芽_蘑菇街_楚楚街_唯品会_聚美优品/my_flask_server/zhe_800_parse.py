@@ -25,12 +25,12 @@ import re
 import gc
 import pytz
 
-from settings import HEADERS
 from my_ip_pools import MyIpPools
 from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class Zhe800Parse(object):
     def __init__(self):
@@ -45,7 +45,7 @@ class Zhe800Parse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.zhe800.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua()  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):

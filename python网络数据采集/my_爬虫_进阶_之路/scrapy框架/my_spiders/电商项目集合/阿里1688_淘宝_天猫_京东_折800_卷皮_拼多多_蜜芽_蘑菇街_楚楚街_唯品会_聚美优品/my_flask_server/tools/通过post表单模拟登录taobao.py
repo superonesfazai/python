@@ -11,7 +11,6 @@ import sys
 sys.path.append('..')
 
 from my_requests import MyRequests
-from settings import HEADERS
 
 import urllib, json
 from urllib.parse import urlencode
@@ -26,6 +25,8 @@ import webbrowser
 from random import randint
 import requests
 
+from fzutils.internet_utils import get_random_pc_ua
+
 #模拟登录淘宝类
 class Taobao:
     #初始化方法
@@ -39,7 +40,7 @@ class Taobao:
         #登录POST数据时发送的头部信息
         self.loginHeaders =  {
             'Host':'login.taobao.com',
-            'User-Agent' : HEADERS[randint(0, len(HEADERS)-1)],
+            'User-Agent' : get_random_pc_ua(),
             'Referer' : 'https://login.taobao.com/member/login.jhtml',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Connection' : 'Keep-Alive'

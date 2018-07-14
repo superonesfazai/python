@@ -16,8 +16,9 @@ import json
 import gc, os
 from random import randint
 from pprint import pprint
-from settings import HEADERS
 from settings import IS_BACKGROUND_RUNNING
+
+from fzutils.internet_utils import get_random_pc_ua
 
 class AiGuangJie(object):
     def __init__(self):
@@ -29,7 +30,7 @@ class AiGuangJie(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'guang.taobao.com',
-            'User-Agent': HEADERS[randint(0, 34)],      # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),      # 随机一个请求头
             # 'X-Requested-With': 'XMLHttpRequest',
             'Referer': 'https://guang.taobao.com/',  # 必须的参数
         }

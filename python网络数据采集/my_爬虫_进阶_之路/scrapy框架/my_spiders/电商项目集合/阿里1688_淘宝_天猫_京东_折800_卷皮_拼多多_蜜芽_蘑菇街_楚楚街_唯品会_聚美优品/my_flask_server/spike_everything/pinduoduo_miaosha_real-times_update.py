@@ -23,7 +23,6 @@ import time
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from random import randint
-from settings import HEADERS
 import requests
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
@@ -35,6 +34,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -57,7 +57,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):
@@ -373,7 +373,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = False
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, 34)]  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
 
         self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)

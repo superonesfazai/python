@@ -17,7 +17,7 @@ from scrapy.selector import Selector
 import time
 from time import sleep
 from random import randint
-from settings import SINA_COOKIES, HEADERS, IS_BACKGROUND_RUNNING
+from settings import SINA_COOKIES, IS_BACKGROUND_RUNNING
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from random import randint
@@ -28,6 +28,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class SinaSpeciesSpiderNewSpider():
     def __init__(self):
@@ -39,7 +40,7 @@ class SinaSpeciesSpiderNewSpider():
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'd.weibo.com',
-            'User-Agent': HEADERS[randint(0, 34)],
+            'User-Agent': get_random_pc_ua(),
             'cookie': SINA_COOKIES,
         }
 

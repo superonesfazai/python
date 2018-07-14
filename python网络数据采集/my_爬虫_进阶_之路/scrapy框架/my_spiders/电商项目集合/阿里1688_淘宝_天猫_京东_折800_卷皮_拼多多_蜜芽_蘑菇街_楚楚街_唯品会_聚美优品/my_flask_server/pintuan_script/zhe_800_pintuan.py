@@ -23,7 +23,7 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
+from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import datetime
@@ -33,6 +33,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class Zhe800Pintuan(object):
     def __init__(self):
@@ -46,7 +47,7 @@ class Zhe800Pintuan(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'pina.m.zhe800.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def _get_pintuan_goods_info(self):

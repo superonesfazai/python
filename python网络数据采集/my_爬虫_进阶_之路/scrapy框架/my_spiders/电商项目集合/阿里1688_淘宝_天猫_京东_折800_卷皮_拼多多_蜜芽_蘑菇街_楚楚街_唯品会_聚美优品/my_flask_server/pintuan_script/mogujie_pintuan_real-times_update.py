@@ -21,7 +21,7 @@ import json
 from pprint import pprint
 import time
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
+from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 from my_requests import MyRequests
 
 from fzutils.time_utils import (
@@ -29,6 +29,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
@@ -44,7 +45,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
             'Connection': 'keep-alive',
             'Host': 'list.mogujie.com',
             # 'Referer': 'https://pintuan.mogujie.com/ptpt/app/pd?acm=3.mce.1_10_1fvsk.51827.0.mUTadqIzS9Pbg.m_370494-pos_2-mf_4537_796033&ptp=m1._mf1_1239_4537._keyword_51827.0.xLt0G92',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):

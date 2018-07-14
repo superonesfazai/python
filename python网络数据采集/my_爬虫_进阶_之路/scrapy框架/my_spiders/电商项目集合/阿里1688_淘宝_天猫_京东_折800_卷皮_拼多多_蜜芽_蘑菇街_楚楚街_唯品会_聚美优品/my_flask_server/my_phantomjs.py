@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from settings import HEADERS
 from settings import PHANTOMJS_DRIVER_PATH
 from my_ip_pools import MyIpPools
 
@@ -27,6 +26,8 @@ from scrapy.selector import Selector
 from random import randint
 import re, gc
 from time import sleep
+
+from fzutils.internet_utils import get_random_pc_ua
 
 __all__ = [
     'MyPhantomjs',
@@ -70,7 +71,7 @@ class MyPhantomjs(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = load_images
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
         tmp_execute_path = EXECUTABLE_PATH
 

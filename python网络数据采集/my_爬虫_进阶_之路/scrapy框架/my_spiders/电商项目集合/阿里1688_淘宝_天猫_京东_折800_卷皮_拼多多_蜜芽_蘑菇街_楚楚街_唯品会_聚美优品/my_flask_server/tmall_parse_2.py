@@ -19,7 +19,7 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 
-from settings import PHANTOMJS_DRIVER_PATH, HEADERS, MY_SPIDER_LOGS_PATH
+from settings import PHANTOMJS_DRIVER_PATH, MY_SPIDER_LOGS_PATH
 from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
 from logging import INFO, ERROR
 from requests.exceptions import ProxyError
@@ -32,6 +32,7 @@ from my_items import GoodsItem
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
+from fzutils.internet_utils import get_random_pc_ua
 
 class TmallParse(object):
     def __init__(self, logger=None):
@@ -44,7 +45,7 @@ class TmallParse(object):
         self.headers = {
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
-            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             'Accept': '*/*',
             'Referer': 'https://detail.m.tmall.com/item.htm?id=541107920538',
             'Connection': 'keep-alive',

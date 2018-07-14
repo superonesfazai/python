@@ -20,7 +20,7 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, IS_BACKGROUND_RUNNING
+from settings import IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
@@ -32,6 +32,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuanPiPinTuan(object):
     def __init__(self):
@@ -45,7 +46,7 @@ class JuanPiPinTuan(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'tuan.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def _get_pintuan_goods_info(self):

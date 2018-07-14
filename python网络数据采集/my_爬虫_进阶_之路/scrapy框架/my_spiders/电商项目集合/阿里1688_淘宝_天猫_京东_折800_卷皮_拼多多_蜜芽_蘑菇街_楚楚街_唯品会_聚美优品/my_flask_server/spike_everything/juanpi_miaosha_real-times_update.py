@@ -23,7 +23,6 @@ import time
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from random import randint
-from settings import HEADERS
 from settings import IS_BACKGROUND_RUNNING
 
 from fzutils.time_utils import (
@@ -32,6 +31,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.internet_utils import get_random_pc_ua
 
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
@@ -50,7 +50,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.juanpi.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):

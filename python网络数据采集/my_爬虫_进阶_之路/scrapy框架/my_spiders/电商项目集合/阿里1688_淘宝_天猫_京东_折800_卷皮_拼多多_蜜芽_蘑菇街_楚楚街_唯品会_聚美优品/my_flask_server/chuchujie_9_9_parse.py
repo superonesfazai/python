@@ -26,11 +26,11 @@ import pytz
 from scrapy.selector import Selector
 from json import dumps
 
-from settings import HEADERS
 from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class ChuChuJie_9_9_Parse(object):
     def __init__(self):
@@ -48,7 +48,7 @@ class ChuChuJie_9_9_Parse(object):
             'Origin': 'https://m.chuchujie.com',
             'Referer': 'https://m.chuchujie.com/details/detail.html?id=10016793335',
             'Cache-Control': 'max-age=0',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):

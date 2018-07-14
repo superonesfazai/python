@@ -28,11 +28,12 @@ from pprint import pprint
 import time
 from random import randint
 
-from settings import HEADERS, IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
+from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
 from decimal import Decimal
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuMeiYouPinMiaoShaRealTimeUpdate(object):
     def __init__(self):
@@ -50,7 +51,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
             'Referer': 'https://h5.jumei.com/',
             'Cache-Control': 'max-age=0',
             'X-Requested-With': 'XMLHttpRequest',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):

@@ -20,7 +20,6 @@ from urllib.parse import unquote
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    HEADERS,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
 )
 from my_requests import MyRequests
@@ -33,6 +32,7 @@ from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import restart_program
 from fzutils.cp_utils import get_taobao_sign_and_body
 from fzutils.common_utils import list_duplicate_remove
+from fzutils.internet_utils import get_random_pc_ua
 
 class TaoBaoWeiTaoShareParse():
     def __init__(self, logger=None):
@@ -45,7 +45,7 @@ class TaoBaoWeiTaoShareParse():
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             'referer': 'https://market.m.taobao.com/apps/market/content/index.html?ut_sk=1.VmYadv9DXkkDAFZm0VV4JBNq_21380790_1527298517854.Copy.33&params=%7B%22csid%22%3A%2254a52aea54b7c29d289a0e36b2bf2f51%22%7D&wh_weex=true&contentId=200668154273&source=weitao_2017_nocover&data_prefetch=true&suid=3D763077-A7BF-43BC-9092-C17B35E896F9&wx_navbar_transparent=false&wx_navbar_hidden=false&sourceType=other&un=bc80c9f324602d31384c4a342af87869&share_crt_v=1&sp_tk=o6R2Q0ZDMHZvaDBlS6Ok&cpp=1&shareurl=true&spm=a313p.22.68.948703884987&short_name=h.WAjz5RP&app=chrome',
             'authority': 'h5api.m.taobao.com',

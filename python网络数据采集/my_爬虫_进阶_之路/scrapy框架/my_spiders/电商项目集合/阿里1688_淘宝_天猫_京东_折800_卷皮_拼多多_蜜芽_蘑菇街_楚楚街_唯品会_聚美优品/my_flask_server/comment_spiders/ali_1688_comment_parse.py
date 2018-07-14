@@ -14,7 +14,7 @@ from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_items import CommentItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import MY_SPIDER_LOGS_PATH
 
 from random import (
     randint,
@@ -36,6 +36,7 @@ from fzutils.time_utils import (
     string_to_datetime,
 )
 from fzutils.cp_utils import filter_invalid_comment_content
+from fzutils.internet_utils import get_random_pc_ua
 
 class ALi1688CommentParse(object):
     '''
@@ -281,7 +282,7 @@ class ALi1688CommentParse(object):
         '''
         headers = {
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)],
+            'User-Agent': get_random_pc_ua(),
             # 'X-DevTools-Emulate-Network-Conditions-Client-Id': '5C1ED6AF76F4F84D961F136EAA06C40F',
         }
 
@@ -320,7 +321,7 @@ class ALi1688CommentParse(object):
         #     # 下面的ali-ss为必要字段
         #     'cookie': 'ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiI5WmZucV96VDl6NDhTOTg4WkNsaFpxSEwiLCJfZXhwaXJlIjoxNTI0MTE5MzI3NDQ5LCJfbWF4QWdlIjo4NjQwMDAwMH0=; ',
         #     'accept-language': 'zh-CN,zh;q=0.9',
-        #     'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
+        #     'user-agent': get_random_pc_ua(),
         #     'accept': 'application/json, text/javascript, */*; q=0.01',
         #     'referer': 'https://m.1688.com/page/offerRemark.htm?offerId=42735065607',
         #     'x-requested-with': 'XMLHttpRequest',
@@ -328,7 +329,7 @@ class ALi1688CommentParse(object):
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             # 'referer': 'https://detail.1688.com/offer/44412151595.html?spm=a2604.8117111.ji00a0ac.3.2e8e3ea73bvZT4',
             'authority': 'rate.1688.com',

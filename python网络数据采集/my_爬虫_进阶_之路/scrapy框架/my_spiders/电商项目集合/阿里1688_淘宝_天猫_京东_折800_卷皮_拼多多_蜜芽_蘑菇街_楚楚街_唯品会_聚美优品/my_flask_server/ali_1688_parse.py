@@ -21,7 +21,6 @@ from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.proxy import ProxyType
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import HEADERS
 import pytz
 from scrapy.selector import Selector
 from my_phantomjs import MyPhantomjs
@@ -29,6 +28,7 @@ from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -46,7 +46,7 @@ class ALi1688LoginAndParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': '1688.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_ali_1688_data(self, goods_id):

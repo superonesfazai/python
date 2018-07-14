@@ -12,7 +12,6 @@
 """
 
 from settings import (
-    HEADERS,
     PHANTOMJS_DRIVER_PATH,
     CHROME_DRIVER_PATH,
 )
@@ -39,6 +38,7 @@ from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -59,7 +59,7 @@ class JdParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'jd.com;jd.hk',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def _set_pc_headers(self):
@@ -70,7 +70,7 @@ class JdParse(object):
             'accept-language': 'zh-CN,zh;q=0.9',
             'cache-control': 'max-age=0',
             'connection': 'keep-alive',
-            'user-agent': HEADERS[randint(0, 34)],
+            'user-agent': get_random_pc_ua(),
         }
 
     def get_goods_data(self, goods_id):
@@ -938,7 +938,7 @@ class JdParse(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = False
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = HEADERS[randint(0, len(HEADERS)-1)]  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
         tmp_execute_path = EXECUTABLE_PATH
 
@@ -980,7 +980,7 @@ class JdParse(object):
         capabilities['acceptInsecureCerts'] = True
 
         # 修改user-agent
-        chrome_options.add_argument('--user-agent={0}'.format(HEADERS[randint(0, len(HEADERS)-1)]))
+        chrome_options.add_argument('--user-agent={0}'.format(get_random_pc_ua()))
 
         # 忽视证书错误
         chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])

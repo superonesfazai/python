@@ -25,7 +25,6 @@ from scrapy.selector import Selector
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, PHONE_HEADERS
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
@@ -37,6 +36,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
@@ -52,7 +52,7 @@ class ChuChuJie_9_9_Spike(object):
             'Host': 'api.chuchujie.com',
             'Referer': 'https://m.chuchujie.com/?module=99',
             'Cache-Control': 'max-age=0',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_spike_hour_goods_info(self):

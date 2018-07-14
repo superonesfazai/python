@@ -21,7 +21,7 @@ import time
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING
+from settings import IS_BACKGROUND_RUNNING
 
 from zhe_800_spike import Zhe800Spike
 
@@ -32,6 +32,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):
@@ -47,7 +48,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'zhe800.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def run_forever(self):

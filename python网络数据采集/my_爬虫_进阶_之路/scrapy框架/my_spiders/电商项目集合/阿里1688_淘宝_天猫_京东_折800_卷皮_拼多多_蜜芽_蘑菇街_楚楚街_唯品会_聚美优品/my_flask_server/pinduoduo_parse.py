@@ -27,7 +27,6 @@ import gc
 import pytz
 from json import dumps
 
-from settings import HEADERS
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from settings import PHANTOMJS_DRIVER_PATH
@@ -37,6 +36,7 @@ from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -56,7 +56,7 @@ class PinduoduoParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'mobile.yangkeduo.com',
-            'User-Agent': HEADERS[randint(0, 34)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
         }
 

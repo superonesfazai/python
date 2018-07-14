@@ -19,7 +19,6 @@ from jd_parse import JdParse
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,
-    HEADERS,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
 )
 
@@ -42,6 +41,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.internet_utils import get_random_pc_ua
 
 class GoodsKeywordsSpider(object):
     def __init__(self):
@@ -193,7 +193,7 @@ class GoodsKeywordsSpider(object):
         headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             # 'referer': 'https://s.taobao.com/search?q=%E8%BF%9E%E8%A1%A3%E8%A3%99%E5%A4%8F&imgfile=&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=a21bo.2017.201856-taobao-item.1&ie=utf8&initiative_id=tbindexz_20170306',
             'authority': 's.taobao.com',
@@ -252,7 +252,7 @@ class GoodsKeywordsSpider(object):
             'authority': 'm.1688.com',
             'cache-control': 'max-age=0',
             'upgrade-insecure-requests': '1',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
@@ -292,7 +292,7 @@ class GoodsKeywordsSpider(object):
         headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             # 'referer': 'https://list.tmall.com/search_product.htm?q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d',
             'authority': 'list.tmall.com',
@@ -343,7 +343,7 @@ class GoodsKeywordsSpider(object):
         headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             # 'referer': 'https://so.m.jd.com/ware/search.action?keyword=b&area_ids=1,72,2819&sort_type=sort_totalsales15_desc&qp_disable=no&fdesc=%E5%8C%97%E4%BA%AC&t1=1529934870416',
             'authority': 'so.m.jd.com',

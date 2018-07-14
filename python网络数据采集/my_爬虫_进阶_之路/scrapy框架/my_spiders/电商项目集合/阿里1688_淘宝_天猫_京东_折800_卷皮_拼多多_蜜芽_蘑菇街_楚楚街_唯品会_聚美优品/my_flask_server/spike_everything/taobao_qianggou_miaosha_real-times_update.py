@@ -21,7 +21,7 @@ import json
 import time
 import asyncio
 
-from settings import HEADERS, IS_BACKGROUND_RUNNING
+from settings import IS_BACKGROUND_RUNNING
 from settings import MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
@@ -35,6 +35,7 @@ from fzutils.linux_utils import (
     daemon_init,
     restart_program,
 )
+from fzutils.internet_utils import get_random_pc_ua
 
 class TaoBaoQiangGouRealTimesUpdate(object):
     '''NOTICE: 由于都是当天数据, 此处不更新上下架时间，就更新商品数据'''
@@ -47,7 +48,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             'referer': 'https://qiang.taobao.com/?spm=a21bo.2017.2003.1.5af911d94ZThxY',
             'authority': 'unszacs.m.taobao.com',

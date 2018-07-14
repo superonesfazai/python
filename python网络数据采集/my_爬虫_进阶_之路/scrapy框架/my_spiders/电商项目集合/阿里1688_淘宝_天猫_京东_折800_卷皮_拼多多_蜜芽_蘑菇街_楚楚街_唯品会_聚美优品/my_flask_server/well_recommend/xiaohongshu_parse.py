@@ -14,7 +14,6 @@ from my_requests import MyRequests
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    HEADERS,
 )
 
 from random import randint
@@ -31,6 +30,7 @@ import re
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class XiaoHongShuParse():
     def __init__(self, logger=None):
@@ -43,7 +43,7 @@ class XiaoHongShuParse():
             'authority': 'www.xiaohongshu.com',
             'cache-control': 'max-age=0',
             'upgrade-insecure-requests': '1',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',

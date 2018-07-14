@@ -26,7 +26,7 @@ import pytz
 
 import asyncio, aiohttp
 from scrapy.selector import Selector
-from settings import HEADERS, MY_SPIDER_LOGS_PATH, JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT
+from settings import MY_SPIDER_LOGS_PATH, JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
 from logging import INFO, ERROR
@@ -34,6 +34,7 @@ import pytz, datetime
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuMeiYouPinPinTuanParse(object):
     def __init__(self, logger=None):
@@ -50,7 +51,7 @@ class JuMeiYouPinPinTuanParse(object):
             'Connection': 'keep-alive',
             'Host': 's.h5.jumei.com',
             'Referer': 'https://s.h5.jumei.com/yiqituan/detail?item_id=ht180321p2453550t4&type=global_deal',
-            'User-Agent': HEADERS[randint(0, 34)],
+            'User-Agent': get_random_pc_ua(),
             'X-Requested-With': 'XMLHttpRequest',
         }
 

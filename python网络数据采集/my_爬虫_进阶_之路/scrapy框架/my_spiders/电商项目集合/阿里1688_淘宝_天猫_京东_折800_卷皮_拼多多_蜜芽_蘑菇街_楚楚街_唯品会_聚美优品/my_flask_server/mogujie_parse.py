@@ -26,12 +26,12 @@ from time import sleep
 import datetime
 import gc
 
-from settings import HEADERS
 import pytz
 from my_requests import MyRequests
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class MoGuJieParse(object):
     def __init__(self):
@@ -46,7 +46,7 @@ class MoGuJieParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.mogujie.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua()  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):

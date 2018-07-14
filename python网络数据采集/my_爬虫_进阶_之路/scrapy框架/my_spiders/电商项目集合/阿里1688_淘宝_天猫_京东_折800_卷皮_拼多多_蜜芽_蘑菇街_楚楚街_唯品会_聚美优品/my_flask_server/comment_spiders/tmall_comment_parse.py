@@ -15,7 +15,7 @@ from tmall_parse_2 import TmallParse
 from taobao_parse import TaoBaoLoginAndParse
 from my_phantomjs import MyPhantomjs
 from my_items import CommentItem
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import MY_SPIDER_LOGS_PATH
 
 from random import randint
 from time import sleep
@@ -32,6 +32,7 @@ from fzutils.time_utils import (
 )
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import _get_url_contain_params
+from fzutils.internet_utils import get_random_pc_ua
 
 class TmallCommentParse(object):
     def __init__(self, logger=None):
@@ -256,7 +257,7 @@ class TmallCommentParse(object):
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             'referer': 'https://detail.m.tmall.com/item.htm?id=524718632348',
         }

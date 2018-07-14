@@ -21,7 +21,7 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import HEADERS, BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR, SPIDER_END_HOUR, ZHE_800_SPIKE_SLEEP_TIME
+from settings import BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR, SPIDER_END_HOUR, ZHE_800_SPIKE_SLEEP_TIME
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
@@ -33,6 +33,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.internet_utils import get_random_pc_ua
 
 class Zhe800Spike(object):
     def __init__(self):
@@ -47,7 +48,7 @@ class Zhe800Spike(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'zhe800.com',
-            'User-Agent': HEADERS[randint(0, 34)]  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_spike_hour_goods_info(self):

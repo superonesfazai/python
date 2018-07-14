@@ -24,7 +24,7 @@ from pprint import pprint
 import time
 from logging import INFO, ERROR
 from random import randint
-from settings import HEADERS, IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, MY_SPIDER_LOGS_PATH
+from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, MY_SPIDER_LOGS_PATH
 import asyncio
 
 from fzutils.log_utils import set_logger
@@ -35,6 +35,7 @@ from fzutils.linux_utils import (
     daemon_init,
     restart_program,
 )
+from fzutils.internet_utils import get_random_pc_ua
 
 class JuMeiYouPinRealTimesUpdate(object):
     def __init__(self):
@@ -52,7 +53,7 @@ class JuMeiYouPinRealTimesUpdate(object):
             'Connection': 'keep-alive',
             'Host': 's.h5.jumei.com',
             'Referer': 'http://s.h5.jumei.com/yiqituan/list',
-            'User-Agent': HEADERS[randint(0, len(HEADERS) - 1)],  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             'X-Requested-With': 'XMLHttpRequest',
         }
 

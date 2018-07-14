@@ -26,7 +26,6 @@ import pytz
 from scrapy import Selector
 from json import loads, dumps
 
-from settings import HEADERS
 from my_requests import MyRequests
 from my_items import GoodsItem
 
@@ -34,6 +33,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
 )
+from fzutils.internet_utils import get_random_pc_ua
 
 '''
 改版抓包微信唯品会商品数据接口
@@ -169,7 +169,7 @@ class VipParse(object):
             'Connection': 'keep-alive',
             'Host': 'm.vip.com',
             'Referer': 'https://servicewechat.com/wxe9714e742209d35f/284/page-frame.html',
-            'User-Agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'User-Agent': get_random_pc_ua(),
         }
 
     def _set_params(self):

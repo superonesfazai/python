@@ -13,7 +13,7 @@ sys.path.append('..')
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_items import CommentItem
-from settings import HEADERS, MY_SPIDER_LOGS_PATH
+from settings import MY_SPIDER_LOGS_PATH
 
 from random import randint
 from time import sleep
@@ -28,6 +28,7 @@ from fzutils.time_utils import (
     string_to_datetime,
 )
 from fzutils.cp_utils import filter_invalid_comment_content
+from fzutils.internet_utils import get_random_pc_ua
 
 class JdCommentParse(object):
     def __init__(self, logger=None):
@@ -174,7 +175,7 @@ class JdCommentParse(object):
             'origin': 'https://item.m.jd.com',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS) - 1)],
+            'user-agent': get_random_pc_ua(),
             'content-type': 'application/x-www-form-urlencoded',
             'accept': 'application/json',
             'referer': 'https://item.m.jd.com/ware/view.action?wareId=5025518',
