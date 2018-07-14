@@ -105,7 +105,8 @@ class MyAllCommentSpider(object):
             sql_str = '''
             select GoodsID, SiteID 
             from dbo.GoodsInfoAutoGet 
-            where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)'''
+            where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)
+            ORDER BY ID DESC'''
             try:
                 result = list(tmp_sql_server._select_table(sql_str=sql_str))
             except TypeError:

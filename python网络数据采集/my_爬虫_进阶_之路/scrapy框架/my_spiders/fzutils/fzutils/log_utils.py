@@ -2,25 +2,29 @@
 
 '''
 @author = super_fazai
-@File    : my_logging.py
-@Time    : 2018/2/7 10:56
+@File    : log_utils.py
+@Time    : 2018/7/13 18:39
 @connect : superonesfazai@gmail.com
 '''
+
+# log utils
 
 """
 切记不要重复创造日志对象，否则会重复打印
 """
 
 import logging
-from logging import handlers
-import os
-# from colorama import init, Back, Fore
 
 __all__ = [
     'set_logger'
 ]
 
 def set_logger(log_file_name, console_log_level=logging.DEBUG, file_log_level=logging.ERROR):
+    import logging
+    from logging import handlers
+    import os
+    # from colorama import init, Back, Fore
+
     # 创建一个logger,可以考虑如何将它封装
     logger = logging.getLogger('my_logger')     # 建议: 在有多个相互关联的文件都需要用到python的日志系统时，不要用默认的root logger。因为所有的名称都会继承root导致重复打印。用logger时一定要起名字！！
     logger.setLevel(logging.DEBUG)

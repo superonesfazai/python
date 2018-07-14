@@ -252,3 +252,18 @@ dict.setdefault()有返回值, 返回的是原先key对应的value
 ```python
 my_file = open('./duanzi.txt', 'a+', encoding='utf-8')  # 这样打开能解决报错:UnicodeEncodeError: 'ascii' codec can't encode characters in position 2-5: ordinal not in range(128)
 ```
+
+## pypi自发包(更新)
+```shell
+# 现在从setup.py位于的同一目录运行此命令
+python3 setup.py sdist bdist_wheel
+
+# --skip-existing 避免400包已存在错误
+twine upload dist/* --skip-existing     
+
+# 更新本地包
+pip3 install -U fzutils 
+```
+
+#### 注意层级, fzutils才能被导入(结构如下图)
+![](../images/pypi.png)

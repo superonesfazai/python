@@ -158,9 +158,13 @@ class ALi1688CommentParse(object):
             self.my_lg.info('------>>>| 正在抓取第{0}页...'.format(page_num))
             params = self._set_params(goods_id=goods_id, member_id=member_id, page_num=page_num)
             url = 'https://rate.1688.com/remark/offerDetail/rates.json'
+            tmp_headers = self.headers
+            tmp_headers.update({
+                'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
+            })
             # 原先用MyRequests老是404，改用phantomjsy也还是老是404
-            body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
-            self.my_lg.info(str(body))
+            body = MyRequests.get_url_body(url=url, headers=tmp_headers, params=params)
+            # self.my_lg.info(str(body))
 
             # 用phantomjs
             # url = self._set_url(url=url, params=params)
@@ -184,9 +188,9 @@ class ALi1688CommentParse(object):
                 sleep(self._page_sleep_time)
                 break
 
-            self.my_lg.info(str(body))
+            # self.my_lg.info(str(body))
             data = data.get('data', {}).get('rates', [])
-            pprint(data)
+            # pprint(data)
             if data == []:
                 # sleep(self._page_sleep_time)
                 break

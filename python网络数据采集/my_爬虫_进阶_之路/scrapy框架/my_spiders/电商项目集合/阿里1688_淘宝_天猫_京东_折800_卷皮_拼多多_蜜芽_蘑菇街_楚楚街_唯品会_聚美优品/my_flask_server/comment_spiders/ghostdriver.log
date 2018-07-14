@@ -1,17 +1,29 @@
-[INFO  - 2018-07-13T06:50:18.462Z] GhostDriver - Main - running on port 63648
-[INFO  - 2018-07-13T06:50:19.446Z] Session [01c81ce0-8669-11e8-8a2d-019e63380cb6] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9.2.15) Gecko/20110303 Firefox/3.6.15","webSecurityEnabled":true}
-[INFO  - 2018-07-13T06:50:19.447Z] Session [01c81ce0-8669-11e8-8a2d-019e63380cb6] - page.customHeaders:  - {}
-[INFO  - 2018-07-13T06:50:19.447Z] Session [01c81ce0-8669-11e8-8a2d-019e63380cb6] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9.2.15) Gecko/20110303 Firefox/3.6.15"}
-[INFO  - 2018-07-13T06:50:19.447Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 01c81ce0-8669-11e8-8a2d-019e63380cb6
-[ERROR - 2018-07-13T06:50:23.458Z] Session [01c81ce0-8669-11e8-8a2d-019e63380cb6] - page.onError - msg: Error: 获取搜索暗文失败, get lost
-
-  phantomjs://platform/console++.js:263 in error
-[ERROR - 2018-07-13T06:50:23.458Z] Session [01c81ce0-8669-11e8-8a2d-019e63380cb6] - page.onError - stack:
-  getKWError (https://st.360buyimg.com/m/js/index/basics/searchinfo7.2.3.js?v=20180515:1)
-  (anonymous function) (https://st.360buyimg.com/m/js/index/basics/searchinfo7.2.3.js?v=20180515:1)
-  error (https://st.360buyimg.com/m/js/index/basics/searchinfo7.2.3.js?v=20180515:1)
-  p (https://st.360buyimg.com/m/js/index/base/JdBase69.min.js?v=jd201806015636:1)
-  u (https://st.360buyimg.com/m/js/index/base/JdBase69.min.js?v=jd201806015636:1)
-  onerror (https://st.360buyimg.com/m/js/index/base/JdBase69.min.js?v=jd201806015636:1)
-
-  phantomjs://platform/console++.js:263 in error
+[INFO  - 2018-07-14T01:37:40.562Z] GhostDriver - Main - running on port 53583
+[INFO  - 2018-07-14T01:37:40.696Z] Session [7f1bc500-8706-11e8-9146-afcb876c6461] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9.2.15) Gecko/20110303 Firefox/3.6.15","webSecurityEnabled":true}
+[INFO  - 2018-07-14T01:37:40.696Z] Session [7f1bc500-8706-11e8-9146-afcb876c6461] - page.customHeaders:  - {}
+[INFO  - 2018-07-14T01:37:40.696Z] Session [7f1bc500-8706-11e8-9146-afcb876c6461] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9.2.15) Gecko/20110303 Firefox/3.6.15"}
+[INFO  - 2018-07-14T01:37:40.696Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 7f1bc500-8706-11e8-9146-afcb876c6461
+[INFO  - 2018-07-14T01:42:40.561Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T01:47:40.561Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T01:52:40.563Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T01:57:40.566Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:02:40.568Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:07:40.570Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:12:40.573Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:17:40.575Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:22:40.578Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:27:40.580Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:32:40.582Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:37:40.585Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:42:40.590Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:47:40.591Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+ Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:07:22.571Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:12:22.573Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:17:22.576Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:22:22.579Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:27:22.582Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:32:22.589Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:37:22.592Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:42:22.601Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-07-14T02:47:22.599Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
