@@ -14,21 +14,15 @@ from time import sleep
 import json
 import datetime
 from decimal import Decimal
-from random import randint
 from json import dumps
 
-from selenium.webdriver.common.proxy import Proxy
-from selenium.webdriver.common.proxy import ProxyType
-
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-import pytz
 from scrapy.selector import Selector
-from my_phantomjs import MyPhantomjs
-from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class ALi1688LoginAndParse(object):
     def __init__(self):

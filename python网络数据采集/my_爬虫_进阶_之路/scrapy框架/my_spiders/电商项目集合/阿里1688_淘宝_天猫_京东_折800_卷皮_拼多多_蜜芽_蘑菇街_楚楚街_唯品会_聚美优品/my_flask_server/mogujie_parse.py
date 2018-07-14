@@ -26,12 +26,10 @@ from time import sleep
 import datetime
 import gc
 
-import pytz
-from my_requests import MyRequests
-
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class MoGuJieParse(object):
     def __init__(self):

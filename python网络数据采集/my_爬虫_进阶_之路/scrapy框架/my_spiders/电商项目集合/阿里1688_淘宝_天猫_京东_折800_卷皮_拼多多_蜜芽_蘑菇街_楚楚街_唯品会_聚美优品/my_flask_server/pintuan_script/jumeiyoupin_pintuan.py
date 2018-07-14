@@ -10,17 +10,12 @@
 import sys
 sys.path.append('..')
 
-from random import randint
 import json
-import requests
 import re
 import time
 from pprint import pprint
 import gc
-import pytz
 from time import sleep
-import os
-import pytz, datetime
 from logging import INFO, ERROR
 import asyncio, aiohttp
 
@@ -29,8 +24,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, JUMEIYOUPIN_PINTUAN_API_TIMEOUT
 import datetime
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
-from my_aiohttp import MyAiohttp
-from my_phantomjs import MyPhantomjs
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -42,6 +35,7 @@ from fzutils.linux_utils import (
     restart_program,
 )
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):

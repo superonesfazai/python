@@ -14,7 +14,6 @@ tmall爬虫能对应爬取解析对象为: (天猫, 天猫超市, 天猫国际)
 import time
 from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -34,11 +33,11 @@ from settings import PHANTOMJS_DRIVER_PATH
 from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
 import pytz, datetime
 from scrapy.selector import Selector
-from my_ip_pools import MyIpPools
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.internet_utils import get_random_phone_ua
+from fzutils.ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

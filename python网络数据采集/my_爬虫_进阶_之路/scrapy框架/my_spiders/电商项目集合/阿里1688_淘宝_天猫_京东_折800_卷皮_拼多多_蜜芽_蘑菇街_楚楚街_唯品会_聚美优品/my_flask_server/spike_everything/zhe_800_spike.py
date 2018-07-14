@@ -7,16 +7,12 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
 import json
-import requests
 import re
 import time
 from pprint import pprint
 import gc
-import pytz
 from time import sleep
-import os
 
 import sys
 sys.path.append('..')
@@ -25,7 +21,6 @@ from settings import BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR, SPIDER_
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
-from my_phantomjs import MyPhantomjs
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -34,6 +29,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class Zhe800Spike(object):
     def __init__(self):

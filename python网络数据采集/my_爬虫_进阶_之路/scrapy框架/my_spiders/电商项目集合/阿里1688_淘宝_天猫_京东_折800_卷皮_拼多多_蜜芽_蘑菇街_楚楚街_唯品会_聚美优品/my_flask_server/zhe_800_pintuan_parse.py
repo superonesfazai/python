@@ -26,17 +26,12 @@ import gc
 import pytz
 
 from settings import PHANTOMJS_DRIVER_PATH
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from my_phantomjs import MyPhantomjs
-from my_requests import MyRequests
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

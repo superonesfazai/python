@@ -7,18 +7,11 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
 import json
-import requests
 import re
-import time
 from pprint import pprint
 import gc
-import pytz
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from time import sleep
-import os
 
 import sys
 sys.path.append('..')
@@ -27,13 +20,13 @@ from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import datetime
-from my_requests import MyRequests
 
 from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class Zhe800Pintuan(object):
     def __init__(self):

@@ -24,7 +24,6 @@ sys.path.append('..')
 
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_requests import MyRequests
 
 from settings import IS_BACKGROUND_RUNNING
 
@@ -35,6 +34,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class JuanPiSpike(object):
     def __init__(self):

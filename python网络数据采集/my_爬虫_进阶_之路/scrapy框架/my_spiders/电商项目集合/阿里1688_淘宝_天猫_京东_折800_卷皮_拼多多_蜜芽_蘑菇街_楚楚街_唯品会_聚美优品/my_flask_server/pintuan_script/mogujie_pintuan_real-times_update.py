@@ -12,17 +12,14 @@ sys.path.append('..')
 
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_phantomjs import MyPhantomjs
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re, datetime
 import json
 from pprint import pprint
 import time
-from random import randint
 from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
-from my_requests import MyRequests
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -30,6 +27,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):

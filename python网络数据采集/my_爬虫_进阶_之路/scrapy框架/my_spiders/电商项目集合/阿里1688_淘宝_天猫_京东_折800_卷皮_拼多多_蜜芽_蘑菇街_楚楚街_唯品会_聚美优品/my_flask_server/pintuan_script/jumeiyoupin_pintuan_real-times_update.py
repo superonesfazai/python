@@ -14,16 +14,14 @@ from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 from jumeiyoupin_pintuan import JuMeiYouPinPinTuan
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_aiohttp import MyAiohttp
-from my_phantomjs import MyPhantomjs
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re
 import json
 from pprint import pprint
 import time
 from logging import INFO, ERROR
-from random import randint
 from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, MY_SPIDER_LOGS_PATH
 import asyncio
 
@@ -36,6 +34,7 @@ from fzutils.linux_utils import (
     restart_program,
 )
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class JuMeiYouPinRealTimesUpdate(object):
     def __init__(self):

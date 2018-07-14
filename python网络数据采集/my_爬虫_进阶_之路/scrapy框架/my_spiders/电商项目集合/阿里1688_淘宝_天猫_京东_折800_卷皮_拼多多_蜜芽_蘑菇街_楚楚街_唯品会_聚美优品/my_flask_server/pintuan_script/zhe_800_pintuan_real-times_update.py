@@ -15,8 +15,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
-import json
+import re
 from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 
 from fzutils.time_utils import (

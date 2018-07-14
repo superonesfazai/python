@@ -20,7 +20,6 @@ from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 import gc
 from time import sleep
 import os, re, pytz, datetime
-import json
 from settings import IS_BACKGROUND_RUNNING
 
 def run_forever():
@@ -40,6 +39,7 @@ def run_forever():
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
+            result_2 = None
         if result is None:
             pass
         else:

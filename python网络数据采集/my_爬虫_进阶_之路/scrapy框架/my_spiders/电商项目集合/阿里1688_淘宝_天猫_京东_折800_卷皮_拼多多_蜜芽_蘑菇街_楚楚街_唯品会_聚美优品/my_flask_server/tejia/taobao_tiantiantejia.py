@@ -15,16 +15,14 @@ import sys
 sys.path.append('..')
 
 import time
-from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
 from time import sleep
 import datetime
-import gc, execjs
-import pytz
+import gc
+import execjs
 from logging import INFO, ERROR
 import asyncio
 

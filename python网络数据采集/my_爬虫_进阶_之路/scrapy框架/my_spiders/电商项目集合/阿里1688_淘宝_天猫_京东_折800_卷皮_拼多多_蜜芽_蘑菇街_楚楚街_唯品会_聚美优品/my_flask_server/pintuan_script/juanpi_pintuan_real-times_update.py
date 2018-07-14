@@ -28,7 +28,7 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
+        sql_str = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError as e:

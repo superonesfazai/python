@@ -16,7 +16,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
 import datetime
-import json
 from settings import IS_BACKGROUND_RUNNING
 
 from fzutils.time_utils import (

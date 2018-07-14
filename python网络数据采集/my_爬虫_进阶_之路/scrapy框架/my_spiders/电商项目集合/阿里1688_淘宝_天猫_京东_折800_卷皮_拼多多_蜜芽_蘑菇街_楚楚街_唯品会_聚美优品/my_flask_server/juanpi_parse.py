@@ -12,9 +12,7 @@
 """
 
 import time
-from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -23,16 +21,8 @@ from time import sleep
 import datetime
 import re
 import gc
-import pytz
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from settings import PHANTOMJS_DRIVER_PATH
-from my_phantomjs import MyPhantomjs
-from my_requests import MyRequests
 from my_items import GoodsItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -41,6 +31,8 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

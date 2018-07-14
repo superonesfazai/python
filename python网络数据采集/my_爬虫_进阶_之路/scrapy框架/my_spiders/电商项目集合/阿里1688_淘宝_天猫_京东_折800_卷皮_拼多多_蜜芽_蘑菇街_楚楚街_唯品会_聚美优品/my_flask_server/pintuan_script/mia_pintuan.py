@@ -7,15 +7,11 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
 import json
 import re
-import time
 from pprint import pprint
 import gc
-import pytz
 from time import sleep
-import os
 
 import sys
 sys.path.append('..')
@@ -24,7 +20,6 @@ from settings import MIA_SPIKE_SLEEP_TIME
 from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
-from my_requests import MyRequests
 
 import datetime
 
@@ -33,6 +28,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class MiaPintuan(object):
     def __init__(self):

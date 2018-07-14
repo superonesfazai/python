@@ -9,7 +9,7 @@
 
 import sys
 sys.path.append('..')
-from my_requests import MyRequests
+from fzutils.spider.fz_requests import MyRequests
 
 # img_url 在e里
 # var e = this.props.el;

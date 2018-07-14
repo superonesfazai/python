@@ -19,19 +19,18 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re, datetime
 import json
 from pprint import pprint
 import time
-from random import randint
 from settings import IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
-from my_requests import MyRequests
 
 from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):

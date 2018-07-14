@@ -14,15 +14,13 @@ import scrapy
 import requests
 import json
 from scrapy.selector import Selector
-import time
 from time import sleep
-from random import randint
 from settings import SINA_COOKIES, IS_BACKGROUND_RUNNING
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from random import randint
 import gc
-import re, os
+import re
 
 from fzutils.time_utils import (
     get_shanghai_time,

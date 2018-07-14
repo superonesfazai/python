@@ -11,8 +11,6 @@
 楚楚街9.9, 29.9, 49.9元商品页面解析系统
 """
 
-import time
-from random import randint
 import json
 import requests
 import re
@@ -20,17 +18,15 @@ from pprint import pprint
 from decimal import Decimal
 
 from time import sleep
-import datetime
 import gc
-import pytz
 from scrapy.selector import Selector
 from json import dumps
 
-from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class ChuChuJie_9_9_Parse(object):
     def __init__(self):

@@ -13,7 +13,6 @@ sys.path.append('..')
 # from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
 from taobao_parse import TaoBaoLoginAndParse
-from my_phantomjs import MyPhantomjs
 from my_items import CommentItem
 from settings import MY_SPIDER_LOGS_PATH
 
@@ -33,6 +32,7 @@ from fzutils.time_utils import (
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class TmallCommentParse(object):
     def __init__(self, logger=None):

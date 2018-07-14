@@ -10,9 +10,10 @@
 import sys
 sys.path.append('..')
 import requests
-from my_requests import MyRequests
 from scrapy.selector import Selector
 import re
+
+from fzutils.spider.fz_requests import MyRequests
 
 cookies = {
     'gdxidpyhxdE': 'u5aa66T4Nx0KOJ621ZrYYxtam%2BA3Ql4vKG%2BkEl4q3GH29HkPjkCV23BcZb5pZ1NgCWC5MhUhZ9ktB%2FoT702EVn4fCG1HR0NLSJ6HA5MyE7NY01MgoRT1%5CK2D14lyKcjz8jQuak%5Cf%5Cn0baQN4qZ1TsLKEIK6BvO7DREAWTzHm789nzpX7%3A1525231023364',

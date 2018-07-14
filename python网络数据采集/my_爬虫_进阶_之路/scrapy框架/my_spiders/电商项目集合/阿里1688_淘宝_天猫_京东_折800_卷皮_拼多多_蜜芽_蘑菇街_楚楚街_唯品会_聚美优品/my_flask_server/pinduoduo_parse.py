@@ -27,16 +27,14 @@ import gc
 import pytz
 from json import dumps
 
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from settings import PHANTOMJS_DRIVER_PATH
-from my_ip_pools import MyIpPools
-from my_phantomjs import MyPhantomjs
-from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

@@ -12,7 +12,6 @@
 """
 
 import time
-from random import randint
 import json
 import re
 from pprint import pprint
@@ -24,17 +23,18 @@ import re
 import gc
 import pytz
 
-import asyncio, aiohttp
+import asyncio
+import aiohttp
 from scrapy.selector import Selector
 from settings import MY_SPIDER_LOGS_PATH, JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT
 from my_aiohttp import MyAiohttp
-from my_phantomjs import MyPhantomjs
 from logging import INFO, ERROR
 import pytz, datetime
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class JuMeiYouPinPinTuanParse(object):
     def __init__(self, logger=None):

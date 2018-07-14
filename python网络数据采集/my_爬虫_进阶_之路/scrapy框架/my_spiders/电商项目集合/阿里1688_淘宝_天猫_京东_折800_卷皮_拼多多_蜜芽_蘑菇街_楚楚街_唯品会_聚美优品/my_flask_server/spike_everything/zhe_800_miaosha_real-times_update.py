@@ -14,13 +14,10 @@ from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re
 import json
 from pprint import pprint
 import time
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from random import randint
 from settings import IS_BACKGROUND_RUNNING
 
 from zhe_800_spike import Zhe800Spike

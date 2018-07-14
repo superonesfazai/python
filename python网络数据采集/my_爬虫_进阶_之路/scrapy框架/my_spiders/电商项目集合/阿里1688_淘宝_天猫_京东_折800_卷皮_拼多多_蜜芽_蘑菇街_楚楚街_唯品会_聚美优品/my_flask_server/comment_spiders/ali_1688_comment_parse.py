@@ -10,8 +10,6 @@
 import sys
 sys.path.append('..')
 
-from my_phantomjs import MyPhantomjs
-from my_requests import MyRequests
 from my_items import CommentItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import MY_SPIDER_LOGS_PATH
@@ -37,6 +35,8 @@ from fzutils.time_utils import (
 )
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class ALi1688CommentParse(object):
     '''

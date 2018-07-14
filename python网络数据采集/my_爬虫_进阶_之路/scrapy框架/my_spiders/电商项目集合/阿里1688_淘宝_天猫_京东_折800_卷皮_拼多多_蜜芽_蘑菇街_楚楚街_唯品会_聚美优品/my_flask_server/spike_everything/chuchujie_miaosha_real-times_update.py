@@ -16,15 +16,13 @@ sys.path.append('..')
 
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_requests import MyRequests
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re
 import json
 from pprint import pprint
 import time
-from random import randint
 
 from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
 from decimal import Decimal
@@ -32,11 +30,12 @@ from decimal import Decimal
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = r'delete from dbo.chuchujie_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = 'delete from dbo.chuchujie_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {

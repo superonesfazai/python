@@ -15,7 +15,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
 from pprint import pprint
-from random import randint
 from logging import ERROR, INFO
 import json
 import time

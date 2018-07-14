@@ -15,7 +15,7 @@ from taobao_parse import TaoBaoLoginAndParse
 from taobao_tiantiantejia import TaoBaoTianTianTeJia
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re
 import json
 from settings import IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME, MY_SPIDER_LOGS_PATH
 import datetime

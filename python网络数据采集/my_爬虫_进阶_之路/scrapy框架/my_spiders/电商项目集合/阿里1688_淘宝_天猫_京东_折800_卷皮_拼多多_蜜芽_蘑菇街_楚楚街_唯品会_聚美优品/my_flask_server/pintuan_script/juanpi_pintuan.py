@@ -23,7 +23,6 @@ sys.path.append('..')
 from settings import IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_requests import MyRequests
 
 import datetime
 
@@ -33,6 +32,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class JuanPiPinTuan(object):
     def __init__(self):

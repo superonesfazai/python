@@ -13,7 +13,6 @@ from json import loads, dumps
 import re
 import asyncio
 from logging import INFO, ERROR
-from random import randint
 import gc
 from pprint import pprint
 from urllib.parse import unquote
@@ -22,7 +21,6 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
 )
-from my_requests import MyRequests
 from my_items import WellRecommendArticle
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from taobao_parse import TaoBaoLoginAndParse
@@ -33,6 +31,7 @@ from fzutils.linux_utils import restart_program
 from fzutils.cp_utils import get_taobao_sign_and_body
 from fzutils.common_utils import list_duplicate_remove
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class TaoBaoWeiTaoShareParse():
     def __init__(self, logger=None):

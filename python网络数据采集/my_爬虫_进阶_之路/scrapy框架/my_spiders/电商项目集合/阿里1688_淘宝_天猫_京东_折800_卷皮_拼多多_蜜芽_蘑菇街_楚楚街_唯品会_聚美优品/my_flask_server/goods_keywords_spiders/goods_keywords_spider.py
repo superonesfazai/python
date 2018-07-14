@@ -9,7 +9,6 @@
 import sys
 sys.path.append('..')
 
-from my_requests import MyRequests
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from taobao_parse import TaoBaoLoginAndParse
 from ali_1688_parse import ALi1688LoginAndParse
@@ -31,7 +30,6 @@ from json import (
 )
 
 from pprint import pprint
-from random import randint
 import re
 from scrapy.selector import Selector
 
@@ -42,6 +40,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class GoodsKeywordsSpider(object):
     def __init__(self):

@@ -27,7 +27,6 @@ sys.path.append('..')
 from settings import MIA_BASE_NUMBER, MIA_MAX_NUMBER, MIA_SPIKE_SLEEP_TIME
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_requests import MyRequests
 
 from settings import IS_BACKGROUND_RUNNING
 import datetime
@@ -38,6 +37,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class MiaSpike(object):
     def __init__(self):

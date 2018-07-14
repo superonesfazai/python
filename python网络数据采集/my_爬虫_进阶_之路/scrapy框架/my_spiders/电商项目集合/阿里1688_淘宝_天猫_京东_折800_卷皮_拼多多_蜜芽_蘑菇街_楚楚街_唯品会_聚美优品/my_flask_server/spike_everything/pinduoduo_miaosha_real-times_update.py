@@ -12,11 +12,10 @@ sys.path.append('..')
 
 from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_ip_pools import MyIpPools
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re
 import json
 from pprint import pprint
 import time
@@ -35,6 +34,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

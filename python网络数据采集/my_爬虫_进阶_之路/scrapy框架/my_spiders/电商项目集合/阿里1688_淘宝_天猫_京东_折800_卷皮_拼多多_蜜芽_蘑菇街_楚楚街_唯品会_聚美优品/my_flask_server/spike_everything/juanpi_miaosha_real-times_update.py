@@ -12,7 +12,6 @@ sys.path.append('..')
 
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_requests import MyRequests
 
 import gc
 from time import sleep
@@ -20,9 +19,6 @@ import os, re, pytz, datetime
 import json
 from pprint import pprint
 import time
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from random import randint
 from settings import IS_BACKGROUND_RUNNING
 
 from fzutils.time_utils import (
@@ -32,6 +28,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)

@@ -14,8 +14,6 @@
 import time
 from random import randint
 import json
-import requests
-import re
 from pprint import pprint
 from decimal import Decimal
 from time import sleep
@@ -26,7 +24,6 @@ import pytz
 from scrapy import Selector
 from json import loads, dumps
 
-from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.time_utils import (
@@ -34,6 +31,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 '''
 改版抓包微信唯品会商品数据接口

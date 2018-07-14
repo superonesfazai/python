@@ -28,8 +28,6 @@ sys.path.append('..')
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
-from my_phantomjs import MyPhantomjs
-from my_requests import MyRequests
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -37,6 +35,8 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):

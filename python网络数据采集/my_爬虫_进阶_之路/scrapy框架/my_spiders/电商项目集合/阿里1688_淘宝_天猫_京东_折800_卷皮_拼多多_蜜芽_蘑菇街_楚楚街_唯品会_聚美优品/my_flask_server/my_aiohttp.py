@@ -7,11 +7,12 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import asyncio, aiohttp
+import asyncio
+import aiohttp
 import re, gc, time
 from random import randint
 
-from my_ip_pools import MyIpPools
+from fzutils.ip_pools import MyIpPools
 
 class MyAiohttp(object):
     def __init__(self, max_tasks=10):

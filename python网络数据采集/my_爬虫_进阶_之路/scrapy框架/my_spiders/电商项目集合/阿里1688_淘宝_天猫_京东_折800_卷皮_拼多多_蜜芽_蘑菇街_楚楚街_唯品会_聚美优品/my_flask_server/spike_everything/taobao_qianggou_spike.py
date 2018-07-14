@@ -15,7 +15,6 @@
 import sys
 sys.path.append('..')
 
-from random import randint
 import json
 import re
 from pprint import pprint

@@ -10,10 +10,9 @@ import sys, json, re
 sys.path.append('..')
 from pprint import pprint
 
-from my_requests import MyRequests
-from my_phantomjs import MyPhantomjs
-
 from fzutils.internet_utils import _get_url_contain_params
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 def _init_chrome(is_headless=True, is_pic=True, is_proxy=True):
     '''

@@ -18,11 +18,8 @@ from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
-import os
-import re, pytz, datetime
-import json
+import re
 from settings import IS_BACKGROUND_RUNNING
-import time
 
 from fzutils.time_utils import (
     get_shanghai_time,

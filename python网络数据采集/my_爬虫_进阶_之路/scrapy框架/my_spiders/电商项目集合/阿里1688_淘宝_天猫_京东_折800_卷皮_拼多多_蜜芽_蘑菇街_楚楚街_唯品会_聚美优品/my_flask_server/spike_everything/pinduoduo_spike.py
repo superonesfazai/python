@@ -11,21 +11,17 @@ from random import randint
 import json
 import requests
 import re
-import time
 from pprint import pprint
 import gc
-import pytz
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from time import sleep
-import os
 
 import sys
 sys.path.append('..')
 
 from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_ip_pools import MyIpPools
 
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
@@ -38,6 +34,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.ip_pools import MyIpPools
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

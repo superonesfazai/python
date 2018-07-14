@@ -14,7 +14,6 @@ import re, execjs
 from pprint import pprint
 from decimal import Decimal
 from json import dumps
-from selenium import webdriver
 from time import sleep
 import gc
 from scrapy.selector import Selector
@@ -26,13 +25,13 @@ from requests.exceptions import ProxyError
 from urllib.parse import urlencode
 
 from taobao_parse import TaoBaoLoginAndParse
-from my_requests import MyRequests
 from my_items import GoodsItem
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 class TmallParse(object):
     def __init__(self, logger=None):
