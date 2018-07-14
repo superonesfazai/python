@@ -34,8 +34,9 @@ from settings import PHANTOMJS_DRIVER_PATH
 from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
 from my_items import GoodsItem
+
+from fzutils.time_utils import get_shanghai_time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

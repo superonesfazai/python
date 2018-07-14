@@ -12,12 +12,6 @@ sys.path.append('..')
 
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_logging import set_logger
-from my_utils import (
-    get_shanghai_time,
-    string_to_datetime,
-    filter_invalid_comment_content,
-)
 from my_items import CommentItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
@@ -27,13 +21,21 @@ from random import (
     choice,
 )
 
-import gc, time
+import gc
+import time
 from time import sleep
 from logging import INFO, ERROR
 from scrapy.selector import Selector
 import re, datetime, json
 from pprint import pprint
 from demjson import decode
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+    string_to_datetime,
+)
+from fzutils.cp_utils import filter_invalid_comment_content
 
 class ALi1688CommentParse(object):
     '''

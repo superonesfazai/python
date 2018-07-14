@@ -10,7 +10,7 @@ import sys
 sys.path.append('..')
 
 from ..ip_pools import MyIpPools
-from ..internet_utils import get_random_pc_headers
+from ..internet_utils import get_random_pc_ua
 
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
@@ -74,7 +74,7 @@ class MyPhantomjs(object):
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = load_images
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = get_random_pc_headers()  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
 
         self.driver = webdriver.PhantomJS(executable_path=executable_path, desired_capabilities=cap)

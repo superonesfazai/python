@@ -32,11 +32,15 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from settings import PHANTOMJS_DRIVER_PATH
 from settings import HEADERS
-from my_utils import get_shanghai_time, timestamp_to_regulartime
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
 from my_items import GoodsItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

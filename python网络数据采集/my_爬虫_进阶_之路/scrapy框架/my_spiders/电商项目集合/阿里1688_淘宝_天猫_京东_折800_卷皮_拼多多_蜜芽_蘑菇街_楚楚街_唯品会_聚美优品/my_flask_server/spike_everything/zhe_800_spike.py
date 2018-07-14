@@ -26,8 +26,13 @@ from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
-from my_utils import get_miaosha_begin_time_and_miaosha_end_time
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Zhe800Spike(object):
     def __init__(self):

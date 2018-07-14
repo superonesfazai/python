@@ -28,7 +28,11 @@ from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import datetime
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
 
 class Zhe800Pintuan(object):
     def __init__(self):

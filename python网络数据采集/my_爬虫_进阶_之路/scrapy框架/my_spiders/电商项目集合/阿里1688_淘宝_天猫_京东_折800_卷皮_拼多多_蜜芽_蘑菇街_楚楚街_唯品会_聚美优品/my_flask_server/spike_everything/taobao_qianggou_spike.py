@@ -38,19 +38,24 @@ from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
     SqlPools
 )
-from my_utils import (
+
+from taobao_parse import TaoBaoLoginAndParse
+from tmall_parse_2 import TmallParse
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
     get_shanghai_time,
-    daemon_init,
     timestamp_to_regulartime,
+)
+from fzutils.linux_utils import (
+    daemon_init,
     restart_program,
+)
+from fzutils.cp_utils import (
     get_miaosha_begin_time_and_miaosha_end_time,
     calculate_right_sign,
     get_taobao_sign_and_body,
 )
-from my_logging import set_logger
-
-from taobao_parse import TaoBaoLoginAndParse
-from tmall_parse_2 import TmallParse
 
 class TaoBaoQiangGou(object):
     def __init__(self, logger=None):

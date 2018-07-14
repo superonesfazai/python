@@ -28,10 +28,15 @@ from settings import HEADERS, MIA_BASE_NUMBER, MIA_MAX_NUMBER, MIA_SPIKE_SLEEP_T
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 from settings import IS_BACKGROUND_RUNNING
 import datetime
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 class MiaSpike(object):
     def __init__(self):

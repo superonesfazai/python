@@ -17,7 +17,6 @@ sys.path.append('..')
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import gc
 from time import sleep
@@ -27,6 +26,12 @@ from pprint import pprint
 import time
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 class Mia_Miaosha_Real_Time_Update(object):
     def __init__(self):

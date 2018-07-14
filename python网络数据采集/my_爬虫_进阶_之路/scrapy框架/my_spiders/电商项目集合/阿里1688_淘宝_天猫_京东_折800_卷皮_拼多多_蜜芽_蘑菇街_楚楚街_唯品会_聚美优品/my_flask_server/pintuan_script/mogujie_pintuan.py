@@ -28,7 +28,12 @@ import datetime
 from mogujie_parse import MoGuJieParse
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 class MoGuJiePinTuan(object):
     def __init__(self):

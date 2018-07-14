@@ -30,9 +30,11 @@ from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
 
 from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
+
+from fzutils.time_utils import get_shanghai_time
+from fzutils.linux_utils import daemon_init
 
 class JuMeiYouPinSpike(object):
     def __init__(self):

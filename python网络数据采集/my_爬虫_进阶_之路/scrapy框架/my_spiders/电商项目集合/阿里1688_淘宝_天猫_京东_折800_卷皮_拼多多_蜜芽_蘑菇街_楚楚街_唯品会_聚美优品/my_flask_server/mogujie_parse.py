@@ -29,9 +29,9 @@ import gc
 from settings import HEADERS
 import pytz
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
 
-from tools.my_logging import set_logger
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
 
 class MoGuJieParse(object):
     def __init__(self):

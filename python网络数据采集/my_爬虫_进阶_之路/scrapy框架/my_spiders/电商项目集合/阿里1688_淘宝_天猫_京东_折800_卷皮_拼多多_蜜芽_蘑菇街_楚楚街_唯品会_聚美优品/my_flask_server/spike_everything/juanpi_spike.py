@@ -26,10 +26,15 @@ from settings import HEADERS
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
-from my_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 from settings import IS_BACKGROUND_RUNNING
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuanPiSpike(object):
     def __init__(self):
@@ -86,7 +91,7 @@ class JuanPiSpike(object):
                         juanpi = JuanPiParse()
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         if my_pipeline.is_connect_success:
-                            sql_str = r'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15'
+                            sql_str = 'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15'
                             if my_pipeline._select_table(sql_str=sql_str) is None:
                                 db_goods_id_list = []
                             else:

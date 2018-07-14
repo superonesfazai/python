@@ -35,7 +35,8 @@ from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
 import pytz, datetime
 from scrapy.selector import Selector
 from my_ip_pools import MyIpPools
-from my_utils import get_shanghai_time
+
+from fzutils.time_utils import get_shanghai_time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

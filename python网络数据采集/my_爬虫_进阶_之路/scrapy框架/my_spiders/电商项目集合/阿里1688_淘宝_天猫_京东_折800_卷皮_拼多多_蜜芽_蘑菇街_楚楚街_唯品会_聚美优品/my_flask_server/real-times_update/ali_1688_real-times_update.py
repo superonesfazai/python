@@ -11,16 +11,19 @@ sys.path.append('..')
 
 from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import (
-    get_shanghai_time,
-    daemon_init,
-    _get_price_change_info,
-    get_shelf_time_and_delete_time,
-)
 
 import gc
 from time import sleep
 from settings import IS_BACKGROUND_RUNNING
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
+from fzutils.cp_utils import (
+    _get_price_change_info,
+    get_shelf_time_and_delete_time,
+)
 
 def run_forever():
     while True:

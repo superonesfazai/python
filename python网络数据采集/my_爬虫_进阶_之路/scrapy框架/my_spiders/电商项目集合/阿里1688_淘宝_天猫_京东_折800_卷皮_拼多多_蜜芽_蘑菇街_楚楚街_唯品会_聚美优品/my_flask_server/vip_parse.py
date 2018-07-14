@@ -28,12 +28,12 @@ from json import loads, dumps
 
 from settings import HEADERS
 from my_requests import MyRequests
-from my_utils import (
+from my_items import GoodsItem
+
+from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
 )
-from my_items import GoodsItem
-
 
 '''
 改版抓包微信唯品会商品数据接口

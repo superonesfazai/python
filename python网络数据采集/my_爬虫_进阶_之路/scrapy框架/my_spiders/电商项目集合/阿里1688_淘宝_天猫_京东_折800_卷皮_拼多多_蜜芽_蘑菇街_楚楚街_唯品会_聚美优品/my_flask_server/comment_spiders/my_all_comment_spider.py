@@ -14,8 +14,6 @@ from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
     CommentInfoSaveItemPipeline,
 )
-from my_logging import set_logger
-from my_utils import daemon_init, get_shanghai_time
 
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
@@ -30,6 +28,10 @@ from logging import INFO, ERROR
 from time import sleep
 from json import dumps
 from pprint import pprint
+
+from fzutils.log_utils import set_logger
+from fzutils.linux_utils import daemon_init
+from fzutils.time_utils import get_shanghai_time
 
 class MyAllCommentSpider(object):
     def __init__(self):

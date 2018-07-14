@@ -17,7 +17,6 @@ sys.path.append('..')
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import gc
 from time import sleep
@@ -29,6 +28,12 @@ from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import requests
 from decimal import Decimal
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 class MoGuJieMiaoShaRealTimeUpdate(object):
     def __init__(self):

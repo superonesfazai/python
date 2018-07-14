@@ -22,11 +22,16 @@ from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
-from my_utils import get_miaosha_begin_time_and_miaosha_end_time
-from my_utils import datetime_to_timestamp
 
 from zhe_800_spike import Zhe800Spike
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+    datetime_to_timestamp,
+)
+from fzutils.linux_utils import daemon_init
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):

@@ -28,7 +28,8 @@ from scrapy.selector import Selector
 
 from settings import HEADERS
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
+
+from fzutils.time_utils import get_shanghai_time
 
 class JuMeiYouPinParse(object):
     def __init__(self):

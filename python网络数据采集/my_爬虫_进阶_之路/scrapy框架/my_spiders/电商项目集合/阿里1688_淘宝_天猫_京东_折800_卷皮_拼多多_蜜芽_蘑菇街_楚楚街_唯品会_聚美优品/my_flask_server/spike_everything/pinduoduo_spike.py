@@ -27,12 +27,17 @@ from settings import HEADERS
 from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_ip_pools import MyIpPools
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
 from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
 import datetime
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

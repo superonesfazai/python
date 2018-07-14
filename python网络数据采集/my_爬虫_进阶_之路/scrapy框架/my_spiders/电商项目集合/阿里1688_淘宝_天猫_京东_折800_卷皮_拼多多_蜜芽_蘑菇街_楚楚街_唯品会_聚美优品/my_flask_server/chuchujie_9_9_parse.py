@@ -29,7 +29,8 @@ from json import dumps
 from settings import HEADERS
 from my_ip_pools import MyIpPools
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time
+
+from fzutils.time_utils import get_shanghai_time
 
 class ChuChuJie_9_9_Parse(object):
     def __init__(self):

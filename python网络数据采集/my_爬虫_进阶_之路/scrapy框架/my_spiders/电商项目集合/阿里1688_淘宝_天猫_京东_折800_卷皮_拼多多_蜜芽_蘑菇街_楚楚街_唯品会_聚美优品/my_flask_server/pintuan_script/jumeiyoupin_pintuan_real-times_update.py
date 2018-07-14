@@ -15,8 +15,6 @@ from jumeiyoupin_pintuan import JuMeiYouPinPinTuan
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
-from my_logging import set_logger
-from my_utils import get_shanghai_time, daemon_init, restart_program
 
 import gc
 from time import sleep
@@ -28,6 +26,15 @@ from logging import INFO, ERROR
 from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, MY_SPIDER_LOGS_PATH
 import asyncio
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import (
+    daemon_init,
+    restart_program,
+)
 
 class JuMeiYouPinRealTimesUpdate(object):
     def __init__(self):

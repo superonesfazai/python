@@ -13,7 +13,6 @@ sys.path.append('..')
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import gc
 from time import sleep
@@ -25,10 +24,16 @@ from random import randint
 from settings import HEADERS, IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 from my_requests import MyRequests
 
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
+
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = r'delete from dbo.mogujie_pintuan where goods_id=%s'
+        self.delete_sql_str = 'delete from dbo.mogujie_pintuan where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {

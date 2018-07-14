@@ -28,13 +28,17 @@ import re, gc
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
-from my_utils import get_shanghai_time, daemon_init
 
 from requests.exceptions import ReadTimeout, ConnectionError
 # from requests_futures.sessions import FuturesSession
 
 import asyncio
 import aiohttp
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
 
 reload(sys)
 

@@ -13,8 +13,6 @@ sys.path.append('..')
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
-from my_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 import gc
 from time import sleep
@@ -28,6 +26,13 @@ from random import randint
 from settings import HEADERS
 from settings import IS_BACKGROUND_RUNNING
 
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
 '''
@@ -35,7 +40,7 @@ from settings import IS_BACKGROUND_RUNNING
 class Juanpi_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = r'delete from dbo.juanpi_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = 'delete from dbo.juanpi_xianshimiaosha where goods_id=%s'
 
     def _set_headers(self):
         self.headers = {
@@ -55,7 +60,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15'
+        sql_str = 'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15 order by id desc'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:

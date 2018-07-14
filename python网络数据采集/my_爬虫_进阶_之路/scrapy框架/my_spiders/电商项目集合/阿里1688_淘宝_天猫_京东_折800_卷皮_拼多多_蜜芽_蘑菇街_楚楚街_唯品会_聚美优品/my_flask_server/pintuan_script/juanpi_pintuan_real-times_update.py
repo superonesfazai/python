@@ -12,13 +12,17 @@ sys.path.append('..')
 
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init
 
 import gc
 from time import sleep
 import json
 from settings import IS_BACKGROUND_RUNNING
 import time
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
 
 def run_forever():
     while True:

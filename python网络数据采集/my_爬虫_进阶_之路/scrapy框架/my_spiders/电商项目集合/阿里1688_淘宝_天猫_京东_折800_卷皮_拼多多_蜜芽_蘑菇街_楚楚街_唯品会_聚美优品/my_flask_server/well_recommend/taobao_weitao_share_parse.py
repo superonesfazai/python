@@ -18,13 +18,6 @@ import gc
 from pprint import pprint
 from urllib.parse import unquote
 
-from my_logging import set_logger
-from my_utils import (
-    get_shanghai_time,
-    get_taobao_sign_and_body,
-    restart_program,
-    list_duplicate_remove,
-)
 from settings import (
     MY_SPIDER_LOGS_PATH,
     HEADERS,
@@ -34,6 +27,12 @@ from my_requests import MyRequests
 from my_items import WellRecommendArticle
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from taobao_parse import TaoBaoLoginAndParse
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
+from fzutils.linux_utils import restart_program
+from fzutils.cp_utils import get_taobao_sign_and_body
+from fzutils.common_utils import list_duplicate_remove
 
 class TaoBaoWeiTaoShareParse():
     def __init__(self, logger=None):

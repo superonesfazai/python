@@ -11,8 +11,6 @@ import sys
 sys.path.append('..')
 
 from my_pipeline import CommentInfoSaveItemPipeline
-from my_logging import set_logger
-from my_utils import daemon_init, get_shanghai_time
 
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
@@ -25,6 +23,10 @@ import gc
 from logging import INFO, ERROR
 from time import sleep
 from json import dumps
+
+from fzutils.log_utils import set_logger
+from fzutils.linux_utils import daemon_init
+from fzutils.time_utils import get_shanghai_time
 
 class CommentRealTimeUpdateSpider(object):
     def __init__(self):

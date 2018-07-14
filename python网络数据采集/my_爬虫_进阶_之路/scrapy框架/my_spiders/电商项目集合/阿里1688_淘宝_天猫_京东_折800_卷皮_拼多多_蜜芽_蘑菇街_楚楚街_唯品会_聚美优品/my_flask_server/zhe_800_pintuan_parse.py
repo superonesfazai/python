@@ -34,7 +34,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
+
+from fzutils.time_utils import get_shanghai_time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

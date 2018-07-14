@@ -25,10 +25,16 @@ from settings import HEADERS, IS_BACKGROUND_RUNNING
 from settings import MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
-from my_logging import set_logger
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
-from my_utils import datetime_to_timestamp
-from my_utils import restart_program
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import (
+    daemon_init,
+    restart_program,
+)
 
 class TaoBaoQiangGouRealTimesUpdate(object):
     '''NOTICE: 由于都是当天数据, 此处不更新上下架时间，就更新商品数据'''

@@ -12,13 +12,17 @@ sys.path.append('..')
 
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init
 
 import gc
 from time import sleep
 import os, re, pytz, datetime
 import json
 from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
 
 def run_forever():
     while True:

@@ -9,15 +9,15 @@
 import sys
 sys.path.append('..')
 
-from my_utils import (
-    daemon_init,
-    process_exit,
-)
-
 from time import sleep
 import datetime
 import re
 import os
+
+from fzutils.linux_utils import (
+    daemon_init,
+    process_exit,
+)
 
 spike_file_name_list = [
     'zhe_800_spike',

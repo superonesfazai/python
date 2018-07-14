@@ -60,11 +60,6 @@ from settings import (
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
 )
-from my_logging import set_logger
-from my_utils import (
-    get_shanghai_time,
-    daemon_init,
-)
 from my_items import GoodsItem
 from my_signature import Signature
 
@@ -87,6 +82,10 @@ from base64 import b64decode
 from gevent.wsgi import WSGIServer      # 高并发部署
 import gc
 import pytz
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
+from fzutils.linux_utils import daemon_init
 
 app = Flask(__name__, root_path=os.getcwd())
 

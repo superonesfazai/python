@@ -2,9 +2,8 @@
 
 '''
 @author = super_fazai
-@File    : __init__.py.py
-@Time    : 2018/7/13 17:59
+@File    : sql_utils.py
+@Time    : 2017/7/14 14:36
 @connect : superonesfazai@gmail.com
 '''
 
-name = 'fzutils'

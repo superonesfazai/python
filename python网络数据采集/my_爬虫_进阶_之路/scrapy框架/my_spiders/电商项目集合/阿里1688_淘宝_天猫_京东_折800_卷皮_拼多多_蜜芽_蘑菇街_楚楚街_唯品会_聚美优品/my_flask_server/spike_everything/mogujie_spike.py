@@ -28,11 +28,16 @@ from settings import HEADERS
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
 from decimal import Decimal
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 class MoGuJieSpike(object):
     def __init__(self):

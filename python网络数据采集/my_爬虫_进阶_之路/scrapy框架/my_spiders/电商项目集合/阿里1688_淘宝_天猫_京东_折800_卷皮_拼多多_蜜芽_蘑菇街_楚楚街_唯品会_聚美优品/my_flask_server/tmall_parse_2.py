@@ -27,12 +27,11 @@ from urllib.parse import urlencode
 
 from taobao_parse import TaoBaoLoginAndParse
 from my_requests import MyRequests
-from my_logging import set_logger
-from my_utils import (
-    tuple_or_list_params_2_dict_params,
-    get_shanghai_time,
-)
 from my_items import GoodsItem
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 
 class TmallParse(object):
     def __init__(self, logger=None):

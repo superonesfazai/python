@@ -10,15 +10,17 @@
 import sys
 sys.path.append('..')
 
-from my_utils import (
-    daemon_init,
-    process_exit,
-    get_shanghai_time,
-    kill_process_by_name
-)
-
 from time import sleep
 import os
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import (
+    daemon_init,
+    process_exit,
+    kill_process_by_name,
+)
 
 tejia_file_name_list = [
     # 'taobao_tiantiantejia',

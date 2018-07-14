@@ -18,12 +18,14 @@
 from functools import wraps
 from flask import request, jsonify
 import hashlib, time, datetime
-from my_utils import (
+from pprint import pprint
+
+from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
     timestamp_to_regulartime,
 )
-from pprint import pprint
+
 
 md5 = lambda pwd: hashlib.md5(pwd).hexdigest()
 

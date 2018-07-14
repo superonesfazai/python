@@ -29,10 +29,11 @@ from scrapy.selector import Selector
 from settings import HEADERS, MY_SPIDER_LOGS_PATH, JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
-from my_logging import set_logger
-from my_utils import get_shanghai_time
 from logging import INFO, ERROR
 import pytz, datetime
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
 
 class JuMeiYouPinPinTuanParse(object):
     def __init__(self, logger=None):

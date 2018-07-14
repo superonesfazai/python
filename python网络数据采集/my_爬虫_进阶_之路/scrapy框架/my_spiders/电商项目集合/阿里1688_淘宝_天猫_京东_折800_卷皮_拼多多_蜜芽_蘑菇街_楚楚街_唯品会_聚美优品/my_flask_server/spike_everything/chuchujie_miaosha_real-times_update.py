@@ -17,7 +17,6 @@ sys.path.append('..')
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
 
 import gc
 from time import sleep
@@ -29,6 +28,9 @@ from random import randint
 
 from settings import HEADERS, IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
 from decimal import Decimal
+
+from fzutils.time_utils import get_shanghai_time
+from fzutils.linux_utils import daemon_init
 
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):

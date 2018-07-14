@@ -26,8 +26,9 @@ import pytz
 from scrapy.selector import Selector
 from my_phantomjs import MyPhantomjs
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
 from my_items import GoodsItem
+
+from fzutils.time_utils import get_shanghai_time
 
 class ALi1688LoginAndParse(object):
     def __init__(self):

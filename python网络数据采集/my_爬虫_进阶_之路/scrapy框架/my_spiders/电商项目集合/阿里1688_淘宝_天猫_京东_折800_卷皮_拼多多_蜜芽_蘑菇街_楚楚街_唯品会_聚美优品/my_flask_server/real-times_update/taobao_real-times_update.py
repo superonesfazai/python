@@ -19,14 +19,6 @@ from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
     SqlPools,
 )
-from my_utils import (
-    get_shanghai_time,
-    daemon_init,
-    restart_program,
-    get_shelf_time_and_delete_time,
-    _get_price_change_info,
-)
-from my_logging import set_logger
 
 from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 import gc
@@ -35,6 +27,19 @@ from logging import INFO, ERROR
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,
+)
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import (
+    daemon_init,
+    restart_program,
+)
+from fzutils.cp_utils import (
+    _get_price_change_info,
+    get_shelf_time_and_delete_time,
 )
 
 def run_forever():

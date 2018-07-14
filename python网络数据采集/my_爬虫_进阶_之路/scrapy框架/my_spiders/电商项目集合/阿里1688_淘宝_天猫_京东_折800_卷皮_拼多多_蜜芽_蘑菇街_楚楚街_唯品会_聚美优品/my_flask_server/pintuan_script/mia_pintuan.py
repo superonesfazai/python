@@ -25,9 +25,13 @@ from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init
 
 import datetime
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
 
 class MiaPintuan(object):
     def __init__(self):

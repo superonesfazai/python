@@ -23,8 +23,15 @@ from logging import INFO, ERROR
 import asyncio
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_utils import get_shanghai_time, daemon_init, restart_program
-from my_logging import set_logger
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import (
+    daemon_init,
+    restart_program,
+)
 
 async def run_forever():
     #### 实时更新数据

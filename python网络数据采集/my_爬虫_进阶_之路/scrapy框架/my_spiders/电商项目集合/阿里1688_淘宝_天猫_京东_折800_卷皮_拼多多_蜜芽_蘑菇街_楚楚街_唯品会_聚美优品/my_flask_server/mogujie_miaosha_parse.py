@@ -25,7 +25,8 @@ import pytz
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
+
+from fzutils.time_utils import get_shanghai_time
 
 class MoGuJieMiaoShaParse(MoGuJieParse):
     def __init__(self):

@@ -29,10 +29,18 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, JUMEIYOUPIN_PINTUAN_API_TIMEOUT
 import datetime
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
-from my_logging import set_logger
 from my_aiohttp import MyAiohttp
 from my_phantomjs import MyPhantomjs
-from my_utils import get_shanghai_time, daemon_init, restart_program, timestamp_to_regulartime
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import (
+    daemon_init,
+    restart_program,
+)
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):

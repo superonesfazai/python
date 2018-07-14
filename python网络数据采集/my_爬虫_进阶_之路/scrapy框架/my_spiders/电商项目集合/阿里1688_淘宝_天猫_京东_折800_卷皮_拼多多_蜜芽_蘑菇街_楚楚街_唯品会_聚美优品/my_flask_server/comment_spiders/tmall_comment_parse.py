@@ -14,13 +14,6 @@ sys.path.append('..')
 from tmall_parse_2 import TmallParse
 from taobao_parse import TaoBaoLoginAndParse
 from my_phantomjs import MyPhantomjs
-from my_logging import set_logger
-from my_utils import (
-    get_shanghai_time,
-    string_to_datetime,
-    _get_url_contain_params,
-    filter_invalid_comment_content,
-)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -32,6 +25,13 @@ from scrapy.selector import Selector
 import re, datetime, json
 from pprint import pprint
 from random import choice
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.cp_utils import filter_invalid_comment_content
+from fzutils.internet_utils import _get_url_contain_params
 
 class TmallCommentParse(object):
     def __init__(self, logger=None):

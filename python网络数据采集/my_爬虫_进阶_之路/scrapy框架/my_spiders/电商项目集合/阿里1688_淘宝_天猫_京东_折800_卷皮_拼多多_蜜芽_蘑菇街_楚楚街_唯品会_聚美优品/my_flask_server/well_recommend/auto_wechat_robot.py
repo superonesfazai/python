@@ -17,8 +17,9 @@ import re
 from taobao_weitao_share_parse import TaoBaoWeiTaoShareParse
 import asyncio
 import gc
-from my_utils import restart_program
 import uuid
+
+from fzutils.linux_utils import restart_program
 
 my_queue = Queue(100)
 old_message_url_uuid_list = []

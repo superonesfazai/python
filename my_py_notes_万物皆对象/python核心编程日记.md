@@ -267,3 +267,9 @@ pip3 install -U fzutils
 
 #### 注意层级, fzutils才能被导入(结构如下图)
 ![](../images/pypi.png)
+
+
+## * pycharm 的lincese server认证
+```html
+地址: http://idea.imsxm.com
+```

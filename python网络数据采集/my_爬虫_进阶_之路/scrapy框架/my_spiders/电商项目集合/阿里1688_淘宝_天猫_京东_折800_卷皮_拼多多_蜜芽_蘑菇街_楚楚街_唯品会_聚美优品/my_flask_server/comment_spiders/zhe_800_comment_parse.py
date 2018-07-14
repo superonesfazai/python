@@ -11,12 +11,6 @@ import sys
 sys.path.append('..')
 
 from my_requests import MyRequests
-from my_logging import set_logger
-from my_utils import (
-    get_shanghai_time,
-    string_to_datetime,
-    filter_invalid_comment_content,
-)
 from my_items import CommentItem
 from settings import HEADERS, MY_SPIDER_LOGS_PATH
 
@@ -26,6 +20,12 @@ import gc
 from logging import INFO, ERROR
 import re, datetime, json
 from pprint import pprint
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.cp_utils import filter_invalid_comment_content
 
 class Zhe800CommentParse(object):
     def __init__(self, logger=None):

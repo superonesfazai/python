@@ -33,8 +33,9 @@ from settings import (
     PORT_2,
     MY_SPIDER_LOGS_PATH,
 )
-from my_logging import set_logger
-from my_utils import get_shanghai_time
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
 
 class SqlServerMyPageInfoSaveItemPipeline(object):
     """

@@ -10,11 +10,7 @@
 import sys
 sys.path.append('..')
 
-from my_logging import set_logger
 from my_requests import MyRequests
-from my_utils import (
-    get_shanghai_time,
-)
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -32,6 +28,9 @@ from json import (
 from pprint import pprint
 import time
 import re
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
 
 class XiaoHongShuParse():
     def __init__(self, logger=None):

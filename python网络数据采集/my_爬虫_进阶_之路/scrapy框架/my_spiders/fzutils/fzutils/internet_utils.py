@@ -18,8 +18,8 @@ __all__ = [
     'chrome_copy_requests_header_2_dict_headers',           # 将直接从chrome复制的Request Headers转换为dict的headers
     'chrome_copy_query_string_parameters_2_tuple_params',   # 将直接从chrome复制的Query String Parameters转换为tuple类型的params
 
-    'get_random_pc_headers',                                # 得到一个随机pc headers
-    'get_random_phone_headers',                             # 得到一个随机phone headers
+    'get_random_pc_ua',                                     # 得到一个随机pc headers
+    'get_random_phone_ua',                                  # 得到一个随机phone headers
     'get_base_headers',                                     # 得到一个base headers
 ]
 
@@ -106,9 +106,9 @@ def chrome_copy_query_string_parameters_2_tuple_params(copy_params):
 
     return tuple(tmp)
 
-def get_random_pc_headers():
+def get_random_pc_ua():
     '''
-    得到一个随机pc headers
+    得到一个随机pc ua
     :return:
     '''
     from random import choice
@@ -155,9 +155,9 @@ def get_random_pc_headers():
 
     return choice(PC_HEADERS)
 
-def get_random_phone_headers():
+def get_random_phone_ua():
     '''
-    随机一个随机phone headers
+    随机一个随机phone ua
     :return:
     '''
     from random import choice
@@ -185,6 +185,6 @@ def get_base_headers():
     return {
         'accept-encoding': 'gzip, deflate, br',
         'accept-language': 'zh-CN,zh;q=0.9',
-        'user-agent': get_random_pc_headers(),
+        'user-agent': get_random_pc_ua(),
         'accept': '*/*'
     }

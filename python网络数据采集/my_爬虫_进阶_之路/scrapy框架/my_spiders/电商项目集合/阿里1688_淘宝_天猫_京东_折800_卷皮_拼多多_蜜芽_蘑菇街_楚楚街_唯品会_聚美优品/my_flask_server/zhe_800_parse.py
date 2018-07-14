@@ -28,8 +28,9 @@ import pytz
 from settings import HEADERS
 from my_ip_pools import MyIpPools
 from my_requests import MyRequests
-from my_utils import get_shanghai_time
 from my_items import GoodsItem
+
+from fzutils.time_utils import get_shanghai_time
 
 class Zhe800Parse(object):
     def __init__(self):

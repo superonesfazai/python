@@ -11,12 +11,6 @@ sys.path.append('..')
 
 from my_requests import MyRequests
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_logging import set_logger
-from my_utils import (
-    daemon_init,
-    get_shanghai_time,
-    deal_with_JSONDecodeError_about_value_invalid_escape,
-)
 from taobao_parse import TaoBaoLoginAndParse
 from ali_1688_parse import ALi1688LoginAndParse
 from tmall_parse_2 import TmallParse
@@ -41,6 +35,13 @@ from pprint import pprint
 from random import randint
 import re
 from scrapy.selector import Selector
+
+from fzutils.log_utils import set_logger
+from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_escape
+from fzutils.time_utils import (
+    get_shanghai_time,
+)
+from fzutils.linux_utils import daemon_init
 
 class GoodsKeywordsSpider(object):
     def __init__(self):

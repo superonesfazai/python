@@ -24,9 +24,14 @@ from settings import HEADERS, IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_requests import MyRequests
-from my_utils import get_shanghai_time, daemon_init, timestamp_to_regulartime
 
 import datetime
+
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+)
+from fzutils.linux_utils import daemon_init
 
 class JuanPiPinTuan(object):
     def __init__(self):

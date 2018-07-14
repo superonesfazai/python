@@ -24,7 +24,7 @@ import codecs
     2. upload
     $ twine upload dist/* --skip-existing
     
-    3. 本地更新(发布完后过会才能更新Release)
+    3. 本地更新(发布完后过会才能更新Release)[注意: pycharm可能要单独更新]
     $ pip3 install fzutils -U
 """
 
@@ -53,6 +53,16 @@ install_requires = [
     'selenium',
     'chardet',
     'bs4',
+    'scrapy',
+    'demjson',
+    'pymssql',
+    'sqlalchemy',
+    'gevent',
+    'aiohttp',
+    'celery',
+    'jsonpath',
+    'matplotlib',
+    'wget',
 ]
 
 classifiers = [
