@@ -7,11 +7,9 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import requests
 import re
 from pprint import pprint
 from urllib.parse import unquote
-from my_requests import MyRequests
 from matplotlib.font_manager import FontProperties
 import gc
 import os
@@ -21,49 +19,11 @@ from time import sleep
 import demjson
 from matplotlib.pyplot import savefig
 
-def get_shanghai_time():
-    '''
-    时区处理，得到上海时间
-    :return: datetime类型
-    '''
-    import pytz
-    import datetime
-    import re
-
-    # 时区处理，时间处理到上海时间
-    # pytz查询某个国家时区
-    country_timezones_list = pytz.country_timezones('cn')
-    # print(country_timezones_list)
-
-    tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-    now_time = datetime.datetime.now(tz)
-
-    # 处理为精确到秒位，删除时区信息
-    now_time = re.compile(r'\..*').sub('', str(now_time))
-    # 将字符串类型转换为datetime类型
-    now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-    return now_time
-
-def timestamp_to_regulartime(timestamp):
-    '''
-    将时间戳转换成时间
-    '''
-    import time
-    # 利用localtime()函数将时间戳转化成localtime的格式
-    # 利用strftime()函数重新格式化时间
-
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(timestamp)))
-
-def string_to_datetime(string):
-    '''
-    将字符串转换成datetime
-    :param string:
-    :return:
-    '''
-    import datetime
-
-    return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.time_utils import (
+    get_shanghai_time,
+    timestamp_to_regulartime,
+    string_to_datetime,)
 
 def month_differ(x, y):
     """暂不考虑day, 只根据month和year计算相差月份
@@ -79,7 +39,7 @@ def month_differ(x, y):
 
     return month_differ
 
-def json_str_2_dict(json_str):
+def json_2_dict(json_str):
     from json import JSONDecodeError, loads
     try:
         _ = loads(json_str)
@@ -105,11 +65,15 @@ def unquote_cookies(cookies: dict):
     return _
 
 class BaseFund(object):
-    def __init__(self):
+    def __init__(self, base_path='/Users/afa/myFiles/tmp/基金/伪好基/'):
+        '''
+        :param base_path: 基金图片存储path
+        '''
         self.page_num_start = 1     # 开放基金排行开始page
         self.page_num_end = 3
         self.CRAWL_FUND_TIME = 1.5  # 抓取每只基金的sleep time
         self.plot_pic = None
+        self.base_path = base_path
 
     def _get_rank_fund_info(self):
         '''
@@ -227,6 +191,7 @@ class BaseFund(object):
             sleep(self.CRAWL_FUND_TIME)
 
         print('\n@@@ 所有操作完成!\n')
+
         return True
 
     def _get_one_fund_info(self, fund_code):
@@ -317,7 +282,7 @@ class BaseFund(object):
             print(msg)
 
             # 单位净值走势 equityReturn-净值回报 unitMoney-每份派送金
-            data_net_worth_trend = json_str_2_dict(re.compile(r'Data_netWorthTrend = (.*?);').findall(body)[0])
+            data_net_worth_trend = json_2_dict(re.compile(r'Data_netWorthTrend = (.*?);').findall(body)[0])
             # pprint(data_net_worth_trend)
             # print('单位净值走势: {0}'.format(data_net_worth_trend))
             self._deal_with_data_net_worth_trend(
@@ -326,24 +291,24 @@ class BaseFund(object):
                 data_net_worth_trend=data_net_worth_trend)
 
             # 累计净值走势
-            data_ac_worth_trend = json_str_2_dict(re.compile(r'Data_ACWorthTrend = (.*?);').findall(body)[0])
+            data_ac_worth_trend = json_2_dict(re.compile(r'Data_ACWorthTrend = (.*?);').findall(body)[0])
             # pprint(data_ac_worth_trend)
             # print('累计净值走势: {0}'.format(data_ac_worth_trend))
 
             # 累计收益率走势
-            data_grand_total = json_str_2_dict(re.compile(r'Data_grandTotal = (.*?);').findall(body)[0])
+            data_grand_total = json_2_dict(re.compile(r'Data_grandTotal = (.*?);').findall(body)[0])
             # print('累计收益率走势: {0}'.format(data_grand_total))
 
             # 同类排名走势
-            data_rate_in_similar_type = json_str_2_dict(re.compile(r'Data_rateInSimilarType = (.*?);').findall(body)[0])
+            data_rate_in_similar_type = json_2_dict(re.compile(r'Data_rateInSimilarType = (.*?);').findall(body)[0])
             # print('同类排名走势: {0}'.format(data_rate_in_similar_type))
 
             # 同类排名百分比
-            data_rate_in_similar_persent = json_str_2_dict(re.compile(r'Data_rateInSimilarPersent=(.*?);').findall(body)[0])
+            data_rate_in_similar_persent = json_2_dict(re.compile(r'Data_rateInSimilarPersent=(.*?);').findall(body)[0])
             # print('同类排名百分比: {0}'.format(data_rate_in_similar_persent))
 
             # 同类型基金涨幅榜（页面底部通栏）
-            swith_same_type = json_str_2_dict(re.compile(r'swithSameType = (.*?);').findall(body)[0])
+            swith_same_type = json_2_dict(re.compile(r'swithSameType = (.*?);').findall(body)[0])
             # print('同类型基金涨幅榜: {0}'.format(swith_same_type))
 
         except IndexError as e:
@@ -441,9 +406,8 @@ class BaseFund(object):
         # plt.show()
 
         # 保存pic
-        base_path = '/Users/afa/myFiles/tmp/基金/伪好基/'
         pic_file_name = '{0}(代码{1}).jpg'.format(fund_name, fund_code)
-        pic_path = base_path + pic_file_name
+        pic_path = self.base_path + pic_file_name
         if os.path.exists(pic_path):  # 原先存在，就删除!
             # print('文件已存在!')
             os.remove(pic_path)

@@ -8,30 +8,42 @@
 '''
 
 __all__ = [
-    '_json_str_to_dict',                                        # json转dict
+    'json_2_dict',                                              # json转dict
     '_green',                                                   # 将字体变成绿色
     'delete_list_null_str',                                     # 删除list中的空str
     'list_duplicate_remove',                                    # list去重
 
     # json_str转dict时报错处理方案
     'deal_with_JSONDecodeError_about_value_invalid_escape',     # 错误如: ValueError: Invalid \escape: line 1 column 35442 (char 35441)
+
+    '_print',                                                   # fz的输出方式(常规print or logger打印)
 ]
 
-def _json_str_to_dict(json_str):
+def json_2_dict(json_str, logger=None, encoding=None):
     '''
     json字符串转dict
     :param json_str:
+    :param logger:
+    :param encoding: 解码格式
     :return:
     '''
     from json import (
         loads,
         JSONDecodeError,)
+    from demjson import decode
 
+    _ = {}
     try:
         _ = loads(json_str)
-    except JSONDecodeError as e:
-        print(e)
-        return {}
+    except JSONDecodeError:
+        # 上方解码失败! 采用demjson二次解码
+        try:
+            _ = decode(json_str, encoding=encoding)
+        except Exception as e:
+            if not logger:
+                print(e)
+            else:
+                logger.error('遇到错误!', exc_info=True)
 
     return _
 
@@ -75,3 +87,41 @@ def deal_with_JSONDecodeError_about_value_invalid_escape(json_str):
     import re
 
     return re.compile(r'\\(?![/u"])').sub(r"\\\\", json_str)
+
+def _print(**kwargs):
+    '''
+    fz的输出方式(常规print or logger打印)
+        可传特殊形式:
+            eg: _print(exception=e, logger=logger)  # logger可以为None
+    :param kwargs:
+    :return: None
+    '''
+    msg = kwargs.get('msg', '')
+    logger = kwargs.get('logger', None)
+    log_level = kwargs.get('log_level', 1)     # 日志等级(默认'info')
+    exception = kwargs.get('exception', None)
+
+    if not logger:
+        if not exception:
+            print(msg)
+        else:
+            if msg != '':
+                print(msg, exception)
+            else:
+                print(exception)
+    else:
+        if msg != '':
+            if isinstance(log_level, int):
+                if log_level == 1:
+                    logger.info(msg)
+                elif log_level == 2:
+                    logger.error(msg)
+                else:
+                    raise AssertionError('log_level没有定义该打印等级!')
+            else:
+                raise TypeError('log_level类型错误!')
+
+        if not exception:
+            logger.exception(exception)
+
+    return None

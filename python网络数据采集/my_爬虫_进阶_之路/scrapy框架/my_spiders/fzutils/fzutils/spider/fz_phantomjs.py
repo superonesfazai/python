@@ -11,6 +11,7 @@ sys.path.append('..')
 
 from ..ip_pools import MyIpPools
 from ..internet_utils import get_random_pc_ua
+from ..common_utils import _print
 
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
@@ -39,12 +40,13 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class MyPhantomjs(object):
-    def __init__(self, load_images=False, executable_path=EXECUTABLE_PATH):
+    def __init__(self, load_images=False, executable_path=EXECUTABLE_PATH, logger=None):
         '''
         初始化
         :param load_images: 是否加载图片
         '''
-        super().__init__()
+        super(MyPhantomjs, self).__init__()
+        self.my_lg = logger
         self._set_driver(load_images, executable_path)
 
     def _set_driver(self, load_images, executable_path, num_retries=4):
@@ -58,18 +60,18 @@ class MyPhantomjs(object):
         try:
             self.init_phantomjs(load_images, executable_path)
         except Exception as e:
-            # print('初始化phantomjs时出错:', e)
+            # _print(msg='初始化phantomjs时出错:', logger=self.my_lg, log_level=2, exception=e)
             if num_retries > 0:
                 return self._set_driver(load_images, executable_path, num_retries=num_retries - 1)
             else:
-                print('初始化phantomjs时出错:', e)
+                _print(msg='初始化phantomjs时出错:', logger=self.my_lg, log_level=2, exception=e)
                 raise e
 
     def init_phantomjs(self, load_images, executable_path):
         """
         初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
         """
-        print('--->>>初始化phantomjs驱动中<<<---')
+        _print(msg='--->>>初始化phantomjs驱动中<<<---', logger=self.my_lg)
         cap = webdriver.DesiredCapabilities.PHANTOMJS
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
         cap['phantomjs.page.settings.loadImages'] = load_images
@@ -80,7 +82,7 @@ class MyPhantomjs(object):
         self.driver = webdriver.PhantomJS(executable_path=executable_path, desired_capabilities=cap)
 
         wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
+        _print(msg='------->>>初始化完毕<<<-------', logger=self.my_lg)
 
         return True
 
@@ -94,7 +96,7 @@ class MyPhantomjs(object):
         if not proxy_ip:
             return False
 
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
+        # _print(msg='------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip), logger=self.my_lg)
         proxy_ip = re.compile(r'https://|http://').sub('', proxy_ip)
         proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
 
@@ -107,7 +109,7 @@ class MyPhantomjs(object):
             self.driver.execute('executePhantomScript', tmp_js)
 
         except Exception:
-            print('动态切换ip失败')
+            _print(msg='动态切换ip失败', logger=self.my_lg, log_level=2)
             return False
 
         return True
@@ -139,11 +141,10 @@ class MyPhantomjs(object):
                 try:
                     WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:
-                    print('遇到错误: ', e)
+                    _print(msg='遇到错误: ', logger=self.my_lg, log_level=2, exception=e)
                     return ''
-
                 else:
-                    print('{0}已经加载完毕'.format(css_selector))
+                    _print(msg='{0}加载完毕'.format(css_selector), logger=self.my_lg)
 
             if exec_code != '':     # 动态执行代码
                 # 执行代码前先替换掉'  '
@@ -152,20 +153,20 @@ class MyPhantomjs(object):
                     exec(_)
                 except Exception as e:
                     # self.driver.save_screenshot('tmp_screen.png')
-                    # print(e)
-                    print('动态执行代码时出错!')
+                    # _print(exception=e, logger=self.my_lg)
+                    _print(msg='动态执行代码时出错!', logger=self.my_lg, log_level=2)
                     return ''
                 # self.driver.save_screenshot('tmp_screen.png')
 
             main_body = self._wash_html(self.driver.page_source)
-            # print(main_body)
+            # _print(msg=str(main_body), logger=self.my_lg)
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 20 seconds when loading page')
-            print('报错如下: ', e)
+            _print(msg='-->>time out after 20 seconds when loading page', logger=self.my_lg, log_level=2)
+            _print(msg='报错如下: ', logger=self.my_lg, log_level=2, exception=e)
             try:
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             except WebDriverException: pass
-            print('main_body为空!')
+            _print(msg='main_body为空!', logger=self.my_lg, log_level=2)
             main_body = ''
 
         return main_body
@@ -176,7 +177,7 @@ class MyPhantomjs(object):
         :param url:
         :return: cookies 类型 str
         '''
-        print('正在获取cookies...请耐心等待...')
+        _print(msg='正在获取cookies...请耐心等待...', logger=self.my_lg)
         change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
         if change_ip_result is False:
             if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
@@ -198,17 +199,17 @@ class MyPhantomjs(object):
                 try:
                     WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:
-                    print('遇到错误: ', e)
+                    _print(msg='遇到错误: ', logger=self.my_lg, log_level=2, exception=e)
                     return ''
                 else:
-                    print('{0}已经加载完毕'.format(css_selector))
+                    _print(msg='{0}已经加载完毕'.format(css_selector), logger=self.my_lg)
 
             cookies = self.phantomjs_cookies_2_str(self.driver.get_cookies())
-            # print(cookies)
+            # _print(msg=str(cookies), logger=self.my_lg)
 
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 20 seconds when loading page')
-            print('报错如下: ', e)
+            _print(msg='-->>time out after 20 seconds when loading page', logger=self.my_lg, log_level=2)
+            _print(msg='报错如下: ', logger=self.my_lg, log_level=2, exception=e)
             try:
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
             except WebDriverException: pass
@@ -254,3 +255,4 @@ class MyPhantomjs(object):
         except:
             pass
         gc.collect()
+

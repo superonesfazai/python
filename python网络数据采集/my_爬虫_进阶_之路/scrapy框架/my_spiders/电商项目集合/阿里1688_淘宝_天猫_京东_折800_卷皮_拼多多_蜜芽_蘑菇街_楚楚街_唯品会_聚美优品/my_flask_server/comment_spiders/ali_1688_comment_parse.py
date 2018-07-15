@@ -260,7 +260,7 @@ class ALi1688CommentParse(object):
         '''
         _ = SqlServerMyPageInfoSaveItemPipeline()
         sql_str = 'select SKUInfo from dbo.GoodsInfoAutoGet where GoodsID=%s'
-        # sku_info = self.json_str_2_dict(_._select_table(sql_str=sql_str, params=(str(goods_id),)))
+        # sku_info = self.json_2_dict(_._select_table(sql_str=sql_str, params=(str(goods_id),)))
         try:
             _r = _._select_table(sql_str=sql_str, params=(str(goods_id),))[0][0]
             # print(_r)

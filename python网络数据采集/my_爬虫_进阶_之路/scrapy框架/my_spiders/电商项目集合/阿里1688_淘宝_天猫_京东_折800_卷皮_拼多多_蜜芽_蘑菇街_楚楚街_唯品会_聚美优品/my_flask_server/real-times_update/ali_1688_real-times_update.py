@@ -33,7 +33,7 @@ def run_forever():
         sql_str = '''
         select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
-        where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>0.2
+        where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>1
         '''
 
         try:

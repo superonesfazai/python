@@ -6,6 +6,11 @@
 @Time    : 2018/5/26 12:18
 @connect : superonesfazai@gmail.com
 '''
+
+"""
+可采集对象: 淘宝微淘, ifashion, 必买清单, 
+"""
+
 import sys
 sys.path.append('..')
 
@@ -124,7 +129,12 @@ class TaoBaoWeiTaoShareParse():
         '''
         base_url = 'https://h5api.m.taobao.com/h5/mtop.taobao.beehive.detail.contentservicenewv2/1.0/'
 
-        target_url, content_id, csid, tag_name, tag = await self._get_target_url_and_content_id_and_csid(taobao_short_url)
+        try:
+            target_url, content_id, csid, tag_name, tag = await self._get_target_url_and_content_id_and_csid(taobao_short_url)
+        except ValueError:
+            self.my_lg.error('遇到ValueError!', exc_info=True)
+            return ''
+
         if content_id == '' and csid == '':      # 异常退出
             return ''
 

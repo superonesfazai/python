@@ -15,8 +15,6 @@ from ..ip_pools import MyIpPools
 from ..internet_utils import get_base_headers
 import re
 import gc
-import json
-import time
 from pprint import pprint
 from json import (
     dumps,
@@ -29,7 +27,7 @@ __all__ = [
 
 class MyRequests(object):
     def __init__(self):
-        super().__init__()
+        super(MyRequests, self).__init__()
 
     @classmethod
     def get_url_body(cls, url, headers:dict=get_base_headers(),
