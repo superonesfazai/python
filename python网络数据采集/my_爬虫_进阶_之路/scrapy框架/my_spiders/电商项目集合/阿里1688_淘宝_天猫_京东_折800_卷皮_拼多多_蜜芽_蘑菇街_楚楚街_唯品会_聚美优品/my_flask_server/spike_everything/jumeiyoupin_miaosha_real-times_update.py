@@ -25,7 +25,11 @@ import json
 from pprint import pprint
 import time
 
-from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    JUMEIYOUPIN_SLEEP_TIME,
+    PHANTOMJS_DRIVER_PATH,
+)
 from decimal import Decimal
 
 from fzutils.time_utils import get_shanghai_time
@@ -77,7 +81,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
 
             jumeiyoupin_spike = JuMeiYouPinSpike()
             # 获取cookies
-            my_phantomjs = MyPhantomjs()
+            my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
             cookies = my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://h5.jumei.com/')
             try: del my_phantomjs
             except: pass

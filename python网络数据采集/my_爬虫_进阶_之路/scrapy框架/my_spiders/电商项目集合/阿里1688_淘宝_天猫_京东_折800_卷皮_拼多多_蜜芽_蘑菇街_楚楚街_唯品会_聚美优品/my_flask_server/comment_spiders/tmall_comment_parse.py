@@ -14,7 +14,9 @@ sys.path.append('..')
 from tmall_parse_2 import TmallParse
 from taobao_parse import TaoBaoLoginAndParse
 from my_items import CommentItem
-from settings import MY_SPIDER_LOGS_PATH
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    PHANTOMJS_DRIVER_PATH,)
 
 from random import randint
 from time import sleep
@@ -42,7 +44,7 @@ class TmallCommentParse(object):
         self._set_headers()
         self.page_size = '10'
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
-        self.my_phantomjs = MyPhantomjs()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         self.g_data = {}                # 临时数据
         self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
 

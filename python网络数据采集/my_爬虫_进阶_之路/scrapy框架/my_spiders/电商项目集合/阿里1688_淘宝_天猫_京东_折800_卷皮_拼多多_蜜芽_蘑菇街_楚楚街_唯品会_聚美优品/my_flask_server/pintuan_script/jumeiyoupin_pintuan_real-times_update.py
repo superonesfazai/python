@@ -22,7 +22,11 @@ import json
 from pprint import pprint
 import time
 from logging import INFO, ERROR
-from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, MY_SPIDER_LOGS_PATH
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    JUMEIYOUPIN_SLEEP_TIME,
+    MY_SPIDER_LOGS_PATH,
+    PHANTOMJS_DRIVER_PATH,)
 import asyncio
 
 from fzutils.log_utils import set_logger
@@ -115,7 +119,7 @@ class JuMeiYouPinRealTimesUpdate(object):
                         item_list = self.api_all_goods_id.get(_, [])    # 用于判断tab, index已在self.api_all_goods_id中
 
                         if item_list == []:
-                            my_phantomjs = MyPhantomjs()
+                            my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
                             item_list = await jumeiyoupin_2.get_one_page_goods_list(my_phantomjs=my_phantomjs, tab=item[2], index=item[3])
                             try: del my_phantomjs
                             except: pass

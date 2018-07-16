@@ -12,7 +12,9 @@ sys.path.append('..')
 
 from my_items import CommentItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import MY_SPIDER_LOGS_PATH
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    PHANTOMJS_DRIVER_PATH,)
 
 from random import (
     randint,
@@ -48,7 +50,7 @@ class ALi1688CommentParse(object):
         self.msg = ''
         self._set_headers()
         self._set_logger(logger)
-        # self.my_phantomjs = MyPhantomjs()
+        # self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         # 可动态执行的代码
         self._exec_code = '''
         _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)

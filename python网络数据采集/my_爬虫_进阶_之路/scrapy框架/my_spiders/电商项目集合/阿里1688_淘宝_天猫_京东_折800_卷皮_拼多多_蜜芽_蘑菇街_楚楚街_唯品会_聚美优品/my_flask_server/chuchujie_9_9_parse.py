@@ -21,8 +21,7 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 from json import dumps
-
-from my_phantomjs import MyPhantomjs
+from settings import PHANTOMJS_DRIVER_PATH
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
@@ -130,7 +129,7 @@ class ChuChuJie_9_9_Parse(object):
 
         # 开始常规requests有数据, 后面无数据, 改用phantomjs
         # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
-        my_phantomjs = MyPhantomjs()
+        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
         try: del my_phantomjs
         except: pass

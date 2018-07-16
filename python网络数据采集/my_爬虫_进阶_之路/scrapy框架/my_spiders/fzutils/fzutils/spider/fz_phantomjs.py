@@ -252,7 +252,20 @@ class MyPhantomjs(object):
     def __del__(self):
         try:
             self.driver.quit()
+            del self.my_lg
         except:
             pass
         gc.collect()
 
+# from logging import INFO, ERROR
+# from fzutils.time_utils import get_shanghai_time
+# from fzutils.log_utils import set_logger
+#
+# my_lg = set_logger(
+#     log_file_name='/Users/afa/myFiles/my_spider_logs/电商项目' + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
+#     console_log_level=INFO,
+#     file_log_level=ERROR
+# )
+#
+# _ = MyPhantomjs(logger=my_lg)
+# del _

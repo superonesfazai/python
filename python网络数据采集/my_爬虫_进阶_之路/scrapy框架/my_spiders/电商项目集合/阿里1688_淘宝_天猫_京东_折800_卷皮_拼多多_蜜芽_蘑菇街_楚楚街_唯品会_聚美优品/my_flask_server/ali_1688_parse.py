@@ -19,6 +19,7 @@ from json import dumps
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from scrapy.selector import Selector
 from my_items import GoodsItem
+from settings import PHANTOMJS_DRIVER_PATH
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
@@ -30,7 +31,7 @@ class ALi1688LoginAndParse(object):
         self._set_headers()
         self.result_data = {}
         self.is_activity_goods = False
-        self.my_phantomjs = MyPhantomjs()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
         self.headers = {

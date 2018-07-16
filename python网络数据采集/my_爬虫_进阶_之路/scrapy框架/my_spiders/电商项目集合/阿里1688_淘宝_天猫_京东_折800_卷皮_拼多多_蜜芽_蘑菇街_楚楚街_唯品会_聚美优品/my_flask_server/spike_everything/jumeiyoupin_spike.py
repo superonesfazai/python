@@ -28,7 +28,11 @@ sys.path.append('..')
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    JUMEIYOUPIN_SLEEP_TIME,
+    PHANTOMJS_DRIVER_PATH,
+)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
@@ -60,7 +64,7 @@ class JuMeiYouPinSpike(object):
         :return:
         '''
         all_goods_list = []
-        self.my_phantomjs = MyPhantomjs()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         cookies = self.my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://h5.jumei.com/')
         try: del self.my_phantomjs
         except: pass

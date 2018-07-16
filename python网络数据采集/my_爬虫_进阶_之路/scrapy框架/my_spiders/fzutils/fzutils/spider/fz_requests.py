@@ -13,13 +13,10 @@ import requests
 from random import randint
 from ..ip_pools import MyIpPools
 from ..internet_utils import get_base_headers
+from ..common_utils import _print
 import re
 import gc
 from pprint import pprint
-from json import (
-    dumps,
-    loads,
-)
 
 __all__ = [
     'MyRequests',
@@ -63,13 +60,13 @@ class MyRequests(object):
         with requests.session() as s:
             try:
                 response = s.request(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, proxies=tmp_proxies, timeout=timeout)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-                # print(response.url)
+                # print(str(response.url))
                 try:
                     _ = response.content.decode(encoding)
                 except Exception:   # 报编码错误
                     _ = response.text
                 body = cls._wash_html(_)
-                # print(body)
+                # print(str(body))
 
             except Exception as e:
                 # print(e)

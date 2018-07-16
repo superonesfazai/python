@@ -27,7 +27,11 @@ sys.path.append('..')
 
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    CHUCHUJIE_SLEEP_TIME,
+    PHANTOMJS_DRIVER_PATH,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -125,8 +129,7 @@ class ChuChuJie_9_9_Spike(object):
             db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             # print(db_goods_id_list)
 
-            # my_phantomjs = MyPhantomjs()
-            # my_phantomjs.init_phantomjs()
+            # my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
             # index = 1
             for item in item_list:
                 if item.get('goods_id', '') in db_goods_id_list:
@@ -147,8 +150,7 @@ class ChuChuJie_9_9_Spike(object):
                         pass
 
                     else:   # 否则就解析并且插入
-                        my_phantomjs = MyPhantomjs()
-                        my_phantomjs.init_phantomjs()
+                        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
                         # 获取剩余时间
                         tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(

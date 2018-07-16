@@ -96,7 +96,7 @@ def _print(**kwargs):
     :param kwargs:
     :return: None
     '''
-    msg = kwargs.get('msg', '')
+    msg = kwargs.get('msg', None)
     logger = kwargs.get('logger', None)
     log_level = kwargs.get('log_level', 1)     # 日志等级(默认'info')
     exception = kwargs.get('exception', None)
@@ -105,23 +105,29 @@ def _print(**kwargs):
         if not exception:
             print(msg)
         else:
-            if msg != '':
+            if not msg:
                 print(msg, exception)
             else:
                 print(exception)
     else:
-        if msg != '':
-            if isinstance(log_level, int):
-                if log_level == 1:
-                    logger.info(msg)
-                elif log_level == 2:
-                    logger.error(msg)
+        if not msg:
+            if isinstance(msg, str):
+                if isinstance(log_level, int):
+                    if log_level == 1:
+                        logger.info(msg)
+                    elif log_level == 2:
+                        logger.error(msg)
+                    else:
+                        raise ValueError('log_level没有定义该打印等级!')
                 else:
-                    raise AssertionError('log_level没有定义该打印等级!')
+                    raise TypeError('log_level类型错误!')
             else:
-                raise TypeError('log_level类型错误!')
+                raise TypeError('log模式打印时, msg必须是str!')
 
         if not exception:
-            logger.exception(exception)
+            if isinstance(exception, Exception):
+                logger.exception(exception)
+            else:
+                raise TypeError('exception必须是Exception类型!')
 
-    return None
+    return True

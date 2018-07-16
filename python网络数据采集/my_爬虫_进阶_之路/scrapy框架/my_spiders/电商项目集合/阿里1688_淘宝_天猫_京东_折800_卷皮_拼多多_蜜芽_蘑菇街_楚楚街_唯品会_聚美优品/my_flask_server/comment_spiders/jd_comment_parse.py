@@ -11,7 +11,9 @@ import sys
 sys.path.append('..')
 
 from my_items import CommentItem
-from settings import MY_SPIDER_LOGS_PATH
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    PHANTOMJS_DRIVER_PATH,)
 
 from time import sleep
 import gc
@@ -36,7 +38,7 @@ class JdCommentParse(object):
         self._set_logger(logger)
         self._set_headers()
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
-        self.my_phantomjs = MyPhantomjs()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         self._add_headers_cookies()
 
     def _get_comment_data(self, goods_id):

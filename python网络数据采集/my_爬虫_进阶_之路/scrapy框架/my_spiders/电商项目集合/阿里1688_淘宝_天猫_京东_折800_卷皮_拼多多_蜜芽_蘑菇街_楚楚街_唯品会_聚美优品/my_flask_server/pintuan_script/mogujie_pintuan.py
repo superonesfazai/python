@@ -18,7 +18,10 @@ import sys
 sys.path.append('..')
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MOGUJIE_SLEEP_TIME,
+    PHANTOMJS_DRIVER_PATH,)
 import datetime
 from mogujie_parse import MoGuJieParse
 
@@ -119,7 +122,7 @@ class MoGuJiePinTuan(object):
         '''
         方法二: 通过pc端来获取拼团商品列表
         '''
-        self.my_phantomjs = MyPhantomjs()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         for key in self.fcid_dict:
             print('正在抓取的分类为: ', key)
             for index in range(1, 100):
@@ -127,7 +130,7 @@ class MoGuJiePinTuan(object):
                     try: del self.my_phantomjs
                     except: pass
                     gc.collect()
-                    self.my_phantomjs = MyPhantomjs()
+                    self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
                 fcid = self.fcid_dict[key]
                 tmp_url = 'http://list.mogujie.com/search?page={0}&fcid={1}&algoKey=pc_tuan_book_pop&cKey=pc-tuan'.format(

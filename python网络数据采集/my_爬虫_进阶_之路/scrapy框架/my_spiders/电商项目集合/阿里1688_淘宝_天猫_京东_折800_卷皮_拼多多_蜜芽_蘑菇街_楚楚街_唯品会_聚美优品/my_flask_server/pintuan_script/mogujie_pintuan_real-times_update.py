@@ -19,7 +19,11 @@ import re, datetime
 import json
 from pprint import pprint
 import time
-from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MOGUJIE_SLEEP_TIME,
+    PHANTOMJS_DRIVER_PATH,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -68,7 +72,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
 
-            self.my_phantomjs = MyPhantomjs()
+            self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
             for item in result:  # 实时更新数据
                 pintuan_end_time = json.loads(item[1]).get('end_time')
                 pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
@@ -80,7 +84,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                     try: del self.my_phantomjs
                     except:pass
                     gc.collect()
-                    self.my_phantomjs = MyPhantomjs()
+                    self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')

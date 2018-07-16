@@ -21,7 +21,12 @@ import asyncio, aiohttp
 
 from settings import MY_SPIDER_LOGS_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING, JUMEIYOUPIN_SLEEP_TIME, JUMEIYOUPIN_PINTUAN_API_TIMEOUT
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    JUMEIYOUPIN_SLEEP_TIME,
+    JUMEIYOUPIN_PINTUAN_API_TIMEOUT,
+    PHANTOMJS_DRIVER_PATH,
+)
 import datetime
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 
@@ -86,7 +91,7 @@ class JuMeiYouPinPinTuan(object):
         '''
         s_time = time.time()
         goods_list = []
-        my_phantomjs = MyPhantomjs()
+        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         for key in self.tab_dict:
             self.msg = '正在抓取的分类为: ' + key
             self.my_lg.info(self.msg)

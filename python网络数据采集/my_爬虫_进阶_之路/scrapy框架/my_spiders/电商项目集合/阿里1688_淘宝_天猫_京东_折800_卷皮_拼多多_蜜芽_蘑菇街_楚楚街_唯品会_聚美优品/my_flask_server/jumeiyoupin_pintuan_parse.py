@@ -26,7 +26,11 @@ import pytz
 import asyncio
 import aiohttp
 from scrapy.selector import Selector
-from settings import MY_SPIDER_LOGS_PATH, JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT,
+    PHANTOMJS_DRIVER_PATH,
+)
 from my_aiohttp import MyAiohttp
 from logging import INFO, ERROR
 import pytz, datetime
@@ -99,7 +103,7 @@ class JuMeiYouPinPinTuanParse(object):
         '''
         换用phantomjs
         '''
-        my_phantomjs = MyPhantomjs()
+        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
         body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
         # print(body)
         try:

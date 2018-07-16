@@ -44,7 +44,7 @@ class PinduoduoParse(object):
         self._set_headers()
         self.result_data = {}
         # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
-        self.my_phantomjs = MyPhantomjs()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
         self.headers = {

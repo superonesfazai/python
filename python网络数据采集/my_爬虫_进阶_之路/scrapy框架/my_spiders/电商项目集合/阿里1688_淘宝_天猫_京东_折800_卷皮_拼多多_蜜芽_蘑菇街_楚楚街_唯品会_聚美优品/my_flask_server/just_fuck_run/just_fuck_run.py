@@ -13,9 +13,11 @@ from time import sleep
 import re
 import os
 
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import (
     daemon_init,
     process_exit,
+    kill_process_by_name,
 )
 
 spike_file_name_list = [
@@ -66,15 +68,27 @@ logs_file_name_list = [
     'expired_logs_deal_with'
 ]
 
+night_run_file_name_list = [    # 只在晚上run
+    'ali_1688_real-times_update',
+]
+
+# night 运行时间
+night_run_time = ['21', '22', '23', '00', '01', '02', '03', '04', '05', '06', '07',]
+
 def run_one_file_name_list(path, file_name_list):
     for item in file_name_list:
-        process_name = item + '.py'
-        if process_exit(process_name) == 0:
-            # 如果对应的脚本没有在运行, 则运行之
-            os.system('cd {0} && python3 {1}.py'.format(path, item))
-            sleep(2.5)      # 避免同时先后启动先sleep下
+        if item in night_run_file_name_list \
+                and str(get_shanghai_time())[11:13] not in night_run_time:
+            print('{0}.py不在运行时间点...此处跳过!'.format(item))
+            pass
         else:
-            print(process_name + '脚本已存在!')
+            process_name = item + '.py'
+            if process_exit(process_name) == 0:
+                # 如果对应的脚本没有在运行, 则运行之
+                os.system('cd {0} && python3 {1}.py'.format(path, item))
+                sleep(2.5)      # 避免同时先后启动先sleep下
+            else:
+                print(process_name + '脚本已存在!')
 
 def auto_run(*params):
     print('开始执行秒杀脚本'.center(60, '*'))
@@ -84,6 +98,10 @@ def auto_run(*params):
     run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
     run_one_file_name_list(path=params[3], file_name_list=other_file_name_list)
     run_one_file_name_list(path=params[4], file_name_list=logs_file_name_list)
+
+    if str(get_shanghai_time())[11:13] not in night_run_time:
+        # kill冲突process
+        [kill_process_by_name(process_name) for process_name in night_run_file_name_list]
 
     print('脚本执行完毕'.center(60, '*'))
 
@@ -98,7 +116,7 @@ def main_2():
         auto_run(spike_path, pintuan_path, real_path, other_path, logs_path)
         print(' Money is on the way! '.center(100, '*'))
 
-        sleep(60*30)
+        sleep(60*15)
 
 def main():
     '''

@@ -40,7 +40,7 @@ class Zhe800PintuanParse(object):
     def __init__(self):
         self._set_headers()
         self.result_data = {}
-        # self.my_phantomjs = MyPhantomjs()
+        # self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
         self.headers = {
