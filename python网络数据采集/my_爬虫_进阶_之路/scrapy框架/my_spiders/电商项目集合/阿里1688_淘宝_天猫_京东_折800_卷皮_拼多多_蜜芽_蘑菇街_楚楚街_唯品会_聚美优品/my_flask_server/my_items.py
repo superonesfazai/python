@@ -76,3 +76,4 @@ class WellRecommendArticle(Item):
     goods_url_list = Field()        # 该文章待抓取的商品地址
     tags = Field()                  # 用于存微淘的tags信息
     share_goods_base_info = Field() # goods_id对应goods_url
+    video_url = Field()             # article的视频url

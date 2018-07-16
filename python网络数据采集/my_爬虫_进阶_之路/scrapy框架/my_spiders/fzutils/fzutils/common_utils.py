@@ -40,10 +40,7 @@ def json_2_dict(json_str, logger=None, encoding=None):
         try:
             _ = decode(json_str, encoding=encoding)
         except Exception as e:
-            if not logger:
-                print(e)
-            else:
-                logger.error('遇到错误!', exc_info=True)
+            _print(msg='遇到json解码错误!', logger=logger, log_level=2, exception=e)
 
     return _
 

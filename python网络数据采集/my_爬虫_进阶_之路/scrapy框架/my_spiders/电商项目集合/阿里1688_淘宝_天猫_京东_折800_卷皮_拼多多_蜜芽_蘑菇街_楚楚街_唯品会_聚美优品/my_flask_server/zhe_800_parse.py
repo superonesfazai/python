@@ -30,6 +30,7 @@ from my_items import GoodsItem
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 class Zhe800Parse(object):
     def __init__(self):
@@ -67,54 +68,44 @@ class Zhe800Parse(object):
             else: data = [body]
 
             if data != []:
-                data = data[0]
-                try:
-                    data = json.loads(data)
-                except Exception:
+                data = json_2_dict(json_str=data[0])
+                if data == {}:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
 
                 # 处理base
                 base = data.get('/app/detail/product/base', '')
-                try:
-                    base = json.loads(base)
-                except Exception:
+                base = json_2_dict(json_str=base)
+                if base == {}:
                     print("json.loads转换出错，得到base值可能为空，此处跳过")
                     base = ''
-                    pass
 
                 # 处理profiles
                 profiles = data.get('/app/detail/product/profiles', '')
-                try:
-                    profiles = json.loads(profiles)
-                except Exception:
+                profiles = json_2_dict(json_str=profiles)
+                if profiles == {}:
                     print("json.loads转换出错，得到profiles值可能为空，此处跳过")
                     profiles = ''
-                    pass
 
                 # 处理score
                 score = data.get('/app/detail/product/score', '')
+                score = json_2_dict(json_str=score)
                 try:
-                    score = json.loads(score)
-                    try:
-                        score.pop('contents')
-                    except:
-                        pass
-                except Exception:
+                    score.pop('contents')
+                except:
+                    pass
+                if score == {}:
                     print("json.loads转换出错，得到score值可能为空，此处跳过")
                     score = ''
-                    pass
 
                 # 处理sku
                 sku = data.get('/app/detail/product/sku', '')
-                try:
-                    sku = json.loads(sku)
-                    # pprint(sku)
-                except Exception:
+                sku = json_2_dict(json_str=sku)
+                # pprint(sku)
+                if sku == {}:
                     print("json.loads转换出错，得到sku值可能为空，此处跳过")
                     sku = ''
-                    pass
 
                 data['/app/detail/product/base'] = base
                 data['/app/detail/product/profiles'] = profiles
@@ -144,26 +135,22 @@ class Zhe800Parse(object):
                 else: detail_data = [detail_data_body]
 
                 if detail_data != []:
-                    detail_data = detail_data[0]
-                    try:
-                        detail_data = json.loads(detail_data)
-                    except Exception:
+                    detail_data = json_2_dict(json_str=detail_data[0])
+                    if detail_data == {}:
                         print('json.loads(detail_data)时报错, 此处跳过')
                         self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                         return {}
                     # pprint(detail_data)
 
                     detail = detail_data.get('/app/detail/graph/detail', '')
+                    detail = json_2_dict(json_str=detail)
                     try:
-                        detail = json.loads(detail)
-                        try:
-                            detail.pop('small')
-                        except:
-                            pass
+                        detail.pop('small')
                     except:
+                        pass
+                    if detail == {}:
                         print("json.loads转换出错，得到detail值可能为空，此处跳过")
                         detail = ''
-                        pass
                     # print(detail)
 
                     '''
@@ -215,14 +202,11 @@ class Zhe800Parse(object):
                             else: size_data = [size_data_body]
 
                             if size_data != []:
-                                size_data = size_data[0]
-                                try:
-                                    size_data = json.loads(size_data)
-                                except Exception:
+                                size_data = json_2_dict(json_str=size_data[0])
+                                if size_data == {}:
                                     print('json.loads(size_data)出错, 此处跳过')
                                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                                     return {}
-
                                 # pprint(size_data)
 
                                 tmp_div_desc_2 = ''
@@ -279,15 +263,12 @@ class Zhe800Parse(object):
                     # print(seller_info)
 
                     if seller_info != []:
-                        seller_info = seller_info[0]
-                        # print(seller_info)
                         try:
-                            seller_info = json.loads(seller_info)
+                            seller_info = json.loads(seller_info[0])
                         except Exception:
                             print('卖家信息在转换时出现错误, 此处跳过')
                             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                             return {}
-
                         # pprint(seller_info)
                         shop_name = seller_info.get('sellerInfo', {}).get('nickName', '')
                     else:

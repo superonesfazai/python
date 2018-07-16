@@ -32,7 +32,7 @@ from fzutils.spider.fz_requests import MyRequests
 
 class TaoBaoCommentParse(object):
     def __init__(self, logger=None):
-        super().__init__()
+        super(TaoBaoCommentParse, self).__init__()
         self.result_data = {}
         self.msg = ''
         self._set_logger(logger=logger)

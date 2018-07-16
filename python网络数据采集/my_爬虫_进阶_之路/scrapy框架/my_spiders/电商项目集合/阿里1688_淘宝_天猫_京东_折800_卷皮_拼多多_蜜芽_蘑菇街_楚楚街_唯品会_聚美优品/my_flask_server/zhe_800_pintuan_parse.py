@@ -30,6 +30,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.common_utils import json_2_dict
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 
@@ -111,9 +112,8 @@ class Zhe800PintuanParse(object):
 
             if data != []:
                 data = data[0]
-                try:
-                    data = json.loads(data)
-                except Exception:
+                data = json_2_dict(json_str=data)
+                if data == {}:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
@@ -535,12 +535,9 @@ class Zhe800PintuanParse(object):
         #     except:
         #         div_desc_body = '{}'
 
-        try:
-            div_desc_data = json.loads(div_desc_body)
-            tmp_body = div_desc_data.get('data', '')
-        except Exception:
+        tmp_body = json_2_dict(json_str=div_desc_body).get('data', '')
+        if tmp_body == '':
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            tmp_body = ''
 
         tmp_body = self._wash_div_desc(tmp_body=tmp_body)
 
@@ -561,12 +558,9 @@ class Zhe800PintuanParse(object):
             print('获取到的p_info_body为空值, 此处跳过!')
             p_info_body = '{}'
 
-        try:
-            p_info_data = json.loads(p_info_body)
-            tmp_p_info = p_info_data.get('perportieslist', [])
-        except Exception:
+        tmp_p_info = json_2_dict(json_str=p_info_body).get('perportieslist', [])
+        if tmp_p_info == []:
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            tmp_p_info = []
 
         if tmp_p_info != []:
             p_info = [{
@@ -589,12 +583,9 @@ class Zhe800PintuanParse(object):
             print('获取到的stock_info_body为空值!')
             stock_info_body = '{}'
 
-        try:
-            stock_info_data = json.loads(stock_info_body)
-            tmp_stock_info = stock_info_data.get('data', {})
-        except Exception:
+        tmp_stock_info = json_2_dict(json_str=stock_info_body).get('data', {})
+        if tmp_stock_info == {}:
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            tmp_stock_info = {}
 
         return tmp_stock_info
 

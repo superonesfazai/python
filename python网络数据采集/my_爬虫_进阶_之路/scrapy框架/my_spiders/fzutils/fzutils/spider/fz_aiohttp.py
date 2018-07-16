@@ -12,14 +12,13 @@ import aiohttp
 import re
 import gc
 import time
-from random import randint
 
 from ..ip_pools import MyIpPools
 from ..internet_utils import get_random_pc_ua
 
 class MyAiohttp(object):
     def __init__(self, max_tasks=10):
-        super().__init__()
+        super(MyAiohttp, self).__init__()
         self.loop = asyncio.get_event_loop()
         self.max_tasks = max_tasks  # 接口请求进程数
         self.queue = asyncio.Queue(loop=self.loop)  # 接口队列
