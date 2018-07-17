@@ -13,6 +13,9 @@
         视频播放地址为: 
             原先为: https://sa.xiaohongshu.com/ljEITehG-zL_GFn_5Q4x-AYkFj69_compress_L2
             能直接播放的地址为: https://v.xiaohongshu.com/ljEITehG-zL_GFn_5Q4x-AYkFj69_compress_L2   (将sa替换成v即可)
+            html下可直接实现播放<body>
+            <embed src="https://v.xiaohongshu.com/lmgn7xFw_6eowrZEmNF-3kqNr1Kc_compress_L2"/>
+            </body>
 """
 
 import sys
@@ -28,8 +31,10 @@ from time import sleep
 from pprint import pprint
 import time
 import re
+from json import dumps
 
 from my_items import WellRecommendArticle
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -37,13 +42,19 @@ from fzutils.time_utils import (
     string_to_datetime,)
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
-from fzutils.common_utils import json_2_dict
-from fzutils.common_utils import delete_list_null_str
+from fzutils.common_utils import (
+    json_2_dict,
+    delete_list_null_str,
+    get_random_int_number,
+    list_duplicate_remove,
+    wash_sensitive_info,)
 
 class XiaoHongShuParse():
     def __init__(self, logger=None):
         self._set_logger(logger)
         self._set_headers()
+        self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        self.index = 0
         self.CRAWL_ARTICLE_SLEEP_TIME = 2.5     # 抓每天文章的sleep_time
 
     def _set_headers(self):
@@ -86,6 +97,7 @@ class XiaoHongShuParse():
             'Accept': 'application/json',
             'Host': 'www.xiaohongshu.com',
             'User-Agent': 'discover/5.19.1 (iPhone; iOS 11.0; Scale/3.00) Resolution/1242*2208 Version/5.19.1 Build/5191001 Device/(Apple Inc.;iPhone7,1)',
+            # 'User-Agent': get_random_pc_ua(),
             # 'Authorization': 'session.1210427606534613282',
             'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
             'X-Tingyun-Id': 'LbxHzUNcfig;c=2;r=551911068',
@@ -113,35 +125,45 @@ class XiaoHongShuParse():
             self.my_lg.error('获取到的body为空值!请检查!')
             return {}
 
+        if re.compile(r'<title>403 Forbidden</title>').findall(body) != []:
+            self.my_lg.info('此次抓取被403禁止!')
+            return {}
+
         _ = json_2_dict(body, logger=self.my_lg).get('data', [])
         # pprint(_)
         if _ == []:
             self.my_lg.error('获取到的data为空值!请检查!')
             return {}
 
-        _ = [item.get('share_link', '') for item in _]
+        _ = [{
+            'share_link': item.get('share_link', ''),
+            'likes': item.get('likes', 0),
+        } for item in _]
 
         return _
 
     def _deal_with_home_article(self):
         home_articles_link_list = self._get_xiaohongshu_home_aritles_info()
         # pprint(home_articles_link_list)
-        self.my_lg.info(str(home_articles_link_list))
-        print()
+        self.my_lg.info(str(home_articles_link_list) + '\n')
 
         data = self._deal_with_articles(articles_list=home_articles_link_list)
-        pprint(data)
+        # pprint(data)
 
-        return None
+        self._save_articles(data=data)
+
+        return True
 
     def _deal_with_articles(self, articles_list):
         '''
         处理给与小红书地址(articles_list)
-        :param articles_list: 待抓取的文章地址list  eg: ['小红书地址', ...]
+        :param articles_list: 待抓取的文章地址list  eg: [{'share_link':'小红书地址', 'likes': 111}, ...]   # likes可以为空
         :return: data a list
         '''
         data = []
-        for article_link in articles_list:  # eg: [{'id': '5b311bfc910cf67e693d273e','share_link': 'https://www.xiaohongshu.com/discovery/item/5b311bfc910cf67e693d273e'},...]
+        for item in articles_list:  # eg: [{'id': '5b311bfc910cf67e693d273e','share_link': 'https://www.xiaohongshu.com/discovery/item/5b311bfc910cf67e693d273e'},...]
+            article_link = item.get('share_link', '')
+            article_likes = item.get('likes', 0)
             self.my_lg.info('正在crawl小红书地址为: {0}'.format(article_link))
 
             if article_link != '':
@@ -156,7 +178,10 @@ class XiaoHongShuParse():
 
                 article_info = self._wash_article_info(json_2_dict(json_str=article_info, logger=self.my_lg))
                 # pprint(article_info)
-                article_info = self._parse_page(article_link=article_link, article_info=article_info)
+                article_info = self._parse_page(
+                    article_link=article_link,
+                    article_info=article_info,
+                    article_likes=article_likes)
                 # pprint(article_info)
                 data.append(article_info)
                 sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
@@ -168,6 +193,33 @@ class XiaoHongShuParse():
 
         return data
 
+    def _save_articles(self, data):
+        '''
+        存储数据
+        :param data:
+        :return:
+        '''
+        self.my_lg.info('即将开始存储该文章...')
+        sql_str = 'insert into dbo.daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        for i, item in enumerate(data):
+            if i % 20 == 0:
+                self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+
+            if self.my_pipeline.is_connect_success:
+                try:
+                    params = self._get_db_insert_into_params(item=item)
+                except Exception:
+                    continue
+                self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+                self.index += 1
+
+            else:
+                self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(item.get('gather_url', '')))
+
+        self.my_lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.index))
+
+        return True
+
     def _parse_page(self, **kwargs):
         '''
         解析单个article的info
@@ -175,6 +227,7 @@ class XiaoHongShuParse():
         '''
         article_link = kwargs.get('article_link', '')
         article_info = kwargs.get('article_info', {}).get('NoteView', {})
+        article_likes = kwargs.get('article_likes', get_random_int_number())
 
         error_msg = '出错article_url: {0}'.format(article_link)
         try:
@@ -201,7 +254,6 @@ class XiaoHongShuParse():
             assert share_img_url_list != [], '获取到的share_img_url_list为空list!请检查!' + error_msg
 
             div_body = ''         # 默认留空
-
             gather_url = article_link
 
             # 原文章原始的创建日期
@@ -211,20 +263,18 @@ class XiaoHongShuParse():
 
             site_id = 3           # 小红书
             goods_url_list = []   # 该文章待抓取的商品地址
-
-            tmp_tags = [str(item.get('name', '')) for item in article_info.get('noteInfo', {}).get('relatedTags', [])]
-            # list先转str, 去掉敏感字眼, 再转list, 并去除''元素, 得到最后list
-            tmp_tags = delete_list_null_str(self.wash_sensitive_info('|'.join(tmp_tags)).split('|'))
-            tags = [{   # tags可以为空list!
-                'keyword': item,
-            } for item in tmp_tags]
-
             share_goods_base_info = []
+
+            tags = self._get_tags(article_info=article_info)
 
             # 视频播放地址
             tmp_video_url = article_info.get('noteInfo', {}).get('video', '')
             tmp_video_url = 'https:' + tmp_video_url if tmp_video_url != '' else ''
             video_url = re.compile(r'//sa.').sub(r'//v.', tmp_video_url)
+
+            likes = article_likes
+            collects = article_info.get('noteInfo', {}).get('collects', None)
+            assert collects is not None, '获取到的collects为None!请检查!' + error_msg
 
         except Exception:
             self.my_lg.error('遇到错误: ', exc_info=True)
@@ -246,8 +296,54 @@ class XiaoHongShuParse():
         _['tags'] = tags
         _['share_goods_base_info'] = share_goods_base_info
         _['video_url'] = video_url
+        _['likes'] = likes
+        _['collects'] = collects
 
         return _
+
+    def _get_db_insert_into_params(self, item):
+        '''
+        得到待存储的数据
+        :param item:
+        :return:
+        '''
+        params = [
+            item['nick_name'],
+            item['head_url'],
+            item['profile'],
+            item['share_id'],
+            item['gather_url'],
+            item['title'],
+            item['comment_content'],
+            dumps(item['share_img_url_list'], ensure_ascii=False),
+            # dumps(item['goods_id_list'], ensure_ascii=False),
+            # dumps(item['share_goods_base_info'], ensure_ascii=False),
+            item['div_body'],
+            item['create_time'],
+            item['site_id'],
+            dumps(item['tags'], ensure_ascii=False),
+            item['video_url'],
+            item['likes'],
+            item['collects'],
+        ]
+
+        return tuple(params)
+
+    def _get_tags(self, article_info):
+        '''
+        获取tags
+        :return:
+        '''
+        tmp_tags = list_duplicate_remove(
+            [str(item.get('name', '')) for item in article_info.get('noteInfo', {}).get('relatedTags', [])])
+        # self.my_lg.info(str(tmp_tags))
+        # list先转str, 去掉敏感字眼, 再转list, 并去除''元素, 得到最后list
+        tmp_tags = delete_list_null_str(self.wash_sensitive_info('|'.join(tmp_tags)).split('|'))
+        tags = [{  # tags可以为空list!
+            'keyword': item,
+        } for item in tmp_tags]
+
+        return tags
 
     def _wash_article_info(self, _dict):
         '''
@@ -269,16 +365,25 @@ class XiaoHongShuParse():
         :param data:
         :return:
         '''
-        data = re.compile(r'小红书|xiaohongshu|XIAOHONGSHU|某宝').sub('优秀网', data)
+        replace_str_list = [
+            ('小红书', '优秀网'),
+            ('xiaohongshu', '优秀网'),
+            ('XIAOHONGSHU', '优秀网'),
+            ('某宝', '优秀网'),
+            ('薯队长', '优秀网'),
+            ('薯宝宝', '秀客'),
+        ]
 
-        tmp_str = r'''
-        淘宝|taobao|TAOBAO|天猫|tmall|TMALL|
-        京东|JD|jd|红书爸爸|共产党|邪教|操|艹|
-        杀人|胡锦涛|江泽民|习近平|小红薯
-        '''.replace(' ', '').replace('\n', '')
-        data = re.compile(tmp_str).sub('', data)
+        add_sensitive_str_list = [
+            '#.*#',
+            '@.*?薯',
+        ]
 
-        return data
+        return wash_sensitive_info(
+            data=data,
+            replace_str_list=replace_str_list,
+            add_sensitive_str_list=add_sensitive_str_list
+        )
 
     def __del__(self):
         try:
@@ -288,13 +393,19 @@ class XiaoHongShuParse():
         gc.collect()
 
 if __name__ == '__main__':
+    _ = XiaoHongShuParse()
     while True:
-        _ = XiaoHongShuParse()
         # 处理主页推荐地址
         _._deal_with_home_article()
-        sleep(60)
 
         # 处理单个地址
-        # article_url = 'https://www.xiaohongshu.com/discovery/item/5b46ca07910cf60eb7031af7'
-        # data = _._deal_with_articles(articles_list=[article_url])
+        # article_url_list = [
+        #     {'share_link': 'https://www.xiaohongshu.com/discovery/item/5b46ca07910cf60eb7031af7',},
+        #     {'share_link': 'https://www.xiaohongshu.com/discovery/item/5b498680672e140532a7ce49',},
+        #     {'share_link': 'https://www.xiaohongshu.com/discovery/item/5b48e0cb910cf646d2a6c056',},
+        #     {'share_link': 'https://www.xiaohongshu.com/discovery/item/5b4b0d7207ef1c50ac3cd94a',},
+        # ]
+        # data = _._deal_with_articles(articles_list=article_url_list)
         # pprint(data)
+
+        sleep(3)

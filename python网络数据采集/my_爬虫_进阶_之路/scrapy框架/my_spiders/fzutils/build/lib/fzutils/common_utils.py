@@ -17,6 +17,9 @@ __all__ = [
     'deal_with_JSONDecodeError_about_value_invalid_escape',     # 错误如: ValueError: Invalid \escape: line 1 column 35442 (char 35441)
 
     '_print',                                                   # fz的输出方式(常规print or logger打印)
+
+    # 随机
+    'get_random_int_number',                                    # 得到一个随机的int数字
 ]
 
 def json_2_dict(json_str, logger=None, encoding=None):
@@ -40,10 +43,7 @@ def json_2_dict(json_str, logger=None, encoding=None):
         try:
             _ = decode(json_str, encoding=encoding)
         except Exception as e:
-            if not logger:
-                print(e)
-            else:
-                logger.error('遇到错误!', exc_info=True)
+            _print(msg='遇到json解码错误!', logger=logger, log_level=2, exception=e)
 
     return _
 
@@ -131,3 +131,56 @@ def _print(**kwargs):
                 raise TypeError('exception必须是Exception类型!')
 
     return True
+
+def get_random_int_number(start_num=0, end_num=1000):
+    '''
+    得到一个随机的int数字
+    :param start_num:
+    :param end_num:
+    :return:
+    '''
+    from random import randint
+
+    return randint(start_num, end_num)
+
+def wash_sensitive_info(data, replace_str_list=None, add_sensitive_str_list=None):
+    '''
+    清洗敏感字符
+    :param data: 待清洗的str
+    :param replace_str_list: 需要被替换的list(会被替换为元组中的第2个元素) eg: [('123', '456'), ...]
+    :param add_sensitive_str_list: 增加的过滤敏感词汇(会被替换为'') eg: ['123', '456', ...]
+    :return: a str
+    '''
+    import re
+
+    if replace_str_list is not None:            # replace
+        if isinstance(replace_str_list, list):
+            for item in replace_str_list:
+                try:
+                    before_str = r'{0}'.format(item[0])
+                    end_str = r'{0}'.format(item[1])
+                except IndexError:
+                    raise IndexError('获取replace_str_list的子元素时索引异常, 请检查!')
+                data = re.compile(before_str).sub(end_str, data)
+        else:
+            raise TypeError('replace_str只支持list类型! eg: [("123", "456"), ...]')
+
+    if add_sensitive_str_list is not None:      # add sensitive_str to ''
+        if isinstance(add_sensitive_str_list, list):
+            for item in add_sensitive_str_list:
+                data = re.compile(r'{0}'.format(item)).sub('', data)
+        else:
+            raise TypeError('add_sensitive_str_list只支持list类型! eg: ["123", "456", ...]')
+
+    # TODO 不过滤\u200a, \u200d类似字符(显示后有实际意义)
+    tmp_str = r'''
+    淘宝|taobao|TAOBAO|天猫|tmall|TMALL|
+    京东|JD|jd|红书爸爸|共产党|邪教|艹|
+    杀人|胡锦涛|江泽民|习近平|小红薯|毛泽东|
+    拉粑粑
+    '''.replace(' ', '').replace('\n', '')
+    data = re.compile(tmp_str).sub('', data)
+
+    data = re.compile(r'\xa0').sub(' ', data)  # '\xa0' 是不间断空白符 &nbsp;
+
+    return data

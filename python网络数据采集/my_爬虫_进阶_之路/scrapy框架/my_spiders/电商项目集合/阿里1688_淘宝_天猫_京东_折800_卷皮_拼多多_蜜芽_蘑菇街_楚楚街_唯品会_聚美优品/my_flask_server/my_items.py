@@ -77,3 +77,5 @@ class WellRecommendArticle(Item):
     tags = Field()                  # 用于存微淘的tags信息
     share_goods_base_info = Field() # goods_id对应goods_url
     video_url = Field()             # article的视频url
+    likes = Field()                 # 点赞数 int
+    collects = Field()              # 收藏数 int

@@ -7,6 +7,11 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+采集地址:
+    http://fund.eastmoney.com/data/fundranking.html
+"""
+
 import re
 from pprint import pprint
 from urllib.parse import unquote
@@ -24,6 +29,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
     string_to_datetime,)
+from fzutils.common_utils import json_2_dict
 
 def month_differ(x, y):
     """暂不考虑day, 只根据month和year计算相差月份
@@ -38,16 +44,6 @@ def month_differ(x, y):
     month_differ = abs((x.year - y.year) * 12 + (x.month - y.month) * 1)
 
     return month_differ
-
-def json_2_dict(json_str):
-    from json import JSONDecodeError, loads
-    try:
-        _ = loads(json_str)
-    except JSONDecodeError as e:
-        print(e)
-        _ = {}
-
-    return _
 
 def unquote_cookies(cookies: dict):
     '''
