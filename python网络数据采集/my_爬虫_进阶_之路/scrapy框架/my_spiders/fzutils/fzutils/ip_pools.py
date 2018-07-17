@@ -16,15 +16,22 @@ __all__ = [
 ]
 
 class MyIpPools(object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, high_conceal=False):
+        '''
+        :param high_conceal: 是否初始化为高匿代理
+        '''
+        super(MyIpPools, self).__init__()
+        self.high_conceal = high_conceal
 
     def get_proxy_ip_from_ip_pool(self):
         '''
         从代理ip池中获取到对应ip
         :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
         '''
-        base_url = 'http://127.0.0.1:8000'
+        if self.high_conceal:
+            base_url = 'http://127.0.0.1:8000/?types=0' # types: 0高匿|1匿名|2透明
+        else:
+            base_url = 'http://127.0.0.1:8000'
         try:
             result = requests.get(base_url).json()
         except Exception as e:
@@ -42,6 +49,7 @@ class MyIpPools(object):
                 delete_info = requests.get(delete_url + item[0])
 
         # pprint(result_ip_list)
+
         return result_ip_list
 
     def _get_random_proxy_ip(self):

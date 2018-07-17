@@ -175,7 +175,7 @@ def wash_sensitive_info(data, replace_str_list=None, add_sensitive_str_list=None
     # TODO 不过滤\u200a, \u200d类似字符(显示后有实际意义)
     tmp_str = r'''
     淘宝|taobao|TAOBAO|天猫|tmall|TMALL|
-    京东|JD|jd|红书爸爸|共产党|邪教|艹|
+    京东|JD|jd|红书爸爸|共产党|邪教|艹|折800|
     杀人|胡锦涛|江泽民|习近平|小红薯|毛泽东|
     拉粑粑
     '''.replace(' ', '').replace('\n', '')

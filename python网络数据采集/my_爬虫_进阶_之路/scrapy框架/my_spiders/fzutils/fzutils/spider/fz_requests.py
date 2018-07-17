@@ -24,13 +24,17 @@ __all__ = [
 
 class MyRequests(object):
     def __init__(self):
+        '''
+        :param high_conceal: 代理是否高匿
+        '''
         super(MyRequests, self).__init__()
 
     @classmethod
     def get_url_body(cls, url, headers:dict=get_base_headers(),
                      params=None, data=None, cookies=None,
                      had_referer=False, encoding='utf-8',
-                     method='get', timeout=12, num_retries=1):
+                     method='get', timeout=12, num_retries=1,
+                     high_conceal=False):
         '''
         根据url得到body
         :param url:
@@ -43,10 +47,11 @@ class MyRequests(object):
         :param method:
         :param timeout:
         :param num_retries:
+        :param high_conceal: 代理是否为高匿名
         :return: '' 表示error | str 表示success
         '''
         # 设置代理ip
-        tmp_proxies = cls._get_proxies()
+        tmp_proxies = cls._get_proxies(high_conceal=high_conceal)
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(tmp_proxies.get('http')))
 
         tmp_headers = headers
@@ -89,12 +94,12 @@ class MyRequests(object):
         return body
 
     @classmethod
-    def _get_proxies(cls):
+    def _get_proxies(cls, high_conceal=False):
         '''
         得到单个代理ip
         :return: 格式: {'http': ip+port}
         '''
-        ip_object = MyIpPools()
+        ip_object = MyIpPools(high_conceal=high_conceal)
         proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         proxy = proxies['http'][randint(0, len(proxies) - 1)]
 

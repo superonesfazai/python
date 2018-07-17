@@ -9,7 +9,7 @@
 
 """
 小红书parse
-    NOTICE: 
+    NOTICE: (此爬虫偶尔会被403禁掉, 可以在服务器上跑)
         视频播放地址为: 
             原先为: https://sa.xiaohongshu.com/ljEITehG-zL_GFn_5Q4x-AYkFj69_compress_L2
             能直接播放的地址为: https://v.xiaohongshu.com/ljEITehG-zL_GFn_5Q4x-AYkFj69_compress_L2   (将sa替换成v即可)
@@ -54,8 +54,10 @@ class XiaoHongShuParse():
         self._set_logger(logger)
         self._set_headers()
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-        self.index = 0
+        self.success_insert_db_num = 0
         self.CRAWL_ARTICLE_SLEEP_TIME = 2.5     # 抓每天文章的sleep_time
+        self.LONG_SLEEP_TIME = 10               # 抓完10条休眠时间
+        self.db_share_id = []                   # db原先存在的
 
     def _set_headers(self):
         self.headers = {
@@ -82,7 +84,7 @@ class XiaoHongShuParse():
     def _get_xiaohongshu_home_aritles_info(self):
         '''
         小红书主页json模拟获取
-        :return: eg: ['小红书地址', ...]
+        :return:
         '''
         # cookies = {
         #     'beaker.session.id': '2ce91a013076367573e263a34e3691a510bb0479gAJ9cQEoVQhfZXhwaXJlc3ECY2RhdGV0aW1lCmRhdGV0aW1lCnEDVQoH4gcNDQoiDh9FhVJxBFULc2Vzc2lvbmlkLjFxBVgbAAAAc2Vzc2lvbi4xMjEwNDI3NjA2NTM0NjEzMjgycQZVCHVzZXJpZC4xcQdYGAAAADU4ZWRlZjc0NWU4N2U3NjBjOWMyNzAyNHEIVQNfaWRxCVUgMjMyNTRkOWU1MDUyNDY3NDkzZTMzZGM0YjE1MzUzZmZxClUOX2FjY2Vzc2VkX3RpbWVxC0dB1s/aksJmZlUOX2NyZWF0aW9uX3RpbWVxDEdB1s/akrUrE3Uu',
@@ -97,7 +99,6 @@ class XiaoHongShuParse():
             'Accept': 'application/json',
             'Host': 'www.xiaohongshu.com',
             'User-Agent': 'discover/5.19.1 (iPhone; iOS 11.0; Scale/3.00) Resolution/1242*2208 Version/5.19.1 Build/5191001 Device/(Apple Inc.;iPhone7,1)',
-            # 'User-Agent': get_random_pc_ua(),
             # 'Authorization': 'session.1210427606534613282',
             'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
             'X-Tingyun-Id': 'LbxHzUNcfig;c=2;r=551911068',
@@ -119,21 +120,22 @@ class XiaoHongShuParse():
         )
 
         url = 'https://www.xiaohongshu.com/api/sns/v6/homefeed'
-        body = MyRequests.get_url_body(url=url, headers=headers, params=params, cookies=None)
+        body = MyRequests.get_url_body(url=url, headers=headers, params=params, cookies=None, high_conceal=True)
         # self.my_lg.info(body)
         if body == '':
             self.my_lg.error('获取到的body为空值!请检查!')
-            return {}
+            return []
 
         if re.compile(r'<title>403 Forbidden</title>').findall(body) != []:
             self.my_lg.info('此次抓取被403禁止!')
-            return {}
+            sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
+            return []
 
         _ = json_2_dict(body, logger=self.my_lg).get('data', [])
         # pprint(_)
         if _ == []:
             self.my_lg.error('获取到的data为空值!请检查!')
-            return {}
+            return []
 
         _ = [{
             'share_link': item.get('share_link', ''),
@@ -145,12 +147,16 @@ class XiaoHongShuParse():
     def _deal_with_home_article(self):
         home_articles_link_list = self._get_xiaohongshu_home_aritles_info()
         # pprint(home_articles_link_list)
-        self.my_lg.info(str(home_articles_link_list) + '\n')
+        self.my_lg.info(home_articles_link_list)
 
+        # self.my_lg.info(str(home_articles_link_list) + '\n')
         data = self._deal_with_articles(articles_list=home_articles_link_list)
         # pprint(data)
 
         self._save_articles(data=data)
+
+        self.my_lg.info('一次采集完毕, 进入{0}s休眠...'.format(self.LONG_SLEEP_TIME))
+        sleep(self.LONG_SLEEP_TIME)   # 设置休眠, 实现周期抓取, 避免频繁抓取被封禁(测试发现抓20个就会封一会)
 
         return True
 
@@ -161,13 +167,22 @@ class XiaoHongShuParse():
         :return: data a list
         '''
         data = []
-        for item in articles_list:  # eg: [{'id': '5b311bfc910cf67e693d273e','share_link': 'https://www.xiaohongshu.com/discovery/item/5b311bfc910cf67e693d273e'},...]
+        _db = self.my_pipeline._select_table(sql_str='select share_id from dbo.daren_recommend')
+        if _db is not None and _db != [] and _db != [()]:
+            self.db_share_id = [item[0] for item in _db]
+            # self.my_lg.info(self.db_share_id)
+
+        for item in articles_list:
             article_link = item.get('share_link', '')
             article_likes = item.get('likes', 0)
-            self.my_lg.info('正在crawl小红书地址为: {0}'.format(article_link))
+            article_id = re.compile(r'/item/(\w+)').findall(article_link)[0]
 
+            if article_id in self.db_share_id:
+                self.my_lg.info('该{0}已存在于db中...跳过!'.format(article_id))
+
+            self.my_lg.info('正在crawl小红书地址为: {0}'.format(article_link))
             if article_link != '':
-                body = MyRequests.get_url_body(url=article_link, headers=self.headers)
+                body = MyRequests.get_url_body(url=article_link, headers=self.headers, high_conceal=True)
                 try:
                     article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
                     # self.my_lg.info(str(article_info))
@@ -200,23 +215,29 @@ class XiaoHongShuParse():
         :return:
         '''
         self.my_lg.info('即将开始存储该文章...')
-        sql_str = 'insert into dbo.daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        for i, item in enumerate(data):
-            if i % 20 == 0:
+        sql_str = 'insert into dbo.daren_recommend(share_id, nick_name, head_url, profile, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        for item in data:
+            if self.success_insert_db_num % 20 == 0:
                 self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
             if self.my_pipeline.is_connect_success:
+                share_id = item.get('share_id', '')
+                if share_id == '':
+                    continue
+
+                self.my_lg.info('------>>>| 正在存储share_id: {0}...'.format(share_id))
                 try:
                     params = self._get_db_insert_into_params(item=item)
                 except Exception:
                     continue
-                self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
-                self.index += 1
+                result = self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+                if result:
+                    self.success_insert_db_num += 1
 
             else:
                 self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(item.get('gather_url', '')))
 
-        self.my_lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.index))
+        self.my_lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.success_insert_db_num))
 
         return True
 
@@ -277,6 +298,7 @@ class XiaoHongShuParse():
             assert collects is not None, '获取到的collects为None!请检查!' + error_msg
 
         except Exception:
+            sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
             self.my_lg.error('遇到错误: ', exc_info=True)
             return {}
 
@@ -308,10 +330,10 @@ class XiaoHongShuParse():
         :return:
         '''
         params = [
+            item['share_id'],
             item['nick_name'],
             item['head_url'],
             item['profile'],
-            item['share_id'],
             item['gather_url'],
             item['title'],
             item['comment_content'],
@@ -388,6 +410,7 @@ class XiaoHongShuParse():
     def __del__(self):
         try:
             del self.my_lg
+            del self.my_pipeline
         except:
             pass
         gc.collect()
