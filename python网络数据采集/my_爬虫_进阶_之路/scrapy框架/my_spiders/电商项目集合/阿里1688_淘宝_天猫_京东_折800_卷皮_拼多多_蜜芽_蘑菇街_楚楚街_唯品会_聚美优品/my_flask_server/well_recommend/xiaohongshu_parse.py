@@ -42,6 +42,7 @@ from fzutils.time_utils import (
     string_to_datetime,)
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.linux_utils import daemon_init
 from fzutils.common_utils import (
     json_2_dict,
     delete_list_null_str,
@@ -49,14 +50,21 @@ from fzutils.common_utils import (
     list_duplicate_remove,
     wash_sensitive_info,)
 
-class XiaoHongShuParse():
-    def __init__(self, logger=None):
+class XiaoHongShuParse(object):
+    def __init__(self, logger=None, by_wx=False):
+        '''
+        :param logger:
+        :param by_wx: 抓取wx小程序(弊端: 没有tags值 优点: 可长期采集, 不容易被封) √
+                      vs 抓取app(弊端: 测试发现就算用高匿proxy每跑20个, 就被封3-5分钟, 效率低)
+        '''
+        super(XiaoHongShuParse, self).__init__()
         self._set_logger(logger)
         self._set_headers()
+        self.by_wx = by_wx
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         self.success_insert_db_num = 0
-        self.CRAWL_ARTICLE_SLEEP_TIME = 2.5     # 抓每天文章的sleep_time
-        self.LONG_SLEEP_TIME = 10               # 抓完10条休眠时间
+        self.CRAWL_ARTICLE_SLEEP_TIME = 2       # 抓每天文章的sleep_time
+        self.LONG_SLEEP_TIME = 0                # 每抓10条休眠时间
         self.db_share_id = []                   # db原先存在的
 
     def _set_headers(self):
@@ -83,7 +91,7 @@ class XiaoHongShuParse():
 
     def _get_xiaohongshu_home_aritles_info(self):
         '''
-        小红书主页json模拟获取
+        小红书主页json模拟获取(模拟app端主页请求)
         :return:
         '''
         # cookies = {
@@ -182,22 +190,41 @@ class XiaoHongShuParse():
 
             self.my_lg.info('正在crawl小红书地址为: {0}'.format(article_link))
             if article_link != '':
-                body = MyRequests.get_url_body(url=article_link, headers=self.headers, high_conceal=True)
-                try:
-                    article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
-                    # self.my_lg.info(str(article_info))
-                except IndexError:
-                    self.my_lg.error('获取article_info时IndexError!请检查!')
-                    sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
-                    continue
+                if not self.by_wx:  # 通过pc端
+                    body = MyRequests.get_url_body(url=article_link, headers=self.headers, high_conceal=True)
+                    try:
+                        article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
+                        # self.my_lg.info(str(article_info))
+                    except IndexError:
+                        self.my_lg.error('获取article_info时IndexError!请检查!')
+                        sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
+                        continue
 
-                article_info = self._wash_article_info(json_2_dict(json_str=article_info, logger=self.my_lg))
-                # pprint(article_info)
-                article_info = self._parse_page(
-                    article_link=article_link,
-                    article_info=article_info,
-                    article_likes=article_likes)
-                # pprint(article_info)
+                    article_info = self._wash_article_info(json_2_dict(json_str=article_info, logger=self.my_lg))
+                    # pprint(article_info)
+                    article_info = self._parse_page(
+                        article_link=article_link,
+                        article_info=article_info,
+                        article_likes=article_likes)
+                    # pprint(article_info)
+
+                else:               # 通过wx小程序
+                    url = "https://www.xiaohongshu.com/wx_mp_api/sns/v1/note/" + article_id
+                    params = {
+                        "sid": "session.1210427606534613282",  # 对方服务器用来判断登录是否过期(过期则替换这个即可再次采集)
+                    }
+                    body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
+                    if body == '':
+                        self.my_lg.error('获取到的article的body为空值!跳过!')
+                        sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
+                        continue
+                    article_info = self._wash_article_info_from_wx(json_2_dict(json_str=body, logger=self.my_lg))
+                    article_info = self._parse_page_from_wx(
+                        article_link=article_link,
+                        article_info=article_info,
+                        article_likes=article_likes)
+                    # pprint(article_info)
+
                 data.append(article_info)
                 sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
             else:
@@ -207,39 +234,6 @@ class XiaoHongShuParse():
         # pprint(data)
 
         return data
-
-    def _save_articles(self, data):
-        '''
-        存储数据
-        :param data:
-        :return:
-        '''
-        self.my_lg.info('即将开始存储该文章...')
-        sql_str = 'insert into dbo.daren_recommend(share_id, nick_name, head_url, profile, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        for item in data:
-            if self.success_insert_db_num % 20 == 0:
-                self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
-            if self.my_pipeline.is_connect_success:
-                share_id = item.get('share_id', '')
-                if share_id == '':
-                    continue
-
-                self.my_lg.info('------>>>| 正在存储share_id: {0}...'.format(share_id))
-                try:
-                    params = self._get_db_insert_into_params(item=item)
-                except Exception:
-                    continue
-                result = self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
-                if result:
-                    self.success_insert_db_num += 1
-
-            else:
-                self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(item.get('gather_url', '')))
-
-        self.my_lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.success_insert_db_num))
-
-        return True
 
     def _parse_page(self, **kwargs):
         '''
@@ -263,7 +257,7 @@ class XiaoHongShuParse():
             share_id = article_info.get('noteInfo', {}).get('id', '')
             assert share_id != '', '获取到的share_id为空值!请检查!' + error_msg
 
-            title = ''            # title默认留空
+            title = article_info.get('noteInfo', {}).get('title', '')            # title默认留空
             comment_content = self.wash_sensitive_info(article_info.get('noteInfo', {}).get('desc', ''))
             assert comment_content != '', '获取到的comment_content为空!请检查!' + error_msg
 
@@ -323,6 +317,123 @@ class XiaoHongShuParse():
 
         return _
 
+    def _parse_page_from_wx(self, **kwargs):
+        '''
+        解析wx单个article的info
+        :param kwargs:
+        :return: a WellRecommendArticle object
+        '''
+        article_link = kwargs.get('article_link', '')
+        article_info = kwargs.get('article_info', {}).get('data', {})
+        article_likes = kwargs.get('article_likes', get_random_int_number())
+
+        error_msg = '出错article_url: {0}'.format(article_link)
+        try:
+            nick_name = article_info.get('user', {}).get('nickname', '')
+            assert nick_name != '', '获取到的nick_name为空值!请检查!' + error_msg
+
+            head_url = article_info.get('user', {}).get('images', '')
+            assert head_url != '', '获取到的head_url为空值!请检查!' + error_msg
+
+            profile = ''        # 个人简介或者个性签名(留空)
+
+            share_id = article_info.get('id', '')
+            assert share_id != '', '获取到的share_id为空值!请检查!' + error_msg
+
+            title = self.wash_sensitive_info(article_info.get('title', ''))          # title默认留空
+            comment_content = self.wash_sensitive_info(article_info.get('desc', ''))
+            assert comment_content != '', '获取到的comment_content为空!请检查!' + error_msg
+
+            share_img_url_list = [{  # 如果是视频的话, 则里面第一章图片就是视频第一帧
+                'img_url': item.get('original', ''),
+                'height': item.get('height'),  # 图片高宽
+                'width': item.get('width'),
+            } for item in article_info.get('images_list', [])]
+            assert share_img_url_list != [], '获取到的share_img_url_list为空list!请检查!' + error_msg
+
+            div_body = ''  # 默认留空
+            gather_url = article_link
+
+            # 原文章原始的创建日期
+            tmp_create_time = article_info.get('time', '')
+            assert tmp_create_time != '', '获取到的create_time为空值!请检查!'
+            create_time = string_to_datetime(tmp_create_time + ':00')
+
+            site_id = 3  # 小红书
+            goods_url_list = []  # 该文章待抓取的商品地址
+            share_goods_base_info = []
+
+            # wx端tags没有返回值
+            tags = self._get_tags_from_wx(article_info=article_info)
+
+            # 视频播放地址
+            tmp_video_url = article_info.get('video', '')
+            tmp_video_url = re.compile('\?.*').sub('', tmp_video_url)
+            video_url = re.compile(r'//sa.').sub(r'//v.', tmp_video_url)
+
+            likes = article_likes
+            collects = article_info.get('fav_count', None)
+            assert collects is not None, '获取到的collects为None!请检查!' + error_msg
+
+        except Exception:
+            sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
+            self.my_lg.error('遇到错误:', exc_info=True)
+            return {}
+
+        _ = WellRecommendArticle()
+        _['nick_name'] = nick_name
+        _['head_url'] = head_url
+        _['profile'] = profile
+        _['share_id'] = share_id
+        _['title'] = title
+        _['comment_content'] = comment_content
+        _['share_img_url_list'] = share_img_url_list
+        _['div_body'] = div_body
+        _['gather_url'] = gather_url
+        _['create_time'] = create_time
+        _['site_id'] = site_id
+        _['goods_url_list'] = goods_url_list
+        _['tags'] = tags
+        _['share_goods_base_info'] = share_goods_base_info
+        _['video_url'] = video_url
+        _['likes'] = likes
+        _['collects'] = collects
+
+        return _
+
+    def _save_articles(self, data):
+        '''
+        存储数据
+        :param data:
+        :return:
+        '''
+        self.my_lg.info('即将开始存储该文章...')
+        sql_str = 'insert into dbo.daren_recommend(share_id, nick_name, head_url, profile, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        for item in data:
+            if self.success_insert_db_num % 20 == 0:
+                self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+
+            if self.my_pipeline.is_connect_success:
+                share_id = item.get('share_id', '')
+                if share_id == '':
+                    continue
+
+                self.my_lg.info('------>>>| 正在存储share_id: {0}...'.format(share_id))
+                try:
+                    params = self._get_db_insert_into_params(item=item)
+                except Exception:
+                    continue
+                result = self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+                if result:
+                    self.success_insert_db_num += 1
+
+            else:
+                self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(item.get('gather_url', '')))
+
+        self.my_lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.success_insert_db_num))
+
+        return True
+
     def _get_db_insert_into_params(self, item):
         '''
         得到待存储的数据
@@ -367,6 +478,15 @@ class XiaoHongShuParse():
 
         return tags
 
+    def _get_tags_from_wx(self, article_info):
+        '''
+        从wx获取tags
+        :param article_info:
+        :return:
+        '''
+
+        return []
+
     def _wash_article_info(self, _dict):
         '''
         清洗无用字段
@@ -376,6 +496,20 @@ class XiaoHongShuParse():
         try:
             _dict['NoteView']['commentInfo'] = {}   # 评论信息
             _dict['NoteView']['panelData'] = []     # 相关笔记
+        except:
+            pass
+
+        return _dict
+
+    def _wash_article_info_from_wx(self, _dict):
+        '''
+        清洗wx无用字段
+        :param _dict:
+        :return:
+        '''
+        try:
+            _dict['data']['mini_program_info'] = {}     # 推荐首页的缩略信息
+            _dict['data']['share_info'] = {}            # 分享的信息
         except:
             pass
 
@@ -392,8 +526,10 @@ class XiaoHongShuParse():
             ('xiaohongshu', '优秀网'),
             ('XIAOHONGSHU', '优秀网'),
             ('某宝', '优秀网'),
-            ('薯队长', '优秀网'),
+            ('薯队长', '秀队长'),
             ('薯宝宝', '秀客'),
+            ('红薯们', '秀客们'),
+            ('小红薯', '小秀客'),
         ]
 
         add_sensitive_str_list = [
@@ -415,8 +551,10 @@ class XiaoHongShuParse():
             pass
         gc.collect()
 
-if __name__ == '__main__':
-    _ = XiaoHongShuParse()
+def just_fuck_run():
+    # _ = XiaoHongShuParse()
+    _ = XiaoHongShuParse(by_wx=True)
+
     while True:
         # 处理主页推荐地址
         _._deal_with_home_article()
@@ -432,3 +570,17 @@ if __name__ == '__main__':
         # pprint(data)
 
         sleep(3)
+
+def main():
+    '''
+    这里的思想是将其转换为孤儿进程，然后在后台运行
+    :return:
+    '''
+    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('--->>>| 孤儿进程成功被init回收成为单独进程!')
+    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
+    just_fuck_run()
+
+if __name__ == '__main__':
+    main()
