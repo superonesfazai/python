@@ -233,5 +233,3 @@ def filter_invalid_comment_content(_comment_content):
     else:
         return True
 
-# print(timestamp_to_regulartime(1531475169))
-# print(timestamp_to_regulartime(1531446364))

@@ -11,7 +11,7 @@ __all__ = [
     'daemon_init',                                      # 守护进程
     'restart_program',                                  # 初始化避免异步导致log重复打印
     'process_exit',                                     # 判断进程是否存在
-    'kill_process_by_name',                             # 根据进程名杀掉对应进程
+    'kill_process_by_name',                             # 根据进程名杀掉对应进程(linux/mac测试通过!)
 
     # shell
     'get_str_from_command',                             # shell下执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为""
@@ -88,7 +88,7 @@ def process_exit(process_name):
 
 def kill_process_by_name(process_name):
     '''
-    根据进程名杀掉对应进程
+    根据进程名杀掉对应进程(linux/mac测试通过!)
     :param process_name: str
     :return:
     '''
@@ -97,9 +97,15 @@ def kill_process_by_name(process_name):
 
     if process_exit(process_name) > 0:
         try:
-            process_check_response = delete_list_null_str(os.popen('ps aux | grep ' + process_name).readlines()[0].split(' '))[1]
-            os.system('kill -9 %s' % process_check_response)
-            print('该进程名%s, pid = %s, 进程kill完毕!!' % (process_name, process_check_response))
+            process_check_response = os.popen('ps aux | grep ' + process_name).readlines()
+            # print(process_check_response)
+            for item in process_check_response:
+                # print(item)
+                tmp = delete_list_null_str(item.split(' '))[1]      # 得到进程号pid, 并杀掉每一个
+                # print(tmp)
+
+                os.system('kill -9 {0}'.format(tmp))
+                print('该进程名%s, pid = %s, 进程kill完毕!!' % (process_name, tmp))
 
         except Exception as e:
             print(e)

@@ -23,6 +23,7 @@ sys.path.append('..')
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
+    IS_BACKGROUND_RUNNING,
 )
 
 from logging import INFO, ERROR
@@ -62,6 +63,7 @@ class XiaoHongShuParse(object):
         self._set_headers()
         self.by_wx = by_wx
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        self.index = 0
         self.success_insert_db_num = 0
         self.CRAWL_ARTICLE_SLEEP_TIME = 2       # 抓每天文章的sleep_time
         self.LONG_SLEEP_TIME = 0                # 每抓10条休眠时间
@@ -181,6 +183,7 @@ class XiaoHongShuParse(object):
             # self.my_lg.info(self.db_share_id)
 
         for item in articles_list:
+            self.index += 1
             article_link = item.get('share_link', '')
             article_likes = item.get('likes', 0)
             article_id = re.compile(r'/item/(\w+)').findall(article_link)[0]
@@ -410,7 +413,7 @@ class XiaoHongShuParse(object):
         self.my_lg.info('即将开始存储该文章...')
         sql_str = 'insert into dbo.daren_recommend(share_id, nick_name, head_url, profile, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         for item in data:
-            if self.success_insert_db_num % 20 == 0:
+            if self.index % 20 == 0:
                 self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
             if self.my_pipeline.is_connect_success:
@@ -583,4 +586,7 @@ def main():
     just_fuck_run()
 
 if __name__ == '__main__':
-    main()
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        just_fuck_run()

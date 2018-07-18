@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from pprint import pprint
+
 __all__ = [
     'json_2_dict',                                              # json转dict
     '_green',                                                   # 将字体变成绿色
@@ -20,6 +22,8 @@ __all__ = [
 
     # 随机
     'get_random_int_number',                                    # 得到一个随机的int数字
+
+    'wash_sensitive_info',                                      # 清洗敏感字符
 ]
 
 def json_2_dict(json_str, logger=None, encoding=None):
@@ -184,3 +188,6 @@ def wash_sensitive_info(data, replace_str_list=None, add_sensitive_str_list=None
     data = re.compile(r'\xa0').sub(' ', data)  # '\xa0' 是不间断空白符 &nbsp;
 
     return data
+
+
+

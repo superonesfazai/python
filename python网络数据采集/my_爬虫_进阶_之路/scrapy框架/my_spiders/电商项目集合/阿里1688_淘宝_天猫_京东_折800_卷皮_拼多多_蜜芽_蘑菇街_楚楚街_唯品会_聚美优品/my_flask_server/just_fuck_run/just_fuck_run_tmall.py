@@ -44,15 +44,26 @@ server_file_name_list = [
     'new_my_server',
 ]
 
+night_run_file_name_list = [    # 只在晚上run
+    'tmall_real-times_update',
+]
+# real-times脚本晚上运行时间
+night_run_time = ['21', '22', '23', '00', '01', '02', '03', '04', '05', '06',]
+
 def run_one_file_name_list(path, file_name_list):
     for item in file_name_list:
-        process_name = item + '.py'
-        if process_exit(process_name) == 0:
-            # 如果对应的脚本没有在运行, 则运行之
-            os.system('cd {0} && python3 {1}.py'.format(path, item))
-            sleep(2.5)  # 避免同时先后启动先sleep下
+        if item in night_run_file_name_list \
+                and str(get_shanghai_time())[11:13] not in night_run_time:
+            print('{0}.py不在运行时间点...此处跳过!'.format(item))
+            pass
         else:
-            print(process_name + '脚本已存在!')
+            process_name = item + '.py'
+            if process_exit(process_name) == 0:
+                # 如果对应的脚本没有在运行, 则运行之
+                os.system('cd {0} && python3 {1}.py'.format(path, item))
+                sleep(2.5)      # 避免同时先后启动先sleep下
+            else:
+                print(process_name + '脚本已存在!')
 
 def auto_run(*params):
     print('开始执行脚本'.center(60, '*'))
@@ -61,25 +72,13 @@ def auto_run(*params):
     run_one_file_name_list(path=params[1], file_name_list=logs_file_name_list)
     run_one_file_name_list(path=params[3], file_name_list=server_file_name_list)
 
-    if str(get_shanghai_time())[11:13] in ['21', '22', '23', '04', '05', '06', '07', '08',]:
-        # kill冲突进程
-        [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]   # 不杀spike
-        # 运行tmall常规商品更新script
-        run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
+    [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]   # 不杀spike
+    # 运行tmall常规商品更新script
+    run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
 
-    # 无法运行成守护进程, 改为tmux模式运行
-    if str(get_shanghai_time())[11:13] in ['00', '01', '02', '03', '09', '10']:     # 白天不运行tmall更新，9点即时杀掉
-        # 单独运行淘抢购抓取script
-        [kill_process_by_name(process_name) for process_name in real_file_name_list]
-        # [kill_process_by_name(process_name) for process_name in spike_file_name_list[1:]]
-        # run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[0]])
-
-    # 并且不运行更新脚本，只运行spike
-    # if str(get_shanghai_time())[11:13] in ['13', '14', '15', '16', '17']:
-    #     [kill_process_by_name(process_name) for process_name in real_file_name_list]
-    #     [kill_process_by_name(process_name) for process_name in spike_file_name_list[0:1]+spike_file_name_list[2:]]
-    #     # 单独运行淘抢购更新script
-    #     run_one_file_name_list(path=params[4], file_name_list=[spike_file_name_list[1]])
+    if str(get_shanghai_time())[11:13] not in night_run_time:
+        # kill冲突process
+        [kill_process_by_name(process_name) for process_name in night_run_file_name_list]
 
     print('脚本执行完毕'.center(60, '*'))
 
