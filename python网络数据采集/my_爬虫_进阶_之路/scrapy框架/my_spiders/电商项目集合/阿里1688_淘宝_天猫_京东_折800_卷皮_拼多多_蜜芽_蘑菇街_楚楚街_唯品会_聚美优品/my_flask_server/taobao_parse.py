@@ -837,7 +837,22 @@ class TaoBaoLoginAndParse(object):
         # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
         self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id')))
 
-        await pipeline.insert_into_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
+        params = self._get_db_insert_tejia_params(item=tmp)
+        sql_str = 'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        await pipeline._insert_into_table_3(
+            sql_str=sql_str,
+            params=params,
+            logger=self.my_lg,
+            error_msg_dict={
+                'repeat_error': {
+                    'field_name': 'goods_id',
+                    'field_value': tmp.get('goods_id', ''),
+                },
+                'other_error': [{
+                    'field_name': 'goods_url',
+                    'field_value': tmp.get('goods_url'),
+                },]
+            })
 
         return True
 
@@ -896,7 +911,20 @@ class TaoBaoLoginAndParse(object):
         # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
         self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
-        await pipeline.update_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
+        params = self._get_db_update_tejia_params(item=tmp)
+        sql_str = 'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s'
+
+        await pipeline._update_table_3(
+            sql_str=sql_str,
+            params=params,
+            logger=self.my_lg,
+            error_msg_dict={
+                'other_error': [{
+                    'field_name': 'goods_id',
+                    'field_value': tmp.get('goods_id', ''),
+                }]
+            }
+        )
 
     async def update_expired_goods_id_taobao_tiantiantejia_table(self, data, pipeline):
         '''
@@ -949,6 +977,73 @@ class TaoBaoLoginAndParse(object):
         self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
         await pipeline.update_expired_goods_id_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
+
+    def _get_db_insert_tejia_params(self, item):
+        '''
+        获得待插入的参数
+        :param item:
+        :return:
+        '''
+        params = [
+            item['goods_id'],
+            item['goods_url'],
+            item['deal_with_time'],
+            item['modfiy_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+            item['div_desc'],  # 存入到DetailInfo
+            item['month_sell_count'],
+            dumps(item['schedule'], ensure_ascii=False),
+            item['tejia_begin_time'],
+            item['tejia_end_time'],
+            item['block_id'],
+            item['tag_id'],
+            item['father_sort'],
+            item['child_sort'],
+
+            item['site_id'],
+            item['is_delete'],
+        ]
+
+        return tuple(params)
+
+    def _get_db_update_tejia_params(self, item):
+        '''
+        获取tejia的params
+        :param item:
+        :return:
+        '''
+        params = [
+            item['modfiy_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['month_sell_count'],
+            # dumps(item['schedule'], ensure_ascii=False),
+            # item['tejia_begin_time'],
+            # item['tejia_end_time'],
+            item['is_delete'],
+
+            item['goods_id'],
+        ]
+
+        return tuple(params)
 
     def get_div_from_pc_div_url(self, url, goods_id):
         '''

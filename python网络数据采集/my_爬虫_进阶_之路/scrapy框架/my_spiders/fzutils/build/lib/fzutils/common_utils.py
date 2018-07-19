@@ -24,6 +24,9 @@ __all__ = [
     'get_random_int_number',                                    # 得到一个随机的int数字
 
     'wash_sensitive_info',                                      # 清洗敏感字符
+
+    # img
+    'save_base64_img_2_local',                                  # 存储类似data:image/jpg;base64,xxxxxx的图片到本地
 ]
 
 def json_2_dict(json_str, logger=None, encoding=None):
@@ -189,5 +192,26 @@ def wash_sensitive_info(data, replace_str_list=None, add_sensitive_str_list=None
 
     return data
 
+def save_base64_img_2_local(save_path, base64_img_str):
+    '''
+    存储类似data:image/jpg;base64,xxxxxx的图片到本地
+    :param save_path: 存储的路径
+    :param base64_img_str:
+    :return:
+    '''
+    import base64
 
+    try:
+        ## 将base64转换位图片存储
+        # print(base64_img_str)
+        base64_img_str = base64_img_str[base64_img_str.find(",") + 1:]  # 得到data:image/jpg;base64,后面的图片的base64格式的字符串
+        # print(base64_img_str)
+        with open(save_path, 'wb') as f:
+            base64_img_str = base64.b64decode(base64_img_str)
+            f.write(base64_img_str)
+
+        return True
+    except Exception as e:
+        print(e)
+        return False
 

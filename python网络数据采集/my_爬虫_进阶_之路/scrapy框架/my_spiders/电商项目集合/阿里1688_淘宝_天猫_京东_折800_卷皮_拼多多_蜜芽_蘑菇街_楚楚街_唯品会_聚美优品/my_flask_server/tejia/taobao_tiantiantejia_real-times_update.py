@@ -215,7 +215,6 @@ async def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server, 
 
         # logger.info('------>>>| 爬取到的数据为: %s' % str(data_before))
         await taobao.update_taobao_tiantiantejia_table(data_before, pipeline=tmp_sql_server)
-
         await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 避免服务器更新太频繁
         index += 1
         try: del taobao

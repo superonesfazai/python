@@ -1,0 +1,1325 @@
+[INFO  - 2018-07-19T05:06:12.250Z] GhostDriver - Main - running on port 54507
+[INFO  - 2018-07-19T05:06:13.254Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.186 Safari/535.1","webSecurityEnabled":true}
+[INFO  - 2018-07-19T05:06:13.254Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.customHeaders:  - {}
+[INFO  - 2018-07-19T05:06:13.254Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":true,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.186 Safari/535.1"}
+[INFO  - 2018-07-19T05:06:13.254Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 753d59e0-8b11-11e8-9599-453c0888eedc
+[ERROR - 2018-07-19T05:06:20.498Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:20.498Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2456006.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:27.515Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:27.515Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455915.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:31.448Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:31.449Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  insertBefore (:0)
+  getScript (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  path (http://a.alimama.cn/tkapi.js:1)
+  _gPath (http://a.alimama.cn/tkapi.js:1)
+  _lM (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  multiAsync (http://a.alimama.cn/tkapi.js:1)
+  _aMs (http://a.alimama.cn/tkapi.js:1)
+  use (http://a.alimama.cn/tkapi.js:1)
+  provide (http://a.alimama.cn/tkapi.js:1)
+  alimamatk_show (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:31.940Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:31.940Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455896.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:35.780Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:35.780Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:36.269Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:36.269Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455874.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:40.144Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:40.144Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:40.631Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:40.631Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455815.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:44.464Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:44.465Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:45.017Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:06:45.018Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455763.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:09.376Z] WebElementLocator - _handleLocateCommand - Element(s) NOT Found: GAVE UP. Search Stop Time: 1531976829353
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:12.177Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:12.177Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  insertBefore (:0)
+  getScript (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  path (http://a.alimama.cn/tkapi.js:1)
+  _gPath (http://a.alimama.cn/tkapi.js:1)
+  _lM (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  multiAsync (http://a.alimama.cn/tkapi.js:1)
+  _aMs (http://a.alimama.cn/tkapi.js:1)
+  use (http://a.alimama.cn/tkapi.js:1)
+  provide (http://a.alimama.cn/tkapi.js:1)
+  alimamatk_show (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:13.253Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:13.253Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455666.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:17.054Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:17.054Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:17.475Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:17.475Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455552.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:21.574Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:21.574Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:22.043Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:22.043Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455536.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:25.907Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:25.908Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:26.505Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:26.505Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455317.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:30.350Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:30.350Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:30.999Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:30.999Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455276.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:34.863Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:34.863Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:35.444Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:35.444Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2455236.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:39.435Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:39.437Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:40.197Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:40.197Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454830.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:44.178Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:44.178Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:44.620Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:44.620Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454710.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:48.543Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:48.543Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:48.959Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:48.959Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454700.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:52.947Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:52.948Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:53.441Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:53.441Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454630.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:57.299Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:57.299Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:57.758Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:07:57.758Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454347.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:01.693Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:01.695Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:02.184Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:02.184Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454301.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:06.162Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:06.162Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:06.645Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:06.645Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454211.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:10.527Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:10.527Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:10.979Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:10.979Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454181.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:14.997Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:14.997Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:15.595Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:15.595Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2454091.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:19.540Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:19.541Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:20.375Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:20.375Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2453947.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:24.339Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:24.339Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:24.872Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:24.872Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2453944.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:28.939Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:28.940Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:29.607Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:29.607Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2453860.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:33.597Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:33.597Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:34.306Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:34.306Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2453786.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:38.472Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:38.473Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:39.097Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:39.098Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2452818.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:43.150Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:43.150Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:45.219Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:45.219Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2451911.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:49.292Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:49.293Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:55.690Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:55.691Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2452522.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:59.826Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:08:59.826Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:01.035Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:01.035Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2451953.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:28.447Z] WebElementLocator - _handleLocateCommand - Element(s) NOT Found: GAVE UP. Search Stop Time: 1531976968440
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:30.830Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:30.830Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:31.880Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:31.880Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2451908.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:36.063Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:36.063Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:37.034Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:37.034Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2451816.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:41.274Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:41.274Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:42.127Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:09:42.127Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2451778.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:27.907Z] WebElementLocator - _handleLocateCommand - Element(s) NOT Found: GAVE UP. Search Stop Time: 1531977027894
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:30.984Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:30.985Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:32.111Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:32.111Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2451521.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:36.041Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:36.041Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:36.742Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:36.742Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2450542.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:40.726Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:40.726Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:41.380Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:10:41.380Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2449893.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:06.646Z] WebElementLocator - _handleLocateCommand - Element(s) NOT Found: GAVE UP. Search Stop Time: 1531977066601
+
+  phantomjs://platform/console++.js:263 in error
+[INFO  - 2018-07-19T05:11:12.252Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[ERROR - 2018-07-19T05:11:17.231Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:17.231Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  insertBefore (:0)
+  getScript (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  path (http://a.alimama.cn/tkapi.js:1)
+  _gPath (http://a.alimama.cn/tkapi.js:1)
+  _lM (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  multiAsync (http://a.alimama.cn/tkapi.js:1)
+  _aMs (http://a.alimama.cn/tkapi.js:1)
+  use (http://a.alimama.cn/tkapi.js:1)
+  provide (http://a.alimama.cn/tkapi.js:1)
+  alimamatk_show (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:27.432Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:27.432Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2448491.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:31.869Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:31.869Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:32.675Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:32.675Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2416966.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:36.889Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: TypeError: undefined is not a constructor (evaluating 'a("tkapi-click").run(b)')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:36.889Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  d (http://a.alimama.cn/tkapi.js:1)
+  _aM (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+  (anonymous function) (http://a.alimama.cn/tkapi.js:1)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:37.538Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - msg: SyntaxError: Return statements are only valid inside functions
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:11:37.538Z] Session [753d59e0-8b11-11e8-9599-453c0888eedc] - page.onError - stack:
+  sendEvent (http://www.quanmama.com/quan/2215282.html:1)
+  _keyEvent (phantomjs://code/inputs.js:325)
+  _pressKey (phantomjs://code/inputs.js:280)
+  _sendKeys (phantomjs://code/inputs.js:237)
+  _postValueCommand (phantomjs://code/webelement_request_handler.js:288)
+  _handle (phantomjs://code/webelement_request_handler.js:72)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/session_request_handler.js:120)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:12:11.049Z] WebElementLocator - _handleLocateCommand - Element(s) NOT Found: GAVE UP. Search Stop Time: 1531977131046
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-07-19T05:12:38.490Z] WebElementLocator - _handleLocateCommand - Element(s) NOT Found: GAVE UP. Search Stop Time: 1531977158462
+
+  phantomjs://platform/console++.js:263 in error

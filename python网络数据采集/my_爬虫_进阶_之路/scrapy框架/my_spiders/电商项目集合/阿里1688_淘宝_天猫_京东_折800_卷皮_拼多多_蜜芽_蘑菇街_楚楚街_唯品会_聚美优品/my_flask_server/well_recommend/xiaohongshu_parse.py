@@ -65,7 +65,7 @@ class XiaoHongShuParse(object):
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         self.index = 0
         self.success_insert_db_num = 0
-        self.CRAWL_ARTICLE_SLEEP_TIME = 2       # 抓每天文章的sleep_time
+        self.CRAWL_ARTICLE_SLEEP_TIME = 1       # 抓每天文章的sleep_time(wx=1/app=2)
         self.LONG_SLEEP_TIME = 0                # 每抓10条休眠时间
         self.db_share_id = []                   # db原先存在的
 

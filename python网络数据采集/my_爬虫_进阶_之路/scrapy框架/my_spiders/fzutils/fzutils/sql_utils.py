@@ -111,9 +111,8 @@ class BaseSqlServer(object):
         except IntegrityError:
             logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
 
-        except Exception as e:
-            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0])
-            logger.exception(e)
+        except Exception:
+            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0], exc_info=True)
         finally:
             try:
                 cs.close()
@@ -121,12 +120,26 @@ class BaseSqlServer(object):
                 pass
             return _
 
-    async def _insert_into_table_3(self, sql_str, params: tuple, logger):
+    async def _insert_into_table_3(self, sql_str, params: tuple, logger, error_msg_dict=None):
         '''
         异步
+            error_msg_dict参数:
+                eg: {
+                    # 重复插入
+                    'repeat_error': {
+                        'field_name': '重复插入要记录的字段名',
+                        'field_value': '重复记录该字段的值',
+                    },
+                    # 其他异常
+                    'other_error': [{
+                        'field_name': '字段名',
+                        'field_value': '字段值',
+                    }, ...]
+                }
         :param sql_str:
         :param params:
         :param logger:
+        :param error_msg_dict: logger记录的额外信息
         :return:
         '''
         cs = self.conn.cursor()
@@ -138,11 +151,33 @@ class BaseSqlServer(object):
             logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
         except IntegrityError:
-            logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
+            if not error_msg_dict:
+                logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
+            else:
+                if isinstance(error_msg_dict, dict):
+                    msg = '重复插入{0}[{1}], 此处跳过!'.format(
+                        error_msg_dict.get('repeat_error', {}).get('field_name', ''),
+                        error_msg_dict.get('repeat_error', {}).get('field_value', '')
+                    )
+                    logger.info(msg)
+                else:
+                    raise TypeError('传入的error_msg_dict类型错误, 请核对需求参数!')
 
-        except Exception as e:
-            logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0])
-            logger.exception(e)
+        except Exception:
+            if not error_msg_dict:
+                logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: {0}'.format(params[0]), exc_info=True)
+            else:
+                if isinstance(error_msg_dict, dict):
+                    msg = '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | '
+                    for item in error_msg_dict.get('other_error', []):
+                        msg += '出错{0}: {1} '.format(
+                            item.get('field_name', ''),
+                            item.get('field_value', '')
+                        )
+                    logger.error(msg, exc_info=True)
+                else:
+                    raise TypeError('传入的error_msg_dict类型错误, 请核对需求参数!')
+
         finally:
             try:
                 cs.close()
@@ -195,6 +230,55 @@ class BaseSqlServer(object):
                 cs.close()
             except Exception:
                 pass
+            return _
+
+    async def _update_table_3(self, sql_str, params: tuple, logger, error_msg_dict=None):
+        '''
+        异步更新数据
+            error_msg_dict参数:
+                eg: {
+                    # 其他异常
+                    'other_error': [{
+                        'field_name': '字段名',
+                        'field_value': '字段值',
+                    }, ...]
+                }
+        :param sql_str:
+        :param params:
+        :param logger:
+        :param error_msg_dict: logger记录的额外信息
+        :return:
+        '''
+        cs = self.conn.cursor()
+        _ = False
+        try:
+            cs.execute(sql_str, params)
+
+            self.conn.commit()
+            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
+            _ = True
+        except Exception:
+            if not error_msg_dict:
+                logger.error('-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: {0}'.format(params[-1]),
+                     exc_info=True)
+            else:
+                if isinstance(error_msg_dict, dict):
+                    msg = '-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | '
+                    for item in error_msg_dict.get('other_error', []):
+                        msg += '出错{0}: {1} '.format(
+                            item.get('field_name', ''),
+                            item.get('field_value', '')
+                        )
+                    logger.error(msg, exc_info=True)
+
+                else:
+                    raise TypeError('传入的error_msg_dict类型错误, 请核对需求参数!')
+        finally:
+            try:
+                cs.close()
+            except Exception:
+                pass
+
             return _
 
     def _delete_table(self, sql_str, params=None, lock_timeout=20000):
