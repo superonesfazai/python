@@ -16,10 +16,11 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 _ = SqlServerMyPageInfoSaveItemPipeline()
 # sql_str = 'select gather_url, MainID from dbo.daren_recommend where site_id=2 and MainID is not null'
-sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
+# sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
+sql_str = 'select count(*) from dbo.daren_recommend where site_id=3'
 # params = ('556812068095',)
-params = ('547549119119',)  # 未被转换
-result = _._select_table(sql_str=sql_str, params=params)
+# params = ('547549119119',)  # 未被转换
+result = _._select_table(sql_str=sql_str, params=None)
 # pprint(result)
 print(result)
 print(str(result[0][1]))
