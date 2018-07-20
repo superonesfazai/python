@@ -214,4 +214,3 @@ def save_base64_img_2_local(save_path, base64_img_str):
     except Exception as e:
         print(e)
         return False
-

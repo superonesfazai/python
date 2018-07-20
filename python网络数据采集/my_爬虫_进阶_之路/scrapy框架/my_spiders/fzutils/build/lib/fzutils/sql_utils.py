@@ -259,8 +259,7 @@ class BaseSqlServer(object):
             _ = True
         except Exception:
             if not error_msg_dict:
-                logger.error(
-                    '-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: {0}'.format(params[-1]),
+                logger.error('-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: {0}'.format(params[-1]),
                      exc_info=True)
             else:
                 if isinstance(error_msg_dict, dict):
