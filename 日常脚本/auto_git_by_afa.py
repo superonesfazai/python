@@ -1,5 +1,7 @@
 # coding=utf-8
 
+import os
+
 from fzutils.linux_utils import auto_git
 
 def main():
@@ -7,8 +9,11 @@ def main():
     python_path = '/home/afa/myFiles/codeDoc/pythonDoc/python'
     # cp_mac
 
-    auto_git(python_path)
-    print(' Money is on the way! '.center(100, '*'))
+    if os.path.exists(python_path):
+        auto_git(python_path)
+        print(' Money is on the way! '.center(100, '*'))
+    else:
+        print('{0} 路径不存在! 无法进行git操作!'.format(python_path))
 
 if __name__ == '__main__':
     main()
