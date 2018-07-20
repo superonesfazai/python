@@ -43,6 +43,8 @@ def read(fname):
 long_description = read('README.rst')
 
 install_requires = [
+    'utils',
+    'db',
     'pytz',
     'requests',
     'selenium',
