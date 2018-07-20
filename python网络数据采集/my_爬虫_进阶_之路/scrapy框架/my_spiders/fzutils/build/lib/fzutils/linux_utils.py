@@ -149,6 +149,8 @@ def auto_git(path):
     import re
     from .time_utils import get_shanghai_time
 
+    os.system('cd {0} && git pull'.format(path))
+    print('------>>>| 远程合并完毕!!!')
     print((path + ' 正在提交').center(100, '*'))
     os.popen('cd {0} && git add --all'.format(path))
     time.sleep(2)
