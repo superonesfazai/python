@@ -13,7 +13,7 @@ def main():
         auto_git(python_path)
         print(' Money is on the way! '.center(100, '*'))
     else:
-        print('{0} 路径不存在! 无法进行git操作!'.format(python_path))
+        print('{0} 路径有误! 无法进行git操作!'.format(python_path))
 
 if __name__ == '__main__':
     main()
