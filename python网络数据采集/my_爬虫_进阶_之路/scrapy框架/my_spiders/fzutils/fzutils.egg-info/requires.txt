@@ -1,9 +1,11 @@
 utils
 db
+web.py==0.40.dev1
 pytz
 requests
 selenium
 asyncio
+psutil
 pyexecjs
 setuptools
 colorama

@@ -45,10 +45,12 @@ long_description = read('README.rst')
 install_requires = [
     'utils',
     'db',
+    'web.py==0.40.dev1',
     'pytz',
     'requests',
     'selenium',
     'asyncio',
+    'psutil',
     'pyexecjs',
     'setuptools',
     'colorama',
@@ -84,7 +86,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.0.9.2",
+    version="0.0.0.9.3",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",
