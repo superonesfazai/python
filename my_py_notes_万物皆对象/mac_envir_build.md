@@ -41,6 +41,7 @@ chsh -s /bin/zsh
 
 # 改变主题
 vi ~/.zshrc
+# 修改为pygmalion
 ```
 
 ## vimplus(强大的vim)
