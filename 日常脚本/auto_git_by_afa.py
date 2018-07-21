@@ -6,8 +6,9 @@ from fzutils.linux_utils import auto_git
 
 def main():
     # home_linux
-    python_path = '/home/afa/myFiles/codeDoc/pythonDoc/python'
+    # python_path = '/home/afa/myFiles/codeDoc/pythonDoc/python'
     # cp_mac
+    python_path = '/Users/afa/myFiles/codeDoc/pythonDoc/python'
 
     if os.path.exists(python_path):
         auto_git(python_path)
