@@ -8,8 +8,9 @@
 '''
 
 import re, asyncio, json, time
-from my_aiohttp import MyAiohttp
 from asyncio import Semaphore
+
+from fzutils.spider.fz_aiohttp import MyAiohttp
 
 headers = {
     'accept-encoding': 'gzip, deflate, br',

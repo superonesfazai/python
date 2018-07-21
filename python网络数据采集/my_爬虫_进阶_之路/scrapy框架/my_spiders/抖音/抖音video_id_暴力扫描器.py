@@ -8,11 +8,12 @@
 '''
 
 import re, json
-from my_requests import MyRequests
 from pprint import pprint
 import time
 from random import randint
 from time import sleep
+
+from fzutils.spider.fz_requests import MyRequests
 
 headers = {
     'accept-encoding': 'gzip, deflate, br',

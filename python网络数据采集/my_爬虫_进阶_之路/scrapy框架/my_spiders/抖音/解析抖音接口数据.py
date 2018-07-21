@@ -7,11 +7,12 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from my_requests import MyRequests
 import json, gc, time
 from pprint import pprint
 from time import sleep
 from random import randint
+
+from fzutils.spider.fz_requests import MyRequests
 
 PHONE_HEADERS = [
     'Mozilla/5.0 (iPhone 84; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.0 MQQBrowser/7.8.0 Mobile/14G60 Safari/8536.25 MttCustomUA/2 QBWebViewType/1 WKType/1',

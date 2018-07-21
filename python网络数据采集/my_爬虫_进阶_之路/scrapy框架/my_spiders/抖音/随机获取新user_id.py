@@ -11,7 +11,8 @@ import requests, json, time
 from pprint import pprint
 from random import randint
 from time import sleep
-from my_requests import MyRequests
+
+from fzutils.spider.fz_requests import MyRequests
 
 def get_random_user_id_list():
     # cookies = {

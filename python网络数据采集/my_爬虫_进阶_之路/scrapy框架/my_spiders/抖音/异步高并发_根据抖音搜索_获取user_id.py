@@ -11,7 +11,8 @@ import time, json
 from random import randint
 from asyncio import Semaphore
 import asyncio
-from my_aiohttp import MyAiohttp
+
+from fzutils.spider.fz_aiohttp import MyAiohttp
 
 # cookies = {
 #     'install_id': '29797177823',
