@@ -39,7 +39,7 @@ def run_forever():
 
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
-        except TypeError as e:
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
@@ -48,6 +48,7 @@ def run_forever():
             print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
             print(result)
             print('--------------------------------------------------------')
+            print('待更新个数: ', len(result))
 
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1

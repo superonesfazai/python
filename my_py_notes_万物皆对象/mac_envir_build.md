@@ -108,6 +108,8 @@ https://www.charlesproxy.com/latest-release/download.do
 ```
 # 会附带安装mitmdump
 pip3 install mitmproxy
+
+# 并在手机上安装mitmproxy的证书
 ```
 
 ## 安装cheatsheet (mac快键键提示工具)
@@ -120,3 +122,4 @@ http://www.wps.cn/product/wpsmac/
 
 ## 安装docker
 
+## 安装Caffeine
