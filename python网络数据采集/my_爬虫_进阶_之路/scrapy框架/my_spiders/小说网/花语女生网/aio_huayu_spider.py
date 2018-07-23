@@ -7,8 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from my_ip_pools import MyIpPools
-
 import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientHttpProxyError, ClientOSError, ClientResponseError
@@ -18,6 +16,8 @@ import re
 from random import randint
 from pprint import pprint
 from scrapy.selector import Selector
+
+from fzutils.ip_pools import MyIpPools
 
 def get_right_time():
     a = time.ctime().split()

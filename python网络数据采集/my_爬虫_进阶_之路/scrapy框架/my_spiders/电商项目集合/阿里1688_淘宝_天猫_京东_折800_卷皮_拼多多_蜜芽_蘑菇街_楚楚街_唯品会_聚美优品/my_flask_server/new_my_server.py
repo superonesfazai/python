@@ -79,7 +79,11 @@ from json import dumps
 from pprint import pprint
 from base64 import b64decode
 
-from gevent.pywsgi import WSGIServer      # 高并发部署
+try:
+    from gevent.wsgi import WSGIServer      # 高并发部署
+except Exception as e:
+    from gevent.pywsgi import WSGIServer  # 高并发部署
+
 import gc
 
 from fzutils.log_utils import set_logger
