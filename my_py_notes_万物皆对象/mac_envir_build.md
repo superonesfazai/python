@@ -21,7 +21,7 @@ https://www.alfredapp.com/
 ## 安装pycharm
 - 2018破解(https://blog.csdn.net/u014044812/article/details/78727496)
 - 主题地址(http://www.themesmap.com/details.html?id=56af4d27333ecc1800c392b3)
-- keymap设置为Eclipse(Mac os X)
+- keymap设置为Eclipse(Mac os X) | 加个command+F为查找, command+option+r为替换 | 
 - Editor->Font->Size: 14
 
 ## shell
@@ -61,7 +61,7 @@ https://filezilla-project.org/download.php?type=client
 ## 安装appcleaner
 http://freemacsoft.net/appcleaner/
 
-## python环境搭建(最好是直接brew install python3)因为会附带安装pip3
+## python环境搭建(最好是直接brew install python3::但是这样下载的是最新版本3.7, 坑非常多!! 还是用下面的方法安装python3.6.3)因为会附带安装pip3
 python3.6.3 下载
 https://www.python.org/ftp/python/3.6.3/python-3.6.3-macosx10.6.pkg
 

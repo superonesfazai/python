@@ -55,7 +55,8 @@ def run_forever():
         sql_str = '''
         select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
         from dbo.GoodsInfoAutoGet 
-        where SiteID=1 and MainGoodsID is not null'''
+        where SiteID=1 and MainGoodsID is not null
+        order by ID desc'''
 
         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池

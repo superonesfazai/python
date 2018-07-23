@@ -29,6 +29,10 @@ import codecs
     
     4. 服务器上安装install fzutils解决方案(更新最后加个'-U')
     $ pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com
+    
+报错及其解决方案:
+    1. error: invalid command 'bdist_wheel'
+        $ pip3 install pip setuptools -U && pip3 install wheel
 """
 
 def read(fname):
@@ -43,13 +47,15 @@ def read(fname):
 long_description = read('README.rst')
 
 install_requires = [
+    'ipython',
+    'wheel',
     'utils',
     'db',
     'greenlet==0.4.13',
     'web.py==0.40.dev1',
     'pytz',
     'requests',
-    'selenium',
+    'selenium==3.8.0',     # 3.8.1及其以上版本不支持phantomjs了
     'asyncio',
     'psutil',
     'pyexecjs',
@@ -71,6 +77,8 @@ install_requires = [
     'jsonpath',
     'matplotlib',
     'wget',
+    'flask',
+    'flask_login',
 ]
 
 classifiers = [
@@ -87,7 +95,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.0.9.4",
+    version="0.0.0.9.6",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",

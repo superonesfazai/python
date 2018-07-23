@@ -52,6 +52,9 @@ class MyRequests(object):
         '''
         # 设置代理ip
         tmp_proxies = cls._get_proxies(high_conceal=high_conceal)
+        if tmp_proxies == {}:
+            print('获取代理失败, 此处跳过!')
+            return ''
         # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(tmp_proxies.get('http')))
 
         tmp_headers = headers
@@ -101,7 +104,10 @@ class MyRequests(object):
         '''
         ip_object = MyIpPools(high_conceal=high_conceal)
         proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        proxy = proxies['http'][randint(0, len(proxies) - 1)]
+        try:
+            proxy = proxies.get('http', None)[randint(0, len(proxies) - 1)]
+        except TypeError:
+            return {}
 
         tmp_proxies = {
             'http': proxy,

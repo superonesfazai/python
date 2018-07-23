@@ -79,9 +79,8 @@ from json import dumps
 from pprint import pprint
 from base64 import b64decode
 
-from gevent.wsgi import WSGIServer      # 高并发部署
+from gevent.pywsgi import WSGIServer      # 高并发部署
 import gc
-import pytz
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
