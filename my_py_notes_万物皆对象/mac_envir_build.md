@@ -63,6 +63,7 @@ http://freemacsoft.net/appcleaner/
 
 ## python环境搭建(最好是直接brew install python3::但是这样下载的是最新版本3.7, 坑非常多!! 还是用下面的方法安装python3.6.3)因为会附带安装pip3
 python3.6.3 下载
+
 https://www.python.org/ftp/python/3.6.3/python-3.6.3-macosx10.6.pkg
 
 ### 安装Xcode command line tool(可以先不装)
@@ -94,4 +95,28 @@ $ pip3 install pymssql
 ```
 
 ## appstore安装Magnet
+
+## 安装charlesproxy
+https://www.charlesproxy.com/latest-release/download.do
+
+- 注册码: https://www.jianshu.com/p/89111882fa99
+- https抓取设置: https://www.jianshu.com/p/ec0a38d9a8cf
+
+注意：在iOS 10.3之前,当你将安装一个自定义证书,iOS会默认信任,不需要进一步的设置。而iOS 10.3之后,安装新的自定义证书默认是不受信任的。如果要信任已安装的自定义证书,需要手动打开开关以信任证书。
+
+## 安装mitmproxy
+```
+# 会附带安装mitmdump
+pip3 install mitmproxy
+```
+
+## 安装cheatsheet (mac快键键提示工具)
+
+## 安装Navicat Premium破解版
+http://www.sdifen.com/navicatpremium11215.html
+
+## 安装wps
+http://www.wps.cn/product/wpsmac/
+
+## 安装docker
 

@@ -79,6 +79,8 @@ install_requires = [
     'wget',
     'flask',
     'flask_login',
+    'mitmproxy',            # shell 抓包代理
+    'pymongo',
 ]
 
 classifiers = [
