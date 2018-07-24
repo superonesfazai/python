@@ -41,6 +41,8 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
+from fzutils.data.excel_utils import read_info_from_excel_file
 
 class GoodsKeywordsSpider(object):
     def __init__(self):
@@ -68,8 +70,8 @@ class GoodsKeywordsSpider(object):
         return {
             1: False,   # 淘宝
             2: False,   # 阿里1688
-            3: False,   # 天猫
-            4: True,    # 京东
+            3: True,   # 天猫
+            4: False,    # 京东
         }
 
     def _set_func_name_dict(self):
@@ -228,7 +230,7 @@ class GoodsKeywordsSpider(object):
                 self.my_lg.error('re获取淘宝data时出错, 出错关键字为{0}'.format(keyword[1]))
                 return []
 
-            data = self.json_str_2_dict(json_str=data)
+            data = json_2_dict(json_str=data, logger=self.my_lg)
             if data == {}:
                 self.my_lg.error('获取到的淘宝搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
                 return []
@@ -287,7 +289,7 @@ class GoodsKeywordsSpider(object):
         :param keyword:
         :return: list eg: ['//detail.tmall.com/item.htm?id=566978017832&skuId=3606684772412', ...] 不是返回goods_id
         '''
-        '''方案: tmall m站的搜索'''
+        '''方案: tmall m站的搜索'''   # 搜索: 偶尔不稳定但是还是能用
         headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
@@ -314,7 +316,7 @@ class GoodsKeywordsSpider(object):
         if body == '':
             return []
         else:
-            data = self.json_str_2_dict(json_str=body)
+            data = json_2_dict(json_str=body, logger=self.my_lg)
             if data == {}:
                 self.my_lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
                 return []
@@ -384,7 +386,7 @@ class GoodsKeywordsSpider(object):
 
             '''问题在于编码中是\xa0之类的，当遇到有些 不用转义的\http之类的，则会出现以上错误。'''
             data = deal_with_JSONDecodeError_about_value_invalid_escape(json_str=data)
-            data = self.json_str_2_dict(json_str=data)
+            data = json_2_dict(json_str=data, logger=self.my_lg)
             if data == {}:
                 self.my_lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
                 return []
@@ -713,15 +715,42 @@ class GoodsKeywordsSpider(object):
 
         return result
 
-    def json_str_2_dict(self, json_str):
+    def _add_keyword_2_db_from_excel_file(self):
+        '''
+        从excel插入新关键字到db
+        :return:
+        '''
+        excel_file_path = '/Users/afa/Desktop/2018-07-18-淘宝phone-top20万.xlsx'
+        self.my_lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
         try:
-            data = loads(json_str)
-        except JSONDecodeError as e:
-            self.my_lg.exception(e)
-            self.my_lg.error('json转换字符串时出错, 请检查!')
-            data = {}
+            excel_result = read_info_from_excel_file(excel_file_path=excel_file_path)
+        except Exception:
+            self.my_lg.error('遇到错误:', exc_info=True)
+            return False
 
-        return data
+        self.my_lg.info('读取完毕!!')
+        self.my_lg.info('正在读取db中原先的keyword...')
+        s_sql_str = 'select keyword from dbo.goods_keywords where is_delete=0'
+        db_keywords = self.my_pipeline._select_table(sql_str=s_sql_str)
+        db_keywords = [i[0] for i in db_keywords]
+        self.my_lg.info('db keywords 读取完毕!')
+
+        sql_str = 'insert into dbo.goods_keywords(keyword, is_delete) values (%s, %s)'
+        for item in excel_result:
+            keyword = item.get('关键词', None)
+            if not keyword:
+                continue
+
+            if keyword in db_keywords:
+                self.my_lg.info('该关键字{0}已经存在于db中...'.format(keyword))
+                continue
+
+            self.my_lg.info('------>>>| 正在存储关键字 {0}'.format(keyword))
+            self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=(str(keyword), 0), logger=self.my_lg)
+
+        self.my_lg.info('全部写入完毕!')
+
+        return True
 
     def __del__(self):
         try:
@@ -740,6 +769,7 @@ def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         _tmp = GoodsKeywordsSpider()
+        _tmp._add_keyword_2_db_from_excel_file()
         _tmp._just_run()
         # try:
         #     del _tmp

@@ -62,6 +62,8 @@ from my_pipeline import (
 )
 from my_items import GoodsItem
 from my_signature import Signature
+from sql_lang.cp_sql import error_insert_sql_str
+
 
 import hashlib
 import json
@@ -82,7 +84,7 @@ from base64 import b64decode
 try:
     from gevent.wsgi import WSGIServer      # 高并发部署
 except Exception as e:
-    from gevent.pywsgi import WSGIServer  # 高并发部署
+    from gevent.pywsgi import WSGIServer
 
 import gc
 
@@ -124,13 +126,6 @@ my_lg = set_logger(
 )
 
 Sign = Signature(logger=my_lg)
-
-# server数据插入失败 -> 运行此sql_str
-error_insert_sql_str = '''
-select UserName, CreateTime, GoodsID, GoodsName, ConvertTime, MainGoodsID
-from dbo.GoodsInfoAutoGet 
-where GoodsID=%s
-'''
 
 # saveData[]为空的msg
 save_data_null_msg = 'saveData为空! <br/><br/>可能是抓取后, 重复点存入数据按钮导致!<br/><br/>** 请按正常流程操作:<br/>先抓取，后存入，才有相应抓取后存储信息的展示!<br/><br/>^_^!!!  感谢使用!!!'
@@ -292,7 +287,7 @@ def admin():
                 my_lg.error('来自admin页面中的未知操作!')
 
         else:
-            return send_file('templates/admin.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            return send_file('templates/admin.html')       
 
     else:   # 非法登录显示错误网页
         return ERROR_HTML_CODE
@@ -540,7 +535,7 @@ def show_ali_info():
         if request.method == 'POST':
             pass        # 让前端发个post请求, 重置页面
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            # return send_file('templates/spider_to_show.html')       
             return send_file(ALi_SPIDER_TO_SHOW_PATH)
 
 @app.route('/show_taobao', methods=['GET', 'POST'])
@@ -557,7 +552,7 @@ def show_taobao_info():
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            # return send_file('templates/spider_to_show.html')       
             return send_file(TAOBAO_SPIDER_TO_SHWO_PATH)
 
 @app.route('/show_tmall', methods=['GET', 'POST'])
@@ -573,7 +568,7 @@ def show_tmall_info():
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
+            # return send_file('templates/spider_to_show.html')       
             return send_file(TMALL_SPIDER_TO_SHOW_PATH)
 
 @app.route('/show_jd', methods=['GET', 'POST'])
@@ -589,7 +584,6 @@ def show_jd_info():
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(JD_SPIDER_TO_SHOW_PATH)
 
 @app.route('/show_zhe_800', methods=['GET', 'POST'])
@@ -605,7 +599,6 @@ def show_zhe_800_info():
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(ZHE_800_SPIDER_TO_SHOW_PATH)
 
 @app.route('/show_juanpi', methods=['GET', 'POST'])
@@ -621,7 +614,6 @@ def show_juanpi_info():
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(JUANPI_SPIDER_TO_SHOW_PATH)
 
 @app.route('/show_pinduoduo', methods=['GET', 'POST'])
@@ -637,7 +629,6 @@ def show_pinduoduo_info():
         if request.method == 'POST':
             pass
         else:
-            # return send_file('templates/spider_to_show.html')       # 切记：有些js模板可能跑不起来, 但是自己可以直接发送静态文件
             return send_file(PINDUODUO_SPIDER_TO_SHOW_PATH)
 
 @app.route('/show_vip', methods=['GET', 'POST'])
