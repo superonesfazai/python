@@ -11,7 +11,7 @@ http://www.sublimetext.com/3
 	- 接着选 候选词个数: 7个，卷轴模式
 
 ## 安装latern
-https://github.com/getlantern/lantern
+https://github.com/getlantern/download/wiki
 
 ## 安装Alfred3
 https://www.alfredapp.com/
@@ -113,6 +113,7 @@ pip3 install mitmproxy
 ```
 
 ## 安装cheatsheet (mac快键键提示工具)
+https://cheatsheet-mac.en.softonic.com/mac
 
 ## 安装Navicat Premium破解版
 http://www.sdifen.com/navicatpremium11215.html
@@ -123,3 +124,6 @@ http://www.wps.cn/product/wpsmac/
 ## 安装docker
 
 ## 安装Caffeine
+
+## 安装网易云音乐
+https://music.163.com/#/download

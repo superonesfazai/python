@@ -88,6 +88,10 @@ class BaseSqlServer(object):
             self.conn.commit()
             print('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
             _ = True
+        except IntegrityError:
+            print('重复插入...')
+            _ = True
+
         except Exception as e:
             print('-' * 9 + '| 修改信息失败, 未能将该页面信息存入到sqlserver中 |')
             print('-' * 9 + '| 错误如下: ', e)
@@ -110,6 +114,7 @@ class BaseSqlServer(object):
             _ = True
         except IntegrityError:
             logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
+            _ = True
 
         except Exception:
             logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[0], exc_info=True)
@@ -153,6 +158,8 @@ class BaseSqlServer(object):
         except IntegrityError:
             if not error_msg_dict:
                 logger.info('重复插入goods_id[%s], 此处跳过!' % params[0])
+                _ = True
+
             else:
                 if isinstance(error_msg_dict, dict):
                     msg = '重复插入{0}[{1}], 此处跳过!'.format(
@@ -160,6 +167,8 @@ class BaseSqlServer(object):
                         error_msg_dict.get('repeat_error', {}).get('field_value', '')
                     )
                     logger.info(msg)
+                    _ = True
+
                 else:
                     raise TypeError('传入的error_msg_dict类型错误, 请核对需求参数!')
 

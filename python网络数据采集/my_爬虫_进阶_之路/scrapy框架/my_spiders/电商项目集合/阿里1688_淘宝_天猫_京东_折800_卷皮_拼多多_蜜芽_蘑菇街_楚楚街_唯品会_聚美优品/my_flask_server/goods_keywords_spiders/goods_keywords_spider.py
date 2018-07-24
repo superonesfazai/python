@@ -24,10 +24,6 @@ from settings import (
 import gc
 from logging import INFO, ERROR
 from time import sleep
-from json import (
-    loads,
-    JSONDecodeError,
-)
 
 from pprint import pprint
 import re
@@ -68,10 +64,10 @@ class GoodsKeywordsSpider(object):
         :return: dict
         '''
         return {
-            1: False,   # 淘宝
-            2: False,   # 阿里1688
+            1: True,   # 淘宝
+            2: True,   # 阿里1688
             3: True,   # 天猫
-            4: False,    # 京东
+            4: True,   # 京东
         }
 
     def _set_func_name_dict(self):
@@ -113,13 +109,13 @@ class GoodsKeywordsSpider(object):
                 except: pass
                 gc.collect()
 
-                for type, type_value in self.debugging_api.items():  # 遍历待抓取的电商分类
-                    if type_value is False:
-                        self.my_lg.info('api为False, 跳过!')
-                        continue
+                for item in result:     # 每个关键字在True的接口都抓完, 再进行下一次
+                    self.my_lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(item[0], item[1]))
+                    for type, type_value in self.debugging_api.items():  # 遍历待抓取的电商分类
+                        if type_value is False:
+                            self.my_lg.info('api为False, 跳过!')
+                            continue
 
-                    for item in result:     # 遍历每个关键字
-                        self.my_lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(item[0], item[1]))
                         if self.add_goods_index % 20 == 0:
                             self.my_lg.info('my_pipeline客户端重连中...')
                             try: del self.my_pipeline
@@ -135,7 +131,7 @@ class GoodsKeywordsSpider(object):
                             goods_id_list=goods_id_list,
                             keyword_id=item[0]
                         )
-                        sleep(5)
+                        sleep(3)
 
     def _get_keywords_goods_id_list(self, type, keyword):
         '''
@@ -769,7 +765,7 @@ def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         _tmp = GoodsKeywordsSpider()
-        _tmp._add_keyword_2_db_from_excel_file()
+        # _tmp._add_keyword_2_db_from_excel_file()
         _tmp._just_run()
         # try:
         #     del _tmp
