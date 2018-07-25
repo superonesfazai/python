@@ -44,10 +44,6 @@ def server_tasks(my_group):
             # _ = item.sudo('apt-get update && apt-get upgrade -y')     # 不乱更新软件, 容易出现依赖问题
             _ = item.run('pip3 install --upgrade pip')
             _ = item.run('pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com -U')
-            _ = item.run(
-                'cd /root/myFiles/my_spider_logs && '
-                'mkdir 电商项目 '
-            )
             print('{0}处理完毕'.format(item.__repr__()).center(100, '='))
         else:
             print('{0}连接失败!'.format(item))

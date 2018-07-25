@@ -20,9 +20,13 @@ https://www.alfredapp.com/
 
 ## 安装pycharm
 - 2018破解(https://blog.csdn.net/u014044812/article/details/78727496)
+- 注意: 安装时不要安装IdeaVim插件, 否则部分快键键无法使用
 - 主题地址(http://www.themesmap.com/details.html?id=56af4d27333ecc1800c392b3)
 - keymap设置为Eclipse(Mac os X) | 加个command+F为查找, command+option+r为替换 | 
 - Editor->Font->Size: 14
+- Eclipse(mac os x)快键键
+    - 全部收缩 ⌘- 折叠树视图中的所有节点 
+    - 展开全部 ⌘+ 展开树视图中的所有节点
 
 ## shell
 - 设置背景色(终端->偏好设置->描述文件->Grass 字体15磅->点击默认)
@@ -54,7 +58,6 @@ $ ./install.sh
 
 ## 安装FileZilla
 https://filezilla-project.org/download.php?type=client
-
 
 ## appstore 安装Dr.Cleaner
 
