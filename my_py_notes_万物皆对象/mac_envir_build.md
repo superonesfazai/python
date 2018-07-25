@@ -13,6 +13,16 @@ http://www.sublimetext.com/3
 ## 安装latern
 https://github.com/getlantern/download/wiki
 
+## 安装shadowsocks
+具体安装: https://github.com/ziggear/shadowsocks
+```
+(由于没有设置成默认, server每次重启, 都要重新run)
+# 后台运行
+$ sudo ssserver -p 443 -k password -m aes-256-cfb --user nobody -d start
+# 停止
+$ sudo ssserver -d stop
+```
+
 ## 安装Alfred3
 https://www.alfredapp.com/
 
@@ -125,6 +135,92 @@ http://www.sdifen.com/navicatpremium11215.html
 http://www.wps.cn/product/wpsmac/
 
 ## 安装docker
+https://store.docker.com/editions/community/docker-ce-desktop-mac
+```shell
+# *NOTICE*: 下面的容器名都可采用容器id的前几个字母代替
+
+# 搜索某个镜像
+$ docker search ubuntu
+
+# 远程拉取某个镜像
+$ docker pull ubuntu:latest
+
+# 推送镜像到远程仓库
+$ docker push superonesfazai/fz_ubuntu:0.0.0.0.1
+
+# 列出镜像中文件和目录的变化
+$ docker diff container_id
+
+# 查看docker镜像
+$ docker images
+
+# 首次启动容器:
+# -i 代表保持STDIN开启，-t 代表为容器分配一个tty, 
+# --name自定义容器名, -p指定端口映射(前者为虚拟机端口，后者为容器端口), 成功后返回容器id 
+$ docker run -it -d --name fz_ubuntu -p 8088:80 ubuntu
+
+# 进入docker(或者把容器id改为容器名，也可以进入)
+$ docker exec -it [container_id/容器名] /bin/bash
+
+# 退出容器
+$ exit
+
+# 停止容器
+$ docker stop container_id
+
+# 杀掉running的容器
+$ docker kill container_id
+
+# 删除容器
+$ docker rm container_id
+
+# 重启停止的容器
+$ docker start container_id
+
+# 重启running的容器
+$ docker restart container_id
+
+# 显示镜像或容器的详细信息
+$ docker inspect container_id
+
+# 创建容器镜像
+# 0.0.0.0.1为版本号(必须), 镜像名字随意, -a是作者信息, -m是提交信息, --pause=true是在提交镜像时暂停容器(参数可省)
+$ docker commit [-a "super_fazai<superonesfazai@gmail.com>" -m "修复bug"] container_id fz_ubuntu:0.0.0.0.1
+
+# 此时镜像只能本地使用, 在其他机器使用需打包  
+$ docker save -o fz_ubuntu.tar fz_ubuntu:0.0.0.0.1
+
+# 将tar压缩文件保存为image
+$ docker load --input fz_ubuntu.tar
+
+# 把容器系统文件打包并导出来，方便分发给其他场景使用
+$ docker export fz_ubuntu > fz_ubuntu.tar
+
+# 拷贝容器中的文件
+$ docker cp container_id:path host_path
+
+# 查看容器输出
+$ docker top container_id
+
+# 要与容器分离并回到之前的终端访问点，可以按 CTRL+P 接着 CTRL+Q 执行脱离操作。
+# “附着”在一个Docker容器上，基本上相当于从一个VPS内部访问另一个VPS。
+
+# 从脱离的状态想要回到附着的状态，需要执行如下步骤：
+1.用 sudo docker ps 列出所有运行中的容器
+2.找到之前创建的那个容器的ID
+3.执行 sudo docker attach [id] 完成当前终端到该容器的附着
+
+# 终止状态的容器可以用 docker ps -a 命令看到
+处于终止状态的容器，可以通过 docker start 命令来重新启动
+可以使用 docker rm 来删除一个处于终止状态的容器。(rm 后面跟的是他的容器的ID)
+如果要删除一个运行中的容器，可以添加 -f 参数。Docker 会发送 SIGKILL 信号给容器。
+
+# 清理所有处于终止状态的容器
+$ docker rm $(docker ps -a -q)
+
+# 要获取容器的输出信息，可以通过 docker logs 命令
+$ docker logs [container ID or NAMES]
+```
 
 ## 安装Caffeine
 

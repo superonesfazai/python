@@ -84,6 +84,7 @@ install_requires = [
     'pyexcel',
     'pyexcel-xlsx',
     'fabric',
+    'shadowsocks',
 ]
 
 classifiers = [
