@@ -3,7 +3,7 @@
 '''
 @author = super_fazai
 @File    : 某基金的单位净值走势_累计净值走势.py
-@Time    : 2018/7/10 18:26
+@Time    : 2017/7/10 18:26
 @connect : superonesfazai@gmail.com
 '''
 
@@ -402,13 +402,13 @@ class BaseFund(object):
         # plt.show()
 
         # 保存pic
-        pic_file_name = '{0}(代码{1}).jpg'.format(fund_name, fund_code)
+        pic_file_name = '{0}(代码{1}).png'.format(fund_name, fund_code)
         pic_path = self.base_path + pic_file_name
         if os.path.exists(pic_path):  # 原先存在，就删除!
             # print('文件已存在!')
             os.remove(pic_path)
 
-        savefig(fname=pic_path, dpi=300)  # dpi控制图片像素
+        savefig(fname=pic_path, dpi=400)  # dpi控制图片像素
         print('[+] {0} 保存完毕!'.format(pic_file_name))
 
         plt.cla()   # 清空当前图像

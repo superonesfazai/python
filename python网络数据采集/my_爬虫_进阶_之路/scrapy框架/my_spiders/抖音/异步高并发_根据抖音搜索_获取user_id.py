@@ -14,16 +14,6 @@ import asyncio
 
 from fzutils.spider.fz_aiohttp import MyAiohttp
 
-# cookies = {
-#     'install_id': '29797177823',
-#     'odin_tt': 'c53dd298a0e92adf64e9303da9ab2efbe0cbef78e6737970d9adb9b207d0758ac4b9c183d9d96c3b84f3e4eedb68c12d',
-#     'sessionid': '16fc74a57b38e96fc93bf967a6ccd76a',
-#     'sid_guard': '16fc74a57b38e96fc93bf967a6ccd76a%7C1522509051%7C2592000%7CMon%2C+30-Apr-2018+15%3A10%3A51+GMT',
-#     'sid_tt': '16fc74a57b38e96fc93bf967a6ccd76a',
-#     'ttreq': '1$494b0ed8e828b687a808d93e101fac11837708e6',
-#     'uid_tt': '9e0f14ca7575e68526e07408631cd322',
-# }
-
 headers = {
     'Host': 'api.amemv.com',
     'Accept': '*/*',

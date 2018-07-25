@@ -3,7 +3,7 @@
 '''
 @author = super_fazai
 @File    : 常用短信验证码curl接口.py
-@Time    : 2018/4/25 10:33
+@Time    : 2017/4/25 10:33
 @connect : superonesfazai@gmail.com
 '''
 
