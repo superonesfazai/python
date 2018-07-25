@@ -17,6 +17,7 @@ fzutils.egg-info/top_level.txt
 fzutils.egg-info/zip-safe
 fzutils/data/__init__.py
 fzutils/data/excel_utils.py
+fzutils/data/json_utils.py
 fzutils/spider/__init__.py
 fzutils/spider/fz_aiohttp.py
 fzutils/spider/fz_phantomjs.py

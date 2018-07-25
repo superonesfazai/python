@@ -412,8 +412,8 @@ class GoodsKeywordsSpider(object):
 
         self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
-        result = False      # 用于判断某个goods是否被插入的参数
         for item in goods_url_list:     # item为goods_url
+            result = False  # 用于判断某个goods是否被插入的参数
             try:
                 goods_id = re.compile(r'id=(\d+)').findall(item)[0]
             except IndexError:
@@ -480,8 +480,8 @@ class GoodsKeywordsSpider(object):
 
         self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
-        result = False
         for item in goods_url_list:
+            result = False  # 每次重置
             try:
                 goods_id = re.compile('offer/(.*?).html').findall(item)[0]
             except IndexError:
@@ -550,8 +550,8 @@ class GoodsKeywordsSpider(object):
 
         self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
-        result = False      # 用于判断某个goods是否被插入的参数
         for item in goods_url_list:     # item为goods_url
+            result = False  # 用于判断某个goods是否被插入的参数
             try:
                 goods_id = re.compile(r'id=(\d+)').findall(item)[0]
             except IndexError:
@@ -621,8 +621,8 @@ class GoodsKeywordsSpider(object):
 
         self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
-        result = False      # 用于判断某个goods是否被插入db的参数
         for item in goods_url_list:     # item为goods_url
+            result = False  # 用于判断某个goods是否被插入db的参数
             try:
                 goods_id = re.compile('\/(\d+)\.html').findall(item)[0]
             except IndexError:
