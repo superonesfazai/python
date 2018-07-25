@@ -183,7 +183,7 @@ $ docker restart container_id
 # 显示镜像或容器的详细信息
 $ docker inspect container_id
 
-# 创建容器镜像
+# 创建容器镜像(保存镜像状态)(每次版本号都要变)
 # 0.0.0.0.1为版本号(必须), 镜像名字随意, -a是作者信息, -m是提交信息, --pause=true是在提交镜像时暂停容器(参数可省)
 $ docker commit [-a "super_fazai<superonesfazai@gmail.com>" -m "修复bug"] container_id fz_ubuntu:0.0.0.0.1
 
