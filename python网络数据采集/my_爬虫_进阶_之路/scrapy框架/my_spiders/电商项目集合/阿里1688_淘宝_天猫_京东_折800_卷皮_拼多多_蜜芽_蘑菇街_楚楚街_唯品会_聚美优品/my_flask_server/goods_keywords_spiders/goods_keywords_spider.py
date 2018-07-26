@@ -704,8 +704,7 @@ class GoodsKeywordsSpider(object):
         if keyword_id not in _:
             params = (
                 goods_id,
-                keyword_id,
-            )
+                keyword_id,)
             self.my_lg.info('------>>>| 正在插入keyword_id为{0}, goods_id为{1}'.format(params[1], params[0]))
             result = self.my_pipeline._insert_into_table_2(sql_str=self.add_keyword_id_for_goods_id_sql_str, params=params, logger=self.my_lg)
 
