@@ -485,3 +485,13 @@ chkconfig --list     | systemctl list-unit-files --type=service (推荐) ls /etc
 chkconfig frobozz --list | ls /etc/systemd/system/*.wants/frobozz.service | 用来列出该服务在哪些运行级别下启用和禁用。
 chkconfig frobozz --add  | systemctl daemon-reload | 当您创建新服务文件或者变更设置时使用。
 
+## 记一次/dev/sda1满了解决方案
+```shell
+# 先查看内存使用情况
+$ df -h
+$ cd /boot
+# 查看系统正在使用的image镜像是什么
+$ uname -a
+# 在boot 中删除无关镜像
+$ eg: rm -rf initrd.img-4.4.0-62-generic initrd.img-4.4.0-98-generic vmlinuz-4.4.0-62-generic vmlinuz-4.4.0-98-generic
+```

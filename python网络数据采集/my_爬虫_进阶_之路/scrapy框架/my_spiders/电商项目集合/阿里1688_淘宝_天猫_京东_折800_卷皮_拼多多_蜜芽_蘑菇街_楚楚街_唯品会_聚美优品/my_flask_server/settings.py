@@ -78,12 +78,12 @@ JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING = False
 '''
 淘宝requests间接请求时间
 '''
-TAOBAO_SLEEP_TIME = 1.4     # 这个在服务器里面可以注释掉为.4s
+TAOBAO_SLEEP_TIME = 2     # 这个在服务器里面可以注释掉为.4s
 
 '''
 天猫requests间接请求时间
 '''
-TMALL_SLEEP_TIME = 1.5      # 这个在服务器里可以注释为.4s
+TMALL_SLEEP_TIME = 2      # 这个在服务器里可以注释为.4s
 
 '''
 select.html的name
@@ -112,8 +112,8 @@ BASE_SESSION_ID = 18316             # 起始session_id
 MAX_SESSION_ID = 21000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
-ZHE_800_SPIKE_SLEEP_TIME = 1.       # 没抓取一个sleep time的时间,用于避免返回为空的情况
-ZHE_800_PINTUAN_SLEEP_TIME = 1.6    # 折800拼团sleep_time
+ZHE_800_SPIKE_SLEEP_TIME = 1.8       # 没抓取一个sleep time的时间,用于避免返回为空的情况
+ZHE_800_PINTUAN_SLEEP_TIME = 2.0    # 折800拼团sleep_time
 
 '''
 蜜芽 base_number相关
@@ -121,17 +121,17 @@ ZHE_800_PINTUAN_SLEEP_TIME = 1.6    # 折800拼团sleep_time
 # MIA_BASE_NUMBER = 56000         # 起始的base_number
 MIA_BASE_NUMBER = 61000         # 起始的base_number
 MIA_MAX_NUMBER = 75000          # 截止的base_number
-MIA_SPIKE_SLEEP_TIME = 1.3
+MIA_SPIKE_SLEEP_TIME = 1.8
 
 '''
 蘑菇街相关
 '''
-MOGUJIE_SLEEP_TIME = 1.4        # 间歇sleep时间
+MOGUJIE_SLEEP_TIME = 1.8        # 间歇sleep时间
 
 '''
 拼多多
 '''
-PINDUODUO_SLEEP_TIME = 1.2      # sleep时间
+PINDUODUO_SLEEP_TIME = 1.8      # sleep时间
 PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST = ['08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18']
 # 秒杀时长只有30分钟的时间点list，其他时间区间都是1小时
 PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '21']
@@ -139,7 +139,7 @@ PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST = ['08', '09', '10', '14', '15', '19', '20', '
 '''
 楚楚街
 '''
-CHUCHUJIE_SLEEP_TIME = .8      # sleep时间
+CHUCHUJIE_SLEEP_TIME = 1.8      # sleep时间
 
 '''
 唯品会
@@ -149,7 +149,7 @@ VIP_SLEEP_TIME = 2            # sleep时间
 '''
 聚美优品
 '''
-JUMEIYOUPIN_SLEEP_TIME = 1.6    # sleep时间
+JUMEIYOUPIN_SLEEP_TIME = 2    # sleep时间
 # 下面是服务器最佳timeout 多次测试的结果
 JUMEIYOUPIN_PINTUAN_API_TIMEOUT = 2       # 拼团单页面商品 异步抓取接口timeout
 JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT = 3       # 拼团商品页面 异步抓取的timeout
