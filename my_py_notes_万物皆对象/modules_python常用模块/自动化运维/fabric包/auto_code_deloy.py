@@ -57,10 +57,11 @@ def server_tasks(my_group):
 
     def update_python_packages(connect_object:Connection):
         '''更新python包'''
+        print('正在更新相关依赖包...')
         try:
-            _ = connect_object.run('sudo apt-get update --fix-missing && sudo apt-get autoremove && sudo apt-get clean && apt-get -f install && apt-get install unzip --fix-missing')
-            _ = connect_object.run('pip3 install --upgrade pip')
-            _ = connect_object.run('pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com -U')
+            connect_object.run('sudo apt-get update --fix-missing && sudo apt-get autoremove && sudo apt-get clean && apt-get -f install && apt-get install unzip --fix-missing')
+            connect_object.run('pip3 install --upgrade pip')
+            connect_object.run('pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com -U')
         except Exception as e:
             print(e)
             return False
@@ -81,8 +82,7 @@ def server_tasks(my_group):
                 method='put',
                 connect_object=item,
                 local_file_path=i[0],
-                remote_file_path=i[1]
-            )
+                remote_file_path=i[1])
 
         return
 
@@ -117,8 +117,7 @@ def server_tasks(my_group):
                 method='put',
                 connect_object=item,
                 local_file_path=r[0],
-                remote_file_path=r[1]
-            )
+                remote_file_path=r[1])
 
         return
 
@@ -128,10 +127,7 @@ def server_tasks(my_group):
             print('正在处理{0}'.format(item.__repr__()).center(100, '='))
             # _ = item.sudo('apt-get update && apt-get upgrade -y')     # 不乱更新软件, 容易出现依赖问题
 
-            # 更新软件包
-            print('正在更新相关依赖包...')
             update_python_packages(connect_object=item)
-
             upload_base_files(item=item)
             decompress_files(item=item)
             upload_and_replace_settings(item=item)

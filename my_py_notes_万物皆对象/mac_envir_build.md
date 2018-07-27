@@ -58,13 +58,24 @@ vi ~/.zshrc
 # 修改为pygmalion
 ```
 
-## vimplus(强大的vim)
+## vimplus(强大的vim)(没有自动提示)
 https://github.com/chxuan/vimplus
 ```
 $ git clone https://github.com/chxuan/vimplus.git ~/.vimplus
 $ cd ~/.vimplus
 $ ./install.sh
 ```
+
+## 或者安装MacVim
+开源地址: https://github.com/Valloric/YouCompleteMe
+下载地址: https://github.com/macvim-dev/macvim/releases
+```shell
+# 下载完毕后shell下要想打开mvim，新建个软连接
+$ sudo ln -s /Applications/MacVim.app/Contents/bin/mvim /usr/local/bin/mvim
+# 即可打开
+$ mvim
+```
+
 
 ## 安装FileZilla
 https://filezilla-project.org/download.php?type=client
