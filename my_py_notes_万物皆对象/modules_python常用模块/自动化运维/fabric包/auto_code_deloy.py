@@ -20,8 +20,7 @@ from fzutils.data.json_utils import read_json_from_local_json_file
 from fzutils.auto_ops_utils import (
     upload_or_download_files,
     local_compress_folders,
-    remote_decompress_folders,
-)
+    remote_decompress_folders,)
 
 host_json_path = '/Users/afa/hosts_info.json'
 
