@@ -66,6 +66,9 @@ $ cd ~/.vimplus
 $ ./install.sh
 ```
 
+## vimrc star 14万
+https://github.com/amix/vimrc
+
 ## 或者安装MacVim
 开源地址: https://github.com/Valloric/YouCompleteMe
 下载地址: https://github.com/macvim-dev/macvim/releases
