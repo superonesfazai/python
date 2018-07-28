@@ -1,5 +1,5 @@
 # vim 快键键
-```
+```bash
 ### 菜单操作
 # 打开菜单
 :NERDTree
@@ -31,4 +31,27 @@ esc+dd
 
 ### 撤销操作
 esc+u
+
+### 执行python3(当前.py文件)
+:!python %
+# F5一键编译
+$ vi ~/.vimrc
+# 加入下面代码
+map <F5> :call CompileRunGcc()<CR>
+
+func! CompileRunGcc()
+    exec "w" 
+    if &filetype == 'c' 
+        exec '!g++ % -o %<'
+        exec '!time ./%<'
+    elseif &filetype == 'cpp'
+        exec '!g++ % -o %<'
+        exec '!time ./%<'
+    elseif &filetype == 'python'
+        exec '!time python3 %'
+    elseif &filetype == 'sh'
+        :!time bash %
+    endif                                                                              
+endfunc
 ```
+
