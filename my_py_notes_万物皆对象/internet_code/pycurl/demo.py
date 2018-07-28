@@ -43,5 +43,6 @@ def get_html(url, referer='', verbose=False, protocol='https'):
         return []
     return html
 
-url = ''
+# url = ''
+url = 'https://goods.kaola.com/product/27979.html'
 get_html(url=url)

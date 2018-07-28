@@ -85,6 +85,9 @@ install_requires = [
     'pyexcel-xlsx',
     'fabric',
     'shadowsocks',
+    'pycurl==7.43.0.1',
+    'furl',
+    'yarl',
 ]
 
 classifiers = [

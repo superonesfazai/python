@@ -72,6 +72,7 @@ params = (
 )
 
 phone_url = 'https://goods.kaola.com/product/27979.html'
+# Myrequests被无限重定向 302, 弃用
 # body = MyRequests.get_url_body(url=phone_url, headers=headers, params=params)
 # print(body)
 
