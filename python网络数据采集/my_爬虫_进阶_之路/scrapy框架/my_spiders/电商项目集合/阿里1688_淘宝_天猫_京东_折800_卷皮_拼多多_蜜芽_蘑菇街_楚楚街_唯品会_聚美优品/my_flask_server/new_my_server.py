@@ -64,7 +64,6 @@ from my_items import GoodsItem
 from my_signature import Signature
 from sql_lang.cp_sql import error_insert_sql_str
 
-
 import hashlib
 import json
 import time
@@ -89,7 +88,9 @@ except Exception as e:
 import gc
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,)
 from fzutils.linux_utils import daemon_init
 
 app = Flask(__name__, root_path=os.getcwd())
@@ -3469,17 +3470,11 @@ def _insert_into_db_result(**kwargs):
     :param is_inserted_and_goods_id_list: a list eg: [('db插入结果类型bool', '对应goods_id'), ...]
     :return:
     '''
-    pipeline = kwargs.get('pipeline')
-    is_inserted_and_goods_id_list = kwargs.get('is_inserted_and_goods_id_list', [])
-
-    msg = ''
-    goods_id_list = [item[1] for item in is_inserted_and_goods_id_list if not item[0]]
-    error_goods_id_msg_list = []  # 早期已被存入db的 [('goods_id', 'msg'), ...]
-
-    if goods_id_list != []:     # 处理早期被存入的goods_id
-        _e = error_insert_sql_str
-        _e += ' or GoodsID=%s ' * (len(goods_id_list)-1)
-        _ = pipeline._select_table(sql_str=_e, params=tuple(goods_id_list))
+    def execute_sql_error():
+        '''
+        执行sql语句错误返回的东西
+        :return:
+        '''
         if _ is None or _ == []:        # 查询失败处理!
             msg = r'执行搜索对应商品语句时出错! 可能已被入录! 请在公司后台对应查询!<br/><br/>'
             for _u in goods_id_list:
@@ -3491,26 +3486,51 @@ def _insert_into_db_result(**kwargs):
                 'data': '',
                 'error_code': '0005',
             })
+        else:
+            return None
 
-        for goods_id in goods_id_list:
-            for _r in _:
-                if goods_id == _r[2]:
-                    tmp_msg = r'这个商品原先已被存入db中! 相关信息如下:<br/>操作人员: {0}<br/>创建时间: {1}<br/>官方GoodsID: {2}<br/>商品名称: {3}<br/>转换时间: {4}<br/>优秀商品ID: {5}<br/><br/>'.format(
-                        _r[0], str(_r[1]), _r[2], _r[3], str(_r[4]) if _r[4] is not None else '未转换', _r[5] if _r[5] is not None else '未转换',
-                    )
-                    error_goods_id_msg_list.append((goods_id, tmp_msg))
-    else:
-        pass
+    def judge_create_time_is_old(now_time, create_time):
+        '''
+        判断商品创建时间是否超过8小时
+        :param now_time: datetime
+        :param create_time: datetime
+        :return: bool
+        '''
+        if int(datetime_to_timestamp(now_time) - datetime_to_timestamp(create_time)) < 28800:    # 小于8小时
+            return True
+        else:
+            return False
+
+    pipeline = kwargs.get('pipeline')
+    is_inserted_and_goods_id_list = kwargs.get('is_inserted_and_goods_id_list', [])
+
+    msg = ''
+
+    # 原先是只查没有被插入的, 现在都查, because 重复插入也返回True
+    # goods_id_list = [item[1] for item in is_inserted_and_goods_id_list if not item[0]]
+    goods_id_list = [item[1] for item in is_inserted_and_goods_id_list]
+
+    _e = error_insert_sql_str
+    _e += ' or GoodsID=%s ' * (len(goods_id_list)-1)
+    _ = pipeline._select_table(sql_str=_e, params=tuple(goods_id_list))
+    execute_sql_result = execute_sql_error()
+    if execute_sql_result is not None:
+        return execute_sql_result
 
     for _i in is_inserted_and_goods_id_list:
         goods_id = _i[1]
-        if _i[0]:
-            msg += r'新采集的商品[GoodsID={0}]已存入db中!<br/><br/>'.format(goods_id)
-        else:
-            for _m in error_goods_id_msg_list:
-                if goods_id == _m[0]:
-                    msg += _m[1]
-    my_lg.info(msg)
+        for _r in _:
+            if goods_id == _r[2]:
+                if _i[0] and judge_create_time_is_old(now_time=get_shanghai_time(), create_time=_r[1]):
+                    msg += r'新采集的商品[GoodsID={0}]已存入db中!<br/><br/>'.format(goods_id)
+                else:
+                    if goods_id == _r[2]:
+                        tmp_msg = r'这个商品原先已被存入db中! 相关信息如下:<br/>操作人员: {0}<br/>创建时间: {1}<br/>官方GoodsID: {2}<br/>商品名称: {3}<br/>转换时间: {4}<br/>优秀商品ID: {5}<br/><br/>'.format(
+                            _r[0], str(_r[1]), _r[2], _r[3], str(_r[4]) if _r[4] is not None else '未转换', _r[5] if _r[5] is not None else '未转换',
+                        )
+                        msg += tmp_msg
+            else:
+                pass
 
     return dumps({
         'reason': 'success',
