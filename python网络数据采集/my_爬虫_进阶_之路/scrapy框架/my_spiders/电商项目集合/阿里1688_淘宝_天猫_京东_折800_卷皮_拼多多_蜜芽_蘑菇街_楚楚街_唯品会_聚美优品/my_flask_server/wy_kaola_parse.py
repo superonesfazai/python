@@ -25,7 +25,7 @@ from settings import (
     MY_SPIDER_LOGS_PATH,)
 
 from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+# from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.common_utils import (
     json_2_dict,
     get_random_int_number,)
@@ -101,7 +101,7 @@ class WYKaoLaParse(object):
                     return self._get_data_error_init()
 
                 else:
-                    # 获取sku_info
+                    # 获取m站的sku_info
                     sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
                     params = self._get_params(goods_id=goods_id)
                     body = MyRequests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
@@ -125,11 +125,12 @@ class WYKaoLaParse(object):
                 data['div_desc'] = self._get_div_desc(data=_)
                 data['sell_time'] = self._get_sell_time(data=_.get('sku_info', {}))
                 data['detail_name_list'] = self._get_detail_name_list(data=_.get('sku_info', {}).get('skuDetailList', []))
-                data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', [])) if data['detail_name_list'] != [] else []
+                data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
                 data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
                     data=_.get('sku_info', {}).get('skuPrice', {}),
                     price_info_list = data['price_info_list']
                 )
+                data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data)
 
             except Exception:
                 self.my_lg.error('遇到错误:', exc_info=True)
@@ -175,7 +176,7 @@ class WYKaoLaParse(object):
             # div_desc
             div_desc = data['div_desc']
 
-            is_delete = self._get_is_delete(price_info_list=price_info_list, data=data)
+            is_delete = data['is_delete']
 
             # 上下架时间
             if data.get('sell_time', {}) != {}:
@@ -280,11 +281,22 @@ class WYKaoLaParse(object):
         all_img_url = data.get('goodsInfoBase', {}).get('webImageList', [])
         assert all_img_url != [], '获取到的all_img_url为空list!请检查!'
         all_img_url = [{
-            'img_url': item.get('imageUrl', ''),
+            'img_url': self._get_right_img_url(item.get('imageUrl', '')),
         } for item in all_img_url]
         # pprint(all_img_url)
 
         return all_img_url
+
+    def _get_right_img_url(self, img_url):
+        '''
+        得到正确显示的地址
+        :param img_url:
+        :return:
+        '''
+        if img_url != '' and re.compile('\?').findall(img_url) == []:
+            return img_url + '?imageView&thumbnail=800x0&quality=85'
+        else:
+            return img_url
 
     def _get_p_info(self, data):
         '''
@@ -367,30 +379,42 @@ class WYKaoLaParse(object):
         :param data:
         :return:
         '''
+        # pprint(data)
         price_info_list = []
-        for item in data:
-            sku_property_list = item.get('skuInfo', {}).get('skuPropertyList', [])
-            spec_value = '|'.join([i.get('propertyValue', '') for i in sku_property_list])
-            img_url = ''
-            for i in sku_property_list:
-                tmp_img_url = i.get('imageUrl', '')
-                if tmp_img_url != '':
-                    img_url = tmp_img_url
-
-            normal_price = str(item.get('skuPrice', {}).get('marketPrice', ''))
-            detail_price = str(item.get('skuPrice', {}).get('currentPrice', ''))
-            # 每个账户限购数量
-            account_limit_buy_count = item.get('skuLimitBuyInfo', {}).get('accountLimitBuyCount', 5)
-            rest_number = item.get('skuStore', {}).get('currentStore', 0)
-
+        if len(data) == 1:          # 没有规格的处理
             price_info_list.append({
-                'spec_value': spec_value,
-                'img_url': img_url,
-                'detail_price': detail_price,
-                'normal_price': normal_price,
-                'account_limit_buy_count': account_limit_buy_count,
-                'rest_number': rest_number,
+                'spec_value': '',
+                'detail_price': str(data[0].get('skuPrice', {}).get('currentPrice', '')),
+                'normal_price': str(data[0].get('skuPrice', {}).get('marketPrice', '')),
+                'img_url': '',
+                'account_limit_buy_count': 5,
+                'rest_number': data[0].get('skuStore', {}).get('currentStore', 0)
             })
+        else:
+            for item in data:
+                sku_property_list = item.get('skuInfo', {}).get('skuPropertyList', [])
+                spec_value = '|'.join([i.get('propertyValue', '') for i in sku_property_list])
+                img_url = ''
+                for i in sku_property_list:
+                    tmp_img_url = i.get('imageUrl', '')
+                    if tmp_img_url != '':
+                        img_url = tmp_img_url
+
+                normal_price = str(item.get('skuPrice', {}).get('marketPrice', ''))
+                detail_price = str(item.get('skuPrice', {}).get('currentPrice', ''))
+                # 每个账户限购数量
+                # account_limit_buy_count = item.get('skuLimitBuyInfo', {}).get('accountLimitBuyCount', 5)  # 出现0，就采用下面默认值的方式
+                account_limit_buy_count = 5     # 默认为5
+                rest_number = item.get('skuStore', {}).get('currentStore', 0)
+
+                price_info_list.append({
+                    'spec_value': spec_value,
+                    'img_url': self._get_right_img_url(img_url),
+                    'detail_price': detail_price,
+                    'normal_price': normal_price,
+                    'account_limit_buy_count': account_limit_buy_count,
+                    'rest_number': rest_number,
+                })
 
         return price_info_list
 
@@ -429,18 +453,13 @@ class WYKaoLaParse(object):
         :param price_info_list:
         :return:
         '''
-        # pprint(data['price_info_list'])
-        if price_info_list == []:       # 没有规格处理
-            taobao_price = round(float(data.get('currentPrice')), 2)
-            price = taobao_price
-
-        else:
-            try:
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
-                price = tmp_price_list[-1]  # 商品价格
-                taobao_price = tmp_price_list[0]  # 淘宝价
-            except IndexError:
-                raise IndexError('获取price, taobao_price时索引异常!请检查!')
+        # pprint(price_info_list)
+        try:
+            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            price = tmp_price_list[-1]  # 商品价格
+            taobao_price = tmp_price_list[0]  # 淘宝价
+        except IndexError:
+            raise IndexError('获取price, taobao_price时索引异常!请检查!')
 
         return price, taobao_price
 
