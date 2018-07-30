@@ -14,16 +14,20 @@ from pprint import pprint
 from json import dumps
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
+from fzutils.sql_utils import pretty_table
+
 _ = SqlServerMyPageInfoSaveItemPipeline()
-# sql_str = 'select gather_url, MainID from dbo.daren_recommend where site_id=2 and MainID is not null'
-# sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
-sql_str = 'select count(*) from dbo.daren_recommend where site_id=3'
-# params = ('556812068095',)
-# params = ('547549119119',)  # 未被转换
-result = _._select_table(sql_str=sql_str, params=None)
+sql_str = '''
+select top 20 ID as id, UserName as user_name, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange
+from dbo.GoodsInfoAutoGet
+where GETDATE()-CreateTime < 1
+order by ID desc;
+'''
+# sql_str = 'select count(*) from dbo.daren_recommend where site_id=3'
+# result = _._select_table(sql_str=sql_str, params=None)
 # pprint(result)
-print(result)
-print(str(result[0][1]))
+# print(result)
+pretty_table(cursor=_._get_one_select_cursor(sql_str=sql_str, params=None))
 
 # 更新
 # sql_str_2 = 'UPDATE dbo.daren_recommend set share_img_url_list=NULL, goods_id_list=NULL, share_goods_base_info=%s where MainID=579;'

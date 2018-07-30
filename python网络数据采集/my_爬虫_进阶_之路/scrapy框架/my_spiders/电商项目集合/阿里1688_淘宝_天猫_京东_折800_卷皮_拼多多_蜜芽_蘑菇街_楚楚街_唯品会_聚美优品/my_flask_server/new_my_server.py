@@ -92,6 +92,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,)
 from fzutils.linux_utils import daemon_init
+from fzutils.common_utils import json_2_dict
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -3371,32 +3372,6 @@ def is_login(**kwargs):
         return True
     else:
         return False
-
-def json_2_dict(json_str):
-    '''
-    json_str转dict
-    :param json_str:
-    :return:
-    '''
-    try:
-        json_str = json.loads(json_str)
-    except json.JSONDecodeError:
-        my_lg.error('json转换dict时出错!')
-        json_str = {}
-
-    return json_str
-
-def _get_init_headers():
-    '''
-    得到一个初始headers
-    :return:
-    '''
-    return {
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9',
-        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
-        'accept': '*/*',
-    }
 
 ######################################################
 '''错误处理/成功处理'''

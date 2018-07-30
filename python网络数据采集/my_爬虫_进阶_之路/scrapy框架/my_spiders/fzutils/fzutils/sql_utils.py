@@ -17,6 +17,7 @@ import asyncio
 
 __all__ = [
     'BaseSqlServer',        # sql_utils for sql_server
+    'pretty_table',         # 美化打印table
 ]
 
 class BaseSqlServer(object):
@@ -313,7 +314,34 @@ class BaseSqlServer(object):
             except Exception:
                 pass
             return _
+    
+    def _get_one_select_cursor(self, sql_str, params=None, lock_timeout=20000):
+        '''
+        获得一个select执行结果的cursor(用于美化打印table)
+        :return: 查询失败 None | 成功的cursor
+        '''
+        cursor = None
+        try:
+            cursor = self.conn.cursor()
+        except AttributeError as e:
+            print(e.args[0])
+            return cursor
 
+        try:
+            cursor.execute('set lock_timeout {0};'.format(lock_timeout))  # 设置客户端执行超时等待为20秒
+            if params is not None:
+                if not isinstance(params, tuple):
+                    params = tuple(params)
+                cursor.execute(sql_str, params)
+            else:
+                cursor.execute(sql_str)
+        except Exception as e:
+            print(e)
+            cursor = None
+            return cursor
+
+        return cursor
+    
     def __del__(self):
         try:
             self.conn.close()
@@ -321,3 +349,17 @@ class BaseSqlServer(object):
             pass
         gc.collect()
 
+def pretty_table(cursor):
+    '''
+    美化打印table返回的数据(只支持select)
+    :param cursor: cursor数据库的游标
+    :return: None
+    '''
+    from prettytable import from_db_cursor
+
+    tb = from_db_cursor(cursor=cursor)   # 返回一个 PrettyTable对象
+    tb.align = 'l'  # 左对齐
+    # tb.padding_width = 5
+    print(tb)
+
+    return
