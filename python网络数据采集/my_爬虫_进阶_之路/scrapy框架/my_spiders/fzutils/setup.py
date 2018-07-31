@@ -89,6 +89,12 @@ install_requires = [
     'furl',
     'yarl',
     'prettytable',
+    'xlrd',
+    'pandas',
+    'jieba',
+    'geopandas',
+    'scikit-image',
+    'wordcloud',            # 词云
 ]
 
 classifiers = [
