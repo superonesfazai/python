@@ -34,6 +34,7 @@ from zhe_800_parse import Zhe800Parse
 from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
+from wy_kaola_parse import WYKaoLaParse
 
 from settings import (
     ALi_SPIDER_TO_SHOW_PATH,
@@ -44,6 +45,7 @@ from settings import (
     JUANPI_SPIDER_TO_SHOW_PATH,
     PINDUODUO_SPIDER_TO_SHOW_PATH,
     VIP_SPIDER_TO_SHOW_PATH,
+    KAOLA_SPIDER_2_SHOW_PATH,
     ADMIN_NAME,
     ADMIN_PASSWD,
     SERVER_PORT,
@@ -124,7 +126,7 @@ tmp_wait_to_save_data_list = []
 my_lg = set_logger(
     log_file_name=MY_SPIDER_LOGS_PATH + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
     console_log_level=INFO,
-    file_log_level=ERROR
+    file_log_level=INFO
 )
 
 Sign = Signature(logger=my_lg)
@@ -149,7 +151,7 @@ def login():
         if request.form.get('superUser', '') != '' and request.form.get('superPass', '') != '':
             super_name = str(request.form.get('superUser', ''))
             super_passwd = str(request.form.get('superPass', ''))
-            # print('super_name:', super_name, ' ', 'super_passwd:', super_passwd)
+            # my_lg.info('super_name:{0} super_passwd:{1}'.format(super_name, super_passwd)
         else:
             super_name, super_passwd = ('', '',)
 
@@ -234,6 +236,10 @@ def select():
 
             elif ajax_request == 'vip_login':
                 response = make_response(redirect('show_vip'))
+                return response
+
+            elif ajax_request == 'kaola_login':
+                response = make_response(redirect('show_kaola'))
                 return response
 
             else:
@@ -357,7 +363,7 @@ def find_user_name(**kwargs):
         if result is not None and result != []:
             my_lg.info('查找成功!')
             result = result[0]
-            # print(result)     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
+            # my_lg.info(str(result))     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
             data = [{
                 'username': result[0],
                 'passwd': encrypt(key, result[1]),
@@ -648,6 +654,17 @@ def show_vip_info():
         else:
             return send_file(VIP_SPIDER_TO_SHOW_PATH)
 
+@app.route('/show_kaola', methods=['GET', 'POST'])
+def show_kaola_info():
+    if not is_login(request=request):
+        return ERROR_HTML_CODE
+    else:
+        my_lg.info('正在获取爬取考拉页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            return send_file(KAOLA_SPIDER_2_SHOW_PATH)
+
 ######################################################
 # 阿里1688
 @app.route("/data", methods=['POST'])
@@ -685,13 +702,13 @@ def get_all_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
             msg = '阿里1688抓取数据成功!'
 
             return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
 
     else:
@@ -778,7 +795,6 @@ def _get_ali_right_data(data):
     tmp['shop_name'] = data_list['company_name']  # 公司名称
     tmp['title'] = data_list['title']  # 商品名称
     tmp['link_name'] = data_list['link_name']  # 卖家姓名
-
     tmp['price'] = Decimal(data_list.get('price')).__round__(2)
     tmp['taobao_price'] = Decimal(data_list.get('taobao_price')).__round__(2)
     tmp['price_info'] = data_list['price_info']  # 价格信息
@@ -803,7 +819,7 @@ def _get_ali_right_data(data):
 
     # 采集的来源地
     tmp['site_id'] = 2  # 采集来源地(阿里1688批发市场)
-    tmp['is_delete'] = 0  # 逻辑删除, 未删除为0, 删除为1
+    tmp['is_delete'] = 0  
 
     return tmp
 
@@ -906,7 +922,7 @@ def get_taobao_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1039,7 +1055,7 @@ def _get_taobao_right_data(data):
 
     # 采集的来源地
     tmp['site_id'] = 1  # 采集来源地(淘宝)
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -1200,7 +1216,7 @@ def get_tmall_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1324,7 +1340,7 @@ def _get_tmall_right_data(data):
     :return:
     '''
     data_list = data
-    tmp = {}
+    tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
     tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
@@ -1347,11 +1363,7 @@ def _get_tmall_right_data(data):
 
     tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
 
-    """
-    得到sku_map
-    """
     tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
     tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
     tmp['p_info'] = data_list.get('p_info')  # 详细信息
@@ -1364,8 +1376,7 @@ def _get_tmall_right_data(data):
         tmp['site_id'] = 4  # 采集来源地(天猫超市)
     elif data_list.get('type') == 2:
         tmp['site_id'] = 6  # 采集来源地(天猫国际)
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-    # my_lg.info('is_delete=%s' % str(tmp['is_delete']))
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -1535,7 +1546,7 @@ def get_jd_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1545,7 +1556,7 @@ def get_jd_data():
             return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
 
     else:
@@ -1569,7 +1580,7 @@ def jd_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list))
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
@@ -1627,7 +1638,7 @@ def _get_jd_wait_to_save_data_goods_id_list(data):
                         tmp_goods_id = goods_id
                         tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
                     else:
-                        print('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
+                        my_lg.info('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
                         pass
 
     return tmp_wait_to_save_data_goods_id_list
@@ -1639,7 +1650,7 @@ def _get_jd_right_data(data):
     :return:
     '''
     data_list = data
-    tmp = {}
+    tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
     tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
@@ -1682,8 +1693,7 @@ def _get_jd_right_data(data):
     elif data_list.get('jd_type') == 10:
         tmp['site_id'] = 10  # 采集来源地(京东大药房)
 
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-    # print('is_delete=', tmp['is_delete'])
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -1831,25 +1841,25 @@ def _deal_with_jd_goods(goods_link):
 def get_zhe_800_data():
     if is_login(request=request):
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
 
             goodsLink = request.form.get('goodsLink')
 
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 return _null_goods_link()
 
             zhe_800 = Zhe800Parse()
             goods_id = zhe_800.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 del zhe_800       # 每次都回收一下
                 gc.collect()
 
@@ -1861,7 +1871,7 @@ def get_zhe_800_data():
             tmp_result = zhe_800.get_goods_data(goods_id=goods_id)
             data = zhe_800.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
             if data == {} or tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 del zhe_800
                 gc.collect()
 
@@ -1877,7 +1887,7 @@ def get_zhe_800_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del zhe_800  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1887,7 +1897,7 @@ def get_zhe_800_data():
             return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
     else:
         result = {
@@ -1907,7 +1917,7 @@ def zhe_800_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
@@ -1978,7 +1988,7 @@ def _get_zhe_800_wait_to_save_data_goods_id_list(data):
                         goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
                     pass  # 不处理
                 else:
-                    print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
+                    my_lg.info('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
                     pass  # 不处理
 
     return tmp_wait_to_save_data_goods_id_list
@@ -1990,7 +2000,7 @@ def _get_zhe_800_right_data(data):
     :return:
     '''
     data_list = data
-    tmp = {}
+    tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
     tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
@@ -2028,8 +2038,7 @@ def _get_zhe_800_right_data(data):
     # 采集的来源地
     tmp['site_id'] = 11  # 采集来源地(折800常规商品)
 
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-    # print('is_delete=', tmp['is_delete'])
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -2072,18 +2081,18 @@ def _get_db_zhe_800_insert_params(item):
 def get_juanpi_data():
     if is_login(request=request):
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
 
             goodsLink = request.form.get('goodsLink')
 
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 return _null_goods_link()
 
@@ -2091,7 +2100,7 @@ def get_juanpi_data():
 
             goods_id = juanpi.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 del juanpi       # 每次都回收一下
                 gc.collect()
 
@@ -2103,7 +2112,7 @@ def get_juanpi_data():
             data = juanpi.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
 
             if data == {} or tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 del juanpi
                 gc.collect()
 
@@ -2118,7 +2127,7 @@ def get_juanpi_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del juanpi  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -2128,7 +2137,7 @@ def get_juanpi_data():
             return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
     else:
         result = {
@@ -2148,7 +2157,7 @@ def juanpi_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
@@ -2197,12 +2206,12 @@ def _get_juanpi_wait_to_save_data_goods_id_list(data):
                     else:  # 只是为了在pycharm运行时不调到chrome，其实else完全可以不要的
                         juanpi_url = re.compile(r';').sub('', item)
                         goods_id = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(juanpi_url)[0]
-                    print('------>>>| 得到的卷皮商品的地址为:', goods_id)
+                    my_lg.info('------>>>| 得到的卷皮商品的地址为:{0}'.format(goods_id))
                     tmp_goods_id = goods_id
                     tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
 
             else:
-                print('卷皮商品url错误, 非正规的url, 请参照格式(http://shop.juanpi.com/deal/)开头的...')
+                my_lg.info('卷皮商品url错误, 非正规的url, 请参照格式(http://shop.juanpi.com/deal/)开头的...')
                 pass  # 不处理
 
     return tmp_wait_to_save_data_goods_id_list
@@ -2252,8 +2261,7 @@ def _get_juanpi_right_data(data):
     # 采集的来源地
     tmp['site_id'] = 12  # 采集来源地(卷皮常规商品)
 
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-    # print('is_delete=', tmp['is_delete'])
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -2296,25 +2304,25 @@ def _get_db_juanpi_insert_params(item):
 def get_pinduoduo_data():
     if is_login(request=request):
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
 
             goodsLink = request.form.get('goodsLink')
 
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
 
                 return _null_goods_link()
 
             pinduoduo = PinduoduoParse()
             goods_id = pinduoduo.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == '':      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 del pinduoduo       # 每次都回收一下
                 gc.collect()
 
@@ -2325,7 +2333,7 @@ def get_pinduoduo_data():
             tmp_result = pinduoduo.get_goods_data(goods_id=goods_id)
             data = pinduoduo.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
             if data == {} or tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 del pinduoduo
                 gc.collect()
 
@@ -2340,7 +2348,7 @@ def get_pinduoduo_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del pinduoduo  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()  # 手动回收即可立即释放需要删除的资源
+            gc.collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -2350,7 +2358,7 @@ def get_pinduoduo_data():
             return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
 
     else:
@@ -2371,7 +2379,7 @@ def pinduoduo_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
@@ -2421,13 +2429,13 @@ def _get_pinduoduo_wait_to_save_data_goods_id_list(data):
                     else:  # 只是为了在pycharm里面测试，可以不加
                         pinduoduo_url = re.compile(r';').sub('', item)
                         goods_id = re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(pinduoduo_url)[0]
-                    print('------>>>| 得到的拼多多商品id为:', goods_id)
+                    my_lg.info('------>>>| 得到的拼多多商品id为:{0}'.format(goods_id))
                     tmp_goods_id = goods_id
                     tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
                 else:
                     pass
             else:
-                print('拼多多商品url错误, 非正规的url, 请参照格式(http://mobile.yangkeduo.com/goods.html)开头的...')
+                my_lg.info('拼多多商品url错误, 非正规的url, 请参照格式(http://mobile.yangkeduo.com/goods.html)开头的...')
                 pass  # 不处理
 
     return tmp_wait_to_save_data_goods_id_list
@@ -2440,7 +2448,7 @@ def _get_pinduoduo_right_data(data):
     '''
     data_list = data
 
-    tmp = {}
+    tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
     tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
@@ -2478,8 +2486,7 @@ def _get_pinduoduo_right_data(data):
     # 采集的来源地
     tmp['site_id'] = 13  # 采集来源地(卷皮常规商品)
 
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-    # print('is_delete=', tmp['is_delete'])
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -2523,23 +2530,23 @@ def _get_db_pinduoduo_insert_params(item):
 def get_vip_data():
     if is_login(request=request):  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
-            print('正在获取相应数据中...')
+            my_lg.info('正在获取vip相应数据中...')
 
             # 解密
             username = decrypt(key, request.cookies.get('username'))
-            print('发起获取请求的员工的username为: %s' % username)
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
 
             goodsLink = request.form.get('goodsLink')
             if goodsLink:
                 wait_to_deal_with_url = goodsLink
             else:
-                print('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
             vip = VipParse()
             goods_id = vip.get_goods_id_from_url(wait_to_deal_with_url)   # 获取goods_id, 这里返回的是一个list
             if goods_id == []:      # 如果得不到goods_id, 则return error
-                print('获取到的goods_id为空!')
+                my_lg.info('获取到的goods_id为空!')
                 try:
                     del vip       # 每次都回收一下
                 except Exception:
@@ -2553,7 +2560,7 @@ def get_vip_data():
             tmp_result = vip.get_goods_data(goods_id=goods_id)
             data = vip.deal_with_data()   # 如果成功获取的话, 返回的是一个data的dict对象
             if data == {} or tmp_result == {}:
-                print('获取到的data为空!')
+                my_lg.info('获取到的data为空!')
                 try:
                     del vip
                 except: pass
@@ -2569,7 +2576,7 @@ def get_vip_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del vip       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()        # 手动回收即可立即释放需要删除的资源
+            gc.collect()        
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -2579,7 +2586,7 @@ def get_vip_data():
             return _success_data(data=wait_to_save_data, msg=msg)
 
         else:       # 直接把空值给pass，不打印信息
-            # print('goodsLink为空值...')
+            # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
 
     else:
@@ -2600,7 +2607,7 @@ def vip_to_save_data():
             wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
 
             wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
-            # print('缓存中待存储url的list为: ', tmp_wait_to_save_data_list)
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
             my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
             if wait_to_save_data_url_list != []:
                 tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
@@ -2649,7 +2656,7 @@ def _get_vip_wait_to_save_data_goods_id_list(data):
                     else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
                         vip_url = re.compile(r';').sub('', item)
                         goods_id = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url)[0]
-                    print('------>>>| 得到的唯品会商品的goods_id为:', goods_id)
+                    my_lg.info('------>>>| 得到的唯品会商品的goods_id为:{0}'.format(goods_id))
                     tmp_goods_id = goods_id
                     tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
                 else:
@@ -2667,11 +2674,11 @@ def _get_vip_wait_to_save_data_goods_id_list(data):
                             vip_url = re.compile(r';').sub('', item)
                             goods_id = \
                             re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url)[0]
-                        print('------>>>| 得到的唯品会 预售商品 的goods_id为:', goods_id)
+                        my_lg.info('------>>>| 得到的唯品会 预售商品 的goods_id为:{0}'.format(goods_id))
                         tmp_goods_id = goods_id
                         tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
                 else:
-                    print('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html) or (https://m.vip.com/preheating-product-xxxx-xxxx.html)开头的...')
+                    my_lg.info('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html) or (https://m.vip.com/preheating-product-xxxx-xxxx.html)开头的...')
                     pass  # 不处理
 
     return tmp_wait_to_save_data_goods_id_list
@@ -2683,7 +2690,7 @@ def _get_vip_right_data(data):
     :return:
     '''
     data_list = data
-    tmp = {}
+    tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']  # 官方商品id
     tmp['goods_url'] = data_list['spider_url']  # 商品地址
     tmp['username'] = data_list['username']  # 操作人员username
@@ -2727,8 +2734,7 @@ def _get_vip_right_data(data):
     # 采集的来源地
     tmp['site_id'] = 25  # 采集来源地(卷皮常规商品)
 
-    tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-    # print('is_delete=', tmp['is_delete'])
+    tmp['is_delete'] = data_list.get('is_delete')  
 
     return tmp
 
@@ -2765,6 +2771,255 @@ def _get_db_vip_insert_params(item):
     )
 
     return params
+
+######################################################
+# 网易考拉海购
+@app.route('/kaola_data', methods=['POST'])
+def get_kaola_data():
+    if is_login(request=request):  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            my_lg.info('正在获取kaola相应数据中...')
+
+            # 解密
+            username = decrypt(key, request.cookies.get('username'))
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
+
+            goodsLink = request.form.get('goodsLink')
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                my_lg.info('goodsLink为空值...')
+                return _null_goods_link()
+
+            wait_to_save_data = get_one_kaola_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url
+            )
+            if wait_to_save_data.get('goods_id', '') == '':
+                return _null_goods_id()
+
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
+                return _null_goods_data()
+
+            else:
+                pass
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            gc.collect()
+
+            my_lg.info('------>>>| 下面是爬取到的考拉页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '网易考拉抓取成功!'
+
+            return _success_data(data=wait_to_save_data, msg=msg)
+
+        else:       # 直接把空值给pass，不打印信息
+            # my_lg.info('goodsLink为空值...')
+            return _null_goods_link()
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+@app.route('/kaola_to_save_data', methods=['POST'])
+def kaola_to_save_data():
+    # 考拉site_id=29
+    global tmp_wait_to_save_data_list
+    if is_login(request=request):
+        if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
+
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
+            if wait_to_save_data_url_list != []:
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='kaola',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+                return save_every_url_right_data(
+                    type='kaola',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
+
+            else:
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
+        else:
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
+
+    else:
+        return _error_msg(msg='')
+    
+def _get_kaola_wait_to_save_data_goods_id_list(data):
+    '''
+    得到考拉待存取的goods_id的list
+    :param data: 
+    :return: 
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_kaola_url = re.compile(r'https://goods.kaola.com/product/.*?').findall(item)
+            if is_kaola_url != []:
+                if re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(item) != []:
+                    goods_id = re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(item)[0]
+                    my_lg.info('------>>>| 得到的唯品会商品的goods_id为: {0}'.format(goods_id))
+                    tmp_wait_to_save_data_goods_id_list.append(goods_id)
+                else:
+                    pass
+            else:
+                my_lg.info('网易考拉商品url错误, 非正规的url, 请参照格式(https://goods.kaola.com/product/xxx.html)开头的...')
+                pass
+    
+    return tmp_wait_to_save_data_goods_id_list
+
+def _get_kaola_right_data(data):
+    '''
+    得到考拉规范化的数据
+    :param data: 
+    :return: 
+    '''
+    data_list = data
+    tmp = GoodsItem()
+    tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+    tmp['goods_url'] = data_list['spider_url']  # 商品地址
+    tmp['username'] = data_list['username']  # 操作人员username
+
+    now_time = get_shanghai_time()
+    tmp['create_time'] = now_time  # 操作时间
+    tmp['modify_time'] = now_time  # 修改时间
+
+    tmp['shop_name'] = data_list['shop_name']  # 公司名称
+    tmp['title'] = data_list['title']  # 商品名称
+    tmp['sub_title'] = data_list['sub_title']  # 商品子标题
+    tmp['link_name'] = ''  # 卖家姓名
+    tmp['account'] = data_list['account']  # 掌柜名称
+    tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
+
+    # 设置最高价price， 最低价taobao_price
+    if isinstance(data_list['price'], Decimal):
+        tmp['price'] = data_list['price']
+    else:
+        tmp['price'] = Decimal(data_list['price']).__round__(2)
+    if isinstance(data_list['taobao_price'], Decimal):
+        tmp['taobao_price'] = data_list['taobao_price']
+    else:
+        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+    tmp['price_info'] = []  # 价格信息
+
+    tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
+
+    """
+    得到sku_map
+    """
+    tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
+
+    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+
+    tmp['p_info'] = data_list.get('p_info')  # 详细信息
+    tmp['div_desc'] = data_list.get('div_desc')  # 下方div
+
+    tmp['schedule'] = data_list.get('schedule')
+
+    # 采集的来源地
+    tmp['site_id'] = 29  # 采集来源地(考拉常规商品)
+
+    tmp['is_delete'] = data_list.get('is_delete')  
+
+    return tmp
+
+def _get_db_kaola_insert_params(item):
+    '''
+    得到db待插入的数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+        dumps(item['schedule'], ensure_ascii=False),
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
+
+def get_one_kaola_data(**kwargs):
+    '''
+    抓取一个考拉 url的data
+    :param kwargs:
+    :return:
+    '''
+    username = kwargs.get('username', '18698570079')
+    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
+
+    kaola = WYKaoLaParse(logger=my_lg)
+    goods_id = kaola.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+    if goods_id == '':  # 如果得不到goods_id, 则return error
+        my_lg.info('获取到的goods_id为空!')
+        try:
+            del kaola  # 每次都回收一下
+        except Exception:
+            pass
+        gc.collect()
+        return {'goods_id': ''}         # 错误1: goods_id为空值
+
+    tmp_result = kaola._get_goods_data(goods_id=goods_id)
+    data = kaola._deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
+    if data == {} or tmp_result == {}:
+        my_lg.error('获取到的data为空!出错地址: {0}'.format(wait_to_deal_with_url))
+        try:
+            del kaola
+        except:
+            pass
+        gc.collect()
+        return {'goods_id': goods_id, 'msg': 'data为空!'}     # 错误2: 抓取失败
+
+    wait_to_save_data = add_base_info_2_processed_data(
+        data=data,
+        spider_url=wait_to_deal_with_url,
+        username=username,
+        goods_id=goods_id
+    )
+    try: del kaola
+    except: pass
+
+    return wait_to_save_data
 
 ######################################################
 
@@ -2819,12 +3074,12 @@ def get_basic_data():
                 }
 
                 result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('------>>>| 下面是爬取到的页面信息: ')
-                print(result_json.decode())
-                print('-------------------------------')
+                my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+                my_lg.info(str(result_json.decode()))
+                my_lg.info('-------------------------------')
 
                 del basic_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                gc.collect()  # 手动回收即可立即释放需要删除的资源
+                gc.collect()  
 
                 return result_json.decode()
 
@@ -2884,7 +3139,7 @@ def get_basic_data():
                 my_lg.info('-------------------------------')
 
                 del basic_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                gc.collect()  # 手动回收即可立即释放需要删除的资源
+                gc.collect()  
                 return result_json.decode()
 
             elif _is_jd_url(wait_to_deal_with_url):
@@ -2938,17 +3193,17 @@ def get_basic_data():
                 }
 
                 result_json = json.dumps(result, ensure_ascii=False).encode()
-                print('------>>>| 下面是爬取到的页面信息: ')
-                print(result_json.decode())
-                print('-------------------------------')
+                my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+                my_lg.info(str(result_json.decode()))
+                my_lg.info('-------------------------------')
 
                 del jd  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                gc.collect()  # 手动回收即可立即释放需要删除的资源
+                gc.collect()  
                 return result_json.decode()
 
             else:
                 # 直接把空值给pass，不打印信息
-                # print('goodsLink为空值...')
+                # my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
         else:
@@ -3171,6 +3426,9 @@ def get_who_wait_to_save_data_goods_id_list(**kwargs):
 
     elif type == 'vip':
         return _get_vip_wait_to_save_data_goods_id_list(data=data)
+    
+    elif type == 'kaola':
+        return _get_kaola_wait_to_save_data_goods_id_list(data=data)
 
     else:
         return []
@@ -3207,7 +3465,10 @@ def get_who_right_data(**kwargs):
 
     elif type == 'vip':
         return _get_vip_right_data(data=data)
-
+    
+    elif type == 'kaola':
+        return _get_kaola_right_data(data=data)
+    
     else:
         return {}
 
@@ -3234,7 +3495,7 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
     ll_list = []
     [ll_list.append(x) for x in tmp_wait_to_save_data_list if x not in ll_list]
     tmp_wait_to_save_data_list = ll_list
-    # print('所有待存储的数据: ', tmp_wait_to_save_data_list)
+    # my_lg.info('所有待存储的数据: {0}'.format(str(tmp_wait_to_save_data_list)))
 
     goods_to_delete = []
     tmp_list = []  # 用来存放筛选出来的数据, eg: [{}, ...]
@@ -3297,6 +3558,9 @@ def get_db_who_insert_params(type, item):
 
     elif type == 'vip':
         params = _get_db_vip_insert_params(item=item)
+
+    elif type == 'kaola':
+        params = _get_db_kaola_insert_params(item=item)
 
     else:
         params = {}
@@ -3595,9 +3859,9 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    my_lg.info('========主函数开始========')
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
-    print('--->>>| 孤儿进程成功被init回收成为单独进程!')
+    my_lg.info('--->>>| 孤儿进程成功被init回收成为单独进程!')
     # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 

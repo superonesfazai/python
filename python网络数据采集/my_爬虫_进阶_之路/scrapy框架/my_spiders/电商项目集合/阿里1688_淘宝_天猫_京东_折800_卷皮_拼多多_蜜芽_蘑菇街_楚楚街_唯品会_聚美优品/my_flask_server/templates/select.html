@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip,.kaola{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span,.kaola span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -74,7 +74,11 @@
 	.vip span{
 		background: url(../static/images/vip.jpg)no-repeat;	
 		background-size: 100% 100%;			
-	}		
+	}
+    .kaola span{
+        background: url(../static/images/kaola.jpg)no-repeat;
+        background-size: 100% 100%;
+    }
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -97,6 +101,9 @@
 		display: block;
 	}
 	.vip span:hover .login-btn{
+		display: block;
+	}
+    .kaola span:hover .login-btn{
 		display: block;
 	}
 	.login-btn{
@@ -198,21 +205,27 @@
     				</a>
     			</span>
     		</div>
-    		<div class="taob passListItem"><span>
+    		<div class="taob passListItem">
+                <span>
 					<a class="login-btn" href="/show_taobao" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="tianm passListItem"><span>
+    		    </span>
+            </div>
+    		<div class="tianm passListItem">
+                <span>
 					<a class="login-btn" href="/show_tmall" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>  	
-    		<div class="vip passListItem"><span>
+    		    </span>
+            </div>
+    		<div class="vip passListItem">
+                <span>
 					<a class="login-btn" href="/show_vip" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>    
+    		    </span>
+            </div>
     	</div>
     	<div class="passList" id="passList">
     		<div class="jd passListItem">
@@ -222,23 +235,37 @@
     				</a>
     			</span>
     		</div>
-    		<div class="zhe_800 passListItem"><span>
+    		<div class="zhe_800 passListItem">
+                <span>
 					<a class="login-btn" href="/show_zhe_800" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="juanpi passListItem"><span>
+    		    </span>
+            </div>
+    		<div class="juanpi passListItem">
+                <span>
 					<a class="login-btn" href="/show_juanpi" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="pinduoduo passListItem"><span>
+    		    </span>
+            </div>
+    		<div class="pinduoduo passListItem">
+                <span>
 					<a class="login-btn" href="/show_pinduoduo" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>    		
-    		</div>      		
-    	</div>    	
+    		    </span>
+            </div>
+    	</div>
+        <div class="passList" id="passList">
+            <div class="kaola passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_kaola" target="_blank">
+						请点击登录
+    				</a>
+    			</span>
+    		</div>
+        </div>
     	<!--<ul class="login" id="login">
     		<li class="loginList">
 	 	    	<div class="scanLogin">
@@ -358,7 +385,7 @@
 							confirm_login:'juanpi_login'
 						}
 					});
-				})
+				});
                 $('.login-btn').eq(7).click(function(){
 					$.ajax({
 						type:"post",
@@ -368,7 +395,17 @@
 							confirm_login:'pinduoduo_login'
 						}
 					});
-				})                
+				});
+                $('.login-btn').eq(8).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'kaola_login'
+						}
+					});
+				})
 //			for(var i=0;i<passListItem.length;i++){
 //				passListItem[i].index = i;
 //				passListItem[i].onmouseover=function(){

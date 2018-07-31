@@ -125,6 +125,7 @@ class WYKaoLaParse(object):
                 data['div_desc'] = self._get_div_desc(data=_)
                 data['sell_time'] = self._get_sell_time(data=_.get('sku_info', {}))
                 data['detail_name_list'] = self._get_detail_name_list(data=_.get('sku_info', {}).get('skuDetailList', []))
+                # TODO 网易考拉官方有bug, 实际规格没货的商品, 前端还在卖, 估计是下单后再去订货, 库存0: 我这边就处理为下架
                 data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
                 data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
                     data=_.get('sku_info', {}).get('skuPrice', {}),
@@ -211,7 +212,7 @@ class WYKaoLaParse(object):
                 'all_sell_count': all_sell_count,           # 销售总量
                 'is_delete': is_delete                      # 是否下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
