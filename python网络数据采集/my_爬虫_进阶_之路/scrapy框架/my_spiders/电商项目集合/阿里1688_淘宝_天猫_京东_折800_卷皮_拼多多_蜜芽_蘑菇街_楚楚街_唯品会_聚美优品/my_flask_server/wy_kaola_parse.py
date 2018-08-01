@@ -70,6 +70,20 @@ class WYKaoLaParse(object):
         else:
             self.my_lg = logger
 
+    def _get_pc_sku_info_headers(self):
+        return {
+            # 'cookie': "davisit=133; usertrack=O2+g2Ftatitk7YwIAwY2Ag==; _ntes_nnid=7732365205c88dc47486ad1208406e7e,1532671534874; _ga=GA1.2.960357080.1532671535; _gid=GA1.2.1543960295.1532671535; _klhtxd_=31; kaola_user_key=47cca4d0-57c9-41ca-ae67-2172c4a81500; __da_ntes_utma=2525167.1705273738.1532671535.1532671535.1532671535.1; davisit=1; __da_ntes_utmz=2525167.1532671535.1.1.utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none); __da_ntes_utmfc=utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none); _jzqc=1; WM_TID=BuJzWuW25WT9h9YnJbNPwKuHb0%2FJdiEw; __kaola_usertrack=20180727140634933960; _da_ntes_uid=20180727140634933960; _ga=GA1.3.960357080.1532671535; KAOLA_NEW_USER_COOKIE=no; _gid=GA1.3.1543960295.1532671535; _kaola_user_beta_traffic=11900565161; NETEASE_WDA_UID=\"ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com#|#1494121379042\"; S_INFO=1533005764|0|##|ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com; P_INFO=ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com|1533005764|0|kaola|00&99|null#0|null|kaola|ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com; NTES_OSESS=yYsn9MHD7G6TaLObUuWLbAz1ON8RoRfBZWUrWt7ORjAoWWhz6L9pI2UdlONyjpcbXvEjUTUQ3xmiHvJRReaDb2QTGF3XbGkuwkwoFcQ3ao1h4vbxvjk_SepopEgeUc_Pf6ZCSGQMSqhvzBLCfajZ37DH0_ECJb0bZn3alkCujGl95Ahlw5L7emqExM3GFwnw5u_ukogIaAhvj9NVmayKH8Y.wDj6Bz9Wy6ny48S4TB859; _ntes_nuid=c199afa0a5f0b5a2869b8cf66c6be415; _qzjc=1; davisit=2; NTES_KAOLA_ORDER_FLAG_NEW=-1533432028; JSESSIONID-WKL-8IO=zmtn3E1vXCr4M%5C%5Cmw7zWBwH%2B596vBzoqQRnzDgY%5CpIOn3DUZTp1LWf%5CsXXf7EI4o5D%2BDtY9BOeKcOlyxZ7yxrBmH9O6b7sRaNBgSWHLby224bWjd%5CnlVkUe9BWOsBfWviE5jcOr8Jf5iMngMw2SW9yM%2Fh7M1Wq6k0Sap6lzRgZAUeLx%2F%3A1533099535404; NTES_KAOLA_ADDRESS_CONTROL=330000|330100|330102|1; __da_ntes_utmb=2525167.1.10.1533086704; _jzqa=1.658432386831847000.1532671536.1533054637.1533086706.23; _jzqx=1.1532671536.1533086706.6.jzqsr=google%2Ecom|jzqct=/.jzqsr=kaola%2Ecom|jzqct=/; _jzqckmp=1; _qzja=1.171255260.1532671601817.1533008724580.1533086710431.1533086734453.1533086755814..0.0.28.9; _qzjb=1.1533086710431.4.0.0.0; _qzjto=4.1.0; _jzqb=1.9.10.1533086706.1; NTES_KAOLA_RV=16029_1533086756435_0|1917464_1533086735090_0|17992_1533086721244_0|27757_1533086711248_0|2066692_1533008725460_0|1453977_1533006382331_0|1351750_1533006337428_0|27979_1532939381249_0|2059765_1532939045569_0|2268339_1532938432179_0|2254882_1532938240407_0|2208483_1532930588764_0|1330333_1532918029707_0|1472242_1532671698324_0",
+            'accept-encoding': "gzip, deflate, br",
+            'accept-language': "zh-CN,zh;q=0.9",
+            'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36",
+            'content-type': "application/x-www-form-urlencoded",
+            'accept': "*/*",
+            # 'referer': "https://goods.kaola.com/product/16029.html?ri=navigation&from=page1&zn=result&zp=page1-20&position=20&istext=0&srId=8ef2e561233225619e300ebc5782c129&isMarketPriceShow=true&hcAntiCheatSwitch=0&anstipamActiCheatSwitch=1&anstipamActiCheatToken=de3223456456fa2e3324354u4567lt&anstipamActiCheatValidate=anstipam_acti_default_validate",
+            'authority': "goods.kaola.com",
+            'x-requested-with': "XMLHttpRequest",
+            'Cache-Control': "no-cache",
+        }
+
     def _get_goods_data(self, goods_id):
         '''
         得到需求数据
@@ -101,10 +115,19 @@ class WYKaoLaParse(object):
                     return self._get_data_error_init()
 
                 else:
-                    # 获取m站的sku_info
-                    sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
-                    params = self._get_params(goods_id=goods_id)
-                    body = MyRequests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
+                    # TODO 获取m站的sku_info(但是没有税费)
+                    # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
+                    # params = self._get_params(goods_id=goods_id)
+                    # body = MyRequests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
+
+                    # 获取pc站的sku_info
+                    sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
+                    params = self._get_pc_sku_info_params(goods_id=goods_id)
+                    body = MyRequests.get_url_body(
+                        url=sku_info_url,
+                        headers=self._get_pc_sku_info_headers(),
+                        params=params)
+
                     sku_info = json_2_dict(json_str=body, logger=self.my_lg).get('data')
                     if sku_info is None:
                         self.my_lg.error('获取到we的sku_info为None!出错goods_id: {0}, 出错地址: {1}'.format(goods_id, url))
@@ -126,7 +149,10 @@ class WYKaoLaParse(object):
                 data['sell_time'] = self._get_sell_time(data=_.get('sku_info', {}))
                 data['detail_name_list'] = self._get_detail_name_list(data=_.get('sku_info', {}).get('skuDetailList', []))
                 # TODO 网易考拉官方有bug, 实际规格没货的商品, 前端还在卖, 估计是下单后再去订货, 库存0: 我这边就处理为下架
-                data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
+                # data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
+                '''获取pc端的, 价格为算上税费的'''
+                data['price_info_list'] = self._get_pc_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
+
                 data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
                     data=_.get('sku_info', {}).get('skuPrice', {}),
                     price_info_list = data['price_info_list']
@@ -212,7 +238,7 @@ class WYKaoLaParse(object):
                 'all_sell_count': all_sell_count,           # 销售总量
                 'is_delete': is_delete                      # 是否下架
             }
-            # pprint(result)
+            pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -373,6 +399,66 @@ class WYKaoLaParse(object):
                 })
 
         return detail_name_list
+
+    def _get_pc_sku_info(self, data):
+        '''
+        得到pc端的sku_info(价格都为常规价格, 非新人价格)
+        :param data:
+        :return:
+        '''
+        # pprint(data)
+        price_info_list = []
+        if len(data) == 1:  # 没有规格的处理
+            tax_amount = data[0].get('skuTaxInfoPc', {}).get('taxAmount')               # 税费
+            current_price = data[0].get('skuPrice', {}).get('currentPrice', 999999)     # 当前价格, 999999表示出错了
+            market_price = data[0].get('skuPrice', {}).get('marketPrice', 999999)      # 市场价
+            if current_price == 999999 or market_price == 999999:
+                raise ValueError('获取到的current_price或market_price错误!请检查!')
+
+            detail_price = str(current_price + tax_amount) if tax_amount is not None else str(current_price)
+            normal_price = str(market_price + tax_amount) if tax_amount is not None else str(market_price)
+            price_info_list.append({
+                'spec_value': '',
+                'detail_price': detail_price,
+                'normal_price': normal_price,
+                'img_url': '',
+                'account_limit_buy_count': 5,
+                'rest_number': data[0].get('skuStore', {}).get('currentStore', 0)
+            })
+        else:
+            for item in data:
+                sku_property_list = item.get('skuInfo', {}).get('skuPropertyList', [])
+                spec_value = '|'.join([i.get('propertyValue', '') for i in sku_property_list])
+                img_url = ''
+                for i in sku_property_list:
+                    tmp_img_url = i.get('imageUrl', '')
+                    if tmp_img_url != '':
+                        img_url = tmp_img_url
+
+                tax_amount = item.get('skuTaxInfoPc', {}).get('taxAmount')              # 税费
+                current_price = item.get('skuPrice', {}).get('currentPrice', 999999)    # 当前价格, 999999 raise error
+                market_price = item.get('skuPrice', {}).get('marketPrice', 999999)      # 市场价
+                if current_price == 999999 or market_price == 999999:
+                    raise ValueError('获取到的current_price或market_price错误!请检查!')
+
+                detail_price = str(current_price + tax_amount) if tax_amount is not None else str(current_price)
+                normal_price = str(market_price + tax_amount) if tax_amount is not None else str(market_price)
+                # 每个账户限购数量
+                # account_limit_buy_count = item.get('skuLimitBuyInfo', {}).get('accountLimitBuyCount', 5)  # 出现0，就采用下面默认值的方式
+                account_limit_buy_count = 5  # 默认为5
+                rest_number = item.get('skuStore', {}).get('currentStore', 0)
+
+                price_info_list.append({
+                    'spec_value': spec_value,
+                    'img_url': self._get_right_img_url(img_url),
+                    'detail_price': detail_price,
+                    'normal_price': normal_price,
+                    'account_limit_buy_count': account_limit_buy_count,
+                    'rest_number': rest_number,
+                })
+
+        return price_info_list
+
 
     def _get_sku_info(self, data):
         '''
@@ -543,6 +629,23 @@ class WYKaoLaParse(object):
             pass
 
         return data
+
+    def _get_pc_sku_info_params(self, goods_id):
+        '''
+        获取pc端sku_info接口的params
+        :param goods_id:
+        :return:
+        '''
+        params = {
+            # "provinceCode":"330000",
+            # "cityCode":"330100",
+            # "districtCode":"330102",
+            "goodsId": goods_id,
+            # "categoryId":"547",
+            # "t":["1533086767674","1533086767674"]
+        }
+
+        return params
 
     def _get_params(self, goods_id):
         '''
