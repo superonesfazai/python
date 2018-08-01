@@ -213,11 +213,11 @@ def select():
                 return response
 
             elif ajax_request == 'taob_login':
-                response = make_response(redirect('show_taobao'))  # 重定向到新的页面
+                response = make_response(redirect('show_taobao'))
                 return response
 
             elif ajax_request == 'tianm_login':
-                response = make_response(redirect('show_tmall'))  # 重定向到新的页面
+                response = make_response(redirect('show_tmall'))
                 return response
 
             elif ajax_request == 'jd_login':
@@ -266,31 +266,26 @@ def admin():
             # 查找
             if request.form.get('find_name', '') != '':
                 find_name = request.form.get('find_name', '')
-
                 return find_user_name(find_name=find_name, tmp_user=tmp_user)
 
             # 重置
             elif request.form.get('update', '') != '':
                 update_name = request.form.get('update', '')
-
                 return init_passwd(update_name=update_name, tmp_user=tmp_user)
 
             # 删除
             elif request.form.getlist('user_to_delete_list[]') != []:
                 user_to_delete_list = list(request.form.getlist('user_to_delete_list[]'))
-
                 return del_user(tmp_user=tmp_user, user_to_delete_list=user_to_delete_list)
 
             # 查看现有所有用户数据
             elif request.form.get('check_all_users', '') == 'True':
                 my_lg.info('返回所有注册员工信息!')
-
                 return check_all_user(tmp_user=tmp_user)
 
             # 注册新用户
             elif request.form.get('username', '') != '':
                 admin_add_new_user(request=request, tmp_user=tmp_user)
-
                 return send_file('templates/admin.html')
 
             else:

@@ -21,9 +21,12 @@ def long_invest_principal_add_interest(principal, interest, day, every_month_add
         if index % 30 == 0:     # 每月定投
             tmp_principal += every_month_add_money
 
+        if tmp_principal > 50000:
+            interest = 0.114
+
         profit = tmp_principal * interest / 365
         tmp_principal += profit
-        # print('第{0}天本金加利息: {1}'.format(index, tmp_principal))
+        # print('第{0}天本金加利息: {1}, 日盈利: {2}'.format(index, round(tmp_principal, 2), round(profit, 2)))
 
     return tmp_principal
 

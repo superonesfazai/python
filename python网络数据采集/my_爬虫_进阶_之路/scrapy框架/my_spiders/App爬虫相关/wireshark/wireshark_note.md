@@ -86,13 +86,13 @@ dns有两条报文, 一条是query报文, 一条是response报文
 （4）传输层TCP数据段头部信息
 ```
     Transmission Control Protocol, Src Port: 51833 (51833), Dst Port: http (80), Seq: 1, Ack: 1, Len: 214
-    Source port: 51833 (51833)                                                                                 #源端口号
-    Destination port: http (80)                                                                             #目标端口号
-    Sequence number: 1    (relative sequence number)                                   #序列号（相对序列号）
-    [Next sequence number: 215    (relative sequence number)]           #下一个序列号
-    Acknowledgment number: 1    (relative ack number)                         #确认序列号
-    Header length: 20 bytes                                                                               #头部长度
-    Flags: 0x018 (PSH, ACK)                                                                             #TCP标记字段
-    Window size value: 64800                                                                                    #流量控制的窗口大小
-    Checksum: 0x677e [validation disabled]                                                  #TCP数据段的校验和
+    Source port: 51833 (51833)                                                                            #源端口号
+    Destination port: http (80)                                                                           #目标端口号
+    Sequence number: 1    (relative sequence number)                                    #序列号（相对序列号）
+    [Next sequence number: 215    (relative sequence number)]                           #下一个序列号
+    Acknowledgment number: 1    (relative ack number)                                   #确认序列号
+    Header length: 20 bytes                                                             #头部长度
+    Flags: 0x018 (PSH, ACK)                                                             #TCP标记字段
+    Window size value: 64800                                                            #流量控制的窗口大小
+    Checksum: 0x677e [validation disabled]                                              #TCP数据段的校验和
 ```

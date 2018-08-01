@@ -18,15 +18,11 @@ from fzutils.sql_utils import pretty_table
 
 _ = SqlServerMyPageInfoSaveItemPipeline()
 sql_str = '''
-select top 20 ID as id, UserName as user_name, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange
+select top 20 ID id, UserName as user_name, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange
 from dbo.GoodsInfoAutoGet
-where GETDATE()-CreateTime < 1
+where GETDATE()-CreateTime < 1 and UserName != '18698570079'
 order by ID desc;
 '''
-# sql_str = 'select count(*) from dbo.daren_recommend where site_id=3'
-# result = _._select_table(sql_str=sql_str, params=None)
-# pprint(result)
-# print(result)
 pretty_table(cursor=_._get_one_select_cursor(sql_str=sql_str, params=None))
 
 # 更新
