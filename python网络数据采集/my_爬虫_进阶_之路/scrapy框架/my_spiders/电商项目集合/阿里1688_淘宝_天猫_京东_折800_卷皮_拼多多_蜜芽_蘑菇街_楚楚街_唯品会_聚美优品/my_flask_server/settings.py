@@ -155,6 +155,11 @@ JUMEIYOUPIN_PINTUAN_API_TIMEOUT = 2       # 拼团单页面商品 异步抓取�
 JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT = 3       # 拼团商品页面 异步抓取的timeout
 
 """
+考拉
+"""
+
+
+"""
 超级管理员账户名密码
 """
 ADMIN_NAME = 'yiuxiu_admin'
@@ -217,6 +222,7 @@ ZHE_800_SPIDER_TO_SHOW_PATH = 'templates/zhe_800_spider_to_show.html'
 JUANPI_SPIDER_TO_SHOW_PATH = 'templates/juanpi_spider_to_show.html'
 PINDUODUO_SPIDER_TO_SHOW_PATH = 'templates/pinduoduo_spider_to_show.html'
 VIP_SPIDER_TO_SHOW_PATH = 'templates/vip_spider_to_show.html'
+KAOLA_SPIDER_2_SHOW_PATH = 'templates/kaola_spider_2_show.html'
 
 """
 headers

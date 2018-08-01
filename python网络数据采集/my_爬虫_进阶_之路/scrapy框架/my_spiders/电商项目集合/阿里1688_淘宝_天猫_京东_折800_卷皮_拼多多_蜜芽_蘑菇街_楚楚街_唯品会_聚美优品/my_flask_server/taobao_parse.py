@@ -350,8 +350,13 @@ class TaoBaoLoginAndParse(object):
         tmp['all_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except Exception:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
+            return
+
         tmp['price_info'] = []  # 价格信息
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
@@ -416,8 +421,13 @@ class TaoBaoLoginAndParse(object):
         tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except Exception:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
+            return
+
         tmp['price_info'] = []  # 价格信息
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
@@ -804,8 +814,12 @@ class TaoBaoLoginAndParse(object):
         tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except Exception:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
+            return
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
 
@@ -884,8 +898,12 @@ class TaoBaoLoginAndParse(object):
         tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except Exception:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
+            return
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
 
@@ -953,8 +971,12 @@ class TaoBaoLoginAndParse(object):
         tmp['month_sell_count'] = data_list['sell_count']  # 月销量
 
         # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        try:
+            tmp['price'] = Decimal(data_list['price']).__round__(2)
+            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+        except Exception:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
+            return
 
         tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
 

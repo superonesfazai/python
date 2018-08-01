@@ -13,6 +13,7 @@ __all__ = [
     '_get_url_contain_params',                              # 根据params组合得到包含params的url
     'tuple_or_list_params_2_dict_params',                   # tuple和list类型的params转dict类型的params
     'str_cookies_2_dict',                                   # cookies字符串转dict
+    'dict_cookies_2_str',                                   # dict类型cookies转str
 
     # chrome下抓包后, requests处理相关
     'chrome_copy_requests_header_2_dict_headers',           # 将直接从chrome复制的Request Headers转换为dict的headers
@@ -189,3 +190,14 @@ def get_base_headers():
         'user-agent': get_random_pc_ua(),
         'accept': '*/*'
     }
+
+def dict_cookies_2_str(dict_cookies):
+    '''
+    dict类型cookies转str
+    :param dict_cookies:
+    :return:
+    '''
+    cookie = [str(key) + "=" + str(value) for key, value in dict_cookies.items()]
+    str_cookies = ';'.join(item for item in cookie)
+
+    return str_cookies

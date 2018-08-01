@@ -85,6 +85,16 @@ install_requires = [
     'pyexcel-xlsx',
     'fabric',
     'shadowsocks',
+    'pycurl==7.43.0.1',
+    'furl',
+    'yarl',
+    'prettytable',
+    'xlrd',
+    'pandas',
+    'jieba',
+    'geopandas',
+    'scikit-image',
+    'wordcloud',            # 词云
 ]
 
 classifiers = [
@@ -101,7 +111,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.1.0.3",
+    version="0.0.1.0.5",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",

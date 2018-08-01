@@ -80,7 +80,7 @@ def upload_or_download_files(method, connect_object:Connection, local_file_path,
             print(e)
             print('[-] 上传 {0} 到server失败!'.format(local_file_name))
 
-    elif method == 'get':   # TODO 此处get有问题, 先不使用
+    elif method == 'get':
         try:
             connect_object.get(remote=remote_file_path, local=local_file_path)
             print('[+] 下载 {0} 到本地成功!'.format(remote_file_name))

@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.kaola{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.kaola span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -70,7 +70,11 @@
 	.pinduoduo span{
 		background: url(../static/images/pingduoduo.jpg)no-repeat;	
 		background-size: 100% 100%;			
-	}	
+	}
+    .kaola span{
+        background: url(../static/images/kaola.jpg)no-repeat;
+        background-size: 100% 100%;
+    }
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -90,6 +94,9 @@
 		display: block;
 	}	
 	.pinduoduo span:hover .login-btn{
+		display: block;
+	}
+    .kaola span:hover .login-btn{
 		display: block;
 	}
 	.login-btn{
@@ -206,6 +213,13 @@
     		<div class="jd passListItem">
     			<span>
     				<a class="login-btn" href="/show_jd" target="_blank">
+						请点击登录
+    				</a>
+    			</span>
+    		</div>
+            <div class="kaola passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_kaola" target="_blank">
 						请点击登录
     				</a>
     			</span>
@@ -348,7 +362,17 @@
 							confirm_login:'pinduoduo_login'
 						}
 					});
-				})                
+				});
+                $('.login-btn').eq(7).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'kaola_login'
+						}
+					});
+				})
 //			for(var i=0;i<passListItem.length;i++){
 //				passListItem[i].index = i;
 //				passListItem[i].onmouseover=function(){
