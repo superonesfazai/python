@@ -238,5 +238,11 @@ $ docker logs [container ID or NAMES]
 
 ## 安装Caffeine
 
+## 安装xcode(也可不装, 通过共享wifi)
+```
+# 用于wireshark抓包iphone
+rvictl -s [uuid]
+```
+
 ## 安装网易云音乐
 https://music.163.com/#/download

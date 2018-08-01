@@ -1140,6 +1140,8 @@ class TaoBaoLoginAndParse(object):
         body = re.compile(ad).sub('', body, count=1)     # count=0 表示全部匹配，count=1 表示只匹配第一个
         # self.my_lg.info(str(body))
 
+        body = re.compile('<a href=\".*?\" target').sub('<a href="" target', body)     # 防止外链跳转
+
         return body
 
     def get_goods_id_from_url(self, taobao_url):

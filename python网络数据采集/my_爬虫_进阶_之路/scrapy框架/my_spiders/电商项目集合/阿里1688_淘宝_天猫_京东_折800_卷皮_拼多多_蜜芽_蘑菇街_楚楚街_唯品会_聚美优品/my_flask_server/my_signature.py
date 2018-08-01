@@ -8,12 +8,11 @@
 '''
 
 """
-    Signature
+    Signature by super_fazai
     ~~~~~~~~~~~~~~
 
     Api签名认证
 """
-
 
 from functools import wraps
 from flask import request, jsonify
@@ -25,7 +24,6 @@ from fzutils.time_utils import (
     datetime_to_timestamp,
     timestamp_to_regulartime,
 )
-
 
 md5 = lambda pwd: hashlib.md5(pwd).hexdigest()
 

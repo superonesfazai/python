@@ -19,7 +19,6 @@ from logging import (
 )
 from pprint import pprint
 
-from my_items import GoodsItem
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,)
@@ -458,7 +457,6 @@ class WYKaoLaParse(object):
                 })
 
         return price_info_list
-
 
     def _get_sku_info(self, data):
         '''

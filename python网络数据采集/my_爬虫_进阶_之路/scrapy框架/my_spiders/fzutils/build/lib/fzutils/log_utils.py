@@ -53,12 +53,3 @@ def set_logger(log_file_name, console_log_level=logging.DEBUG, file_log_level=lo
     # logger.info('hello world, i\'m log helper in python, may i help you')
 
     return logger
-
-# log_file_name = './logs/my_log.txt'
-# lg = set_logger(log_file_name=log_file_name)
-#
-# try:
-#     1/0
-# except Exception as e:
-#     # lg.error(e, exc_info=False)
-#     lg.exception(e)
