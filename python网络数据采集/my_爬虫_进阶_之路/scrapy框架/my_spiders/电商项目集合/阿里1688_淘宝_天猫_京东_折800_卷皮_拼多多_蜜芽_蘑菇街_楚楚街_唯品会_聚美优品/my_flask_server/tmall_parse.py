@@ -11,8 +11,6 @@
 tmall爬虫能对应爬取解析对象为: (天猫, 天猫超市, 天猫国际)
 """
 
-import time
-from random import randint
 import json
 import re
 from pprint import pprint

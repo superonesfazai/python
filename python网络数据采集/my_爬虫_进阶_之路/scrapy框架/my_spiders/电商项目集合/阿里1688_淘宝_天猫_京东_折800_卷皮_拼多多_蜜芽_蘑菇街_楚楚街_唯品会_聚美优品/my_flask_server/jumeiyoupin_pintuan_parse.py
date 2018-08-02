@@ -12,9 +12,7 @@
 """
 
 import json
-import re
 from pprint import pprint
-from decimal import Decimal
 from json import dumps
 from time import sleep
 import re
@@ -32,10 +30,8 @@ from my_aiohttp import MyAiohttp
 from logging import INFO, ERROR
 import pytz, datetime
 
-from high_reuse_code import _get_right_model_data
-
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 

@@ -24,8 +24,7 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,)
 
-from high_reuse_code import _get_right_model_data
-
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import MyRequests
 # from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.common_utils import (

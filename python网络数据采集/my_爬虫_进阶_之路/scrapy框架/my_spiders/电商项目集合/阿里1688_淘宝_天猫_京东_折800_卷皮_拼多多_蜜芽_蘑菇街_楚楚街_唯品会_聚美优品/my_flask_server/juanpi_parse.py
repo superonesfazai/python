@@ -13,23 +13,17 @@
 
 import time
 import json
-import re
 from pprint import pprint
-from decimal import Decimal
 from json import dumps
 from time import sleep
-import datetime
 import re
 import gc
 
 from settings import PHANTOMJS_DRIVER_PATH
-from my_items import GoodsItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from high_reuse_code import _get_right_model_data
-
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
-    get_shanghai_time,
     timestamp_to_regulartime,
 )
 from fzutils.internet_utils import get_random_pc_ua

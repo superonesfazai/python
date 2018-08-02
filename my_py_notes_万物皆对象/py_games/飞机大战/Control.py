@@ -10,7 +10,9 @@ from pygame.locals import *
 # from . import Laser
 # from . import settings
 import Laser
-import settings
+from settings import (
+    bg,
+)
 
 class Control():
     def key_control(hero):
@@ -47,7 +49,7 @@ class Control():
                 move_x, move_y = 0, 0
 
             # screen.fill((0, 0, 0))
-            settings.screen.blit(bg, (0, 0))
+            screen.blit(bg, (0, 0))
             hero.display()
             # print(hero.hero_x, ' ', hero.hero_y)
             pygame.display.update()

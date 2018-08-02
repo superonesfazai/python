@@ -21,8 +21,7 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 
-from high_reuse_code import _get_right_model_data
-
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 

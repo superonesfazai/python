@@ -88,8 +88,7 @@ except Exception as e:
 
 import gc
 
-from high_reuse_code import _get_right_model_data
-
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,

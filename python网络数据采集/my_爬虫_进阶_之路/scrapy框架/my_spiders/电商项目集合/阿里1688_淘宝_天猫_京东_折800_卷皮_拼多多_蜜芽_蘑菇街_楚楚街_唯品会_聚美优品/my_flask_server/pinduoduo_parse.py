@@ -19,19 +19,14 @@ import json
 import requests
 import re
 from pprint import pprint
-from decimal import Decimal
 from time import sleep
-import datetime
 import re
 import gc
-import pytz
 from json import dumps
 
 from settings import PHANTOMJS_DRIVER_PATH
-from my_items import GoodsItem
 
-from high_reuse_code import _get_right_model_data
-from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs

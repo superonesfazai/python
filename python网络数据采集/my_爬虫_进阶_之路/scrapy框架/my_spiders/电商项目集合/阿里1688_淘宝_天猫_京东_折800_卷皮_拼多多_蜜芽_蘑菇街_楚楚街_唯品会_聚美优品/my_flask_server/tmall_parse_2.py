@@ -7,28 +7,24 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import time, requests
+import time
 from random import randint
 import json
-import re, execjs
+import re
 from pprint import pprint
-from decimal import Decimal
 from json import dumps
 from time import sleep
 import gc
 from scrapy.selector import Selector
 
 from settings import PHANTOMJS_DRIVER_PATH, MY_SPIDER_LOGS_PATH
-from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
 from logging import INFO, ERROR
 from requests.exceptions import ProxyError
 from urllib.parse import urlencode
 
 from taobao_parse import TaoBaoLoginAndParse
-from my_items import GoodsItem
 
-from high_reuse_code import _get_right_model_data
-
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params

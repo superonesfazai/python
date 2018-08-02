@@ -16,13 +16,9 @@ from settings import (
     CHROME_DRIVER_PATH,
 )
 
-from random import randint
-import json, re, time
+import json, re
 from time import sleep
-from decimal import Decimal
-import datetime
 import gc
-import pytz
 from pprint import pprint
 from json import dumps
 
@@ -33,11 +29,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
 from scrapy.selector import Selector
-from my_items import GoodsItem
 
-from high_reuse_code import _get_right_model_data
-
-from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.ip_pools import MyIpPools

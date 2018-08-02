@@ -11,8 +11,6 @@
 楚楚街9.9, 29.9, 49.9元商品页面解析系统
 """
 
-import json
-import requests
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -23,9 +21,7 @@ from scrapy.selector import Selector
 from json import dumps
 from settings import PHANTOMJS_DRIVER_PATH
 
-from high_reuse_code import _get_right_model_data
-
-from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 

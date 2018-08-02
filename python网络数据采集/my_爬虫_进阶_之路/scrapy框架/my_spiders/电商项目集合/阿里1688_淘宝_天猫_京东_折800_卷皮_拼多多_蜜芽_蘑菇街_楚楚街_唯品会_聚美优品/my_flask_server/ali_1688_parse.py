@@ -12,17 +12,14 @@ import re
 import gc
 from time import sleep
 import json
-import datetime
 from decimal import Decimal
 from json import dumps
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from scrapy.selector import Selector
-from my_items import GoodsItem
 from settings import PHANTOMJS_DRIVER_PATH
 
-from high_reuse_code import _get_right_model_data
-from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 
@@ -157,7 +154,6 @@ class ALi1688LoginAndParse(object):
         if data != {}:
             # 公司名称
             company_name = data.get('companyName', '')
-            # 商品名称
             title = self._wash_sensitive_words(data.get('subject', ''))
             # 卖家姓名
             link_name = ''
@@ -181,18 +177,16 @@ class ALi1688LoginAndParse(object):
                 self.result_data = {}
                 return {}
 
-            # 最高价和最低价
             price, taobao_price = self._get_price(price_info=price_info)
 
-            # 所有示例图片地址
             all_img_url = self._get_all_img_url(data=data)
             # pprint(all_img_url)
 
-            # 详细信息的标签名, 及其对应的值
+            # 即: p_info
             property_info = self._get_p_info(data=data)
             # pprint(property_info)
 
-            # 下方详细div块
+            # 即: div_desc
             detail_info_url = data.get('detailUrl')
             if detail_info_url is not None:
                 # print(detail_info_url)

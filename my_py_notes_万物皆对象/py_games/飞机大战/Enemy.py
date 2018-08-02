@@ -7,7 +7,7 @@ __author__ = 'super_fazai'
 
 import pygame
 from random import randint
-import settings
+from settings import bg
 
 class Enemy():
     def __init__(self, screen):
@@ -20,7 +20,7 @@ class Enemy():
     def display(self):
         click = pygame.time.Clock()
         while True:
-            self.screen.blit(settings.bg, (0, 0))
+            self.screen.blit(bg, (0, 0))
             self.screen.blit(self.image, (self.enemy_x, self.enemy_y))
 
             time_passed = click.tick()

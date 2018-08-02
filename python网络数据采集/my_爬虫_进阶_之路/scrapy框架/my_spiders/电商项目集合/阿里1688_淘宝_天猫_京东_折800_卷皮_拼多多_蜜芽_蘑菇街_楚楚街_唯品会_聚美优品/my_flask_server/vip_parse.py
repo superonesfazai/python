@@ -15,20 +15,14 @@ import time
 from random import randint
 import json
 from pprint import pprint
-from decimal import Decimal
 from time import sleep
-import datetime
 import re
 import gc
-import pytz
 from scrapy import Selector
-from json import loads, dumps
+from json import dumps
 
-from my_items import GoodsItem
-
-from high_reuse_code import _get_right_model_data
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
-    get_shanghai_time,
     timestamp_to_regulartime,
 )
 from fzutils.internet_utils import get_random_pc_ua

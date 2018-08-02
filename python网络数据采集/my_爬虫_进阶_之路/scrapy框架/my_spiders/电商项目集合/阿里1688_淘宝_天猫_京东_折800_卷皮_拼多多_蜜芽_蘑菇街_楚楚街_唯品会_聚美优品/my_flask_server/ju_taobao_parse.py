@@ -13,7 +13,6 @@ import json
 import requests
 import re
 from pprint import pprint
-from decimal import Decimal
 # from selenium import webdriver
 # from selenium.webdriver.common.by import By
 # from selenium.webdriver.support.wait import WebDriverWait
@@ -25,7 +24,6 @@ from decimal import Decimal
 # from urllib.request import urlopen
 # from PIL import Image
 from time import sleep
-import datetime
 import gc
 # import pycurl
 # from io import StringIO
@@ -33,7 +31,6 @@ import gc
 # from io import BytesIO
 
 from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
-import pytz
 
 from fzutils.internet_utils import get_random_pc_ua
 

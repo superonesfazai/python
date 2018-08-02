@@ -95,6 +95,7 @@ install_requires = [
     'geopandas',
     'scikit-image',
     'wordcloud',            # 词云
+    'pygame',
 ]
 
 classifiers = [
@@ -111,7 +112,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.1.0.6",
+    version="0.0.1.0.7",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",

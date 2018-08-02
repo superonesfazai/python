@@ -19,9 +19,7 @@ import gc
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from high_reuse_code import _get_right_model_data
-
-from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import MyRequests
 
 class MoGuJieMiaoShaParse(MoGuJieParse):
@@ -276,6 +274,9 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 return mogujie_url
             else:
                 return ''
+
+    def __del__(self):
+        gc.collect()
 
 if __name__ == '__main__':
     mogujie_miaosha = MoGuJieMiaoShaParse()

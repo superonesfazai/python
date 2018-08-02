@@ -11,22 +11,16 @@
 蜜芽页面采集系统
 """
 
-import time
-from random import randint
 import json
-import re
 from pprint import pprint
 from decimal import Decimal
 from time import sleep
-import datetime
 import re
 import gc
-import pytz
 from scrapy import Selector
 from json import dumps
 
-from high_reuse_code import _get_right_model_data
-from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 
