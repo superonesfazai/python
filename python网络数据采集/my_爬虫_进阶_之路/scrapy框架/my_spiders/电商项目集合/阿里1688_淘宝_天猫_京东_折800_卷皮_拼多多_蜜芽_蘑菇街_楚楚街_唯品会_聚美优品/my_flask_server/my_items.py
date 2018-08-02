@@ -62,7 +62,6 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     spider_time = Field()           # 未知
     session_id = Field()            # 未知
 
-
 class CommentItem(Item):
     """
     评论关系对象
