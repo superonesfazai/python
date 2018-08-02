@@ -35,6 +35,8 @@ from selenium.common.exceptions import WebDriverException
 from scrapy.selector import Selector
 from my_items import GoodsItem
 
+from high_reuse_code import _get_right_model_data
+
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
@@ -653,44 +655,8 @@ class JdParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = GoodsItem()
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        tmp['shelf_time'] = data_list.get('shelf_time', '')
-        tmp['delete_time'] = data_list.get('delete_time', '')
-
-        tmp['is_price_change'] = data_list.get('_is_price_change')
-        tmp['price_change_info'] = data_list.get('_price_change_info')
+        site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
+        tmp = _get_right_model_data(data=data, site_id=site_id)
 
         params = self.get_db_update_params(item=tmp)
         # 改价格的sql语句
@@ -707,47 +673,12 @@ class JdParse(object):
         pipeline._update_table(sql_str=sql_str, params=params)
 
     def insert_into_jd_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['spider_url']  # 商品地址
-        tmp['username'] = data_list['username']  # 操作人员username
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['site_id'] = self._from_jd_type_get_site_id_value(jd_type=data_list.get('jd_type'))
-        if tmp.get('site_id', 0) == 0:
+        site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
+        if site_id == 0:
             print('site_id获取异常, 请检查!')
             return False
 
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
+        tmp = _get_right_model_data(data=data, site_id=site_id)
 
         # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
@@ -763,47 +694,12 @@ class JdParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['main_goods_id'] = data_list.get('main_goods_id')
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['goods_url']  # 商品地址
-        tmp['username'] = data_list['username']  # 操作人员username
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['all_sell_count'] = data_list['all_sell_count']  # 总销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['site_id'] = self._from_jd_type_get_site_id_value(jd_type=data_list.get('jd_type'))
-        if tmp.get('site_id', 0) == 0:
+        site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
+        if site_id == 0:
             print('site_id获取异常, 请检查!')
             return False
 
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
+        tmp = _get_right_model_data(data=data, site_id=site_id)
 
         # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
@@ -827,9 +723,9 @@ class JdParse(object):
         '''
         params = [
             item['goods_id'],
-            item['spider_url'],
+            item['goods_url'],
             item['username'],
-            item['deal_with_time'],
+            item['create_time'],
             item['modify_time'],
             item['shop_name'],
             item['account'],

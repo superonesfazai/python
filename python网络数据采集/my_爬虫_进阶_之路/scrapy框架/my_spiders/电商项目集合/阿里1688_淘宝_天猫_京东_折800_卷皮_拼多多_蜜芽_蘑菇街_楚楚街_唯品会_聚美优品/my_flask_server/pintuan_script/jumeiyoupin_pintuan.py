@@ -104,6 +104,9 @@ class JuMeiYouPinPinTuan(object):
                         goods_list.append(item)
                 # await asyncio.sleep(.5)
 
+            #     break
+            # break
+
         try: del my_phantomjs
         except: pass
         self.my_lg.info(str(goods_list))

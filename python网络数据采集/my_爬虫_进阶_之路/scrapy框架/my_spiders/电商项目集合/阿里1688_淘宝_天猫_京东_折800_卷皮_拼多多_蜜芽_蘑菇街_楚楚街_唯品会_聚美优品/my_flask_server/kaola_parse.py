@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : wy_kaola_parse.py
+@File    : kaola_parse.py
 @Time    : 2018/7/27 14:18
 @connect : superonesfazai@gmail.com
 '''
@@ -18,10 +18,13 @@ from logging import (
     ERROR,
 )
 from pprint import pprint
+from json import dumps
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,)
+
+from high_reuse_code import _get_right_model_data
 
 from fzutils.spider.fz_requests import MyRequests
 # from fzutils.spider.fz_phantomjs import MyPhantomjs
@@ -39,9 +42,9 @@ from fzutils.time_utils import (
     string_to_datetime,
 )
 
-class WYKaoLaParse(object):
+class KaoLaParse(object):
     def __init__(self, logger=None):
-        super(WYKaoLaParse, self).__init__()
+        super(KaoLaParse, self).__init__()
         self.result_data = {}
         self._set_logger(logger)
         self._set_headers()
@@ -237,7 +240,7 @@ class WYKaoLaParse(object):
                 'all_sell_count': all_sell_count,           # 销售总量
                 'is_delete': is_delete                      # 是否下架
             }
-            pprint(result)
+            # pprint(result)
             # print(result)
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -253,6 +256,64 @@ class WYKaoLaParse(object):
             self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
+
+    def to_right_and_update_data(self, data, pipeline):
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        tmp = _get_right_model_data(data, site_id=29, logger=self.my_lg)
+
+        params = self._get_db_update_params(item=tmp)
+        if tmp['delete_time'] == '':
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s where GoodsID = %s'
+        elif tmp['shelf_time'] == '':
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, delete_time=%s where GoodsID = %s'
+        else:
+            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s, delete_time=%s where GoodsID = %s'
+
+        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+    def _get_db_update_params(self, item):
+        '''
+        得到db待更新的params
+        :param item:
+        :return:
+        '''
+        params = [
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            # item['delete_time'],
+            item['is_delete'],
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
+
+        return tuple(params)
 
     def _get_pc_goods_body(self, url, goods_id):
         '''
@@ -698,7 +759,7 @@ class WYKaoLaParse(object):
         gc.collect()
 
 if __name__ == '__main__':
-    kaola = WYKaoLaParse()
+    kaola = KaoLaParse()
     while True:
         kaola_url = input('请输入待爬取的考拉商品地址: ')
         kaola_url.strip('\n').strip(';')

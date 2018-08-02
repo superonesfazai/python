@@ -21,6 +21,7 @@ from scrapy.selector import Selector
 from my_items import GoodsItem
 from settings import PHANTOMJS_DRIVER_PATH
 
+from high_reuse_code import _get_right_model_data
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
@@ -238,52 +239,7 @@ class ALi1688LoginAndParse(object):
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
-        data_list = data
-        tmp = GoodsItem()
-
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        # tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['company_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['link_name'] = data_list['link_name']  # 卖家姓名
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['price_info'] = data_list['price_info']  # 价格信息
-        # print(tmp['price'], print(tmp['taobao_price']))
-        # print(tmp['price_info'])
-
-        spec_name = []
-        for item in data_list['sku_props']:
-            tmp_dic = {}
-            tmp_dic['spec_name'] = item.get('prop')
-            spec_name.append(tmp_dic)
-
-        tmp['detail_name_list'] = spec_name  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('property_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('detail_info')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')
-
-        tmp['delete_time'] = data_list.get('delete_time', '')
-        tmp['shelf_time'] = data_list.get('shelf_time', '')
-
-        tmp['is_price_change'] = data_list.get('_is_price_change')
-        tmp['price_change_info'] = data_list.get('_price_change_info')
+        tmp = _get_right_model_data(data=data, site_id=2)
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         params = self._get_db_update_params(item=tmp)
@@ -639,49 +595,7 @@ class ALi1688LoginAndParse(object):
         return result
 
     def old_ali_1688_goods_insert_into_new_table(self, data, pipeline):
-        data_list = data
-        tmp = GoodsItem()
-        tmp['main_goods_id'] = data_list.get('main_goods_id')
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['goods_url'] = data_list['goods_url']
-        tmp['username'] = data_list['username']
-
-        now_time = get_shanghai_time()
-        tmp['create_time'] = now_time  # 操作时间
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['company_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['link_name'] = data_list['link_name']  # 卖家姓名
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['price_info'] = data_list['price_info']  # 价格信息
-        # print(tmp['price'], print(tmp['taobao_price']))
-        # print(tmp['price_info'])
-
-        spec_name = []
-        for item in data_list['sku_props']:
-            tmp_dic = {}
-            tmp_dic['spec_name'] = item.get('prop')
-            spec_name.append(tmp_dic)
-        tmp['detail_name_list'] = spec_name  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('sku_map')  # 每个规格对应价格及其库存
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-        tmp['p_info'] = data_list.get('property_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('detail_info')  # 下方div
-
-        tmp['site_id'] = 2      # 阿里1688
-        tmp['is_delete'] = data_list['is_delete']
-
-        # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
-        # tmp['delete_time'] = data_list.get('delete_time')
+        tmp = _get_right_model_data(data=data, site_id=2)
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         params = self._get_db_insert_params(item=tmp)

@@ -34,7 +34,7 @@ from zhe_800_parse import Zhe800Parse
 from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
-from wy_kaola_parse import WYKaoLaParse
+from kaola_parse import KaoLaParse
 
 from settings import (
     ALi_SPIDER_TO_SHOW_PATH,
@@ -87,6 +87,8 @@ except Exception as e:
     from gevent.pywsgi import WSGIServer
 
 import gc
+
+from high_reuse_code import _get_right_model_data
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -1071,7 +1073,7 @@ def _deal_with_tb_goods(goods_link):
     else:
         pass
 
-    data = _get_right_model_data(data=data, site_id=1)
+    data = _get_right_model_data(data=data, site_id=1, logger=my_lg)
     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
     my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
 
@@ -1360,7 +1362,7 @@ def _deal_with_tm_goods(goods_link):
     site_id = _._from_tmall_type_get_site_id(type=data.get('type'))
     try: del _
     except: pass
-    data = _get_right_model_data(data=data, site_id=site_id)
+    data = _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
     my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
 
@@ -1626,7 +1628,7 @@ def _deal_with_jd_goods(goods_link):
         pass
 
     site_id = _from_jd_type_get_site_id(type=data.get('jd_type'))
-    data = _get_right_model_data(data=data, site_id=site_id)
+    data = _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
     my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
 
@@ -2557,7 +2559,7 @@ def get_one_kaola_data(**kwargs):
     username = kwargs.get('username', '18698570079')
     wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
 
-    kaola = WYKaoLaParse(logger=my_lg)
+    kaola = KaoLaParse(logger=my_lg)
     goods_id = kaola.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
     if goods_id == '':  # 如果得不到goods_id, 则return error
         my_lg.info('获取到的goods_id为空!')
@@ -3012,36 +3014,36 @@ def get_who_right_data(**kwargs):
     data = kwargs.get('data_list')
 
     if type == 'ali':
-        return _get_right_model_data(data=data, site_id=2)
+        return _get_right_model_data(data=data, site_id=2, logger=my_lg)
 
     elif type == 'taobao':
-        return _get_right_model_data(data=data, site_id=1)
+        return _get_right_model_data(data=data, site_id=1, logger=my_lg)
 
     elif type == 'tmall':
         _ = TmallParse(logger=my_lg)
         site_id = _._from_tmall_type_get_site_id(type=data.get('type'))
         try:del _
         except:pass
-        return _get_right_model_data(data=data, site_id=site_id)
+        return _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
 
     elif type == 'jd':
         site_id = _from_jd_type_get_site_id(type=data.get('jd_type'))
-        return _get_right_model_data(data=data, site_id=site_id)
+        return _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
 
     elif type == 'zhe_800':
-        return _get_right_model_data(data=data, site_id=11)
+        return _get_right_model_data(data=data, site_id=11, logger=my_lg)
 
     elif type == 'juanpi':
-        return _get_right_model_data(data=data, site_id=12)
+        return _get_right_model_data(data=data, site_id=12, logger=my_lg)
 
     elif type == 'pinduoduo':
-        return _get_right_model_data(data=data, site_id=13)
+        return _get_right_model_data(data=data, site_id=13, logger=my_lg)
 
     elif type == 'vip':
-        return _get_right_model_data(data=data, site_id=25)
+        return _get_right_model_data(data=data, site_id=25, logger=my_lg)
     
     elif type == 'kaola':
-        return _get_right_model_data(data=data, site_id=29)
+        return _get_right_model_data(data=data, site_id=29, logger=my_lg)
     
     else:
         return {}
@@ -3210,86 +3212,6 @@ def is_login(**kwargs):
         return True
     else:
         return False
-
-def _get_right_model_data(data, site_id=None):
-    '''
-    得到规范化的数据
-    :param data:
-    :return:
-    '''
-    data_list = data
-    tmp = GoodsItem()
-    tmp['goods_id'] = data_list['goods_id']     # 官方商品id
-    tmp['goods_url'] = data_list['spider_url']  # 商品地址
-    tmp['username'] = data_list['username']     # 操作人员username
-
-    now_time = get_shanghai_time()
-    tmp['create_time'] = now_time               # 操作时间
-    tmp['modify_time'] = now_time               # 修改时间
-
-    if site_id is not None:
-        # 采集的来源地
-        tmp['site_id'] = site_id                # 采集来源地
-    else:
-        my_lg.error('site_id赋值异常!请检查!出错地址:{0}'.format(tmp['goods_url']))
-        raise ValueError('site_id赋值异常!')
-
-    if site_id == 2:
-        tmp['shop_name'] = data_list['company_name']
-    else:
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-
-    tmp['title'] = data_list['title']  # 商品名称
-    tmp['sub_title'] = data_list['sub_title'] if data_list.get('sub_title') is not None else '' # 商品子标题
-
-    tmp['link_name'] = data_list['link_name'] if data_list.get('link_name') is not None else '' # 卖家姓名
-    tmp['account'] = data_list['account'] if data_list.get('account') is not None else '' # 掌柜名称
-
-    if data_list.get('all_sell_count') is not None:
-        tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
-    elif data_list.get('sell_count') is not None:
-        tmp['all_sell_count'] = str(data_list['sell_count'])        # 淘宝, 天猫月销量
-    else:
-        tmp['all_sell_count'] = ''
-
-    # 设置最高价price， 最低价taobao_price
-    tmp['price'] = data_list['price'] if isinstance(data_list['price'], Decimal) else Decimal(data_list['price']).__round__(2)
-    tmp['taobao_price'] = data_list['taobao_price'] if isinstance(data_list['taobao_price'], Decimal) else Decimal(data_list['taobao_price']).__round__(2)
-    # 批发价
-    tmp['price_info'] = data_list['price_info'] if data_list.get('price_info') is not None else []  # 价格信息
-
-    if site_id == 2:
-        detail_name_list = []
-        for item in data_list['sku_props']:
-            detail_name_list.append({
-                'spec_name': item.get('prop'),
-            })
-        tmp['detail_name_list'] = detail_name_list
-    else:
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-    if site_id == 2:
-        tmp['price_info_list'] = data_list.get('sku_map')
-    else:
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-    if site_id == 2:
-        tmp['p_info'] = data_list.get('property_info')
-    else:
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-
-    if site_id == 2:
-        tmp['div_desc'] = data_list.get('detail_info')
-    else:
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-    tmp['schedule'] = data_list.get('schedule') if data_list.get('schedule') is not None else []
-
-    tmp['is_delete'] = data_list.get('is_delete') if data_list.get('is_delete') is not None else 0
-
-    return tmp
 
 ######################################################
 '''错误处理/成功处理'''

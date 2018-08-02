@@ -14,8 +14,6 @@
 import sys
 sys.path.append('..')
 
-import time
-from random import randint
 from json import dumps
 import json
 import re
@@ -23,11 +21,11 @@ from pprint import pprint
 from decimal import Decimal
 
 from time import sleep
-import datetime
 import gc
 
+from high_reuse_code import _get_right_model_data
+
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 
@@ -44,7 +42,7 @@ class MoGuJieParse(object):
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'm.mogujie.com',
-            'User-Agent': get_random_pc_ua()  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
     def get_goods_data(self, goods_id):
@@ -327,54 +325,11 @@ class MoGuJieParse(object):
             return {}
 
     def insert_into_mogujie_pintuan_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['goods_url']  # 商品地址
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=23)
         except:
             print('此处抓到的可能是蜜芽拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['pintuan_time'] = data_list.get('pintuan_time')
-        tmp['fcid'] = data_list.get('fcid')
-        tmp['page'] = data_list.get('page')
-        tmp['sort'] = data_list.get('sort')
-
-        # 采集的来源地
-        tmp['site_id'] = 23  # 采集来源地(蘑菇街拼团商品)
-
-        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
-        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
-        tmp['all_sell_count'] = data_list.get('all_sell_count')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -385,49 +340,11 @@ class MoGuJieParse(object):
         return _r
 
     def update_mogujie_pintuan_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=23)
         except:
             print('此处抓到的可能是蜜芽拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['pintuan_time'] = data_list.get('pintuan_time')
-
-        # 采集的来源地
-        # tmp['site_id'] = 23  # 采集来源地(蘑菇街拼团商品)
-
-        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
-        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
-        tmp['all_sell_count'] = data_list.get('all_sell_count')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -437,49 +354,11 @@ class MoGuJieParse(object):
         pipeline._update_table(sql_str=sql_str, params=params)
 
     def update_mogujie_pintuan_table_2(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=23)
         except:
             print('此处抓到的可能是蜜芽拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        # tmp['pintuan_time'] = data_list.get('pintuan_time')
-
-        # 采集的来源地
-        # tmp['site_id'] = 23  # 采集来源地(蘑菇街拼团商品)
-
-        # tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
-        # tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
-        # tmp['all_sell_count'] = data_list.get('all_sell_count')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -490,9 +369,9 @@ class MoGuJieParse(object):
     def _get_db_insert_pintuan_params(self, item):
         params = (
             item['goods_id'],
-            item['spider_url'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['goods_url'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -519,7 +398,7 @@ class MoGuJieParse(object):
 
     def _get_db_update_pintuan_params(self, item):
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -543,7 +422,7 @@ class MoGuJieParse(object):
 
     def _get_db_update_pintuan_params_2(self, item):
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],

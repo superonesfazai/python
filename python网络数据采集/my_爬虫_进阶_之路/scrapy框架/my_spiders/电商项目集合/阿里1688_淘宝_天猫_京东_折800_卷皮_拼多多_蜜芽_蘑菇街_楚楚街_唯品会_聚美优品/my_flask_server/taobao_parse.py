@@ -41,6 +41,7 @@ from my_items import GoodsItem
 from json import JSONDecodeError
 from urllib.parse import urlencode
 
+from high_reuse_code import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
@@ -335,52 +336,12 @@ class TaoBaoLoginAndParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = GoodsItem()
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['all_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
+        goods_id = data.get('goods_id')
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        except Exception:
-            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
-            return
-
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        # 采集的来源地
-        # tmp['site_id'] = 1  # 采集来源地(淘宝)
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        tmp['shelf_time'] = data_list.get('shelf_time', '')
-        tmp['delete_time'] = data_list.get('delete_time', '')
-
-        tmp['is_price_change'] = data_list.get('_is_price_change')
-        tmp['price_change_info'] = data_list.get('_price_change_info')
-
+            tmp = _get_right_model_data(data=data, site_id=1, logger=self.my_lg)
+        except:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(goods_id), exc_info=True)
+            return None
         params = self._get_db_update_params(item=tmp)
         # 改价格的sql
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
@@ -402,51 +363,12 @@ class TaoBaoLoginAndParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['main_goods_id'] = data_list.get('main_goods_id')
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['goods_url']
-        tmp['username'] = data_list['username']
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
+        goods_id = data.get('goods_id')
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        except Exception:
-            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
+            tmp = _get_right_model_data(data=data, site_id=1, logger=self.my_lg)
+        except:
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(goods_id), exc_info=True)
             return
-
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        # 采集的来源地
-        tmp['site_id'] = 1  # 采集来源地(淘宝)
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
-        # tmp['delete_time'] = data_list.get('delete_time')
-
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
             # main_goods_id不为空
@@ -468,10 +390,10 @@ class TaoBaoLoginAndParse(object):
         '''
         params = [
             item['goods_id'],
-            item['spider_url'],
+            item['goods_url'],
             item['username'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['account'],
             item['title'],
@@ -485,7 +407,7 @@ class TaoBaoLoginAndParse(object):
             dumps(item['all_img_url'], ensure_ascii=False),
             dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
             item['div_desc'],  # 存入到DetailInfo
-            item['month_sell_count'],
+            item['all_sell_count'],
 
             item['site_id'],
             item['is_delete'],

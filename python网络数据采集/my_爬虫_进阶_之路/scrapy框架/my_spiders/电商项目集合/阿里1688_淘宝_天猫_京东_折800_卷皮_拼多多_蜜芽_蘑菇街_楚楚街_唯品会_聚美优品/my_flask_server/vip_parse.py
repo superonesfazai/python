@@ -26,6 +26,7 @@ from json import loads, dumps
 
 from my_items import GoodsItem
 
+from high_reuse_code import _get_right_model_data
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -503,46 +504,7 @@ class VipParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = GoodsItem()
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        tmp['shelf_time'] = data_list.get('shelf_time', '')
-        tmp['delete_time'] = data_list.get('delete_time', '')
-        tmp['all_sell_count'] = str(data_list.get('all_sell_count'))
-
-        tmp['is_price_change'] = data_list.get('_is_price_change')
-        tmp['price_change_info'] = data_list.get('_price_change_info')
-
+        tmp = _get_right_model_data(data=data, site_id=25)
         params = self._get_db_update_params(item=tmp)
         # 改价格的sql
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'

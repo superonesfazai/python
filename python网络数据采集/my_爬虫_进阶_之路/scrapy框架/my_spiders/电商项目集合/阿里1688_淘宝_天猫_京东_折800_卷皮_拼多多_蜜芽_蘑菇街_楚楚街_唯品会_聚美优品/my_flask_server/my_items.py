@@ -42,11 +42,25 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     miaosha_time = Field()          # 秒杀时间段
     miaosha_begin_time = Field()    # 秒杀开始时间点
     miaosha_end_time = Field()      # 秒杀结束时间点
+    pintuan_time = Field()          # 拼团时间段
+    pintuan_begin_time = Field()    # 拼团开始时间点
+    pintuan_end_time = Field()      # 拼团结束时间点
     shelf_time = Field()            # 用来记录1->0的上架时间点
     delete_time = Field()           # 用来记录0->1的下架时间点
     is_price_change = Field()       # 记录最高价和最低价是否改变
     price_change_info = Field()     # 最高价最低价价格改变信息
     main_goods_id = Field()         # 公司商品id
+    gender = Field()                # 商品适用性别
+    page = Field()                  # 商品所在page的number
+    tab_id = Field()                # 商品所在分类tab_id
+    tab = Field()                   # tab
+    sort = Field()                  # 分类名
+    stock_info = Field()            # 商品在售库存, 秒杀里的
+    pid = Field()                   # 未知
+    event_time = Field()            # 未知
+    fcid = Field()                  # 未知
+    spider_time = Field()           # 未知
+    session_id = Field()            # 未知
 
 class CommentItem(Item):
     """

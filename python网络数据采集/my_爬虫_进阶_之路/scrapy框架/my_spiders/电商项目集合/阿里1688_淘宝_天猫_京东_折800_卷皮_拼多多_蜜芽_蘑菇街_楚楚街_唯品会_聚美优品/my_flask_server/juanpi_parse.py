@@ -26,6 +26,8 @@ from settings import PHANTOMJS_DRIVER_PATH
 from my_items import GoodsItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
+from high_reuse_code import _get_right_model_data
+
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -275,46 +277,7 @@ class JuanPiParse(object):
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
-        data_list = data
-        tmp = GoodsItem()
-
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        tmp['shelf_time'] = data_list.get('shelf_time', '')
-        tmp['delete_time'] = data_list.get('delete_time', '')
-
-        tmp['is_price_change'] = data_list.get('_is_price_change')
-        tmp['price_change_info'] = data_list.get('_price_change_info')
-
+        tmp = _get_right_model_data(data=data, site_id=12)
         params = self._get_db_update_params(item=tmp)
         # 改价格的sql语句
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
@@ -329,198 +292,45 @@ class JuanPiParse(object):
         pipeline._update_table(sql_str=sql_str, params=params)
 
     def insert_into_juanpi_xianshimiaosha_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['spider_url']  # 商品地址
-        tmp['username'] = data_list['username']  # 操作人员username
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['stock_info'] = data_list.get('stock_info')
-        tmp['miaosha_time'] = data_list.get('miaosha_time')
-        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
-        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
-        tmp['tab_id'] = data_list.get('tab_id')
-        tmp['page'] = data_list.get('page')
-
-        # 采集的来源地
-        tmp['site_id'] = 15  # 采集来源地(卷皮秒杀商品)
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
+        tmp = _get_right_model_data(data=data, site_id=15)
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = r'insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        sql_str = 'insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         pipeline._insert_into_table(sql_str=sql_str, params=params)
 
     def to_update_juanpi_xianshimiaosha_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['stock_info'] = data_list.get('stock_info')
-        tmp['miaosha_time'] = data_list.get('miaosha_time')
-        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
-        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
+        tmp = _get_right_model_data(data=data, site_id=15)
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = r'update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
+        sql_str = 'update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
         pipeline._update_table(sql_str=sql_str, params=params)
 
     def insert_into_juuanpi_pintuan_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['spider_url']  # 商品地址
-        tmp['username'] = data_list['username']  # 操作人员username
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        except:  # 此处抓到的可能是卷皮拼团券所以跳过
+            tmp = _get_right_model_data(data=data, site_id=18)
+        except:
             print('此处抓到的可能是卷皮拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-        tmp['all_sell_count'] = data_list.get('all_sell_count')  # 总销量
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
-        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
-        tmp['page'] = data_list.get('page')
-
-        # 采集的来源地
-        tmp['site_id'] = 18  # 采集来源地(卷皮拼团商品)
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_pintuan_params(item=tmp)
-        sql_str = r'insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        sql_str = 'insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         _r = pipeline._insert_into_table(sql_str=sql_str, params=params)
 
         return _r
 
     def to_right_and_update_pintuan_data(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        except:  # 此处抓到的可能是卷皮拼团券所以跳过
+            tmp = _get_right_model_data(data=data, site_id=18)
+        except:
             print('此处抓到的可能是卷皮拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-        # tmp['all_sell_count'] = data_list.get('all_sell_count')  # 总销量
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-
-        # 采集的来源地
-        # tmp['site_id'] = 18  # 采集来源地(卷皮拼团商品)
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
@@ -814,10 +624,10 @@ class JuanPiParse(object):
     def _get_db_insert_miaosha_params(self, item):
         params = (
             item['goods_id'],
-            item['spider_url'],
+            item['goods_url'],
             item['username'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -844,7 +654,7 @@ class JuanPiParse(object):
 
     def _get_db_update_miaosha_params(self, item):
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -870,10 +680,10 @@ class JuanPiParse(object):
     def _get_db_insert_pintuan_params(self, item):
         params = (
             item['goods_id'],
-            item['spider_url'],
+            item['goods_url'],
             item['username'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -898,7 +708,7 @@ class JuanPiParse(object):
 
     def _get_db_update_pintuan_params(self, item):
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],

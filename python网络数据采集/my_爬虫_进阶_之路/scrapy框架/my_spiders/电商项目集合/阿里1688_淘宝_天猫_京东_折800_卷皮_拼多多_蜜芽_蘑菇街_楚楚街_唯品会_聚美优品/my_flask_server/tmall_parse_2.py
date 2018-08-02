@@ -27,6 +27,8 @@ from urllib.parse import urlencode
 from taobao_parse import TaoBaoLoginAndParse
 from my_items import GoodsItem
 
+from high_reuse_code import _get_right_model_data
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
@@ -346,43 +348,11 @@ class TmallParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = GoodsItem()
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        now_time = get_shanghai_time()
-        tmp['modify_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['all_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        tmp['shelf_time'] = data_list.get('shelf_time', '')
-        tmp['delete_time'] = data_list.get('delete_time', '')
-
-        tmp['is_price_change'] = data_list.get('_is_price_change')
-        tmp['price_change_info'] = data_list.get('_price_change_info')
+        site_id = self._from_tmall_type_get_site_id(type=data.get('type'))
+        if site_id is False:
+            self.my_lg.error('获取到的site_id为False!出错!请检查!出错goods_id: {0}'.format(data.get('goods_id')))
+            return None
+        tmp = _get_right_model_data(data=data, site_id=site_id, logger=self.my_lg)
 
         params = self._get_db_update_params(item=tmp)
         # 改价格的sql
@@ -404,49 +374,11 @@ class TmallParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['main_goods_id'] = data_list.get('main_goods_id')
-        tmp['username'] = data_list['username']
-        tmp['spider_url'] = data_list['goods_url']
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['link_name'] = ''  # 卖家姓名
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['price_info'] = []  # 价格信息
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['site_id'] = self._from_tmall_type_get_site_id(type=data_list['type'])
-        if tmp['site_id'] is False:
-            self.my_lg.info('type为未知值, 导致site_id设置失败, 此处跳过!')
-            return False
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        # tmp['my_shelf_and_down_time'] = data_list.get('my_shelf_and_down_time')
-        # tmp['delete_time'] = data_list.get('delete_time')
+        site_id = self._from_tmall_type_get_site_id(type=data.get('type'))
+        if site_id is False:
+            self.my_lg.error('获取到的site_id为False!出错!请检查!出错goods_id: {0}'.format(data.get('goods_id')))
+            return None
+        tmp = _get_right_model_data(data=data, site_id=site_id, logger=self.my_lg)
 
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
@@ -465,55 +397,12 @@ class TmallParse(object):
         :param pipeline:
         :return:
         '''
-
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['spider_url']  # 商品地址
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=28, logger=self.my_lg)   # 采集来源地(淘抢购)
         except:
             print('此处抓到的可能是淘宝秒杀券所以跳过')
             return
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['miaosha_time'] = data_list.get('miaosha_time')
-        tmp['page'] = data_list.get('page')
-        tmp['spider_time'] = data_list.get('spider_time')
-
-        # 采集的来源地
-        tmp['site_id'] = 28  # 采集来源地(淘抢购)
-
-        tmp['miaosha_begin_time'] = data_list.get('miaosha_begin_time')
-        tmp['miaosha_end_time'] = data_list.get('miaosha_end_time')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
-        self.my_lg.info('------>>>| 待存储的数据信息为: %s' % tmp.get('goods_id'))
+        self.my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_insert_taoqianggou_miaosha_params(item=tmp)
         sql_str = r'insert into dbo.tao_qianggou_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, miaosha_time, miaosha_begin_time, miaosha_end_time, page, spider_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
@@ -526,34 +415,13 @@ class TmallParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
+        try:
+            tmp = _get_right_model_data(data=data, site_id=28, logger=self.my_lg)
+        except:
+            self.my_lg.error('获取规范化数据失败!出错goods_id:{0}'.format(data.get('goods_id')))
+            return None
 
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
-        tmp['price'] = Decimal(data_list['price']).__round__(2)
-        tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['schedule'] = data_list.get('schedule')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
-        # print('------>>> | 待存储的数据信息为: |', tmp)
-        self.my_lg.info('------>>>| 待存储的数据信息为: %s' % tmp.get('goods_id'))
+        self.my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = await self._get_db_update_miaosha_params(item=tmp)
         sql_str = r'update dbo.tao_qianggou_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s where goods_id = %s'
@@ -601,10 +469,10 @@ class TmallParse(object):
         '''
         params = [
             item['goods_id'],
-            item['spider_url'],
+            item['goods_url'],
             item['username'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['account'],
             item['title'],
@@ -618,7 +486,7 @@ class TmallParse(object):
             dumps(item['all_img_url'], ensure_ascii=False),
             dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
             item['div_desc'],  # 存入到DetailInfo
-            item['month_sell_count'],
+            item['all_sell_count'],
 
             item['site_id'],
             item['is_delete'],
@@ -676,9 +544,9 @@ class TmallParse(object):
         '''
         params = (
             item['goods_id'],
-            item['spider_url'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['goods_url'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -709,7 +577,7 @@ class TmallParse(object):
         :return:
         '''
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],

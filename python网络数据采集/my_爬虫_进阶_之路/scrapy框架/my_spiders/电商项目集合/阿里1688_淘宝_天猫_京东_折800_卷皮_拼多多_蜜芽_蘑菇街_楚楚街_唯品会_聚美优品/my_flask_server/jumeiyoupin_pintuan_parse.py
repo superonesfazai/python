@@ -11,17 +11,14 @@
 聚美优品拼团页面解析类
 """
 
-import time
 import json
 import re
 from pprint import pprint
 from decimal import Decimal
 from json import dumps
 from time import sleep
-import datetime
 import re
 import gc
-import pytz
 
 import asyncio
 import aiohttp
@@ -34,6 +31,8 @@ from settings import (
 from my_aiohttp import MyAiohttp
 from logging import INFO, ERROR
 import pytz, datetime
+
+from high_reuse_code import _get_right_model_data
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -301,54 +300,11 @@ class JuMeiYouPinPinTuanParse(object):
         :param logger
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['spider_url'] = data_list['goods_url']  # 商品地址
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=27, logger=self.my_lg)  # 采集来源地(聚美优品拼团商品)
         except:
             self.my_lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['pintuan_time'] = data_list.get('pintuan_time')
-        tmp['tab'] = data_list.get('tab')
-        tmp['page'] = data_list.get('page')
-        tmp['sort'] = data_list.get('sort')
-
-        # 采集的来源地
-        tmp['site_id'] = 27  # 采集来源地(聚美优品拼团商品)
-
-        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
-        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
-        tmp['all_sell_count'] = data_list.get('all_sell_count')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>> | 待存储的数据信息为: |', tmp)
         self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
         logger.info(self.msg)
@@ -370,52 +326,17 @@ class JuMeiYouPinPinTuanParse(object):
         :param logger:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=27, logger=self.my_lg)
         except:
             self.my_lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['pintuan_time'] = data_list.get('pintuan_time')
-
-        tmp['pintuan_begin_time'] = data_list.get('pintuan_begin_time')
-        tmp['pintuan_end_time'] = data_list.get('pintuan_end_time')
-        tmp['all_sell_count'] = data_list.get('all_sell_count')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>> | 待存储的数据信息为: |', tmp)
         self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
         logger.info(self.msg)
 
         params = await self._get_db_update_pintuan_params(item=tmp)
-        sql_str = r'update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
+        sql_str = 'update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
         try:
             pipeline._update_table_2(sql_str=sql_str, params=params, logger=logger)
             return True
@@ -431,51 +352,20 @@ class JuMeiYouPinPinTuanParse(object):
         :param logger:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-
-        now_time = get_shanghai_time()
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            tmp = _get_right_model_data(data=data, site_id=27, logger=self.my_lg)
         except:
             self.my_lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
             return None
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['all_sell_count'] = data_list.get('all_sell_count')
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-        # print('is_delete=', tmp['is_delete'])
-
         # print('------>>> | 待存储的数据信息为: |', tmp)
         self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
         logger.info(self.msg)
 
         params = self._get_db_update_pintuan_params_2(item=tmp)
-        sql_str = r'update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s'
+        sql_str = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s'
         try:
-            pipeline._update_table_2(sql_str=sql_str, params=params, logger=logger)
-            return True
+            result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=logger)
+            return result
         except Exception as e:
             logger.exception(e)
             return False
@@ -483,9 +373,9 @@ class JuMeiYouPinPinTuanParse(object):
     async def _get_db_insert_pintuan_params(self, item):
         params = (
             item['goods_id'],
-            item['spider_url'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['goods_url'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -512,7 +402,7 @@ class JuMeiYouPinPinTuanParse(object):
 
     async def _get_db_update_pintuan_params(self, item):
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
@@ -536,7 +426,7 @@ class JuMeiYouPinPinTuanParse(object):
 
     async def _get_db_update_pintuan_params_2(self, item):
         params = (
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['title'],
             item['sub_title'],
