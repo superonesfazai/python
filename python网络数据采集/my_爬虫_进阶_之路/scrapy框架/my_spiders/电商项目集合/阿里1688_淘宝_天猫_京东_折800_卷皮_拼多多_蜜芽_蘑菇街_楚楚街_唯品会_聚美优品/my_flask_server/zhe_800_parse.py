@@ -255,12 +255,12 @@ class Zhe800Parse(object):
                     # print(seller_info)
 
                     if seller_info != []:
-                        try:
-                            seller_info = json.loads(seller_info[0])
-                        except Exception:
+                        seller_info = json_2_dict(json_str=seller_info[0])
+                        if seller_info == {}:
                             print('卖家信息在转换时出现错误, 此处跳过')
                             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                             return {}
+
                         # pprint(seller_info)
                         shop_name = seller_info.get('sellerInfo', {}).get('nickName', '')
                     else:
@@ -280,10 +280,8 @@ class Zhe800Parse(object):
                     else: schedule_and_stock_info = [schedule_and_stock_info_body]
 
                     if schedule_and_stock_info != []:
-                        schedule_and_stock_info = schedule_and_stock_info[0]
-                        try:
-                            schedule_and_stock_info = json.loads(schedule_and_stock_info)
-                        except Exception:
+                        schedule_and_stock_info = json_2_dict(json_str=schedule_and_stock_info[0])
+                        if schedule_and_stock_info == {}:
                             print('得到秒杀开始时间和结束时间时错误, 此处跳过')
                             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                             return {}
@@ -292,19 +290,13 @@ class Zhe800Parse(object):
                         if schedule is None:
                             schedule = {}
                         else:
-                            try:
-                                schedule = json.loads(schedule)
-                            except:
-                                schedule = {}
+                            schedule = json_2_dict(json_str=schedule)
 
                         stock = schedule_and_stock_info.get('/app/detail/status/stock')
                         if stock is None:
                             stock = {}
                         else:
-                            try:
-                                stock = json.loads(stock)
-                            except:
-                                stock = {}
+                            stock = json_2_dict(json_str=stock)
                     else:
                         schedule = {}
                         stock = {}

@@ -27,6 +27,7 @@ from fzutils.time_utils import (
 )
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 '''
 改版抓包微信唯品会商品数据接口
@@ -140,13 +141,12 @@ def test():
 
     body = MyRequests.get_url_body(method='post', url=url, headers=headers, params=params, data=data)
     # print(body)
-    try:
-        data = json.loads(body)
-        pprint(data)
-    except:
-        pass
+    data = json_2_dict(json_str=body)
 
-# test()
+    return data
+
+# _ = test()
+# pprint(_)
 
 class VipParse(object):
     def __init__(self):
@@ -298,89 +298,83 @@ class VipParse(object):
                 return {}
 
             else:
-                try:
-                    tmp_data = json.loads(body)
-                    # pprint(tmp_data)
-                except Exception:
-                    print('json.loads转换body时出错, 请检查!')
-                    tmp_data = {}
-
+                tmp_data = json_2_dict(json_str=body)
                 if tmp_data == {}:
                     self.result_data = {}
                     return {}
-                else:
-                    try:
-                        # title, sub_title
-                        data['title'] = tmp_data[2].get('result', {}).get('product_name', '')
-                        assert data['title'] != '', '获取到的title为空值, 请检查!'
-                        data['sub_title'] = ''
 
-                        # shop_name
-                        data['shop_name'] = tmp_data[2].get('result', {}).get('brand_info', {}).get('brand_name', '')
+                try:
+                    # title, sub_title
+                    data['title'] = tmp_data[2].get('result', {}).get('product_name', '')
+                    assert data['title'] != '', '获取到的title为空值, 请检查!'
+                    data['sub_title'] = ''
 
-                        # 获取所有示例图片
-                        all_img_url = tmp_data[2].get('result', {}).get('img_pre', [])
-                        assert all_img_url != [], '获取到的all_img_url为空[], 请检查!'
-                        all_img_url = [{
-                            'img_url': 'https:' + item.get('b_img', '')
-                        } for item in all_img_url]
-                        # pprint(all_img_url)
-                        data['all_img_url'] = all_img_url
+                    # shop_name
+                    data['shop_name'] = tmp_data[2].get('result', {}).get('brand_info', {}).get('brand_name', '')
 
-                        # 获取p_info
-                        p_info = self._get_p_info(tmp_data=tmp_data)
-                        assert p_info != [], 'p_info为空list, 请检查!'
-                        # pprint(p_info)
-                        data['p_info'] = p_info
+                    # 获取所有示例图片
+                    all_img_url = tmp_data[2].get('result', {}).get('img_pre', [])
+                    assert all_img_url != [], '获取到的all_img_url为空[], 请检查!'
+                    all_img_url = [{
+                        'img_url': 'https:' + item.get('b_img', '')
+                    } for item in all_img_url]
+                    # pprint(all_img_url)
+                    data['all_img_url'] = all_img_url
 
-                        # 获取每个商品的div_desc
-                        div_desc = self.get_goods_div_desc(tmp_data=tmp_data[2].get('result', {}).get('detailImages', []))
-                        assert div_desc != '', '获取到的div_desc为空值! 请检查'
-                        data['div_desc'] = div_desc
+                    # 获取p_info
+                    p_info = self._get_p_info(tmp_data=tmp_data)
+                    assert p_info != [], 'p_info为空list, 请检查!'
+                    # pprint(p_info)
+                    data['p_info'] = p_info
 
-                        '''
-                        上下架时间
-                        '''
-                        data['sell_time'] = {
-                            'begin_time': tmp_data[2].get('result', {}).get('sell_time_from', {}),
-                            'end_time': tmp_data[2].get('result', {}).get('sell_time_to', {}),
-                        }
-                        if int(data['sell_time'].get('begin_time')) > int(time.time()):
-                            # *** 先根据上下架时间来判断是否为预售商品，如果是预售商品就按预售商品的method来去对应规格的价格
-                            goods_id = [1, goods_id[1]]     # 设置成预售的商品goods_id格式
+                    # 获取每个商品的div_desc
+                    div_desc = self.get_goods_div_desc(tmp_data=tmp_data[2].get('result', {}).get('detailImages', []))
+                    assert div_desc != '', '获取到的div_desc为空值! 请检查'
+                    data['div_desc'] = div_desc
 
-                        # 设置detail_name_list
-                        detail_name_list = self._get_detail_name_list(tmp_data=tmp_data)
-                        # print(detail_name_list)
-                        data['detail_name_list'] = detail_name_list
+                    '''
+                    上下架时间
+                    '''
+                    data['sell_time'] = {
+                        'begin_time': tmp_data[2].get('result', {}).get('sell_time_from', {}),
+                        'end_time': tmp_data[2].get('result', {}).get('sell_time_to', {}),
+                    }
+                    if int(data['sell_time'].get('begin_time')) > int(time.time()):
+                        # *** 先根据上下架时间来判断是否为预售商品，如果是预售商品就按预售商品的method来去对应规格的价格
+                        goods_id = [1, goods_id[1]]     # 设置成预售的商品goods_id格式
 
-                        '''
-                        获取每个规格对应价格跟规格以及库存
-                        '''
-                        true_sku_info = self._get_true_sku_info(goods_id=goods_id, tmp_data=tmp_data)
-                        # pprint(true_sku_info)
-                        if true_sku_info == []:     # 也可能是 表示没有库存, 买完或者下架
-                            print('获取到的sku_info为空值, 请检查!')
-                            print('*** 注意可能是卖完了，库存为0 导致!! ***')
-                            # raise Exception
-                            data['price_info_list'] = true_sku_info
-                        else:
-                            data['price_info_list'] = true_sku_info
+                    # 设置detail_name_list
+                    detail_name_list = self._get_detail_name_list(tmp_data=tmp_data)
+                    # print(detail_name_list)
+                    data['detail_name_list'] = detail_name_list
 
-                    except Exception as e:
-                        print('遇到错误如下: ', e)
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                        return {}
-
-                    if data != {}:
-                        # pprint(data)
-                        self.result_data = data
-                        return data
-
+                    '''
+                    获取每个规格对应价格跟规格以及库存
+                    '''
+                    true_sku_info = self._get_true_sku_info(goods_id=goods_id, tmp_data=tmp_data)
+                    # pprint(true_sku_info)
+                    if true_sku_info == []:     # 也可能是 表示没有库存, 买完或者下架
+                        print('获取到的sku_info为空值, 请检查!')
+                        print('*** 注意可能是卖完了，库存为0 导致!! ***')
+                        # raise Exception
+                        data['price_info_list'] = true_sku_info
                     else:
-                        print('data为空!')
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                        return {}
+                        data['price_info_list'] = true_sku_info
+
+                except Exception as e:
+                    print('遇到错误如下: ', e)
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                    return {}
+
+                if data != {}:
+                    # pprint(data)
+                    self.result_data = data
+                    return data
+
+                else:
+                    print('data为空!')
+                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                    return {}
 
     def deal_with_data(self):
         '''
@@ -690,11 +684,8 @@ class VipParse(object):
                                 print('获取其他颜色规格的url的body时为空值')
                                 return []
                             else:
-                                try:
-                                    tmp_data_2 = json.loads(tmp_data_2)
-                                    # pprint(tmp_data_2)
-                                except Exception:
-                                    print('json.loads转换tmp_data_2时出错, 请检查!')
+                                tmp_data_2 = json_2_dict(json_str=tmp_data_2)
+                                if tmp_data_2 == {}:
                                     return []
 
                                 other_items_2 = tmp_data_2[6].get('result', {}).get('productSku', {}).get('items', [])
