@@ -18,7 +18,6 @@ from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
-import re
 from settings import IS_BACKGROUND_RUNNING
 
 from fzutils.time_utils import (
@@ -95,7 +94,7 @@ def run_forever():
                         continue        # 跳过sleep
 
                     else:
-                        sql_str = r'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
+                        sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
                         try:    # 老是有重复的，索性单独检查
                             is_in_db = list(tmp_sql_server._select_table(sql_str=sql_str, params=(goods_id)))
                         except:

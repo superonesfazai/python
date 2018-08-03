@@ -11,7 +11,6 @@
 聚美优品拼团页面解析类
 """
 
-import json
 from pprint import pprint
 from json import dumps
 from time import sleep
@@ -28,12 +27,14 @@ from settings import (
 )
 from my_aiohttp import MyAiohttp
 from logging import INFO, ERROR
-import pytz, datetime
+import pytz
+import datetime
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.common_utils import json_2_dict
 
 class JuMeiYouPinPinTuanParse(object):
     def __init__(self, logger=None):
@@ -619,12 +620,7 @@ class JuMeiYouPinPinTuanParse(object):
         :param json_str:
         :return: {} | {...}
         '''
-        try:
-            tmp = json.loads(json_str)
-        except Exception:
-            self.my_lg.error('json转换json_str时出错,请检查!')
-            tmp = {}
-        return tmp
+        return json_2_dict(json_str=json_str, logger=self.my_lg)
 
     async def get_goods_id_from_url(self, jumei_url):
         '''

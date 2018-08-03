@@ -29,6 +29,7 @@ from fzutils.time_utils import (
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 class TaoBaoCommentParse(object):
     def __init__(self, logger=None):
@@ -67,7 +68,7 @@ class TaoBaoCommentParse(object):
                 self.result_data = {}
                 return {}
 
-            data = self.json_str_2_dict(json_str=body).get('comments')
+            data = json_2_dict(json_str=body, logger=self.my_lg).get('comments')
             # pprint(data)
             if data is None:
                 self.my_lg.error('出错goods_id: ' + goods_id)
@@ -279,20 +280,6 @@ class TaoBaoCommentParse(object):
         :return:
         '''
         return comment_date.replace('年', '-').replace('月', '-').replace('日', '') + ':00'
-
-    def json_str_2_dict(self, json_str):
-        '''
-        json2dict
-        :param json_str:
-        :return:
-        '''
-        try:
-            data = json.loads(json_str)
-        except:
-            self.my_lg.error('json.loads转换json_str时出错!')
-            data = {}
-
-        return data
 
     def __del__(self):
         try:

@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import json
 import re
 from pprint import pprint
 from decimal import Decimal
@@ -21,6 +20,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 class MoGuJieMiaoShaParse(MoGuJieParse):
     def __init__(self):
@@ -71,9 +71,9 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 shop_info = re.compile(r'shopInfo:(.*?),skuInfo').findall(goods_info)[0]
                 # print(shop_info)
 
-                item_info = json.loads(item_info)
-                sku_info = json.loads(sku_info)
-                shop_info = json.loads(shop_info)
+                item_info = json_2_dict(json_str=item_info)
+                sku_info = json_2_dict(json_str=sku_info)
+                shop_info = json_2_dict(json_str=shop_info)
                 # pprint(item_info)
                 # pprint(sku_info)
                 # pprint(shop_info)

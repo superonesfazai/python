@@ -52,7 +52,6 @@ def run_forever():
 
             new_table_ali_1688_all_goods_id_list = [item[0] for item in result]
             for item in result_2:  # 实时更新数据
-                data = {}
                 taobao = TaoBaoLoginAndParse()
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')

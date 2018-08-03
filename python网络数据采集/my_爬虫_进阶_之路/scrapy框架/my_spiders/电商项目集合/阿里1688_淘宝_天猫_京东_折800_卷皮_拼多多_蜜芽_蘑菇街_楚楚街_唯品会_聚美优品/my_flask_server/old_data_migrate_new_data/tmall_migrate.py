@@ -42,7 +42,6 @@ def run_forever():
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             tmall = TmallParse()
             for item in result_2:  # 实时更新数据
-                data = {}
                 if index % 5 == 0:
                     tmall = TmallParse()
                     gc.collect()

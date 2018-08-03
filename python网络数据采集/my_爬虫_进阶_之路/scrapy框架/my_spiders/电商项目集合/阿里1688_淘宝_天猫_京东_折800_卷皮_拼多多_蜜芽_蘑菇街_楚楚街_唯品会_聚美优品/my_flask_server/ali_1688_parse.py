@@ -22,6 +22,7 @@ from settings import PHANTOMJS_DRIVER_PATH
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.common_utils import json_2_dict
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
@@ -110,7 +111,7 @@ class ALi1688LoginAndParse(object):
             body = body[0]
             body = r'{"beginAmount"' + body
             # print(body)
-            body = json.loads(body)
+            body = json_2_dict(json_str=body)
             # pprint(body)
 
             if body.get('discountPriceRanges') is not None:
@@ -128,7 +129,7 @@ class ALi1688LoginAndParse(object):
                 body = body[0]
                 body = r'{"activityId"' + body
                 # print(body)
-                body = json.loads(body)
+                body = json_2_dict(json_str=body)
                 # pprint(body)
 
                 if body.get('discountPriceRanges') is not None:

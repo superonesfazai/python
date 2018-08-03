@@ -15,6 +15,7 @@ from setuptools import (
 import sys
 import os
 import codecs
+from requires import install_requires
 
 """
 发布新包步骤:
@@ -35,68 +36,16 @@ import codecs
         $ pip3 install pip setuptools -U && pip3 install wheel
 """
 
-def read(fname):
+def read(f_name):
     """
-    定义一个read方法，用来读取目录下的长描述
+    用来读取目录下的长描述
     我们一般是将README文件中的内容读取出来作为长描述，这个会在PyPI中你这个包的页面上展现出来，
     你也可以不用这个方法，自己手动写内容即可，
     PyPI上支持.rst格式的文件。暂不支持.md格式的文件，<BR>.rst文件PyPI会自动把它转为HTML形式显示在你包的信息页面上。
     """
-    return codecs.open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return codecs.open(os.path.join(os.path.dirname(__file__), f_name)).read()
 
 long_description = read('README.rst')
-
-install_requires = [
-    'ipython',
-    'wheel',
-    'utils',
-    'db',
-    'greenlet==0.4.13',
-    'web.py==0.40.dev1',
-    'pytz',
-    'requests',
-    'selenium==3.8.0',     # 3.8.1及其以上版本不支持phantomjs了
-    'asyncio',
-    'psutil',
-    'pyexecjs',
-    'setuptools',
-    'colorama',
-    'twine',
-    'numpy',
-    'pprint',
-    'selenium',
-    'chardet',
-    'bs4',
-    'scrapy',
-    'demjson',
-    'pymssql',
-    'sqlalchemy',
-    'gevent',
-    'aiohttp',
-    'celery',
-    'jsonpath',
-    'matplotlib',
-    'wget',
-    'flask',
-    'flask_login',
-    'mitmproxy',            # shell 抓包代理
-    'pymongo',
-    'pyexcel',
-    'pyexcel-xlsx',
-    'fabric',
-    'shadowsocks',
-    # 'pycurl==7.43.0.1',
-    'furl',
-    'yarl',
-    'prettytable',
-    'xlrd',
-    'pandas',
-    'jieba',
-    'geopandas',
-    'scikit-image',
-    'wordcloud',            # 词云
-    'pygame',
-]
 
 classifiers = [
     'Programming Language :: Python :: 3 :: Only',
@@ -112,7 +61,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.1.0.8",
+    version="0.0.1.0.9",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",

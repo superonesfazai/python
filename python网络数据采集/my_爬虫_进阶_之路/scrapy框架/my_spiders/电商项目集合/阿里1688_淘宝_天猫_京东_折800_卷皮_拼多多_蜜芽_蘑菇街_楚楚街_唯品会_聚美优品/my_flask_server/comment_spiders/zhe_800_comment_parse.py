@@ -27,6 +27,7 @@ from fzutils.time_utils import (
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 class Zhe800CommentParse(object):
     def __init__(self, logger=None):
@@ -88,7 +89,7 @@ class Zhe800CommentParse(object):
             body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='utf-8')
             # self.my_lg.info(str(body))
 
-            data = self.json_str_2_dict(json_str=body)
+            data = json_2_dict(json_str=body, logger=self.my_lg)
             # pprint(data)
 
             if data.get('comments') is not None:
@@ -269,20 +270,6 @@ class Zhe800CommentParse(object):
         )
 
         return params
-
-    def json_str_2_dict(self, json_str):
-        '''
-        json2dict
-        :param json_str:
-        :return:
-        '''
-        try:
-            data = json.loads(json_str)
-        except:
-            self.my_lg.error('json.loads转换json_str时出错!')
-            data = {}
-
-        return data
 
     def __del__(self):
         try:

@@ -43,6 +43,7 @@ from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -103,10 +104,9 @@ class TaoBaoLoginAndParse(object):
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
-        try:
-            data = json.loads(data)
-        except JSONDecodeError:
-            self.my_lg.error('json.loads转换data时出错, 请检查! 出错goods_id: ' + str(goods_id))
+        data = json_2_dict(json_str=data, logger=self.my_lg)
+        if data == {}:
+            self.my_lg.error('出错goods_id: {0}'.format(str(goods_id)))
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         # pprint(data)
@@ -145,10 +145,9 @@ class TaoBaoLoginAndParse(object):
 
         # 处理mockData
         mock_data = result_data['mockData']
-        try:
-            mock_data = json.loads(mock_data)
-        except Exception:
-            self.my_lg.error('json.loads转化mock_data时出错, 跳出' + ' 出错goods_id: ' + str(goods_id))
+        mock_data = json_2_dict(json_str=mock_data, logger=self.my_lg)
+        if mock_data == {}:
+            self.my_lg.error('出错goods_id: {0}'.format(goods_id))
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
         mock_data['feature'] = ''

@@ -29,6 +29,7 @@ from fzutils.time_utils import (
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.common_utils import json_2_dict
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -111,9 +112,8 @@ class JuanPiParse(object):
 
             if skudata != []:
                 skudata = skudata[0]
-                try:
-                    skudata = json.loads(skudata)
-                except:
+                skudata = json_2_dict(json_str=skudata)
+                if skudata == {}:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 skudata = skudata.get('skudata', {})
@@ -139,12 +139,8 @@ class JuanPiParse(object):
                 return {}
 
             if data != []:
-                main_data = data[0]
-                # print(main_data)
-                try:
-                    main_data = json.loads(main_data)
-                    # pprint(main_data)
-                except:
+                main_data = json_2_dict(json_str=data[0])
+                if main_data == {}:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
 

@@ -10,9 +10,8 @@
 import sys
 sys.path.append('..')
 
-from my_requests import MyRequests
 
-import urllib, json
+import json
 from urllib.parse import urlencode
 from urllib.request import ProxyHandler, HTTPCookieProcessor
 from urllib.request import HTTPHandler
@@ -26,6 +25,7 @@ from random import randint
 import requests
 
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import MyRequests
 
 #模拟登录淘宝类
 class Taobao:

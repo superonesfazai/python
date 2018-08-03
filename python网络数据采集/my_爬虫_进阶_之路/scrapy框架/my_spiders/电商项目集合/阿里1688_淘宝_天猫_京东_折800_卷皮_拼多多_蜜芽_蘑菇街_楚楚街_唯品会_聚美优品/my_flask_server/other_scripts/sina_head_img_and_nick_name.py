@@ -27,6 +27,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.ip_pools import MyIpPools
 
 class SinaSpeciesSpiderNewSpider():
     def __init__(self):
@@ -137,7 +138,8 @@ class SinaSpeciesSpiderNewSpider():
                 print('-' * 100 + '一次大循环爬取完成')
                 print()
                 print('-' * 100 + '即将重新开始爬取....')
-                self.proxies = self.get_proxy_ip_from_ip_pool()     # 获取新的代理pool
+                ip_object = MyIpPools()
+                self.proxies = ip_object.get_proxy_ip_from_ip_pool()     # 获取新的代理pool
                 self.index = 1
 
             else:
@@ -240,7 +242,8 @@ class SinaSpeciesSpiderNewSpider():
         :return: str
         '''
         # 设置代理ip
-        self.proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        ip_object = MyIpPools()
+        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
         tmp_proxies = {
@@ -268,27 +271,6 @@ class SinaSpeciesSpiderNewSpider():
         nick_name = re.compile(r'官博').sub('', nick_name)
 
         return nick_name
-
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        result = requests.get(base_url).json()
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-
-        return result_ip_list
 
 def main_2():
     tmp = SinaSpeciesSpiderNewSpider()

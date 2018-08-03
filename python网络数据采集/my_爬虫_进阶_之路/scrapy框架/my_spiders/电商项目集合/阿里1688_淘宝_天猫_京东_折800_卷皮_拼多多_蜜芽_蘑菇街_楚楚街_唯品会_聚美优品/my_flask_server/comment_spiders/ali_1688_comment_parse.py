@@ -22,7 +22,6 @@ from random import (
 )
 
 import gc
-import time
 from time import sleep
 from logging import INFO, ERROR
 from scrapy.selector import Selector
@@ -39,6 +38,7 @@ from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.common_utils import json_2_dict
 
 class ALi1688CommentParse(object):
     '''
@@ -187,7 +187,7 @@ class ALi1688CommentParse(object):
                 self.my_lg.error('该地址的body为空值, 出错goods_id: {0}'.format(goods_id))
                 return {}
 
-            data = self.json_str_2_dict(json_str=body)
+            data = json_2_dict(json_str=body, logger=self.my_lg)
             if data.get('url') is not None:
                 self.my_lg.info('------>>>| 被重定向到404页面, 休眠{0}s中...'.format(self._page_sleep_time))
                 sleep(self._page_sleep_time)
@@ -385,20 +385,6 @@ class ALi1688CommentParse(object):
         )
 
         return params
-
-    def json_str_2_dict(self, json_str):
-        '''
-        json字符串转dict
-        :param json_str:
-        :return:
-        '''
-        try:
-            data = json.loads(json_str)
-        except:
-            self.my_lg.error('json.loads转换json_str时出错!请检查!')
-            data = {}
-
-        return data
 
     def _get_comment_date(self, comment_date):
         '''

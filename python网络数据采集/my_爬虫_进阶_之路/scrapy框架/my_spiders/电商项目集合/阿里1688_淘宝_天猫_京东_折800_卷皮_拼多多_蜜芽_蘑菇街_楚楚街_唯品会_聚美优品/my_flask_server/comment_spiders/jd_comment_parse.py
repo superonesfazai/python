@@ -18,7 +18,8 @@ from settings import (
 from time import sleep
 import gc
 from logging import INFO, ERROR
-import re, datetime, json
+import re
+import datetime
 from pprint import pprint
 
 from fzutils.log_utils import set_logger
@@ -30,6 +31,7 @@ from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.common_utils import json_2_dict
 
 class JdCommentParse(object):
     def __init__(self, logger=None):
@@ -61,7 +63,10 @@ class JdCommentParse(object):
             body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params)
             # self.my_lg.info(str(body))
 
-            _data = self._json_2_dict(body).get('wareDetailComment', {}).get('commentInfoList', [])
+            _data = json_2_dict(json_str=body, logger=self.my_lg).get('wareDetailComment', {}).get('commentInfoList', [])
+            if _data == []:
+                self.my_lg.error('出错goods_id:{0}'.format(self.goods_id))
+
             _tmp_comment_list += _data
 
             sleep(self.comment_page_switch_sleep_time)
@@ -193,20 +198,6 @@ class JdCommentParse(object):
         comment = re.compile('京东').sub('优秀网', comment)
 
         return comment
-
-    def _json_2_dict(self, json_str):
-        '''
-        json2dict
-        :param json_str:
-        :return:
-        '''
-        try:
-            _ = json.loads(json_str)
-        except:
-            self.my_lg.error('json.loads转换json_str时出错! 出错goods_id: ' + self.goods_id)
-            return {}
-
-        return _
 
     def _set_params(self, goods_id, current_page):
         '''

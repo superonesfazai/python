@@ -16,7 +16,7 @@ from settings import (
     CHROME_DRIVER_PATH,
 )
 
-import json, re
+import re
 from time import sleep
 import gc
 from pprint import pprint
@@ -34,6 +34,7 @@ from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.ip_pools import MyIpPools
+from fzutils.common_utils import json_2_dict
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -120,7 +121,7 @@ class JdParse(object):
             all_sell_count = '0'
             if comment_body_1 != []:
                 comment_data = comment_body_1[0]
-                comment_data = json.loads(comment_data)
+                comment_data = json_2_dict(json_str=comment_data)
                 # pprint(comment_data)
                 all_sell_count = comment_data.get('wareDetailComment', {}).get('allCnt', '0')
 
@@ -154,12 +155,12 @@ class JdParse(object):
 
             if body_1 != []:
                 data = body_1[0]
-                try:
-                    data = json.loads(data)
-                except Exception:
-                    print(r'json.loads(data)时为空, 此处直接返回data为{}')
+                data = json_2_dict(json_str=data)
+                if data == {}:
+                    print(r'此处直接返回data为{}')
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
+
                 # pprint(data)
                 wdis = data.get('wdis', '') # 图文描述
                 data = data.get('ware', {})
@@ -175,8 +176,8 @@ class JdParse(object):
                     code = data.get('wi', {}).get('code', '')
                     # print('wi,code的为: ', code)
                     if code != '':
+                        code = json_2_dict(json_str=code)
                         try:
-                            code = json.loads(code)
                             data.get('wi', {})['code'] = code
                         except Exception as e:  # 对应p_info解析错误的, 换方法解析
                             print('wi中的code对应json解析错误, 为:', e)
@@ -433,7 +434,7 @@ class JdParse(object):
         price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
         if price_body_1 != []:
             price_data = price_body_1[0]
-            price_data = json.loads(price_data)
+            price_data = json_2_dict(json_str=price_data)
             try:
                 price_data.pop('defaultAddress')
                 price_data.pop('commonConfigJson')
@@ -444,25 +445,25 @@ class JdParse(object):
             # 处理newYanBaoInfo
             new_yan_bao_info = price_data.get('newYanBaoInfo')
             if new_yan_bao_info is not None:
-                new_yan_bao_info = json.loads(new_yan_bao_info)
+                new_yan_bao_info = json_2_dict(json_str=new_yan_bao_info)
                 price_data['newYanBaoInfo'] = new_yan_bao_info
 
             # 处理allColorSet
             all_color_set = price_data.get('allColorSet')
             if all_color_set is not None:
-                all_color_set = json.loads(all_color_set)
+                all_color_set = json_2_dict(json_str=all_color_set)
                 price_data['allColorSet'] = all_color_set
 
             # 处理allSpecSet
             all_spec_set = price_data.get('allSpecSet')
             if all_spec_set is not None:
-                all_spec_set = json.loads(all_spec_set)
+                all_spec_set = json_2_dict(json_str=all_spec_set)
                 price_data['allSpecSet'] = all_spec_set
 
             # 处理allSizeSet
             all_size_set = price_data.get('allSizeSet')
             if all_size_set is not None:
-                all_size_set = json.loads(all_size_set)
+                all_size_set = json_2_dict(json_str=all_size_set)
                 price_data['allSizeSet'] = all_size_set
 
             # pprint(price_data)

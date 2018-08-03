@@ -23,6 +23,7 @@ from json import dumps
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 class MiaParse(object):
     def __init__(self):
@@ -472,7 +473,6 @@ class MiaParse(object):
         except Exception as e:
             print('json.loads遇到错误如下: ', e)
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            tmp_sku_info = {}
             return {}
 
         tmp_sku_info = [{'goods_id': item.get('id'), 'color_name': item.get('code_color')} for item in tmp_sku_info.values()]
@@ -520,12 +520,8 @@ class MiaParse(object):
         tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
         # print(tmp_body)
 
-        try:
-            tmp_data = json.loads(tmp_body).get('data', [])
-            # pprint(tmp_data)
-        except Exception as e:
-            print('json.loads转换tmp_body时出错!')
-            tmp_data = []
+        tmp_data = json_2_dict(json_str=tmp_body).get('data', [])
+        if tmp_data == []:
             self.result_data = {}
             return {}
 

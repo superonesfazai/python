@@ -39,6 +39,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
+from fzutils.ip_pools import MyIpPools
 
 reload(sys)
 
@@ -84,29 +85,6 @@ class BiLiBiLiUser(object):
         random.shuffle(uas)
         return uas
 
-    def get_proxy_ip_from_ip_pool(self):
-        '''
-        从代理ip池中获取到对应ip
-        :return: dict类型 {'http': ['http://183.136.218.253:80', ...]}
-        '''
-        base_url = 'http://127.0.0.1:8000'
-        try:
-            result = requests.get(base_url).json()
-        except:
-            return []
-
-        result_ip_list = {}
-        result_ip_list['http'] = []
-        for item in result:
-            if item[2] > 7:
-                tmp_url = 'http://' + str(item[0]) + ':' + str(item[1])
-                result_ip_list['http'].append(tmp_url)
-            else:
-                delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
-        # pprint(result_ip_list)
-        return result_ip_list
-
     async def test(self, payload, tmp_proxies):
         try:
             async with aiohttp.request(
@@ -144,7 +122,8 @@ class BiLiBiLiUser(object):
                 self.head['Referer'] = 'https://space.bilibili.com/' + str(i) + '?from=search&seid=' + str(random.randint(10000, 50000))
 
                 # 设置ip代理
-                proxies = self.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+                ip_object = MyIpPools()
+                proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
                 if proxies == []:   # 避免报错跳出
                     return None
 

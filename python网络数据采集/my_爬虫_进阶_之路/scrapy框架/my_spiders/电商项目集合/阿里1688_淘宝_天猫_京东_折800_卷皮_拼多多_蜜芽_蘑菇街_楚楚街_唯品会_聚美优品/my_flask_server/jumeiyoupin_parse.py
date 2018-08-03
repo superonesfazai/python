@@ -24,6 +24,7 @@ from scrapy.selector import Selector
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
 
 class JuMeiYouPinParse(object):
     def __init__(self):
@@ -68,11 +69,8 @@ class JuMeiYouPinParse(object):
             self.result_data = {}
             return {}
 
-        try:
-            tmp_data = json.loads(body)
-            # pprint(tmp_data)
-        except Exception:
-            print('json.loads转换body时出错!请检查!')
+        tmp_data = json_2_dict(json_str=body)
+        if tmp_data == {}:
             self.result_data = {}
             return {}
 
@@ -88,11 +86,8 @@ class JuMeiYouPinParse(object):
             self.result_data = {}
             return {}
 
-        try:
-            tmp_data_2 = json.loads(body_2)
-            # pprint(tmp_data_2)
-        except Exception:
-            print('json.loads转换body_2时出错!请检查!')
+        tmp_data_2 = json_2_dict(json_str=body_2)
+        if tmp_data_2 == {}:
             self.result_data = {}
             return {}
         tmp_data_2 = self.wash_data_2(data=tmp_data_2)

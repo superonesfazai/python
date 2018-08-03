@@ -17,7 +17,6 @@ import time
 from random import randint
 import json
 import requests
-import re
 from pprint import pprint
 from time import sleep
 import re
@@ -31,6 +30,7 @@ from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.ip_pools import MyIpPools
+from fzutils.common_utils import json_2_dict
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -85,10 +85,8 @@ class PinduoduoParse(object):
             data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
 
             if data != []:
-                data = data[0]
-                try:
-                    data = json.loads(data)
-                except Exception:
+                data = json_2_dict(json_str=data[0])
+                if data == {}:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
                 # pprint(data)
