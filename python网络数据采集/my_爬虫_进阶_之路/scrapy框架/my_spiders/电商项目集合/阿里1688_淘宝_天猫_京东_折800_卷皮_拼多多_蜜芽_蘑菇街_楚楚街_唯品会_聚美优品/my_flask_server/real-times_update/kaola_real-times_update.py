@@ -50,7 +50,7 @@ def run_forever():
         sql_str = '''
         select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
-        where SiteID=29 and MainGoodsID is not null
+        where SiteID=29 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
         order by ID asc'''
 
         try:
@@ -140,7 +140,7 @@ def run_forever():
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(5)
+            sleep(60)
         gc.collect()
 
 

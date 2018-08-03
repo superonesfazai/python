@@ -57,9 +57,12 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15 order by id desc'
+        sql_str = 'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15 order by id asc'
+        # 删除过期2天的的
+        tmp_del_str = 'delete from dbo.juanpi_xianshimiaosha where GETDATE()-miaosha_end_time>2'
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=tmp_del_str, params=None)
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -88,7 +91,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_begin_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]), lock_timeout=2000)
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                     elif self.is_recent_time(miaosha_begin_time) == 2:

@@ -25,7 +25,6 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,)
 
 from fzutils.time_utils import (
-    get_shanghai_time,
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init

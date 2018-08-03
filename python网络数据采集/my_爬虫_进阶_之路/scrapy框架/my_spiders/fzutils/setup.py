@@ -85,7 +85,7 @@ install_requires = [
     'pyexcel-xlsx',
     'fabric',
     'shadowsocks',
-    'pycurl==7.43.0.1',
+    # 'pycurl==7.43.0.1',
     'furl',
     'yarl',
     'prettytable',
@@ -112,7 +112,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.1.0.7",
+    version="0.0.1.0.8",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",

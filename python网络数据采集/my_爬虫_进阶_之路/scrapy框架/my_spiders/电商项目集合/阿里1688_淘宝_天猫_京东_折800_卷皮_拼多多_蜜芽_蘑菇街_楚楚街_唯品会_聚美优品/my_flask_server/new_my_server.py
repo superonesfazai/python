@@ -62,7 +62,6 @@ from settings import (
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
 )
-from my_items import GoodsItem
 from my_signature import Signature
 from sql_lang.cp_sql import error_insert_sql_str
 
@@ -2505,7 +2504,7 @@ def _get_kaola_wait_to_save_data_goods_id_list(data):
             if is_kaola_url != []:
                 if re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(item) != []:
                     goods_id = re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(item)[0]
-                    my_lg.info('------>>>| 得到的唯品会商品的goods_id为: {0}'.format(goods_id))
+                    my_lg.info('------>>>| 得到的考拉商品的goods_id为: {0}'.format(goods_id))
                     tmp_wait_to_save_data_goods_id_list.append(goods_id)
                 else:
                     pass

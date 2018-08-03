@@ -366,3 +366,4 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['session_id'] = data_list.get('session_id', '')
 
     return tmp
+

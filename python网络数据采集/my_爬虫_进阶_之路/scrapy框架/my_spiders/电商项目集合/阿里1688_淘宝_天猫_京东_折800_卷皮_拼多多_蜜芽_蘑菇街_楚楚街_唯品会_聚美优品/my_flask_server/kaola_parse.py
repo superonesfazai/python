@@ -415,6 +415,18 @@ class KaoLaParse(object):
         div_desc = re.compile(r'&amp;').sub('&', div_desc)
         div_desc = div_desc.replace('\n', '').replace('<img src="//', '<img src="http://')
 
+        # 清洗 考拉退货声明, 以及其他声明
+        filter_str = '''
+        http://haitao.nos.netease.com/08cb6647415e4295ac7d53a89d6ecfcb1529465797598jimkg2cd20256.jpg\?imageView&quality=98&crop=0_8000_960_500|
+        http://haitao.nos.netease.com/08cb6647415e4295ac7d53a89d6ecfcb1529465797598jimkg2cd20256.jpg\?imageView&quality=98&crop=0_8500_960_500|
+        http://haitao.nos.netease.com/08cb6647415e4295ac7d53a89d6ecfcb1529465797598jimkg2cd20256.jpg\?imageView&quality=98&crop=0_9000_960_444|
+        http://haitao.nos.netease.com/e33ab27fd90748f9b522687325c457b81524635537108jgeomthv10334.jpg\?imageView&quality=98&crop=0_0_750_500|
+        http://haitao.nos.netease.com/e33ab27fd90748f9b522687325c457b81524635537108jgeomthv10334.jpg\?imageView&quality=98&crop=0_500_750_150|
+        <video .*?>.*?</video>|
+        '''.replace(' ', '').replace('\n', '')
+        div_desc = re.compile(filter_str).sub('', div_desc)
+        div_desc = re.compile('<a.*?>').sub('<a>', div_desc)
+
         return div_desc
 
     def _get_sell_time(self, data):
