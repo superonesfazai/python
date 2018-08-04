@@ -45,7 +45,7 @@ class ALi1688CommentParse(object):
     阿里1688评论抓取解析类
     '''
     def __init__(self, logger=None):
-        super().__init__()
+        super(ALi1688CommentParse, self).__init__()
         self.result_data = {}
         self.msg = ''
         self._set_headers()

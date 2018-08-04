@@ -37,7 +37,7 @@ import asyncio
 from fzutils.spider.fz_aiohttp import MyAiohttp
 
 async def tmp():
-    _ = MyAiohttp()
+    _ = MyAiohttp(max_tasks=5)
     return await _.aio_get_url_body(url='xxx')
 
 from fzutils.spider.fz_requests import MyRequests

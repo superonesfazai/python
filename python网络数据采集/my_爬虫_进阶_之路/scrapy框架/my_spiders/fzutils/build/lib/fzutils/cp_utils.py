@@ -126,11 +126,12 @@ async def calculate_right_sign(_m_h5_tk: str, data: json):
     import execjs
     import time
     from random import randint
+    from .safe_utils import md5_encrypt
 
-    with open('../static/js/get_h_func.js', 'r') as f:  # 打开js源文件
-        js = f.read()
-
-    js_parser = execjs.compile(js)                      # 编译js得到python解析对象
+    # with open('../static/js/get_h_func.js', 'r') as f:  # 打开js源文件
+    #     js = f.read()
+    #
+    # js_parser = execjs.compile(js)                      # 编译js得到python解析对象
     t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
 
     # 构造参数e
@@ -138,7 +139,8 @@ async def calculate_right_sign(_m_h5_tk: str, data: json):
     # e = 'undefine' + '&' + t + '&' + appKey + '&' + '{"optStr":"{\"displayCount\":4,\"topItemIds\":[]}","bizCode":"tejia_003","currentPage":"1","pageSize":"4"}'
     e = _m_h5_tk + '&' + t + '&' + appKey + '&' + data
 
-    sign = js_parser.call('h', e)
+    # sign = js_parser.call('h', e)
+    sign = md5_encrypt(e)
 
     return sign, t
 

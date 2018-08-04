@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.1.2
+Version: 0.0.1.1.3
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
 Author-email: superonesfazai@gmail.com
 License: MIT
-Description: [![Build Status](https://travis-ci.org/EasyWeChat/site.svg?branch=master)](https://github.com/superonesfazai/python)
+Description: [![Build Status](https://travis-ci.org/EasyWeChat/site.svg?branch=master)](https://github.com/superonesfazai/fzutils)
         [![GitHub license](https://img.shields.io/github/license/superonesfazai/fzutils.svg)](https://github.com/superonesfazai/fzutils/blob/master/LICENSE.txt)
         [![GitHub forks](https://img.shields.io/github/forks/superonesfazai/fzutils.svg)](https://github.com/superonesfazai/fzutils/network)
         [![GitHub stars](https://img.shields.io/github/stars/superonesfazai/fzutils.svg)](https://github.com/superonesfazai/fzutils/stargazers)
@@ -27,6 +27,43 @@ Description: [![Build Status](https://travis-ci.org/EasyWeChat/site.svg?branch=m
         -  Python 3或更高版本.
         -  依靠的代理池是IPProxyPool < https://github.com/qiyeboy/IPProxyPool >
         
+        ## simple use
+        ```bash
+        $ cd xxx/IPProxyPool && python3 IPProxy.py
+        ```
+        ```python
+        from fzutils.spider.fz_phantomjs import MyPhantomjs
+        
+        _ = MyPhantomjs(executable_path='xxx')
+        exec_code = '''
+        js = 'document.body.scrollTop=10000'
+        self.driver.execute_script(js) 
+        '''
+        _.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
+        
+        import asyncio
+        from fzutils.spider.fz_aiohttp import MyAiohttp
+        
+        async def tmp():
+            _ = MyAiohttp(max_tasks=5)
+            return await _.aio_get_url_body(url='xxx')
+        
+        from fzutils.spider.fz_requests import MyRequests
+        
+        MyRequests.get_url_body(method='get', url='xxx')
+        
+        # 还有很多其他常用函数, 待您探索...
+        from fzutils.time_utils import fz_set_timeout
+        from time import sleep
+        
+        # 设置执行超时
+        @fz_set_timeout(2)
+        def tmp():
+            sleep(3)
+        tmp()
+            
+        ```
+        
         ## 资源
         fzutils的home < https://www.github.com/superonesfazai/python >
         
@@ -42,6 +79,7 @@ Description: [![Build Status](https://travis-ci.org/EasyWeChat/site.svg?branch=m
         super_fazai
         
         <author_email: superonesfazai@gmail.com>
+        
         
 Platform: linux/Windows/Mac
 Classifier: Programming Language :: Python :: 3 :: Only

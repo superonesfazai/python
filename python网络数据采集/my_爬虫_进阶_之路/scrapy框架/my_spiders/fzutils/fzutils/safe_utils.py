@@ -14,6 +14,7 @@
 __all__ = [
     'encrypt',              # 加密算法
     'decrypt',              # 解密算法
+    'md5_encrypt',          # 得到md5加密的字符串
 ]
 
 def encrypt(key, tmp_str):
@@ -68,3 +69,19 @@ def decrypt(key, tmp_str):
         return b.decode("gbk")
     except:
         return ''
+
+def md5_encrypt(target_str, encoding='utf-8'):
+    '''
+    得到md5加密的字符串
+    :param target_str:
+    :param encoding:
+    :return:
+    '''
+    from hashlib import md5
+
+    _ = md5()
+    _.update(target_str.encode(encoding=encoding))
+
+    result = _.hexdigest()
+
+    return result
