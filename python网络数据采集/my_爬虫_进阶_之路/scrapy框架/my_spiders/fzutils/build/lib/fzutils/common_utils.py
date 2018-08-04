@@ -14,6 +14,7 @@ __all__ = [
     '_green',                                                   # 将字体变成绿色
     'delete_list_null_str',                                     # 删除list中的空str
     'list_duplicate_remove',                                    # list去重
+    'len_pro',                                                  # 获取具有 __len__, len, fileno, tell 等属性的对象的长度, 比如: list, tuple, dict, file and so on
 
     # json_str转dict时报错处理方案
     'deal_with_JSONDecodeError_about_value_invalid_escape',     # 错误如: ValueError: Invalid \escape: line 1 column 35442 (char 35441)
@@ -214,4 +215,59 @@ def save_base64_img_2_local(save_path, base64_img_str):
     except Exception as e:
         print(e)
         return False
+
+def len_pro(obj):
+    '''
+    获取具有 __len__, len, fileno, tell 等属性的对象的长度, 比如: list, tuple, dict, file and so on
+    :param obj:
+    :return: 长度 int
+    '''
+    import os
+    import io
+
+    total_length = None
+    current_position = 0
+
+    if hasattr(obj, '__len__'):
+        total_length = len(obj)
+
+    elif hasattr(obj, 'len'):
+        total_length = obj.len
+
+    elif hasattr(obj, 'fileno'):
+        try:
+            fileno = obj.fileno()
+        except io.UnsupportedOperation:
+            pass
+        else:
+            total_length = os.fstat(fileno).st_size
+
+    if hasattr(obj, 'tell'):
+        try:
+            current_position = obj.tell()
+        except (OSError, IOError):
+            # This can happen in some weird situations, such as when the file
+            # is actually a special file descriptor like stdin. In this
+            # instance, we don't know what the length is, so set it to zero and
+            # let requests chunk it instead.
+            if total_length is not None:
+                current_position = total_length
+        else:
+            if hasattr(obj, 'seek') and total_length is None:
+                # StringIO and BytesIO have seek but no useable fileno
+                try:
+                    # seek to end of file
+                    obj.seek(0, 2)
+                    total_length = obj.tell()
+
+                    # seek back to current position to support
+                    # partially read file-like objects
+                    obj.seek(current_position or 0)
+                except (OSError, IOError):
+                    total_length = 0
+
+    if total_length is None:
+        total_length = 0
+
+    return max(0, total_length - current_position)
 

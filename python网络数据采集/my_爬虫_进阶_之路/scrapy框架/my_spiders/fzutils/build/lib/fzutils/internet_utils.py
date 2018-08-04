@@ -22,6 +22,11 @@ __all__ = [
     'get_random_pc_ua',                                     # 得到一个随机pc headers
     'get_random_phone_ua',                                  # 得到一个随机phone headers
     'get_base_headers',                                     # 得到一个base headers
+
+    # ip判断
+    'is_ipv4',                                              # 判断是否为ipv4地址
+    'is_ipv6',                                              # 判断是否为ipv6地址
+    'get_local_free_port',                                  # 随机获取一个可以被绑定的空闲端口
 ]
 
 def _get_url_contain_params(url, params):
@@ -201,3 +206,49 @@ def dict_cookies_2_str(dict_cookies):
     str_cookies = ';'.join(item for item in cookie)
 
     return str_cookies
+
+def is_ipv4(ip):
+    '''
+    判断是否为ipv4地址
+    :param ip:
+    :return: bool
+    '''
+    import socket
+
+    try:
+        socket.inet_aton(ip)
+    except socket.error:
+        return False
+
+    return True
+
+def is_ipv6(ip):
+    '''
+    判断是否为ipv6地址
+    :param ip:
+    :return: bool
+    '''
+    import socket
+
+    try:
+        socket.inet_pton(socket.AF_INET6, ip)
+    except socket.error:
+        return False
+
+    return True
+
+def get_local_free_port():
+    '''
+    随机获取一个可以被绑定的空闲端口
+    :return: int
+    '''
+    import socket
+    from contextlib import closing
+
+    with closing(socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)) as s:
+        s.bind(('127.0.0.1', 0))
+        _, port = s.getsockname()
+
+    return port
+
+

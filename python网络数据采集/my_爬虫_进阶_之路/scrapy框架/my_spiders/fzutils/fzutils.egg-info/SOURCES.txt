@@ -9,6 +9,7 @@ fzutils/ip_pools.py
 fzutils/items.py
 fzutils/linux_utils.py
 fzutils/log_utils.py
+fzutils/path_utils.py
 fzutils/safe_utils.py
 fzutils/sql_utils.py
 fzutils/time_utils.py
@@ -22,6 +23,8 @@ fzutils.egg-info/zip-safe
 fzutils/data/__init__.py
 fzutils/data/excel_utils.py
 fzutils/data/json_utils.py
+fzutils/data/list_utils.py
+fzutils/data/str_utils.py
 fzutils/spider/__init__.py
 fzutils/spider/fz_aiohttp.py
 fzutils/spider/fz_phantomjs.py

@@ -167,7 +167,7 @@ def auto_git(path):
 def get_os_platform():
     '''
     返回当前是什么系统
-    :return:
+    :return: mac是darwin | ...
     '''
     import os
     import sys
@@ -179,5 +179,3 @@ def get_os_platform():
         return 'osf1'
 
     return sys.platform
-
-print(get_os_platform())
