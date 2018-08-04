@@ -1,6 +1,6 @@
-Metadata-Version: 1.2
+Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.1.1
+Version: 0.0.1.1.2
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -16,7 +16,7 @@ Description: [![Build Status](https://travis-ci.org/EasyWeChat/site.svg?branch=m
         # fzutils
         
         ## 这是什么?
-        这是fz的常用python utils包, for Spider.
+        这是fz的python utils包, for Spider.
         
         ## Install
         ```bash
@@ -49,3 +49,4 @@ Classifier: License :: OSI Approved :: MIT License
 Classifier: Intended Audience :: Developers
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3
+Description-Content-Type: text/markdown
