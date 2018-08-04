@@ -12,6 +12,7 @@ __all__ = [
     'restart_program',                                  # 初始化避免异步导致log重复打印
     'process_exit',                                     # 判断进程是否存在
     'kill_process_by_name',                             # 根据进程名杀掉对应进程(linux/mac测试通过!)
+    'get_os_platform',                                  # 返回当前是什么系统
 
     # shell
     'get_str_from_command',                             # shell下执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为""
@@ -163,4 +164,20 @@ def auto_git(path):
 
     return True
 
+def get_os_platform():
+    '''
+    返回当前是什么系统
+    :return:
+    '''
+    import os
+    import sys
 
+    if "_PYTHON_HOST_PLATFORM" in os.environ:
+        return os.environ["_PYTHON_HOST_PLATFORM"]
+
+    if sys.platform.startswith('osf1'):
+        return 'osf1'
+
+    return sys.platform
+
+print(get_os_platform())
