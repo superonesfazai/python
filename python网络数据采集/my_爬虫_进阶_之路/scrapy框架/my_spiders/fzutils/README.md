@@ -89,6 +89,7 @@ auto_git(path='xxx/path')
 ```python
 from fzutils.path_utils import cd
 
+# cd 到目标上下文并进行其他操作
 with cd('path'):
     pass
 ```
@@ -97,7 +98,7 @@ from fzutils.sql_utils import (
     BaseSqlServer,
     pretty_table,)
 
-_ = BaseSqlServer(host='', user='', passwd='', db='', port='')
+_ = BaseSqlServer(host='host', user='user', passwd='passwd', db='db', port='port')
 # db美化打印
 pretty_table(
     cursor=_._get_one_select_cursor(
@@ -170,7 +171,7 @@ remote_decompress_folders(
 ```python
 from fzutils.common_utils import json_2_dict
 
-# json转dict, 包含部分不规范json
+# json转dict, 处理部分不规范json
 _dict = json_2_dict(json_str='json_str', logger=logger, encoding='utf-8')
 ```
 ```python
