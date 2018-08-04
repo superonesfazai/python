@@ -46,7 +46,7 @@ def run_forever():
         select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
         where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null 
-        order by ID asc'''
+        order by ID desc'''
 
         try:
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
