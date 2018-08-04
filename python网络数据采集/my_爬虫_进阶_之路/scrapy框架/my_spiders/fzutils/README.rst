@@ -4,6 +4,12 @@
 =============
 这是fz的常用utils包, for Spider.
 
+Install
+=============
+```
+pip3 install fzutils
+```
+
 要求
 =============
 -  Python 3或更高版本.
