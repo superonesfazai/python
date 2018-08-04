@@ -45,7 +45,7 @@ def read(f_name):
     """
     return codecs.open(os.path.join(os.path.dirname(__file__), f_name)).read()
 
-long_description = read('README.rst')
+long_description = read('README.md')
 
 classifiers = [
     'Programming Language :: Python :: 3 :: Only',
@@ -61,7 +61,7 @@ py_modules = [
 
 setup(
     name="fzutils",
-    version="0.0.1.1.0",
+    version="0.0.1.1.1",
     author="super_fazai",
     author_email="superonesfazai@gmail.com",
     description="A Python utils for spider",
