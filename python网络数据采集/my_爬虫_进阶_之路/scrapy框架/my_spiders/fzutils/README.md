@@ -24,6 +24,14 @@ pip3 install fzutils
 $ cd xxx/IPProxyPool && python3 IPProxy.py
 ```
 ```python
+from fzutils.ip_pools import MyIpPools
+
+# 高匿
+ip_obj = MyIpPools(high_conceal=True)
+# 得到一个随机ip, eg: 'http://175.6.2.174:8088'
+proxy = ip_obj._get_random_proxy_ip()
+```
+```python
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 _ = MyPhantomjs(executable_path='xxx')
@@ -31,29 +39,142 @@ exec_code = '''
 js = 'document.body.scrollTop=10000'
 self.driver.execute_script(js) 
 '''
-_.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
+body = _.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
+```
+```python
+from fzutils.spider.fz_requests import MyRequests
 
+body = MyRequests.get_url_body(method='get', url='xxx')
+```
+```python
 import asyncio
 from fzutils.spider.fz_aiohttp import MyAiohttp
 
 async def tmp():
     _ = MyAiohttp(max_tasks=5)
     return await _.aio_get_url_body(url='xxx')
-
-from fzutils.spider.fz_requests import MyRequests
-
-MyRequests.get_url_body(method='get', url='xxx')
-
-# 还有很多其他常用函数, 待您探索...
-from fzutils.time_utils import fz_set_timeout
+```
+```python
+from fzutils.time_utils import (
+    fz_set_timeout,
+    fz_timer,)
 from time import sleep
+import sys
 
 # 设置执行超时
 @fz_set_timeout(2)
 def tmp():
     sleep(3)
-tmp()
+
+# 计算函数用时, 支持sys.stdout.write or logger.info
+@fz_timer(print_func=sys.stdout.write)
+def tmp_2():
+    sleep(3)
     
+tmp()
+tmp_2()
+```
+```python
+from fzutils.log_utils import set_logger
+from logging import INFO, ERROR
+
+logger = set_logger(log_file_name='path', console_log_level=INFO, file_log_level=ERROR)
+```
+```python
+from fzutils.linux_utils import auto_git
+
+# 自动化git
+auto_git(path='xxx/path')
+```
+```python
+from fzutils.path_utils import cd
+
+with cd('path'):
+    pass
+```
+```python
+from fzutils.sql_utils import (
+    BaseSqlServer,
+    pretty_table,)
+
+_ = BaseSqlServer(host='', user='', passwd='', db='', port='')
+# db美化打印
+pretty_table(
+    cursor=_._get_one_select_cursor(
+        sql_str='sql_str', 
+        params=('some_thing',)))
+```
+```python
+from fzutils.linux_utils import (
+    kill_process_by_name,
+    process_exit,)
+
+# 根据process_name kill process
+kill_process_by_name(process_name='xxxx')
+# 根据process_name 判断process是否存在
+process_exit(process_name='xxxx')
+```
+```python
+from fzutils.linux_utils import daemon_init
+
+def run_forever():
+    pass
+
+# 守护进程
+daemon_init()
+run_forever()
+```
+```python
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
+
+# 随机user-agent
+pc_user_agent = get_random_pc_ua()
+phone_user_agent = get_random_phone_ua()
+```
+```python
+from fzutils.common_utils import _print
+
+# 支持sys.stdout.write or logger
+_print(msg='xxx', logger=logger, exception=e, log_level=2)
+```
+```python
+from fzutils.auto_ops_utils import (
+    upload_or_download_files,
+    local_compress_folders,
+    remote_decompress_folders,)
+from fabric.connection import Connection
+
+connect_object = Connection()
+# local 与 server端 上传或下载文件
+upload_or_download_files(
+    method='put',
+    connect_object=connect_object,
+    local_file_path='/Users/afa/myFiles/tmp/my_spider_logs.zip',
+    remote_file_path='/root/myFiles/my_spider_logs.zip'
+)
+# 本地解压zip文件
+local_compress_folders(
+    father_folders_path='/Users/afa/myFiles',
+    folders_name='my_spider_logs',
+    default_save_path='xxxxxx'
+)
+# 远程解压zip文件
+remote_decompress_folders(
+    connect_object=connect_object,
+    folders_path='/root/myFiles/my_spider_logs.zip',
+    target_decompress_path='/root/myFiles/'
+)
+```
+```python
+from fzutils.common_utils import json_2_dict
+
+# json转dict, 包含部分不规范json
+_dict = json_2_dict(json_str='json_str', logger=logger, encoding='utf-8')
+```
+```python
+# 还有很多其他常用函数, 待您探索...
 ```
 
 ## 资源
