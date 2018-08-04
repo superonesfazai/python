@@ -27,7 +27,11 @@ $ cd xxx/IPProxyPool && python3 IPProxy.py
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 _ = MyPhantomjs(executable_path='xxx')
-_.use_phantomjs_to_get_url_body(url='xxx', exec_code='xxx')
+exec_code = '''
+js = 'document.body.scrollTop=10000'
+self.driver.execute_script(js) 
+'''
+_.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
 
 import asyncio
 from fzutils.spider.fz_aiohttp import MyAiohttp
@@ -37,8 +41,8 @@ async def tmp():
     return await _.aio_get_url_body(url='xxx')
 
 from fzutils.spider.fz_requests import MyRequests
-_ = MyRequests()
-_.get_url_body(method='get', url='xxx')
+
+MyRequests.get_url_body(method='get', url='xxx')
 
 # 还有很多其他常用函数, 待您探索...
 from fzutils.time_utils import fz_set_timeout
@@ -67,3 +71,4 @@ fzutils根据MIT许可证提供, 包含的LICENSE文件详细描述了这一点.
 super_fazai
 
 <author_email: superonesfazai@gmail.com>
+
