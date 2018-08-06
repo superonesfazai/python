@@ -6,15 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/build/lib/fzutils/data/json_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/build/lib/fzutils/data/json_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/dist/fzutils-0.0.1.1.4-py3-none-any.whl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/dist/fzutils-0.0.1.1.4.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils.egg-info/PKG-INFO" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils.egg-info/PKG-INFO" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/data/json_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/data/json_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/kaola_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/kaola_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/tools/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/tools/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/yanxuan_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/yanxuan_parse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md" beforeDir="false" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -801,8 +793,8 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="html" value="1" />
-          <entry key="md" value="10" />
-          <entry key="py" value="69" />
+          <entry key="md" value="11" />
+          <entry key="py" value="71" />
           <entry key="pyi" value="1" />
           <entry key="rst" value="2" />
           <entry key="为什么有时候post也能在url内看到数据?" value="2" />
@@ -813,9 +805,9 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="HTML" value="1" />
-          <entry key="Markdown" value="10" />
+          <entry key="Markdown" value="11" />
           <entry key="PLAIN_TEXT" value="5" />
-          <entry key="Python" value="69" />
+          <entry key="Python" value="71" />
           <entry key="PythonStub" value="1" />
           <entry key="ReST" value="2" />
         </counts>
@@ -823,16 +815,17 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="html" value="22" />
-          <entry key="md" value="1847" />
-          <entry key="py" value="5967" />
+          <entry key="md" value="2029" />
+          <entry key="py" value="5968" />
           <entry key="rst" value="85" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
+          <entry key="Bash" value="15" />
           <entry key="HTML" value="22" />
-          <entry key="Markdown" value="1732" />
-          <entry key="Python" value="6082" />
+          <entry key="Markdown" value="1899" />
+          <entry key="Python" value="6083" />
           <entry key="ReST" value="85" />
         </counts>
       </usages-collector>
@@ -842,18 +835,13 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/yanxuan_parse.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="395">
-              <caret line="275" column="68" selection-start-line="275" selection-start-column="68" selection-end-line="275" selection-end-column="68" />
-              <folding>
-                <element signature="e#155#164#0" expanded="true" />
-                <element signature="e#10756#11099#0" />
-                <element signature="e#11967#12065#0" />
-                <element signature="e#12112#12185#0" />
-                <element signature="e#12227#12431#0" />
-                <element signature="e#12491#13301#0" />
-              </folding>
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="675">
+                <caret line="256" column="14" lean-forward="true" selection-start-line="256" selection-start-column="14" selection-end-line="256" selection-end-column="14" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -934,7 +922,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/pintuan_script/jumeiyoupin_pintuan_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/pintuan_script/mogujie_pintuan.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/pintuan_script/mogujie_pintuan_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/comment_spiders/jd_comment_parse.py" />
@@ -985,6 +972,7 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/kaola_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/tools/test.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/yanxuan_parse.py" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md" />
       </list>
     </option>
   </component>
@@ -1118,6 +1106,11 @@
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
               <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
               <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -1140,36 +1133,6 @@
               <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
               <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
-              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
-              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
@@ -1213,30 +1176,6 @@
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
               <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
-              <item name="阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品" type="462c0819:PsiDirectoryNode" />
-              <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
-              <item name="sql_lang" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
-              <item name="阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品" type="462c0819:PsiDirectoryNode" />
-              <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
-              <item name="tools" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
               <item name="日常脚本" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -1248,7 +1187,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
-    <property name="SearchEverywhereHistoryKey" value="为&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/pythonDoc/python/my_py_notes_万物皆对象/internet_code/urllib/为什么有时候post也能在url内看到数据?&#10;站&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/pythonDoc/python/my_py_notes_万物皆对象/re/正则表达式测试网站&#10;问价&#9;null&#9;null&#10;文件&#9;null&#9;null&#10;端&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/pythonDoc/python/my_py_notes_万物皆对象/网络编程/网络通讯/端口相关/端口&#10;中&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/basic/html处理/从html文档中提取数据.py&#10;l&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/common_utils.py&#10;k&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/just_fuck_run/just_fuck_run.py&#10;默认&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/MySQL默认的四个数据库简介&#10;的&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/my_基金/某基金的单位净值走势_累计净值走势.py&#10;模式&#9;null&#9;null&#10;y&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/comment_spiders/my_all_comment_spider.py&#10;z&#9;FILE&#9;file:///usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/tensorflow/include/google/protobuf/io/zero_copy_stream.h&#10;ang&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/spike_everything/taobao_qianggou_miaosha_real-times_update.py&#10;get_the&#9;null&#9;null" />
+    <property name="SearchEverywhereHistoryKey" value="xia&#9;null&#9;null&#10;为&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/pythonDoc/python/my_py_notes_万物皆对象/internet_code/urllib/为什么有时候post也能在url内看到数据?&#10;站&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/pythonDoc/python/my_py_notes_万物皆对象/re/正则表达式测试网站&#10;问价&#9;null&#9;null&#10;文件&#9;null&#9;null&#10;端&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/pythonDoc/python/my_py_notes_万物皆对象/网络编程/网络通讯/端口相关/端口&#10;中&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/basic/html处理/从html文档中提取数据.py&#10;l&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/common_utils.py&#10;k&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/just_fuck_run/just_fuck_run.py&#10;默认&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/MySQL默认的四个数据库简介&#10;的&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/my_基金/某基金的单位净值走势_累计净值走势.py&#10;模式&#9;null&#9;null&#10;y&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/comment_spiders/my_all_comment_spider.py&#10;z&#9;FILE&#9;file:///usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/tensorflow/include/google/protobuf/io/zero_copy_stream.h&#10;ang&#9;FILE&#9;file:///Users/afa/myFiles/codeDoc/PythonDoc/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/spike_everything/taobao_qianggou_miaosha_real-times_update.py&#10;get_the&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -1786,13 +1725,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14323749" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14323749" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32970297" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4997284" visible="true" weight="0.5" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4997284" weight="0.5" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1872,10 +1812,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/文档读取/read_pdf.py" />
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/穿越网页表单与登录窗口采集/basic-auth.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/穿越网页表单与登录窗口采集/cookies.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -1947,13 +1883,6 @@
             <caret line="1" selection-start-line="1" selection-end-line="2" />
           </first_editor>
           <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/万能下载器_by_super_fazai/downloader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="45" column="27" lean-forward="true" selection-start-line="45" selection-start-column="27" selection-end-line="45" selection-end-column="27" />
         </state>
       </provider>
     </entry>
@@ -2182,8 +2111,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/yanxuan_parse.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="275" column="68" selection-start-line="275" selection-start-column="68" selection-end-line="275" selection-end-column="68" />
+        <state relative-caret-position="393">
+          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
           <folding>
             <element signature="e#155#164#0" expanded="true" />
             <element signature="e#10756#11099#0" />
@@ -2192,6 +2121,26 @@
             <element signature="e#12227#12431#0" />
             <element signature="e#12491#13301#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/well_recommend/xiaohongshu_parse.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/万能下载器_by_super_fazai/downloader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="445">
+          <caret line="45" column="27" lean-forward="true" selection-start-line="45" selection-start-column="27" selection-end-line="45" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="675">
+            <caret line="256" column="14" lean-forward="true" selection-start-line="256" selection-start-column="14" selection-end-line="256" selection-end-column="14" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>

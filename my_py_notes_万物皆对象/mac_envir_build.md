@@ -244,5 +244,27 @@ $ docker logs [container ID or NAMES]
 rvictl -s [uuid]
 ```
 
+## 安装appium
+下载地址: https://github.com/appium/appium-desktop/releases
+java jdk下载地址: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+android studio下载地址: http://tools.android-studio.org/
+```bash
+### ios真机
+$ brew install carthage
+# Appium iOS真实设备支持取决于中央第三方软件套件 libimobiledevice
+$ brew install libimobiledevice
+$ brew install node
+# Appium对使用Xcode 8+运行iOS 9.3及更高版本的真实设备的支持也依赖于ios-deploy
+$ brew install ios-deploy
+# 对于混合或Web测试，您还需要遵循 ios-webkit-debug-proxy 设置说明
+$ brew install ios-webkit-debug-proxy
+
+```
+```bash
+### android
+$ brew install npm
+$ npm install wd
+
+```
 ## 安装网易云音乐
 https://music.163.com/#/download
