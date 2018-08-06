@@ -9,6 +9,7 @@
 
 __all__ = [
     'read_json_from_local_json_file',                       # 从本地json文件读取json, 并以dict返回
+    'nonstandard_json_str_handle',                          # 不规范的json_str处理
 ]
 
 def read_json_from_local_json_file(json_file_path):
@@ -32,6 +33,19 @@ def read_json_from_local_json_file(json_file_path):
     _ = json_2_dict(json_str=result)
 
     return _
+
+def nonstandard_json_str_handle(json_str):
+    '''
+    不规范的json_str处理
+    :param json_str:
+    :return:
+    '''
+    import re
+
+    json_str = re.compile('null').sub('""', json_str)
+    json_str = re.compile(':,').sub(':"",', json_str)
+
+    return json_str
 
 
 

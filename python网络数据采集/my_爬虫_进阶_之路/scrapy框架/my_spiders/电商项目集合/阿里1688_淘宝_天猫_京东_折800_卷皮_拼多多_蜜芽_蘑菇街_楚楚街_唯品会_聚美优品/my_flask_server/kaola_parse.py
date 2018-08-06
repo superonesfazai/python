@@ -95,82 +95,81 @@ class KaoLaParse(object):
             self.my_lg.error('获取到的goods_id为空值!此处跳过!')
             return self._get_data_error_init()
 
+        # 网易考拉pc站抓取, m站p_info信息不全(不采用)
+        # phone_body(requests设置代理一直302无限重定向, 于是phantomjs)
+        # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
+
+        url = 'https://goods.kaola.com/product/{0}.html'.format(goods_id)
+        self.my_lg.info('------>>>| 正在抓取考拉地址为: {0}'.format(url))
+
+        body = self._get_pc_goods_body(url=url, goods_id=goods_id)
+        # self.my_lg.info(body)
+        if body == '':
+            return self._get_data_error_init()
+
+        # _ = self._get_right_body(body)    # phone端
+        _ = self._get_pc_right_body(body)   # pc端
+        # pprint(_)
+        if _ == {}:
+            self.my_lg.error('获取body时索引异常!出错goods_id为:{0}, 出错地址: {1}'.format(goods_id, url))
+            return self._get_data_error_init()
+
         else:
-            # 网易考拉pc站抓取, m站p_info信息不全(不采用)
-            # phone_body(requests设置代理一直302无限重定向, 于是phantomjs)
-            # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
+            # TODO 获取m站的sku_info(但是没有税费)
+            # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
+            # params = self._get_params(goods_id=goods_id)
+            # body = MyRequests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
 
-            url = 'https://goods.kaola.com/product/{0}.html'.format(goods_id)
-            self.my_lg.info('------>>>| 正在抓取考拉地址为: {0}'.format(url))
+            # 获取pc站的sku_info
+            sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
+            params = self._get_pc_sku_info_params(goods_id=goods_id)
+            body = MyRequests.get_url_body(
+                url=sku_info_url,
+                headers=self._get_pc_sku_info_headers(),
+                params=params)
 
-            body = self._get_pc_goods_body(url=url, goods_id=goods_id)
-            # self.my_lg.info(body)
-            if body == '':
-                return self._get_data_error_init()
-            else:
-                # _ = self._get_right_body(body)    # phone端
-                _ = self._get_pc_right_body(body)   # pc端
-                # pprint(_)
-                if _ == {}:
-                    self.my_lg.error('获取body时索引异常!出错goods_id为:{0}, 出错地址: {1}'.format(goods_id, url))
-                    return self._get_data_error_init()
-
-                else:
-                    # TODO 获取m站的sku_info(但是没有税费)
-                    # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
-                    # params = self._get_params(goods_id=goods_id)
-                    # body = MyRequests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
-
-                    # 获取pc站的sku_info
-                    sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
-                    params = self._get_pc_sku_info_params(goods_id=goods_id)
-                    body = MyRequests.get_url_body(
-                        url=sku_info_url,
-                        headers=self._get_pc_sku_info_headers(),
-                        params=params)
-
-                    sku_info = json_2_dict(json_str=body, logger=self.my_lg).get('data')
-                    if sku_info is None:
-                        self.my_lg.error('获取到we的sku_info为None!出错goods_id: {0}, 出错地址: {1}'.format(goods_id, url))
-                    _['sku_info'] = sku_info
-                    # pprint(_)
-
-            _ = self._wash_data(_)
+            sku_info = json_2_dict(json_str=body, logger=self.my_lg).get('data')
+            if sku_info is None:
+                self.my_lg.error('获取到we的sku_info为None!出错goods_id: {0}, 出错地址: {1}'.format(goods_id, url))
+            _['sku_info'] = sku_info
             # pprint(_)
 
-            data = {}
-            try:
-                # title, sub_title
-                data['title'] = self._get_title(data=_)
-                data['sub_title'] = ''
-                data['shop_name'] = _.get('goodsInfoBase', {}).get('brandName', '')
-                data['all_img_url'] = self._get_all_img_url(data=_)
-                data['p_info'] = self._get_p_info(data=_)
-                data['div_desc'] = self._get_div_desc(data=_)
-                data['sell_time'] = self._get_sell_time(data=_.get('sku_info', {}))
-                data['detail_name_list'] = self._get_detail_name_list(data=_.get('sku_info', {}).get('skuDetailList', []))
-                # TODO 网易考拉官方有bug, 实际规格没货的商品, 前端还在卖, 估计是下单后再去订货, 库存0: 我这边就处理为下架
-                # data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
-                '''获取pc端的, 价格为算上税费的'''
-                data['price_info_list'] = self._get_pc_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
+        _ = self._wash_data(_)
+        # pprint(_)
 
-                data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
-                    data=_.get('sku_info', {}).get('skuPrice', {}),
-                    price_info_list = data['price_info_list']
-                )
-                data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data)
+        data = {}
+        try:
+            # title, sub_title
+            data['title'] = self._get_title(data=_)
+            data['sub_title'] = ''
+            data['shop_name'] = _.get('goodsInfoBase', {}).get('brandName', '')
+            data['all_img_url'] = self._get_all_img_url(data=_)
+            data['p_info'] = self._get_p_info(data=_)
+            data['div_desc'] = self._get_div_desc(data=_)
+            data['sell_time'] = self._get_sell_time(data=_.get('sku_info', {}))
+            data['detail_name_list'] = self._get_detail_name_list(data=_.get('sku_info', {}).get('skuDetailList', []))
+            # TODO 网易考拉官方有bug, 实际规格没货的商品, 前端还在卖, 估计是下单后再去订货, 库存0: 我这边就处理为下架
+            # data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
+            '''获取pc端的, 价格为算上税费的'''
+            data['price_info_list'] = self._get_pc_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
 
-            except Exception:
-                self.my_lg.error('遇到错误:', exc_info=True)
-                self.my_lg.error('出错goods_id: {0}, 地址: {1}'.format(goods_id, url))
-                return self._get_data_error_init()
+            data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
+                data=_.get('sku_info', {}).get('skuPrice', {}),
+                price_info_list = data['price_info_list']
+            )
+            data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
 
-            if data != {}:
-                self.result_data = data
-                return data
-            else:
-                self.my_lg.info('data为空值')
-                return self._get_data_error_init()
+        except Exception:
+            self.my_lg.error('遇到错误:', exc_info=True)
+            self.my_lg.error('出错goods_id: {0}, 地址: {1}'.format(goods_id, url))
+            return self._get_data_error_init()
+
+        if data != {}:
+            self.result_data = data
+            return data
+        else:
+            self.my_lg.info('data为空值')
+            return self._get_data_error_init()
 
     def _deal_with_data(self):
         '''
@@ -575,7 +574,7 @@ class KaoLaParse(object):
 
         return price_info_list
 
-    def _get_is_delete(self, price_info_list, data):
+    def _get_is_delete(self, price_info_list, data, other):
         '''
         获取is_delete
         :param price_info_list:
@@ -598,7 +597,7 @@ class KaoLaParse(object):
                 is_delete = 1
             # print(is_delete)
 
-        if not data.get('sku_info', {}).get('goodsStoreStatus', True):
+        if not other.get('sku_info', {}).get('goodsStoreStatus', True):
             is_delete = 1
 
         return is_delete
@@ -756,7 +755,7 @@ class KaoLaParse(object):
         if is_kaola_url != []:
             if re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(kaola_url) != []:
                 goods_id = re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(kaola_url)[0]
-                self.my_lg.info('------>>>| 得到的唯品会商品的goods_id为: {0}'.format(goods_id))
+                self.my_lg.info('------>>>| 得到的考拉商品的goods_id为: {0}'.format(goods_id))
                 return goods_id
         else:
             self.my_lg.info('网易考拉商品url错误, 非正规的url, 请参照格式(https://goods.kaola.com/product/xxx.html)开头的...')

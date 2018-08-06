@@ -7,40 +7,436 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import requests
+"""
+网易严选m站抓取
+"""
 
-cookies = {
-    '_ntes_nuid': 'b9e56f8d2caea9349ceebc00eb1318fc',
-    '__f_': '1533265025165',
-    '_ntes_nnid': '1db094c118e9cd0c25d33de09f7b391d,1533265025337',
-    'yx_from': 'web_search_google',
-    'yx_delete_cookie_flag': 'true',
-    'yx_aui': 'e0c1b456-39ef-4ff8-824c-d5526c719f4c',
-    'mail_psc_fingerprint': '26a7cc93b2b579f7a8a1851a10404970',
-    'yx_page_key_list': 'http%3A//you.163.com/%2Chttp%3A//you.163.com/item/list%3FcategoryId%3D1005000%26subCategoryId%3D1036000',
-    'yx_new_user_modal_show': '1',
-    'yx_stat_seesionId': 'e0c1b456-39ef-4ff8-824c-d5526c719f4c1533519630302',
-    'yx_stat_lastSendTime': '1533519670398',
-}
-
-headers = {
-    'Connection': 'keep-alive',
-    'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Mobile Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'zh-CN,zh;q=0.9',
-}
-
-params = (
-    ('id', '1130056'),
+import gc
+import re
+from pprint import pprint
+from logging import (
+    INFO,
+    ERROR,
 )
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    MY_SPIDER_LOGS_PATH,)
 
-url = 'http://m.you.163.com/item/detail'
-response = requests.get(url=url, headers=headers, params=params, cookies=cookies)
-print(response.text)
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.common_utils import json_2_dict
+from fzutils.data.json_utils import nonstandard_json_str_handle
+from fzutils.log_utils import set_logger
+from fzutils.internet_utils import get_random_phone_ua
+from fzutils.cp_utils import _get_right_model_data
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,
+    timestamp_to_regulartime,
+    string_to_datetime,)
 
-#NB. Original query string below. It seems impossible to parse and
-#reproduce query strings 100% accurately so the one below is given
-#in case the reproduced version is not "correct".
-# response = requests.get('http://m.you.163.com/item/detail?id=1130056', headers=headers, cookies=cookies)
+class YanXuanParse(object):
+    def __init__(self, logger=None):
+        super(YanXuanParse, self).__init__()
+        self.result_data = {}
+        self._set_logger(logger)
+        self._set_headers()
+
+    def _set_logger(self, logger):
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/网易严选/_/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
+
+    def _set_headers(self):
+        self.headers = {
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': get_random_phone_ua(),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+        }
+
+    def _get_goods_data(self, goods_id):
+        '''
+        得到需求数据
+        :param goods_id:
+        :return:
+        '''
+        if goods_id == '':
+            self.my_lg.error('获取到的goods_id为空值!此处跳过!')
+            return self._get_data_error_init()
+
+        # 网易严选m站抓取
+        url = 'http://m.you.163.com/item/detail'
+        params = self._get_params(goods_id=goods_id)
+
+        m_url = url + '?id={0}'.format(goods_id)
+        self.my_lg.info('------>>>| 正在抓取严选地址为: {0}'.format(m_url))
+
+        write_info = '出错goods_id:{0}, 出错地址: {1}'.format(goods_id, m_url)
+
+        body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
+        # self.my_lg.info(str(body))
+        if body == '':
+            self.my_lg.error('获取到的body为空值!'+write_info)
+            return self._get_data_error_init()
+
+        try:
+            body = re.compile('var jsonData=(.*?),policyList=').findall(body)[0]
+        except IndexError:
+            self.my_lg.error('获取body时索引异常!'+write_info, exc_info=True)
+            return self._get_data_error_init()
+
+        body = nonstandard_json_str_handle(json_str=body)
+        # self.my_lg.info(str(body))
+        _ = json_2_dict(
+            json_str=body)
+        # pprint(_)
+        if _ == {}:
+            self.my_lg.error('获取到的data为空dict!'+write_info)
+            return self._get_data_error_init()
+
+        _ = self._wash_data(_)
+        data = {}
+        try:
+            data['title'] = self._get_title(data=_)
+            data['sub_title'] = self._get_sub_title(data=_)
+            data['shop_name'] = ''
+            data['all_img_url'] = self._get_all_img_url(data=_)
+            data['p_info'] = self._get_p_info(data=_)
+            data['div_desc'] = self._get_div_desc(data=_)
+            data['sell_time'] = self._get_sell_time(data=_)
+            data['detail_name_list'] = self._get_detail_name_list(data=_.get('skuSpecList', []))
+            data['price_info_list'] = self._get_price_info_list(data=_.get('skuList', []))
+            data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
+                price_info_list=data['price_info_list']
+            )
+            data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
+
+        except Exception:
+            self.my_lg.error('遇到错误:', exc_info=True)
+            self.my_lg.error(write_info)
+            return self._get_data_error_init()
+
+        if data != {}:
+            self.result_data = data
+            return data
+        else:
+            self.my_lg.info('data为空值')
+            return self._get_data_error_init()
+
+    def _deal_with_data(self):
+        '''
+        结构化数据
+        :return:
+        '''
+        data = self.result_data
+        if data != {}:
+            # 店铺名称
+            shop_name = data['shop_name']
+            # 掌柜
+            account = ''
+            # 商品名称
+            title = data['title']
+            # 子标题
+            sub_title = data['sub_title']
+
+            # 商品标签属性名称
+            detail_name_list = data['detail_name_list']
+
+            # 要存储的每个标签对应规格的价格及其库存
+            price_info_list = data['price_info_list']
+
+            # 所有示例图片地址
+            all_img_url = data['all_img_url']
+
+            # 详细信息标签名对应属性
+            p_info = data['p_info']
+            # pprint(p_info)
+
+            # div_desc
+            div_desc = data['div_desc']
+
+            is_delete = data['is_delete']
+
+            # 上下架时间
+            if data.get('sell_time', {}) != {}:
+                schedule = [{
+                    'begin_time': data.get('sell_time', {}).get('begin_time', ''),
+                    'end_time': data.get('sell_time', {}).get('end_time', ''),
+                }]
+            else:
+                schedule = []
+
+            # 销售总量
+            all_sell_count = ''
+
+            # 商品价格和淘宝价
+            price, taobao_price = data['price'], data['taobao_price']
+
+            result = {
+                'shop_name': shop_name,                 # 店铺名称
+                'account': account,                     # 掌柜
+                'title': title,                         # 商品名称
+                'sub_title': sub_title,                 # 子标题
+                'price': price,                         # 商品价格
+                'taobao_price': taobao_price,           # 淘宝价
+                # 'goods_stock': goods_stock,               # 商品库存
+                'detail_name_list': detail_name_list,   # 商品标签属性名称
+                # 'detail_value_list': detail_value_list,   # 商品标签属性对应的值
+                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
+                'all_img_url': all_img_url,             # 所有示例图片地址
+                'p_info': p_info,                       # 详细信息标签名对应属性
+                'div_desc': div_desc,                   # div_desc
+                'schedule': schedule,                   # 商品特价销售时间段
+                'all_sell_count': all_sell_count,       # 销售总量
+                'is_delete': is_delete                  # 是否下架
+            }
+            # pprint(result)
+            # print(result)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
+            self.result_data = {}
+            return result
+
+        else:
+            self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
+
+            return self._get_data_error_init()
+
+    def _get_title(self, data):
+        title = data.get('name', '')
+        assert title != '', '获取到的name为空值!请检查!'
+
+        return title
+
+    def _get_sub_title(self, data):
+        sub_title = data.get('simpleDesc', '')  # 可以为空
+
+        return sub_title
+
+    def _get_all_img_url(self, data):
+        tmp = data.get('itemDetail', {})
+        first_img_url = data.get('listPicUrl', '')
+        assert tmp != {}, '获取到的all_img_url为空dict！'
+
+        all_img_url = [{
+            'img_url': first_img_url
+        }] if first_img_url != '' else []
+        for key, value in tmp.items():
+            if re.compile('picUrl').findall(key) != []:
+                all_img_url.append({
+                    'img_url': value,
+                })
+
+        return all_img_url
+
+    def _get_p_info(self, data):
+        p_info = [{
+            'p_name': item.get('attrName', ''),
+            'p_value': item.get('attrValue', ''),
+        } for item in data.get('attrList', [])]
+
+        return p_info
+
+    def _get_div_desc(self, data):
+        div_desc = data.get('itemDetail', {}).get('detailHtml', '')
+        assert div_desc != '', '获取到的div_desc为空值!请检查!'
+        # self.my_lg.info(str(div_desc))
+
+        div_desc = self._wash_div_desc(div_desc)
+        # print(div_desc)
+
+        return div_desc
+
+    def _wash_div_desc(self, div_desc):
+        '''
+        清洗div_desc
+        :param div_desc:
+        :return:
+        '''
+        filter = '''
+        _src=\".*?\"
+        '''.replace('\n', '').replace(' ', '')
+
+        div_desc = re.compile(filter).sub('', div_desc)
+
+        # 因为前面的严选声明照片地址是hash值, 每次都变
+        # 所以所有div_desc同意洗去前4张
+        div_desc = re.compile('<img.*?/>').sub('', div_desc, count=4)
+
+        return div_desc
+
+    def _get_sell_time(self, data):
+        '''
+        得到上下架时间
+        :param data:
+        :return:
+        '''
+        try:
+            left_time = data.get('gradientPrice', {}).get('leftTime', 0)
+        except AttributeError:  # gradientPrice的值可能为''
+            return {}
+
+        if left_time == 0:
+            return {}
+
+        now_time_timestamp = datetime_to_timestamp(get_shanghai_time())
+        sell_time = {
+            'begin_time': timestamp_to_regulartime(now_time_timestamp),
+            'end_time': timestamp_to_regulartime(now_time_timestamp + left_time),
+        }
+
+        return sell_time
+
+    def _get_detail_name_list(self, data):
+        detail_name_list = []
+        for item in data:
+            if item.get('name') is None:
+                return []
+            else:
+                detail_name_list.append({
+                    'spec_name': item.get('name')
+                })
+
+        return detail_name_list
+
+    def _get_price_info_list(self, data):
+        '''
+        得到price_info_list
+        :param data:
+        :return:
+        '''
+        price_info_list = []
+        for item in data:
+            itemSkuSpecValueList = item.get('itemSkuSpecValueList', [])
+            spec_value_list = [i.get('skuSpecValue', {}).get('value', '') for i in itemSkuSpecValueList]
+            spec_value = '|'.join(spec_value_list)
+            img_url = item.get('pic', '')    # 默认为空
+            detail_price = str(item.get('retailPrice', ''))          # 零售价
+            normal_price = str(item.get('counterPrice', ''))         # 市场价
+            account_limit_buy_count = 5
+            rest_number = item.get('sellVolume', 0)        # 官方接口没有规格库存信息, 此处默认为20
+            if rest_number == 0:
+                continue
+
+            price_info_list.append({
+                'spec_value': spec_value,
+                'img_url': img_url,
+                'detail_price': detail_price,
+                'normal_price': normal_price,
+                'account_limit_buy_count': account_limit_buy_count,
+                'rest_number': rest_number,
+            })
+
+        return price_info_list
+
+    def _get_price_and_taobao_price(self, price_info_list):
+        try:
+            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            price = tmp_price_list[-1]  # 商品价格
+            taobao_price = tmp_price_list[0]  # 淘宝价
+        except IndexError:
+            raise IndexError('获取price, taobao_price时索引异常!请检查!')
+
+        return price, taobao_price
+
+    def _get_is_delete(self, price_info_list, data, other):
+        is_delete = 0
+        all_rest_number = 0
+        if price_info_list != []:
+            for item in price_info_list:
+                all_rest_number += item.get('rest_number', 0)
+            if all_rest_number == 0:
+                is_delete = 1
+        else:
+            is_delete = 1
+
+        # 当官方下架时间< 当前时间戳 则商品已下架 is_delete = 1
+        if data['sell_time'] != {}:
+            end_time = datetime_to_timestamp(string_to_datetime(data.get('sell_time', {}).get('end_time', '')))
+            if end_time < datetime_to_timestamp(get_shanghai_time()):
+                self.my_lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+                is_delete = 1
+            # print(is_delete)
+
+        if other.get('soldOut'):    # True or False
+            is_delete = 1
+
+        return is_delete
+
+    def _get_data_error_init(self):
+        '''
+        获取或者失败处理
+        :return:
+        '''
+        self.result_data = {}
+
+        return {}
+
+    def _get_params(self, goods_id):
+        params = (
+            ('id', goods_id),
+        )
+
+        return params
+
+    def _wash_data(self, data):
+        '''
+        清洗无用数据
+        :param data:
+        :return:
+        '''
+        try:
+            data['comments'] = []
+            data['issueList'] = []
+        except:
+            pass
+
+        return data
+
+    def get_goods_id_from_url(self, yanxuan_url):
+        '''
+        得到goods_id
+        :param yanxuan_url:
+        :return: goods_id
+        '''
+        yanxuan_url = yanxuan_url.replace('http://', 'https://').replace(';', '')
+
+        # http://you.163.com/item/detail?id=1130056&_stat_area=mod_1_item_1&_stat_id=1005000&_stat_referer=itemList
+        is_yanxuan_url = re.compile(r'https://you.163.com/item/detail.*?').findall(yanxuan_url)
+        if is_yanxuan_url != []:
+            if re.compile(r'id=(\d+)').findall(yanxuan_url) != []:
+                goods_id = re.compile(r'id=(\d+)').findall(yanxuan_url)[0]
+                self.my_lg.info('------>>>| 得到的严选商品的goods_id为: {0}'.format(goods_id))
+                return goods_id
+        else:
+            self.my_lg.info('网易严选商品url错误, 非正规的url, 请参照格式(https://you.163.com/item/detail)开头的...')
+            return ''
+
+    def __del__(self):
+        try:
+            del self.my_lg
+        except:
+            pass
+        gc.collect()
+
+if __name__ == '__main__':
+    yanxuan = YanXuanParse()
+    while True:
+        kaola_url = input('请输入待爬取的严选商品地址: ')
+        kaola_url.strip('\n').strip(';')
+        goods_id = yanxuan.get_goods_id_from_url(kaola_url)
+        yanxuan._get_goods_data(goods_id=goods_id)
+        data = yanxuan._deal_with_data()
+        pprint(data)
