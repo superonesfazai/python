@@ -246,7 +246,9 @@ rvictl -s [uuid]
 
 ## 安装appium
 下载地址: https://github.com/appium/appium-desktop/releases
+
 java jdk下载地址: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
 android studio下载地址: http://tools.android-studio.org/
 ```bash
 ### ios真机
@@ -264,7 +266,18 @@ $ brew install ios-webkit-debug-proxy
 ### android
 $ brew install npm
 $ npm install wd
+# adb
+$ brew cask install android-platform-tools
 
+# 查看连接状况
+$ adb devices -l
+
+# 需要配置启动App时的Desired Capabilities参数，
+# 它们分别是platformName、deviceName、appPackage、appActivity。
+platformName：它是平台名称，需要区分Android或iOS，此处填写Android。
+deviceName：它是设备名称，此处是手机的具体类型。(model: 之间的参数 device:)
+appPackage：它是App程序包名。
+appActivity：它是入口Activity名，这里通常需要以'.'开头。
 ```
 ## 安装网易云音乐
 https://music.163.com/#/download
