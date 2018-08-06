@@ -3,7 +3,7 @@
 '''
 @author = super_fazai
 @File    : auto_ops_utils.py
-@Time    : 2018/7/27 11:38
+@Time    : 2017/7/27 11:38
 @connect : superonesfazai@gmail.com
 '''
 
@@ -18,6 +18,9 @@ __all__ = [
     'upload_or_download_files',                                 # 上传/下载文件
     'local_compress_folders',                                   # 本地压缩文件夹
     'remote_decompress_folders',                                # server端解压文件, 并删除原压缩文件
+
+    # github
+    'auto_git',                                                 # master 自动 git
 ]
 
 def judge_whether_file_exists(connect_object:Connection, file_path):
@@ -180,3 +183,28 @@ def remote_decompress_folders(connect_object:Connection, folders_path, target_de
         print('[-] server端解压 {0} 失败!'.format(folders_path))
 
     return _
+
+def auto_git(path):
+    '''
+    master 自动git
+    :param path: 绝对路径
+    :return:
+    '''
+    import os
+    import time
+    import re
+    from .time_utils import get_shanghai_time
+
+    os.system('cd {0} && git pull'.format(path))
+    print('------>>>| 远程合并分支完毕!!!')
+    print((path + ' 正在提交').center(100, '*'))
+    os.popen('cd {0} && git add --all'.format(path))
+    time.sleep(2)
+    now_time = str(get_shanghai_time())
+    now_time = str(re.compile(r'\..*').sub('', now_time))
+    os.system('cd {0} && git commit -m "{1}"'.format(path, now_time))
+    time.sleep(2)
+    os.system('cd {0} && git push -u origin master'.format(path))
+    print((path + ' 提交成功!!').center(100, '*') + '\n')
+
+    return True

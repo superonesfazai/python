@@ -2,7 +2,7 @@
 
 import os
 
-from fzutils.linux_utils import auto_git
+from fzutils.auto_ops_utils import auto_git
 
 def main():
     # home_linux

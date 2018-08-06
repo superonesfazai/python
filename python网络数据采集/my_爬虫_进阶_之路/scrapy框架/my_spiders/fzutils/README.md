@@ -1,3 +1,11 @@
+```bash
+███████╗███████╗██╗   ██╗████████╗██╗██╗     ███████╗
+██╔════╝╚══███╔╝██║   ██║╚══██╔══╝██║██║     ██╔════╝
+█████╗    ███╔╝ ██║   ██║   ██║   ██║██║     ███████╗
+██╔══╝   ███╔╝  ██║   ██║   ██║   ██║██║     ╚════██║
+██║     ███████╗╚██████╔╝   ██║   ██║███████╗███████║
+╚═╝     ╚══════╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝                                                   
+```
 [![Build Status](https://travis-ci.org/EasyWeChat/site.svg?branch=master)](https://github.com/superonesfazai/fzutils)
 [![GitHub license](https://img.shields.io/github/license/superonesfazai/fzutils.svg)](https://github.com/superonesfazai/fzutils/blob/master/LICENSE.txt)
 [![GitHub forks](https://img.shields.io/github/forks/superonesfazai/fzutils.svg)](https://github.com/superonesfazai/fzutils/network)
@@ -81,7 +89,7 @@ from logging import INFO, ERROR
 logger = set_logger(log_file_name='path', console_log_level=INFO, file_log_level=ERROR)
 ```
 ```python
-from fzutils.linux_utils import auto_git
+from fzutils.auto_ops_utils import auto_git
 
 # 自动化git
 auto_git(path='xxx/path')
@@ -147,11 +155,11 @@ from fzutils.auto_ops_utils import (
     remote_decompress_folders,)
 from fabric.connection import Connection
 
-connect_object = Connection()
+connect_obj = Connection()
 # local 与 server端 上传或下载文件
 upload_or_download_files(
     method='put',
-    connect_object=connect_object,
+    connect_object=connect_obj,
     local_file_path='/Users/afa/myFiles/tmp/my_spider_logs.zip',
     remote_file_path='/root/myFiles/my_spider_logs.zip'
 )
@@ -163,7 +171,7 @@ local_compress_folders(
 )
 # 远程解压zip文件
 remote_decompress_folders(
-    connect_object=connect_object,
+    connect_object=connect_obj,
     folders_path='/root/myFiles/my_spider_logs.zip',
     target_decompress_path='/root/myFiles/'
 )
@@ -173,6 +181,14 @@ from fzutils.common_utils import json_2_dict
 
 # json转dict, 处理部分不规范json
 _dict = json_2_dict(json_str='json_str', logger=logger, encoding='utf-8')
+```
+```python
+from fzutils.auto_ops_utils import judge_whether_file_exists
+from fabric.connection import Connection
+
+connect_obj = Connection()
+# 判断server文件是否存在
+result = judge_whether_file_exists(connect_object=connect_obj, file_path='file_path')
 ```
 ```python
 # 还有很多其他常用函数, 待您探索...

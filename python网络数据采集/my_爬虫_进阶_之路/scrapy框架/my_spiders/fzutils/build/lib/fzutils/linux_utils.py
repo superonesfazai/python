@@ -17,9 +17,6 @@ __all__ = [
     # shell
     'get_str_from_command',                             # shell下执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为""
     'get_current_file_path',                            # 得到当前文件的绝对路径
-
-    # github
-    'auto_git',                                         # master 自动 git
 ]
 
 def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
@@ -138,31 +135,6 @@ def get_current_file_path():
     module_path = tmp_path[:-len(__file__.split("/")[-1])]
 
     return module_path
-
-def auto_git(path):
-    '''
-    master 自动git
-    :param path: 绝对路径
-    :return:
-    '''
-    import os
-    import time
-    import re
-    from .time_utils import get_shanghai_time
-
-    os.system('cd {0} && git pull'.format(path))
-    print('------>>>| 远程合并分支完毕!!!')
-    print((path + ' 正在提交').center(100, '*'))
-    os.popen('cd {0} && git add --all'.format(path))
-    time.sleep(2)
-    now_time = str(get_shanghai_time())
-    now_time = str(re.compile(r'\..*').sub('', now_time))
-    os.system('cd {0} && git commit -m "{1}"'.format(path, now_time))
-    time.sleep(2)
-    os.system('cd {0} && git push -u origin master'.format(path))
-    print((path + ' 提交成功!!').center(100, '*') + '\n')
-
-    return True
 
 def get_os_platform():
     '''

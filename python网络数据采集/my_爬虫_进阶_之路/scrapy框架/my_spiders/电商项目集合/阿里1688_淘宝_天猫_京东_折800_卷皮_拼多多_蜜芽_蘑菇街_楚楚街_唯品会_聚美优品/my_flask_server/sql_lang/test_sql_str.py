@@ -18,10 +18,10 @@ from fzutils.sql_utils import pretty_table
 
 _ = SqlServerMyPageInfoSaveItemPipeline()
 sql_str = '''
-select top 20 ID id, UserName as user_name, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange
-from dbo.GoodsInfoAutoGet
-where GETDATE()-CreateTime < 1 and UserName != '18698570079'
-order by ID desc;
+use Gather;
+select goods_id, miaosha_begin_time, miaosha_end_time 
+from dbo.zhe_800_xianshimiaosha 
+where miaosha_end_time-GETDATE()>3;
 '''
 pretty_table(cursor=_._get_one_select_cursor(sql_str=sql_str, params=None))
 
