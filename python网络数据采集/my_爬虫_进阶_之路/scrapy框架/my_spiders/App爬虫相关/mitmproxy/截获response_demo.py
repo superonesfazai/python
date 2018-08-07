@@ -8,6 +8,8 @@
 '''
 
 """
+移动端https抓取: mitm.it下载认证插件
+fn+鼠标左键来copy
 启动方式:
     mitmproxy -s 截获response_demo.py
 """
