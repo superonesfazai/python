@@ -19,9 +19,10 @@ from fzutils.sql_utils import pretty_table
 _ = SqlServerMyPageInfoSaveItemPipeline()
 sql_str = '''
 use Gather;
-select goods_id, miaosha_begin_time, miaosha_end_time 
+select goods_id, create_time, miaosha_begin_time, miaosha_end_time 
 from dbo.zhe_800_xianshimiaosha 
-where miaosha_end_time-GETDATE()>3;
+where GETDATE()-create_time<1
+order by id desc;
 '''
 pretty_table(cursor=_._get_one_select_cursor(sql_str=sql_str, params=None))
 

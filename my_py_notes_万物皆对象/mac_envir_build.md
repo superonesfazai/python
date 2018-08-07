@@ -269,6 +269,15 @@ $ npm install wd
 # adb
 $ brew cask install android-platform-tools
 
+# 安装Genymotion模拟器
+http://www.genymotion.net/
+# 上诉模拟器依靠virtualbox, 请先下载
+https://www.virtualbox.org/wiki/Downloads
+# Genymotion无法安装apk解决方案
+https://blog.csdn.net/xiaolong20081/article/details/79204251
+# 下载5.1_Lolli... 
+链接：http://pan.baidu.com/s/1skPELxN 密码：086j
+
 # 查看连接状况
 $ adb devices -l
 

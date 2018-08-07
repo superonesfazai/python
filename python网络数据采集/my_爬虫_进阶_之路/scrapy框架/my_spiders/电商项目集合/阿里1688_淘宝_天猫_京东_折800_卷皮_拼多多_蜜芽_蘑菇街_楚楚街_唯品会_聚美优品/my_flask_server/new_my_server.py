@@ -35,6 +35,7 @@ from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
 from kaola_parse import KaoLaParse
+from yanxuan_parse import YanXuanParse
 
 from settings import (
     ALi_SPIDER_TO_SHOW_PATH,
@@ -46,6 +47,7 @@ from settings import (
     PINDUODUO_SPIDER_TO_SHOW_PATH,
     VIP_SPIDER_TO_SHOW_PATH,
     KAOLA_SPIDER_2_SHOW_PATH,
+    YANXUAN_SPIDER_2_SHOW_PATH,
     ADMIN_NAME,
     ADMIN_PASSWD,
     SERVER_PORT,
@@ -242,6 +244,10 @@ def select():
 
             elif ajax_request == 'kaola_login':
                 response = make_response(redirect('show_kaola'))
+                return response
+
+            elif ajax_request == 'yanxuan_login':
+                response = make_response(redirect('show_yanxuan'))
                 return response
 
             else:
@@ -661,6 +667,17 @@ def show_kaola_info():
             pass
         else:
             return send_file(KAOLA_SPIDER_2_SHOW_PATH)
+
+@app.route('/show_yanxuan', methods=['GET', 'POST'])
+def show_yanxuan_info():
+    if not is_login(request=request):
+        return ERROR_HTML_CODE
+    else:
+        my_lg.info('正在获取爬取严选页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            return send_file(YANXUAN_SPIDER_2_SHOW_PATH)
 
 ######################################################
 # 阿里1688
@@ -2554,7 +2571,7 @@ def get_one_kaola_data(**kwargs):
     :param kwargs:
     :return:
     '''
-    username = kwargs.get('username', '18698570079')
+    username = kwargs.get('username', DEFAULT_USERNAME)
     wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
 
     kaola = KaoLaParse(logger=my_lg)
@@ -2587,6 +2604,202 @@ def get_one_kaola_data(**kwargs):
     )
     try: del kaola
     except: pass
+
+    return wait_to_save_data
+
+######################################################
+# 网易严选
+@app.route('/yanxuan_data', methods=['POST'])
+def get_yanxuan_data():
+    if is_login(request=request):  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            my_lg.info('正在获取yanxuan相应数据中...')
+
+            # 解密
+            username = decrypt(key, request.cookies.get('username'))
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
+
+            goodsLink = request.form.get('goodsLink')
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                my_lg.info('goodsLink为空值...')
+                return _null_goods_link()
+
+            wait_to_save_data = get_one_yanxuan_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url
+            )
+            if wait_to_save_data.get('goods_id', '') == '':
+                return _null_goods_id()
+
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
+                return _null_goods_data()
+
+            else:
+                pass
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            gc.collect()
+
+            my_lg.info('------>>>| 下面是爬取到的严选页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '网易严选抓取成功!'
+
+            return _success_data(data=wait_to_save_data, msg=msg)
+
+        else:       # 直接把空值给pass，不打印信息
+            # my_lg.info('goodsLink为空值...')
+            return _null_goods_link()
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+@app.route('/yanxuan_to_save_data', methods=['POST'])
+def yanxuan_to_save_data():
+    # 严选site_id=30
+    global tmp_wait_to_save_data_list
+    if is_login(request=request):
+        if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
+
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
+            if wait_to_save_data_url_list != []:
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='yanxuan',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+                return save_every_url_right_data(
+                    type='yanxuan',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
+
+            else:
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
+        else:
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
+
+    else:
+        return _error_msg(msg='')
+
+def _get_yanxuan_wait_to_save_data_goods_id_list(data):
+    '''
+    获取严选待存取的goods_id的list
+    :param data:
+    :return:
+    '''
+    wait_to_save_data_url_list = data
+
+    tmp_wait_to_save_data_goods_id_list = []
+    for item in wait_to_save_data_url_list:
+        if item == '':  # 除去传过来是空值
+            pass
+        else:
+            is_kaola_url = re.compile(r'you.163.com/item/detail.*?').findall(item)
+            if is_kaola_url != []:
+                if re.compile(r'id=(\d+)').findall(item) != []:
+                    goods_id = re.compile(r'id=(\d+)').findall(item)[0]
+                    my_lg.info('------>>>| 得到的严选商品的goods_id为: {0}'.format(goods_id))
+                    tmp_wait_to_save_data_goods_id_list.append(goods_id)
+                else:
+                    pass
+            else:
+                my_lg.info('网易严选商品url错误, 非正规的url, 请参照格式(https://you.163.com/item/detail)开头的...')
+                pass
+
+    return tmp_wait_to_save_data_goods_id_list
+
+def _get_db_yanxuan_insert_params(item):
+    '''
+    得到db待插入的严选数据
+    :param item:
+    :return:
+    '''
+    params = (
+        item['goods_id'],
+        item['goods_url'],
+        item['username'],
+        item['create_time'],
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
+        item['div_desc'],  # 存入到DetailInfo
+        item['all_sell_count'],
+        dumps(item['schedule'], ensure_ascii=False),
+
+        item['site_id'],
+        item['is_delete'],
+    )
+
+    return params
+
+def get_one_yanxuan_data(**kwargs):
+    '''
+    抓取一个严选商品地址的数据
+    :param kwargs:
+    :return:
+    '''
+    username = kwargs.get('username', DEFAULT_USERNAME)
+    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
+
+    yanxuan = YanXuanParse(logger=my_lg)
+    goods_id = yanxuan.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+    if goods_id == '':  # 如果得不到goods_id, 则return error
+        my_lg.info('获取到的goods_id为空!')
+        try:
+            del yanxuan  # 每次都回收一下
+        except Exception:
+            pass
+        gc.collect()
+        return {'goods_id': ''}  # 错误1: goods_id为空值
+
+    tmp_result = yanxuan._get_goods_data(goods_id=goods_id)
+    data = yanxuan._deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
+    if data == {} or tmp_result == {}:
+        my_lg.error('获取到的data为空!出错地址: {0}'.format(wait_to_deal_with_url))
+        try:
+            del yanxuan
+        except:
+            pass
+        gc.collect()
+        return {'goods_id': goods_id, 'msg': 'data为空!'}  # 错误2: 抓取失败
+
+    wait_to_save_data = add_base_info_2_processed_data(
+        data=data,
+        spider_url=wait_to_deal_with_url,
+        username=username,
+        goods_id=goods_id
+    )
+    try:
+        del yanxuan
+    except:
+        pass
 
     return wait_to_save_data
 
@@ -2999,6 +3212,9 @@ def get_who_wait_to_save_data_goods_id_list(**kwargs):
     elif type == 'kaola':
         return _get_kaola_wait_to_save_data_goods_id_list(data=data)
 
+    elif type == 'yanxuan':
+        return _get_yanxuan_wait_to_save_data_goods_id_list(data=data)
+
     else:
         return []
 
@@ -3042,7 +3258,10 @@ def get_who_right_data(**kwargs):
     
     elif type == 'kaola':
         return _get_right_model_data(data=data, site_id=29, logger=my_lg)
-    
+
+    elif type == 'yanxuan':
+        return _get_right_model_data(data=data, site_id=30, logger=my_lg)
+
     else:
         return {}
 
@@ -3136,6 +3355,9 @@ def get_db_who_insert_params(type, item):
     elif type == 'kaola':
         params = _get_db_kaola_insert_params(item=item)
 
+    elif type == 'yanxuan':
+        params = _get_db_yanxuan_insert_params(item=item)
+
     else:
         params = {}
 
@@ -3158,7 +3380,6 @@ def save_every_url_right_data(**kwargs):
     # 存储['db插入结果类型bool', '对应goods_id']
     is_inserted_and_goods_id_list = []
     for item in tmp_list:
-        # my_lg.info('------>>> | 正在存储的数据为: %s|', str(item))
         my_lg.info('------>>>| 正在存储的数据为: {0}'.format(str(item.get('goods_id'))))
 
         params = get_db_who_insert_params(type=type, item=item)

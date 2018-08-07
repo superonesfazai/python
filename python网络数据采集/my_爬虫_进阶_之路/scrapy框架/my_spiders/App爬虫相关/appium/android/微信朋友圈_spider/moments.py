@@ -14,7 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-username = ""
+username = "2939161681"
 password = "111"
 
 class Moments(object):
@@ -23,7 +23,7 @@ class Moments(object):
         server = "http://localhost:4723/wd/hub"
         desired_caps = {
             "platformName": "Android",
-            "deviceName": "Droid4X_MAC",
+            "deviceName": "fz_5_0_0",
             "appPackage": "com.tencent.mm",
             "appActivity": ".ui.LauncherUI",
         }
@@ -35,47 +35,28 @@ class Moments(object):
         登陆微信
         :return:
         """
-        # dl = self.wait.until(EC.presence_of_element_located((By.ID, "com.tencent.mm:id/d1w")))
-        # dl.click()
-
-        # 多个就返回一个list对象
-        _dl = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.View/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.RelativeLayout/android.widget.Button')))[0]
+        # 登录按钮
+        _dl = self.wait.until(EC.presence_of_element_located((By.ID, 'com.tencent.mm:id/d75')))
         _dl.click()
 
         # 点击用qq号登陆
         # qq = self.wait.until(EC.presence_of_element_located((By.ID, "com.tencent.mm:id/bwm")))
         # qq.click()
 
-        _qq = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'android.widget.Button')))
+        # 返回一个list
+        _qq = self.wait.until(EC.presence_of_all_elements_located((By.ID, 'com.tencent.mm:id/c1t')))[0]
         print(_qq)
-        _qq[0].click()      # 根据index的号码如3, 就现在element="3"的元素
+        _qq.click()      # 根据index的号码如3, 就现在element="3"的元素
 
-        # # passwd = self.driver.find_elements_by_id("com.tencent.mm:id/hx")
-        # # 输入账号
-        # user_passwd = self.driver.find_elements_by_id("com.tencent.mm:id/hx")
-        # user = user_passwd[0]
-        # passwd = user_passwd[1]
-        # user.set_text(username)
-        # # 输入密码
-        # passwd.set_text(password)
-
-        _user_passwd = self.driver.find_element_by_class_name('android.widget.EditText')
-        _user = _user_passwd[0]
-        _passwd = _user_passwd[1]
-        _user.set_text(username)
-        _passwd.set_text(password)
+        qq_id_passwd = self.driver.find_elements_by_id('com.tencent.mm:id/hz')
+        # 输qq号
+        qq_id_passwd[0].set_text(username)
+        # 输密码
+        qq_id_passwd[1].set_text(password)
 
         # 点击登陆按钮
-        # submit = self.wait.until(EC.presence_of_element_located((By.ID, "com.tencent.mm:id/bwn")))
-        # submit.click()
-
-        _submit = self.wait.until(EC.presence_of_all_elements_located(By.CLASS_NAME, 'android.widget.Button'))
-        print(_submit)
-        _submit[1].click()
-
-        # 不匹配通讯录
-        alk = self.wait.until(EC.presence_of_element_located((By.ID, "com.tencent.mm:id/alk")))
-        alk.click()
+        submit = self.wait.until(EC.presence_of_element_located((By.ID, 'com.tencent.mm:id/c1u')))
+        submit.click()
 
     def enter(self):
         # 点击"发现"选项卡

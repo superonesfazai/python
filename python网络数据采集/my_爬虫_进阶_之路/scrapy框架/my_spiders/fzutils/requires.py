@@ -57,4 +57,5 @@ install_requires = [
     'scikit-image',
     'wordcloud',            # 词云
     'pygame',
+    'appium-python-client',
 ]

@@ -411,10 +411,8 @@ class YanXuanParse(object):
         :param yanxuan_url:
         :return: goods_id
         '''
-        yanxuan_url = yanxuan_url.replace('http://', 'https://').replace(';', '')
-
         # http://you.163.com/item/detail?id=1130056&_stat_area=mod_1_item_1&_stat_id=1005000&_stat_referer=itemList
-        is_yanxuan_url = re.compile(r'https://you.163.com/item/detail.*?').findall(yanxuan_url)
+        is_yanxuan_url = re.compile(r'you.163.com/item/detail.*?').findall(yanxuan_url)
         if is_yanxuan_url != []:
             if re.compile(r'id=(\d+)').findall(yanxuan_url) != []:
                 goods_id = re.compile(r'id=(\d+)').findall(yanxuan_url)[0]

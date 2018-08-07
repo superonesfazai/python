@@ -202,10 +202,13 @@ class Zhe800Spike(object):
             # pprint(item)
             tmp = {}
             # 秒杀开始时间和结束时间
-            tmp['miaosha_time'] = {
-                'miaosha_begin_time': timestamp_to_regulartime(int(str(item.get('begin_time'))[0:10])),
-                'miaosha_end_time': timestamp_to_regulartime(int(str(item.get('end_time'))[0:10])),
-            }
+            try:
+                tmp['miaosha_time'] = {
+                    'miaosha_begin_time': timestamp_to_regulartime(int(str(item.get('begin_time'))[:10])),
+                    'miaosha_end_time': timestamp_to_regulartime(int(str(item.get('end_time'))[:10])),
+                }
+            except ValueError:
+                continue
 
             # 折800商品地址
             tmp['zid'] = item.get('zid')
