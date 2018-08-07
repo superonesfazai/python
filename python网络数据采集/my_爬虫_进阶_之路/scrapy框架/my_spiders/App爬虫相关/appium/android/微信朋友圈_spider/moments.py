@@ -39,10 +39,6 @@ class Moments(object):
         _dl = self.wait.until(EC.presence_of_element_located((By.ID, 'com.tencent.mm:id/d75')))
         _dl.click()
 
-        # 点击用qq号登陆
-        # qq = self.wait.until(EC.presence_of_element_located((By.ID, "com.tencent.mm:id/bwm")))
-        # qq.click()
-
         # 返回一个list
         _qq = self.wait.until(EC.presence_of_all_elements_located((By.ID, 'com.tencent.mm:id/c1t')))[0]
         print(_qq)
