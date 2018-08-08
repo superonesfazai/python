@@ -40,6 +40,18 @@ class Writer:
 # # print(path)
 # addons = [Writer(path=path)]
 
+class Counter:
+    def __init__(self):
+        self.num = 0
+
+    def request(self, flow: http.HTTPFlow):
+        self.num = self.num + 1
+        ctx.log.info("We've seen %d flows" % self.num)
+
+addons = [
+    Counter(),
+]
+
 def request(flow: http.HTTPFlow):
     # redirect to different host
     if flow.request.pretty_host == "log.snssdk.com":

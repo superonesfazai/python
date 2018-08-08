@@ -72,7 +72,7 @@ def response(flow):
     # info(str(response.text))
     # info(request)
     if request.host == 'aweme.snssdk.com':     # 锁定抓取接口
-        with open(path, 'w+') as file:
+        with open(path, 'a+') as file:
             file.write(response.text + '\n')   # 这样能一行一行写, 避免读取断层
 
 
