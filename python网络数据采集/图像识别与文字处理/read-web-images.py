@@ -3,16 +3,16 @@ from urllib.request import urlretrieve
 import subprocess
 from selenium import webdriver
 
-#driver = webdriver.PhantomJS(executable_path='/Users/ryan/Documents/pythonscraping/code/headless/phantomjs-1.9.8-macosx/bin/phantomjs')
+# driver = webdriver.PhantomJS(executable_path='/Users/ryan/Documents/pythonscraping/code/headless/phantomjs-1.9.8-macosx/bin/phantomjs')
 driver = webdriver.Firefox()
 driver.get("http://www.amazon.com/War-Peace-Leo-Nikolayevich-Tolstoy/dp/1427030200")
 time.sleep(2)
 
 driver.find_element_by_id("img-canvas").click()
-#The easiest way to get exactly one of every page
+# The easiest way to get exactly one of every page
 imageList = set()
 
-#Wait for the page to load
+# Wait for the page to load
 time.sleep(10)
 print(driver.find_element_by_id("sitbReaderRightPageTurner").get_attribute("style"))
 while "pointer" in driver.find_element_by_id("sitbReaderRightPageTurner").get_attribute("style"):
@@ -27,7 +27,7 @@ while "pointer" in driver.find_element_by_id("sitbReaderRightPageTurner").get_at
 
 driver.quit()
 
-#Start processing the images we've collected URLs for with Tesseract
+# Start processing the images we've collected URLs for with Tesseract
 for image in sorted(imageList):
     urlretrieve(image, "page.jpg")
     p = subprocess.Popen(["tesseract", "page.jpg", "page"], stdout=subprocess.PIPE,stderr=subprocess.PIPE)

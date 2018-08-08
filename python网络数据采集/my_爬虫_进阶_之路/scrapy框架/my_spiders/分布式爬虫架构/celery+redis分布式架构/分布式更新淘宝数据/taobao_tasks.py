@@ -11,23 +11,12 @@ from celery import Celery
 from celery.task import Task
 # from celery.contrib.methods import task_method
 
-from settings import (
-    HEADERS,
-    MY_SPIDER_LOGS_PATH,
-)
-from my_logging import set_logger
-from my_utils import (
-    get_shanghai_time,
-    tuple_or_list_params_2_dict_params,
-)
-from my_items import GoodsItem
-from my_requests import MyRequests
+from settings import MY_SPIDER_LOGS_PATH
 from random import randint
 from logging import INFO, ERROR
 import re
 import json
-from json import dumps
-# from json import JSONDecodeError
+from json import JSONDecodeError
 import gc
 from decimal import Decimal
 try:
@@ -36,6 +25,12 @@ except ImportError:
     from urllib.parse import urlencode    # py3
 
 import time
+
+from fzutils.log_utils import set_logger
+from fzutils.items import GoodsItem
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.time_utils import get_shanghai_time
+from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 
 def init_celery_app():
     '''
