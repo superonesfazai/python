@@ -221,6 +221,13 @@ print(char_is_number('1'))
 print(char_is_other('_'))
 ```
 ```python
+from fzutils.algorithm_utils import merge_sort
+
+# 归并排序
+print(merge_sort([-1, 2, 1]))
+# 还有很多其他排序方法
+```
+```python
 # 还有很多其他常用函数, 待您探索...
 ```
 

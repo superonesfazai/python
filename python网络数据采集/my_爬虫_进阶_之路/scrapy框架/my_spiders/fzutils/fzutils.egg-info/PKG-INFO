@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.1.8
+Version: 0.0.1.1.9
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -227,6 +227,13 @@ Description: ```bash
         print(char_is_alphabet('a'))
         print(char_is_number('1'))
         print(char_is_other('_'))
+        ```
+        ```python
+        from fzutils.algorithm_utils import merge_sort
+        
+        # 归并排序
+        print(merge_sort([-1, 2, 1]))
+        # 还有很多其他排序方法
         ```
         ```python
         # 还有很多其他常用函数, 待您探索...

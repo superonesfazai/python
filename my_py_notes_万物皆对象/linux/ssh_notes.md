@@ -47,6 +47,4 @@ $ sudo /etc/init.d/ssh start
 ```
 $ ssh username@192.168.1.112
 ```
-username为192.168.1.112 机器上的用户，需要输入密码。
-
 断开连接：exit

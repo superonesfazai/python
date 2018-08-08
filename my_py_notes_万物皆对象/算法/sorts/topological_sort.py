@@ -27,6 +27,5 @@ def topological_sort(start, visited, sort):
     # return sort
     return sort
 
-
 sort = topological_sort('a', [], [])
 print(sort)
