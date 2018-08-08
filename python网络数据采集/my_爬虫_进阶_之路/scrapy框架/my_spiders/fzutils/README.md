@@ -191,6 +191,12 @@ connect_obj = Connection()
 result = judge_whether_file_exists(connect_object=connect_obj, file_path='file_path')
 ```
 ```python
+from fzutils.email_utils import FZEmail
+
+_ = FZEmail(user='xxx', passwd='密码 or smtp授权码')
+_.send_email(to='xxx@gmail.com', subject='邮件正文', text='邮件内容')
+```
+```python
 # 还有很多其他常用函数, 待您探索...
 ```
 

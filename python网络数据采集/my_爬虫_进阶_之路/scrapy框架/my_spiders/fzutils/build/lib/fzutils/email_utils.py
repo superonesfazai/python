@@ -2,28 +2,14 @@
 
 '''
 @author = super_fazai
-@File    : demo.py
-@Time    : 2018/5/18 15:11
+@File    : email_utils.py
+@Time    : 2017/8/8 11:12
 @connect : superonesfazai@gmail.com
 '''
 
-import json
-
-email_passwd_json_path = '/Users/afa/email_passwd.json'
-
-def get_email_passwd():
-    try:
-        with open(email_passwd_json_path, 'r') as f:
-            _tmp = json.loads(f.readline())
-    except FileNotFoundError:
-        print('严重错误, 数据库初始配置json文件未找到!请检查!')
-        return ''
-    except Exception as e:
-        print('错误如下: ', e)
-        return ''
-
-    else:
-        return _tmp['passwd']
+__all__ = [
+    'FZEmail',              # 邮件对象
+]
 
 import smtplib
 import gc
@@ -33,6 +19,9 @@ class FZEmail(object):
     """
     邮件obj
         目前支持: qq邮箱 [qq邮箱设置开启smtp, 并获得授权码]
+        用法: eg:
+            _ = FZEmail(user='2939161681@qq.com', passwd='smtp授权码or密码')
+            _.send_email(to='superonesfazai@gmail.com')
     """
     def __init__(self, user, passwd, host='smtp.qq.com',):
         self.host = host
@@ -75,6 +64,3 @@ class FZEmail(object):
         except:
             pass
         gc.collect()
-
-_ = FZEmail(user='2939161681@qq.com', passwd=get_email_passwd())
-_.send_email(to='superonesfazai@gmail.com')
