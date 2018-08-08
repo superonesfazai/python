@@ -1,89 +1,8 @@
-## 环境准备
-```
-virtualenv spiderenv
-source spiderenv/bin/activate
-pip install Scrapy
-```
-
-安装过程报错
-```
-UnicodeDecodeError: 'ascii' codec can't decode byte 0xe6 in position 49:
-```
-
-解决办法
-```
-找到虚拟目录下的lib/python2.7/site.py文件
-/home/zhanghe/code/wealink/wealink-web-spider/spiderenv/lib/python2.7/site.py
-def setencoding():
-    """Set the string encoding used by the Unicode implementation.  The
-    default is 'ascii', but if you're willing to experiment, you can
-    change this."""
-    encoding = "ascii"  # Default value set by _PyUnicode_Init()
-    if 0:  # 改成 if 1 (只修改第一个if 0 为 if 1)
-```
-
-重新安装Scrapy
-```
-pip uninstall Scrapy
-pip install Scrapy
-```
-
-不重新安装又会报错：
-```
-ImportError: Twisted requires zope.interface 3.6.0 or later: no module named zope.interface.
-```
-
-安装系统依赖
-```
-$ sudo apt-get install libffi-dev
-```
-
-查看安装好的库文件列表
-```
-$ pip list
-Scrapy==1.0.3
-Twisted==15.4.0
-argparse==1.2.1
-cffi==1.2.1
-characteristic==14.3.0
-cryptography==1.0.1
-cssselect==0.9.1
-enum34==1.0.4
-idna==2.0
-ipaddress==1.0.14
-lxml==3.4.4
-pyOpenSSL==0.15.1
-pyasn1==0.1.8
-pyasn1-modules==0.0.7
-pycparser==2.14
-queuelib==1.4.2
-scrapyd==1.1.0
-scrapyd-client==1.0.1
-service-identity==14.0.0
-six==1.9.0
-w3lib==1.12.0
-wsgiref==0.1.2
-zope.interface==4.1.2
-```
-
-导出库文件列表（仅本地）
-```
-$ pip freeze > requirements.txt
-```
-
-安装依赖库
-```
-$ pip install -r requirements.txt
-```
-
-
-
 ## Scrapy使用步骤
 
 [Scrapy 1.0 documentation](http://doc.scrapy.org/en/latest/)
 
 [Scrapy入门教程](http://scrapy-chs.readthedocs.org/zh_CN/latest/intro/tutorial.html)
-
 
 创建项目
 ```
@@ -266,15 +185,12 @@ $ curl http://localhost:6800/delproject.json -d project=csdn
 ## 框架介绍
 
 ### 架构概览
-
 [架构概览-英文原版](http://scrapy.readthedocs.org/en/latest/topics/architecture.html)
-
 [架构概览-中文翻译](http://scrapy-chs.readthedocs.org/zh_CN/latest/topics/architecture.html)
 
 Scrapy的架构：
 
 ```
- ----------------------------------------------------------------------------------------
 |                                  [调度器]
 |                                (Scheduler)
 |                                     |
@@ -296,7 +212,6 @@ Scrapy的架构：
 ```
 
 ### 组件介绍
-
 [Scrapy Engine]
 ```
 引擎负责控制数据流在系统中所有组件中流动，并在相应动作发生时触发事件。 
@@ -345,5 +260,3 @@ Item Pipeline负责处理被spider提取出来的item。
 Spider中间件是在引擎及Spider之间的特定钩子(specific hook)，处理spider的输入(response)和输出(items及requests)。
 其提供了一个简便的机制，通过插入自定义代码来扩展Scrapy功能。更多内容请看 Spider中间件(Middleware) 。
 ```
-
-更多可以参考[Scrapy实例演示](https://github.com/zhanghe06/scrapy_project)

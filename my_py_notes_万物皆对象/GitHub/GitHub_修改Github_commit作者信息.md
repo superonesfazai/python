@@ -30,6 +30,7 @@ $ git clone --bare https://github.com/superonesfazai/python.git
 ```
 
 然后进入目录创建以下替换脚本，执行后推送修改；
+
 过程中提示输入 GitHub 用户名 密码
 ```
 $ cd python.git/
@@ -48,6 +49,7 @@ $ rm -rf python.git
 ```
 
 此时远程仓库作者已经修改，本地不能直接拉取，否则 log 会合并；
+
 现在需要删除本地版本库，重新从远程仓库克隆到本地
 ```
 $ rm -rf python
@@ -55,26 +57,27 @@ $ git clone git@github.com:superonesfazai/python.git
 ```
 进入项目目录并按上面的方案修改配置
 
-
 git-author-rewrite.sh
 
-    #!/bin/sh
-    
-    git filter-branch --env-filter '
-    OLD_EMAIL="superonesfazai@xxxx.com"
-    CORRECT_NAME="superonesfazai"
-    CORRECT_EMAIL="superonesfazai@gmail.com"
-    if [ "$GIT_COMMITTER_EMAIL" = "$OLD_EMAIL" ]
-    then
-        export GIT_COMMITTER_NAME="$CORRECT_NAME"
-        export GIT_COMMITTER_EMAIL="$CORRECT_EMAIL"
-    fi
-    if [ "$GIT_AUTHOR_EMAIL" = "$OLD_EMAIL" ]
-    then
-        export GIT_AUTHOR_NAME="$CORRECT_NAME"
-        export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL"
-    fi
-    ' --tag-name-filter cat -- --branches --tags
+```bash
+#!/bin/sh
+
+git filter-branch --env-filter '
+OLD_EMAIL="superonesfazai@xxxx.com"
+CORRECT_NAME="superonesfazai"
+CORRECT_EMAIL="superonesfazai@gmail.com"
+if [ "$GIT_COMMITTER_EMAIL" = "$OLD_EMAIL" ]
+then
+    export GIT_COMMITTER_NAME="$CORRECT_NAME"
+    export GIT_COMMITTER_EMAIL="$CORRECT_EMAIL"
+fi
+if [ "$GIT_AUTHOR_EMAIL" = "$OLD_EMAIL" ]
+then
+    export GIT_AUTHOR_NAME="$CORRECT_NAME"
+    export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL"
+fi
+' --tag-name-filter cat -- --branches --tags
+```
 
 
 只需替换以下3个变量：
