@@ -58,4 +58,7 @@ install_requires = [
     'wordcloud',            # 词云
     'pygame',
     'appium-python-client',
+    'python-docx',
+    'sip',
+    'pyqt5',
 ]

@@ -208,6 +208,19 @@ save_obj(s, 's.txt')
 get_obj('s.txt')
 ```
 ```python
+from fzutils.data.str_utils import (
+    char_is_chinese,
+    char_is_alphabet,
+    char_is_number,
+    char_is_other,)
+
+# 单字符判断其类型
+print(char_is_chinese('你'))
+print(char_is_alphabet('a'))
+print(char_is_number('1'))
+print(char_is_other('_'))
+```
+```python
 # 还有很多其他常用函数, 待您探索...
 ```
 

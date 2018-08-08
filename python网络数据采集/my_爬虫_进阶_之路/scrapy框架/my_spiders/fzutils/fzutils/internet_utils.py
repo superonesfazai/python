@@ -27,6 +27,9 @@ __all__ = [
     'is_ipv4',                                              # 判断是否为ipv4地址
     'is_ipv6',                                              # 判断是否为ipv6地址
     'get_local_free_port',                                  # 随机获取一个可以被绑定的空闲端口
+
+    # html
+    'html_entities_2_standard_html',                        # 将html实体名称/实体编号转为html标签
 ]
 
 def _get_url_contain_params(url, params):
@@ -251,4 +254,26 @@ def get_local_free_port():
 
     return port
 
+def html_entities_2_standard_html(html_body):
+    '''
+    将html实体名称/实体编号转为html标签
+    :param html_body:
+    :return:
+    '''
+    char_entities = (
+        ('&nbsp;', ' '),
+        ('&#160;', ' '),
+        ('&lt;', '<'),
+        ('&#60;', '<'),
+        ('&gt;', '>'),
+        ('&#62;', '>'),
+        ('&amp;', '&'),
+        ('&#38;', '&'),
+        ('&quot;', '"'),
+        ('&#34;', '"'),
+    )
 
+    for item in char_entities:
+        html_body = html_body.replace(item[0], item[1])
+
+    return html_body

@@ -5,12 +5,11 @@ def get_local_ip_list():
     获取本地ip地址
     """
     import os
-    cmd = "LC_ALL=C ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'"
+    cmd = "ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'"
     # result = os.system(cmd)
     result = os.popen(cmd).read()
     ip_list = result.strip().split('\n')
     return ip_list
-
 
 def check_ip(ipaddr):
     """
@@ -26,7 +25,6 @@ def check_ip(ipaddr):
             return False
     return True
 
-
 def check_local_ip(ip):
     """
     检测是否为本地ip
@@ -38,7 +36,6 @@ def check_local_ip(ip):
         return True
     else:
         return False
-
 
 if __name__ == '__main__':
     print(get_local_ip_list())

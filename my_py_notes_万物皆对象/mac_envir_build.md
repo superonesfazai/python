@@ -288,5 +288,14 @@ deviceName：它是设备名称，此处是手机的具体类型。(model: 之�
 appPackage：它是App程序包名。
 appActivity：它是入口Activity名，这里通常需要以'.'开头。
 ```
+
+## qt designer + pycharm开发GUI
+首先下载qt最新安装包.dmg, 并安装
+
+流程可参考: https://www.jianshu.com/p/094928ac0b73
+```bash
+$ pip3 install pyqt5
+```
+
 ## 安装网易云音乐
 https://music.163.com/#/download

@@ -3,6 +3,8 @@
 import re
 import json
 
+from fzutils.internet_utils import html_entities_2_standard_html
+
 '''
 这个工具可以做为仿站辅助工具
 下一步做个获取页面图片的辅助工具配合使用
@@ -20,12 +22,11 @@ def replace_html(input_html, reg_expression=r'', replace_text=''):
     output_html = p.sub(replace_text, input_html)
     return output_html
 
-
 def replace_all(input_html, replace_dict):
     """
     用字典实现批量替换
     """
-    for k, v in replace_dict.iteritems():
+    for k, v in replace_dict.items():
         input_html = input_html.replace(k, v)
     return input_html
 
@@ -39,24 +40,6 @@ def strip_html(input_html):
     # p = re.compile('<[^>]+>')
     p = re.compile(r'<.*?>')  # .*后面跟上? 非贪婪匹配
     return p.sub("", input_html)
-
-
-def replace_char_entity(html_str):
-    """
-    将html实体名称/实体编号转为html标签
-    :param html_str:
-    :return:
-    """
-    char_entities = {'&nbsp;': ' ', '&#160;': ' ',
-                     '&lt;': '<', '&#60;': '<',
-                     '&gt;': '>', '&#62;': '>',
-                     '&amp;': '&', '&#38;': '&',
-                     '&quot;': '"', '&#34;': '"',
-                     }
-    for char_key, char_value in char_entities.iteritems():
-        html_str = html_str.replace(char_key, char_value)
-    return html_str
-
 
 def filter_tags(html_str):
     """
@@ -81,9 +64,8 @@ def filter_tags(html_str):
     # 去掉多余的空行
     blank_line = re.compile('\n+')
     s = blank_line.sub('\n', s)
-    s = replace_char_entity(s)  # 实体替换
+    s = html_entities_2_standard_html(s)  # 实体替换
     return s
-
 
 def read_file(file_path):
     """
@@ -162,7 +144,7 @@ def test_replace_char_entity():
     测试特殊字符转html标签
     """
     html_test = '''&nbsp;&nbsp;this is a 避免死锁;&nbsp;&nbsp;'''
-    print(replace_char_entity(html_test))
+    print(html_entities_2_standard_html(html_test))
 
 
 def test_replace_all():
@@ -189,7 +171,7 @@ def get_form(html, form_index=0, filter_tag_name_list=None, skip_tag_name_list=N
     forms = fromstring(html).forms
     form = forms[form_index]
     data = {}
-    for name, value in form.fields.iteritems():
+    for name, value in form.fields.items():
         # 跳过
         if skip_tag_name_list:
             if name in skip_tag_name_list:
@@ -229,9 +211,3 @@ if __name__ == '__main__':
     print(filter_tags(html))
     test_replace_char_entity()
     test_replace_all()
-
-
-'''
-这个工具可以做为仿站辅助工具
-下一步做个获取页面图片的辅助工具配合使用
-'''

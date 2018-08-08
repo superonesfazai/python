@@ -21,11 +21,9 @@ class Communicate(QObject):
 class BurningWidget(QWidget):
     def __init__(self):
         super().__init__()
-
         self.initUI()
 
     def initUI(self):
-
         self.setMinimumSize(1, 30)
         self.value = 75
         self.num = [75, 150, 225, 300, 375, 450, 525, 600, 675]
@@ -35,14 +33,12 @@ class BurningWidget(QWidget):
         self.value = value
 
     def paintEvent(self, e):
-
         qp = QPainter()
         qp.begin(self)
         self.drawWidget(qp)
         qp.end()
 
     def drawWidget(self, qp):
-
         MAX_CAPACITY = 700
         OVER_CAPACITY = 750
 

@@ -10,4 +10,7 @@ def info(object, spacing=10, collapse=1):
                       process_func(str(getattr(object, method).__doc__))) for method in method_list]))
 
 if __name__ == '__main__':
-    print(info.__doc__)
+    # print(info.__doc__)
+    from time import sleep
+
+    print(info(sleep))

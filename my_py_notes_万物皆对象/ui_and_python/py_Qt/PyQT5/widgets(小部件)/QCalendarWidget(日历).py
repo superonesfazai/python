@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import (QWidget, QCalendarWidget,
 from PyQt5.QtCore import QDate
 import sys
 
-
 class Example(QWidget):
     def __init__(self):
         super().__init__()

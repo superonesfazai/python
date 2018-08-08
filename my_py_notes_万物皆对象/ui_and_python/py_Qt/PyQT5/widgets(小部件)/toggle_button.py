@@ -19,7 +19,6 @@ from PyQt5.QtWidgets import (QWidget, QPushButton,
 from PyQt5.QtGui import QColor
 import sys
 
-
 class Example(QWidget):
     def __init__(self):
         super().__init__()

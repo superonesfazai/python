@@ -1,9 +1,9 @@
-# coding = utf-8
+# coding:utf-8
 
 '''
 @author = super_fazai
-@File    : tetris_game.py
-@Time    : 2017/8/16 18:22
+@File    : game.py
+@Time    : 2016/8/8 15:56
 @connect : superonesfazai@gmail.com
 '''
 

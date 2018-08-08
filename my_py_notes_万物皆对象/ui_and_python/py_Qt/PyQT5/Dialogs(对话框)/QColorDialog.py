@@ -18,7 +18,6 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QFrame,
 from PyQt5.QtGui import QColor
 import sys
 
-
 class Example(QWidget):
     def __init__(self):
         super().__init__()
@@ -45,7 +44,6 @@ class Example(QWidget):
         if col.isValid():   # 如果颜色可利用
             self.frm.setStyleSheet("QWidget { background-color: %s }"
                                    % col.name())
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
