@@ -194,7 +194,18 @@ result = judge_whether_file_exists(connect_object=connect_obj, file_path='file_p
 from fzutils.email_utils import FZEmail
 
 _ = FZEmail(user='xxx', passwd='密码 or smtp授权码')
-_.send_email(to='xxx@gmail.com', subject='邮件正文', text='邮件内容')
+_.send_email(to=['xxx@gmail.com',], subject='邮件正文', text='邮件内容')
+```
+```python
+from requests import sessions
+from fzutils.common_utils import (
+    save_obj,
+    get_obj,)
+
+s = sessions()
+# 对象持久化存储
+save_obj(s, 's.txt')
+get_obj('s.txt')
 ```
 ```python
 # 还有很多其他常用函数, 待您探索...

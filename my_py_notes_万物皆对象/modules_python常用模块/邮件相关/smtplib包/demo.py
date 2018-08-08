@@ -77,4 +77,5 @@ class FZEmail(object):
         gc.collect()
 
 _ = FZEmail(user='2939161681@qq.com', passwd=get_email_passwd())
-_.send_email(to='superonesfazai@gmail.com')
+# _.send_email(to='superonesfazai@gmail.com')
+# _.send_email(to='553106453@qq.com', subject='李颖丹大猪头!', text='起床了, pig running....')
