@@ -6,45 +6,12 @@
 全角符号转半角符号。
 """
 
-def is_alphabet(uchar):
-    """
-    判断一个unicode是否是英文字母
-    """
-    if (u'\u0041' <= uchar <= u'\u005a') or (u'\u0061' <= uchar <= u'\u007a'):
-        return True
-    else:
-        return False
-
-
-def is_chinese(uchar):
-    """
-    判断一个unicode是否是汉字
-    """
-    if u'\u4e00' <= uchar <= u'\u9fa5':
-        return True
-    else:
-        return False
-
-
-def is_number(uchar):
-    """
-    判断一个unicode是否是数字
-    """
-    if u'\u0030' <= uchar <= u'\u0039':
-        return True
-    else:
-        return False
-
-
-def is_other(uchar):
-    """
-    判断是否非汉字，数字和英文字符
-    """
-    if not (is_chinese(uchar) or is_number(uchar) or is_alphabet(uchar)):
-        return True
-    else:
-        return False
-
+from fzutils.data.str_utils import (
+    char_is_other,
+    char_is_number,
+    char_is_alphabet,
+    char_is_chinese,
+)
 
 def b2q(uchar):
     """
@@ -95,7 +62,7 @@ def string2list(ustring):
     ret_list = []
     u_tmp = []
     for uchar in ustring:
-        if is_other(uchar):
+        if char_is_other(uchar):
             if len(u_tmp) == 0:
                 continue
             else:
@@ -107,10 +74,9 @@ def string2list(ustring):
         ret_list.append("".join(u_tmp))
     return ret_list
 
-
 def get_first_char(s):
     """
-    获取字符串首字母数 (如果是中文 获取拼音首字母)
+    获取字符串首字母数(如果是中文 获取拼音首字母)
     """
     if s is None or s == '':
         return ''
@@ -200,9 +166,9 @@ def get_first_char(s):
 
 
 if __name__ == '__main__':
-    print(is_chinese(u'你好啊'))  # True
-    print(is_chinese(u'你abc'))  # True
-    print(is_chinese(u'abc你'))  # False
+    print(char_is_chinese(u'你好啊'))  # True
+    print(char_is_chinese(u'你abc'))  # True
+    print(char_is_chinese(u'abc你'))  # False
     print(get_first_char('abc你'))  # A
     print(get_first_char('q'))  # Q
     print(get_first_char('你好'))  # N

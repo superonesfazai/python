@@ -785,7 +785,7 @@ if __name__ == '__main__':
         if goods_id != []:
             data = tmall.get_goods_data(goods_id=goods_id)
             result = tmall.deal_with_data()
-            # pprint(result)
+            pprint(result)
             # print(result)
             gc.collect()
         else:

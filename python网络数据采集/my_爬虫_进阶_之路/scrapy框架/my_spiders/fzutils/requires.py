@@ -59,6 +59,6 @@ install_requires = [
     'pygame',
     'appium-python-client',
     'python-docx',
-    'sip',
-    'pyqt5',
+    # 'sip',
+    # 'pyqt5',
 ]

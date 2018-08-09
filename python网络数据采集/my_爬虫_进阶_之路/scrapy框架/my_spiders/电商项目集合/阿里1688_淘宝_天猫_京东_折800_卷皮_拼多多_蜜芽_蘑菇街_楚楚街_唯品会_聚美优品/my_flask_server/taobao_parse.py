@@ -601,6 +601,7 @@ class TaoBaoLoginAndParse(object):
         '''
         if data.get('skuBase').get('skus') is not None:
             skus = data['skuBase']['skus']  # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
+            pros = data.get('skuBase', {}).get('props', [])
             sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
             try:
                 sku2_info.pop('0')  # 此处删除总库存的值
@@ -609,14 +610,15 @@ class TaoBaoLoginAndParse(object):
             # pprint(sku2_info)
             prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
             for key in sku2_info:
-                tmp = {}
                 tmp_prop_path_list = [item for item in skus if item.get('skuId') == key]  # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
 
                 # 处理propPath得到可识别的文字
                 prop_path = tmp_prop_path_list[0].get('propPath', '').split(';')
                 prop_path = [i.split(':') for i in prop_path]
+                prop_path_2 = [i[1] for i in prop_path]     # 暂存值
                 prop_path = [j[1] for j in prop_path]  # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
                 # self.my_lg.info(str(prop_path))
+                # pprint(prop_path_2)
 
                 for index in range(0, len(prop_path)):  # 将每个值对应转换为具体规格
                     for i in detail_value_list:
@@ -625,16 +627,22 @@ class TaoBaoLoginAndParse(object):
                                 prop_path[index] = j[0]
                 # self.my_lg.info(str(prop_path))                  # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
                 # 再转换为要存储的字符串
-                prop_path = '|'.join(prop_path)  # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
+                spec_value = '|'.join(prop_path)  # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
                 # self.my_lg.info(prop_path)
 
                 tmp_prop_path_list[0]['sku_price'] = sku2_info[key]['price']['priceText']
                 tmp_prop_path_list[0]['quantity'] = sku2_info[key]['quantity']
                 # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
                 # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
-                tmp['spec_value'] = prop_path
-                tmp['detail_price'] = tmp_prop_path_list[0]['sku_price']  # 每个规格对应的价格
-                tmp['rest_number'] = tmp_prop_path_list[0]['quantity']  # 每个规格对应的库存量
+
+                img_url = self._get_spec_value_one_img_url(pros=pros, prop_path_2=prop_path_2)
+
+                tmp = {
+                    'spec_value': spec_value,
+                    'detail_price': tmp_prop_path_list[0]['sku_price'],  # 每个规格对应的价格
+                    'rest_number': tmp_prop_path_list[0]['quantity'],    # 每个规格对应的库存量
+                    'img_url': img_url,
+                }
                 prop_path_list.append(tmp)
             # pprint(prop_path_list)                  # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
             price_info_list = prop_path_list
@@ -642,6 +650,39 @@ class TaoBaoLoginAndParse(object):
             price_info_list = []
 
         return price_info_list
+
+    def _get_spec_value_one_img_url(self, **kwargs):
+        '''
+        得到一个规格的img_url
+        :param kwargs:
+        :return: '' | xxxx
+        '''
+        pros = kwargs.get('pros')
+        prop_path_2 = kwargs.get('prop_path_2')
+
+        img_url = ''
+        if len(pros) >= 1:  # 得到规格示例图
+            # pprint(pros)
+            # img_url_list = pros[0].get('values', [])
+            img_url_list = []
+            for i in pros:
+                values = i.get('values', [])
+                if len(values) >= 1:
+                    if values[0].get('image') is not None:
+                        img_url_list = values
+
+            # pprint(img_url_list)
+            img_url_list = [(i.get('vid', ''), i.get('image', '')) for i in img_url_list]
+            # pprint(img_url_list)
+            for k in prop_path_2:
+                # print('vid:{0}'.format(k))
+                for i in img_url_list:
+                    # print(i[0])
+                    if k == i[0]:
+                        if i[1] != '':
+                            img_url = 'https:' + i[1]
+
+        return img_url
 
     def _get_is_delete(self, **kwargs):
         '''
@@ -1098,6 +1139,6 @@ if __name__ == '__main__':
         taobao_url = input('请输入待爬取的淘宝商品地址: ')
         taobao_url.strip('\n').strip(';')
         goods_id = login_taobao.get_goods_id_from_url(taobao_url)
-        data = login_taobao.get_goods_data(goods_id=goods_id)
+        login_taobao.get_goods_data(goods_id=goods_id)
         data = login_taobao.deal_with_data(goods_id=goods_id)
-        # pprint(data)
+        pprint(data)

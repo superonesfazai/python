@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 #coding:utf-8
 
-#使用lambda函数
-#Python 支持一种有趣的语法,它允许你快速定义单行的最小函数。这些叫做
-#lambda 的函数,是从Lisp 借用来的,可以用在任何需要函数的地方
+# 使用lambda函数
+# python 支持一种有趣的语法,它允许你快速定义单行的最小函数。这些叫做
+# lambda 的函数,是从Lisp 借用来的,可以用在任何需要函数的地方
 
 g = lambda x: x*2
 print(g(3))
