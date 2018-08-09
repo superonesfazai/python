@@ -7,14 +7,13 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from my_requests import MyRequests
-import re
-
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import re
 import datetime
 import random
+
+from fzutils.spider.fz_requests import MyRequests
 
 headers = {
     'accept-encoding': 'gzip, deflate, br',
@@ -107,6 +106,6 @@ def getAllExternalLinks(siteUrl):
             # followExternalOnly("http://bbs.3s001.com/forum-36-1.html")
 
 # allIntLinks.add("http://bbs.3s001.com/forum-36-1.html")
-url = input('请输入待抓取的整站url: ')
+url = input('请输入待抓取的整站url: ').replace(';', '')
 getAllExternalLinks(url)
 

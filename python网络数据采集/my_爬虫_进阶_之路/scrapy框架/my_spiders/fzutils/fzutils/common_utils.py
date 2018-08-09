@@ -113,16 +113,16 @@ def _print(**kwargs):
     log_level = kwargs.get('log_level', 1)     # 日志等级(默认'info')
     exception = kwargs.get('exception', None)
 
-    if not logger:
-        if not exception:
+    if logger is None:
+        if exception is None:
             print(msg)
         else:
-            if not msg:
+            if msg is not None:
                 print(msg, exception)
             else:
                 print(exception)
     else:
-        if not msg:
+        if msg is not None:
             if isinstance(msg, str):
                 if isinstance(log_level, int):
                     if log_level == 1:
@@ -136,7 +136,7 @@ def _print(**kwargs):
             else:
                 raise TypeError('log模式打印时, msg必须是str!')
 
-        if not exception:
+        if exception is not None:
             if isinstance(exception, Exception):
                 logger.exception(exception)
             else:

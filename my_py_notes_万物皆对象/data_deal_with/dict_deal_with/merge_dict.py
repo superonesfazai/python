@@ -3,40 +3,23 @@
 # 在python2.7的环境下调试,3以上报错
 
 import sys
-sys.path.append('...')
-from 日常脚本 import time_log
+from fzutils.time_utils import fz_timer
 
 a = {1: 1, 2: 2}
 b = {1: 2, 3: 3}
 
-
-# way 1
-@time_log.time_log
-def test_1():
-    print(dict(a.items() + b.items()))
-
-
 # way 2
-@time_log.time_log
-def test_2():
-    print(dict(a, **b))
-
-
-# way 3
-@time_log.time_log
+@fz_timer(sys.stdout.write)
 def test_3():
     c = a.copy()
     c.update(b)
     print(c)
-
 
 if __name__ == '__main__':
     """
     字典合并的几种方式效率测试
     因时间太短，将测试时间调整到小数后6位
     """
-    test_1()
-    test_2()
     test_3()
 
 

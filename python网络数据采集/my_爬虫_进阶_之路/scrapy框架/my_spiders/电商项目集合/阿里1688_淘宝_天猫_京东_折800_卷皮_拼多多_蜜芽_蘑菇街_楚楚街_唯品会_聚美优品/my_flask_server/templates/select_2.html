@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip,.kaola{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip,.kaola,.yanxuan{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span,.kaola span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span,.kaola span,.yanxuan span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -79,6 +79,10 @@
         background: url(../static/images/kaola.jpg)no-repeat;
         background-size: 100% 100%;
     }
+	.yanxuan span{
+        background: url(../static/images/yanxuan.png)no-repeat;
+        background-size: 100% 100%;
+    }
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -104,6 +108,9 @@
 		display: block;
 	}
     .kaola span:hover .login-btn{
+		display: block;
+	}
+	.yanxuan span:hover .login-btn{
 		display: block;
 	}
 	.login-btn{
@@ -236,23 +243,35 @@
     		</div>
     	</div>
     	<div class="passList" id="passList">
-    		<div class="zhe_800 passListItem"><span>
+    		<div class="zhe_800 passListItem">
+				<span>
 					<a class="login-btn" href="/show_zhe_800" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="juanpi passListItem"><span>
+    			</span>
+			</div>
+    		<div class="juanpi passListItem">
+				<span>
 					<a class="login-btn" href="/show_juanpi" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="pinduoduo passListItem"><span>
+    			</span>
+			</div>
+    		<div class="pinduoduo passListItem">
+				<span>
 					<a class="login-btn" href="/show_pinduoduo" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>    		
-    		</div>      		
-    	</div>    	
+    			</span>
+			</div>
+			<div class="yanxuan passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_yanxuan" target="_blank">
+						请点击登录
+    				</a>
+    			</span>
+    		</div>
+    	</div>
     	<!--<ul class="login" id="login">
     		<li class="loginList">
 	 	    	<div class="scanLogin">
@@ -390,6 +409,16 @@
 						async:true,
 						data:{
 							confirm_login:'kaola_login'
+						}
+					});
+				});
+                $('.login-btn').eq(9).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'yanxuan_login'
 						}
 					});
 				})

@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : kaola_real-times_update.py
+@File    : yanxuan_real-times_update.py
 @Time    : 2018/8/2 09:36
 @connect : superonesfazai@gmail.com
 '''
@@ -10,7 +10,7 @@
 import sys
 sys.path.append('..')
 
-from kaola_parse import KaoLaParse
+from yanxuan_parse import YanXuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
@@ -37,19 +37,19 @@ def run_forever():
     while True:
         # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
         my_lg = set_logger(
-            log_file_name=MY_SPIDER_LOGS_PATH + '/网易考拉/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
+            log_file_name=MY_SPIDER_LOGS_PATH + '/网易严选/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
         )
 
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        #  and GETDATE()-ModfiyTime>0.2
+        #  and GETDATE()-ModfiyTime>0.3
         # and MainGoodsID is not null
         sql_str = '''
         select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
         from dbo.GoodsInfoAutoGet 
-        where SiteID=29 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
+        where SiteID=30 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
         order by ID asc'''
 
         try:
@@ -68,14 +68,14 @@ def run_forever():
             my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            kaola = KaoLaParse(logger=my_lg)
+            yanxuan = YanXuanParse(logger=my_lg)
             for item in result:  # 实时更新数据
                 if index % 5 == 0:
                     try:
-                        del kaola
+                        del yanxuan
                     except:
                         pass
-                    kaola = KaoLaParse(logger=my_lg)
+                    yanxuan = YanXuanParse(logger=my_lg)
                     gc.collect()
 
                 if index % 10 == 0:  # 每10次重连一次，避免单次长连无响应报错
@@ -85,26 +85,9 @@ def run_forever():
 
                 if tmp_sql_server.is_connect_success:
                     my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(item[1]), str(index)))
-                    data = kaola._get_goods_data(goods_id=item[1])
+                    yanxuan._get_goods_data(goods_id=item[1])
 
-                    if data.get('is_delete') == 1:  # 单独处理下架商品
-                        my_lg.info('@@@ 该商品已下架...')
-                        data['goods_id'] = item[1]
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[2],
-                            shelf_time=item[5],
-                            delete_time=item[6])
-
-                        # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
-                        kaola.to_right_and_update_data(data, pipeline=tmp_sql_server)
-
-                        sleep(TMALL_REAL_TIMES_SLEEP_TIME)
-                        index += 1
-                        gc.collect()
-                        continue
-
-                    data = kaola._deal_with_data()
+                    data = yanxuan._deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[1]
                         data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
@@ -112,16 +95,18 @@ def run_forever():
                             is_delete=item[2],
                             shelf_time=item[5],
                             delete_time=item[6])
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[3],
-                            old_taobao_price=item[4],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price']
-                        )
-                        # my_lg.info(str(data['_is_price_change']) + ' ' +str(data['_price_change_info']))
+                        if data.get('is_delete') == 1:  # 单独处理下架商品
+                            my_lg.info('@@@ 该商品已下架...')
+                        else:
+                            data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                                old_price=item[3],
+                                old_taobao_price=item[4],
+                                new_price=data['price'],
+                                new_taobao_price=data['taobao_price']
+                            )
+                            # my_lg.info(str(data['_is_price_change']) + ' ' +str(data['_price_change_info']))
 
-                        # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
-                        kaola.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                        yanxuan.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         my_lg.info('------>>>| 休眠8s中...')
                         sleep(8)

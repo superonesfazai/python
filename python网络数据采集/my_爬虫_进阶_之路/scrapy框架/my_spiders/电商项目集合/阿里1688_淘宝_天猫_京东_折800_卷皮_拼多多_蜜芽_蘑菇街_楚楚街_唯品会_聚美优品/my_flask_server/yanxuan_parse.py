@@ -18,15 +18,19 @@ from logging import (
     INFO,
     ERROR,
 )
+from json import dumps
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,)
 
-from fzutils.spider.fz_requests import MyRequests
+# from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.common_utils import json_2_dict
 from fzutils.data.json_utils import nonstandard_json_str_handle
 from fzutils.log_utils import set_logger
-from fzutils.internet_utils import get_random_phone_ua
+from fzutils.internet_utils import (
+    get_random_phone_ua,
+    _get_url_contain_params,)
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -40,6 +44,7 @@ class YanXuanParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self._set_headers()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
 
     def _set_logger(self, logger):
         if logger is None:
@@ -80,8 +85,12 @@ class YanXuanParse(object):
 
         write_info = '出错goods_id:{0}, 出错地址: {1}'.format(goods_id, m_url)
 
-        body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
+        '''requests被无限转发'''
+        # body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
         # self.my_lg.info(str(body))
+
+        '''改用phantomjs'''
+        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=_get_url_contain_params(url=url, params=params))
         if body == '':
             self.my_lg.error('获取到的body为空值!'+write_info)
             return self._get_data_error_init()
@@ -213,6 +222,60 @@ class YanXuanParse(object):
             self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
+
+    def to_right_and_update_data(self, data, pipeline):
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        tmp = _get_right_model_data(data, site_id=30, logger=self.my_lg)
+
+        params = self._get_db_update_params(item=tmp)
+        base_sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+        if tmp['delete_time'] == '':
+            sql_str = base_sql_str.format('shelf_time=%s', '')
+        elif tmp['shelf_time'] == '':
+            sql_str = base_sql_str.format('delete_time=%s', '')
+        else:
+            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
+
+        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+    def _get_db_update_params(self, item):
+        params = [
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            # item['delete_time'],
+            item['is_delete'],
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
+
+        return tuple(params)
 
     def _get_title(self, data):
         title = data.get('name', '')
@@ -424,6 +487,7 @@ class YanXuanParse(object):
 
     def __del__(self):
         try:
+            del self.my_phantomjs
             del self.my_lg
         except:
             pass
@@ -437,4 +501,4 @@ if __name__ == '__main__':
         goods_id = yanxuan.get_goods_id_from_url(kaola_url)
         yanxuan._get_goods_data(goods_id=goods_id)
         data = yanxuan._deal_with_data()
-        pprint(data)
+        # pprint(data)
