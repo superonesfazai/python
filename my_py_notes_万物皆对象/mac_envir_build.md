@@ -289,6 +289,8 @@ appPackage：它是App程序包名。
 appActivity：它是入口Activity名，这里通常需要以'.'开头。
 ```
 
+## android逆向
+
 ## qt designer + pycharm开发GUI
 首先下载qt最新安装包.dmg, 并安装
 

@@ -149,9 +149,31 @@ driver.drag_and_drop(el1, el2)
 ```
 
 ## 文本输入
+- 文本框输入
 ```python
 el = find_element_by_id('com.tencent.mm:id/cjk')
+# 清空输入
+el.clear()
 el.set_text('Hello')
+```
+- hide_keyboard
+```python
+# hide_keyboard(self, key_name=None, key=None, strategy=None):
+# 隐藏键盘,iOS使用key_name隐藏，安卓不使用参数
+driver.hide_keyboard()
+```
+- keyevent
+```python
+# keyevent(self, keycode, metastate=None):
+# 发送按键码（安卓仅有），按键码可以上网址中找到
+driver.keyevent('4')
+```
+- long_press_keycode
+```python
+# long_press_keycode(self, keycode, metastate=None):
+# 发送一个长按的按键码（长按某键）
+# 详细的按键代码见这里  http://developer.android.com/reference/android/view/KeyEvent.html
+driver.long_press_keycode('4')
 ```
 
 ## 动作链
@@ -170,6 +192,177 @@ a1 = TouchAction()
 a1.press(els[0]).move_to(x=10, y=0).move_to(x=10, y=-75).move_to(x=10, y=-600).release()
 a2 = TouchAction()
 a2.press(els[1]).move_to(x=10, y=10).move_to(x=10, y=-300).move_to(x=10, y=-600).release()
+```
+
+## 上下文
+1. contexts
+```python
+# 返回当前会话中的上下文，使用后可以识别H5页面的控件
+driver.contexts
+```
+
+2. current_context
+```python
+# 返回当前会话的当前上下文
+driver.current_context
+```
+
+3. context
+```python
+# 返回当前会话的当前上下文。
+driver.context
+```
+
+## 重启应用
+reset
+```python
+# 重置应用(类似删除应用数据)
+driver.reset()
+```
+
+## 后台运行
+- background_app
+```python
+# background_app(self, seconds):
+# 后台运行app多少秒
+driver.background_app(5)   置后台5秒后再运行
+```
+
+## app运行相关
+- 检查app是否安装
+    - is_app_installed
+```python
+driver.is_app_installed('com.xxxx')
+```
+
+- 安装app
+    - install_app
+```python
+# install_app(self, app_path):
+# 安装app,app_path为安装包路径 - the local or remote path to the application to install
+driver.install_app(app_path)
+```
+
+- 删除app
+    - remove_app
+```python
+driver.remove_app('com.xxx.')
+```
+
+- 启动app
+    - launch_app
+```python
+driver.launch_app('com.xx.')
+```
+
+- 关闭app
+    - close_app
+```python
+driver.close_app('com.xx.')
+```
+
+## 摇一摇
+- shake
+```python
+driver.shake()
+```
+
+## 网络连接
+- set_network_connection
+```python
+# set_network_connection(self, connectionType):
+Sets the network connection type. Android only.
+    Possible values:
+        Value (Alias)      | Data | Wifi | Airplane Mode
+        -------------------------------------------------
+        0 (None)           | 0    | 0    | 0
+        1 (Airplane Mode)  | 0    | 0    | 1
+        2 (Wifi only)      | 0    | 1    | 0
+        4 (Data only)      | 1    | 0    | 0
+        6 (All network on) | 1    | 1    | 0
+    These are available through the enumeration `appium.webdriver.ConnectionType`
+    设置网络类型
+    :Args:
+     - connectionType - a member of the enum appium.webdriver.ConnectionType
+
+用法  先加载from appium.webdriver.connectiontype import ConnectionType
+dr.set_network_connection(ConnectionType.WIFI_ONLY)
+ConnectionType的类型有
+NO_CONNECTION = 0
+AIRPLANE_MODE = 1
+WIFI_ONLY = 2
+DATA_ONLY = 4
+ALL_NETWORK_ON = 6
+```
+
+## 经纬度
+- set_location
+```python
+# set_location(self, latitude, longitude, altitude):
+设置设备的经纬度
+    :Args:
+     - latitude纬度 - String or numeric value between -90.0 and 90.00
+     - longitude经度 - String or numeric value between -180.0 and 180.0
+     - altitude海拔高度- String or numeric value
+driver.set_location(纬度，经度，高度)
+```
+
+# 屏幕相关
+- location
+```python
+# 获取元素左上角的坐标
+'''返回element的x坐标, int类型'''
+driver.element.location.get('x')
+'''返回element的y坐标, int类型'''
+driver.element.location.get('y')
+```
+- get_window_size
+```python
+# 获取当前屏幕的分辨率(长和高)
+driver.get_window_size()
+```
+
+## android中的html页面执行脚本
+- execute_script(同步执行)
+```python
+# execute_script(self, script, *args):
+在当前窗口/框架(特指 Html 的 iframe)同步执行 javascript 代码。你可以理解为如果这段代码是睡眠5秒，这五秒内主线程的 javascript 不会执行
+    :Args:
+     - script: The JavaScript to execute.
+     - *args: Any applicable arguments for your JavaScript.
+
+    :Usage:
+        driver.execute_script('document.title')
+```
+- execute_async_script(异步执行)
+```python
+# execute_async_script(self, script, *args):
+插入 javascript 代码，只是这个是异步的，也就是如果你的代码是睡眠5秒，那么你只是自己在睡，页面的其他 javascript 代码还是照常执行
+    :Args:
+     - script: The JavaScript to execute.
+     - *args: Any applicable arguments for your JavaScript.
+
+    :Usage:
+        driver.execute_async_script('document.title')
+```
+
+## 获取android中html当前的url
+- current_url
+```python
+driver.current_url
+```
+
+## 获取页面资源
+- page_source
+```python
+# 获取当前页面的源
+driver.page_source
+```
+
+## 屏幕截图
+- get_screenshot_as_file
+```python
+driver.get_screenshot_as_file('foo.png')
 ```
 
 ## 利用以上API，我们就可以完成绝大部分操作。更多的API操作可以参考：https://testerhome.com/topics/3711
