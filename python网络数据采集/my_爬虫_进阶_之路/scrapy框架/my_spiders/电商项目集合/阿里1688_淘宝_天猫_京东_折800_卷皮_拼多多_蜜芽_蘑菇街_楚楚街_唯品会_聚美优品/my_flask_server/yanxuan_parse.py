@@ -25,7 +25,9 @@ from settings import (
 
 # from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
-from fzutils.common_utils import json_2_dict
+from fzutils.common_utils import (
+    json_2_dict,
+    wash_sensitive_info,)
 from fzutils.data.json_utils import nonstandard_json_str_handle
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import (
@@ -37,6 +39,7 @@ from fzutils.time_utils import (
     datetime_to_timestamp,
     timestamp_to_regulartime,
     string_to_datetime,)
+from fzutils.data.list_utils import unique_list_and_keep_original_order
 
 class YanXuanParse(object):
     def __init__(self, logger=None):
@@ -113,8 +116,8 @@ class YanXuanParse(object):
         _ = self._wash_data(_)
         data = {}
         try:
-            data['title'] = self._get_title(data=_)
-            data['sub_title'] = self._get_sub_title(data=_)
+            data['title'] = self._wash_sensitive_info(self._get_title(data=_))
+            data['sub_title'] = self._wash_sensitive_info(self._get_sub_title(data=_))
             data['shop_name'] = ''
             data['all_img_url'] = self._get_all_img_url(data=_)
             data['p_info'] = self._get_p_info(data=_)
@@ -125,7 +128,10 @@ class YanXuanParse(object):
             data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
                 price_info_list=data['price_info_list']
             )
-            data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
+            if data['price'] == 0 or data['taobao_price'] == 0:     # 售罄商品处理
+                data['is_delete'] = 1
+            else:
+                data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
 
         except Exception:
             self.my_lg.error('遇到错误:', exc_info=True)
@@ -277,6 +283,21 @@ class YanXuanParse(object):
 
         return tuple(params)
 
+    def _wash_sensitive_info(self, target_str):
+        '''
+        清洗敏感信息
+        :param target_str:
+        :return:
+        '''
+        add_sensitive_str_list = [
+            '网易',
+            '严选',
+            '云音乐',
+        ]
+        target_str = wash_sensitive_info(data=target_str, replace_str_list=[], add_sensitive_str_list=add_sensitive_str_list)
+
+        return target_str
+
     def _get_title(self, data):
         title = data.get('name', '')
         assert title != '', '获取到的name为空值!请检查!'
@@ -307,7 +328,7 @@ class YanXuanParse(object):
     def _get_p_info(self, data):
         p_info = [{
             'p_name': item.get('attrName', ''),
-            'p_value': item.get('attrValue', ''),
+            'p_value': self._wash_sensitive_info(item.get('attrValue', '')),
         } for item in data.get('attrList', [])]
 
         return p_info
@@ -328,15 +349,26 @@ class YanXuanParse(object):
         :param div_desc:
         :return:
         '''
-        filter = '''
-        _src=\".*?\"
-        '''.replace('\n', '').replace(' ', '')
+        # 方案1: 过滤不充分
+        # filter = '''
+        # _src=\".*?\"|
+        # http://yanxuan.nosdn.127.net/e5f0f6b40368d7e532ff6b3a6481e6ab.jpg|
+        # http://yanxuan.nosdn.127.net/c56658fa7b0b8a38bdb9c292a68fb176.jpg
+        # '''.replace('\n', '').replace(' ', '')
+        #
+        # div_desc = re.compile(filter).sub('', div_desc)
+        #
+        # # 因为前面的严选声明照片地址是hash值, 每次都变
+        # # 所以所有div_desc统一洗去前4张
+        # div_desc = re.compile('<img.*?/>').sub('', div_desc, count=4)
 
-        div_desc = re.compile(filter).sub('', div_desc)
-
-        # 因为前面的严选声明照片地址是hash值, 每次都变
-        # 所以所有div_desc同意洗去前4张
-        div_desc = re.compile('<img.*?/>').sub('', div_desc, count=4)
+        # 方案2:
+        img_list = unique_list_and_keep_original_order(re.compile('src=\"(.*?)\"').findall(div_desc))
+        # pprint(img_list)
+        _ = ''
+        for item in img_list[3:-2:]:
+            _ += '<p><img src="{0}" style=""/></p>'.format(item)
+        div_desc = _
 
         return div_desc
 
@@ -381,12 +413,17 @@ class YanXuanParse(object):
         :return:
         '''
         price_info_list = []
+        # pprint(data)
         for item in data:
             itemSkuSpecValueList = item.get('itemSkuSpecValueList', [])
+            # pprint(itemSkuSpecValueList)
             spec_value_list = [i.get('skuSpecValue', {}).get('value', '') for i in itemSkuSpecValueList]
             spec_value = '|'.join(spec_value_list)
             img_url = item.get('pic', '')    # 默认为空
-            detail_price = str(item.get('retailPrice', ''))          # 零售价
+            if item.get('promotionDesc', '') == '新人专享价':    # 新人专享价处理为原价
+                detail_price = str(item.get('calcPrice', ''))
+            else:
+                detail_price = str(item.get('retailPrice', ''))          # 零售价
             normal_price = str(item.get('counterPrice', ''))         # 市场价
             account_limit_buy_count = 5
             rest_number = item.get('sellVolume', 0)        # 官方接口没有规格库存信息, 此处默认为20
@@ -405,6 +442,10 @@ class YanXuanParse(object):
         return price_info_list
 
     def _get_price_and_taobao_price(self, price_info_list):
+        # pprint(price_info_list)
+        if price_info_list == []:   # 售罄商品处理
+            return 0, 0
+
         try:
             tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
             price = tmp_price_list[-1]  # 商品价格
