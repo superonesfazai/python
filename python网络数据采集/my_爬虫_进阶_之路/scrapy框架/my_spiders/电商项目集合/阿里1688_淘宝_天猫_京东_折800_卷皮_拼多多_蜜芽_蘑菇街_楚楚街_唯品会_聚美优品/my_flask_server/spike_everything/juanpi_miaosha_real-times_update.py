@@ -15,7 +15,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
 import json
 from pprint import pprint
 import time
@@ -57,7 +56,12 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, miaosha_time, tab_id, page from dbo.juanpi_xianshimiaosha where site_id=15 order by id asc'
+        sql_str = '''
+        select goods_id, miaosha_time, tab_id, page 
+        from dbo.juanpi_xianshimiaosha 
+        where site_id=15
+        order by id asc
+        '''
         # 删除过期2天的的
         tmp_del_str = 'delete from dbo.juanpi_xianshimiaosha where GETDATE()-miaosha_end_time>2'
         try:

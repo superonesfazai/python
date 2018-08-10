@@ -11,7 +11,6 @@ import sys
 sys.path.append('..')
 
 from pprint import pprint
-from json import dumps
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.sql_utils import pretty_table
@@ -19,10 +18,12 @@ from fzutils.sql_utils import pretty_table
 _ = SqlServerMyPageInfoSaveItemPipeline()
 sql_str = '''
 use Gather;
-select goods_id, create_time, miaosha_begin_time, miaosha_end_time 
-from dbo.zhe_800_xianshimiaosha 
-where GETDATE()-create_time<1
-order by id desc;
+select MainGoodsID, goods_url, is_delete, create_time, modfiy_time, ConvertTime, goods_id, miaosha_begin_time, miaosha_end_time
+from dbo.juanpi_xianshimiaosha 
+where MainGoodsID='129216' 
+or MainGoodsID='129215'
+or MainGoodsID='129214'
+or MainGoodsID='129213'
 '''
 pretty_table(cursor=_._get_one_select_cursor(sql_str=sql_str, params=None))
 

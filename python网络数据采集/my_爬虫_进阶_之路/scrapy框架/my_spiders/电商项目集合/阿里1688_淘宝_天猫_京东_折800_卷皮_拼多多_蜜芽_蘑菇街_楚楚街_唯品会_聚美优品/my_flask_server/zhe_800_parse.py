@@ -105,7 +105,6 @@ class Zhe800Parse(object):
                 data['/app/detail/product/sku'] = sku
 
                 # 得到手机版地址
-                phone_url = ''
                 try:
                     phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
                 except AttributeError:
@@ -145,127 +144,20 @@ class Zhe800Parse(object):
                         detail = ''
                     # print(detail)
 
-                    '''
-                    处理detail_data转换成能被html显示页面信息
-                    '''
-                    tmp_div_desc = ''
-                    if isinstance(detail, dict):
-                        if detail.get('detailImages') is not None:
-                            for item in detail.get('detailImages', []):
-                                tmp = ''
-                                tmp_big = item.get('big', '')
-                                tmp_height = item.get('height', 0)
-                                tmp_width = item.get('width', 0)
-                                # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_big, tmp_height, tmp_width)
-                                tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_big)
-                                tmp_div_desc += tmp
-
-                        if detail.get('noticeImage') is not None:
-                            if isinstance(detail.get('noticeImage'), dict):
-                                item = detail.get('noticeImage')
-                                tmp = ''
-                                tmp_image = item.get('image', '')
-                                tmp_height = item.get('height', 0)
-                                tmp_width = item.get('width', 0)
-                                # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_image, tmp_height, tmp_width)
-                                tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_image)
-                                tmp_div_desc += tmp
-                            elif isinstance(detail.get('noticeImage'), list):
-                                for item in detail.get('noticeImage', []):
-                                    tmp = ''
-                                    tmp_image = item.get('image', '')
-                                    tmp_height = item.get('height', 0)
-                                    tmp_width = item.get('width', 0)
-                                    # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_image, tmp_height, tmp_width)
-                                    tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_image)
-                                    tmp_div_desc += tmp
-                            else:
-                                pass
-
-                            '''
-                            处理有尺码的情况(将其加入到div_desc中)
-                            '''
-                            tmp_size_url = 'https://th5.m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
-                            size_data_body = MyRequests.get_url_body(url=tmp_size_url, headers=self.headers)
-                            if size_data_body == '':
-                                print('size_data为空!')
-                                self.result_data = {}
-                                return {}
-                            else: size_data = [size_data_body]
-
-                            if size_data != []:
-                                size_data = json_2_dict(json_str=size_data[0])
-                                if size_data == {}:
-                                    print('json.loads(size_data)出错, 此处跳过')
-                                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                                    return {}
-                                # pprint(size_data)
-
-                                tmp_div_desc_2 = ''
-                                if size_data is not None:
-                                    charts = size_data.get('charts', [])
-                                    for item in charts:
-                                        # print(item)
-                                        tmp = ''
-                                        charts_data = item.get('data', [])     # table
-                                        title = item.get('title', '')
-                                        for item2 in charts_data:        # item为一个list
-                                            # print(item2)
-                                            charts_item = ''
-                                            for i in item2:              # i为一个dict
-                                                # print(i)
-                                                data_value = i.get('value', '')
-                                                tmp_1 = '<td style="vertical-align:inherit;display:table-cell;font-size:12px;color:#666;border:#666 1px solid;">{}</td>'.format(data_value)
-                                                charts_item += tmp_1
-                                            charts_item = '<tr style="border:#666 1px solid;">' + charts_item + '</tr>'
-                                            # print(charts_item)
-                                            tmp += charts_item
-                                        tmp = '<div>' + '<strong style="color:#666;">'+ title + '</strong>' + '<table style="border-color:grey;border-collapse:collapse;text-align:center;line-height:25px;background:#fff;border-spacing:0;border:#666 1px solid;"><tbody style="border:#666 1px solid;">' + tmp + '</tbody></table></div><br>'
-                                        tmp_div_desc_2 += tmp
-                                    # print(tmp_div_desc_2)
-                                else:
-                                    pass
-                            else:
-                                tmp_div_desc_2 = ''
-
-                        else:
-                            tmp_div_desc_2 = ''
-                            pass
-                        tmp_div_desc = tmp_div_desc_2 + '<div>' + tmp_div_desc + '</div>'
-
+                    # div_desc
+                    tmp_div_desc = self._get_div_desc(detail=detail, goods_id=goods_id)
+                    if tmp_div_desc == '':
+                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                        return {}
                     # print(tmp_div_desc)
                     data['/app/detail/graph/detail'] = tmp_div_desc
 
-                    '''
-                    得到shop_name
-                    '''
-                    seller_id = data.get('/app/detail/product/base', {}).get('sellerId', 0)
-                    tmp_seller_id_url = 'https://th5.m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
-                    seller_info_body = MyRequests.get_url_body(url=tmp_seller_id_url, headers=self.headers)
-                    if seller_info_body == '':
-                        print('seller_info为空!')
-                        self.result_data = {}
-                        return {}
-                    else: seller_info = [seller_info_body]
-                    seller_info_str = ''
-                    for item_ss in seller_info:  # 拼接字符串
-                        seller_info_str += item_ss
-
-                    seller_info = [seller_info_str]
-                    # print(seller_info)
-
-                    if seller_info != []:
-                        seller_info = json_2_dict(json_str=seller_info[0])
-                        if seller_info == {}:
-                            print('卖家信息在转换时出现错误, 此处跳过')
-                            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+                    # shop_name
+                    shop_name = self._get_shop_name(data=data)
+                    if isinstance(shop_name, dict):
+                        if shop_name == {}:
+                            self.result_data = {}
                             return {}
-
-                        # pprint(seller_info)
-                        shop_name = seller_info.get('sellerInfo', {}).get('nickName', '')
-                    else:
-                        shop_name = ''
-                    # print(shop_name)
                     data['shop_name'] = shop_name
 
                     '''
@@ -516,14 +408,142 @@ class Zhe800Parse(object):
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
+    def _get_div_desc(self, **kwargs):
+        '''
+        处理detail_data转换成能被html显示页面信息
+        :param kwargs:
+        :return:
+        '''
+        detail = kwargs.get('detail')
+        goods_id = kwargs.get('goods_id')
+        tmp_div_desc = ''
+        if isinstance(detail, dict):
+            if detail.get('detailImages') is not None:
+                for item in detail.get('detailImages', []):
+                    tmp_big = item.get('big', '')
+                    tmp_height = item.get('height', 0)
+                    tmp_width = item.get('width', 0)
+                    # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_big, tmp_height, tmp_width)
+                    tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_big)
+                    tmp_div_desc += tmp
+
+            if detail.get('noticeImage') is not None:
+                if isinstance(detail.get('noticeImage'), dict):
+                    item = detail.get('noticeImage')
+                    tmp_image = item.get('image', '')
+                    tmp_height = item.get('height', 0)
+                    tmp_width = item.get('width', 0)
+                    # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_image, tmp_height, tmp_width)
+                    tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_image)
+                    tmp_div_desc += tmp
+                elif isinstance(detail.get('noticeImage'), list):
+                    for item in detail.get('noticeImage', []):
+                        tmp_image = item.get('image', '')
+                        tmp_height = item.get('height', 0)
+                        tmp_width = item.get('width', 0)
+                        # tmp = r'<img src="{}" style="height:{}px;width:{}px;"/>'.format(tmp_image, tmp_height, tmp_width)
+                        tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_image)
+                        tmp_div_desc += tmp
+                else:
+                    pass
+
+                '''
+                处理有尺码的情况(将其加入到div_desc中)
+                '''
+                tmp_size_url = 'https://th5.m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
+                size_data_body = MyRequests.get_url_body(url=tmp_size_url, headers=self.headers)
+                if size_data_body == '':
+                    print('size_data为空!')
+                    return ''
+
+                else:
+                    size_data = [size_data_body]
+
+                if size_data != []:
+                    size_data = json_2_dict(json_str=size_data[0])
+                    if size_data == {}:
+                        print('json.loads(size_data)出错, 此处跳过')
+                        return ''
+                    # pprint(size_data)
+
+                    tmp_div_desc_2 = ''
+                    if size_data is not None:
+                        charts = size_data.get('charts', [])
+                        for item in charts:
+                            # print(item)
+                            tmp = ''
+                            charts_data = item.get('data', [])  # table
+                            title = item.get('title', '')
+                            for item2 in charts_data:  # item为一个list
+                                # print(item2)
+                                charts_item = ''
+                                for i in item2:  # i为一个dict
+                                    # print(i)
+                                    data_value = i.get('value', '')
+                                    tmp_1 = '<td style="vertical-align:inherit;display:table-cell;font-size:12px;color:#666;border:#666 1px solid;">{}</td>'.format(
+                                        data_value)
+                                    charts_item += tmp_1
+                                charts_item = '<tr style="border:#666 1px solid;">' + charts_item + '</tr>'
+                                # print(charts_item)
+                                tmp += charts_item
+                            tmp = '<div>' + '<strong style="color:#666;">' + title + '</strong>' + '<table style="border-color:grey;border-collapse:collapse;text-align:center;line-height:25px;background:#fff;border-spacing:0;border:#666 1px solid;"><tbody style="border:#666 1px solid;">' + tmp + '</tbody></table></div><br>'
+                            tmp_div_desc_2 += tmp
+                        # print(tmp_div_desc_2)
+                    else:
+                        pass
+                else:
+                    tmp_div_desc_2 = ''
+
+            else:
+                tmp_div_desc_2 = ''
+                pass
+            tmp_div_desc = tmp_div_desc_2 + '<div>' + tmp_div_desc + '</div>'
+
+        return tmp_div_desc
+
+    def _get_shop_name(self, **kwargs):
+        '''
+        得到shop_name
+        '''
+        data = kwargs.get('data', {})
+
+        seller_id = data.get('/app/detail/product/base', {}).get('sellerId', 0)
+        tmp_seller_id_url = 'https://th5.m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
+        seller_info_body = MyRequests.get_url_body(url=tmp_seller_id_url, headers=self.headers)
+        if seller_info_body == '':
+            print('seller_info为空!')
+            return {}
+        else:
+            seller_info = [seller_info_body]
+        seller_info_str = ''
+        for item_ss in seller_info:  # 拼接字符串
+            seller_info_str += item_ss
+
+        seller_info = [seller_info_str]
+        # print(seller_info)
+
+        if seller_info != []:
+            seller_info = json_2_dict(json_str=seller_info[0])
+            if seller_info == {}:
+                print('卖家信息在转换时出现错误, 此处跳过')
+                return {}
+
+            # pprint(seller_info)
+            shop_name = seller_info.get('sellerInfo', {}).get('nickName', '')
+        else:
+            shop_name = ''
+        # print(shop_name)
+
+        return shop_name
+
     def insert_into_zhe_800_xianshimiaosha_table(self, data, pipeline):
         try:
             tmp = _get_right_model_data(data=data, site_id=14)  # 采集来源地(折800秒杀商品)
         except:
             print('此处抓到的可能是折800秒杀券所以跳过')
             return None
-        # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
+        # print('------>>>| 待存储的数据信息为: |', tmp)
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
         sql_str = 'insert into dbo.zhe_800_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, session_id, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
@@ -535,7 +555,7 @@ class Zhe800Parse(object):
         except:
             print('此处抓到的可能是折800秒杀券所以跳过')
             return None
-        print('------>>> | 待存储的数据信息为: {0}'.format(data.get('goods_id')))
+        print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_update_miaosha_params(item=tmp)
         sql_str = 'update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
