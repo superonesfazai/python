@@ -60,6 +60,8 @@ install_requires = [
     'appium-python-client',
     'python-docx',
     'Jinja2',
+    'elasticsearch',
+    'elasticsearch_dsl',
     # 'sip',
     # 'pyqt5',
 ]
