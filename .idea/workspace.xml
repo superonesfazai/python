@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/elasticsearch/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/elasticsearch/elasticsearch_note.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md" beforeDir="false" afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/requires.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/requires.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/一千行Mysql笔记.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -853,7 +849,7 @@
           <entry key="http协议_notes" value="1" />
           <entry key="jpg" value="2" />
           <entry key="json" value="2" />
-          <entry key="md" value="52" />
+          <entry key="md" value="53" />
           <entry key="mitmproxy_note" value="1" />
           <entry key="png" value="21" />
           <entry key="py" value="331" />
@@ -873,6 +869,7 @@
           <entry key="测试淘宝的地址" value="2" />
           <entry key="生成器" value="1" />
           <entry key="端口" value="2" />
+          <entry key="简单的命令行操作" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
@@ -881,8 +878,8 @@
           <entry key="HTML" value="13" />
           <entry key="Image" value="23" />
           <entry key="JSON" value="2" />
-          <entry key="Markdown" value="56" />
-          <entry key="PLAIN_TEXT" value="26" />
+          <entry key="Markdown" value="57" />
+          <entry key="PLAIN_TEXT" value="27" />
           <entry key="Python" value="331" />
           <entry key="PythonStub" value="1" />
           <entry key="ReST" value="2" />
@@ -892,7 +889,7 @@
         <counts>
           <entry key="appium_android" value="887" />
           <entry key="html" value="152" />
-          <entry key="md" value="4444" />
+          <entry key="md" value="4448" />
           <entry key="mitmproxy_note" value="213" />
           <entry key="py" value="14955" />
           <entry key="rst" value="85" />
@@ -902,7 +899,7 @@
         <counts>
           <entry key="Bash" value="65" />
           <entry key="HTML" value="152" />
-          <entry key="Markdown" value="5278" />
+          <entry key="Markdown" value="5282" />
           <entry key="Python" value="15147" />
           <entry key="ReST" value="85" />
           <entry key="SQL" value="9" />
@@ -914,11 +911,11 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/elasticsearch/elasticsearch_note.md">
+        <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/一千行Mysql笔记.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="885">
-                <caret line="240" column="3" selection-start-line="240" selection-start-column="3" selection-end-line="240" selection-end-column="3" />
+              <first_editor relative-caret-position="15">
+                <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
               </first_editor>
               <second_editor />
             </state>
@@ -1002,7 +999,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/spiders/scrapy/scrapy_notes.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/linux/scp_notes.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/linux/ssh_notes.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/垃圾回收/gc垃圾回收.md" />
@@ -1053,6 +1049,7 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/requires.py" />
         <option value="$PROJECT_DIR$/elasticsearch/elasticsearch_note.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md" />
+        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/一千行Mysql笔记.md" />
       </list>
     </option>
   </component>
@@ -1193,6 +1190,19 @@
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
               <item name="python" type="462c0819:PsiDirectoryNode" />
               <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="db_and_数据持久化" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="my_py_notes_万物皆对象" type="462c0819:PsiDirectoryNode" />
+              <item name="db_and_数据持久化" type="462c0819:PsiDirectoryNode" />
+              <item name="Mysql" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
@@ -1843,20 +1853,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/real-times_update/kaola_real-times_update.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/kaola_parse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="443">
-          <caret line="277" column="11" lean-forward="true" selection-start-line="277" selection-start-column="11" selection-end-line="277" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/ali_1688_parse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
@@ -2213,8 +2209,25 @@
     <entry file="file://$PROJECT_DIR$/elasticsearch/elasticsearch_note.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="885">
-            <caret line="240" column="3" selection-start-line="240" selection-start-column="3" selection-end-line="240" selection-end-column="3" />
+          <first_editor relative-caret-position="194">
+            <caret line="194" lean-forward="true" selection-start-line="194" selection-end-line="194" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/简单的命令行操作">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/Mysql/一千行Mysql笔记.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="15">
+            <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
           </first_editor>
           <second_editor />
         </state>
