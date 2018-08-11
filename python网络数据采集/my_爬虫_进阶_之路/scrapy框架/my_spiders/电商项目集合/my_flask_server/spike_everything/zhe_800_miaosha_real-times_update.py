@@ -93,8 +93,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
-            sleep(5)
-        # del ali_1688
+            sleep(10*60)
 
         return
 

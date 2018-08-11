@@ -104,7 +104,7 @@ class JuMeiYouPinPinTuan(object):
                         goods_list.append(item)
                 # await asyncio.sleep(.5)
 
-                break
+                # break
             # break
 
         try: del my_phantomjs
