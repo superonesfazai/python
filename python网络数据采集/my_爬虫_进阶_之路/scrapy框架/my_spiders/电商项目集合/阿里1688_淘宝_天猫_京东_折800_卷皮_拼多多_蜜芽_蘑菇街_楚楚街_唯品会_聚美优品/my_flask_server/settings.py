@@ -204,6 +204,12 @@ PORT_2 = 1433
 INIT_PASSWD = 'aaatttyiuxiu'
 
 """
+server
+"""
+# key 用于加密
+key = 21
+
+"""
 保存的对应cookies文件路径
 """
 # linux/mac环境的路径

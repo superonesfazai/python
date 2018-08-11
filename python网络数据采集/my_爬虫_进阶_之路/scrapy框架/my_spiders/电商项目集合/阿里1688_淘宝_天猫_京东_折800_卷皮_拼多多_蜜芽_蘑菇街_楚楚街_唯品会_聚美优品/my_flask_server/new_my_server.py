@@ -7,7 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import sys, os
+import sys
+import os
 sys.path.append(os.getcwd())
 
 from flask import (
@@ -18,7 +19,6 @@ from flask import (
     redirect,
     make_response,
     session,
-    jsonify,
     Response,
     send_file,
     abort,
@@ -59,13 +59,42 @@ from settings import (
     TAOBAO_SLEEP_TIME,
     SELECT_HTML_NAME,
     INIT_PASSWD,
+    key,
 )
 
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
 )
 from my_signature import Signature
-from sql_lang.cp_sql import error_insert_sql_str
+# from apps.search import PostDocument
+from apps.admin import (
+    find_user_name,
+    del_user,
+    check_all_user,
+    init_passwd,
+    admin_add_new_user,)
+from apps.msg import (
+    _success_data,
+    _error_data,
+    _null_goods_link,
+    _invalid_goods_link,
+    _null_goods_id,
+    _null_goods_data,
+    _insert_into_db_result,
+    _error_msg,)
+from apps.reuse import (
+    add_base_info_2_processed_data,
+    is_login,)
+from apps.url_judge import (
+    _is_taobao_url_plus,
+    _is_tmall_url,
+    _is_tmall_url_plus,
+    _is_jd_url,
+    _is_jd_url_plus,)
+from apps.al import (
+    _get_ali_wait_to_save_data_goods_id_list,
+    _get_db_ali_insert_params,
+    get_one_1688_data,)
 
 import hashlib
 import json
@@ -73,7 +102,6 @@ import time
 from time import sleep
 import datetime
 import re
-from decimal import Decimal
 from logging import (
     INFO,
     ERROR,
@@ -92,8 +120,7 @@ import gc
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,)
+    get_shanghai_time,)
 from fzutils.linux_utils import daemon_init
 from fzutils.common_utils import json_2_dict
 from fzutils.safe_utils import (
@@ -121,9 +148,6 @@ app.secret_key = 'fjusfbubvnighwwf#%&'  # SECRET_KEY 配置仅仅当 CSRF 激活
 
 # 内部员工口令
 inner_pass = 'adminss'
-
-# key 用于加密
-key = 21
 
 tmp_wait_to_save_data_list = []
 
@@ -272,26 +296,26 @@ def admin():
             # 查找
             if request.form.get('find_name', '') != '':
                 find_name = request.form.get('find_name', '')
-                return find_user_name(find_name=find_name, tmp_user=tmp_user)
+                return find_user_name(find_name=find_name, tmp_user=tmp_user, my_lg=my_lg)
 
             # 重置
             elif request.form.get('update', '') != '':
                 update_name = request.form.get('update', '')
-                return init_passwd(update_name=update_name, tmp_user=tmp_user)
+                return init_passwd(update_name=update_name, tmp_user=tmp_user, my_lg=my_lg)
 
             # 删除
             elif request.form.getlist('user_to_delete_list[]') != []:
                 user_to_delete_list = list(request.form.getlist('user_to_delete_list[]'))
-                return del_user(tmp_user=tmp_user, user_to_delete_list=user_to_delete_list)
+                return del_user(tmp_user=tmp_user, user_to_delete_list=user_to_delete_list, my_lg=my_lg)
 
             # 查看现有所有用户数据
             elif request.form.get('check_all_users', '') == 'True':
                 my_lg.info('返回所有注册员工信息!')
-                return check_all_user(tmp_user=tmp_user)
+                return check_all_user(tmp_user=tmp_user, my_lg=my_lg)
 
             # 注册新用户
             elif request.form.get('username', '') != '':
-                admin_add_new_user(request=request, tmp_user=tmp_user)
+                admin_add_new_user(request=request, tmp_user=tmp_user, my_lg=my_lg)
                 return send_file('templates/admin.html')
 
             else:
@@ -349,190 +373,6 @@ def register():
         return render_template('Reg.html')
 
 ######################################################
-# admin相关操作func
-
-def find_user_name(**kwargs):
-    '''
-    查找
-    :param kwargs:
-    :return:
-    '''
-    find_name = kwargs.get('find_name', '')
-    tmp_user = kwargs.get('tmp_user')
-
-    if len(find_name) == 11 and re.compile(r'^1').findall(find_name) != []:  # 根据手机号查找
-        sql_str = 'select * from dbo.ali_spider_employee_table where username=%s'
-        result = tmp_user._select_table(sql_str=sql_str, params=(find_name,))
-        if result is not None and result != []:
-            my_lg.info('查找成功!')
-            result = result[0]
-            # my_lg.info(str(result))     # 只返回的是一个list 如: ['15661611306', 'xxxx', datetime.datetime(2017, 10, 13, 10, 0), '杭州', 'xxx']
-            data = [{
-                'username': result[0],
-                'passwd': encrypt(key, result[1]),
-                'createtime': str(result[2]),  # datetime类型转换为字符串 .strftime('%Y-%m-%d %H:%M:%S')
-                'department': result[3],
-                'realnane': result[4],
-            }]
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 1,
-            }
-            result = json.dumps(result, ensure_ascii=False).encode()
-            return result.decode()
-
-        else:
-            my_lg.info('查找失败!')
-            result = {
-                'reason': 'error',
-                'data': [],
-                'error_code': 0,  # 表示goodsLink为空值
-            }
-            result = json.dumps(result)
-            return result
-
-    elif len(find_name) > 1 and len(find_name) <= 4:  # 根据用户名查找
-        sql_str = 'select * from dbo.ali_spider_employee_table where realnane=%s'
-        result = tmp_user._select_table(sql_str=sql_str, params=(find_name,))
-        # my_lg.info(str(result))
-        if result is not None and result != []:
-            my_lg.info('查找成功!')
-            data = [{
-                'username': item[0],
-                'passwd': encrypt(key, item[1]),
-                'createtime': str(item[2]),
-                'department': item[3],
-                'realnane': item[4]
-            } for item in result]
-            result = {
-                'reason': 'success',
-                'data': data,
-                'error_code': 1,
-            }
-            result = json.dumps(result, ensure_ascii=False).encode()
-            return result.decode()
-
-        else:
-            my_lg.info('查找失败!')
-            result = {
-                'reason': 'error',
-                'data': [],
-                'error_code': 0,  # 表示goodsLink为空值
-            }
-
-            result = json.dumps(result)
-            return result
-    else:
-        my_lg.info('find_name非法!')
-        result = {
-            'reason': 'error',
-            'data': [],
-            'error_code': 0,  # 表示goodsLink为空值
-        }
-        result = json.dumps(result)
-        return result
-
-def init_passwd(**kwargs):
-    '''
-    重置用户密码
-    :param kwargs:
-    :return:
-    '''
-    tmp_user = kwargs.get('tmp_user')
-    update_name = kwargs.get('update_name', '')
-
-    sql_str = 'update dbo.ali_spider_employee_table set passwd=%s where username=%s'
-    result = tmp_user._update_table_2(sql_str=sql_str, params=(INIT_PASSWD, update_name), logger=my_lg)
-    if result:
-        my_lg.info('重置密码成功!')
-
-    else:
-        my_lg.error('重置密码失败!')
-
-    # 返回所有数据
-    return check_all_user(tmp_user=tmp_user)
-
-def del_user(**kwargs):
-    '''
-    删除用户
-    :param kwargs:
-    :return:
-    '''
-    tmp_user = kwargs.get('tmp_user')
-    user_to_delete_list = kwargs.get('user_to_delete_list')
-
-    sql_str = 'delete from dbo.ali_spider_employee_table where username=%s'
-    for item in user_to_delete_list:
-        tmp_user._delete_table(sql_str=sql_str, params=(item,))
-
-    my_lg.info('删除操作执行成功!')
-
-    return check_all_user(tmp_user=tmp_user)
-
-def check_all_user(**kwargs):
-    '''
-    查看现有所有用户数据
-    :param kwargs:
-    :return:
-    '''
-    tmp_user = kwargs.get('tmp_user')
-
-    sql_str = 'select * from dbo.ali_spider_employee_table'
-    result = tmp_user._select_table(sql_str=sql_str) if tmp_user._select_table(sql_str=sql_str) is not None else []
-    data = [{
-        'username': item[0],
-        'passwd': encrypt(key, item[1]),
-        'createtime': str(item[2]),
-        'department': item[3],
-        'realnane': item[4]
-    } for item in result]
-
-    result = {
-        'reason': 'success',
-        'data': data,
-        'error_code': 1,
-    }
-    result = json.dumps(result, ensure_ascii=False).encode()
-
-    return result.decode()
-
-def admin_add_new_user(**kwargs):
-    '''
-    在admin页面add new user
-    :param kwargs:
-    :return:
-    '''
-    request = kwargs.get('request')
-    tmp_user = kwargs.get('tmp_user')
-
-    username = request.form.get('username', '')
-    passwd = request.form.get('passwd', '')
-
-    real_name = request.form.get('ralenane', '')
-    department = request.form.get('department', '')
-
-    create_time = get_shanghai_time()
-
-    item = (
-        str(username),
-        str(passwd),
-        create_time,
-        str(department),
-        str(real_name),
-    )
-    sql_str = 'insert into dbo.ali_spider_employee_table(username, passwd, createtime, department, realnane) values(%s, %s, %s, %s, %s)'
-    is_insert_into = tmp_user._insert_into_table_2(sql_str=sql_str, params=item, logger=my_lg)
-
-    if is_insert_into:
-        my_lg.info('用户 %s 注册成功!' % str(username))
-    else:
-        my_lg.info("用户注册失败!")
-
-    return
-
-######################################################
-
 @app.route('/show_ali', methods=['GET', 'POST'])
 def show_ali_info():
     '''
@@ -704,7 +544,8 @@ def get_all_data():
 
             wait_to_save_data = get_one_1688_data(
                 username=username,
-                wait_to_deal_with_url=wait_to_deal_with_url
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
             )
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
@@ -771,94 +612,6 @@ def to_save_data():
 
     else:
         return _error_msg(msg='')
-
-def _get_ali_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            tmp_goods_id = re.compile(r'.*?/offer/(.*?).html.*?').findall(item)[0]
-            tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_ali_insert_params(item):
-    '''
-    得到阿里待插入的数据
-    :param item:
-    :return: tuple
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['detail_name_list'], ensure_ascii=False),
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        item['div_desc'],  # 存入到DetailInfo
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
-def get_one_1688_data(**kwargs):
-    '''
-    抓取一个1688 url 的data
-    :param kwargs:
-    :return:
-    '''
-    username = kwargs.get('username', '18698570079')
-    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
-
-    login_ali = ALi1688LoginAndParse()
-    goods_id = login_ali.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
-    if goods_id == '':  # 如果得不到goods_id, 则return error
-        my_lg.info('获取到的goods_id为空!')
-        try:del login_ali  # 每次都回收一下
-        except:pass
-        gc.collect()
-
-        return {'goods_id': ''}             # 错误1: goods_id为空值
-
-    tmp_result = login_ali.get_ali_1688_data(goods_id=goods_id)
-    data = login_ali.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
-    if data == {} or tmp_result == {}:
-        my_lg.info('获取到的data为空!')
-        try:del login_ali
-        except:pass
-        gc.collect()
-
-        return {'goods_id': goods_id, 'msg': 'data为空!'}     # 错误2: 抓取失败
-
-    wait_to_save_data = add_base_info_2_processed_data(
-        data=data,
-        spider_url=wait_to_deal_with_url,
-        username=username,
-        goods_id=goods_id
-    )
-    try: del login_ali
-    except: pass
-
-    return wait_to_save_data
 
 ######################################################
 # 淘宝
@@ -3109,69 +2862,19 @@ def wechat():
     return echo_str
 
 ######################################################
+# search
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if is_login(request=request):
+        s = request.args.get('s')
+        if s:
+            posts = [{'id':1},]
+        else:
+            posts = ''
 
-def _is_taobao_url_plus(goods_link):
-    '''
-    淘宝m站
-    :param goods_link:
-    :return:
-    '''
-    if re.compile(r'https://h5.m.taobao.com/awp/core/detail.htm.*?').findall(goods_link) != [] \
-            or re.compile(r'https://item.taobao.com/item.htm.*?').findall(goods_link) != []:
-        return True
-
-    return False
-
-def _is_tmall_url(wait_to_deal_with_url):
-    '''
-    判断是否为tmall的url
-    :param wait_to_deal_with_url:
-    :return: bool
-    '''
-    _ = False
-    if re.compile(r'https://detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
-         or re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(wait_to_deal_with_url) != [] \
-         or re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(wait_to_deal_with_url) != []:
-        _ = True
-
-    return _
-
-def _is_tmall_url_plus(goods_link):
-    '''
-    天猫m站/pc站地址
-    :param goods_link:
-    :return:
-    '''
-    if re.compile(r'detail.tmall.').findall(goods_link) != [] \
-        or re.compile(r'detail.m.tmall.com').findall(goods_link) != []:
-        return True
-
-    return False
-
-def _is_jd_url(wait_to_deal_with_url):
-    '''
-    判断是否为jd的url
-    :param wait_to_deal_with_url:
-    :return: bool
-    '''
-    _ = False
-    if re.compile(r'https://item.jd.com/.*?').findall(wait_to_deal_with_url) != [] \
-         or re.compile(r'https://item.jd.hk/.*?').findall(wait_to_deal_with_url) != [] \
-         or re.compile(r'https://item.yiyaojd.com/.*?').findall(wait_to_deal_with_url) != []:
-        _ = True
-
-    return _
-
-def _is_jd_url_plus(goods_link):
-    '''
-    京东m站/pc站
-    :param goods_link:
-    :return:
-    '''
-    if re.compile('item.jd|item.yiyaojd|item.m.jd.com|mitem.jd.hk|m.yiyaojd.com').findall(goods_link) != []:
-        return True
-
-    return False
+        return send_file('templates/search.html')
+    else:
+        return ERROR_HTML_CODE
 
 ######################################################
 # 从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
@@ -3398,196 +3101,6 @@ def save_every_url_right_data(**kwargs):
     )
 
 ######################################################
-# high reuse(高复用code)
-
-def add_base_info_2_processed_data(**kwargs):
-    '''
-    给采集后的data增加基础信息
-    :param kwargs:
-    :return:
-    '''
-    data = kwargs.get('data')
-    spider_url = kwargs.get('spider_url')
-    username = kwargs.get('username')
-    goods_id = str(kwargs.get('goods_id'))
-
-    wait_to_save_data = data
-    wait_to_save_data['spider_url'] = spider_url
-    wait_to_save_data['username'] = username
-    wait_to_save_data['goods_id'] = goods_id
-
-    return wait_to_save_data
-
-def is_login(**kwargs):
-    '''
-    判断是否合法登录
-    :param kwargs:
-    :return: bool
-    '''
-    request = kwargs.get('request')
-
-    if request.cookies.get('username') is not None \
-            and request.cookies.get('passwd') is not None:   # request.cookies -> return a dict
-        return True
-    else:
-        return False
-
-######################################################
-'''错误处理/成功处理'''
-
-def _success_data(**kwargs):
-    '''
-    获取数据成功!
-    :param kwargs:
-    :return:
-    '''
-    return dumps({
-        'reason': 'success',
-        'msg': kwargs.get('msg') if kwargs is not None else '成功!',
-        'data': kwargs.get('data', {}),
-        'error_code': '0008',
-    }, ensure_ascii=False).encode().decode()
-
-def _error_data(**kwargs):
-    '''
-    获取数据成功!
-    :param kwargs:
-    :return:
-    '''
-    return dumps({
-        'reason': 'error',
-        'msg': kwargs.get('msg') if kwargs is not None else '失败!',
-        'data': {},
-        'error_code': '0009',
-    }, ensure_ascii=False).encode().decode()
-
-def _null_goods_link():
-    # 空goods_link
-    return dumps({
-        'reason': 'error',
-        'msg': 'goods_link为空值!',
-        'data': '',
-        'error_code': '0001',
-    })
-
-def _invalid_goods_link():
-    # 无效goods_link
-    return dumps({
-        'reason': 'error',
-        'msg': '无效的goods_link, 请检查!',
-        'data': '',
-        'error_code': '0002',
-    })
-
-def _null_goods_id():
-    # 空goods_id
-    return dumps({
-        'reason': 'error',
-        'msg': '获取到的goods_id为空str, 无效的goods_link, 请检查!',
-        'data': '',
-        'error_code': '0003',
-    })
-
-def _null_goods_data():
-    # 获取到的goods_data为{}
-    return dumps({
-        'reason': 'error',
-        'msg': '获取到的goods_data为空dict!',
-        'data': '',
-        'error_code': '0004',
-    })
-
-def _insert_into_db_result(**kwargs):
-    '''
-    抓取后数据储存处理结果, msg显示
-    :param pipeline:
-    :param is_inserted_and_goods_id_list: a list eg: [('db插入结果类型bool', '对应goods_id'), ...]
-    :return:
-    '''
-    def execute_sql_error():
-        '''
-        执行sql语句错误返回的东西
-        :return:
-        '''
-        if _ is None or _ == []:        # 查询失败处理!
-            msg = r'执行搜索对应商品语句时出错! 可能已被入录! 请在公司后台对应查询!<br/><br/>'
-            for _u in goods_id_list:
-                msg += r'官方GoodsID: {0}<br/>'.format(_u)
-
-            return dumps({
-                'reason': 'error',
-                'msg': msg,
-                'data': '',
-                'error_code': '0005',
-            })
-        else:
-            return None
-
-    def judge_create_time_is_old(now_time, create_time):
-        '''
-        判断商品创建时间是否超过8小时
-        :param now_time: datetime
-        :param create_time: datetime
-        :return: bool
-        '''
-        if int(datetime_to_timestamp(now_time) - datetime_to_timestamp(create_time)) < 28800:    # 小于8小时
-            return True
-        else:
-            return False
-
-    pipeline = kwargs.get('pipeline')
-    is_inserted_and_goods_id_list = kwargs.get('is_inserted_and_goods_id_list', [])
-
-    msg = ''
-
-    # 原先是只查没有被插入的, 现在都查, because 重复插入也返回True
-    # goods_id_list = [item[1] for item in is_inserted_and_goods_id_list if not item[0]]
-    goods_id_list = [item[1] for item in is_inserted_and_goods_id_list]
-
-    _e = error_insert_sql_str
-    _e += ' or GoodsID=%s ' * (len(goods_id_list)-1)
-    _ = pipeline._select_table(sql_str=_e, params=tuple(goods_id_list))
-    execute_sql_result = execute_sql_error()
-    if execute_sql_result is not None:
-        return execute_sql_result
-
-    for _i in is_inserted_and_goods_id_list:
-        goods_id = _i[1]
-        for _r in _:
-            if goods_id == _r[2]:
-                if _i[0] and judge_create_time_is_old(now_time=get_shanghai_time(), create_time=_r[1]):
-                    msg += r'新采集的商品[GoodsID={0}]已存入db中!<br/><br/>'.format(goods_id)
-                else:
-                    if goods_id == _r[2]:
-                        tmp_msg = r'这个商品原先已被存入db中! 相关信息如下:<br/>操作人员: {0}<br/>创建时间: {1}<br/>官方GoodsID: {2}<br/>商品名称: {3}<br/>转换时间: {4}<br/>优秀商品ID: {5}<br/><br/>'.format(
-                            _r[0], str(_r[1]), _r[2], _r[3], str(_r[4]) if _r[4] is not None else '未转换', _r[5] if _r[5] is not None else '未转换',
-                        )
-                        msg += tmp_msg
-            else:
-                pass
-
-    return dumps({
-        'reason': 'success',
-        'msg': msg,
-        'data': '',
-        'error_code': '0006',
-    })
-
-def _error_msg(msg):
-    '''
-    错误的msg, json返回
-    :param msg:
-    :return:
-    '''
-    return dumps({
-        'reason': 'error',
-        'msg': str(msg),
-        'data': '',
-        'error_code': '0007',
-    })
-
-######################################################
-
 def just_fuck_run():
     my_lg.info('服务器已经启动...等待接入中...')
     my_lg.info('http://0.0.0.0:{0}'.format(str(SERVER_PORT), ))
