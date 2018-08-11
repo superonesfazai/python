@@ -25,7 +25,6 @@ from settings import (
     JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT,
     PHANTOMJS_DRIVER_PATH,
 )
-from my_aiohttp import MyAiohttp
 from logging import INFO, ERROR
 import pytz
 import datetime
@@ -34,6 +33,7 @@ from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_aiohttp import MyAiohttp
 from fzutils.common_utils import json_2_dict
 
 class JuMeiYouPinPinTuanParse(object):
@@ -99,7 +99,7 @@ class JuMeiYouPinPinTuanParse(object):
         '''
         换用phantomjs
         '''
-        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
         body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
         # print(body)
         try:

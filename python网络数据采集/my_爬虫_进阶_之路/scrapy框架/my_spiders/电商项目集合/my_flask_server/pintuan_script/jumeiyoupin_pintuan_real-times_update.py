@@ -13,7 +13,6 @@ sys.path.append('..')
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 from jumeiyoupin_pintuan import JuMeiYouPinPinTuan
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_aiohttp import MyAiohttp
 
 import gc
 from time import sleep

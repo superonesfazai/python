@@ -91,7 +91,7 @@ class JuMeiYouPinPinTuan(object):
         '''
         s_time = time.time()
         goods_list = []
-        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
         for key in self.tab_dict:
             self.msg = '正在抓取的分类为: ' + key
             self.my_lg.info(self.msg)
@@ -104,7 +104,7 @@ class JuMeiYouPinPinTuan(object):
                         goods_list.append(item)
                 # await asyncio.sleep(.5)
 
-            #     break
+                break
             # break
 
         try: del my_phantomjs
