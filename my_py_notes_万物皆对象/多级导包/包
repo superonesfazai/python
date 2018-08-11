@@ -6,3 +6,7 @@
     reload_test.test()      # 先测试下原先的自定义test函数
     reload(reload_test)     # 重新加载模块
     reload_test.test()      # 再次测试test函数
+
+注意:
+    ** pycharm不会将当前文件目录自动加入自己的sourse_path。
+    找到自己项目->右键make_directory as->sources root将当前工作的文件夹加入source_path就可以了。

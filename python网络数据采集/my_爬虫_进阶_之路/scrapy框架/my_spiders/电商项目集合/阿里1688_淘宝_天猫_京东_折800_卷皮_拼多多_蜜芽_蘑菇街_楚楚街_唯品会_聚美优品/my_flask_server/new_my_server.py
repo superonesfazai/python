@@ -9,7 +9,8 @@
 
 import sys
 import os
-sys.path.append(os.getcwd())
+TOP_PATH = os.getcwd()
+sys.path.append(TOP_PATH)
 
 from flask import (
     Flask,
@@ -49,14 +50,12 @@ from settings import (
     ADMIN_PASSWD,
     SERVER_PORT,
     MY_SPIDER_LOGS_PATH,
-    TMALL_SLEEP_TIME,
     ERROR_HTML_CODE,
     IS_BACKGROUND_RUNNING,
     BASIC_APP_KEY,
     TAOBAO_SLEEP_TIME,
     SELECT_HTML_NAME,
     key,
-    DEFAULT_USERNAME,
 )
 
 from my_pipeline import (
@@ -72,7 +71,6 @@ from apps.admin import (
     admin_add_new_user,)
 from apps.msg import (
     _success_data,
-    _error_data,
     _null_goods_link,
     _invalid_goods_link,
     _null_goods_id,
@@ -81,8 +79,7 @@ from apps.msg import (
     _error_msg,)
 from apps.reuse import (
     add_base_info_2_processed_data,
-    is_login,
-    compatible_api_goods_data,)
+    is_login,)
 from apps.url_judge import (
     _is_taobao_url_plus,
     _is_tmall_url,
@@ -90,33 +87,19 @@ from apps.url_judge import (
     _is_jd_url,
     _is_jd_url_plus,)
 from apps.al import (
-    _get_ali_wait_to_save_data_goods_id_list,
-    _get_db_ali_insert_params,
     get_one_1688_data,)
 from apps.tb import (
-    _get_taobao_wait_to_save_data_goods_id_list,
-    _get_db_taobao_insert_params,
     get_one_tb_data,
-    _get_tb_goods_id,
     _deal_with_tb_goods,)
 from apps.tm import (
-    _get_db_tmall_insert_params,
-    _get_tm_goods_id,
-    _get_tmall_wait_to_save_data_goods_id_list,
     _deal_with_tm_goods,
     get_one_tm_data,)
 from apps.jd import (
-    _get_db_jd_insert_params,
-    _get_jd_wait_to_save_data_goods_id_list,
     get_one_jd_data,
     _deal_with_jd_goods,)
 from apps.kl import (
-    _get_db_kaola_insert_params,
-    _get_kaola_wait_to_save_data_goods_id_list,
     get_one_kaola_data,)
 from apps.yx import (
-    _get_db_yanxuan_insert_params,
-    _get_yanxuan_wait_to_save_data_goods_id_list,
     get_one_yanxuan_data,)
 from apps.save import (
     get_who_wait_to_save_data_goods_id_list,
