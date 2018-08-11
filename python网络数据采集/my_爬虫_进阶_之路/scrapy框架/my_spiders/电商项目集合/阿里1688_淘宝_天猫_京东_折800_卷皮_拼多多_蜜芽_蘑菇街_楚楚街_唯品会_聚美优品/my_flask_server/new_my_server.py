@@ -25,7 +25,6 @@ from flask import (
 )
 from flask_login import LoginManager
 
-from ali_1688_parse import ALi1688LoginAndParse
 from taobao_parse import TaoBaoLoginAndParse
 # from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
@@ -34,8 +33,6 @@ from zhe_800_parse import Zhe800Parse
 from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
-from kaola_parse import KaoLaParse
-from yanxuan_parse import YanXuanParse
 
 from settings import (
     ALi_SPIDER_TO_SHOW_PATH,
@@ -58,8 +55,8 @@ from settings import (
     BASIC_APP_KEY,
     TAOBAO_SLEEP_TIME,
     SELECT_HTML_NAME,
-    INIT_PASSWD,
     key,
+    DEFAULT_USERNAME,
 )
 
 from my_pipeline import (
@@ -84,7 +81,8 @@ from apps.msg import (
     _error_msg,)
 from apps.reuse import (
     add_base_info_2_processed_data,
-    is_login,)
+    is_login,
+    compatible_api_goods_data,)
 from apps.url_judge import (
     _is_taobao_url_plus,
     _is_tmall_url,
@@ -95,6 +93,35 @@ from apps.al import (
     _get_ali_wait_to_save_data_goods_id_list,
     _get_db_ali_insert_params,
     get_one_1688_data,)
+from apps.tb import (
+    _get_taobao_wait_to_save_data_goods_id_list,
+    _get_db_taobao_insert_params,
+    get_one_tb_data,
+    _get_tb_goods_id,
+    _deal_with_tb_goods,)
+from apps.tm import (
+    _get_db_tmall_insert_params,
+    _get_tm_goods_id,
+    _get_tmall_wait_to_save_data_goods_id_list,
+    _deal_with_tm_goods,
+    get_one_tm_data,)
+from apps.jd import (
+    _get_db_jd_insert_params,
+    _get_jd_wait_to_save_data_goods_id_list,
+    get_one_jd_data,
+    _deal_with_jd_goods,)
+from apps.kl import (
+    _get_db_kaola_insert_params,
+    _get_kaola_wait_to_save_data_goods_id_list,
+    get_one_kaola_data,)
+from apps.yx import (
+    _get_db_yanxuan_insert_params,
+    _get_yanxuan_wait_to_save_data_goods_id_list,
+    get_one_yanxuan_data,)
+from apps.save import (
+    get_who_wait_to_save_data_goods_id_list,
+    get_who_right_data,
+    get_db_who_insert_params,)
 
 import hashlib
 import json
@@ -106,7 +133,6 @@ from logging import (
     INFO,
     ERROR,
 )
-from json import dumps
 from pprint import pprint
 from base64 import b64decode
 
@@ -117,7 +143,6 @@ except Exception as e:
 
 import gc
 
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,)
@@ -161,8 +186,6 @@ Sign = Signature(logger=my_lg)
 
 # saveData[]为空的msg
 save_data_null_msg = 'saveData为空! <br/><br/>可能是抓取后, 重复点存入数据按钮导致!<br/><br/>** 请按正常流程操作:<br/>先抓取，后存入，才有相应抓取后存储信息的展示!<br/><br/>^_^!!!  感谢使用!!!'
-
-DEFAULT_USERNAME = '18698570079'
 
 ######################################################
 
@@ -633,7 +656,7 @@ def get_taobao_data():
                 my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
-            wait_to_save_data = get_one_tb_data(username=username, tb_url=wait_to_deal_with_url)
+            wait_to_save_data = get_one_tb_data(username=username, tb_url=wait_to_deal_with_url, my_lg=my_lg)
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
             elif wait_to_save_data.get('msg', '') == 'data为空!':
@@ -698,165 +721,6 @@ def taobao_to_save_data():
     else:
         return _error_msg(msg='')
 
-def _get_taobao_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(item)
-            if is_taobao_url != []:
-                if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item) != []:
-                    tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)[0]
-                    # my_lg.info(tmp_taobao_url)
-                    if tmp_taobao_url != []:
-                        goods_id = tmp_taobao_url
-                    else:
-                        item = re.compile(r';').sub('', item)
-                        goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(item)[0]
-                else:  # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
-                    # my_lg.info('9999')
-                    item = re.compile(r';').sub('', item)
-                    goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(item)[0]
-                    # my_lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
-                tmp_goods_id = goods_id
-                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-            else:
-                my_lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_taobao_insert_params(item):
-    '''
-    得到db待插入的数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
-def get_one_tb_data(**kwargs):
-    '''
-    抓取一个tb url的data
-    :return: a dict
-    '''
-    username = kwargs.get('username', '18698570079')
-    tb_url = kwargs.get('tb_url', '')
-
-    login_taobao = TaoBaoLoginAndParse(logger=my_lg)
-    goods_id = login_taobao.get_goods_id_from_url(tb_url)  # 获取goods_id
-    if goods_id == '':
-        my_lg.info('获取到的goods_id为空!')
-        try: del login_taobao  # 每次都回收一下
-        except: pass
-        gc.collect()
-
-        return {'goods_id': ''}                                    # 错误1: goods_id为空!
-
-    wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id={0}'.format(goods_id)  # 构造成标准干净的淘宝商品地址
-    tmp_result = login_taobao.get_goods_data(goods_id=goods_id)
-    data = login_taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-
-    time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
-    if data == {} or tmp_result == {}:
-        my_lg.info('获取到的data为空!')
-        try:del login_taobao
-        except:pass
-        gc.collect()
-
-        return {'goods_id': goods_id, 'msg': 'data为空!'}           # 错误2: 抓取data为空!
-
-    wait_to_save_data = add_base_info_2_processed_data(
-        data=data,
-        spider_url=wait_to_deal_with_url,
-        username=username,
-        goods_id=goods_id
-    )
-    try: del login_taobao
-    except: pass
-
-    return wait_to_save_data
-
-def _get_tb_goods_id(goods_link):
-    '''
-    获取m站或者pc站的goods_id
-    :param goods_link:
-    :return:
-    '''
-    try:
-        return re.compile(r'id=(\d+)').findall(goods_link)[0]
-    except IndexError:
-        return ''
-
-def _deal_with_tb_goods(goods_link):
-    '''
-    处理淘宝商品
-    :param goods_link:
-    :return: json_str
-    '''
-    my_lg.info('进入淘宝商品处理接口...')
-    goods_id = _get_tb_goods_id(goods_link)
-    if goods_id == '':
-        msg = 'goods_id匹配失败!请检查url是否正确!'
-        return _error_data(msg=msg)
-
-    tb_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
-    data = get_one_tb_data(tb_url=tb_url)
-    my_lg.info(str(data))
-    if data.get('msg', '') == 'data为空!':
-        msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
-        return _error_data(msg=msg)
-
-    else:
-        pass
-
-    data = _get_right_model_data(data=data, site_id=1, logger=my_lg)
-    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-    my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
-
-    params = _get_db_taobao_insert_params(item=data)
-    sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-    is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
-    if is_insert_into:  # 如果返回值为True
-        pass
-    else:   # 不处理存储结果!
-        # msg = '存储该goods_id:{0}失败!'.format(goods_id)
-        # return _error_data(msg=msg)
-        pass
-
-    return compatible_api_goods_data(data=data)
-
 ######################################################
 # 天猫
 @app.route('/tmall_data', methods=['POST'])
@@ -878,7 +742,8 @@ def get_tmall_data():
 
             wait_to_save_data = get_one_tm_data(
                 username=username,
-                wait_to_deal_with_url=wait_to_deal_with_url
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
             )
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
@@ -950,202 +815,6 @@ def tmall_to_save_data():
     else:
         return _error_msg(msg='')
 
-def _get_tmall_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(item)
-            if is_tmall_url != []:  # 天猫常规商品
-                tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(item)
-                if tmp_tmall_url != []:
-                    is_tmp_tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?&id=(\d+)&{0,20}.*?').findall(item)
-                    if is_tmp_tmp_tmall_url != []:
-                        goods_id = is_tmp_tmp_tmall_url[0]
-                    else:
-                        goods_id = tmp_tmall_url[0]
-                else:
-                    tmall_url = re.compile(r';').sub('', item)
-                    goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
-                tmp_goods_id = goods_id
-                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-            else:
-                is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(item)
-                if is_tmall_supermarket != []:  # 天猫超市
-                    tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)&.*?').findall(item)
-                    if tmp_tmall_url != []:
-                        goods_id = tmp_tmall_url[0]
-                    else:
-                        tmall_url = re.compile(r';').sub('', item)
-                        goods_id = \
-                        re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
-                    tmp_goods_id = goods_id
-                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                else:
-                    is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(item)  # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
-                    if is_tmall_hk != []:  # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
-                        tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)&.*?').findall(item)
-                        if tmp_tmall_url != []:
-                            goods_id = tmp_tmall_url[0]
-                        else:
-                            tmall_url = re.compile(r';').sub('', item)
-                            goods_id = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)').findall(tmall_url)[0]
-                        # before_url = re.compile(r'https://detail.tmall.hk/.*?item.htm').findall(item)[0]
-                        tmp_goods_id = goods_id
-                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                    else:  # 非正确的天猫商品url
-                        my_lg.info('天猫商品url错误, 非正规的url, 请参照格式(https://detail.tmall.com/item.htm)开头的...')
-                        pass
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_tmall_insert_params(item):
-    '''
-    得到tmall待存储数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
-def get_one_tm_data(**kwargs):
-    '''
-    抓取一个tm url的data
-    :param kwargs:
-    :return:
-    '''
-    username = kwargs.get('username', DEFAULT_USERNAME)
-    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
-
-    login_tmall = TmallParse(logger=my_lg)
-    goods_id = login_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
-    if goods_id == []:  # 如果得不到goods_id, 则return error
-        my_lg.info('获取到的goods_id为空!')
-        try:
-            del login_tmall  # 每次都回收一下
-        except:
-            pass
-        gc.collect()
-
-        return {'goods_id': ''}
-
-    # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
-    #####################################################
-    if goods_id[0] == 0:  # [0, '1111']
-        wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]  # 构造成标准干净的天猫商品地址
-    elif goods_id[0] == 1:  # [1, '1111']
-        wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
-    elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
-        wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
-
-    tmp_result = login_tmall.get_goods_data(goods_id=goods_id)
-    data = login_tmall.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
-
-    time.sleep(TMALL_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
-    if data == {} or tmp_result == {}:
-        my_lg.info('获取到的data为空!')
-        try:
-            del login_tmall
-        except:
-            pass
-        gc.collect()
-
-        return {'goods_id': goods_id[1], 'msg': 'data为空!'}
-
-    wait_to_save_data = add_base_info_2_processed_data(
-        data=data,
-        spider_url=wait_to_deal_with_url,
-        username=username,
-        goods_id=goods_id[1]
-    )
-    try: del login_tmall
-    except: pass
-
-    return wait_to_save_data
-
-def _get_tm_goods_id(goods_link):
-    '''
-    得到tm link的goods_id
-    :param goods_link:
-    :return:
-    '''
-    try:
-        return re.compile('id=(\d+)').findall(goods_link)[0]
-    except IndexError:
-        return ''
-
-def _deal_with_tm_goods(goods_link):
-    '''
-    处理天猫商品
-    :param goods_link:
-    :return: json_str
-    '''
-    my_lg.info('进入天猫商品处理接口...')
-    goods_id = _get_tm_goods_id(goods_link)
-    if goods_id == '':
-        msg = 'goods_id匹配失败!请检查url是否正确!'
-        return _error_data(msg=msg)
-
-    tm_url = 'https://detail.tmall.com/item.htm?id={0}'.format(goods_id)
-    data = get_one_tm_data(wait_to_deal_with_url=tm_url)
-    if data.get('msg', '') == 'data为空!':
-        msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
-        return _error_data(msg=msg)
-    else:
-        pass
-
-    _ = TmallParse(logger=my_lg)
-    site_id = _._from_tmall_type_get_site_id(type=data.get('type'))
-    try: del _
-    except: pass
-    data = _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
-    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-    my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
-
-    params = _get_db_tmall_insert_params(item=data)
-    sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-    is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
-    if is_insert_into:  # 如果返回值为True
-        pass
-    else:               # 不处理存储结果
-        # msg = '存储该goods_id:{0}失败!'.format(goods_id)
-        # return _error_data(msg=msg)
-        pass
-
-    return compatible_api_goods_data(data=data)
-
 ######################################################
 # 京东
 @app.route('/jd_data', methods=['POST'])
@@ -1165,7 +834,11 @@ def get_jd_data():
                 my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
-            wait_to_save_data = get_one_jd_data(username=username, wait_to_deal_with_url=wait_to_deal_with_url)
+            wait_to_save_data = get_one_jd_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
+            )
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
 
@@ -1236,201 +909,6 @@ def jd_to_save_data():
 
     else:
         return _error_msg(msg='')
-
-def _get_jd_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(item)
-            if is_jd_url != []:
-                goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(item)[0]
-                tmp_goods_id = goods_id
-                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-            else:
-                is_jd_hk_url = re.compile(r'https://item.jd.hk/.*?').findall(item)
-                if is_jd_hk_url != []:
-                    goods_id = re.compile(r'https://item.jd.hk/(.*?).html.*?').findall(item)[0]
-                    tmp_goods_id = goods_id
-                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                else:
-                    is_yiyao_jd_url = re.compile(r'https://item.yiyaojd.com/.*?').findall(item)
-                    if is_yiyao_jd_url != []:
-                        goods_id = re.compile(r'https://item.yiyaojd.com/(.*?).html.*?').findall(item)[0]
-                        tmp_goods_id = goods_id
-                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                    else:
-                        my_lg.info('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
-                        pass
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_jd_insert_params(item):
-    '''
-    得到db待插入数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
-def get_one_jd_data(**kwargs):
-    '''
-    抓取jd url的data
-    :param kwargs:
-    :return:
-    '''
-    username = kwargs.get('username', '18698570079')
-    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
-
-    jd = JdParse()
-    goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
-    if goods_id == []:  # 如果得不到goods_id, 则return error
-        my_lg.info('获取到的goods_id为空!')
-        try:
-            del jd  # 每次都回收一下
-        except:
-            pass
-        gc.collect()
-
-        return {'goods_id': ''}
-
-    # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
-    #####################################################
-    if goods_id[0] == 0:  # [0, '1111']
-        wait_to_deal_with_url = 'https://item.jd.com/' + goods_id[1] + '.html'  # 构造成标准干净的jd商品地址
-    elif goods_id[0] == 1:  # [1, '1111']
-        wait_to_deal_with_url = 'https://item.jd.hk/' + goods_id[1] + '.html'
-    elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
-        wait_to_deal_with_url = 'https://item.yiyaojd.com/' + goods_id[1] + '.html'
-
-    tmp_result = jd.get_goods_data(goods_id=goods_id)
-    data = jd.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-    if data == {} or tmp_result == {}:
-        my_lg.info('获取到的data为空!')
-        try:
-            del jd
-        except:
-            pass
-        gc.collect()
-
-        return {'goods_id': goods_id[1], 'msg': 'data为空!'}
-
-    wait_to_save_data = add_base_info_2_processed_data(
-        data=data,
-        spider_url=wait_to_deal_with_url,
-        username=username,
-        goods_id=goods_id[1]
-    )
-    try: del jd
-    except: pass
-
-    return wait_to_save_data
-
-def _get_jd_goods_id(goods_link):
-    '''
-    得到jd link的goods_id
-    :param goods_link:
-    :return:
-    '''
-    if re.compile('/(\d+).html').findall(goods_link) != []:
-        return re.compile('/(\d+).html').findall(goods_link)[0]
-
-    elif re.compile('wareId=(\d+)').findall(goods_link) != []:
-        return re.compile('wareId=(\d+)').findall(goods_link)[0]
-
-    else:
-        return ''
-
-def _deal_with_jd_goods(goods_link):
-    '''
-    处理jd商品
-    :param goods_link:
-    :return:
-    '''
-    my_lg.info('进入京东商品处理接口...')
-    goods_id = _get_jd_goods_id(goods_link)
-    if goods_id == '':
-        msg = 'goods_id匹配失败!请检查url是否正确!'
-        return _error_data(msg=msg)
-
-    jd_url = 'https://item.jd.com/{0}.html'.format(goods_id)
-    data = get_one_jd_data(wait_to_deal_with_url=jd_url)
-    if data.get('msg', '') == 'data为空!':
-        msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
-        return _error_data(msg=msg)
-
-    else:
-        pass
-
-    site_id = _from_jd_type_get_site_id(type=data.get('jd_type'))
-    data = _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
-    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-    my_lg.info('------>>>| 正在存储的数据为: ' + data.get('goods_id', ''))
-
-    params = _get_db_jd_insert_params(item=data)
-    sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-    is_insert_into = my_pipeline._insert_into_table(sql_str=sql_str, params=params)
-    if is_insert_into:  # 如果返回值为True
-        pass
-    else:               # 不处理存储结果
-        # msg = '存储该goods_id:{0}失败!'.format(goods_id)
-        # return _error_data(msg=msg)
-        pass
-
-    return compatible_api_goods_data(data=data)
-
-def _from_jd_type_get_site_id(type):
-    '''
-    根据jd的type得到site_id
-    :param type:
-    :return:
-    '''
-    # 采集的来源地
-    if type == 7:
-        site_id = 7  # 采集来源地(京东)
-    elif type == 8:
-        site_id = 8  # 采集来源地(京东超市)
-    elif type == 9:
-        site_id = 9  # 采集来源地(京东全球购)
-    elif type == 10:
-        site_id = 10  # 采集来源地(京东大药房)
-    else:
-        raise ValueError('jd的type传入非法!')
-
-    return site_id
 
 ######################################################
 # 折800
@@ -1541,88 +1019,6 @@ def zhe_800_to_save_data():
     else:
         return _error_msg(msg='')
 
-def _get_zhe_800_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/.*?').findall(item)
-            if is_zhe_800_url != []:
-                if re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
-                    tmp_zhe_800_url = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
-                    if tmp_zhe_800_url != '':
-                        goods_id = tmp_zhe_800_url
-                    else:
-                        zhe_800_url = re.compile(r';').sub('', item)
-                        goods_id = re.compile(r'https://shop.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
-                else:  # 处理从数据库中取出的数据
-                    zhe_800_url = re.compile(r';').sub('', item)
-                    goods_id = re.compile(r'https://shop.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
-                tmp_goods_id = goods_id
-                tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-
-            else:
-                is_miao_sha_url = re.compile(r'https://miao.zhe800.com/products/.*?').findall(item)
-                if is_miao_sha_url != []:  # 先不处理这种链接的情况
-                    if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item) != []:
-                        tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(item)[0]
-                        if tmp_zhe_800_url != '':
-                            goods_id = tmp_zhe_800_url
-                        else:
-                            zhe_800_url = re.compile(r';').sub('', item)
-                            goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
-
-                    else:  # 处理从数据库中取出的数据
-                        zhe_800_url = re.compile(r';').sub('', item)
-                        goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
-                    pass  # 不处理
-                else:
-                    my_lg.info('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
-                    pass  # 不处理
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_zhe_800_insert_params(item):
-    '''
-    得到db待插入的数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        dumps(item['schedule'], ensure_ascii=False),
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
 ######################################################
 # 卷皮
 @app.route('/juanpi_data', methods=['POST'])
@@ -1732,71 +1128,6 @@ def juanpi_to_save_data():
     else:
         return _error_msg(msg='')
 
-def _get_juanpi_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/.*?').findall(item)
-            if is_juanpi_url != []:
-                if re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(item) != []:
-                    tmp_juanpi_url = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(item)[0]
-                    if tmp_juanpi_url != '':
-                        goods_id = tmp_juanpi_url
-                    else:  # 只是为了在pycharm运行时不调到chrome，其实else完全可以不要的
-                        juanpi_url = re.compile(r';').sub('', item)
-                        goods_id = re.compile(r'http://shop.juanpi.com/deal/(\d+).*?').findall(juanpi_url)[0]
-                    my_lg.info('------>>>| 得到的卷皮商品的地址为:{0}'.format(goods_id))
-                    tmp_goods_id = goods_id
-                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-
-            else:
-                my_lg.info('卷皮商品url错误, 非正规的url, 请参照格式(http://shop.juanpi.com/deal/)开头的...')
-                pass  # 不处理
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_juanpi_insert_params(item):
-    '''
-    得到db待插入数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        dumps(item['schedule'], ensure_ascii=False),
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
 ######################################################
 # 拼多多
 @app.route('/pinduoduo_data', methods=['POST'])
@@ -1904,74 +1235,6 @@ def pinduoduo_to_save_data():
 
     else:
         return _error_msg(msg='')
-
-def _get_pinduoduo_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_pinduoduo_url = re.compile(r'http://mobile.yangkeduo.com/goods.html.*?').findall(item)
-            if is_pinduoduo_url != []:
-                if re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(item) != []:
-                    tmp_pinduoduo_url = \
-                    re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(item)[0]
-                    if tmp_pinduoduo_url != '':
-                        goods_id = tmp_pinduoduo_url
-                    else:  # 只是为了在pycharm里面测试，可以不加
-                        pinduoduo_url = re.compile(r';').sub('', item)
-                        goods_id = re.compile(r'http://mobile.yangkeduo.com/goods.html\?.*?goods_id=(\d+).*?').findall(pinduoduo_url)[0]
-                    my_lg.info('------>>>| 得到的拼多多商品id为:{0}'.format(goods_id))
-                    tmp_goods_id = goods_id
-                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                else:
-                    pass
-            else:
-                my_lg.info('拼多多商品url错误, 非正规的url, 请参照格式(http://mobile.yangkeduo.com/goods.html)开头的...')
-                pass  # 不处理
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_pinduoduo_insert_params(item):
-    '''
-    得到db待插入的数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-        dumps(item['schedule'], ensure_ascii=False),
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
 
 ######################################################
 # 唯品会
@@ -2083,89 +1346,6 @@ def vip_to_save_data():
     else:
         return _error_msg(msg='')
 
-def _get_vip_wait_to_save_data_goods_id_list(data):
-    '''
-    得到待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_vip_irl = re.compile(r'https://m.vip.com/product-(\d*)-.*?.html.*?').findall(item)
-            if is_vip_irl != []:
-                if re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(item) != []:
-                    tmp_vip_url = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(item)[0]
-                    if tmp_vip_url != '':
-                        goods_id = tmp_vip_url
-                    else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
-                        vip_url = re.compile(r';').sub('', item)
-                        goods_id = re.compile(r'https://m.vip.com/product-.*?-(\d+).html.*?').findall(vip_url)[0]
-                    my_lg.info('------>>>| 得到的唯品会商品的goods_id为:{0}'.format(goods_id))
-                    tmp_goods_id = goods_id
-                    tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                else:
-                    pass
-            else:
-                # 唯品会预售商品
-                is_vip_preheading = re.compile(r'https://m.vip.com/preheating-product-(\d+)-.*?.html.*?').findall(item)
-                if is_vip_preheading != []:
-                    if re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(item) != []:
-                        tmp_vip_url = \
-                        re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(item)[0]
-                        if tmp_vip_url != '':
-                            goods_id = tmp_vip_url
-                        else:  # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
-                            vip_url = re.compile(r';').sub('', item)
-                            goods_id = \
-                            re.compile(r'https://m.vip.com/preheating-product-.*?-(\d+).html.*?').findall(vip_url)[0]
-                        my_lg.info('------>>>| 得到的唯品会 预售商品 的goods_id为:{0}'.format(goods_id))
-                        tmp_goods_id = goods_id
-                        tmp_wait_to_save_data_goods_id_list.append(tmp_goods_id)
-                else:
-                    my_lg.info('唯品会商品url错误, 非正规的url, 请参照格式(https://m.vip.com/product-0-xxxxxxx.html) or (https://m.vip.com/preheating-product-xxxx-xxxx.html)开头的...')
-                    pass  # 不处理
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_vip_insert_params(item):
-    '''
-    得到db待插入数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-        dumps(item['schedule'], ensure_ascii=False),
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
 ######################################################
 # 网易考拉海购
 @app.route('/kaola_data', methods=['POST'])
@@ -2187,7 +1367,8 @@ def get_kaola_data():
 
             wait_to_save_data = get_one_kaola_data(
                 username=username,
-                wait_to_deal_with_url=wait_to_deal_with_url
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
             )
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
@@ -2257,109 +1438,6 @@ def kaola_to_save_data():
     else:
         return _error_msg(msg='')
     
-def _get_kaola_wait_to_save_data_goods_id_list(data):
-    '''
-    得到考拉待存取的goods_id的list
-    :param data: 
-    :return: 
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_kaola_url = re.compile(r'https://goods.kaola.com/product/.*?').findall(item)
-            if is_kaola_url != []:
-                if re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(item) != []:
-                    goods_id = re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(item)[0]
-                    my_lg.info('------>>>| 得到的考拉商品的goods_id为: {0}'.format(goods_id))
-                    tmp_wait_to_save_data_goods_id_list.append(goods_id)
-                else:
-                    pass
-            else:
-                my_lg.info('网易考拉商品url错误, 非正规的url, 请参照格式(https://goods.kaola.com/product/xxx.html)开头的...')
-                pass
-    
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_kaola_insert_params(item):
-    '''
-    得到db待插入的数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-        dumps(item['schedule'], ensure_ascii=False),
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
-def get_one_kaola_data(**kwargs):
-    '''
-    抓取一个考拉 url的data
-    :param kwargs:
-    :return:
-    '''
-    username = kwargs.get('username', DEFAULT_USERNAME)
-    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
-
-    kaola = KaoLaParse(logger=my_lg)
-    goods_id = kaola.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
-    if goods_id == '':  # 如果得不到goods_id, 则return error
-        my_lg.info('获取到的goods_id为空!')
-        try:
-            del kaola  # 每次都回收一下
-        except Exception:
-            pass
-        gc.collect()
-        return {'goods_id': ''}         # 错误1: goods_id为空值
-
-    tmp_result = kaola._get_goods_data(goods_id=goods_id)
-    data = kaola._deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
-    if data == {} or tmp_result == {}:
-        my_lg.error('获取到的data为空!出错地址: {0}'.format(wait_to_deal_with_url))
-        try:
-            del kaola
-        except:
-            pass
-        gc.collect()
-        return {'goods_id': goods_id, 'msg': 'data为空!'}     # 错误2: 抓取失败
-
-    wait_to_save_data = add_base_info_2_processed_data(
-        data=data,
-        spider_url=wait_to_deal_with_url,
-        username=username,
-        goods_id=goods_id
-    )
-    try: del kaola
-    except: pass
-
-    return wait_to_save_data
-
 ######################################################
 # 网易严选
 @app.route('/yanxuan_data', methods=['POST'])
@@ -2381,7 +1459,8 @@ def get_yanxuan_data():
 
             wait_to_save_data = get_one_yanxuan_data(
                 username=username,
-                wait_to_deal_with_url=wait_to_deal_with_url
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
             )
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
@@ -2451,113 +1530,7 @@ def yanxuan_to_save_data():
     else:
         return _error_msg(msg='')
 
-def _get_yanxuan_wait_to_save_data_goods_id_list(data):
-    '''
-    获取严选待存取的goods_id的list
-    :param data:
-    :return:
-    '''
-    wait_to_save_data_url_list = data
-
-    tmp_wait_to_save_data_goods_id_list = []
-    for item in wait_to_save_data_url_list:
-        if item == '':  # 除去传过来是空值
-            pass
-        else:
-            is_kaola_url = re.compile(r'you.163.com/item/detail.*?').findall(item)
-            if is_kaola_url != []:
-                if re.compile(r'id=(\d+)').findall(item) != []:
-                    goods_id = re.compile(r'id=(\d+)').findall(item)[0]
-                    my_lg.info('------>>>| 得到的严选商品的goods_id为: {0}'.format(goods_id))
-                    tmp_wait_to_save_data_goods_id_list.append(goods_id)
-                else:
-                    pass
-            else:
-                my_lg.info('网易严选商品url错误, 非正规的url, 请参照格式(https://you.163.com/item/detail)开头的...')
-                pass
-
-    return tmp_wait_to_save_data_goods_id_list
-
-def _get_db_yanxuan_insert_params(item):
-    '''
-    得到db待插入的严选数据
-    :param item:
-    :return:
-    '''
-    params = (
-        item['goods_id'],
-        item['goods_url'],
-        item['username'],
-        item['create_time'],
-        item['modify_time'],
-        item['shop_name'],
-        item['account'],
-        item['title'],
-        item['sub_title'],
-        item['link_name'],
-        item['price'],
-        item['taobao_price'],
-        dumps(item['price_info'], ensure_ascii=False),
-        dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        dumps(item['price_info_list'], ensure_ascii=False),
-        dumps(item['all_img_url'], ensure_ascii=False),
-        dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-        item['div_desc'],  # 存入到DetailInfo
-        item['all_sell_count'],
-        dumps(item['schedule'], ensure_ascii=False),
-
-        item['site_id'],
-        item['is_delete'],
-    )
-
-    return params
-
-def get_one_yanxuan_data(**kwargs):
-    '''
-    抓取一个严选商品地址的数据
-    :param kwargs:
-    :return:
-    '''
-    username = kwargs.get('username', DEFAULT_USERNAME)
-    wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
-
-    yanxuan = YanXuanParse(logger=my_lg)
-    goods_id = yanxuan.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
-    if goods_id == '':  # 如果得不到goods_id, 则return error
-        my_lg.info('获取到的goods_id为空!')
-        try:
-            del yanxuan  # 每次都回收一下
-        except Exception:
-            pass
-        gc.collect()
-        return {'goods_id': ''}  # 错误1: goods_id为空值
-
-    tmp_result = yanxuan._get_goods_data(goods_id=goods_id)
-    data = yanxuan._deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
-    if data == {} or tmp_result == {}:
-        my_lg.error('获取到的data为空!出错地址: {0}'.format(wait_to_deal_with_url))
-        try:
-            del yanxuan
-        except:
-            pass
-        gc.collect()
-        return {'goods_id': goods_id, 'msg': 'data为空!'}  # 错误2: 抓取失败
-
-    wait_to_save_data = add_base_info_2_processed_data(
-        data=data,
-        spider_url=wait_to_deal_with_url,
-        username=username,
-        goods_id=goods_id
-    )
-    try:
-        del yanxuan
-    except:
-        pass
-
-    return wait_to_save_data
-
 ######################################################
-
 @app.route('/basic_data', methods=['POST'])
 def get_basic_data():
     '''
@@ -2775,17 +1748,17 @@ def _goods():
         if _is_taobao_url_plus(goods_link):
             my_lg.info('该link为淘宝link...')
 
-            return _deal_with_tb_goods(goods_link=goods_link)
+            return _deal_with_tb_goods(goods_link=goods_link, my_lg=my_lg)
 
         elif _is_tmall_url_plus(goods_link):
             my_lg.info('该link为天猫link...')
 
-            return _deal_with_tm_goods(goods_link=goods_link)
+            return _deal_with_tm_goods(goods_link=goods_link, my_lg=my_lg)
 
         elif _is_jd_url_plus(goods_link):
             my_lg.info('该link为京东link...')
 
-            return _deal_with_jd_goods(goods_link=goods_link)
+            return _deal_with_jd_goods(goods_link=goods_link, my_lg=my_lg)
 
         else:
             my_lg.info('无效的goods_link!')
@@ -2817,42 +1790,6 @@ def get_goods_link(**kwargs):
 
     return _
 
-def compatible_api_goods_data(data):
-    '''
-    兼容处理data, 规范返回数据
-    :param data:
-    :return: json_str
-    '''
-    from decimal import Decimal
-    from datetime import datetime
-
-    # 返回给APP时, 避免json.dumps转换失败... TODO
-    _data = data
-    for key, value in _data.items():
-        if isinstance(value, Decimal):
-            data.update({key: float(value)})
-        elif isinstance(value, datetime):
-            data.update({key: str(value)})
-        else:
-            pass
-    # pprint(data)
-
-    _ = {
-        'goods_id': data.get('goods_id'),
-        'title': data.get('title', ''),
-        'price': str(data.get('taobao_price')),         # 最低价
-        'sell_count': data.get('sell_count') if not data.get('sell_count') else data.get('all_sell_count'),
-        'img_url': data.get('all_img_url'),             # 商品示例图, eg: [{'img_url': xxx}, ...]
-        'spider_url': data.get('spider_url') if not data.get('spider_url') else data.get('goods_url'),
-        'sku_name': data.get('detail_name_list', []),   # 规格名, eg: 颜色，尺码 [{'spec_name': '颜色'}, ...]
-        'sku_info': data.get('price_info_list', []),    # 详细规格, eg: [{"spec_value": "10片", "detail_price": "79", "rest_number": "3394"}, ...]
-    }
-
-    my_lg.info('此次请求接口返回数据: {0}'.format(str(_)))
-    msg = '抓取数据成功!'
-
-    return _success_data(msg=msg, data=_)
-
 ######################################################
 # wechat
 @app.route('/wechat', methods=['GET', 'POST'])
@@ -2878,96 +1815,6 @@ def search():
 
 ######################################################
 # 从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
-
-def get_who_wait_to_save_data_goods_id_list(**kwargs):
-    '''
-    对应得到wait_to_save_data_goods_id_list
-    :param kwargs:
-    :return: a list
-    '''
-    type = kwargs.get('type')
-    data = kwargs.get('wait_to_save_data_url_list')
-
-    if type == 'ali':
-        return _get_ali_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'taobao':
-        return _get_taobao_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'tmall':
-        return _get_tmall_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'jd':
-        return _get_jd_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'zhe_800':
-        return _get_zhe_800_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'juanpi':
-        return _get_juanpi_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'pinduoduo':
-        return _get_pinduoduo_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'vip':
-        return _get_vip_wait_to_save_data_goods_id_list(data=data)
-    
-    elif type == 'kaola':
-        return _get_kaola_wait_to_save_data_goods_id_list(data=data)
-
-    elif type == 'yanxuan':
-        return _get_yanxuan_wait_to_save_data_goods_id_list(data=data)
-
-    else:
-        return []
-
-def get_who_right_data(**kwargs):
-    '''
-    对应得到right_data
-    :param kwargs:
-    :return:
-    '''
-    type = kwargs.get('type')
-    data = kwargs.get('data_list')
-
-    if type == 'ali':
-        return _get_right_model_data(data=data, site_id=2, logger=my_lg)
-
-    elif type == 'taobao':
-        return _get_right_model_data(data=data, site_id=1, logger=my_lg)
-
-    elif type == 'tmall':
-        _ = TmallParse(logger=my_lg)
-        site_id = _._from_tmall_type_get_site_id(type=data.get('type'))
-        try:del _
-        except:pass
-        return _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
-
-    elif type == 'jd':
-        site_id = _from_jd_type_get_site_id(type=data.get('jd_type'))
-        return _get_right_model_data(data=data, site_id=site_id, logger=my_lg)
-
-    elif type == 'zhe_800':
-        return _get_right_model_data(data=data, site_id=11, logger=my_lg)
-
-    elif type == 'juanpi':
-        return _get_right_model_data(data=data, site_id=12, logger=my_lg)
-
-    elif type == 'pinduoduo':
-        return _get_right_model_data(data=data, site_id=13, logger=my_lg)
-
-    elif type == 'vip':
-        return _get_right_model_data(data=data, site_id=25, logger=my_lg)
-    
-    elif type == 'kaola':
-        return _get_right_model_data(data=data, site_id=29, logger=my_lg)
-
-    elif type == 'yanxuan':
-        return _get_right_model_data(data=data, site_id=30, logger=my_lg)
-
-    else:
-        return {}
-
 def get_tmp_list_and_goods_2_delete_list(**kwargs):
     '''
     从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
@@ -2976,8 +1823,8 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
     '''
     global tmp_wait_to_save_data_list
 
-    type = kwargs.get('type')   # 三方商品类型
-    wait_to_save_data_url_list = kwargs.get('wait_to_save_data_url_list')   # client发来的待存储的url_list
+    type = kwargs.get('type')  # 三方商品类型
+    wait_to_save_data_url_list = kwargs.get('wait_to_save_data_url_list')  # client发来的待存储的url_list
 
     tmp_wait_to_save_data_goods_id_list = get_who_wait_to_save_data_goods_id_list(
         type=type,
@@ -3024,48 +1871,6 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
 
 ######################################################
 # save every url's right data
-
-def get_db_who_insert_params(type, item):
-    '''
-    返回用哪个get_db_who_insert_params处理数据
-    :param type:
-    :return: params
-    '''
-    if type == 'ali':
-        params = _get_db_ali_insert_params(item=item)
-
-    elif type == 'taobao':
-        params = _get_db_taobao_insert_params(item=item)
-
-    elif type == 'tmall':
-        params = _get_db_tmall_insert_params(item=item)
-
-    elif type == 'jd':
-        params = _get_db_jd_insert_params(item=item)
-
-    elif type == 'zhe_800':
-        params = _get_db_zhe_800_insert_params(item=item)
-
-    elif type == 'juanpi':
-        params = _get_db_juanpi_insert_params(item=item)
-
-    elif type == 'pinduoduo':
-        params = _get_db_pinduoduo_insert_params(item=item)
-
-    elif type == 'vip':
-        params = _get_db_vip_insert_params(item=item)
-
-    elif type == 'kaola':
-        params = _get_db_kaola_insert_params(item=item)
-
-    elif type == 'yanxuan':
-        params = _get_db_yanxuan_insert_params(item=item)
-
-    else:
-        params = {}
-
-    return params
-
 def save_every_url_right_data(**kwargs):
     '''
     存储处理后的每一个url的数据

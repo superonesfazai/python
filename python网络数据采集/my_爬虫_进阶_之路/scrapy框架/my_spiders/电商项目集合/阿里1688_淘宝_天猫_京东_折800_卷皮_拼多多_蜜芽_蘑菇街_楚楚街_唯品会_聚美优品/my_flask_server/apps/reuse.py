@@ -9,6 +9,8 @@
 
 # high reuse(高复用code)
 
+from .msg import _success_data
+
 def add_base_info_2_processed_data(**kwargs):
     '''
     给采集后的data增加基础信息
@@ -40,3 +42,39 @@ def is_login(**kwargs):
         return True
     else:
         return False
+
+def compatible_api_goods_data(data, my_lg):
+    '''
+    兼容处理data, 规范返回数据
+    :param data:
+    :return: json_str
+    '''
+    from decimal import Decimal
+    from datetime import datetime
+
+    # 返回给APP时, 避免json.dumps转换失败... TODO
+    _data = data
+    for key, value in _data.items():
+        if isinstance(value, Decimal):
+            data.update({key: float(value)})
+        elif isinstance(value, datetime):
+            data.update({key: str(value)})
+        else:
+            pass
+    # pprint(data)
+
+    _ = {
+        'goods_id': data.get('goods_id'),
+        'title': data.get('title', ''),
+        'price': str(data.get('taobao_price')),         # 最低价
+        'sell_count': data.get('sell_count') if not data.get('sell_count') else data.get('all_sell_count'),
+        'img_url': data.get('all_img_url'),             # 商品示例图, eg: [{'img_url': xxx}, ...]
+        'spider_url': data.get('spider_url') if not data.get('spider_url') else data.get('goods_url'),
+        'sku_name': data.get('detail_name_list', []),   # 规格名, eg: 颜色，尺码 [{'spec_name': '颜色'}, ...]
+        'sku_info': data.get('price_info_list', []),    # 详细规格, eg: [{"spec_value": "10片", "detail_price": "79", "rest_number": "3394"}, ...]
+    }
+
+    my_lg.info('此次请求接口返回数据: {0}'.format(str(_)))
+    msg = '抓取数据成功!'
+
+    return _success_data(msg=msg, data=_)

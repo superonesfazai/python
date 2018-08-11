@@ -208,6 +208,7 @@ server
 """
 # key 用于加密
 key = 21
+DEFAULT_USERNAME = '18698570079'
 
 """
 保存的对应cookies文件路径
