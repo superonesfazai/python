@@ -49,7 +49,7 @@ def server_tasks(my_group):
         # 本地先压缩待上传的文件夹
         wait_2_compress_folders = [
             ('/Users/afa/myFiles', 'my_spider_logs'),
-            ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品',
+            ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合',
             'my_flask_server',)]
         [local_compress_folders(father_folders_path=o[0], folders_name=o[1]) for o in wait_2_compress_folders]
 

@@ -8,7 +8,6 @@
 '''
 
 from celery import Celery
-from celery.task import Task
 # from celery.contrib.methods import task_method
 
 from settings import MY_SPIDER_LOGS_PATH
