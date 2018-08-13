@@ -107,7 +107,7 @@ class YanXuanParse(object):
         body = nonstandard_json_str_handle(json_str=body)
         # self.my_lg.info(str(body))
         _ = json_2_dict(
-            json_str=body)
+            json_str=body, logger=self.my_lg)
         # pprint(_)
         if _ == {}:
             self.my_lg.error('获取到的data为空dict!'+write_info)

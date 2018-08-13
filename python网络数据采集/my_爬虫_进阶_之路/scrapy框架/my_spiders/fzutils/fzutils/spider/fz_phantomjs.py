@@ -165,7 +165,7 @@ class MyPhantomjs(object):
             _print(msg='报错如下: ', logger=self.my_lg, log_level=2, exception=e)
             try:
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            except WebDriverException: pass
+            except WebDriverException or Exception: pass        # 内部urllib.error.URLError
             _print(msg='main_body为空!', logger=self.my_lg, log_level=2)
             main_body = ''
 
