@@ -7,6 +7,18 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from fzutils import spider
+import codecs
+
+# import sys
+# from templates.config import config
+# sys.path.append('..')
+# from time_utils import get_shanghai_time
+
+from os.path import dirname
+from ..time_utils import get_shanghai_time
+from .templates.config import config
+
 __all__ = [
     'auto_generate_crawler_code',           # 爬虫代码自动生成器
 ]
@@ -22,18 +34,6 @@ def auto_generate_crawler_code():
         with codecs.open(template, 'rb', 'utf-8') as f:
             s = f.read()
         return s
-
-    from fzutils import spider
-    import codecs
-
-    # import sys
-    # from templates.config import config
-    # sys.path.append('..')
-    # from time_utils import get_shanghai_time
-
-    from os.path import dirname
-    from ..time_utils import get_shanghai_time
-    from .templates.config import config
 
     s = get_template_str()
     if not s:
