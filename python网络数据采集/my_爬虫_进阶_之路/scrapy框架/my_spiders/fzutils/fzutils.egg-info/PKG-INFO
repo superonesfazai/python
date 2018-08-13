@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.2.2
+Version: 0.0.1.2.4
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -234,6 +234,12 @@ Description: ```bash
         # 归并排序
         print(merge_sort([-1, 2, 1]))
         # 还有很多其他排序方法
+        ```
+        ```python
+        from fzutils.spider.auto import auto_generate_crawler_code
+        
+        # 爬虫基本代码自动生成器
+        auto_generate_crawler_code()
         ```
         ```python
         # 还有很多其他常用函数, 待您探索...

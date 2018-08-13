@@ -32,7 +32,9 @@ from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
 from fzutils.time_utils import (
-    get_shanghai_time,)
+    get_shanghai_time,
+    datetime_to_timestamp,
+    string_to_datetime,)
 
 class YouPinParse(object):
     def __init__(self, logger=None):
@@ -114,7 +116,15 @@ class YouPinParse(object):
             data['div_desc'] = self._get_div_desc(data=_)
             data['sell_time'] = {}      # 默认为空
             data['detail_name_list'] = self._get_detail_name_list(data=_.get('group', []))
-            data['price_info_list'] = self._get_price_info_list(data=_.get('skuList', []))
+            data['price_info_list'] = self._get_price_info_list(data=_)
+            data['price'], data['taobao_price'] = self._get_price_and_taobao_price(
+                price_info_list=data['price_info_list']
+            )
+            if data['price'] == 0 or data['taobao_price'] == 0:     # 售罄商品处理
+                data['is_delete'] = 1
+            else:
+                data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
+
 
         except Exception:
             self.my_lg.error('遇到错误:', exc_info=True)
@@ -133,7 +143,84 @@ class YouPinParse(object):
         处理 and 结构化目标数据
         :return:
         '''
-        pass
+        data = self.result_data
+        if data != {}:
+            # 店铺名称
+            shop_name = data['shop_name']
+            # 掌柜
+            account = ''
+            # 商品名称
+            title = data['title']
+            # 子标题
+            sub_title = data['sub_title']
+
+            # 商品标签属性名称
+            detail_name_list = data['detail_name_list']
+
+            # 要存储的每个标签对应规格的价格及其库存
+            price_info_list = data['price_info_list']
+
+            # 所有示例图片地址
+            all_img_url = data['all_img_url']
+
+            # 详细信息标签名对应属性
+            p_info = data['p_info']
+            # pprint(p_info)
+
+            # div_desc
+            div_desc = data['div_desc']
+
+            is_delete = data['is_delete']
+
+            # 上下架时间
+            if data.get('sell_time', {}) != {}:
+                schedule = [{
+                    'begin_time': data.get('sell_time', {}).get('begin_time', ''),
+                    'end_time': data.get('sell_time', {}).get('end_time', ''),
+                }]
+            else:
+                schedule = []
+
+            # 销售总量
+            all_sell_count = ''
+
+            # 商品价格和淘宝价
+            price, taobao_price = data['price'], data['taobao_price']
+
+            result = {
+                'shop_name': shop_name,                 # 店铺名称
+                'account': account,                     # 掌柜
+                'title': title,                         # 商品名称
+                'sub_title': sub_title,                 # 子标题
+                'price': price,                         # 商品价格
+                'taobao_price': taobao_price,           # 淘宝价
+                # 'goods_stock': goods_stock,               # 商品库存
+                'detail_name_list': detail_name_list,   # 商品标签属性名称
+                # 'detail_value_list': detail_value_list,   # 商品标签属性对应的值
+                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
+                'all_img_url': all_img_url,             # 所有示例图片地址
+                'p_info': p_info,                       # 详细信息标签名对应属性
+                'div_desc': div_desc,                   # div_desc
+                'schedule': schedule,                   # 商品特价销售时间段
+                'all_sell_count': all_sell_count,       # 销售总量
+                'is_delete': is_delete                  # 是否下架
+            }
+            # pprint(result)
+            # print(result)
+            # wait_to_send_data = {
+            #     'reason': 'success',
+            #     'data': result,
+            #     'code': 1
+            # }
+            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # print(json_data)
+            self.result_data = {}
+            return result
+
+        else:
+            self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
+
+            return self._get_data_error_init()
 
     def _get_title(self, data):
         title = data.get('good').get('name', '')
@@ -173,9 +260,12 @@ class YouPinParse(object):
             raise IndexError('获取intros获取异常!')
 
         tabs = intros.get('tabs', [])
+        # pprint(tabs)
         div_desc_url = ''
         for item in tabs:
-            if item.get('title', '') == '产品介绍':
+            if item.get('title', '') == '产品介绍'\
+                    or item.get('title', '') == '概述'\
+                    or item.get('title', '') == '商品详情':
                 div_desc_url = item.get('url', '')
                 break
 
@@ -193,7 +283,12 @@ class YouPinParse(object):
         body = re.compile(r';opacity:0').sub('', body)  # 不替换否则不显示图片
         # print(body)
 
-        div_desc = '<div>' + re.compile(r'<main .*?>.*</main>').findall(body)[0] + '</div>'
+        try:
+            main_body = re.compile(r'<main .*?>(.*)</main>').findall(body)[0]
+        except IndexError:
+            main_body = re.compile(r'<body>(.*?)<script src=').findall(body)[0]
+
+        div_desc = '<div>' + main_body + '</div>'
         # self.my_lg.info(str(div_desc))
 
         return div_desc
@@ -211,7 +306,93 @@ class YouPinParse(object):
         return detail_name_list
 
     def _get_price_info_list(self, data):
-        pass
+        origin_group = data.get('group', [])
+        origin_props = data.get('props', [])
+
+        group = []
+        for item in origin_group:
+            children = []
+            for i in item.get('tags', []):
+                children.append(i.get('name'))
+            group.append(children)
+        # pprint(group)     # group eg: [['藏青色', '黑色'], ['165/88A', '170/92A', '175/96A']]
+
+        price_info_list = []
+        # pprint(origin_props)
+        for item in origin_props:   # TODO 小米有品pc官网显示商品有bug, 会出现规格显示, 实际提示无法购买(不友好), m站直接显示已告罄
+            if not item.get('onsale'):  # True or False
+                continue
+
+            name = item.get('name', '')
+            # self.my_lg.info(name)
+
+            '''获取spec_value'''
+            spec_value_list = []
+            for i in group:
+                for spec_value in i:    # spec_value eg: '黑色'
+                    if spec_value in name:
+                        spec_value_list.append(spec_value)
+            # self.my_lg.info(str(spec_value_list))
+            spec_value = ''
+            if spec_value_list != []:
+                spec_value = '|'.join(spec_value_list)
+
+            img_url = item.get('img', '')
+            detail_price = str(float(item.get('price', ''))/100)
+            normal_price = str(float(item.get('market_price', ''))/100)
+            account_limit_buy_count = int(item.get('buy_limit', 5))
+            rest_number = int(item.get('inventory', '0'))
+            if rest_number == 0:
+                continue
+
+            price_info_list.append({
+                'spec_value': spec_value,
+                'img_url': img_url,
+                'detail_price': detail_price,
+                'normal_price': normal_price,
+                'account_limit_buy_count': account_limit_buy_count,
+                'rest_number': rest_number,
+            })
+
+        return price_info_list
+
+    def _get_price_and_taobao_price(self, price_info_list):
+        # pprint(price_info_list)
+        if price_info_list == []:   # 售罄商品处理
+            return 0, 0
+
+        try:
+            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            price = tmp_price_list[-1]  # 商品价格
+            taobao_price = tmp_price_list[0]  # 淘宝价
+        except IndexError:
+            raise IndexError('获取price, taobao_price时索引异常!请检查!')
+
+        return price, taobao_price
+
+    def _get_is_delete(self, price_info_list, data, other):
+        is_delete = 0
+        all_rest_number = 0
+        if price_info_list != []:
+            for item in price_info_list:
+                all_rest_number += item.get('rest_number', 0)
+            if all_rest_number == 0:
+                is_delete = 1
+        else:
+            is_delete = 1
+
+        # 当官方下架时间< 当前时间戳 则商品已下架 is_delete = 1
+        if data['sell_time'] != {}:
+            end_time = datetime_to_timestamp(string_to_datetime(data.get('sell_time', {}).get('end_time', '')))
+            if end_time < datetime_to_timestamp(get_shanghai_time()):
+                self.my_lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+                is_delete = 1
+            # print(is_delete)
+
+        if not other.get('good', {}).get('onsale'):  # True or False
+            is_delete = 1
+
+        return is_delete
 
     def _wash_sensitive_info(self, target_str):
         '''
@@ -301,10 +482,6 @@ class YouPinParse(object):
 
         return cookies
 
-    def _get_data_error_init(self):
-        self.result_data = {}
-        return {}
-
     def _get_goods_id_from_url(self, yp_url):
         '''
         得到goods_id
@@ -327,6 +504,10 @@ class YouPinParse(object):
             self.my_lg.info('小米有品商品url错误, 非正规的url, 请参照格式(https://youpin.mi.com/detail)开头的...')
             return ''
 
+    def _get_data_error_init(self):
+        self.result_data = {}
+        return {}
+
     def __del__(self):
         try:
             del self.my_lg
@@ -341,5 +522,5 @@ if __name__ == '__main__':
         kaola_url.strip('\n').strip(';')
         goods_id = yp._get_goods_id_from_url(kaola_url)
         yp._get_target_data(goods_id=goods_id)
-        yp = yp._handle_target_data()
-        # pprint(data)
+        data = yp._handle_target_data()
+        pprint(data)

@@ -228,6 +228,26 @@ print(merge_sort([-1, 2, 1]))
 # 还有很多其他排序方法
 ```
 ```python
+from fzutils.spider.auto import auto_generate_crawler_code
+
+# 爬虫基本代码自动生成器
+auto_generate_crawler_code()
+"""
+shell输出如下: 
+#--------------------------------
+# 爬虫模板自动生成器 by super_fazai
+#--------------------------------
+@@ 下面是备选参数, 无输入则取默认值!!
+请输入author:super_fazai
+请输入email:superonesfazai@gmail.com
+请输入创建的文件名(不含.py):fz_spider_demo
+请输入class_name:FZSpiderDemo
+
+创建爬虫文件fz_spider_demo.py完毕!
+enjoy!🍺
+"""
+```
+```python
 # 还有很多其他常用函数, 待您探索...
 ```
 

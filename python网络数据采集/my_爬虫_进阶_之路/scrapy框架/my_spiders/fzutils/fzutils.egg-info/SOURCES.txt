@@ -28,6 +28,10 @@ fzutils/data/json_utils.py
 fzutils/data/list_utils.py
 fzutils/data/str_utils.py
 fzutils/spider/__init__.py
+fzutils/spider/auto.py
 fzutils/spider/fz_aiohttp.py
 fzutils/spider/fz_phantomjs.py
 fzutils/spider/fz_requests.py
+fzutils/spider/templates/__init__.py
+fzutils/spider/templates/base_spider_template.py
+fzutils/spider/templates/config.py
