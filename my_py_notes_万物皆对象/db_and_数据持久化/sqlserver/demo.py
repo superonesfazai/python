@@ -2,10 +2,11 @@
 
 '''
 @author = super_fazai
-@File    : test_sqlserver.py
-@Time    : 2017/10/19 11:51
+@File    : demo.py
+@Time    : 2016/8/14 14:40
 @connect : superonesfazai@gmail.com
 '''
+
 """
 使用pymssql进行中文操作时候可能会出现中文乱码，我解决的方案是：
 文件头加上 # coding=utf8

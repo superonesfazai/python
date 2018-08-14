@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : 从实时ip池里获取可用ip.py
+@File    : 清空ip池.py
 @Time    : 2017/9/25 21:07
 @connect : superonesfazai@gmail.com
 '''
