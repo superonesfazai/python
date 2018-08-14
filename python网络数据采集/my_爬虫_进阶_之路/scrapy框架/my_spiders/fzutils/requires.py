@@ -62,6 +62,7 @@ install_requires = [
     'Jinja2',
     'elasticsearch',
     'elasticsearch_dsl',
+    'salt',
     # 'sip',
     # 'pyqt5',
 ]
