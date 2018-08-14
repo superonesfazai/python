@@ -688,7 +688,7 @@
     <header style="height: 15px;"></header>
     <div class="main">
 			<div class="collect-info">
-				<div class="title">严选商品采集</div>
+				<div class="title">小米有品商品采集</div>
 				<div class="grab"><a class="active" href="javascript:" id="singleGrab">单个抓取</a><a href="javascript:" id="batchGrab">批量抓取</a><a href="javascript:;" id="anyGrab">一顿乱输</a></div>
 				<div class="goodsLink fadeInLeft animated">
 					<input type="" name="" id="goodsLink" value="" placeholder="商品详情链接"/>
@@ -947,7 +947,7 @@
 				<div class="anyGrab fadeInLeft animated">
 					<div class="collect-btn-any"><a href="javascript:" id="anyGrabStart">抓取数据</a><a href="javascript:;" id="insertSqlAny">存入数据库</a></div>					
 					<div class="nLink"></div>
-					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100" placeholder="每个链接以分号';'结尾&#xA如下:&#xAhttp://you.163.com/item/detail?id=3378011&_stat_area=mod_1_item_1&_stat_id=1008000&_stat_referer=itemList;&#xAhttp://you.163.com/item/detail?id=3378011&_stat_area=mod_1_item_1&_stat_id=1008000&_stat_referer=itemList;&#xAhttp://you.163.com/item/detail?id=3378011&_stat_area=mod_1_item_1&_stat_id=1008000&_stat_referer=itemList;&#xAhttp://you.163.com/item/detail?id=3378011&_stat_area=mod_1_item_1&_stat_id=1008000&_stat_referer=itemList;"></textarea>
+					<textarea class="anyGrabContent" style="margin: 0 auto; display: block;" name="" rows="15" cols="100" placeholder="每个链接以分号';'结尾&#xA如下:&#xAhttps://youpin.mi.com/detail?gid=101616;&#xAhttps://youpin.mi.com/detail?gid=101616;"></textarea>
 					<div class="grabLoading">
 						<div class="grabLoading-box">
 							<div class="meter">0</div>
@@ -1255,7 +1255,7 @@
 			}();
 	//抓取方式切换	
 			(function(){
-                alert('使用须知：\r\r严选官方地址: https://you.163.com/\r\r严选商品地址(开头形式): \r** 常规商品地址\r https://you.163.com/item/detail?id=xxxxx\r\r@ 新人价统一抓取为原价!');
+                alert('使用须知：\r\r小米有品官方地址: https://youpin.mi.com\r\r有品商品地址(开头形式): \r** 常规商品地址\r https://youpin.mi.com/detail?gid=xxxxx\r\r');
 
 				$('#singleGrab').click(function(){
 					$('.collect-content').show();
@@ -1303,7 +1303,7 @@
 						$(".layer").show();
 						$.ajax({
 							type:"post",
-							url:"/yanxuan_to_save_data",
+							url:"/youpin_to_save_data",
 							async:true,
 							data:{
 								saveData:insertData
@@ -1442,7 +1442,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(0).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(0).val()
@@ -1485,7 +1485,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1528,7 +1528,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1570,7 +1570,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1612,7 +1612,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1654,7 +1654,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1696,7 +1696,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1738,7 +1738,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1780,7 +1780,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1822,7 +1822,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1864,7 +1864,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1906,7 +1906,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1948,7 +1948,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -1990,7 +1990,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2032,7 +2032,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2074,7 +2074,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2116,7 +2116,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2158,7 +2158,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2200,7 +2200,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2242,7 +2242,7 @@
 					$.ajax({
 								type:"post",
 //								url:$('.linkContent').eq(res).val(),
-								url:'/yanxuan_data',
+								url:'/youpin_data',
 								async:true,
 								data:{
 									goodsLink:$('.linkContent').eq(res).val()
@@ -2307,7 +2307,7 @@
 					$.ajax({
 						type:"post",
 //						url:anyLinks[i],
-                        url:"/yanxuan_data",
+                        url:"/youpin_data",
 						async:true,
 						data:{
 							goodsLink:anyLinks[i]
@@ -2344,7 +2344,7 @@
 			$('#insertSqlAny').click(function(){
 				$.ajax({
 						type:"post",
-						url:"/yanxuan_to_save_data",
+						url:"/youpin_to_save_data",
 						async:true,
 						data:{
 							saveData:anyLinks
@@ -2369,7 +2369,7 @@
             	$(".layer").show();
                 $.ajax({
                     type:"post",
-                    url:"/yanxuan_to_save_data",
+                    url:"/youpin_to_save_data",
                     async:true,
                     data:{
                         saveData:insertData
@@ -2409,7 +2409,7 @@
 //				type:"get",
 				type:"post",
 //				url:$('#goodsLink').val(),
-                url:'/yanxuan_data',
+                url:'/youpin_data',
 				async:true,
 				data:{
 					goodsLink:$('#goodsLink').val()

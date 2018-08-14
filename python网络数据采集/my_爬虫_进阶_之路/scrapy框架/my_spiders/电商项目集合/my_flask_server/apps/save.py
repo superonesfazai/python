@@ -41,6 +41,9 @@ from .kl import (
 from .yx import (
     _get_yanxuan_wait_to_save_data_goods_id_list,
     _get_db_yanxuan_insert_params,)
+from .yp import (
+    _get_youpin_wait_to_save_data_goods_id_list,
+    _get_db_youpin_insert_params,)
 from .jd import _from_jd_type_get_site_id
 from .tm import _from_tmall_type_get_site_id
 
@@ -85,6 +88,9 @@ def get_who_wait_to_save_data_goods_id_list(**kwargs):
 
     elif type == 'yanxuan':
         return _get_yanxuan_wait_to_save_data_goods_id_list(data=data, my_lg=my_lg)
+
+    elif type == 'youpin':
+        return _get_youpin_wait_to_save_data_goods_id_list(data=data, my_lg=my_lg)
 
     else:
         return []
@@ -131,6 +137,9 @@ def get_who_right_data(**kwargs):
     elif type == 'yanxuan':
         return _get_right_model_data(data=data, site_id=30, logger=my_lg)
 
+    elif type == 'youpin':
+        return _get_right_model_data(data=data, site_id=31, logger=my_lg)
+
     else:
         return {}
 
@@ -169,6 +178,9 @@ def get_db_who_insert_params(type, item):
 
     elif type == 'yanxuan':
         params = _get_db_yanxuan_insert_params(item=item)
+
+    elif type == 'youpin':
+        params = _get_db_youpin_insert_params(item=item)
 
     else:
         params = {}

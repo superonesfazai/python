@@ -96,7 +96,7 @@ class Zhe800Spike(object):
                         zhe_800 = Zhe800Parse()
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         if my_pipeline.is_connect_success:
-                            sql_str = r'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
+                            sql_str = 'select goods_id, miaosha_time, session_id from dbo.zhe_800_xianshimiaosha where site_id=14'
                             db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
                             for item in miaosha_goods_list:
                                 if item.get('zid', '') in db_goods_id_list:
@@ -183,7 +183,7 @@ class Zhe800Spike(object):
                 for _i in data.get('data', {}).get('blocks', []):
                     _data.append(_i)
 
-            sleep(.2)
+            sleep(.3)
 
         return {
             'data': {
@@ -293,12 +293,9 @@ def just_fuck_run():
         print('一次大抓取即将开始'.center(30, '-'))
         zhe_800_spike = Zhe800Spike()
         zhe_800_spike.get_spike_hour_goods_info()
-        # try:
-        #     del zhe_800_spike
-        # except:
-        #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        sleep(10*60)
 
 def main():
     '''

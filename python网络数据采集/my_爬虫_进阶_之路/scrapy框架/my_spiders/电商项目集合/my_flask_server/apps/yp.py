@@ -2,13 +2,13 @@
 
 '''
 @author = super_fazai
-@File    : yx.py
-@Time    : 2017/8/11 13:54
+@File    : yp.py
+@Time    : 2018/8/14 10:00
 @connect : superonesfazai@gmail.com
 '''
 
 """
-网易严选
+小米有品
 """
 
 import re
@@ -22,11 +22,11 @@ from .reuse import (
 
 sys.path.append('..')
 from settings import DEFAULT_USERNAME
-from yanxuan_parse import YanXuanParse
+from youpin_parse import YouPinParse
 
-def _get_yanxuan_wait_to_save_data_goods_id_list(data, my_lg):
+def _get_youpin_wait_to_save_data_goods_id_list(data, my_lg):
     '''
-    获取严选待存取的goods_id的list
+    获取youpin待存取的goods_id的list
     :param data:
     :return:
     '''
@@ -37,21 +37,22 @@ def _get_yanxuan_wait_to_save_data_goods_id_list(data, my_lg):
         if item == '':  # 除去传过来是空值
             pass
         else:
-            is_kaola_url = re.compile(r'you.163.com/item/detail.*?').findall(item)
+            is_kaola_url = re.compile(r'https://youpin.mi.com/detail.*?').findall(item)
             if is_kaola_url != []:
                 try:
-                    goods_id = re.compile(r'id=(\d+)').findall(item)[0]
+                    goods_id = re.compile(r'gid=(\d+)').findall(item)[0]
                 except IndexError:
                     continue
-                my_lg.info('------>>>| 得到的严选商品的goods_id为: {0}'.format(goods_id))
+                my_lg.info('------>>>| 得到的有品商品的goods_id为: {0}'.format(goods_id))
                 tmp_wait_to_save_data_goods_id_list.append(goods_id)
+
             else:
-                my_lg.info('网易严选商品url错误, 非正规的url, 请参照格式(https://you.163.com/item/detail)开头的...')
+                my_lg.info('小米有品商品url错误, 非正规的url, 请参照格式(https://youpin.mi.com/detail)开头的...')
                 pass
 
     return tmp_wait_to_save_data_goods_id_list
 
-def _get_db_yanxuan_insert_params(item):
+def _get_db_youpin_insert_params(item):
     '''
     得到db待插入的严选数据
     :param item:
@@ -85,9 +86,9 @@ def _get_db_yanxuan_insert_params(item):
 
     return params
 
-def get_one_yanxuan_data(**kwargs):
+def get_one_youpin_data(**kwargs):
     '''
-    抓取一个严选商品地址的数据
+    抓取一个有品商品地址的数据
     :param kwargs:
     :return:
     '''
@@ -95,23 +96,23 @@ def get_one_yanxuan_data(**kwargs):
     wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
     my_lg = kwargs.get('my_lg')
 
-    yanxuan = YanXuanParse(logger=my_lg)
-    goods_id = yanxuan.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+    yp = YouPinParse(logger=my_lg)
+    goods_id = yp._get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
     if goods_id == '':  # 如果得不到goods_id, 则return error
         my_lg.info('获取到的goods_id为空!')
         try:
-            del yanxuan  # 每次都回收一下
+            del yp  # 每次都回收一下
         except Exception:
             pass
         gc.collect()
         return {'goods_id': ''}  # 错误1: goods_id为空值
 
-    tmp_result = yanxuan._get_goods_data(goods_id=goods_id)
-    data = yanxuan._deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
+    tmp_result = yp._get_target_data(goods_id=goods_id)
+    data = yp._handle_target_data()  # 如果成功获取的话, 返回的是一个data的dict对象
     if data == {} or tmp_result == {}:
         my_lg.error('获取到的data为空!出错地址: {0}'.format(wait_to_deal_with_url))
         try:
-            del yanxuan
+            del yp
         except:
             pass
         gc.collect()
@@ -124,7 +125,7 @@ def get_one_yanxuan_data(**kwargs):
         goods_id=goods_id
     )
     try:
-        del yanxuan
+        del yp
     except:
         pass
 

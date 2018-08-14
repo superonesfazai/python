@@ -262,10 +262,14 @@ class YouPinParse(object):
         tabs = intros.get('tabs', [])
         # pprint(tabs)
         div_desc_url = ''
+        title_list = [
+            '功能详情',
+            '产品介绍',
+            '概述',
+            '商品详情',
+        ]
         for item in tabs:
-            if item.get('title', '') == '产品介绍'\
-                    or item.get('title', '') == '概述'\
-                    or item.get('title', '') == '商品详情':
+            if item.get('title', '') in title_list:
                 div_desc_url = item.get('url', '')
                 break
 
@@ -308,31 +312,71 @@ class YouPinParse(object):
     def _get_price_info_list(self, data):
         origin_group = data.get('group', [])
         origin_props = data.get('props', [])
+        tag_prop = data.get('tag_prop', [])
+
+        # had_size = False
+        # group = []
+        # size_name_list = ['尺寸', '尺寸大小']
+        # for item in origin_group:
+        #     children = []
+        #     # self.my_lg.info(str(item))
+        #     if item.get('name', '') in size_name_list:  # 单独处理属性有尺寸的
+        #         had_size = True
+        #     for i in item.get('tags', []):
+        #         children.append(i.get('name'))
+        #     group.append(children)
+        # pprint(group)     # group eg: [['藏青色', '黑色'], ['165/88A', '170/92A', '175/96A']]
 
         group = []
         for item in origin_group:
             children = []
+            # self.my_lg.info(str(item))
             for i in item.get('tags', []):
-                children.append(i.get('name'))
+                children.append({
+                    'tid': i.get('tid'),
+                    'name': i.get('name'),
+                })
             group.append(children)
-        # pprint(group)     # group eg: [['藏青色', '黑色'], ['165/88A', '170/92A', '175/96A']]
+        pprint(group)
 
         price_info_list = []
         # pprint(origin_props)
         for item in origin_props:   # TODO 小米有品pc官网显示商品有bug, 会出现规格显示, 实际提示无法购买(不友好), m站直接显示已告罄
             if not item.get('onsale'):  # True or False
                 continue
-
-            name = item.get('name', '')
-            # self.my_lg.info(name)
-
             '''获取spec_value'''
+            # 方案1: 自己找规律拼接成spec_value, 错误较多
+            # name = item.get('name', '')
+            # # self.my_lg.info(name)
+            # spec_value_list = []
+            # for i in group:
+            #     for spec_value in i:    # spec_value eg: '黑色'
+            #         if spec_value in name:
+            #             spec_value_list.append(spec_value)
+            #         else:
+            #             if had_size:        # 单独处理属性中有尺寸的
+            #                 try:
+            #                     size_num = re.compile('\d+.{0,1}\d+').findall(name)[0]
+            #                     # self.my_lg.info(str(size_num))
+            #                 except IndexError:
+            #                     continue
+            #                 if size_num in spec_value:
+            #                     spec_value_list.append(spec_value)
+            #                 else:
+            #                     pass
+            #             else:
+            #                 pass
+            # # self.my_lg.info(str(spec_value_list))
+
+            # 方案2: 根据官方查找属性方式
+            pid = item.get('pid', '')
+            tid_list = list(set([i.get('tid', '') for i in tag_prop if i.get('pid') == pid]))
+
             spec_value_list = []
             for i in group:
-                for spec_value in i:    # spec_value eg: '黑色'
-                    if spec_value in name:
-                        spec_value_list.append(spec_value)
-            # self.my_lg.info(str(spec_value_list))
+                for k in i:
+                    if k.get('tid', '') in tid_list:
+                        spec_value_list.append(k.get('name', ''))
             spec_value = ''
             if spec_value_list != []:
                 spec_value = '|'.join(spec_value_list)

@@ -231,6 +231,7 @@ PINDUODUO_SPIDER_TO_SHOW_PATH = 'templates/pinduoduo_spider_to_show.html'
 VIP_SPIDER_TO_SHOW_PATH = 'templates/vip_spider_to_show.html'
 KAOLA_SPIDER_2_SHOW_PATH = 'templates/kaola_spider_2_show.html'
 YANXUAN_SPIDER_2_SHOW_PATH = 'templates/yanxuan_spider_2_show.html'
+YOUPIN_SPIDER_2_SHOW_PATH = 'templates/youpin_spider_2_show.html'
 
 """
 headers

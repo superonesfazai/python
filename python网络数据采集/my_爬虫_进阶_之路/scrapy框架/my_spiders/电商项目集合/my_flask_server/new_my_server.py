@@ -46,6 +46,7 @@ from settings import (
     VIP_SPIDER_TO_SHOW_PATH,
     KAOLA_SPIDER_2_SHOW_PATH,
     YANXUAN_SPIDER_2_SHOW_PATH,
+    YOUPIN_SPIDER_2_SHOW_PATH,
     ADMIN_NAME,
     ADMIN_PASSWD,
     SERVER_PORT,
@@ -101,6 +102,8 @@ from apps.kl import (
     get_one_kaola_data,)
 from apps.yx import (
     get_one_yanxuan_data,)
+from apps.yp import (
+    get_one_youpin_data,)
 from apps.save import (
     get_who_wait_to_save_data_goods_id_list,
     get_who_right_data,
@@ -278,6 +281,10 @@ def select():
 
             elif ajax_request == 'yanxuan_login':
                 response = make_response(redirect('show_yanxuan'))
+                return response
+
+            elif ajax_request == 'youpin_login':
+                response = make_response(redirect('show_youpin'))
                 return response
 
             else:
@@ -524,6 +531,17 @@ def show_yanxuan_info():
             pass
         else:
             return send_file(YANXUAN_SPIDER_2_SHOW_PATH)
+
+@app.route('/show_youpin', methods=['GET', 'POST'])
+def show_youpin_info():
+    if not is_login(request=request):
+        return ERROR_HTML_CODE
+    else:
+        my_lg.info('正在获取爬取小米有品页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            return send_file(YOUPIN_SPIDER_2_SHOW_PATH)
 
 ######################################################
 # 阿里1688
@@ -1514,6 +1532,99 @@ def yanxuan_to_save_data():
         return _error_msg(msg='')
 
 ######################################################
+# 小米有品
+@app.route('/youpin_data', methods=['POST'])
+def get_youpin_data():
+    if is_login(request=request):  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            my_lg.info('正在获取youpin相应数据中...')
+
+            # 解密
+            username = decrypt(key, request.cookies.get('username'))
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
+
+            goodsLink = request.form.get('goodsLink')
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                my_lg.info('goodsLink为空值...')
+                return _null_goods_link()
+
+            wait_to_save_data = get_one_youpin_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
+            )
+            if wait_to_save_data.get('goods_id', '') == '':
+                return _null_goods_id()
+
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
+                return _null_goods_data()
+
+            else:
+                pass
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            gc.collect()
+
+            my_lg.info('------>>>| 下面是爬取到的有品页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '小米有品抓取成功!'
+
+            return _success_data(data=wait_to_save_data, msg=msg)
+
+        else:       # 直接把空值给pass，不打印信息
+            # my_lg.info('goodsLink为空值...')
+            return _null_goods_link()
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+@app.route('/youpin_to_save_data', methods=['POST'])
+def youpin_to_save_data():
+    # 小米有品site_id=31
+    global tmp_wait_to_save_data_list
+    if is_login(request=request):
+        if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
+
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
+            if wait_to_save_data_url_list != []:
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='youpin',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
+                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+                return save_every_url_right_data(
+                    type='youpin',
+                    tmp_list=tmp_list,
+                    sql_str=sql_str,
+                    goods_to_delete=goods_to_delete
+                )
+
+            else:
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
+        else:
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
+
+    else:
+        return _error_msg(msg='')
+
+
+######################################################
 @app.route('/basic_data', methods=['POST'])
 def get_basic_data():
     '''
@@ -1811,7 +1922,8 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
 
     tmp_wait_to_save_data_goods_id_list = get_who_wait_to_save_data_goods_id_list(
         type=type,
-        wait_to_save_data_url_list=wait_to_save_data_url_list
+        wait_to_save_data_url_list=wait_to_save_data_url_list,
+        my_lg=my_lg
     )
 
     wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
@@ -1833,7 +1945,8 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
 
                 tmp = get_who_right_data(
                     type=type,
-                    data_list=data_list
+                    data_list=data_list,
+                    my_lg=my_lg
                 )
 
                 # my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(str(tmp)))
