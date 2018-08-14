@@ -337,7 +337,7 @@ class YouPinParse(object):
                     'name': i.get('name'),
                 })
             group.append(children)
-        pprint(group)
+        # pprint(group)
 
         price_info_list = []
         # pprint(origin_props)

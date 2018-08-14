@@ -7,15 +7,16 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from fzutils import spider
 import codecs
+from requests import get
 
 # import sys
 # from templates.config import config
 # sys.path.append('..')
 # from time_utils import get_shanghai_time
 
-from os.path import dirname
+# from os.path import dirname
+# from fzutils import spider
 from ..time_utils import get_shanghai_time
 from .templates.config import config
 
@@ -30,12 +31,21 @@ def auto_generate_crawler_code():
     '''
     def get_template_str():
         # 读取模板文件
-        template = dirname(spider.__file__) + '/templates/' + config.get('template_file')
-        with codecs.open(template, 'rb', 'utf-8') as f:
-            s = f.read()
+        # 本地读取
+        # template = dirname(spider.__file__) + '/templates/' + config.get('template_file')
+        # with codecs.open(template, 'rb', 'utf-8') as f:
+        #     s = f.read()
+        # return s
+
+        # 网址读取
+        template_url = 'http://pdfs3i7nf.bkt.clouddn.com/base_spider_template.txt'
+        s = get(url=template_url).content.decode('utf-8')
+        # print(s)
+
         return s
 
     s = get_template_str()
+    # return
     if not s:
         return False
 
@@ -71,4 +81,3 @@ def auto_generate_crawler_code():
     print('\n创建爬虫文件{0}完毕!\nenjoy!🍺'.format(file_name))
 
     return True
-

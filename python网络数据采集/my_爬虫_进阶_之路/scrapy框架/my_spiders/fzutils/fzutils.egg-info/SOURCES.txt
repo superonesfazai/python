@@ -9,6 +9,7 @@ fzutils/email_utils.py
 fzutils/internet_utils.py
 fzutils/ip_pools.py
 fzutils/items.py
+fzutils/iter_utils.py
 fzutils/linux_utils.py
 fzutils/log_utils.py
 fzutils/path_utils.py
@@ -33,5 +34,4 @@ fzutils/spider/fz_aiohttp.py
 fzutils/spider/fz_phantomjs.py
 fzutils/spider/fz_requests.py
 fzutils/spider/templates/__init__.py
-fzutils/spider/templates/base_spider_template.py
 fzutils/spider/templates/config.py

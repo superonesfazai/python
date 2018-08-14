@@ -65,4 +65,3 @@ class {class_name}(object):
 
     def __del__(self):
         gc.collect()
-

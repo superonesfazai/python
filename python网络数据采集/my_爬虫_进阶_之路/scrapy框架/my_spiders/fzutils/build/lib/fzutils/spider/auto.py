@@ -7,6 +7,19 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import codecs
+from requests import get
+
+# import sys
+# from templates.config import config
+# sys.path.append('..')
+# from time_utils import get_shanghai_time
+
+# from os.path import dirname
+# from fzutils import spider
+from ..time_utils import get_shanghai_time
+from .templates.config import config
+
 __all__ = [
     'auto_generate_crawler_code',           # 爬虫代码自动生成器
 ]
@@ -16,22 +29,23 @@ def auto_generate_crawler_code():
     爬虫代码自动生成器
     :return:
     '''
-    from fzutils import spider
-    import codecs
+    def get_template_str():
+        # 读取模板文件
+        # 本地读取
+        # template = dirname(spider.__file__) + '/templates/' + config.get('template_file')
+        # with codecs.open(template, 'rb', 'utf-8') as f:
+        #     s = f.read()
+        # return s
 
-    # import sys
-    # from templates.config import config
-    # sys.path.append('..')
-    # from time_utils import get_shanghai_time
+        # 网址读取
+        template_url = 'http://pdfs3i7nf.bkt.clouddn.com/base_spider_template.txt'
+        s = get(url=template_url).content.decode('utf-8')
+        # print(s)
 
-    from os.path import dirname
-    from ..time_utils import get_shanghai_time
-    from .templates.config import config
+        return s
 
-    # 读取模板文件
-    template = dirname(spider.__file__) + '/templates/' + config.get('template_file')
-    with codecs.open(template, 'rb', 'utf-8') as f:
-        s = f.read()
+    s = get_template_str()
+    # return
     if not s:
         return False
 
@@ -67,4 +81,3 @@ def auto_generate_crawler_code():
     print('\n创建爬虫文件{0}完毕!\nenjoy!🍺'.format(file_name))
 
     return True
-
