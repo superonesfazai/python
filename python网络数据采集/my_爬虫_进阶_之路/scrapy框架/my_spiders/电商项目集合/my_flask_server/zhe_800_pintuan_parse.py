@@ -72,15 +72,15 @@ class Zhe800PintuanParse(object):
                 return {}
 
             # 不用这个了因为会影响到正常情况的商品
-            # try:
-            #     if re.compile(r'很抱歉，您查看的页面木有了~').findall(body) != []:   # 单独处理商品页面不存在的情况
-            #         # print('test############')
-            #         self.result_data = {}
-            #         return str(goods_id)
-            #     else:
-            #         pass
-            # except:
-            #     pass
+            try:
+                if re.compile(r'很抱歉，您查看的页面木有了~').findall(body) != [] and (len(body)< 660 and len(body)>640):   # 单独处理商品页面不存在的情况
+                    print('很抱歉，您查看的页面木有了~')
+                    self.result_data = {}
+                    return str(goods_id)
+                else:
+                    pass
+            except:
+                pass
 
             try:
                 data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)  # 贪婪匹配匹配所有

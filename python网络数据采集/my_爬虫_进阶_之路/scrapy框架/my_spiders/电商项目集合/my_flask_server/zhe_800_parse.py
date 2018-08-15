@@ -53,7 +53,7 @@ class Zhe800Parse(object):
             tmp_url = 'https://th5.m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
             # print('------>>>| 得到的detail信息的地址为: ', tmp_url)
 
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
             if body == '':
                 self.result_data = {}
                 return {}
@@ -118,7 +118,7 @@ class Zhe800Parse(object):
                 # 得到并处理detail(即图文详情显示信息)
                 # http://m.zhe800.com/gateway/app/detail/graph?productId=
                 tmp_detail_url = 'https://th5.m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
-                detail_data_body = MyRequests.get_url_body(url=tmp_detail_url, headers=self.headers)
+                detail_data_body = MyRequests.get_url_body(url=tmp_detail_url, headers=self.headers, high_conceal=True)
                 if detail_data_body == '':
                     print('detail_data为[]!')
                     self.result_data = {}
@@ -164,7 +164,7 @@ class Zhe800Parse(object):
                     得到秒杀开始时间和结束时间
                     '''
                     schedule_and_stock_url = 'https://th5.m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
-                    schedule_and_stock_info_body = MyRequests.get_url_body(url=schedule_and_stock_url, headers=self.headers)
+                    schedule_and_stock_info_body = MyRequests.get_url_body(url=schedule_and_stock_url, headers=self.headers, high_conceal=True)
                     if schedule_and_stock_info_body == '':
                         print('schedule_and_stock_info为空!')
                         self.result_data = {}
@@ -451,7 +451,7 @@ class Zhe800Parse(object):
                 处理有尺码的情况(将其加入到div_desc中)
                 '''
                 tmp_size_url = 'https://th5.m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
-                size_data_body = MyRequests.get_url_body(url=tmp_size_url, headers=self.headers)
+                size_data_body = MyRequests.get_url_body(url=tmp_size_url, headers=self.headers, high_conceal=True)
                 if size_data_body == '':
                     print('size_data为空!')
                     return ''
@@ -509,7 +509,7 @@ class Zhe800Parse(object):
 
         seller_id = data.get('/app/detail/product/base', {}).get('sellerId', 0)
         tmp_seller_id_url = 'https://th5.m.zhe800.com/api/getsellerandswitch?sellerId=' + str(seller_id)
-        seller_info_body = MyRequests.get_url_body(url=tmp_seller_id_url, headers=self.headers)
+        seller_info_body = MyRequests.get_url_body(url=tmp_seller_id_url, headers=self.headers, high_conceal=True)
         if seller_info_body == '':
             print('seller_info为空!')
             return {}

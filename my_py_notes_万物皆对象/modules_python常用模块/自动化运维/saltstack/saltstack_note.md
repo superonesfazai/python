@@ -44,9 +44,26 @@ $ pip3 install salt
 - ubuntu(推荐在linux master空值其他server)
 ```bash
 # master端
-$ apt-get install salt-api salt-cloud salt-master salt-minion salt-ssh salt-syndic
+$ apt-get install salt-api salt-cloud salt-master salt-minion salt-ssh salt-syndic python-setproctitle
 # minion端
-$ apt-get install salt-api salt-cloud salt-minion salt-ssh salt-syndic
+$ apt-get install salt-api salt-cloud salt-minion salt-ssh salt-syndic python-setproctitle
+```
+- master端配置
+```bash
+$ vim /etc/salt/master
+# 修改interface监听地址为本机ip
+interface: 0.0.0.0
+user: root
+# 修改auto_accept 自动接收minion的key
+auto_accept: True
+# 指定发布端口
+publish_port: 4505
+# 指定结果返回端⼝,  与minion配置⽂件中的master_port对应(默认为4506)
+ret_port: 4506
+```
+```bash
+# 查看master的主密钥指纹
+$ salt-key -F master
 ```
 - minion端配置
     - minion端至少需要配置两项，id和master需要指定。
@@ -57,10 +74,19 @@ $ apt-get install salt-api salt-cloud salt-minion salt-ssh salt-syndic
 ```bash
 $ vim /etc/salt/minion
 id: node1.salt.com
-master: master.salt.com
+master: 192.168.56.111 (修改master为master的IP地址)
+master_port: 4506
+```
+```bash
+# 查看minion的密钥指纹
+$ salt-call --local key.finger
 ```
 
 ## 服务启动与关闭
+- 查看服务状态
+```bash
+$ service salt-master status 
+```
 ```bash
 # master
 $ service salt-master start

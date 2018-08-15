@@ -57,7 +57,7 @@ class Zhe800Spike(object):
         while base_session_id < MAX_SESSION_ID:
             print('待抓取的session_id为: ', base_session_id)
             data = self._get_one_session_id_data(base_session_id=base_session_id)
-            sleep(.2)
+            sleep(.3)
 
             if data.get('data', {}).get('blocks', []) == []:     # session_id不存在
                 pass
@@ -77,6 +77,7 @@ class Zhe800Spike(object):
 
                 except Exception as e:
                     print('遇到严重错误: ', e)
+                    base_session_id += 2
                     continue
 
                 print('秒杀时间为: ', timestamp_to_regulartime(begin_times_timestamp))
@@ -86,6 +87,7 @@ class Zhe800Spike(object):
                         data = [item_s.get('deal', {}) for item_s in data.get('data', {}).get('blocks', [])]
                     except Exception as e:
                         print('遇到严重错误: ', e)
+                        base_session_id += 2
                         continue
                     # pprint(data)
 

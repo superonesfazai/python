@@ -16,7 +16,9 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
 import re
-from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    ZHE_800_PINTUAN_SLEEP_TIME,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -54,14 +56,16 @@ def run_forever():
                     tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
                     delete_sql_str = 'delete from dbo.zhe_800_pintuan where goods_id=%s'
                     # 不用这个了因为会影响到正常情况的商品
-                    # try:        # 单独处理商品页面不存在的情况
-                    #     if isinstance(tmp_tmp, str) and re.compile(r'^ze').findall(tmp_tmp) != []:
-                    #         print('******** 该商品的页面已经不存在!此处将其删除!')
-                    #         tmp_sql_server._delete_table(sql_str=delete_sql_str, params=(item[0]))
-                    #     else:
-                    #         pass
-                    # except:
-                    #     pass
+                    try:        # 单独处理商品页面不存在的情况
+                        if isinstance(tmp_tmp, str) and re.compile(r'^ze').findall(tmp_tmp) != []:
+                            print('@@ 该商品的页面已经不存在!此处将其删除!')
+                            tmp_sql_server._delete_table(sql_str=delete_sql_str, params=(item[0],))
+                            sleep(ZHE_800_PINTUAN_SLEEP_TIME)
+                            continue
+                        else:
+                            pass
+                    except:
+                        pass
 
                     data = zhe_800_pintuan.deal_with_data()
                     if data != {}:
