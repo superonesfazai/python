@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>vue demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+    <div id="app">
+        {{ message }}
+    </div>
+    <div id="app_2">
+        <span v-bind:title="message">将鼠标悬停在我身上几秒钟，看看我动态绑定的标题！</span>
+    </div>
+    <div id="app_3">
+        <span v-if="seen">现在你看到我了</span>
+    </div>
+    <div id="app_4">
+        <ol>
+            <li v-for="todo in todos">{{ todo.text }}</li>
+        </ol>
+    </div>
+    <div id="app_5">
+        <p>{{ message }}</p>
+        <button v-on:click="reverse_message">reverse message</button>
+    </div>
+    <div id="app_6">
+        <p>{{ message }}</p>
+        <input v-model="message">
+    </div>
+    <ol>
+        <!--创建todo-item组件的实例-->
+        <todo-item></todo-item>
+    </ol>
+    <script>
+        // Vue.js的核心是一个系统，它使我们能够使用简单的模板语法以声明方式将数据呈现给DOM
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: 'hello vue.js!'
+            }
+        });
+        var app_2 = new Vue({
+            el: '#app_2',
+            data: {
+                message: '你在' + new Date().toLocaleString()
+            }
+        });
+        // 轻松切换元素的存在
+        // Vue插入/更新/删除元素时自动应用过渡效果
+        var app_3 = new Vue({
+           el: '#app_3',
+           data: {
+               // 继续进入app3.seen = false控制台。你应该看到消息消失了。
+               seen: true
+           }
+        });
+        var app_4 = new Vue({
+            el: '#app_4',
+            data: {
+                // 在控制台中，输入app_4.todos.push({ text: 'New item' })。您应该看到一个新项目附加到列表中。
+                todos: [{
+                    text: 'Learn JavaScript'
+                },{
+                    text: 'Learn Vue'
+                },{
+                    text: 'build something awesome'
+                }]
+            }
+        });
+        // 处理用户输入
+        // 我们可以使用该v-on指令附加在Vue实例上调用方法的事件侦听器
+        var app_5 = new Vue({
+            el: '#app_5',
+            data: {
+                message: 'hello vue.js!'
+            },
+            methods: {
+                // 在此方法中，我更新应用程序的状态而不触及DOM-所有DOM操作都由Vue处理，您编写的代码专注于底层逻辑。
+                reverse_message: function(){
+                    this.message = this.message.split('').reverse().join('')
+                }
+            }
+        });
+        // Vue还提供了v-model使表单输入和应用程序状态之间的双向绑定变得轻而易举的指令
+        var app_6 = new Vue({
+            el:'#app_6',
+            data: {
+                message: 'Hello Vue！'
+            }
+        });
+        // 与组件一起组成
+        // 组件系统是Vue中的另一个重要概念，因为它是一种抽象，允许我们构建由小型，自包含且通常可重用的组件组成的大型应用程序。如果我们考虑一下，几乎任何类型的应用程序接口都可以抽象到组件树中
+        // 定义一个名为todo-item的新组件
+        Vue.component('todo-item', {
+            template: '<li>This is a todo</li>'
+        })
+    </script>
+</body>
+</html>
