@@ -12,6 +12,8 @@
 import json
 import asyncio
 
+from .common_utils import _print
+
 __all__ = [
     '_get_price_change_info',                               # cp用来记录价格改变信息
     'get_shelf_time_and_delete_time',                       # cp得到shelf_time和delete_time
@@ -368,4 +370,3 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['session_id'] = data_list.get('session_id', '')
 
     return tmp
-

@@ -222,6 +222,62 @@ class YouPinParse(object):
 
             return self._get_data_error_init()
 
+    def _to_right_and_update_data(self, data, pipeline):
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        tmp = _get_right_model_data(data, site_id=31, logger=self.my_lg)
+
+        params = self._get_db_update_params(item=tmp)
+        base_sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+        if tmp['delete_time'] == '':
+            sql_str = base_sql_str.format('shelf_time=%s', '')
+        elif tmp['shelf_time'] == '':
+            sql_str = base_sql_str.format('delete_time=%s', '')
+        else:
+            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
+
+        result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+        return result
+
+    def _get_db_update_params(self, item):
+        params = [
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            # item['delete_time'],
+            item['is_delete'],
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
+
+        return tuple(params)
+
     def _get_title(self, data):
         title = data.get('good').get('name', '')
         assert title != '', '获取到的name为空值!请检查!'
@@ -254,6 +310,27 @@ class YouPinParse(object):
         return p_info
 
     def _get_div_desc(self, data):
+        '''
+        得到div_desc
+        :param data:
+        :return:
+        '''
+        def _get_right_body(body):
+            '''得到main_body'''
+            # 处理data-lazy-src
+            body = re.compile(r'<img src=').sub('<img data-lazy-src=', body)
+            body = re.compile(r'data-lazy-src=').sub('src=', body)
+            body = re.compile(r'<img data-src=').sub('<img src=', body)
+            body = re.compile(r';opacity:0').sub('', body)  # 不替换否则不显示图片
+            # print(body)
+
+            try:
+                main_body = re.compile(r'<main .*?>(.*)</main>').findall(body)[0]
+            except IndexError:
+                main_body = re.compile(r'<body>(.*?)<script src=').findall(body)[0]
+
+            return main_body
+
         try:
             intros = data.get('good', {}).get('intros', [])[0]
         except IndexError:
@@ -281,18 +358,7 @@ class YouPinParse(object):
         if body == '':
             raise ValueError('获取到的div_desc为空值!')
 
-        # 处理data-lazy-src
-        body = re.compile(r'<img src=').sub('<img data-lazy-src=', body)
-        body = re.compile(r'data-lazy-src=').sub('src=', body)
-        body = re.compile(r';opacity:0').sub('', body)  # 不替换否则不显示图片
-        # print(body)
-
-        try:
-            main_body = re.compile(r'<main .*?>(.*)</main>').findall(body)[0]
-        except IndexError:
-            main_body = re.compile(r'<body>(.*?)<script src=').findall(body)[0]
-
-        div_desc = '<div>' + main_body + '</div>'
+        div_desc = '<div>' + _get_right_body(body) + '</div>'
         # self.my_lg.info(str(div_desc))
 
         return div_desc

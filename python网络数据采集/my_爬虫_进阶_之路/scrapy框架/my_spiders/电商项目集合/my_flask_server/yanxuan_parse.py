@@ -247,7 +247,9 @@ class YanXuanParse(object):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+
+        return result
 
     def _get_db_update_params(self, item):
         params = [

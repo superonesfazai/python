@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.kaola,.yanxuan{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.kaola,.yanxuan,.youpin{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.kaola span,.yanxuan span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.kaola span,.yanxuan span,.youpin span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -79,6 +79,10 @@
         background: url(../static/images/yanxuan.png)no-repeat;
         background-size: 100% 100%;
     }
+	.youpin span{
+        background: url(../static/images/xiaomi_yp.jpg)no-repeat;
+        background-size: 100% 100%;
+    }
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -104,6 +108,9 @@
 		display: block;
 	}
 	.yanxuan span:hover .login-btn{
+		display: block;
+	}
+	.youpin span:hover .login-btn{
 		display: block;
 	}
 	.login-btn{
@@ -205,25 +212,29 @@
     				</a>
     			</span>
     		</div>
-    		<div class="taob passListItem"><span>
+    		<div class="taob passListItem">
+				<span>
 					<a class="login-btn" href="/show_taobao" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    		<div class="tianm passListItem"><span>
+    			</span>
+			</div>
+    		<div class="tianm passListItem">
+				<span>
 					<a class="login-btn" href="/show_tmall" target="_blank">
     					请点击登录
     				</a>
-    		</span></div>
-    	</div>
-    	<div class="passList" id="passList">
-    		<div class="jd passListItem">
+    			</span>
+			</div>
+			<div class="jd passListItem">
     			<span>
     				<a class="login-btn" href="/show_jd" target="_blank">
 						请点击登录
     				</a>
     			</span>
     		</div>
+    	</div>
+    	<div class="passList" id="passList">
             <div class="kaola passListItem">
     			<span>
     				<a class="login-btn" href="/show_kaola" target="_blank">
@@ -234,6 +245,13 @@
 			<div class="yanxuan passListItem">
     			<span>
     				<a class="login-btn" href="/show_yanxuan" target="_blank">
+						请点击登录
+    				</a>
+    			</span>
+    		</div>
+			<div class="youpin passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_youpin" target="_blank">
 						请点击登录
     				</a>
     			</span>
@@ -394,6 +412,16 @@
 						async:true,
 						data:{
 							confirm_login:'yanxuan_login'
+						}
+					});
+				});
+                $('.login-btn').eq(9).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'youpin_login'
 						}
 					});
 				})

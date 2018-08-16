@@ -218,7 +218,7 @@ class SinaSpeciesSpiderNewSpider():
 
                                 bozhu['nick_name'] = self.wash_nick_name(nick_name=tmp_nick_name)
                                 bozhu['sina_type'] = tmp_type
-                                bozhu['head_img_url'] = tmp_head_img_url
+                                bozhu['head_img_url'] = re.compile('\.50/').sub('.180/', tmp_head_img_url)
 
                                 print('---->> ', [tmp_nick_name, tmp_type, tmp_head_img_url])
 
