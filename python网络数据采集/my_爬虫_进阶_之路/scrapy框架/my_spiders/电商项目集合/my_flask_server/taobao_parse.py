@@ -803,8 +803,7 @@ class TaoBaoLoginAndParse(object):
         tmp['father_sort'] = data_list.get('father_sort')
         tmp['child_sort'] = data_list.get('child_sort')
 
-        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
-        self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id')))
+        self.my_lg.info('------>>>| 待存储的数据信息为: ' + str(tmp.get('goods_id')))
 
         params = self._get_db_insert_tejia_params(item=tmp)
         sql_str = 'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

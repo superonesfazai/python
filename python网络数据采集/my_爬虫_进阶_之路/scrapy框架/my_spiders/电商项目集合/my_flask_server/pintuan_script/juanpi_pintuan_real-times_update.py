@@ -21,6 +21,7 @@ import time
 
 from fzutils.time_utils import (
     get_shanghai_time,
+    datetime_to_timestamp,
 )
 from fzutils.linux_utils import daemon_init
 
@@ -29,9 +30,11 @@ def run_forever():
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         sql_str = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
+        delete_str = 'delete from dbo.juanpi_pintuan where miaosha_end_time < GETDATE()-2'
         try:
+            tmp_sql_server._delete_table(sql_str=delete_str)
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
-        except TypeError as e:
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
@@ -46,7 +49,6 @@ def run_forever():
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             juanpi_pintuan = JuanPiParse()
             for item in result:  # 实时更新数据
-                data = {}
                 if index % 6 == 0:
                     try:
                         del juanpi_pintuan
@@ -57,11 +59,6 @@ def run_forever():
 
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     print('与数据库的新连接成功建立...')
 
@@ -70,7 +67,7 @@ def run_forever():
                     pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                     # print(pintuan_end_time)
 
-                    if item[2] == 1 or pintuan_end_time < int(time.time()):
+                    if item[2] == 1 or pintuan_end_time < int(datetime_to_timestamp(get_shanghai_time())):
                         sql_str = 'delete from dbo.juanpi_pintuan where goods_id=%s'
                         tmp_sql_server._delete_table(sql_str=sql_str, params=(item[0],))
                         print('该goods_id[{0}]已过期或者售完，删除成功!'.format(item[0]))

@@ -16,7 +16,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import re
 import json
 from pprint import pprint
 import time

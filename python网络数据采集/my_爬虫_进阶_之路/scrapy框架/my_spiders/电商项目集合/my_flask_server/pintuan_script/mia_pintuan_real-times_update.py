@@ -19,7 +19,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import re, datetime
+import datetime
 import json
 from pprint import pprint
 import time
@@ -27,6 +27,7 @@ from settings import IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
 
 from fzutils.time_utils import (
     get_shanghai_time,
+    datetime_to_timestamp,
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
@@ -55,7 +56,9 @@ class Mia_Pintuan_Real_Time_Update(object):
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         sql_str = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
+        delete_str = 'delete from dbo.mia_pintuan where miaosha_end_time < GETDATE()-2'
         try:
+            tmp_sql_server._delete_table(sql_str=delete_str)
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
@@ -214,7 +217,7 @@ class Mia_Pintuan_Real_Time_Update(object):
         :return: 0: 已过期恢复原价的 1: 待更新区间内的 2: 未来时间的
         '''
         time_1 = int(timestamp)
-        time_2 = int(time.time())  # 当前的时间戳
+        time_2 = int(datetime_to_timestamp(get_shanghai_time()))  # 当前的时间戳
 
         diff_time = time_1 - time_2
         if diff_time < -86400:     # (为了后台能同步下架)所以设置为 24个小时

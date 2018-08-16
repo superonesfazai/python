@@ -30,7 +30,9 @@ def run_forever():
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         sql_str = 'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17 and GETDATE()-modfiy_time>2'
+        delete_str = 'delete from dbo.zhe_800_pintuan where miaosha_end_time < GETDATE()-2'
         try:
+            tmp_sql_server._delete_table(sql_str=delete_str)
             result = list(tmp_sql_server._select_table(sql_str=sql_str))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')

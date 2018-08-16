@@ -36,6 +36,7 @@ for i in range(1, invest_year + 1):
     # 例如: 1W的本金, 每月定投6000
     principal = 10000
     interest = 0.096        # 年化收益 9.6%
+
     day = 365 * 1 * i
     every_month_add_money = 6000
     money = long_invest_principal_add_interest(

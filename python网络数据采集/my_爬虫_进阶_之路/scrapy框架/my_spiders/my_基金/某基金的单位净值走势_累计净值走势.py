@@ -25,11 +25,15 @@ import demjson
 from matplotlib.pyplot import savefig
 
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.internet_utils import _get_url_contain_params
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
     string_to_datetime,)
 from fzutils.common_utils import json_2_dict
+
+PHANTOMJS_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
 
 def month_differ(x, y):
     """暂不考虑day, 只根据month和year计算相差月份
@@ -70,6 +74,7 @@ class BaseFund(object):
         self.CRAWL_FUND_TIME = 1.5  # 抓取每只基金的sleep time
         self.plot_pic = None
         self.base_path = base_path
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_PATH)
 
     def _get_rank_fund_info(self):
         '''
@@ -123,14 +128,21 @@ class BaseFund(object):
                 ('pi', str(page_num)),            # rank_data的页码
                 ('pn', '50'),
                 ('dx', '1'),
-                ('v', '0.5290053467389759'),
+                # ('v', '0.5290053467389759'),
             )
 
             url = 'http://fund.eastmoney.com/data/rankhandler.aspx'
-            body = MyRequests.get_url_body(url=url, headers=headers, params=params, cookies=None)
+
+            # TODO 常规requests被502
+            # body = MyRequests.get_url_body(url=url, headers=headers, params=params, cookies=None)
             # print(body)
 
+            # 用phantomjs
+            body = self.my_phantomjs.use_phantomjs_to_get_url_body(
+                url=_get_url_contain_params(url, params))
+
             try:
+                body = re.compile('<body>(.*)</body>').findall(body)[0]
                 this_page_rank_data = re.compile(r'rankData = (.*);').findall(body)[0]
                 # print(this_page_rank_data)
             except IndexError:
@@ -243,7 +255,12 @@ class BaseFund(object):
         # body = response.text
         # print(body)
 
-        body = MyRequests.get_url_body(url=fund_url, headers=headers, params=params, cookies=None)
+        # body = MyRequests.get_url_body(url=fund_url, headers=headers, params=params, cookies=None)
+        # print(body)
+
+        body = self.my_phantomjs.use_phantomjs_to_get_url_body(
+            url=_get_url_contain_params(fund_url, params)
+        )
         # print(body)
         self._get_this_fund_info(body=body)
 
@@ -446,11 +463,15 @@ class BaseFund(object):
         return y_axis_label
 
     def __del__(self):
+        try:
+            del self.my_phantomjs
+        except:
+            pass
         gc.collect()
 
 if __name__ == '__main__':
     _ = BaseFund()
-    # fund_code = '001092'
+    # fund_code = '160213'
     # _._get_one_fund_info(fund_code=fund_code)
     _._deal_with_rank_fund_info()
 
