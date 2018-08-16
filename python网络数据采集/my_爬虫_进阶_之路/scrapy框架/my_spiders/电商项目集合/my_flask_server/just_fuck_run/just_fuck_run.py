@@ -59,6 +59,7 @@ real_file_name_list = [
     'vip_real-times_update',
     'kaola_real-times_update',
     'yanxuan_real-times_update',
+    'youpin_real-times_update',
 ]
 
 other_file_name_list = [
