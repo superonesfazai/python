@@ -63,6 +63,8 @@ install_requires = [
     'elasticsearch',
     'elasticsearch_dsl',
     'salt',
+    'ray',
+    'jupyter',
     # 'sip',
     # 'pyqt5',
 ]
