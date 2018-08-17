@@ -21,6 +21,11 @@ from scrapy.selector import Selector
 from json import dumps
 from settings import PHANTOMJS_DRIVER_PATH
 
+from sql_str_controller import (
+    cc_insert_str_1,
+    cc_update_str_1,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
@@ -334,7 +339,7 @@ class ChuChuJie_9_9_Parse(object):
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = r'insert into dbo.chuchujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, gender, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        sql_str = cc_insert_str_1
         pipeline._insert_into_table(sql_str=sql_str, params=params)
 
     def update_chuchujie_xianshimiaosha_table(self, data, pipeline):
@@ -348,7 +353,7 @@ class ChuChuJie_9_9_Parse(object):
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = r'update dbo.chuchujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s'
+        sql_str = cc_update_str_1
         pipeline._update_table(sql_str=sql_str, params=params)
 
     def _get_db_insert_miaosha_params(self, item):
@@ -511,23 +516,6 @@ class ChuChuJie_9_9_Parse(object):
         :param chuchujie_url:
         :return: str
         '''
-        # chuchujie_url = re.compile(r'http://').sub(r'https://', chuchujie_url)
-        # chuchujie_url = re.compile(r';').sub('', chuchujie_url)
-        # is_chuchujie_url = re.compile(r'https://m.chuchujie.com/details/detail.html').findall(chuchujie_url)
-        # if is_chuchujie_url != []:
-        #     if re.compile(r'https://m.chuchujie.com/details/detail.html?.*?id=(\d+).*?').findall(chuchujie_url) != []:
-        #         goods_id = re.compile(r'https://m.chuchujie.com/details/detail.html?.*?id=(\d+).*?').findall(chuchujie_url)[0]
-        #         # print(goods_id)
-        #         print('------>>>| 得到的楚楚街商品id为:', goods_id)
-        #         return goods_id
-        #     else:
-        #         print('获取goods_id时出错, 请检查!')
-        #         return ''
-        #
-        # else:
-        #     print('楚楚街商品url错误, 非正规的url, 请参照格式(https://m.chuchujie.com/details/detail.html)开头的...')
-        #     return ''
-
         chuchujie_url = re.compile(r'http://').sub(r'https://', chuchujie_url)
         chuchujie_url = re.compile(r';').sub('', chuchujie_url)
         is_chuchujie_url = re.compile(r'https://wx.chuchujie.com/index.php').findall(chuchujie_url)

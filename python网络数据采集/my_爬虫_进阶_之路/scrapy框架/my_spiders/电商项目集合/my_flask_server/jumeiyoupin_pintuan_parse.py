@@ -29,6 +29,12 @@ from logging import INFO, ERROR
 import pytz
 import datetime
 
+from sql_str_controller import (
+    jm_insert_str_2,
+    jm_update_str_2,
+    jm_update_str_3,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
@@ -307,9 +313,8 @@ class JuMeiYouPinPinTuanParse(object):
         logger.info(self.msg)
 
         params = await self._get_db_insert_pintuan_params(item=tmp)
-        sql_str = r'insert into dbo.jumeiyoupin_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, page, sort, tab, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         try:
-            pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=logger)
+            pipeline._insert_into_table_2(sql_str=jm_insert_str_2, params=params, logger=logger)
             return True
         except Exception as e:
             logger.exception(e)
@@ -333,9 +338,8 @@ class JuMeiYouPinPinTuanParse(object):
         logger.info(self.msg)
 
         params = await self._get_db_update_pintuan_params(item=tmp)
-        sql_str = 'update dbo.jumeiyoupin_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
         try:
-            pipeline._update_table_2(sql_str=sql_str, params=params, logger=logger)
+            pipeline._update_table_2(sql_str=jm_update_str_2, params=params, logger=logger)
             return True
         except Exception as e:
             logger.exception(e)
@@ -359,9 +363,8 @@ class JuMeiYouPinPinTuanParse(object):
         logger.info(self.msg)
 
         params = self._get_db_update_pintuan_params_2(item=tmp)
-        sql_str = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id = %s'
         try:
-            result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=logger)
+            result = pipeline._update_table_2(sql_str=jm_update_str_3, params=params, logger=logger)
             return result
         except Exception as e:
             logger.exception(e)

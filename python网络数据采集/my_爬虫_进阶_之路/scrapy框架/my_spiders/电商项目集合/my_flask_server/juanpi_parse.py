@@ -12,7 +12,6 @@
 """
 
 import time
-import json
 from pprint import pprint
 from json import dumps
 from time import sleep
@@ -21,6 +20,15 @@ import gc
 
 from settings import PHANTOMJS_DRIVER_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+
+from sql_str_controller import (
+    jp_update_str_1,
+    jp_update_str_2,
+    jp_insert_str_1,
+    jp_update_str_3,
+    jp_insert_str_2,
+    jp_update_str_4,
+)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
@@ -189,7 +197,7 @@ class JuanPiParse(object):
             if isinstance(detail_name_list, str):       # 单独处理下架的情况
                 if detail_name_list == 'is_delete=1':
                     print('该商品已下架...')
-                    sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
+                    sql_str = jp_update_str_1
                     params = (self.result_data.get('goods_id', ''),)
                     _ = SqlServerMyPageInfoSaveItemPipeline()
                     result = _._update_table(sql_str=sql_str, params=params)
@@ -272,12 +280,13 @@ class JuanPiParse(object):
         # 改价格的sql语句
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
+        base_sql_str = jp_update_str_2
         if tmp['delete_time'] == '':
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, delete_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('delete_time=%s', '')
         else:
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s, delete_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
@@ -287,8 +296,7 @@ class JuanPiParse(object):
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = 'insert into dbo.juanpi_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, tab_id, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        pipeline._insert_into_table(sql_str=jp_insert_str_1, params=params)
 
     def to_update_juanpi_xianshimiaosha_table(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=15)
@@ -296,8 +304,7 @@ class JuanPiParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = 'update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=jp_update_str_3, params=params)
 
     def insert_into_juuanpi_pintuan_table(self, data, pipeline):
         try:
@@ -310,8 +317,7 @@ class JuanPiParse(object):
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_pintuan_params(item=tmp)
-        sql_str = 'insert into dbo.juanpi_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        _r = pipeline._insert_into_table(sql_str=sql_str, params=params)
+        _r = pipeline._insert_into_table(sql_str=jp_insert_str_2, params=params)
 
         return _r
 
@@ -325,8 +331,7 @@ class JuanPiParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_pintuan_params(item=tmp)
-        sql_str = r'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=jp_update_str_4, params=params)
 
     def _get_shop_name(self, data):
         '''

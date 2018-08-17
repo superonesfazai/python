@@ -12,8 +12,6 @@
 '''
 
 import time
-import json
-import re
 from pprint import pprint
 from time import sleep
 import re
@@ -24,10 +22,17 @@ from json import dumps
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
+from sql_str_controller import (
+    mia_update_str_2,
+    mia_insert_str_2,
+    mia_update_str_3,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import timestamp_to_regulartime
 
 class MiaPintuanParse(MiaParse):
     def __init__(self):
@@ -76,8 +81,7 @@ class MiaPintuanParse(MiaParse):
                 print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
                 self.result_data = {}
                 tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                sql_str = r'update dbo.mia_pintuan set is_delete=1 where goods_id = %s'
-                tmp_pipeline._update_table(sql_str=sql_str, params=(goods_id))
+                tmp_pipeline._update_table(sql_str=mia_update_str_2, params=(goods_id,))
                 print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
                 gc.collect()
                 return {}
@@ -287,8 +291,7 @@ class MiaPintuanParse(MiaParse):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_pintuan_params(item=tmp)
-        sql_str = r'insert into dbo.mia_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, pid, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        _r = pipeline._insert_into_table(sql_str=sql_str, params=params)
+        _r = pipeline._insert_into_table(sql_str=mia_insert_str_2, params=params)
 
         return _r
 
@@ -302,8 +305,7 @@ class MiaPintuanParse(MiaParse):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_pintuan_params(item=tmp)
-        sql_str = r'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=mia_update_str_3, params=params)
 
     def _get_db_insert_pintuan_params(self, item):
         params = (
@@ -410,8 +412,8 @@ class MiaPintuanParse(MiaParse):
                             s = self.change_to_number_str_time(s)
                             e = self.change_to_number_str_time(e)
                             pintuan_time = {
-                                'begin_time': self.timestamp_to_regulartime(int(time.mktime(time.strptime(s, '%m %d %Y %H:%M:%S')))),
-                                'end_time': self.timestamp_to_regulartime(int(time.mktime(time.strptime(e, '%m %d %Y %H:%M:%S')))),
+                                'begin_time': timestamp_to_regulartime(int(time.mktime(time.strptime(s, '%m %d %Y %H:%M:%S')))),
+                                'end_time': timestamp_to_regulartime(int(time.mktime(time.strptime(e, '%m %d %Y %H:%M:%S')))),
                             }
                         except:
                             print('获取拼团pintuan_time时出错!')
@@ -468,20 +470,6 @@ class MiaPintuanParse(MiaParse):
         new_str[0] = month
 
         return  ' '.join(new_str)
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
 if __name__ == '__main__':
     mia_pintuan = MiaPintuanParse()

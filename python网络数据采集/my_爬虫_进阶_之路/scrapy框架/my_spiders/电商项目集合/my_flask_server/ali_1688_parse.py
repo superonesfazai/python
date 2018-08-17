@@ -11,13 +11,20 @@ from pprint import pprint
 import re
 import gc
 from time import sleep
-import json
 from decimal import Decimal
 from json import dumps
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from scrapy.selector import Selector
 from settings import PHANTOMJS_DRIVER_PATH
+
+from sql_str_controller import (
+    al_select_str_1,
+    al_update_str_1,
+    al_update_str_2,
+    al_insert_str_1,
+    al_insert_str_2,
+)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
@@ -26,7 +33,7 @@ from fzutils.common_utils import json_2_dict
 
 class ALi1688LoginAndParse(object):
     def __init__(self):
-        super().__init__()
+        super(ALi1688LoginAndParse, self).__init__()
         self._set_headers()
         self.result_data = {}
         self.is_activity_goods = False
@@ -79,8 +86,7 @@ class ALi1688LoginAndParse(object):
             # print('test')
             try:
                 tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
-                is_in_db = tmp_my_pipeline._select_table(sql_str=sql_str, params=(str(goods_id),))
+                is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
                 # print(is_in_db)
             except Exception as e:
                 print('遇到错误:', e)
@@ -89,8 +95,7 @@ class ALi1688LoginAndParse(object):
                 return {}
 
             if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-                sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
-                tmp_my_pipeline._update_table(sql_str=sql_str, params=(goods_id))
+                tmp_my_pipeline._update_table(sql_str=al_update_str_1, params=(goods_id))
                 print('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
                 tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
                 tmp_data_s['before'] = True     # 用来判断原先该goods是否在db中
@@ -241,7 +246,7 @@ class ALi1688LoginAndParse(object):
         # 改价格的sql语句
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
-        base_sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+        base_sql_str = al_update_str_2
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':
@@ -595,9 +600,9 @@ class ALi1688LoginAndParse(object):
         # print('------>>> | 待存储的数据信息为: |', tmp)
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
-            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            sql_str = al_insert_str_1
         else:
-            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            sql_str = al_insert_str_2
 
         result = pipeline._insert_into_table(sql_str=sql_str, params=params)
 

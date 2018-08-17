@@ -284,6 +284,6 @@ if __name__ == '__main__':
         mogujie_url = input('请输入待爬取的蘑菇街商品地址: ')
         mogujie_url.strip('\n').strip(';')
         goods_id = mogujie_miaosha.get_goods_id_from_url(mogujie_url)
-        data = mogujie_miaosha.get_goods_data(goods_id=goods_id)
+        mogujie_miaosha.get_goods_data(goods_id=goods_id)
         data = mogujie_miaosha.deal_with_data()
         # pprint(data)

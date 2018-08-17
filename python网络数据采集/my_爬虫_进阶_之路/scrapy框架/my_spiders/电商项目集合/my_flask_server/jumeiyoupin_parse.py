@@ -12,7 +12,6 @@
 """
 
 import time
-import json
 import re
 from pprint import pprint
 from json import dumps
@@ -21,10 +20,16 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 
+from sql_str_controller import (
+    jm_insert_str_1,
+    jm_update_str_1,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.common_utils import json_2_dict
+from fzutils.common_utils import wash_sensitive_info
 
 class JuMeiYouPinParse(object):
     def __init__(self):
@@ -103,7 +108,7 @@ class JuMeiYouPinParse(object):
 
         data = {}
         try:
-            data['title'] = tmp_data.get('data', {}).get('name', '')
+            data['title'] = self._wash_sensitive_info(tmp_data.get('data', {}).get('name', ''))
             data['sub_title'] = ''
             # print(data['title'])
 
@@ -302,6 +307,16 @@ class JuMeiYouPinParse(object):
             self.result_data = {}
             return {}
 
+    def _wash_sensitive_info(self, data):
+        add_sensitive_str_list = [
+            '【官方授权】',
+        ]
+
+        return wash_sensitive_info(
+            data,
+            add_sensitive_str_list=add_sensitive_str_list,
+        )
+
     def insert_into_jumeiyoupin_xianshimiaosha_table(self, data, pipeline):
         try:
             tmp = _get_right_model_data(data=data, site_id=26)  # 采集来源地(聚美优品10点上新的秒杀商品)
@@ -312,8 +327,7 @@ class JuMeiYouPinParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = 'insert into dbo.jumeiyoupin_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        pipeline._insert_into_table(sql_str=jm_insert_str_1, params=params)
 
     def update_jumeiyoupin_xianshimiaosha_table(self, data, pipeline):
         try:
@@ -325,8 +339,7 @@ class JuMeiYouPinParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = r'update dbo.jumeiyoupin_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=jm_update_str_1, params=params)
 
     def _get_db_insert_miaosha_params(self, item):
         params = (
