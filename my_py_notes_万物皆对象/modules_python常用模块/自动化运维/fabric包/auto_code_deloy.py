@@ -59,7 +59,7 @@ def server_tasks(my_group):
         '''更新python包'''
         print('正在更新相关依赖包...')
         try:
-            connect_object.run('sudo apt-get update --fix-missing && sudo apt-get autoremove && sudo apt-get clean && apt-get -f install && apt-get install unzip --fix-missing')
+            # connect_object.run('sudo apt-get update --fix-missing && sudo apt-get autoremove && sudo apt-get clean && apt-get -f install && apt-get install unzip --fix-missing')
             # connect_object.run('sudo apt-get install libcurl4-openssl-dev')   # for pycurl
             connect_object.run('pip3 install --upgrade pip')
             connect_object.run('pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com -U')

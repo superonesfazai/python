@@ -7,7 +7,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import requests
+from requests import get
 import gc
 from random import randint
 
@@ -33,7 +33,7 @@ class MyIpPools(object):
         else:
             base_url = 'http://127.0.0.1:8000'
         try:
-            result = requests.get(base_url).json()
+            result = get(base_url).json()
         except Exception as e:
             print(e)
             return {'http': None}
@@ -46,7 +46,7 @@ class MyIpPools(object):
                 result_ip_list['http'].append(tmp_url)
             else:
                 delete_url = 'http://127.0.0.1:8000/delete?ip='
-                delete_info = requests.get(delete_url + item[0])
+                delete_info = get(delete_url + item[0])
 
         # pprint(result_ip_list)
 
@@ -69,8 +69,22 @@ class MyIpPools(object):
 
         return proxy_ip
 
+    def _empty_ip_pools(self):
+        '''
+        清空ip池
+        :return:
+        '''
+        base_url = 'http://127.0.0.1:8000'
+        result = get(base_url).json()
+
+        delete_url = 'http://127.0.0.1:8000/delete?ip='
+
+        for item in result:
+            if item[2] < 11:
+                delete_info = get(delete_url + item[0])
+                print(delete_info.text)
+
+        return None
+
     def __del__(self):
         gc.collect()
-
-# _ = MyIpPools()
-# print(_._get_random_proxy_ip().replace('http://', ''))

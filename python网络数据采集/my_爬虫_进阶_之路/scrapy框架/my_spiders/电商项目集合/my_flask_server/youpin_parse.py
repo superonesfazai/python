@@ -290,6 +290,7 @@ class YouPinParse(object):
         return sub_title
 
     def _get_shop_name(self, data):
+        # pprint(data.get('good', {}).get('brand', {}))
         shop_name = data.get('good', {}).get('brand', {}).get('name', '')
 
         return shop_name
@@ -327,8 +328,8 @@ class YouPinParse(object):
             try:
                 main_body = re.compile(r'<main .*?>(.*)</main>').findall(body)[0]
             except IndexError:
-                main_body = re.compile(r'<body>(.*?)<script src=').findall(body)[0]
-
+                main_body = re.compile(r'<body>(.*?)</body>').findall(body)[0]
+                main_body = re.compile(r'<script.*?>.*?</script>').sub('', main_body)
             return main_body
 
         try:

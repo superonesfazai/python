@@ -65,6 +65,8 @@ install_requires = [
     'salt',
     'ray',
     'jupyter',
+    'ipywidgets',
+    'bokeh',
     # 'sip',
     # 'pyqt5',
 ]
