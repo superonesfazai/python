@@ -12,6 +12,11 @@ sql str controller
 """
 
 """
+flask_server
+"""
+fz_al_insert_str =
+
+"""
 1688
 """
 '''select'''

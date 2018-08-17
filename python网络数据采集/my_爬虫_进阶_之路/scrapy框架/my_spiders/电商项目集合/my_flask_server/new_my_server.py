@@ -617,7 +617,7 @@ def to_save_data():
                     type='ali',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, GoodsName, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, DetailInfo, PropertyInfo, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                sql_str = ''
 
                 return save_every_url_right_data(
                     type='ali',
