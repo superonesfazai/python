@@ -11,7 +11,6 @@
 折800页面采集系统
 """
 
-import json
 import re
 from pprint import pprint
 from json import dumps
@@ -21,6 +20,8 @@ import gc
 
 from sql_str_controller import (
     z8_update_str_1,
+    z8_insert_str_1,
+    z8_update_str_2,
 )
 
 from fzutils.cp_utils import _get_right_model_data
@@ -551,8 +552,7 @@ class Zhe800Parse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = 'insert into dbo.zhe_800_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, session_id, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        pipeline._insert_into_table(sql_str=z8_insert_str_1, params=params)
 
     def to_update_zhe_800_xianshimiaosha_table(self, data, pipeline):
         try:
@@ -563,8 +563,7 @@ class Zhe800Parse(object):
         print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = 'update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=z8_update_str_2, params=params)
 
     def _get_db_update_params(self, item):
         '''

@@ -21,6 +21,11 @@ import gc
 
 from settings import PHANTOMJS_DRIVER_PATH
 
+from sql_str_controller import (
+    z8_insert_str_2,
+    z8_update_str_3,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.common_utils import json_2_dict
@@ -360,8 +365,7 @@ class Zhe800PintuanParse(object):
         print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_insert_pintuan_params(item=tmp)
-        sql_str = r'insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        pipeline._insert_into_table(sql_str=z8_insert_str_2, params=params)
 
     def to_right_and_update_data(self, data, pipeline):
         try:
@@ -372,8 +376,7 @@ class Zhe800PintuanParse(object):
         print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_update_pintuan_params(item=tmp)
-        sql_str = r'update dbo.zhe_800_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, all_sell_count=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=z8_update_str_3, params=params)
 
     def _get_db_insert_pintuan_params(self, item):
         params = (
