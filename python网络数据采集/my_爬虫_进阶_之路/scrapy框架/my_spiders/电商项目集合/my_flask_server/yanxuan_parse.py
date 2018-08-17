@@ -23,6 +23,10 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,)
 
+from sql_str_controller import (
+    yx_update_str_1,
+)
+
 # from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.common_utils import (
@@ -239,7 +243,7 @@ class YanXuanParse(object):
         tmp = _get_right_model_data(data, site_id=30, logger=self.my_lg)
 
         params = self._get_db_update_params(item=tmp)
-        base_sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+        base_sql_str = yx_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':

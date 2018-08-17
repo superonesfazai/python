@@ -24,6 +24,10 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
 )
 
+from sql_str_controller import (
+    yp_update_str_1,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_phone_ua
 from fzutils.cp_utils import _get_right_model_data
@@ -232,7 +236,7 @@ class YouPinParse(object):
         tmp = _get_right_model_data(data, site_id=31, logger=self.my_lg)
 
         params = self._get_db_update_params(item=tmp)
-        base_sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+        base_sql_str = yp_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':

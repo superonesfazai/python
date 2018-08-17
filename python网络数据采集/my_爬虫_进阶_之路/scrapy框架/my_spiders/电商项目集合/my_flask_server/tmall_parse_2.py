@@ -24,6 +24,14 @@ from urllib.parse import urlencode
 
 from taobao_parse import TaoBaoLoginAndParse
 
+from sql_str_controller import (
+    tm_update_str_1,
+    tm_insert_str_1,
+    tm_insert_str_2,
+    tm_insert_str_3,
+    tm_update_str_2,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -353,12 +361,13 @@ class TmallParse(object):
         # 改价格的sql
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql
+        base_sql_str = tm_update_str_1
         if tmp['delete_time'] == '':
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, delete_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('delete_time=%s', '')
         else:
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s, delete_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
         pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
@@ -377,9 +386,9 @@ class TmallParse(object):
 
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
-            sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            sql_str = tm_insert_str_1
         else:
-            sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            sql_str = tm_insert_str_2
 
         result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
@@ -400,8 +409,7 @@ class TmallParse(object):
         self.my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_insert_taoqianggou_miaosha_params(item=tmp)
-        sql_str = r'insert into dbo.tao_qianggou_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, miaosha_time, miaosha_begin_time, miaosha_end_time, page, spider_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        pipeline._insert_into_table_2(sql_str=tm_insert_str_3, params=params, logger=self.my_lg)
 
     async def _update_taoqianggou_xianshimiaosha_table(self, data, pipeline):
         '''
@@ -419,8 +427,7 @@ class TmallParse(object):
         self.my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = await self._get_db_update_miaosha_params(item=tmp)
-        sql_str = r'update dbo.tao_qianggou_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s where goods_id = %s'
-        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        pipeline._update_table_2(sql_str=tm_update_str_2, params=params, logger=self.my_lg)
 
         return
 

@@ -37,6 +37,14 @@ from logging import INFO, ERROR
 from json import JSONDecodeError
 from urllib.parse import urlencode
 
+from sql_str_controller import (
+    tb_update_str_1,
+    tb_insert_str_1,
+    tb_insert_str_2,
+    tb_insert_str_3,
+    tb_update_str_2,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -341,7 +349,7 @@ class TaoBaoLoginAndParse(object):
         # 改价格的sql
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql
-        base_sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+        base_sql_str = tb_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':
@@ -367,11 +375,10 @@ class TaoBaoLoginAndParse(object):
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
             # main_goods_id不为空
-            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-
+            sql_str = tb_insert_str_1
         else:
             # main_goods_id为空
-            sql_str = r'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            sql_str = tb_insert_str_2
 
         result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
@@ -750,19 +757,9 @@ class TaoBaoLoginAndParse(object):
         tmp['goods_id'] = data_list['goods_id']  # 官方商品id
         tmp['goods_url'] = data_list['goods_url']  # 商品地址
         # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
 
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
+        now_time = get_shanghai_time()
         tmp['deal_with_time'] = now_time  # 操作时间
-
         tmp['modfiy_time'] = now_time  # 修改时间
 
         tmp['shop_name'] = data_list['shop_name']  # 公司名称
@@ -806,9 +803,8 @@ class TaoBaoLoginAndParse(object):
         self.my_lg.info('------>>>| 待存储的数据信息为: ' + str(tmp.get('goods_id')))
 
         params = self._get_db_insert_tejia_params(item=tmp)
-        sql_str = 'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         await pipeline._insert_into_table_3(
-            sql_str=sql_str,
+            sql_str=tb_insert_str_3,
             params=params,
             logger=self.my_lg,
             error_msg_dict={
@@ -884,10 +880,8 @@ class TaoBaoLoginAndParse(object):
         self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
         params = self._get_db_update_tejia_params(item=tmp)
-        sql_str = 'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s'
-
         await pipeline._update_table_3(
-            sql_str=sql_str,
+            sql_str=tb_update_str_2,
             params=params,
             logger=self.my_lg,
             error_msg_dict={

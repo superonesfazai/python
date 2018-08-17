@@ -22,6 +22,12 @@ from decimal import Decimal
 from time import sleep
 import gc
 
+from sql_str_controller import (
+    mg_insert_str_2,
+    mg_update_str_3,
+    mg_update_str_4,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
@@ -333,8 +339,7 @@ class MoGuJieParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_pintuan_params(item=tmp)
-        sql_str = r'insert into dbo.mogujie_pintuan(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, all_sell_count, fcid, page, sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        _r = pipeline._insert_into_table(sql_str=sql_str, params=params)
+        _r = pipeline._insert_into_table(sql_str=mg_insert_str_2, params=params)
 
         return _r
 
@@ -348,9 +353,7 @@ class MoGuJieParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_pintuan_params(item=tmp)
-        sql_str = r'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
-
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=mg_update_str_3, params=params)
 
     def update_mogujie_pintuan_table_2(self, data, pipeline):
         try:
@@ -362,8 +365,7 @@ class MoGuJieParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_pintuan_params_2(item=tmp)
-        sql_str = r'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=mg_update_str_4, params=params)
 
     def _get_db_insert_pintuan_params(self, item):
         params = (

@@ -15,7 +15,6 @@
 
 import time
 from random import randint
-import json
 import requests
 from pprint import pprint
 from time import sleep
@@ -25,12 +24,19 @@ from json import dumps
 
 from settings import PHANTOMJS_DRIVER_PATH
 
+from sql_str_controller import (
+    pd_update_str_1,
+    pd_insert_str_1,
+    pd_update_str_2,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.ip_pools import MyIpPools
 from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import timestamp_to_regulartime
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -231,8 +237,8 @@ class PinduoduoParse(object):
 
             # 商品销售时间区间
             schedule = [{
-                'begin_time': self.timestamp_to_regulartime(data.get('goods', {}).get('groupTypes', [])[0].get('startTime')),
-                'end_time': self.timestamp_to_regulartime(data.get('goods', {}).get('groupTypes', [])[0].get('endTime')),
+                'begin_time': timestamp_to_regulartime(data.get('goods', {}).get('groupTypes', [])[0].get('startTime')),
+                'end_time': timestamp_to_regulartime(data.get('goods', {}).get('groupTypes', [])[0].get('endTime')),
             }]
             # pprint(schedule)
 
@@ -279,12 +285,13 @@ class PinduoduoParse(object):
         # 改价格的sql语句
         # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
+        base_sql_str = pd_update_str_1
         if tmp['delete_time'] == '':
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('shelf_time=%s', '')
         elif tmp['shelf_time'] == '':
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, delete_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('delete_time=%s', '')
         else:
-            sql_str = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, shelf_time=%s, delete_time=%s where GoodsID = %s'
+            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
@@ -293,8 +300,7 @@ class PinduoduoParse(object):
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = r'insert into dbo.pinduoduo_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        pipeline._insert_into_table(sql_str=pd_insert_str_1, params=params)
 
     def to_update_pinduoduo_xianshimiaosha_table(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=16)
@@ -302,8 +308,7 @@ class PinduoduoParse(object):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = 'update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=pd_update_str_2, params=params)
 
     def _get_db_update_params(self, item):
         '''
@@ -425,20 +430,6 @@ class PinduoduoParse(object):
         except Exception:
             print('requests.get()请求超时....')
             pass
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def get_goods_id_from_url(self, pinduoduo_url):
         '''

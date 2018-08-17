@@ -18,6 +18,12 @@ import gc
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
+from sql_str_controller import (
+    mg_update_str_1,
+    mg_insert_str_1,
+    mg_update_str_2,
+)
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.common_utils import json_2_dict
@@ -151,8 +157,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                     print('该商品已售完，此处将商品状态改为1')
                     my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                     try:
-                        sql_str = r'update dbo.mogujie_xianshimiaosha set is_delete=1 where goods_id = %s'
-                        my_pipeline._update_table(sql_str=sql_str, params=(goods_id))
+                        my_pipeline._update_table(sql_str=mg_update_str_1, params=(goods_id))
                     except:
                         print('将该商品逻辑删除时出错!')
                         pass
@@ -198,9 +203,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        sql_str = r'insert into dbo.mogujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, event_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-
-        pipeline._insert_into_table(sql_str=sql_str, params=params)
+        pipeline._insert_into_table(sql_str=mg_insert_str_1, params=params)
 
     def update_mogujie_xianshimiaosha_table(self, data, pipeline):
         try:
@@ -212,8 +215,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        sql_str = r'update dbo.mogujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table(sql_str=mg_update_str_2, params=params)
 
     def _get_db_insert_miaosha_params(self, item):
         params = (
