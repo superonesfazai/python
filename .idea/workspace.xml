@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/mogujie_miaosha_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/mogujie_miaosha_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/mogujie_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/mogujie_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pinduoduo_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pinduoduo_parse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/taobao_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/taobao_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tmall_parse_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tmall_parse_2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/vip_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/vip_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/yanxuan_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/yanxuan_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/youpin_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/youpin_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zhe_800_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zhe_800_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zhe_800_pintuan_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zhe_800_pintuan_parse.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -891,7 +882,7 @@
           <entry key="md" value="75" />
           <entry key="mitmproxy_note" value="1" />
           <entry key="png" value="23" />
-          <entry key="py" value="593" />
+          <entry key="py" value="596" />
           <entry key="pyi" value="1" />
           <entry key="re_notes" value="1" />
           <entry key="rst" value="2" />
@@ -926,7 +917,7 @@
           <entry key="JSON" value="5" />
           <entry key="Markdown" value="79" />
           <entry key="PLAIN_TEXT" value="44" />
-          <entry key="Python" value="593" />
+          <entry key="Python" value="596" />
           <entry key="PythonStub" value="1" />
           <entry key="ReST" value="2" />
           <entry key="SQL" value="2" />
@@ -940,7 +931,7 @@
           <entry key="json" value="139" />
           <entry key="md" value="6024" />
           <entry key="mitmproxy_note" value="213" />
-          <entry key="py" value="36475" />
+          <entry key="py" value="36838" />
           <entry key="rst" value="85" />
           <entry key="txt" value="217" />
           <entry key="包" value="24" />
@@ -953,7 +944,7 @@
           <entry key="JSON" value="139" />
           <entry key="Markdown" value="6813" />
           <entry key="PLAIN_TEXT" value="248" />
-          <entry key="Python" value="36682" />
+          <entry key="Python" value="37045" />
           <entry key="ReST" value="85" />
           <entry key="SQL" value="10" />
         </counts>
@@ -1043,7 +1034,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tools/test.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/my_基金/某基金的单位净值走势_累计净值走势.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/cookies/cookies_taobao.txt" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/my_基金/长期投_计算本金+利息.py" />
@@ -1093,6 +1083,7 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/youpin_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zhe_800_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zhe_800_pintuan_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" />
       </list>
     </option>
@@ -2424,20 +2415,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="18" column="12" lean-forward="true" selection-start-line="18" selection-start-column="12" selection-end-line="18" selection-end-column="12" />
-          <folding>
-            <element signature="e#135#145#0" expanded="true" />
-            <marker date="1534216871000" expanded="true" signature="16643:16886" ph="..." />
-            <marker date="1534216871000" expanded="true" signature="57385:57390" ph="..." />
-            <marker date="1534216871000" expanded="true" signature="57385:59094" ph="..." />
-            <marker date="1534216871000" expanded="true" signature="69156:71749" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pinduoduo_parse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="310">
@@ -2623,10 +2600,60 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="214">
+          <caret line="1830" column="3" lean-forward="true" selection-start-line="1830" selection-start-column="3" selection-end-line="1830" selection-end-column="3" />
+          <folding>
+            <element signature="e#135#145#0" expanded="true" />
+            <element signature="e#4187#7155#0" />
+            <element signature="e#7222#9231#0" />
+            <element signature="e#9296#10982#0" />
+            <element signature="e#11048#12547#0" />
+            <element signature="e#12678#13053#0" />
+            <element signature="e#13135#13487#0" />
+            <element signature="e#13567#13953#0" />
+            <element signature="e#14027#14339#0" />
+            <element signature="e#14423#14740#0" />
+            <element signature="e#14822#15138#0" />
+            <element signature="e#15226#15545#0" />
+            <element signature="e#15621#15934#0" />
+            <element signature="e#16014#16247#0" />
+            <element signature="e#16331#16566#0" />
+            <element signature="e#16648#16884#0" />
+            <element signature="e#17012#18714#0" />
+            <element signature="e#18786#20418#0" />
+            <element signature="e#20552#22097#0" />
+            <element signature="e#22183#23791#0" />
+            <element signature="e#23923#25521#0" />
+            <element signature="e#25605#27346#0" />
+            <element signature="e#27472#29118#0" />
+            <element signature="e#29196#30974#0" />
+            <element signature="e#31113#33481#0" />
+            <element signature="e#33569#35302#0" />
+            <element signature="e#35436#37790#0" />
+            <element signature="e#37876#39569#0" />
+            <element signature="e#39710#42108#0" />
+            <element signature="e#42200#43915#0" />
+            <element signature="e#44044#46575#0" />
+            <element signature="e#46655#48358#0" />
+            <element signature="e#48494#50146#0" />
+            <element signature="e#50230#51927#0" />
+            <element signature="e#52069#53725#0" />
+            <element signature="e#53813#55514#0" />
+            <element signature="e#55650#57304#0" />
+            <marker date="1534509779000" expanded="true" signature="16921:17164" ph="..." />
+            <marker date="1534509779000" expanded="true" signature="54051:54056" ph="..." />
+            <marker date="1534509779000" expanded="true" signature="54051:55385" ph="..." />
+            <marker date="1534509779000" expanded="true" signature="65447:68040" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="188" column="3" lean-forward="true" selection-start-line="188" selection-start-column="3" selection-end-line="188" selection-end-column="3" />
+        <state relative-caret-position="468">
+          <caret line="206" column="76" lean-forward="true" selection-start-line="206" selection-start-column="76" selection-end-line="206" selection-end-column="76" />
         </state>
       </provider>
     </entry>

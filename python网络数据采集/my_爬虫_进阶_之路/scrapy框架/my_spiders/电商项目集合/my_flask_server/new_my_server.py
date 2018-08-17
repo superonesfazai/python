@@ -129,6 +129,20 @@ except Exception as e:
 
 import gc
 
+from sql_str_controller import (
+    fz_al_insert_str,
+    fz_tb_insert_str,
+    fz_tm_insert_str,
+    fz_jd_insert_str,
+    fz_z8_insert_str,
+    fz_jp_insert_str,
+    fz_pd_insert_str,
+    fz_vi_insert_str,
+    fz_kl_insert_str,
+    fz_yx_insert_str,
+    fz_yp_insert_str,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,)
@@ -617,12 +631,11 @@ def to_save_data():
                     type='ali',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = ''
 
                 return save_every_url_right_data(
                     type='ali',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_al_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -702,12 +715,11 @@ def taobao_to_save_data():
                     type='taobao',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='taobao',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_tb_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -796,12 +808,11 @@ def tmall_to_save_data():
                     type='tmall',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='tmall',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_tm_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -891,12 +902,11 @@ def jd_to_save_data():
                     type='jd',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='jd',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_jd_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1000,12 +1010,11 @@ def zhe_800_to_save_data():
                     type='zhe_800',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='zhe_800',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_z8_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1109,12 +1118,11 @@ def juanpi_to_save_data():
                     type='juanpi',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='juanpi',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_jp_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1217,12 +1225,11 @@ def pinduoduo_to_save_data():
                     type='pinduoduo',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='pinduoduo',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_pd_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1327,12 +1334,11 @@ def vip_to_save_data():
                     type='vip',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='vip',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_vi_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1419,12 +1425,11 @@ def kaola_to_save_data():
                     type='kaola',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='kaola',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_kl_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1511,12 +1516,11 @@ def yanxuan_to_save_data():
                     type='yanxuan',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='yanxuan',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_yx_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1603,12 +1607,11 @@ def youpin_to_save_data():
                     type='youpin',
                     wait_to_save_data_url_list=wait_to_save_data_url_list
                 )
-                sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
                 return save_every_url_right_data(
                     type='youpin',
                     tmp_list=tmp_list,
-                    sql_str=sql_str,
+                    sql_str=fz_yp_insert_str,
                     goods_to_delete=goods_to_delete
                 )
 
@@ -1622,7 +1625,6 @@ def youpin_to_save_data():
 
     else:
         return _error_msg(msg='')
-
 
 ######################################################
 @app.route('/basic_data', methods=['POST'])
