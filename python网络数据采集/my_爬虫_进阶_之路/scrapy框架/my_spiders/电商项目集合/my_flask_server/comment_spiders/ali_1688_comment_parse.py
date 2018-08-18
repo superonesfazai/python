@@ -25,9 +25,14 @@ import gc
 from time import sleep
 from logging import INFO, ERROR
 from scrapy.selector import Selector
-import re, datetime, json
+import re
+import datetime
 from pprint import pprint
 from demjson import decode
+
+from sql_str_controller import (
+    al_select_str_2,
+)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -261,10 +266,9 @@ class ALi1688CommentParse(object):
         :return:
         '''
         _ = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select SKUInfo from dbo.GoodsInfoAutoGet where GoodsID=%s'
         # sku_info = self.json_2_dict(_._select_table(sql_str=sql_str, params=(str(goods_id),)))
         try:
-            _r = _._select_table(sql_str=sql_str, params=(str(goods_id),))[0][0]
+            _r = _._select_table(sql_str=al_select_str_2, params=(str(goods_id),))[0][0]
             # print(_r)
             sku_info = decode(_r)
         except Exception:

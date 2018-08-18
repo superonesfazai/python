@@ -24,6 +24,11 @@ from logging import INFO, ERROR
 from time import sleep
 from json import dumps
 
+from sql_str_controller import (
+    cm_update_str_1,
+    cm_select_str_1,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.linux_utils import daemon_init
 from fzutils.time_utils import get_shanghai_time
@@ -34,7 +39,7 @@ class CommentRealTimeUpdateSpider(object):
         self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
-        self.sql_str = r'update dbo.all_goods_comment set modify_time=%s, comment_info=%s where goods_id=%s'
+        self.sql_str = cm_update_str_1
 
         if self._init_debugging_api().get(2):
             self.my_lg.info('初始化 1688 phantomjs中...')
@@ -98,13 +103,8 @@ class CommentRealTimeUpdateSpider(object):
             #### 更新数据
             self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
             #  and GETDATE()-a.modify_time>1
-            sql_str = '''
-            select goods_id, SiteID as site_id 
-            from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b 
-            where a.GoodsID=b.goods_id and a.MainGoodsID is not null and a.IsDelete=0
-            order by b.id asc'''
             try:
-                result = list(self._comment_pipeline._select_table(sql_str=sql_str))
+                result = list(self._comment_pipeline._select_table(sql_str=cm_select_str_1))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 continue

@@ -24,7 +24,9 @@ from settings import IS_BACKGROUND_RUNNING
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import datetime
+from sql_str_controller import (
+    jp_select_str_1,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -33,6 +35,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuanPiPinTuan(object):
     def __init__(self):
@@ -106,8 +109,7 @@ class JuanPiPinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
         if my_pipeline.is_connect_success:
-            sql_str = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=jp_select_str_1))]
             # print(db_goods_id_list)
             for item in pintuan_goods_id_list:
                 if index % 5 == 0:
@@ -195,24 +197,10 @@ class JuanPiPinTuan(object):
             goods_data['username'] = '18698570079'
             goods_data['all_sell_count'] = all_sell_count
             goods_data['page'] = page
-            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(schedule=goods_data.get('schedule', [])[0])
+            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
 
         gc.collect()
         return goods_data
-
-    def get_pintuan_begin_time_and_pintuan_end_time(self, schedule):
-        '''
-        返回拼团开始和结束时间
-        :param miaosha_time:
-        :return: tuple  pintuan_begin_time, pintuan_end_time
-        '''
-        pintuan_begin_time = schedule.get('begin_time')
-        pintuan_end_time = schedule.get('end_time')
-        # 将字符串转换为datetime类型
-        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
-        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return pintuan_begin_time, pintuan_end_time
 
     def __del__(self):
         gc.collect()

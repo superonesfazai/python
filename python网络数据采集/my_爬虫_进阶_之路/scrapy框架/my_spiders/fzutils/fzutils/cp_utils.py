@@ -13,6 +13,7 @@ import json
 import asyncio
 
 from .common_utils import _print
+from .time_utils import string_to_datetime
 
 __all__ = [
     '_get_price_change_info',                               # cp用来记录价格改变信息
@@ -205,8 +206,6 @@ def get_miaosha_begin_time_and_miaosha_end_time(miaosha_time):
     :param miaosha_time: 里面的miaosha_begin_time的类型为字符串类型
     :return: tuple  miaosha_begin_time, miaosha_end_time
     '''
-    import datetime
-
     miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
     miaosha_end_time = miaosha_time.get('miaosha_end_time')
 
@@ -215,8 +214,8 @@ def get_miaosha_begin_time_and_miaosha_end_time(miaosha_time):
         miaosha_end_time = miaosha_time.get('end_time')
 
     # 将字符串转换为datetime类型
-    miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-    miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
+    miaosha_begin_time = string_to_datetime(miaosha_begin_time)
+    miaosha_end_time = string_to_datetime(miaosha_end_time)
 
     return miaosha_begin_time, miaosha_end_time
 

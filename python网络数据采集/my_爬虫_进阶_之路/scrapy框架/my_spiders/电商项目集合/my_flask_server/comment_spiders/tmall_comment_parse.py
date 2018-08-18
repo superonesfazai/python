@@ -35,6 +35,7 @@ from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.common_utils import wash_sensitive_info
 
 class TmallCommentParse(object):
     def __init__(self, logger=None):
@@ -270,9 +271,25 @@ class TmallCommentParse(object):
         :param comment:
         :return:
         '''
-        comment = re.compile('天猫超市|天猫国际|天猫全球购|天猫大药房|某淘|某宝').sub('', comment)
-        comment = comment.replace('天猫', '').replace('淘宝', '')
-        comment = re.compile('tmall|Tmall|TMALL|TAOBAO|taobao').sub('', comment)
+        add_sensitive_str_list = [
+            '天猫超市',
+            '天猫国际',
+            '天猫全球购',
+            '天猫大药房',
+            '某淘',
+            '某宝',
+            '天猫',
+            '淘宝',
+            'tmall',
+            'Tmall',
+            'TMALL',
+            'TAOBAO',
+            'taobao',
+        ]
+        comment = wash_sensitive_info(
+            data=comment,
+            add_sensitive_str_list=add_sensitive_str_list
+        )
 
         return comment
 

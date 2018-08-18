@@ -91,7 +91,7 @@ class Zhe800Pintuan(object):
         zhe_800_pintuan = Zhe800PintuanParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            sql_str = r'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17'
+            sql_str = 'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17'
             db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             for item in zid_list:
                 if item[0] in db_goods_id_list:

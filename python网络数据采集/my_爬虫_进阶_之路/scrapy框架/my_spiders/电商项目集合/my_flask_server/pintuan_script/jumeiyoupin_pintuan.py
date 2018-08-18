@@ -17,7 +17,8 @@ from pprint import pprint
 import gc
 from time import sleep
 from logging import INFO, ERROR
-import asyncio, aiohttp
+import asyncio
+import aiohttp
 
 from settings import MY_SPIDER_LOGS_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline

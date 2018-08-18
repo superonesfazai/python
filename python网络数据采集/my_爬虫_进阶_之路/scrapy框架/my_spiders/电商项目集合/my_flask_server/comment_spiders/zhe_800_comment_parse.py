@@ -31,7 +31,7 @@ from fzutils.common_utils import json_2_dict
 
 class Zhe800CommentParse(object):
     def __init__(self, logger=None):
-        super().__init__()
+        super(Zhe800CommentParse, self).__init__()
         self.result_data = {}
         self.msg = ''
         self._set_logger(logger=logger)

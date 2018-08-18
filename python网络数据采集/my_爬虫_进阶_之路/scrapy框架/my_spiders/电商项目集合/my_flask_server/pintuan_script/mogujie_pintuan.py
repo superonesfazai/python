@@ -24,6 +24,10 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,)
 from mogujie_parse import MoGuJieParse
 
+from sql_str_controller import (
+    mg_select_str_1,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -195,8 +199,7 @@ class MoGuJiePinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = 'select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mg_select_str_1))]
             print(db_goods_id_list)
 
             for item in goods_list:

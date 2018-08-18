@@ -15,7 +15,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import re, datetime
+import re
 import json
 from pprint import pprint
 import time
@@ -23,6 +23,12 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     MOGUJIE_SLEEP_TIME,
     PHANTOMJS_DRIVER_PATH,
+)
+
+from sql_str_controller import (
+    mg_delete_str_1,
+    mg_select_str_2,
+    mg_delete_str_2,
 )
 
 from fzutils.time_utils import (
@@ -38,7 +44,7 @@ from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = 'delete from dbo.mogujie_pintuan where goods_id=%s'
+        self.delete_sql_str = mg_delete_str_1
 
     def _set_headers(self):
         self.headers = {
@@ -58,11 +64,9 @@ class MoGuJiePinTuanRealTimesUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23'
-        delete_sql_str = 'delete from dbo.mogujie_pintuan where miaosha_end_time < GETDATE()-2'
         try:
-            tmp_sql_server._delete_table(sql_str=delete_sql_str)
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=mg_delete_str_2)
+            result = list(tmp_sql_server._select_table(sql_str=mg_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

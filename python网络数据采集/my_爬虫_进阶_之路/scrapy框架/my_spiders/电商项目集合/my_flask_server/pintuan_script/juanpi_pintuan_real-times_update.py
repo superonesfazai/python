@@ -19,6 +19,12 @@ import json
 from settings import IS_BACKGROUND_RUNNING
 import time
 
+from sql_str_controller import (
+    jp_select_str_2,
+    jp_delete_str_1,
+    jp_delete_str_2,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
@@ -29,11 +35,9 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
-        delete_str = 'delete from dbo.juanpi_pintuan where miaosha_end_time < GETDATE()-2'
         try:
-            tmp_sql_server._delete_table(sql_str=delete_str)
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=jp_delete_str_1)
+            result = list(tmp_sql_server._select_table(sql_str=jp_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -68,8 +72,7 @@ def run_forever():
                     # print(pintuan_end_time)
 
                     if item[2] == 1 or pintuan_end_time < int(datetime_to_timestamp(get_shanghai_time())):
-                        sql_str = 'delete from dbo.juanpi_pintuan where goods_id=%s'
-                        tmp_sql_server._delete_table(sql_str=sql_str, params=(item[0],))
+                        tmp_sql_server._delete_table(sql_str=jp_delete_str_2, params=(item[0],))
                         print('该goods_id[{0}]已过期或者售完，删除成功!'.format(item[0]))
                     else:
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))

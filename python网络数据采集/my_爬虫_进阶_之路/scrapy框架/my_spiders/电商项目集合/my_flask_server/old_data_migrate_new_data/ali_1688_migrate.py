@@ -20,6 +20,12 @@ import gc
 from time import sleep
 from settings import IS_BACKGROUND_RUNNING
 
+from sql_str_controller import (
+    al_select_str_3,
+    al_select_str_4,
+    al_select_str_5,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
 )
@@ -29,11 +35,9 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=2 order by ID desc'
-        sql_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
-            result_2 = list(tmp_sql_server._select_table(sql_str=sql_str_2))
+            result = list(tmp_sql_server._select_table(sql_str=al_select_str_3))
+            result_2 = list(tmp_sql_server._select_table(sql_str=al_select_str_4))
             # print(result_2)
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
@@ -94,9 +98,8 @@ def run_forever():
                         continue        # 跳过sleep
 
                     else:
-                        sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=2 and GoodsID=%s'
                         try:    # 老是有重复的，索性单独检查
-                            is_in_db = list(tmp_sql_server._select_table(sql_str=sql_str, params=(goods_id)))
+                            is_in_db = list(tmp_sql_server._select_table(sql_str=al_select_str_5, params=(goods_id)))
                         except:
                             is_in_db = []
                             pass

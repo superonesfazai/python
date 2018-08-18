@@ -29,6 +29,15 @@ from pprint import pprint
 import re
 from scrapy.selector import Selector
 
+from sql_str_controller import (
+    kw_insert_str_1,
+    kw_select_str_1,
+    kw_select_str_2,
+    kw_select_str_3,
+    kw_select_str_4,
+    kw_insert_str_2,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_escape
 from fzutils.time_utils import (
@@ -49,7 +58,7 @@ class GoodsKeywordsSpider(object):
         self._set_func_name_dict()
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         # 插入数据到goods_id_and_keyword_middle_table表
-        self.add_keyword_id_for_goods_id_sql_str = 'insert into dbo.goods_id_and_keyword_middle_table(goods_id, keyword_id) VALUES (%s, %s)'
+        self.add_keyword_id_for_goods_id_sql_str = kw_insert_str_1
 
     def _set_logger(self):
         self.my_lg = set_logger(
@@ -80,15 +89,11 @@ class GoodsKeywordsSpider(object):
 
     def _just_run(self):
         while True:
-            # 获取keywords
-            sql_str = 'select id, keyword from dbo.goods_keywords where is_delete=0'
             # 获取原先goods_db的所有已存在的goods_id
-            sql_str_2 = 'select GoodsID from dbo.GoodsInfoAutoGet'
-
             try:
-                result = list(self.my_pipeline._select_table(sql_str=sql_str))
+                result = list(self.my_pipeline._select_table(sql_str=kw_select_str_1))
                 self.my_lg.info('正在获取db中已存在的goods_id...')
-                result_2 = list(self.my_pipeline._select_table(sql_str=sql_str_2))
+                result_2 = list(self.my_pipeline._select_table(sql_str=kw_select_str_2))
                 self.my_lg.info('db中已存在的goods_id获取成功!')
 
             except TypeError:
@@ -692,9 +697,8 @@ class GoodsKeywordsSpider(object):
 
         '''先判断中间表goods_id_and_keyword_middle_table是否已新增该关键字的id'''
         # 注意非完整sql语句不用r'', 而直接''
-        sql_str = 'select keyword_id from dbo.goods_id_and_keyword_middle_table where goods_id=%s'
         try:
-            _ = self.my_pipeline._select_table(sql_str=sql_str, params=(goods_id,))
+            _ = self.my_pipeline._select_table(sql_str=kw_select_str_3, params=(goods_id,))
             _ = [i[0] for i in _]
             # pprint(_)
         except Exception:
@@ -725,12 +729,10 @@ class GoodsKeywordsSpider(object):
 
         self.my_lg.info('读取完毕!!')
         self.my_lg.info('正在读取db中原先的keyword...')
-        s_sql_str = 'select keyword from dbo.goods_keywords where is_delete=0'
-        db_keywords = self.my_pipeline._select_table(sql_str=s_sql_str)
+        db_keywords = self.my_pipeline._select_table(sql_str=kw_select_str_4)
         db_keywords = [i[0] for i in db_keywords]
         self.my_lg.info('db keywords 读取完毕!')
 
-        sql_str = 'insert into dbo.goods_keywords(keyword, is_delete) values (%s, %s)'
         for item in excel_result:
             keyword = item.get('关键词', None)
             if not keyword:
@@ -741,7 +743,7 @@ class GoodsKeywordsSpider(object):
                 continue
 
             self.my_lg.info('------>>>| 正在存储关键字 {0}'.format(keyword))
-            self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=(str(keyword), 0), logger=self.my_lg)
+            self.my_pipeline._insert_into_table_2(sql_str=kw_insert_str_2, params=(str(keyword), 0), logger=self.my_lg)
 
         self.my_lg.info('全部写入完毕!')
 

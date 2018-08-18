@@ -19,11 +19,16 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import datetime
 import json
 from pprint import pprint
 import time
 from settings import IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
+
+from sql_str_controller import (
+    mia_delete_str_1,
+    mia_delete_str_2,
+    mia_select_str_2,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -38,7 +43,7 @@ from fzutils.common_utils import json_2_dict
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = 'delete from dbo.mia_pintuan where goods_id=%s'
+        self.delete_sql_str = mia_delete_str_1
 
     def _set_headers(self):
         self.headers = {
@@ -57,11 +62,9 @@ class Mia_Pintuan_Real_Time_Update(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
-        delete_str = 'delete from dbo.mia_pintuan where miaosha_end_time < GETDATE()-2'
         try:
-            tmp_sql_server._delete_table(sql_str=delete_str)
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=mia_delete_str_2)
+            result = list(tmp_sql_server._select_table(sql_str=mia_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

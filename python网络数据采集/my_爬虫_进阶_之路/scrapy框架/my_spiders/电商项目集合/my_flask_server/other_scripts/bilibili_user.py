@@ -35,6 +35,10 @@ from requests.exceptions import ReadTimeout, ConnectionError
 import asyncio
 import aiohttp
 
+from sql_str_controller import (
+    hi_select_str_1,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
 )
@@ -59,8 +63,7 @@ class BiLiBiLiUser(object):
         }
         tmp__ = SqlServerMyPageInfoSaveItemPipeline()
         print('正在获取db中的所有nick_name....耐心等待....')
-        sql_str = r'select nick_name from dbo.sina_weibo'
-        _ = tmp__._select_table(sql_str=sql_str)
+        _ = tmp__._select_table(sql_str=hi_select_str_1)
         self.db_nick_name_list = [item[0] for item in _] if _ is not None else []
         # self.db_nick_name_list = []
         print(len(self.db_nick_name_list))

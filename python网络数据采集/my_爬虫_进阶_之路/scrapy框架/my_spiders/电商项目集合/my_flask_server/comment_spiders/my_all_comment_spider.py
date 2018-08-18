@@ -29,6 +29,12 @@ from time import sleep
 from json import dumps
 from pprint import pprint
 
+from sql_str_controller import (
+    cm_insert_str_1,
+    cm_select_str_2,
+    cm_select_str_3,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.linux_utils import daemon_init
 from fzutils.time_utils import get_shanghai_time
@@ -39,7 +45,7 @@ class MyAllCommentSpider(object):
         self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
-        self.sql_str = r'insert into dbo.all_goods_comment(goods_id, create_time, modify_time, comment_info) values(%s, %s, %s, %s)'
+        self.sql_str = cm_insert_str_1
 
         if self._init_debugging_api().get(2):
             self.my_lg.info('初始化 1688 phantomjs中...')
@@ -104,13 +110,8 @@ class MyAllCommentSpider(object):
         while True:
             #### 实时更新数据
             tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-            sql_str = '''
-            select GoodsID, SiteID 
-            from dbo.GoodsInfoAutoGet 
-            where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)
-            ORDER BY ID DESC'''
             try:
-                result = list(tmp_sql_server._select_table(sql_str=sql_str))
+                result = list(tmp_sql_server._select_table(sql_str=cm_select_str_2))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
@@ -124,8 +125,7 @@ class MyAllCommentSpider(object):
                 self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
                 self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
                 if self._comment_pipeline.is_connect_success:
-                    sql_str = r'select goods_id from dbo.all_goods_comment'
-                    _db_goods_id = self._comment_pipeline._select_table(sql_str=sql_str)
+                    _db_goods_id = self._comment_pipeline._select_table(sql_str=cm_select_str_3)
                     try:
                         _db_goods_id = [item[0] for item in _db_goods_id]
                     except IndexError:

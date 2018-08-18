@@ -7,21 +7,22 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import json
+import sys
+sys.path.append('..')
+
 import re
 from pprint import pprint
 import gc
 from time import sleep
-
-import sys
-sys.path.append('..')
 
 from settings import MIA_SPIKE_SLEEP_TIME
 from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IS_BACKGROUND_RUNNING
 
-import datetime
+from sql_str_controller import (
+    mia_select_str_1,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -100,8 +101,7 @@ class MiaPintuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mia_select_str_1))]
             # print(db_goods_id_list)
 
             for item in goods_list:
