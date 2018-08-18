@@ -8,7 +8,6 @@
 '''
 
 import json
-import re
 from pprint import pprint
 import gc
 from time import sleep
@@ -19,14 +18,14 @@ sys.path.append('..')
 from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-import datetime
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from sql_str_controller import z8_select_str_1
+
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Zhe800Pintuan(object):
     def __init__(self):
@@ -91,8 +90,7 @@ class Zhe800Pintuan(object):
         zhe_800_pintuan = Zhe800PintuanParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            sql_str = 'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=z8_select_str_1))]
             for item in zid_list:
                 if item[0] in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
@@ -112,8 +110,8 @@ class Zhe800Pintuan(object):
                         goods_data['username'] = '18698570079'
                         goods_data['page'] = str(item[1])
                         goods_data['pintuan_begin_time'], goods_data[
-                            'pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(
-                            schedule=goods_data.get('schedule', [])[0])
+                            'pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
+                            miaosha_time=goods_data.get('schedule', [])[0])
 
                         # print(goods_data)
                         _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
@@ -133,20 +131,6 @@ class Zhe800Pintuan(object):
         gc.collect()
 
         return None
-
-    def get_pintuan_begin_time_and_pintuan_end_time(self, schedule):
-        '''
-        返回拼团开始和结束时间
-        :param miaosha_time:
-        :return: tuple  pintuan_begin_time, pintuan_end_time
-        '''
-        pintuan_begin_time = schedule.get('begin_time')
-        pintuan_end_time = schedule.get('end_time')
-        # 将字符串转换为datetime类型
-        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
-        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return pintuan_begin_time, pintuan_end_time
 
     def __del__(self):
         gc.collect()

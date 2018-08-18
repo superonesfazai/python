@@ -20,6 +20,12 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     ZHE_800_PINTUAN_SLEEP_TIME,)
 
+from sql_str_controller import (
+    z8_delete_str_1,
+    z8_select_str_2,
+    z8_delete_str_2,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
 )
@@ -29,14 +35,9 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = '''
-        select goods_id, is_delete 
-        from dbo.zhe_800_pintuan 
-        where site_id=17 and GETDATE()-modfiy_time>2'''
-        delete_str = 'delete from dbo.zhe_800_pintuan where miaosha_end_time < GETDATE()-2'
         try:
-            tmp_sql_server._delete_table(sql_str=delete_str)
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=z8_delete_str_1)
+            result = list(tmp_sql_server._select_table(sql_str=z8_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -59,12 +60,11 @@ def run_forever():
 
                 if tmp_sql_server.is_connect_success:
                     tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
-                    delete_sql_str = 'delete from dbo.zhe_800_pintuan where goods_id=%s'
                     # 不用这个了因为会影响到正常情况的商品
                     try:        # 单独处理商品页面不存在的情况
                         if isinstance(tmp_tmp, str) and re.compile(r'^ze').findall(tmp_tmp) != []:
                             print('@@ 该商品的页面已经不存在!此处将其删除!')
-                            tmp_sql_server._delete_table(sql_str=delete_sql_str, params=(item[0],))
+                            tmp_sql_server._delete_table(sql_str=z8_delete_str_2, params=(item[0],))
                             sleep(ZHE_800_PINTUAN_SLEEP_TIME)
                             continue
                         else:
@@ -77,7 +77,7 @@ def run_forever():
                         data['goods_id'] = item[0]
 
                         if item[1] == 1:
-                            tmp_sql_server._delete_table(sql_str=delete_sql_str, params=(item[0],))
+                            tmp_sql_server._delete_table(sql_str=z8_delete_str_2, params=(item[0],))
                             print('该goods_id[{0}]已过期，删除成功!'.format(item[0]))
                         else:
                             print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
