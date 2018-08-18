@@ -101,22 +101,19 @@ class TaoBaoLoginAndParse(object):
         data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
         if data == '':
             self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
 
         try:
             data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
             # self.my_lg.info(str(data))
         except IndexError:
             self.my_lg.error('data为空! 出错goods_id: {0}'.format(goods_id))
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
 
         data = json_2_dict(json_str=data, logger=self.my_lg)
         if data == {}:
             self.my_lg.error('出错goods_id: {0}'.format(str(goods_id)))
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         # pprint(data)
 
         if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
@@ -132,8 +129,7 @@ class TaoBaoLoginAndParse(object):
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data').get('seller', {}).get('evaluates') is None:
             self.my_lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
 
         data['data']['rate'] = ''           # 这是宝贝评价
         data['data']['resource'] = ''       # 买家询问别人
@@ -156,8 +152,7 @@ class TaoBaoLoginAndParse(object):
         mock_data = json_2_dict(json_str=mock_data, logger=self.my_lg)
         if mock_data == {}:
             self.my_lg.error('出错goods_id: {0}'.format(goods_id))
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         mock_data['feature'] = ''
         # pprint(mock_data)
         result_data['mockData'] = mock_data
@@ -166,8 +161,7 @@ class TaoBaoLoginAndParse(object):
         if result_data.get('apiStack', [])[0].get('value', '') == '':
             self.my_lg.info("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
             result_data['trade'] = {}
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         else:
             result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
             # pprint(result_data['trade'])
@@ -221,7 +215,11 @@ class TaoBaoLoginAndParse(object):
                 # self.my_lg.info(str(taobao_price))
 
             # 商品库存
-            goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
+            try:
+                goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
+            except IndexError:
+                self.my_lg.error('获取goods_stock时索引异常!出错goods_id: {0}'.format(goods_id))
+                return self._data_error_init()
 
             # 商品标签属性名称,及其对应id值
             detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
@@ -257,8 +255,7 @@ class TaoBaoLoginAndParse(object):
                 # self.my_lg.info(div_desc)
                 if div_desc == '':
                     self.my_lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
 
                 # self.driver.quit()
                 gc.collect()
@@ -383,6 +380,15 @@ class TaoBaoLoginAndParse(object):
         result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
         return result
+
+    def _data_error_init(self):
+        '''
+        数据获取错误初始化
+        :return:
+        '''
+        self.result_data = {}
+
+        return {}
 
     def _get_db_insert_params(self, item):
         '''

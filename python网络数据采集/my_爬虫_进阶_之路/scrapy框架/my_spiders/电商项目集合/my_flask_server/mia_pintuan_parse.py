@@ -58,8 +58,7 @@ class MiaPintuanParse(MiaParse):
         :return: data dict类型
         '''
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            self._data_error_init()
         else:
             data = {}
             # 常规商品手机地址
@@ -72,19 +71,17 @@ class MiaPintuanParse(MiaParse):
             # print(body)
 
             if body == '':
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
             is_mia_mian_page = Selector(text=body).css('div.item-center::text').extract_first()
             # print(is_mia_mian_page)
             if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
                 print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
-                self.result_data = {}
                 tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 tmp_pipeline._update_table(sql_str=mia_update_str_2, params=(goods_id,))
                 print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
                 gc.collect()
-                return {}
+                return self._data_error_init()
 
             # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)
             body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
@@ -96,8 +93,7 @@ class MiaPintuanParse(MiaParse):
                 # 获取所有示例图片
                 all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
                 if all_img_url == '':
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
 
                 '''
                 获取p_info
@@ -106,8 +102,7 @@ class MiaPintuanParse(MiaParse):
 
                 if tmp_p_info == '':
                     print('获取到的tmp_p_info为空值, 请检查!')
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
                 else:
                     tmp_p_info = re.compile('<p>|</p>').sub('', tmp_p_info)
                     tmp_p_info = re.compile(r'<!--思源品牌，隐藏品牌-->').sub('', tmp_p_info)
@@ -121,8 +116,8 @@ class MiaPintuanParse(MiaParse):
 
                 if div_desc == '':
                     print('获取到的div_desc为空值! 请检查')
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
+
                 data['div_desc'] = div_desc
 
                 '''
@@ -186,8 +181,7 @@ class MiaPintuanParse(MiaParse):
 
             except Exception as e:
                 print('遇到错误如下: ', e)
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
             if data != {}:
                 # pprint(data)
@@ -196,8 +190,7 @@ class MiaPintuanParse(MiaParse):
 
             else:
                 print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self) -> '重载数据处理方法':
         '''
@@ -224,8 +217,7 @@ class MiaPintuanParse(MiaParse):
                 price = tmp_price_list[-1]  # 商品价格
                 taobao_price = tmp_price_list[0]  # 淘宝价
             except IndexError:
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             # 商品标签属性名称
             detail_name_list = data['detail_name_list']
@@ -375,8 +367,7 @@ class MiaPintuanParse(MiaParse):
 
         tmp_data = json_2_dict(json_str=tmp_body).get('data', [])
         if tmp_data == []:
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
 
         true_sku_info = []
         i_s = {}
@@ -403,8 +394,7 @@ class MiaPintuanParse(MiaParse):
                             # print(pintuan_price)
                         except:
                             print('获取该规格拼团价pintuan_price时出错!')
-                            self.result_data = {}
-                            return {}
+                            return self._data_error_init()
 
                         try:
                             s = str(item_2.get('g_l', [])[0].get('s', ''))  # 拼团开始时间
@@ -417,15 +407,13 @@ class MiaPintuanParse(MiaParse):
                             }
                         except:
                             print('获取拼团pintuan_time时出错!')
-                            self.result_data = {}
-                            return {}
+                            return self._data_error_init()
 
                         try:
                             all_sell_count = str(item_2.get('g_l', [])[0].get('rsn', ''))
                         except:
                             print('获取拼团all_sell_count时出错!')
-                            self.result_data = {}
-                            return {}
+                            return self._data_error_init()
 
                         img_url = item_1.get('img_url')
                         rest_number = i_s.get(item_3)

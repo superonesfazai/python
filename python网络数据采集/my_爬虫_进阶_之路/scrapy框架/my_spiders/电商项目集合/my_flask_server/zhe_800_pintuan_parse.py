@@ -60,8 +60,7 @@ class Zhe800PintuanParse(object):
         :return: data   类型dict
         '''
         if goods_id == '':
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
         else:
             tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(goods_id)
             print('------>>>| 得到的商品手机版地址为: ', tmp_url)
@@ -69,12 +68,11 @@ class Zhe800PintuanParse(object):
             '''
             原先采用requests来模拟的，之前能用，但是数据多了请求多了sleep也不管用后面会获取不到信息
             '''
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
             # print(body)
             if body == '':
                 print('获取到的tmp_url的body为空值, 此处跳过!')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             # 不用这个了因为会影响到正常情况的商品
             try:
@@ -88,7 +86,7 @@ class Zhe800PintuanParse(object):
                 pass
 
             try:
-                data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)  # 贪婪匹配匹配所有
+                data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)
             except:
                 data = []
 
@@ -99,8 +97,7 @@ class Zhe800PintuanParse(object):
             # # print(main_body)
             # if main_body == '':
             #     print('获取到的main_body为空值, 此处跳过!')
-            #     self.result_data = {}
-            #     return {}
+            #     return self._data_error_init()
             #
             # try:
             #     data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(main_body)  # 贪婪匹配匹配所有
@@ -109,40 +106,26 @@ class Zhe800PintuanParse(object):
             #     data = []
 
             if data != []:
-                data = data[0]
-                data = json_2_dict(json_str=data)
-                if data == {}:
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                data = json_2_dict(json_str=data[0])
                 # pprint(data)
+                if data == {}:
+                    return self._data_error_init()
 
-                '''
-                得到div_desc的html页面
-                '''
-                div_desc_url = 'https://pina.m.zhe800.com/nnc/product/detail_content.json?zid=' + str(goods_id)
-
-                div_desc_body = self.get_div_desc_body(div_desc_url=div_desc_url)
+                # div_desc
+                div_desc_body = self.get_div_desc_body(goods_id=goods_id)
                 # print(div_desc_body)
-
                 if div_desc_body == '':
                     print('获取到的div_desc_body为空!')
                     return {}
 
-                '''
-                获取到详情介绍页面
-                '''
-                p_info_url = 'https://pina.m.zhe800.com/cns/products/get_product_properties_list.json?productId=' + str(goods_id)
-                p_info = self.get_p_info_list(p_info_url=p_info_url)
+                # p_info
+                p_info = self.get_p_info_list(goods_id=goods_id)
                 # pprint(p_info)
                 if p_info == []:
                     return {}
 
-                '''
-                获取商品实时库存信息
-                '''
-                stock_info_url = 'https://pina.m.zhe800.com/cns/products/' + str(goods_id) + '/realtime_info.json'
-                stock_info = self.get_stock_info_dict(stock_info_url=stock_info_url)
-
+                # 获取商品实时库存信息
+                stock_info = self.get_stock_info_dict(goods_id=goods_id)
                 if stock_info == {}:
                     print('获取到的库存信息为{}!')
                     return {}
@@ -165,8 +148,7 @@ class Zhe800PintuanParse(object):
 
             else:
                 print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -175,155 +157,29 @@ class Zhe800PintuanParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
-            shop_name = data.get('sellerName', '')
-
-            # 商品名称
-            title = data.get('title', '')
-
-            # 子标题
-            sub_title = data.get('desc', '')
-            sub_title = re.compile(r'  ').sub('', sub_title)
-            sub_title = re.compile(r'\n').sub('', sub_title)
-
-            # 商品库存
-            # 商品标签属性对应的值
-
-            # 商品标签属性名称
-            img_name = data.get('sku', {}).get('img_name', '')
-            size_name = data.get('sku', {}).get('size_name', '')
-            if img_name != '':
-                tmp_detail_name_list_1 = [{'spec_name': img_name}]
-            else:
-                tmp_detail_name_list_1 = []
-
-            if size_name != '':
-                tmp_detail_name_list_2 = [{'spec_name': size_name}]
-            else:
-                tmp_detail_name_list_2 = []
-
-            detail_name_list = tmp_detail_name_list_1 + tmp_detail_name_list_2
-            # print(detail_name_list)
-
-            '''
-            要存储的每个标签对应规格的价格及其库存
-            '''
-            if detail_name_list == []:
-                print('## detail_name_list为空值 ##')
-                price_info_list = []
-
-            else:
-                sku_map = data.get('sku', {}).get('sku_map', {})
-                # 每个规格的照片
-                sku_img_list = [{item.get('pId', '')+'-'+item.get('vId', ''): item.get('vPicture', '')} for item in data.get('sku', {}).get('img_list', [])]
-                # pprint(sku_img_list)
-
-                # 规格list
-                tmp_sku_map = [value for value in sku_map.values()]
-                # pprint(tmp_sku_map)
-
-                # 每个规格的库存list
-                sku_stock_info = data.get('stock_info', {}).get('product_sku', {}).get('sku_map', {})
-                # pprint(sku_stock_info)
-
-                price_info_list = []
-                for item in tmp_sku_map:
-                    tmp = {}
-                    sku_key = item.get('sku', '')
-
-                    # 处理得到每个规格对应的图片地址
-                    tmp_sku_key_1 = sku_key.split(':')[0]
-                    img_url = [list(item1.values())[0] for item1 in sku_img_list if tmp_sku_key_1 == list(item1.keys())[0]][0]
-                    # print(img_url)
-
-                    # 处理得到每个规格
-                    spec_value = item.get('sku_desc', '')                       # 颜色-265咸菜:尺码-180
-                    spec_value = spec_value.split(':')                          # ['颜色-265咸菜', '尺码-180']
-                    spec_value = [item2.split('-')[1] for item2 in spec_value]  # ['265咸菜', '180']
-                    spec_value = '|'.join(spec_value)                           # '265咸菜|180'
-
-                    # 处理得到每个规格对应的库存值
-                    tmp_sku_key_2 = sku_key.split(':')
-                    tmp_sku_key_2 = [item3.split('-')[1] for item3 in tmp_sku_key_2]
-                    tmp_sku_key_2 = ':'.join(tmp_sku_key_2)  # 1011:1108
-                    # print(tmp_sku_key_2)
-                    rest_number = [sku_stock_info[key] for key in sku_stock_info if tmp_sku_key_2 == key][0]
-                    # print(rest_number)
-
-                    if rest_number > 0:
-                        # 该规格库存大于0时再进行赋值否则跳过
-                        tmp['spec_value'] = spec_value
-                        tmp['pintuan_price'] = str(item.get('pinPrice', ''))
-                        tmp['detail_price'] = str(item.get('curPrice', ''))
-                        tmp['normal_price'] = ''
-                        tmp['img_url'] = img_url
-                        tmp['rest_number'] = rest_number
-                        price_info_list.append(tmp)
-                    else:
-                        pass
-
-            # 商品价格和淘宝价
             try:
-                tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in price_info_list])
-                price = tmp_price_list[-1]  # 商品价格
-                taobao_price = tmp_price_list[0]  # 淘宝价
-            except:     # 单独处理无规格的商品
-                print('此商品无规格!所以我给它单独处理')
-                price_info_list = [{
-                    'spec_value': '',
-                    'detail_price': str(data.get('pin_price', '')),
-                    'normal_price': str(data.get('real_cur_price', '')),
-                    'img_url': '',
-                    'rest_number': 100
-                }]
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
-                price = tmp_price_list[-1]  # 商品价格
-                taobao_price = tmp_price_list[0]  # 淘宝价
+                shop_name = self._get_shop_name(data=data)
+                title = self._get_title(data=data)
+                sub_title = self._get_sub_title(data=data)
+                detail_name_list = self._get_detail_name_list(data=data)
+                price_info_list = self._get_price_info_list(
+                    data=data,
+                    detail_name_list=detail_name_list)
+                price_info_list, price, taobao_price = self._get_price_and_tb_price(price_info_list=price_info_list)
+                all_img_url = self._get_all_img_url(data=data)
+                p_info = self._get_p_info(data=data)
+                # 总销量(shop_sales字段)
+                all_sell_count = self._get_all_sell_count(data=data)
+                div_desc = self._get_div_desc(data=data)
+                # 商品销售时间区间(sale_begin_time和sale_end_time字段)
+                schedule = self._get_schedule(data=data)
+                # pprint(schedule)
 
-            # print('最高价为: ', price)
-            # print('最低价为: ', taobao_price)
-            # print(len(price_info_list))
-            # pprint(price_info_list)
-
-            # 所有示例图片地址
-            all_img_url = [{'img_url': item} for item in data.get('shop_images', [])]
-            # pprint(all_img_url)
-
-            # 详细信息标签名对应属性
-            p_info = data.get('p_info', [])
-            # pprint(p_info)
-
-            # 总销量(shop_sales字段)
-            all_sell_count = str(data.get('shop_sales', ''))
-
-            # div_desc
-            div_desc = data.get('div_desc', '')
-
-            # 商品销售时间区间(sale_begin_time和sale_end_time字段)
-            schedule = [{
-                'begin_time': data.get('sale_begin_time', ''),
-                'end_time': data.get('sale_end_time', ''),
-            }]
-            # pprint(schedule)
-
-            # 用于判断商品是否下架
-            is_delete = data['is_delete']
-            if schedule != []:
-                if data.get('sale_end_time') is not None:
-                    end_time = data.get('sale_end_time')
-                    try:
-                        end_time = int(str(time.mktime(time.strptime(end_time,'%Y-%m-%d %H:%M:%S')))[0:10])
-                        # print(end_time)
-                    except:
-                        print('end_time由str时间转换为时间戳时出错, 此处跳过!')
-                        return {}
-
-                    if float(end_time) < time.time():
-                        # 结束时间戳小于当前时间戳则表示已经删除无法购买
-                        is_delete = 1
-            else:
-                pass
-            # print(is_delete)
+                is_delete = self._get_is_delete(data=data, schedule=schedule)
+                # print(is_delete)
+            except Exception as e:
+                print('遇到错误:', e)
+                return self._data_error_init()
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -355,6 +211,178 @@ class Zhe800PintuanParse(object):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _get_shop_name(self, data):
+        shop_name = data.get('sellerName', '')
+
+        return shop_name
+
+    def _get_title(self, data):
+        title = data.get('title', '')
+
+        return title
+
+    def _get_sub_title(self, data):
+        sub_title = data.get('desc', '')
+        sub_title = re.compile(r'  ').sub('', sub_title)
+        sub_title = re.compile(r'\n').sub('', sub_title)
+
+        return sub_title
+
+    def _get_detail_name_list(self, data):
+        img_name = data.get('sku', {}).get('img_name', '')
+        size_name = data.get('sku', {}).get('size_name', '')
+        if img_name != '':
+            tmp_detail_name_list_1 = [{'spec_name': img_name}]
+        else:
+            tmp_detail_name_list_1 = []
+
+        if size_name != '':
+            tmp_detail_name_list_2 = [{'spec_name': size_name}]
+        else:
+            tmp_detail_name_list_2 = []
+
+        detail_name_list = tmp_detail_name_list_1 + tmp_detail_name_list_2
+
+        return detail_name_list
+
+    def _get_price_info_list(self, **kwargs):
+        data = kwargs.get('data', {})
+        detail_name_list = kwargs.get('detail_name_list', [])
+
+        price_info_list = []
+        if detail_name_list == []:
+            print('## detail_name_list为空值 ##')
+            pass
+
+        else:
+            sku_map = data.get('sku', {}).get('sku_map', {})
+            # 每个规格的照片
+            sku_img_list = [{item.get('pId', '') + '-' + item.get('vId', ''): item.get('vPicture', '')} for item in
+                            data.get('sku', {}).get('img_list', [])]
+            # pprint(sku_img_list)
+
+            # 规格list
+            tmp_sku_map = [value for value in sku_map.values()]
+            # pprint(tmp_sku_map)
+
+            # 每个规格的库存list
+            sku_stock_info = data.get('stock_info', {}).get('product_sku', {}).get('sku_map', {})
+            # pprint(sku_stock_info)
+
+            for item in tmp_sku_map:
+                tmp = {}
+                sku_key = item.get('sku', '')
+
+                # 处理得到每个规格对应的图片地址
+                tmp_sku_key_1 = sku_key.split(':')[0]
+                img_url = [list(item1.values())[0] for item1 in sku_img_list if tmp_sku_key_1 == list(item1.keys())[0]][0]
+                # print(img_url)
+
+                # 处理得到每个规格
+                spec_value = item.get('sku_desc', '')  # 颜色-265咸菜:尺码-180
+                spec_value = spec_value.split(':')  # ['颜色-265咸菜', '尺码-180']
+                spec_value = [item2.split('-')[1] for item2 in spec_value]  # ['265咸菜', '180']
+                spec_value = '|'.join(spec_value)  # '265咸菜|180'
+
+                # 处理得到每个规格对应的库存值
+                tmp_sku_key_2 = sku_key.split(':')
+                tmp_sku_key_2 = [item3.split('-')[1] for item3 in tmp_sku_key_2]
+                tmp_sku_key_2 = ':'.join(tmp_sku_key_2)  # 1011:1108
+                # print(tmp_sku_key_2)
+                rest_number = [sku_stock_info[key] for key in sku_stock_info if tmp_sku_key_2 == key][0]
+                # print(rest_number)
+
+                if rest_number > 0:
+                    # 该规格库存大于0时再进行赋值否则跳过
+                    tmp['spec_value'] = spec_value
+                    tmp['pintuan_price'] = str(item.get('pinPrice', ''))
+                    tmp['detail_price'] = str(item.get('curPrice', ''))
+                    tmp['normal_price'] = ''
+                    tmp['img_url'] = img_url
+                    tmp['rest_number'] = rest_number
+                    price_info_list.append(tmp)
+                else:
+                    pass
+
+        return price_info_list
+
+    def _get_price_and_tb_price(self, **kwargs):
+        price_info_list = kwargs.get('price_info_list', [])
+
+        # 商品价格和淘宝价
+        try:
+            tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in price_info_list])
+            price = tmp_price_list[-1]  # 商品价格
+            taobao_price = tmp_price_list[0]  # 淘宝价
+        except:  # 单独处理无规格的商品
+            print('此商品无规格!所以我给它单独处理')
+            price_info_list = [{
+                'spec_value': '',
+                'detail_price': str(data.get('pin_price', '')),
+                'normal_price': str(data.get('real_cur_price', '')),
+                'img_url': '',
+                'rest_number': 100
+            }]
+            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            price = tmp_price_list[-1]  # 商品价格
+            taobao_price = tmp_price_list[0]  # 淘宝价
+
+        # print('最高价为: ', price)
+        # print('最低价为: ', taobao_price)
+        # print(len(price_info_list))
+        # pprint(price_info_list)
+
+        return (price_info_list, price, taobao_price)
+
+    def _get_all_img_url(self, data):
+        return [{'img_url': item} for item in data.get('shop_images', [])]
+
+    def _get_p_info(self, data):
+        return data.get('p_info', [])
+
+    def _get_all_sell_count(self, data):
+        return str(data.get('shop_sales', ''))
+
+    def _get_div_desc(self, data):
+        return data.get('div_desc', '')
+
+    def _get_schedule(self, data):
+        return [{
+            'begin_time': data.get('sale_begin_time', ''),
+            'end_time': data.get('sale_end_time', ''),
+        }]
+
+    def _get_is_delete(self, **kwargs):
+        data = kwargs.get('data', {})
+        schedule = kwargs.get('schedule', [])
+
+        is_delete = data['is_delete']
+        if schedule != []:
+            if data.get('sale_end_time') is not None:
+                end_time = data.get('sale_end_time')
+                try:
+                    end_time = int(str(time.mktime(time.strptime(end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
+                    # print(end_time)
+                except:
+                    raise ValueError('end_time由str时间转换为时间戳时出错, 此处跳过!')
+
+                if float(end_time) < time.time():
+                    # 结束时间戳小于当前时间戳则表示已经删除无法购买
+                    is_delete = 1
+        else:
+            pass
+
+        return is_delete
+
+    def _data_error_init(self):
+        '''
+        数据处理错误初始化
+        :return:
+        '''
+        self.result_data = {}
+
+        return {}
 
     def insert_into_zhe_800_pintuan_table(self, data, pipeline):
         try:
@@ -429,14 +457,16 @@ class Zhe800PintuanParse(object):
 
         return params
 
-    def get_div_desc_body(self, div_desc_url):
+    def get_div_desc_body(self, goods_id):
         '''
         得到div_desc的html页面
-        :param div_desc_url:
+        :param goods_id:
         :return: str类型的data, 出错的情况下返回{}
         '''
+        div_desc_url = 'https://pina.m.zhe800.com/nnc/product/detail_content.json?zid=' + str(goods_id)
+
         # 使用requests
-        div_desc_body = MyRequests.get_url_body(url=div_desc_url, headers=self.headers)
+        div_desc_body = MyRequests.get_url_body(url=div_desc_url, headers=self.headers, high_conceal=True)
         if div_desc_body == '':
             div_desc_body = '{}'
 
@@ -464,14 +494,14 @@ class Zhe800PintuanParse(object):
 
         return tmp_body
 
-    def get_p_info_list(self, p_info_url):
+    def get_p_info_list(self, goods_id):
         '''
         得到详情介绍信息
-        :param p_info_url:
+        :param goods_id:
         :return: 返回一个list
         '''
-        # 使用requests
-        p_info_body = MyRequests.get_url_body(url=p_info_url, headers=self.headers)
+        p_info_url = 'https://pina.m.zhe800.com/cns/products/get_product_properties_list.json?productId=' + str(goods_id)
+        p_info_body = MyRequests.get_url_body(url=p_info_url, headers=self.headers, high_conceal=True)
         if p_info_body == '':
             print('获取到的p_info_body为空值, 此处跳过!')
             p_info_body = '{}'
@@ -490,13 +520,14 @@ class Zhe800PintuanParse(object):
 
         return p_info
 
-    def get_stock_info_dict(self, stock_info_url):
+    def get_stock_info_dict(self, goods_id):
         '''
         得到实时库存信息
-        :param stock_info_url:
+        :param goods_id:
         :return: 返回dict类型
         '''
-        stock_info_body = MyRequests.get_url_body(url=stock_info_url, headers=self.headers)
+        stock_info_url = 'https://pina.m.zhe800.com/cns/products/' + str(goods_id) + '/realtime_info.json'
+        stock_info_body = MyRequests.get_url_body(url=stock_info_url, headers=self.headers, high_conceal=True)
         if stock_info_body == '':
             print('获取到的stock_info_body为空值!')
             stock_info_body = '{}'

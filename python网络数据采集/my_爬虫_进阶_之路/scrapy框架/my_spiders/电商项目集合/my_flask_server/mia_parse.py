@@ -54,8 +54,7 @@ class MiaParse(object):
         :return: data dict类型
         '''
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         else:
             data = {}
             # 常规商品手机地址
@@ -68,8 +67,7 @@ class MiaParse(object):
             # print(body)
 
             if body == '':
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
             # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)
             body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
@@ -81,8 +79,7 @@ class MiaParse(object):
                 # 获取所有示例图片
                 all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
                 if all_img_url == '':
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
 
                 '''
                 获取p_info
@@ -91,8 +88,7 @@ class MiaParse(object):
 
                 if tmp_p_info == '':
                     print('获取到的tmp_p_info为空值, 请检查!')
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
                 else:
                     tmp_p_info = re.compile('<p>|</p>').sub('', tmp_p_info)
                     tmp_p_info = re.compile(r'<!--思源品牌，隐藏品牌-->').sub('', tmp_p_info)
@@ -106,8 +102,7 @@ class MiaParse(object):
 
                 if div_desc == '':
                     print('获取到的div_desc为空值! 请检查')
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
                 data['div_desc'] = div_desc
 
                 '''
@@ -142,8 +137,7 @@ class MiaParse(object):
                 获取每个规格对应价格跟规格以及其库存
                 '''
                 if self.get_true_sku_info(sku_info=sku_info) == {}:     # 表示出错退出
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
                 else:                                                   # 成功获取
                     true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info)
                     data['price_info_list'] = true_sku_info
@@ -170,8 +164,7 @@ class MiaParse(object):
 
             except Exception as e:
                 print('遇到错误如下: ', e)
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
             if data != {}:
                 # pprint(data)
@@ -180,8 +173,7 @@ class MiaParse(object):
 
             else:
                 print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -208,8 +200,7 @@ class MiaParse(object):
                 price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品价格
                 taobao_price = Decimal(tmp_price_list[0]).__round__(2)  # 淘宝价
             except IndexError:
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             # 商品标签属性名称
             detail_name_list = data['detail_name_list']
@@ -260,6 +251,11 @@ class MiaParse(object):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _data_error_init(self):
+        self.result_data = {}
+
+        return {}
 
     def insert_into_mia_xianshimiaosha_table(self, data, pipeline):
         try:
@@ -475,8 +471,7 @@ class MiaParse(object):
             # print(tmp_sku_info)
         except Exception as e:
             print('json.loads遇到错误如下: ', e)
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
 
         tmp_sku_info = [{'goods_id': item.get('id'), 'color_name': item.get('code_color')} for item in tmp_sku_info.values()]
         # pprint(tmp_sku_info)
@@ -525,8 +520,7 @@ class MiaParse(object):
 
         tmp_data = json_2_dict(json_str=tmp_body).get('data', [])
         if tmp_data == []:
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
 
         true_sku_info = []
         i_s = {}

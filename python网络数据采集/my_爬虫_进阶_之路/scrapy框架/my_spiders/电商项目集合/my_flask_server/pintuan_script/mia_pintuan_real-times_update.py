@@ -32,6 +32,8 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.common_utils import json_2_dict
 
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
@@ -74,7 +76,7 @@ class Mia_Pintuan_Real_Time_Update(object):
             index = 1
 
             for item in result:  # 实时更新数据
-                pintuan_end_time = json.loads(item[1]).get('end_time')
+                pintuan_end_time = json_2_dict(item[1]).get('end_time')
                 pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time,'%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_end_time)
 
@@ -109,10 +111,8 @@ class Mia_Pintuan_Real_Time_Update(object):
                             print('获取到的body为空值! 此处跳过')
 
                         else:
-                            try:
-                                tmp_data = json.loads(body)
-                            except:
-                                tmp_data = {}
+                            tmp_data = json_2_dict(json_str=body)
+                            if tmp_data == {}:
                                 print('json.loads转换body时出错, 此处跳过!')
 
                             if tmp_data.get('data_list', []) == []:
@@ -153,7 +153,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                                             now_time = get_shanghai_time()
                                             goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
                                         else:
-                                            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'])
+                                            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
 
                                         # pprint(goods_data)
                                         # print(goods_data)
@@ -175,7 +175,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                                                     now_time = get_shanghai_time()
                                                     goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
                                                 else:
-                                                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'])
+                                                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
 
                                                 # pprint(goods_data)
                                                 # print(goods_data)
@@ -195,20 +195,6 @@ class Mia_Pintuan_Real_Time_Update(object):
         else:
             sleep(5)
         gc.collect()
-
-    def get_pintuan_begin_time_and_pintuan_end_time(self, pintuan_time):
-        '''
-        返回拼团开始和结束时间
-        :param pintuan_time:
-        :return: tuple  pintuan_begin_time, pintuan_end_time
-        '''
-        pintuan_begin_time = pintuan_time.get('begin_time', '')
-        pintuan_end_time = pintuan_time.get('end_time', '')
-        # 将字符串转换为datetime类型
-        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
-        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return pintuan_begin_time, pintuan_end_time
 
     def is_recent_time(self, timestamp):
         '''

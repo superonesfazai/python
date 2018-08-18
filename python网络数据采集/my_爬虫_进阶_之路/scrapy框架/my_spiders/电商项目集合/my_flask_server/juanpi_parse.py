@@ -67,8 +67,7 @@ class JuanPiParse(object):
         :return: data   类型dict
         '''
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         else:
             tmp_url = 'https://web.juanpi.com/pintuan/shop/' + str(goods_id)
             print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
@@ -89,8 +88,7 @@ class JuanPiParse(object):
             # except Exception:
             #     print('requests.get()请求超时....')
             #     print('data为空!')
-            #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            #     return {}
+            #     return self._data_error_init()
 
             '''
             2.采用phantomjs来处理，记住使用前别翻墙
@@ -98,8 +96,7 @@ class JuanPiParse(object):
             body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
             if body == '':
                 print('获取到的body为空str!请检查!')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             data = re.compile(r'__PRELOADED_STATE__ = (.*);</script> <style ').findall(body)  # 贪婪匹配匹配所有
 
@@ -114,43 +111,34 @@ class JuanPiParse(object):
             skudata_body = MyRequests.get_url_body(url=skudata_url, headers=self.skudata_headers)
             if skudata_body == '':
                 print('获取到的skudata_body为空str!请检查!')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
             skudata = re.compile(r'(.*)').findall(skudata_body)  # 贪婪匹配匹配所有
 
             if skudata != []:
-                skudata = skudata[0]
-                skudata = json_2_dict(json_str=skudata)
+                skudata = json_2_dict(json_str=skudata[0]).get('skudata', {})
                 if skudata == {}:
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
-                skudata = skudata.get('skudata', {})
+                    return self._data_error_init()
                 # pprint(skudata)
 
                 try:
                     if skudata.get('info') is not None:
                         pass    # 说明得到正确的skudata
-
                     else:       # 否则跳出
                         print('skudata中info的key为None, 返回空dict')
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                        return {}
+                        return self._data_error_init()
 
                 except AttributeError as e:
                     print('遇到错误如下(先跳过!): ', e)
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._data_error_init()
 
             else:
                 print('skudata为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
             if data != []:
                 main_data = json_2_dict(json_str=data[0])
                 if main_data == {}:
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._data_error_init()
 
                 if main_data.get('detail') is not None:
                     main_data = self._wash_main_data(main_data.get('detail', {}))
@@ -164,12 +152,10 @@ class JuanPiParse(object):
 
                 else:
                     print('data中detail的key为None, 返回空dict')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._data_error_init()
             else:
                 print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -178,23 +164,16 @@ class JuanPiParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = self._get_shop_name(data=data)
-
             # 掌柜
             account = ''
-
-            # 商品名称
-            title = data.get('baseInfo', {}).get('title', '')
-
-            # 子标题
+            title = self._get_title(data=data)
             sub_title = ''
-
-            # 商品库存
-
-            # 商品标签属性名称
             detail_name_list = self._get_detail_name_list(data=data)
-            if isinstance(detail_name_list, str):       # 单独处理下架的情况
+            # print(detail_name_list)
+
+            '''单独处理下架的情况'''
+            if isinstance(detail_name_list, str):
                 if detail_name_list == 'is_delete=1':
                     print('该商品已下架...')
                     sql_str = jp_update_str_1
@@ -207,32 +186,15 @@ class JuanPiParse(object):
                         print('is_delete=1标记失败!')
 
             if detail_name_list == {}:
-                self.result_data = {}
-                return {}
-            # print(detail_name_list)
+                return self._data_error_init()
 
-            # 商品标签属性对应的值(pass不采集)
-
-            # 要存储的每个标签对应的规格的价格及其库存
             price_info_list, price, taobao_price = self._get_price_info_list_and_price_and_taobao_price(data=data)
-            # print('最高价为: ', price)
-            # print('最低价为: ', taobao_price)
-            # pprint(price_info_list)
-
-            # 所有示例图片的地址
-            # pprint(data.get('goodImages'))
-            all_img_url = [{'img_url': item} for item in data.get('goodImages')]
+            all_img_url = self._get_all_img_url(data=data)
             # print(all_img_url)
-
-            # 详细信息标签名对应的属性
             p_info = self._get_p_info(data=data)
-
             # pprint(p_info)
-
-            # div_desc
             div_desc = self._get_div_desc(data=data)
             # print(div_desc)
-
             # 商品销售时间段
             schedule = self._get_goods_schedule(data=data)
             # pprint(schedule)
@@ -273,6 +235,19 @@ class JuanPiParse(object):
         else:
             print('待处理的data为空的dict')
             return {}
+
+    def _data_error_init(self):
+        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+
+        return {}
+
+    def _get_title(self, data):
+        title = data.get('baseInfo', {}).get('title', '')
+
+        return title
+
+    def _get_all_img_url(self, data):
+        return [{'img_url': item} for item in data.get('goodImages')]
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=12)
@@ -455,6 +430,10 @@ class JuanPiParse(object):
             else:
                 price = tmp_price_list[-1]  # 商品价格
                 taobao_price = tmp_price_list[0]  # 淘宝价
+
+        # print('最高价为: ', price)
+        # print('最低价为: ', taobao_price)
+        # pprint(price_info_list)
 
         return price_info_list, price, taobao_price
 

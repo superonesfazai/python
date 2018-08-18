@@ -32,6 +32,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MoGuJiePinTuan(object):
     def __init__(self):
@@ -195,7 +196,7 @@ class MoGuJiePinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = r'select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23'
+            sql_str = 'select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23'
             db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             print(db_goods_id_list)
 
@@ -229,7 +230,7 @@ class MoGuJiePinTuan(object):
                         goods_data['goods_url'] = tmp_url
                         goods_data['goods_id'] = str(goods_id)
                         goods_data['pintuan_time'] = item.get('pintuan_time', {})
-                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=item.get('pintuan_time', {}))
+                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('pintuan_time', {}))
                         goods_data['all_sell_count'] = item.get('all_sell_count', '')
                         goods_data['fcid'] = str(item.get('fcid'))
                         goods_data['page'] = str(item.get('page'))
@@ -289,20 +290,6 @@ class MoGuJiePinTuan(object):
             min * 60
 
         return begin_time + left_end_time_timestamp
-
-    def get_pintuan_begin_time_and_pintuan_end_time(self, pintuan_time):
-        '''
-        返回拼团开始和结束时间
-        :param pintuan_time:
-        :return: tuple  pintuan_begin_time, pintuan_end_time
-        '''
-        pintuan_begin_time = pintuan_time.get('begin_time')
-        pintuan_end_time = pintuan_time.get('end_time')
-        # 将字符串转换为datetime类型
-        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
-        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return pintuan_begin_time, pintuan_end_time
 
     def __del__(self):
         try: del self.my_phantomjs

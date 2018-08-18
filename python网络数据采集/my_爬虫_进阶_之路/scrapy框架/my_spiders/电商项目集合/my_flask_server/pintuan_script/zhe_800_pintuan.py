@@ -53,7 +53,7 @@ class Zhe800Pintuan(object):
             tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(str(page))
             print('正在抓取的页面地址为: ', tmp_url)
 
-            tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
             if tmp_body == '':
                 tmp_body = '{}'
             try:

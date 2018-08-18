@@ -33,6 +33,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
@@ -211,7 +212,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                                 goods_data['goods_id'] = item[0]
                                                 goods_data['price_info_list'] = price_info_list
                                                 goods_data['pintuan_time'] = item_2.get('pintuan_time', {})
-                                                goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=goods_data['pintuan_time'])
+                                                goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
                                                 goods_data['all_sell_count'] = item_2.get('all_sell_count', '')
 
                                                 # pprint(goods_data)
@@ -233,20 +234,6 @@ class MoGuJiePinTuanRealTimesUpdate(object):
             else:
                 sleep(5)
             gc.collect()
-
-    def get_pintuan_begin_time_and_pintuan_end_time(self, pintuan_time):
-        '''
-        返回拼团开始和结束时间
-        :param pintuan_time:
-        :return: tuple  pintuan_begin_time, pintuan_end_time
-        '''
-        pintuan_begin_time = pintuan_time.get('begin_time', '')
-        pintuan_end_time = pintuan_time.get('end_time', '')
-        # 将字符串转换为datetime类型
-        pintuan_begin_time = datetime.datetime.strptime(pintuan_begin_time, '%Y-%m-%d %H:%M:%S')
-        pintuan_end_time = datetime.datetime.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return pintuan_begin_time, pintuan_end_time
 
     def get_pintuan_end_time(self, begin_time, left_time):
         '''

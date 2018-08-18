@@ -29,7 +29,10 @@ def run_forever():
     while True:
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17 and GETDATE()-modfiy_time>2'
+        sql_str = '''
+        select goods_id, is_delete 
+        from dbo.zhe_800_pintuan 
+        where site_id=17 and GETDATE()-modfiy_time>2'''
         delete_str = 'delete from dbo.zhe_800_pintuan where miaosha_end_time < GETDATE()-2'
         try:
             tmp_sql_server._delete_table(sql_str=delete_str)

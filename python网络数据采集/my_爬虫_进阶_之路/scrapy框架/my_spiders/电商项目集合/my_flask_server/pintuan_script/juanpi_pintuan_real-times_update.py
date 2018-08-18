@@ -85,10 +85,6 @@ def run_forever():
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                # try:
-                #     del juanpi_pintuan
-                # except:
-                #     pass
                 gc.collect()
                 sleep(1.2)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)

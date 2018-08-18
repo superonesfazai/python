@@ -61,7 +61,7 @@ class JuanPiPinTuan(object):
             )
             print('正在抓取的页面地址为: ', tmp_url)
 
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
             if body == '': body = '{}'
             try:
                 tmp_data = json.loads(body)
@@ -106,7 +106,7 @@ class JuanPiPinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
         if my_pipeline.is_connect_success:
-            sql_str = r'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
+            sql_str = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan where site_id=18'
             db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
             # print(db_goods_id_list)
             for item in pintuan_goods_id_list:
