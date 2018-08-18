@@ -83,12 +83,10 @@ class JdParse(object):
         '''
         if goods_id == []:
             print('goods_id为空list')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         else:
             if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             phone_url, tmp_url, comment_url = self._get_need_url(goods_id=goods_id)
             print('------>>>| 得到的移动端地址为: ', phone_url)
@@ -98,8 +96,7 @@ class JdParse(object):
             change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
             if change_ip_result is False:
                 print('phantomjs切换ip错误, 此处先跳过更新！')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             try:
                 self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
@@ -117,14 +114,12 @@ class JdParse(object):
             # 得到总销售量
             comment_body = self.use_phantomjs_to_get_url_body(url=comment_url)
             if comment_body == '':  # 网络问题或者ip切换出错
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             comment_body = self._wash_url_body(body=comment_body)
             # print(comment_body)
 
             comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
-            all_sell_count = '0'
             if comment_body_1 != []:
                 comment_data = comment_body_1[0]
                 comment_data = json_2_dict(json_str=comment_data)
@@ -133,19 +128,16 @@ class JdParse(object):
 
             else:
                 print('获取到的comment的销售量data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
             change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
             if change_ip_result is False:
                 print('phantomjs切换ip错误, 此处先跳过更新！')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             body = self.use_phantomjs_to_get_url_body(url=tmp_url)
             if body == '':
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             body = self._wash_url_body(body=body)
             # print(body)
@@ -164,8 +156,7 @@ class JdParse(object):
                 data = json_2_dict(json_str=data)
                 if data == {}:
                     print(r'此处直接返回data为{}')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._data_error_init()
 
                 # pprint(data)
                 wdis = data.get('wdis', '') # 图文描述
@@ -204,13 +195,11 @@ class JdParse(object):
                     return data
                 else:
                     print('获取到的data的key值ware为空!')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._data_error_init()
 
             else:
                 print('获取到的data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self, goods_id):
         '''
@@ -250,8 +239,7 @@ class JdParse(object):
                 goods_id=goods_id
             )
             if _ == [0, '', '']:    # 异常退出
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
             else:
                 is_delete, price, taobao_price = _
             # print('最高价: ', price, '最低价: ', taobao_price)
@@ -262,8 +250,7 @@ class JdParse(object):
             '''
             all_img_url = self.get_pc_no_watermark_picture(goods_id=goods_id)
             if all_img_url == {}:   # 意外退出
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             if all_img_url == []:   # 获取pc端失败, 即获取phone示例图
                 if data.get('images') is not None:
@@ -342,6 +329,15 @@ class JdParse(object):
         else:
             print('待处理的data为空的dict')
             return {}
+
+    def _data_error_init(self):
+        '''
+        错误初始化
+        :return:
+        '''
+        self.result_data = {}
+
+        return {}
 
     def _get_price_and_taobao_price_and_is_delete(self, **kwargs):
         '''
@@ -1042,6 +1038,7 @@ if __name__ == '__main__':
         jd_url = input('请输入待爬取的京东商品地址: ')
         jd_url.strip('\n').strip(';')
         goods_id = jd.get_goods_id_from_url(jd_url)
-        data = jd.get_goods_data(goods_id=goods_id)
-        jd.deal_with_data(goods_id=goods_id)
+        jd.get_goods_data(goods_id=goods_id)
+        data = jd.deal_with_data(goods_id=goods_id)
+        # pprint(data)
         

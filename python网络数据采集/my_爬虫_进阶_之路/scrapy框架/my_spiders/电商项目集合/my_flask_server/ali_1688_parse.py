@@ -52,8 +52,7 @@ class ALi1688LoginAndParse(object):
 
     def get_ali_1688_data(self, goods_id):
         if goods_id == '':
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
 
         # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
@@ -63,27 +62,14 @@ class ALi1688LoginAndParse(object):
         # print(body)
         if body == '':
             print('获取到的body为空str!请检查!')
-            self.result_data = {}
-            return {}
-
-        # '''
-        # 改用requests
-        # '''
-        # body = MyRequests.get_url_body(url=wait_to_deal_with_url, headers=self.headers)
-        # # print(body)
-        #
-        # if body == '':
-        #     return {}
-        # print(body)
+            return self._data_error_init()
 
         tmp_body = body
-
         try:
             pull_off_shelves = Selector(text=body).css('div.d-content p.info::text').extract_first()
         except:
             pull_off_shelves = ''
         if pull_off_shelves == '该商品无法查看或已下架':   # 表示商品已下架, 同样执行插入数据操作
-            # print('test')
             try:
                 tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
@@ -91,8 +77,7 @@ class ALi1688LoginAndParse(object):
             except Exception as e:
                 print('遇到错误:', e)
                 print('数据库连接失败!')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
                 tmp_my_pipeline._update_table(sql_str=al_update_str_1, params=(goods_id))
@@ -124,8 +109,7 @@ class ALi1688LoginAndParse(object):
                 return self.result_data
             else:
                 print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
         else:
             print('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
@@ -143,12 +127,10 @@ class ALi1688LoginAndParse(object):
                     return self.result_data
                 else:
                     print('data为空!')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._data_error_init()
             else:
                 print('这个商品对应活动属性未知, 此处不解析, 设置为跳过!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -156,6 +138,7 @@ class ALi1688LoginAndParse(object):
         :return: 字典类型
         '''
         data = self.result_data
+        # pprint(data)
 
         if data != {}:
             # 公司名称
@@ -180,8 +163,7 @@ class ALi1688LoginAndParse(object):
             except Exception as e:
                 print('获取sku_map时, 遇到错误:', e)
                 self.is_activity_goods = False
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             price, taobao_price = self._get_price(price_info=price_info)
 
@@ -237,6 +219,11 @@ class ALi1688LoginAndParse(object):
             self.is_activity_goods = False
 
             return {}
+
+    def _data_error_init(self):
+        self.result_data = {}
+
+        return {}
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=2)
@@ -729,8 +716,8 @@ if __name__ == '__main__':
         url.strip('\n').strip(';')
         goods_id = ali_1688.get_goods_id_from_url(url)
         ali_1688.get_ali_1688_data(goods_id=goods_id)
-        ali_1688.deal_with_data()
+        data = ali_1688.deal_with_data()
+        # pprint(data)
 
-        gc.collect()
 
 

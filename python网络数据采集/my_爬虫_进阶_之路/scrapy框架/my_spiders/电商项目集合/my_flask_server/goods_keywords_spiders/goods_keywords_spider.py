@@ -69,7 +69,7 @@ class GoodsKeywordsSpider(object):
 
     def _init_debugging_api(self):
         '''
-        用于设置待抓取的商品的site_id
+        用于设置crawl的关键字热销商品的site_id
         :return: dict
         '''
         return {

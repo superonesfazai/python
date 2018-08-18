@@ -367,5 +367,7 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['fcid'] = data_list.get('fcid', '')
     tmp['spider_time'] = data_list.get('spider_time', '')
     tmp['session_id'] = data_list.get('session_id', '')
+    tmp['parent_dir'] = data_list.get('parent_dir', '')
+    tmp['sku_info_trans_time'] = data_list.get('sku_info_trans_time', '')
 
     return tmp

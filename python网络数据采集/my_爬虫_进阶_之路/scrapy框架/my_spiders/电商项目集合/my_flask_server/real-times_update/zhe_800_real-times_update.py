@@ -52,11 +52,6 @@ def run_forever():
                 zhe_800 = Zhe800Parse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     print('与数据库的新连接成功建立...')
 

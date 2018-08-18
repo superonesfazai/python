@@ -24,6 +24,8 @@ from sql_str_controller import (
     z8_update_str_2,
 )
 
+from multiplex_code import _z8_get_parent_dir
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
@@ -199,9 +201,10 @@ class Zhe800Parse(object):
                         stock = {}
                     data['schedule'] = schedule
                     data['stock'] = stock
+                    data['parent_dir'] = _z8_get_parent_dir(goods_id)
 
-                    # pprint(data)
                     self.result_data = data
+                    # pprint(data)
                     return data
 
                 else:
@@ -362,6 +365,8 @@ class Zhe800Parse(object):
                 }]
             # pprint(schedule)
 
+            parent_dir = data.get('parent_dir', '')
+
             result = {
                 'shop_name': shop_name,                     # 店铺名称
                 'account': account,                         # 掌柜
@@ -378,7 +383,8 @@ class Zhe800Parse(object):
                 'p_info': p_info,                           # 详细信息标签名对应属性
                 'div_desc': div_desc,                       # div_desc
                 'schedule': schedule,                       # 商品开卖时间和结束开卖时间
-                'is_delete': is_delete                      # 用于判断商品是否已经下架
+                'is_delete': is_delete,                      # 用于判断商品是否已经下架
+                'parent_dir': parent_dir,
             }
             # pprint(result)
             # print(result)
@@ -393,17 +399,12 @@ class Zhe800Parse(object):
 
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
-            # return {
-            #     'is_delete': 1,
-            # }
+            self.result_data = {}
             return {}
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=11)
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
-        # 不改价格的sql
         base_sql_str = z8_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -591,6 +592,7 @@ class Zhe800Parse(object):
             dumps(item['schedule'], ensure_ascii=False),
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
+            item['parent_dir'],
 
             item['goods_id'],
         ]
@@ -653,6 +655,8 @@ class Zhe800Parse(object):
             dumps(item['miaosha_time'], ensure_ascii=False),
             item['miaosha_begin_time'],
             item['miaosha_end_time'],
+            item['parent_dir'],
+
             item['goods_id'],
         )
 

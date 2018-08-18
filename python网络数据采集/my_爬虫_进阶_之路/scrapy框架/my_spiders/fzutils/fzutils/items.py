@@ -58,6 +58,8 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     is_price_change = Field()       # 记录最高价和最低价是否改变
     price_change_info = Field()     # 最高价最低价价格改变信息
     main_goods_id = Field()         # 公司商品id
+    parent_dir = Field()            # parent_dir
+    sku_info_trans_time = Field()   # 规格信息变换记录时间点
     gender = Field()                # 商品适用性别
     page = Field()                  # 商品所在page的number
     tab_id = Field()                # 商品所在分类tab_id

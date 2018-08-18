@@ -26,6 +26,8 @@ from sql_str_controller import (
     z8_update_str_3,
 )
 
+from multiplex_code import _z8_get_parent_dir
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.common_utils import json_2_dict
@@ -141,6 +143,7 @@ class Zhe800PintuanParse(object):
                 else:
                     is_delete = 0
                 data['is_delete'] = is_delete
+                data['parent_dir'] = _z8_get_parent_dir(goods_id)
 
                 self.result_data = data
                 # pprint(data)
@@ -165,7 +168,7 @@ class Zhe800PintuanParse(object):
                 price_info_list = self._get_price_info_list(
                     data=data,
                     detail_name_list=detail_name_list)
-                price_info_list, price, taobao_price = self._get_price_and_tb_price(price_info_list=price_info_list)
+                price_info_list, price, taobao_price = self._get_price_and_tb_price(price_info_list=price_info_list, data=data)
                 all_img_url = self._get_all_img_url(data=data)
                 p_info = self._get_p_info(data=data)
                 # 总销量(shop_sales字段)
@@ -177,6 +180,7 @@ class Zhe800PintuanParse(object):
 
                 is_delete = self._get_is_delete(data=data, schedule=schedule)
                 # print(is_delete)
+                parent_dir = data.get('parent_dir', '')
             except Exception as e:
                 print('遇到错误:', e)
                 return self._data_error_init()
@@ -196,7 +200,8 @@ class Zhe800PintuanParse(object):
                 'div_desc': div_desc,                   # div_desc
                 'schedule': schedule,                   # 商品开卖时间和结束开卖时间
                 'all_sell_count': all_sell_count,       # 商品总销售量
-                'is_delete': is_delete                  # 用于判断商品是否已经下架
+                'is_delete': is_delete,                  # 用于判断商品是否已经下架
+                'parent_dir': parent_dir,
             }
             # pprint(result)
             # wait_to_send_data = {
@@ -309,6 +314,7 @@ class Zhe800PintuanParse(object):
 
     def _get_price_and_tb_price(self, **kwargs):
         price_info_list = kwargs.get('price_info_list', [])
+        data = kwargs.get('data', {})
 
         # 商品价格和淘宝价
         try:
@@ -324,6 +330,7 @@ class Zhe800PintuanParse(object):
                 'img_url': '',
                 'rest_number': 100
             }]
+            # print(price_info_list)
             tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
             price = tmp_price_list[-1]  # 商品价格
             taobao_price = tmp_price_list[0]  # 淘宝价
@@ -451,8 +458,9 @@ class Zhe800PintuanParse(object):
             item['div_desc'],  # 存入到DetailInfo
             dumps(item['schedule'], ensure_ascii=False),
             item['is_delete'],
+            item['parent_dir'],
 
-            item['goods_id']
+            item['goods_id'],
         )
 
         return params

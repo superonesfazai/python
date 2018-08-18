@@ -140,8 +140,13 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
 
                     else:
                         tmp_data = [item_s.get('deal', {}) for item_s in tmp_data.get('data', {}).get('blocks', [])]
+                        # pprint(tmp_data)
                         if tmp_data != []:  # 否则说明里面有数据
-                            miaosha_goods_list = self.get_miaoshao_goods_info_list(data=tmp_data)
+                            try:
+                                miaosha_goods_list = self.get_miaoshao_goods_info_list(data=tmp_data)
+                            except ValueError:
+                                sleep(2)
+                                continue
                             # pprint(miaosha_goods_list)
 
                             # 该session_id中现有的所有zid的list
@@ -240,7 +245,10 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         :return: 有用信息list
         '''
         miaosha_goods_list = []
+        # pprint(data)
         for item in data:
+            if item == {}:
+                continue
             # pprint(item)
             tmp = {}
             # 秒杀开始时间和结束时间

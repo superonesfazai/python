@@ -11,3 +11,4 @@ import sys
 sys.path.append('..')
 
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.internet_utils import get_random_pc_ua
