@@ -7,6 +7,9 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import sys
+sys.path.append('..')
+
 import json
 import re
 import time
@@ -14,15 +17,11 @@ from pprint import pprint
 import gc
 from time import sleep
 
-import sys
-sys.path.append('..')
-
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     IS_BACKGROUND_RUNNING,
     MOGUJIE_SLEEP_TIME,
     PHANTOMJS_DRIVER_PATH,)
-import datetime
 from mogujie_parse import MoGuJieParse
 
 from fzutils.time_utils import (

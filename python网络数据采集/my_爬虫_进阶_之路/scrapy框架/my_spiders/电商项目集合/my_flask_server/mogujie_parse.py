@@ -118,15 +118,13 @@ class MoGuJieParse(object):
         # except Exception:
         #     print('requests.get()请求超时....')
         #     print('data为空!')
-        #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-        #     return {}
+        #     return self._data_error_init()
 
         """
         方法2: 通过页面源码来获取
         """
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         else:
             tmp_url = 'https://shop.mogujie.com/detail/' + str(goods_id)
             print('------>>>| 原pc地址为: ', tmp_url)
@@ -139,8 +137,7 @@ class MoGuJieParse(object):
 
             if body == '':
                 print('获取到的body为空str!')
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             try:
                 goods_info = re.compile(r'var detailInfo = (.*?);</script>').findall(body)[0]
@@ -191,8 +188,7 @@ class MoGuJieParse(object):
                 # pprint(p_info)
                 # if p_info == []:
                 #     print('获取到的p_info为空list')
-                #     self.result_data = {}
-                #     return {}
+                #     return self._data_error_init()
                 # else:
                 # 存在p_info为[]的商品
                 data['p_info'] = p_info
@@ -202,8 +198,7 @@ class MoGuJieParse(object):
                 # print(div_desc)
                 if div_desc == '':
                     print('获取到的div_desc为空str, 请检查!')
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
                 else:
                     data['div_desc'] = div_desc
 
@@ -214,8 +209,7 @@ class MoGuJieParse(object):
                 # print(detail_name_list)
                 if detail_name_list == '':
                     print('获取detail_name_list出错, 请检查!')
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
                 else:
                     data['detail_name_list'] = detail_name_list
 
@@ -244,8 +238,7 @@ class MoGuJieParse(object):
 
             except Exception as e:
                 print('遇到错误: ', e)
-                self.result_data = {}
-                return {}
+                return self._data_error_init()
 
             if data != {}:
                 # pprint(data)
@@ -254,8 +247,7 @@ class MoGuJieParse(object):
 
             else:
                 print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -328,6 +320,11 @@ class MoGuJieParse(object):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _data_error_init(self):
+        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+
+        return {}
 
     def insert_into_mogujie_pintuan_table(self, data, pipeline):
         try:
