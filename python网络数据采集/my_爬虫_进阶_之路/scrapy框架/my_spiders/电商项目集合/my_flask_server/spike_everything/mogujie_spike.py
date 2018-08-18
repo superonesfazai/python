@@ -31,6 +31,8 @@ from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
 import datetime
 from decimal import Decimal
 
+from sql_str_controller import mg_select_str_4
+
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -89,8 +91,7 @@ class MoGuJieSpike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = r'select goods_id, miaosha_time, event_time, goods_url from dbo.mogujie_xianshimiaosha where site_id=22'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mg_select_str_4))]
             # print(db_goods_id_list)
 
             for item in item_list:

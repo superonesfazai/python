@@ -11,15 +11,12 @@
 楚楚街9块9限时秒杀，商品信息抓取
 """
 
-from random import randint
 import json
 import re
 import time
 from pprint import pprint
 import gc
 from time import sleep
-import datetime
-from decimal import Decimal
 from scrapy.selector import Selector
 
 import sys
@@ -29,9 +26,10 @@ from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     IS_BACKGROUND_RUNNING,
-    CHUCHUJIE_SLEEP_TIME,
     PHANTOMJS_DRIVER_PATH,
 )
+
+from sql_str_controller import cc_select_str_2
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -41,6 +39,7 @@ from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
@@ -125,8 +124,7 @@ class ChuChuJie_9_9_Spike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = 'select goods_id, miaosha_time, gender, page, goods_url from dbo.chuchujie_xianshimiaosha where site_id=24'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=cc_select_str_2))]
             # print(db_goods_id_list)
 
             # my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
@@ -184,7 +182,7 @@ class ChuChuJie_9_9_Spike(object):
                                 'miaosha_begin_time': timestamp_to_regulartime(int(time.time())),
                                 'miaosha_end_time': timestamp_to_regulartime(int(miaosha_end_time)),
                             }
-                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
+                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                             goods_data['gender'] = str(item.get('gender', '0'))
                             goods_data['page'] = item.get('page')
 
@@ -280,20 +278,6 @@ class ChuChuJie_9_9_Spike(object):
 
         return miaosha_end_time
 
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
-
     def __del__(self):
         gc.collect()
 
@@ -304,7 +288,7 @@ def just_fuck_run():
         chuchujie_spike.get_spike_hour_goods_info()
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60*2)
+        sleep(60*5)
 
 def main():
     '''

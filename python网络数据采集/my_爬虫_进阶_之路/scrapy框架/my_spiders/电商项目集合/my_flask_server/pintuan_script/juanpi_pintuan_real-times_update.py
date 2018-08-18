@@ -23,6 +23,7 @@ from sql_str_controller import (
     jp_select_str_2,
     jp_delete_str_1,
     jp_delete_str_2,
+    jp_update_str_5,
 )
 
 from fzutils.time_utils import (
@@ -67,7 +68,13 @@ def run_forever():
                     print('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
-                    pintuan_end_time = json.loads(item[1])[0].get('end_time')
+                    try:
+                        pintuan_end_time = json.loads(item[1])[0].get('end_time')
+                    except IndexError:
+                        print('获取pintuan_end_time时索引异常!出错goods_id:{0}'.format(item[0]))
+                        print('此处将其标记为is_delete=1')
+                        tmp_sql_server._update_table(sql_str=jp_update_str_5, params=(item[0],))
+                        continue
                     pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                     # print(pintuan_end_time)
 

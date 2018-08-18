@@ -23,6 +23,8 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     TMALL_REAL_TIMES_SLEEP_TIME,)
 
+from sql_str_controller import kl_select_str_1
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -44,16 +46,8 @@ def run_forever():
 
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        #  and GETDATE()-ModfiyTime>0.2
-        # and MainGoodsID is not null
-        sql_str = '''
-        select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
-        from dbo.GoodsInfoAutoGet 
-        where SiteID=29 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
-        order by ID asc'''
-
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            result = list(tmp_sql_server._select_table(sql_str=kl_select_str_1))
         except TypeError:
             my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

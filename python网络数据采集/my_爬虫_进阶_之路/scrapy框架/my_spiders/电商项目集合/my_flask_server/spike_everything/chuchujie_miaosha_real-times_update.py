@@ -19,13 +19,17 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import re
 import json
 from pprint import pprint
 import time
 
 from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
-from decimal import Decimal
+
+from sql_str_controller import (
+    cc_delete_str_1,
+    cc_select_str_1,
+    cc_delete_str_2,
+)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
@@ -35,7 +39,7 @@ from fzutils.spider.fz_requests import MyRequests
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = 'delete from dbo.chuchujie_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = cc_delete_str_1
 
     def _set_headers(self):
         self.headers = {
@@ -56,9 +60,9 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time, gender, page, goods_url from dbo.chuchujie_xianshimiaosha where site_id=24'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=cc_delete_str_2)
+            result = list(tmp_sql_server._select_table(sql_str=cc_select_str_1))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

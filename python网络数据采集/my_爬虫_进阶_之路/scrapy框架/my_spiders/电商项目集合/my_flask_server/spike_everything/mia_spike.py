@@ -29,7 +29,8 @@ from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from settings import IS_BACKGROUND_RUNNING
-import datetime
+
+from sql_str_controller import mia_select_str_4
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -38,6 +39,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MiaSpike(object):
     def __init__(self):
@@ -108,8 +110,7 @@ class MiaSpike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = r'select goods_id, miaosha_time, pid from dbo.mia_xianshimiaosha where site_id=20'
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mia_select_str_4))]
             # print(db_goods_id_list)
 
             for item in item_list:
@@ -142,7 +143,7 @@ class MiaSpike(object):
                             'miaosha_begin_time': timestamp_to_regulartime(begin_time),
                             'miaosha_end_time': timestamp_to_regulartime(end_time),
                         }
-                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
+                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                         goods_data['pid'] = str(pid)
 
                         # pprint(goods_data)
@@ -158,20 +159,6 @@ class MiaSpike(object):
         except:
             pass
         gc.collect()
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
 
     def __del__(self):
         gc.collect()

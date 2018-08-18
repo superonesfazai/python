@@ -24,6 +24,11 @@ from settings import IS_BACKGROUND_RUNNING
 from settings import MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
+from sql_str_controller import (
+    tb_delete_str_1,
+    tb_select_str_4,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -41,7 +46,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
     def __init__(self, logger=None):
         self._set_headers()
         self._set_logger(logger)
-        self.delete_sql_str = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = tb_delete_str_1
 
     def _set_headers(self):
         self.headers = {
@@ -70,10 +75,9 @@ class TaoBaoQiangGouRealTimesUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
-        except TypeError as e:
+            result = list(tmp_sql_server._select_table(sql_str=tb_select_str_4))
+        except TypeError:
             self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is not None:
@@ -90,6 +94,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
+            self.my_lg.info('休眠60s...')
             sleep(60)
 
         return
@@ -159,7 +164,6 @@ class TaoBaoQiangGouRealTimesUpdate(object):
             return 0    # 已过期恢复原价的
         else:
             return 1    # 表示是昨天跟今天的也就是待更新的
-
 
     def __del__(self):
         try:

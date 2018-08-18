@@ -25,6 +25,12 @@ from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
 from zhe_800_spike import Zhe800Spike
 
+from sql_str_controller import (
+    z8_delete_str_3,
+    z8_select_str_4,
+    z8_delete_str_4,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -38,7 +44,7 @@ from fzutils.log_utils import set_logger
 class Zhe_800_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = 'delete from dbo.zhe_800_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = z8_delete_str_3
         self.zhe_800_spike = Zhe800Spike()
         self._set_logger()
 
@@ -67,16 +73,9 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = '''
-        select goods_id, miaosha_time, session_id 
-        from dbo.zhe_800_xianshimiaosha 
-        where site_id=14 and is_delete = 0
-        '''
-        # 删除过期2天的的
-        tmp_del_str = 'delete from dbo.zhe_800_xianshimiaosha where GETDATE()-miaosha_end_time>2'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
-            tmp_sql_server._delete_table(sql_str=tmp_del_str, params=None)
+            result = list(tmp_sql_server._select_table(sql_str=z8_select_str_4))
+            tmp_sql_server._delete_table(sql_str=z8_delete_str_4, params=None)
         except TypeError:
             self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

@@ -20,6 +20,12 @@ from pprint import pprint
 import time
 from settings import IS_BACKGROUND_RUNNING
 
+from sql_str_controller import (
+    jp_delete_str_3,
+    jp_select_str_4,
+    jp_delete_str_4,
+)
+
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -36,7 +42,7 @@ from fzutils.spider.fz_requests import MyRequests
 class Juanpi_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = 'delete from dbo.juanpi_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = jp_delete_str_3
 
     def _set_headers(self):
         self.headers = {
@@ -56,17 +62,9 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = '''
-        select goods_id, miaosha_time, tab_id, page 
-        from dbo.juanpi_xianshimiaosha 
-        where site_id=15
-        order by id asc
-        '''
-        # 删除过期2天的的
-        tmp_del_str = 'delete from dbo.juanpi_xianshimiaosha where GETDATE()-miaosha_end_time>2'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
-            tmp_sql_server._delete_table(sql_str=tmp_del_str, params=None)
+            tmp_sql_server._delete_table(sql_str=jp_delete_str_4, params=None)
+            result = list(tmp_sql_server._select_table(sql_str=jp_select_str_4))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -111,7 +109,8 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                         # print('待爬取的tab_id, page地址为: ', tmp_url)
 
                         data = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
-                        if data == '': break
+                        if data == '':
+                            break
 
                         try:
                             data = json.loads(data)

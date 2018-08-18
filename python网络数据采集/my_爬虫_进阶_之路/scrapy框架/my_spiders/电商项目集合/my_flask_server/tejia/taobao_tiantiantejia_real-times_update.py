@@ -12,17 +12,18 @@ sys.path.append('..')
 
 from taobao_parse import TaoBaoLoginAndParse
 
-from taobao_tiantiantejia import TaoBaoTianTianTeJia
 import gc
 from time import sleep
-import re
-import json
 from settings import IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME, MY_SPIDER_LOGS_PATH
 import datetime
 from logging import INFO, ERROR
 import asyncio
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+
+from sql_str_controller import (
+    tb_select_str_7,
+)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -44,14 +45,8 @@ async def run_forever():
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
     # 由于不处理下架的商品，所以is_delete=0
-    sql_str = '''
-    select goods_id, is_delete, tejia_end_time, block_id, tag_id 
-    from dbo.taobao_tiantiantejia 
-    where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2 and MainGoodsID is not null
-    '''
-
     try:
-        result = list(tmp_sql_server._select_table(sql_str=sql_str))
+        result = list(tmp_sql_server._select_table(sql_str=tb_select_str_7))
     except TypeError:
         my_lg.error('TypeError错误, 导致原因: 数据库连接失败...(可能维护中)')
         return None

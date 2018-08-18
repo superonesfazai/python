@@ -17,6 +17,8 @@ import gc
 from time import sleep
 from settings import IS_BACKGROUND_RUNNING
 
+from sql_str_controller import jd_select_str_1
+
 from fzutils.time_utils import (
     get_shanghai_time,
 )
@@ -31,14 +33,8 @@ def run_forever():
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         # and GETDATE()-ModfiyTime>1 and IsDelete=0
-        sql_str = '''
-        select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
-        from dbo.GoodsInfoAutoGet 
-        where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and MainGoodsID is not null
-        '''
-
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            result = list(tmp_sql_server._select_table(sql_str=jd_select_str_1))
         except TypeError as e:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             continue

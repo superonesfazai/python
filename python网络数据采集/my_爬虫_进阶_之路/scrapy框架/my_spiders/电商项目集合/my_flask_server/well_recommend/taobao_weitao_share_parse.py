@@ -240,7 +240,7 @@ class TaoBaoWeiTaoShareParse():
         :param goods_url_list:
         :return:
         '''
-        sql_str = r'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=1 or SiteID=3 or SiteID=4 or SiteID=6'
+        sql_str = 'select GoodsID from dbo.GoodsInfoAutoGet where SiteID=1 or SiteID=3 or SiteID=4 or SiteID=6'
 
         try:
             result = self.my_pipeline._select_table(sql_str=sql_str)
@@ -308,7 +308,7 @@ class TaoBaoWeiTaoShareParse():
         :param article:
         :return:
         '''
-        sql_str = r'select share_id from dbo.daren_recommend'
+        sql_str = 'select share_id from dbo.daren_recommend'
         db_share_id = [j[0] for j in list(self.my_pipeline._select_table(sql_str=sql_str))]
 
         if article.get('share_id') in db_share_id:

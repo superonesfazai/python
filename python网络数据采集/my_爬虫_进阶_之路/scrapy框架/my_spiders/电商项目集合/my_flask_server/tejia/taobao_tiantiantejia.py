@@ -32,6 +32,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 
 from taobao_parse import TaoBaoLoginAndParse
 
+from sql_str_controller import tb_select_str_6
+
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.time_utils import (
@@ -45,6 +47,7 @@ from fzutils.linux_utils import (
 from fzutils.cp_utils import (
     calculate_right_sign,
     get_taobao_sign_and_body,
+    get_miaosha_begin_time_and_miaosha_end_time,
 )
 
 class TaoBaoTianTianTeJia(object):
@@ -148,8 +151,7 @@ class TaoBaoTianTianTeJia(object):
         if my_pipeline.is_connect_success:
             # 普通sql_server连接(超过3000无返回结果集)
             self.my_lg.info('正在获取天天特价db原有goods_id, 请耐心等待...')
-            sql_str = r'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
-            db_ = list(my_pipeline._select_table(sql_str=sql_str))
+            db_ = list(my_pipeline._select_table(sql_str=tb_select_str_6))
             db_goods_id_list = [[item[0], item[2]] for item in db_]
             self.my_lg.info('获取完毕!!!')
             # print(db_goods_id_list)
@@ -241,7 +243,7 @@ class TaoBaoTianTianTeJia(object):
                 'begin_time': tmp_item.get('start_time', ''),
                 'end_time': tmp_item.get('end_time', ''),
             }]
-            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = await self.get_tejia_begin_time_and_tejia_end_time(schedule=goods_data.get('schedule', [])[0])
+            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
             goods_data['block_id'] = str(category)
             goods_data['tag_id'] = str(current_page)
             goods_data['father_sort'] = self.main_sort[category][0]
@@ -324,20 +326,6 @@ class TaoBaoTianTianTeJia(object):
         # self.my_lg.info(str(body))
 
         return body
-
-    async def get_tejia_begin_time_and_tejia_end_time(self, schedule):
-        '''
-        返回拼团开始和结束时间
-        :param miaosha_time:
-        :return: tuple  tejia_begin_time, tejia_end_time
-        '''
-        tejia_begin_time = schedule.get('begin_time')
-        tejia_end_time = schedule.get('end_time')
-        # 将字符串转换为datetime类型
-        tejia_begin_time = datetime.datetime.strptime(tejia_begin_time, '%Y-%m-%d %H:%M:%S')
-        tejia_end_time = datetime.datetime.strptime(tejia_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return tejia_begin_time, tejia_end_time
 
     async def get_sort_data_list(self, body):
         '''

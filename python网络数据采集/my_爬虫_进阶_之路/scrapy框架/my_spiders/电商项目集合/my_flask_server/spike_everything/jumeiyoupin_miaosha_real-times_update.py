@@ -14,13 +14,11 @@
 import sys
 sys.path.append('..')
 
-from jumeiyoupin_spike import JuMeiYouPinSpike
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import re
 import json
 from pprint import pprint
 import time
@@ -30,18 +28,24 @@ from settings import (
     JUMEIYOUPIN_SLEEP_TIME,
     PHANTOMJS_DRIVER_PATH,
 )
-from decimal import Decimal
+
+from sql_str_controller import (
+    jm_delete_str_1,
+    jm_select_str_1,
+    jm_delete_str_2,
+)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuMeiYouPinMiaoShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = r'delete from dbo.jumeiyoupin_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = jm_delete_str_1
 
     def _set_headers(self):
         self.headers = {
@@ -63,9 +67,9 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time, page, goods_url from dbo.jumeiyoupin_xianshimiaosha where site_id=26'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=jm_delete_str_2)
+            result = list(tmp_sql_server._select_table(sql_str=jm_select_str_1))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -79,7 +83,6 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
 
-            jumeiyoupin_spike = JuMeiYouPinSpike()
             # 获取cookies
             my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
             cookies = my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://h5.jumei.com/')
@@ -155,7 +158,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
                                     'miaosha_begin_time': goods_data['schedule'].get('begin_time', ''),
                                     'miaosha_end_time': goods_data['schedule'].get('end_time', ''),
                                 }
-                                goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = jumeiyoupin_spike.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
+                                goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
 
                                 # print(goods_data)
                                 jumeiyoupin_miaosha.update_jumeiyoupin_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)

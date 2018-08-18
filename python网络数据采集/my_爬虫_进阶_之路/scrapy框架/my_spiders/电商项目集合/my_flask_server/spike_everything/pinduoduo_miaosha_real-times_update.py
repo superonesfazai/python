@@ -26,7 +26,11 @@ import requests
 from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
 
 from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
-import datetime
+
+from sql_str_controller import (
+    pd_delete_str_1,
+    pd_select_str_2,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -35,6 +39,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.ip_pools import MyIpPools
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -47,7 +52,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.init_phantomjs()
-        self.delete_sql_str = r'delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = pd_delete_str_1
 
     def _set_headers(self):
         self.headers = {
@@ -67,10 +72,9 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         '''
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time from dbo.pinduoduo_xianshimiaosha where site_id=16'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
-        except TypeError as e:
+            result = list(tmp_sql_server._select_table(sql_str=pd_select_str_2))
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
@@ -142,7 +146,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                                             pass
                                         goods_data['sub_title'] = item_1.get('sub_title', '')
                                         goods_data['miaosha_time'] = item_1.get('miaosha_time')
-                                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item_1.get('miaosha_time'))
+                                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item_1.get('miaosha_time'))
 
                                         if item_1.get('stock_info').get('activity_stock') <= 1:
                                             # 实时秒杀库存小于等于1时就标记为 已售罄
@@ -173,21 +177,18 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         # 今日秒杀
         tmp_url = 'http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000'
         # print('待爬取的今日限时秒杀数据的地址为: ', tmp_url)
-        # today_data = self.get_url_body(tmp_url=tmp_url)
         today_data = self.phantomjs_get_url_body(tmp_url=tmp_url)
         today_data = self.json_to_dict(tmp_data=today_data)
 
         # 明日的秒杀
         tmp_url_2 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000'
         # print('待爬取的明日限时秒杀数据的地址为: ', tmp_url_2)
-        # tomorrow_data = self.get_url_body(tmp_url=tmp_url_2)
         tomorrow_data = self.phantomjs_get_url_body(tmp_url=tmp_url_2)
         tomorrow_data = self.json_to_dict(tmp_data=tomorrow_data)
 
         # 未来的秒杀
         tmp_url_3 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000'
         # print('待爬取的未来限时秒杀数据的地址为: ', tmp_url_3)
-        # all_after_data = self.get_url_body(tmp_url=tmp_url_3)
         all_after_data = self.phantomjs_get_url_body(tmp_url=tmp_url_3)
         all_after_data = self.json_to_dict(tmp_data=all_after_data)
 
@@ -223,20 +224,6 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         # print('当前所有限时秒杀商品list为: ', all_miaosha_goods_list)
 
         return all_miaosha_goods_list
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
 
     def get_miaoshao_goods_info_list(self, data):
         '''
@@ -276,32 +263,6 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
             else:
                 pass
         return miaosha_goods_list
-
-    def get_url_body(self, tmp_url):
-        '''
-        得到url的body
-        :param tmp_url: 待爬取的url
-        :return: str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        try:
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            data = response.content.decode('utf-8')
-            # print(data)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('today的data为空!')
-            data = '{}'
-        return data
 
     def phantomjs_get_url_body(self, tmp_url):
         '''

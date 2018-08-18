@@ -119,8 +119,8 @@ ZHE_800_PINTUAN_SLEEP_TIME = 2.0    # 折800拼团sleep_time
 蜜芽 base_number相关
 '''
 # MIA_BASE_NUMBER = 56000         # 起始的base_number
-MIA_BASE_NUMBER = 61000         # 起始的base_number
-MIA_MAX_NUMBER = 75000          # 截止的base_number
+MIA_BASE_NUMBER = 71300         # 起始的base_number
+MIA_MAX_NUMBER = 85000          # 截止的base_number
 MIA_SPIKE_SLEEP_TIME = 1.8
 
 '''

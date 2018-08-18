@@ -29,6 +29,8 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
 )
 
+from sql_str_controller import tb_select_str_3
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -52,17 +54,11 @@ def run_forever():
             file_log_level=ERROR
         )
 
-        sql_str = '''
-        select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
-        from dbo.GoodsInfoAutoGet 
-        where SiteID=1 and MainGoodsID is not null
-        order by ID desc'''
-
         # tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
         try:
             # result = list(tmp_sql_server.select_taobao_all_goods_id())
-            result = tmp_sql_server._select_table(sql_str=sql_str,)
+            result = tmp_sql_server._select_table(sql_str=tb_select_str_3,)
         except TypeError:
             my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None

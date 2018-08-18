@@ -18,7 +18,6 @@ sys.path.append('..')
 import json
 import re
 from pprint import pprint
-from decimal import Decimal
 from time import sleep
 import gc
 from logging import INFO, ERROR
@@ -28,7 +27,6 @@ import multiprocessing
 from settings import (
     MY_SPIDER_LOGS_PATH,
     TAOBAO_QIANGGOU_SPIDER_HOUR_LIST,
-    PHANTOMJS_DRIVER_PATH,
     IS_BACKGROUND_RUNNING,
     TMALL_REAL_TIMES_SLEEP_TIME
 )
@@ -37,8 +35,9 @@ from my_pipeline import (
     SqlPools
 )
 
-from taobao_parse import TaoBaoLoginAndParse
 from tmall_parse_2 import TmallParse
+
+from sql_str_controller import tb_select_str_5
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -51,7 +50,6 @@ from fzutils.linux_utils import (
 )
 from fzutils.cp_utils import (
     get_miaosha_begin_time_and_miaosha_end_time,
-    calculate_right_sign,
     get_taobao_sign_and_body,
 )
 from fzutils.internet_utils import get_random_pc_ua
@@ -142,8 +140,7 @@ class TaoBaoQiangGou(object):
         index = 1
         if my_pipeline.is_connect_success:
             self.my_lg.info('正在获取淘抢购db原有goods_id, 请耐心等待...')
-            sql_str = r'select goods_id from dbo.tao_qianggou_xianshimiaosha where site_id=28'
-            db_ = list(my_pipeline._select_table(sql_str=sql_str))
+            db_ = list(my_pipeline._select_table(sql_str=tb_select_str_5))
             db_all_goods_id = [item[0] for item in db_]
             self.my_lg.info('获取完毕!!!')
             # self.my_lg.info(str(db_all_goods_id))

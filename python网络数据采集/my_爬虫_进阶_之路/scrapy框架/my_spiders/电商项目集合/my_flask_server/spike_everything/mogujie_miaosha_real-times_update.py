@@ -19,14 +19,18 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import os, re, pytz, datetime
+import re
 import json
 from pprint import pprint
 import time
-from random import randint
 from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
-import requests
 from decimal import Decimal
+
+from sql_str_controller import (
+    mg_delete_str_3,
+    mg_select_str_3,
+    mg_delete_str_4,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -35,11 +39,12 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MoGuJieMiaoShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = r'delete from dbo.mogujie_xianshimiaosha where goods_id=%s'
+        self.delete_sql_str = mg_delete_str_3
 
     def _set_headers(self):
         self.headers = {
@@ -58,9 +63,9 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         :return:
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        sql_str = r'select goods_id, miaosha_time, event_time, goods_url from dbo.mogujie_xianshimiaosha where site_id=22'
         try:
-            result = list(tmp_sql_server._select_table(sql_str=sql_str))
+            tmp_sql_server._delete_table(sql_str=mg_delete_str_4)
+            result = list(tmp_sql_server._select_table(sql_str=mg_select_str_3))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -146,7 +151,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                                 'miaosha_begin_time': timestamp_to_regulartime(int(item_2.get('startTime', 0))),
                                                 'miaosha_end_time': timestamp_to_regulartime(int(item_2.get('endTime', 0))),
                                             }
-                                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
+                                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
 
                                             # pprint(goods_data)
                                             # print(goods_data)
@@ -166,20 +171,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         else:
             sleep(5)
         gc.collect()
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
 
     def get_item_list(self, event_time):
         '''

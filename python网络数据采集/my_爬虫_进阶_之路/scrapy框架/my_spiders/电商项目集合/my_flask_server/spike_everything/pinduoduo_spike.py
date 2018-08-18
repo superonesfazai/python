@@ -28,6 +28,8 @@ from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, P
 from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
 import datetime
 
+from sql_str_controller import pd_select_str_3
+
 from fzutils.time_utils import (
     get_shanghai_time,
     timestamp_to_regulartime,
@@ -71,11 +73,10 @@ class PinduoduoSpike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            sql_str = r'select goods_id, miaosha_time from dbo.pinduoduo_xianshimiaosha where site_id=16'
-            if my_pipeline._select_table(sql_str=sql_str) is None:
+            if my_pipeline._select_table(sql_str=pd_select_str_3) is None:
                 db_goods_id_list = []
             else:
-                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=sql_str))]
+                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=pd_select_str_3))]
 
             for item in all_miaosha_goods_list:
                 '''

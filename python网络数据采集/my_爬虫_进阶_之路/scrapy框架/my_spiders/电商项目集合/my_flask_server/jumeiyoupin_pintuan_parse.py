@@ -359,10 +359,10 @@ class JuMeiYouPinPinTuanParse(object):
             self.my_lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
             return None
         # print('------>>> | 待存储的数据信息为: |', tmp)
-        self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
-        logger.info(self.msg)
+        logger.info('------>>>| 待存储的数据信息为: ' + str(tmp.get('goods_id')))
 
-        params = self._get_db_update_pintuan_params_2(item=tmp)
+        params = await self._get_db_update_pintuan_params_2(item=tmp)
+        # pprint(params)
         try:
             result = pipeline._update_table_2(sql_str=jm_update_str_3, params=params, logger=logger)
             return result
