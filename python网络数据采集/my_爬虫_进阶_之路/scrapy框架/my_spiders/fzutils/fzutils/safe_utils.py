@@ -11,10 +11,14 @@
 安全相关
 """
 
+from uuid import uuid3
+from uuid import NAMESPACE_DNS
+
 __all__ = [
     'encrypt',              # 加密算法
     'decrypt',              # 解密算法
     'md5_encrypt',          # 得到md5加密的字符串
+    'get_uuid3',            # 得到一个uuid3加密的唯一标识符
 ]
 
 def encrypt(key, tmp_str):
@@ -85,3 +89,11 @@ def md5_encrypt(target_str, encoding='utf-8'):
     result = _.hexdigest()
 
     return result
+
+def get_uuid3(target_str):
+    '''
+    make a UUID using an MD5 hash of a namespace UUID and a name(唯一的识别码)
+    :param target_str:
+    :return: str
+    '''
+    return str(uuid3(NAMESPACE_DNS, target_str))

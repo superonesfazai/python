@@ -14,6 +14,10 @@ import asyncio
 
 from .common_utils import _print
 from .time_utils import string_to_datetime
+from .time_utils import get_shanghai_time
+from .items import GoodsItem
+from decimal import Decimal
+from .safe_utils import get_uuid3
 
 __all__ = [
     '_get_price_change_info',                               # cp用来记录价格改变信息
@@ -27,6 +31,7 @@ __all__ = [
 
     # get model data
     '_get_right_model_data',                                # 得到规范化GoodsItem model的数据
+    'format_price_info_list',                               # 格式化price_info_list对象
 ]
 
 def get_shelf_time_and_delete_time(tmp_data, is_delete, shelf_time, delete_time):
@@ -245,11 +250,6 @@ def _get_right_model_data(data, site_id=None, logger=None):
     :param data:
     :return:
     '''
-    from .time_utils import get_shanghai_time
-    from .items import GoodsItem
-    from .common_utils import _print
-    from decimal import Decimal
-
     data_list = data
     tmp = GoodsItem()
     tmp['goods_id'] = data_list['goods_id']     # 官方商品id
@@ -322,9 +322,10 @@ def _get_right_model_data(data, site_id=None, logger=None):
         tmp['detail_name_list'] = data_list.get('detail_name_list', [])  # 标签属性名称
 
     if site_id == 2:
-        tmp['price_info_list'] = data_list.get('sku_map', [])
+        price_info_list = data_list.get('sku_map', [])
     else:
-        tmp['price_info_list'] = data_list.get('price_info_list', [])  # 每个规格对应价格及其库存
+        price_info_list = data_list.get('price_info_list', [])  # 每个规格对应价格及其库存
+    tmp['price_info_list'] = format_price_info_list(price_info_list, site_id)
 
     tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
@@ -371,3 +372,48 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['sku_info_trans_time'] = data_list.get('sku_info_trans_time', '')
 
     return tmp
+
+def format_price_info_list(price_info_list, site_id):
+    '''
+    格式化price_info_list对象(常规, 秒杀, 拼团)
+    :param price_info_list:
+    :param site_id:
+    :return: list
+    '''
+    if isinstance(price_info_list, list):
+        _ = []
+        for item in price_info_list:
+            if site_id == 2:
+                spec_value = item.get('spec_type', '')
+                detail_price = item.get('spec_value', {}).get('discountPrice', '')
+                rest_number = int(item.get('spec_value', {}).get('canBookCount', 50))
+            else:
+                spec_value = item.get('spec_value', '')
+                detail_price = item.get('detail_price', '')
+                rest_number = int(item.get('rest_number', 50)) if item.get('rest_number', '') != '' else 50
+
+            normal_price = item.get('normal_price', '')
+            pintuan_price = item.get('pintuan_price', '')
+            account_limit_buy_count = int(item.get('account_limit_buy_count', 5))
+            if item.get('img') is not None:
+                img_url = item.get('img', '')
+            else:
+                img_url = item.get('img_url', '')
+            is_on_sale = item.get('is_on_sale', 1)  # 1:特价 0:原价(normal_price)   就拼多多有, 对公司后台无用
+
+            _.append({
+                'unique_id': get_uuid3(spec_value),                 # 该规格唯一id
+                'spec_value': spec_value,                           # 商品规格
+                'detail_price': detail_price,                       # 当前价格, 秒杀为秒杀价, 拼团为单独购买价
+                'normal_price': normal_price,                       # 市场价
+                'pintuan_price': pintuan_price,                     # 拼团价, 拼团商品独有
+                'img_url': img_url,                                 # 规格示例图
+                'rest_number': rest_number,                         # 剩余库存
+                'account_limit_buy_count': account_limit_buy_count, # 限购数
+                'is_on_sale': is_on_sale,                           # 与公司后台无关, 爬虫判断用
+            })
+
+    else:
+        raise TypeError('获取到的price_info_list的类型错误!请检查!')
+
+    return _

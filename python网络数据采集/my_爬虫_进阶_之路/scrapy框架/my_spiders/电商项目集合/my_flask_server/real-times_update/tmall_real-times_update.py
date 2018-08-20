@@ -21,6 +21,7 @@ from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
 from sql_str_controller import tm_select_str_3
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -30,7 +31,9 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
+    format_price_info_list,
 )
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     while True:
@@ -88,23 +91,6 @@ def run_forever():
                         sleep(TMALL_REAL_TIMES_SLEEP_TIME)
                         continue
 
-                    if data.get('is_delete') == 1:  # 单独处理下架商品
-                        data['goods_id'] = item[1]
-
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[2],
-                            shelf_time=item[5],
-                            delete_time=item[6])
-
-                        # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
-                        tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
-
-                        sleep(TMALL_REAL_TIMES_SLEEP_TIME)
-                        index += 1
-                        gc.collect()
-                        continue
-
                     data = tmall.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[1]
@@ -119,9 +105,18 @@ def run_forever():
                             new_price=data['price'],
                             new_taobao_price=data['taobao_price']
                         )
-                        # my_lg.info(str(data['_is_price_change']) + ' ' +str(data['_price_change_info']))
 
-                        # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
+                        site_id = tmall._from_tmall_type_get_site_id(type=data['type'])
+                        try:
+                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[7]), site_id=site_id)
+                        except AttributeError:  # 处理已被格式化过的
+                            old_sku_info = item[7]
+                        data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                            old_sku_info=old_sku_info,
+                            new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
+                            is_price_change=item[8] if item[8] is not None else 0
+                        )
+
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         my_lg.info('------>>>| 休眠8s中...')

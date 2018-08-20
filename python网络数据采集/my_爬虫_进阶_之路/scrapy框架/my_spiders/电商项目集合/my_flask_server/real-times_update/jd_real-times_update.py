@@ -18,6 +18,7 @@ from time import sleep
 from settings import IS_BACKGROUND_RUNNING
 
 from sql_str_controller import jd_select_str_1
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -27,6 +28,8 @@ from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
 )
+from fzutils.cp_utils import format_price_info_list
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     while True:
@@ -35,7 +38,7 @@ def run_forever():
         # and GETDATE()-ModfiyTime>1 and IsDelete=0
         try:
             result = list(tmp_sql_server._select_table(sql_str=jd_select_str_1))
-        except TypeError as e:
+        except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             continue
 
@@ -49,7 +52,6 @@ def run_forever():
 
         # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
         jd = JdParse()
-
         for item in result:  # 实时更新数据
             # # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             # jd = JdParse()
@@ -98,7 +100,19 @@ def run_forever():
                         new_price=data['price'],
                         new_taobao_price=data['taobao_price'])
 
-                    # print('------>>>| 爬取到的数据为: ', data)
+                    site_id = jd._from_jd_type_get_site_id_value(jd_type=data['jd_type'])
+                    try:
+                        old_sku_info = format_price_info_list(
+                            price_info_list=json_2_dict(item[7]),
+                            site_id=site_id)
+                    except AttributeError:  # 处理已被格式化过的
+                        old_sku_info = item[7]
+                    data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                        old_sku_info=old_sku_info,
+                        new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
+                        is_price_change=item[8] if item[8] is not None else 0
+                    )
+
                     jd.to_right_and_update_data(data, pipeline=tmp_sql_server)
                 else:  # 表示返回的data值为空值
                     pass

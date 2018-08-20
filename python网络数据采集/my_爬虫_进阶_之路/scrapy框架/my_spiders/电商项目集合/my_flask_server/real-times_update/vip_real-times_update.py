@@ -18,6 +18,7 @@ from time import sleep
 from settings import IS_BACKGROUND_RUNNING, VIP_SLEEP_TIME
 
 from sql_str_controller import vip_select_str_1
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -26,7 +27,9 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
+    format_price_info_list,
 )
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     while True:
@@ -76,7 +79,16 @@ def run_forever():
                         new_taobao_price=data['taobao_price']
                     )
 
-                    # print('------>>>| 爬取到的数据为: ', data)
+                    try:
+                        old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=25)
+                    except AttributeError:  # 处理已被格式化过的
+                        old_sku_info = item[6]
+                    data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                        old_sku_info=old_sku_info,
+                        new_sku_info=format_price_info_list(data['price_info_list'], site_id=25),
+                        is_price_change=item[7] if item[7] is not None else 0
+                    )
+
                     vip.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
                 else:  # 表示返回的data值为空值
                     pass

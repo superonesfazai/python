@@ -90,7 +90,7 @@ al_select_str_4 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 al_select_str_5 = al_select_str_1
 # 常规goods待更新数据获取
 al_select_str_6 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>1
 order by ID desc
@@ -100,7 +100,7 @@ order by ID desc
 # 常规goods下架标记
 al_update_str_1 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 # 常规goods更新
-al_update_str_2 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+al_update_str_2 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 
 '''insert'''
 # 带MainGoodsID的插入
@@ -118,7 +118,7 @@ tb_select_str_1 = 'select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsIn
 tb_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
 # 常规goods实时更新
 tb_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=1 and MainGoodsID is not null
 order by ID desc'''
@@ -142,9 +142,11 @@ tb_insert_str_2 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName,
 tb_insert_str_3 = 'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 '''update'''
 # 常规goods更新
-tb_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+tb_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 # 天天特价更新
 tb_update_str_2 = 'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s'
+# 常规goods下架标记
+tb_update_str_3 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 '''delete'''
 # 淘抢购下架删除
 tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
@@ -159,7 +161,7 @@ tm_select_str_1 = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, 
 tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
 # 常规goods实时更新
 tm_select_str_3 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null
 order by ID desc'''
@@ -173,9 +175,10 @@ tm_insert_str_3 = 'insert into dbo.tao_qianggou_xianshimiaosha(goods_id, goods_u
 
 '''update'''
 # 常规goods更新
-tm_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+tm_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 # 淘抢购更新
 tm_update_str_2 = 'update dbo.tao_qianggou_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s where goods_id = %s'
+tm_update_str_3 = tb_update_str_3
 
 """
 jd
@@ -183,7 +186,7 @@ jd
 '''select'''
 # 常规goods实时更新数据获取
 jd_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and MainGoodsID is not null
 '''
@@ -195,7 +198,7 @@ jd_insert_str_2 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName,
 
 '''update'''
 # 常规goods更新
-jd_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+jd_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 
 """
 折800
@@ -211,7 +214,7 @@ where site_id=17 and GETDATE()-modfiy_time>1
 order by id asc'''
 # 常规goods实时更新
 z8_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=11 and MainGoodsID is not null'''
 # 秒杀实时更新
@@ -228,7 +231,7 @@ z8_insert_str_1 = 'insert into dbo.zhe_800_xianshimiaosha(goods_id, goods_url, u
 z8_insert_str_2 = 'insert into dbo.zhe_800_pintuan(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, all_sell_count, property_info, detail_info, schedule, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 '''update'''
 # 常规goods更新
-z8_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, parent_dir=%s, {0} {1} where GoodsID = %s'
+z8_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, parent_dir=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 # 秒杀更新
 z8_update_str_2 = 'update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, parent_dir=%s where goods_id = %s'
 # 拼团更新
@@ -252,7 +255,7 @@ jp_select_str_1 = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan 
 jp_select_str_2 = jp_select_str_1
 # 常规goods实时更新数据获取
 jp_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=12 and MainGoodsID is not null'''
 # 秒杀实时更新
@@ -272,7 +275,7 @@ jp_insert_str_2 = 'insert into dbo.juanpi_pintuan(goods_id, goods_url, username,
 # 常规goods下架标记
 jp_update_str_1 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 # 常规goods更新
-jp_update_str_2 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+jp_update_str_2 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 # 秒杀更新
 jp_update_str_3 = 'update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
 # 拼团更新
@@ -339,13 +342,15 @@ cc_delete_str_2 = 'delete from dbo.chuchujie_xianshimiaosha where miaosha_end_ti
 '''select'''
 # 常规goods实时更新数据获取
 kl_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=29 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
 order by ID asc'''
 '''update'''
 # 常规goods更新
-kl_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+kl_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
+# 常规goods下架标记
+kl_update_str_2 = tb_update_str_3
 
 """
 蜜芽
@@ -419,7 +424,7 @@ mg_delete_str_4 = 'delete from dbo.mogujie_xianshimiaosha where miaosha_end_time
 '''select'''
 # 常规goods实时更新
 pd_select_str_1 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=13 and MainGoodsID is not null'''
 # 秒杀实时更新
@@ -430,7 +435,7 @@ pd_select_str_3 = pd_select_str_2
 pd_insert_str_1 = 'insert into dbo.pinduoduo_xianshimiaosha(goods_id, goods_url, username, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_info, all_image_url, property_info, detail_info, schedule, stock_info, miaosha_time, miaosha_begin_time, miaosha_end_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 '''update'''
 # 常规goods更新
-pd_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+pd_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 # 秒杀更新
 pd_update_str_2 = 'update dbo.pinduoduo_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s where goods_id = %s'
 '''delete'''
@@ -442,11 +447,11 @@ pd_delete_str_1 = 'delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s'
 """
 '''select'''
 vip_select_str_1 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time 
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=25'''
 '''update'''
-vip_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+vip_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
 
 """
 网易严选
@@ -454,13 +459,15 @@ vip_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s
 '''select'''
 # 常规goods实时更新
 yx_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=30 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
 order by ID asc'''
 '''update'''
 # 常规goods更新
-yx_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+yx_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
+# 常规goods下架标记
+yx_update_str_2 = tb_update_str_3
 
 """
 小米有品
@@ -468,10 +475,11 @@ yx_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s,
 '''select'''
 # 常规goods实时更新
 yp_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=31 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
 order by ID asc'''
 '''update'''
 # 常规goods更新
-yp_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, {0} {1} where GoodsID = %s'
+yp_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, {0} {1} where GoodsID = %s'
+yp_update_str_2 = tb_update_str_3

@@ -192,7 +192,7 @@ class PinduoduoParse(object):
                     tmp['spec_value'] = spec_value
                     tmp['detail_price'] = price
                     tmp['normal_price'] = normal_price
-                    tmp['img_url'] = img_url
+                    tmp['img_url'] = img_url if re.compile(r'http').findall(img_url) != [] else 'http:' + img_url
                     if rest_number <= 0:
                         tmp['rest_number'] = 0
                     else:
@@ -218,8 +218,7 @@ class PinduoduoParse(object):
             # print(len(price_info_list))
             # pprint(price_info_list)
 
-            # 所有示例图片地址
-            all_img_url = [{'img_url': item} for item in data.get('goods', {}).get('topGallery', [])]
+            all_img_url = self._get_all_img_url(data=data)
             # print(all_img_url)
 
             # 详细信息标签名对应属性
@@ -295,6 +294,17 @@ class PinduoduoParse(object):
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
+    def _get_all_img_url(self, data):
+        all_img_url = []
+        for item in data.get('goods', {}).get('topGallery', []):
+            if re.compile('http').findall(item) == []:
+                item = 'http:' + item
+            else:
+                pass
+            all_img_url.append({'img_url': item})
+
+        return all_img_url
+
     def insert_into_pinduoduo_xianshimiaosha_table(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=16)  # 采集来源地(卷皮秒杀商品)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
@@ -337,6 +347,7 @@ class PinduoduoParse(object):
             dumps(item['schedule'], ensure_ascii=False),
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
 
             item['goods_id'],
         ]

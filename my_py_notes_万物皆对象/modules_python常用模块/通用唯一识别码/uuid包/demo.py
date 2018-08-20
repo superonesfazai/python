@@ -24,7 +24,8 @@ print(uuid.uuid4())
 print()
 # make a UUID using an MD5 hash of a namespace UUID and a name(这样生成的是唯一的识别码)
 # url = 'python.org'
-url = 'https://www.kaola.com/activity/detail/8476.shtml?tag=cf5274c0ff456df92e385fabd1c58301&__da_Vu0MCs_OVtqR9&fc=u1.c6897.g6898.k1445920816175.pz'
+# url = 'https://www.kaola.com/activity/detail/8476.shtml?tag=cf5274c0ff456df92e385fabd1c58301&__da_Vu0MCs_OVtqR9&fc=u1.c6897.g6898.k1445920816175.pz'
+url = r'黑色|32码| 3t/'
 _uuid3 = uuid.uuid3(uuid.NAMESPACE_DNS, url)
 print(_uuid3)     # '6fa459ea-ee8a-3ca4-894e-db77e160355e'
 

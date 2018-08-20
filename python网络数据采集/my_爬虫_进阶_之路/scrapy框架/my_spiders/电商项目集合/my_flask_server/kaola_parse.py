@@ -305,6 +305,7 @@ class KaoLaParse(object):
             item['is_delete'],
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
 
             item['goods_id'],
         ]

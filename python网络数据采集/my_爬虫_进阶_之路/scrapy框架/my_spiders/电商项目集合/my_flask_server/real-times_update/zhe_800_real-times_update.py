@@ -19,6 +19,7 @@ import datetime
 from settings import IS_BACKGROUND_RUNNING
 
 from sql_str_controller import z8_select_str_3
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -27,7 +28,9 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
+    format_price_info_list,
 )
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     while True:
@@ -61,7 +64,6 @@ def run_forever():
                     data = zhe_800.deal_with_data()
                     if data != {}:
                         data['goods_id'] = item[0]
-
                         data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[1],
@@ -73,8 +75,16 @@ def run_forever():
                             new_price=data['price'],
                             new_taobao_price=data['taobao_price']
                         )
+                        try:
+                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=11)
+                        except AttributeError:  # 处理已被格式化过的
+                            old_sku_info = item[6]
+                        data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                            old_sku_info=old_sku_info,
+                            new_sku_info=format_price_info_list(data['price_info_list'], site_id=11),
+                            is_price_change=item[7] if item[7] is not None else 0
+                        )
 
-                        # print('------>>>| 爬取到的数据为: ', data)
                         zhe_800.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         sleep(2)

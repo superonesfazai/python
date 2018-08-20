@@ -497,8 +497,6 @@ class VipParse(object):
         '''
         tmp = _get_right_model_data(data=data, site_id=25)
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql
         base_sql_str = vip_update_str_1
         if tmp['delete_time'] == '':
@@ -537,6 +535,7 @@ class VipParse(object):
             dumps(item['schedule'], ensure_ascii=False),
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
 
             item['goods_id'],
         ]

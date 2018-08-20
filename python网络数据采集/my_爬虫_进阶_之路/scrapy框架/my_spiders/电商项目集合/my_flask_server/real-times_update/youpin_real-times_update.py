@@ -23,7 +23,10 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     TMALL_REAL_TIMES_SLEEP_TIME,)
 
-from sql_str_controller import yp_select_str_1
+from sql_str_controller import (
+    yp_select_str_1,
+    yp_update_str_2,)
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -33,7 +36,9 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
+    format_price_info_list,
 )
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     while True:
@@ -90,6 +95,9 @@ def run_forever():
                             delete_time=item[6])
                         if data.get('is_delete') == 1:  # 单独处理下架商品
                             my_lg.info('@@@ 该商品已下架...')
+                            tmp_sql_server._update_table_2(sql_str=yp_update_str_2, params=(item[1],), logger=my_lg)
+                            sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+                            continue
                         else:
                             data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
                                 old_price=item[3],
@@ -97,7 +105,15 @@ def run_forever():
                                 new_price=data['price'],
                                 new_taobao_price=data['taobao_price']
                             )
-                            # my_lg.info(str(data['_is_price_change']) + ' ' +str(data['_price_change_info']))
+                            try:
+                                old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[7]), site_id=31)
+                            except AttributeError:  # 处理已被格式化过的
+                                old_sku_info = item[7]
+                            data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                                old_sku_info=old_sku_info,
+                                new_sku_info=format_price_info_list(data['price_info_list'], site_id=31),
+                                is_price_change=item[8] if item[8] is not None else 0
+                            )
 
                         yp._to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值

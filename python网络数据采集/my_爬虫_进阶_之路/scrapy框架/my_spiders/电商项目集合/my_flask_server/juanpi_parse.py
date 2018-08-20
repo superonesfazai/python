@@ -93,7 +93,18 @@ class JuanPiParse(object):
             '''
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
+            # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
+            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)    # 该css为手机端标题块
+            # print(body)
+            if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:    # 页面为空处理
+                _ = SqlServerMyPageInfoSaveItemPipeline()
+                if _.is_connect_success:
+                    _._update_table(sql_str=jp_update_str_1, params=(goods_id, ))
+                    try: del _
+                    except: pass
+                    print('@@@ 逻辑删除该商品[{0}] is_delete = 1'.format(goods_id))
+                    return self._data_error_init()
+
             if body == '':
                 print('获取到的body为空str!请检查!')
                 return self._data_error_init()
@@ -581,6 +592,7 @@ class JuanPiParse(object):
             dumps(item['schedule'], ensure_ascii=False),
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
 
             item['goods_id'],
         ]

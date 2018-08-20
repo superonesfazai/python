@@ -593,6 +593,7 @@ class Zhe800Parse(object):
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['parent_dir'],
+            item['sku_info_trans_time'],
 
             item['goods_id'],
         ]

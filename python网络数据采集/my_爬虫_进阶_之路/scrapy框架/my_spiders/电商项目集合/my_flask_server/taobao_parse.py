@@ -43,7 +43,10 @@ from sql_str_controller import (
     tb_insert_str_2,
     tb_insert_str_3,
     tb_update_str_2,
+    tb_update_str_3,
 )
+
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
@@ -122,6 +125,11 @@ class TaoBaoLoginAndParse(object):
             ## 表示该商品已经下架, 原地址被重定向到新页面
             '''
             self.my_lg.info('@@@@@@ 该商品已经下架...')
+            _ = SqlServerMyPageInfoSaveItemPipeline()
+            if _.is_connect_success:
+                _._update_table_2(sql_str=tb_update_str_3, params=(goods_id,), logger=self.my_lg)
+                try: del _
+                except: pass
             tmp_data_s = self.init_pull_off_shelves_goods()
             self.result_data = {}
             return tmp_data_s
@@ -452,6 +460,7 @@ class TaoBaoLoginAndParse(object):
             item['is_delete'],
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
 
             item['goods_id'],
         ]

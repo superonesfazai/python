@@ -6,6 +6,7 @@
 @Time    : 2017/10/28 07:24
 @connect : superonesfazai@gmail.com
 '''
+
 import sys
 sys.path.append('..')
 
@@ -17,6 +18,7 @@ from time import sleep
 from settings import IS_BACKGROUND_RUNNING
 
 from sql_str_controller import al_select_str_6
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -25,7 +27,9 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
+    format_price_info_list,
 )
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     while True:
@@ -54,11 +58,6 @@ def run_forever():
 
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     print('与数据库的新连接成功建立...')
 
@@ -96,8 +95,7 @@ def run_forever():
                             tmp_data=data,
                             is_delete=item[1],
                             shelf_time=item[4],
-                            delete_time=item[5]
-                        )
+                            delete_time=item[5])
                         print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
 
                         '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
@@ -107,7 +105,16 @@ def run_forever():
                             old_price=item[2],
                             old_taobao_price=item[3],
                             new_price=data['price'],
-                            new_taobao_price=data['taobao_price']
+                            new_taobao_price=data['taobao_price'])
+
+                        try:
+                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=2)
+                        except AttributeError:  # 处理已被格式化过的
+                            old_sku_info = item[6]
+                        data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                            old_sku_info=old_sku_info,
+                            new_sku_info=format_price_info_list(data['sku_map'], site_id=2),
+                            is_price_change=item[7] if item[7] is not None else 0
                         )
 
                         # print('------>>>| 爬取到的数据为: ', data)

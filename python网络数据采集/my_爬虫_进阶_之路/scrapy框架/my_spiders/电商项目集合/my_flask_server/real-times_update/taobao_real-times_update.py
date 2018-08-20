@@ -30,6 +30,7 @@ from settings import (
 )
 
 from sql_str_controller import tb_select_str_3
+from multiplex_code import get_sku_info_trans_record
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -42,7 +43,9 @@ from fzutils.linux_utils import (
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
+    format_price_info_list,
 )
+from fzutils.common_utils import json_2_dict
 
 def run_forever():
     #### 实时更新数据
@@ -77,30 +80,11 @@ def run_forever():
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     my_lg.info('正在重置，并与数据库建立新连接中...')
                     tmp_sql_server = SqlPools()
-
                     my_lg.info('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
                     my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))
-                    data = taobao.get_goods_data(item[0])
-
-                    if data.get('is_delete') == 1:        # 单独处理【原先插入】就是 下架状态的商品
-                        data['goods_id'] = item[0]
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[1],
-                            shelf_time=item[4],
-                            delete_time=item[5]
-                        )
-
-                        # my_lg.info('------>>>| 爬取到的数据为: ' + str(data))
-                        taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
-
-                        sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 避免服务器更新太频繁
-                        index += 1
-                        gc.collect()
-                        continue
-
+                    taobao.get_goods_data(item[0])
                     data = taobao.deal_with_data(goods_id=item[0])
                     if data != {}:
                         data['goods_id'] = item[0]
@@ -117,7 +101,16 @@ def run_forever():
                             new_taobao_price=data['taobao_price']
                         )
 
-                        # my_lg.info('------>>>| 爬取到的数据为: ' + str(data))
+                        try:
+                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=1)
+                        except AttributeError:  # 处理已被格式化过的
+                            old_sku_info = item[6]
+                        data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                            old_sku_info=old_sku_info,
+                            new_sku_info=format_price_info_list(data['price_info_list'], site_id=1),
+                            is_price_change=item[7] if item[7] is not None else 0
+                        )
+
                         taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:
                         my_lg.info('------>>>| 休眠5s中...')

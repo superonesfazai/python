@@ -13,6 +13,7 @@
 
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.internet_utils import get_random_pc_ua
+from fzutils.time_utils import get_shanghai_time
 
 from scrapy.selector import Selector
 import re
@@ -66,3 +67,47 @@ def _z8_get_parent_dir(goods_id):
     # print(parent_dir)
 
     return parent_dir
+
+def get_sku_info_trans_record(old_sku_info, new_sku_info, is_price_change):
+    '''
+    返回sku_info变化需要记录的信息
+    :param old_sku_info: db中原先的sku_info
+    :param new_sku_info: 新采集的sku_info
+    :param is_price_change: 原先sku_info的标记状态
+    :return: is_price_change, sku_info_trans_time
+    '''
+    sku_info_trans_time = str(get_shanghai_time())
+    if is_price_change == 1:        # 避免再次更新更改未被后台同步的数据
+        return is_price_change, sku_info_trans_time
+
+    if len(old_sku_info) != len(new_sku_info):
+        return 1, sku_info_trans_time
+
+    for item in old_sku_info:   # 价格, 库存变动的
+        old_unique_id = item.get('unique_id', '')
+        old_detail_price = item.get('detail_price', '')
+        old_rest_number = item.get('rest_number', 50)
+        for i in new_sku_info:
+            new_unique_id = i.get('unique_id', '')
+            new_detail_price = i.get('detail_price', '')
+            new_rest_number = i.get('rest_number', 50)
+            if old_unique_id == new_unique_id:
+                if float(old_detail_price) != float(new_detail_price):
+                    return 1, sku_info_trans_time
+                else:
+                    pass
+
+                if old_rest_number != new_rest_number:
+                    return 1, sku_info_trans_time
+                else:
+                    pass
+            else:
+                pass
+
+    old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
+    new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
+
+    if old_unique_id_list != new_unique_id_list:    # 规格变动的
+        return 1, sku_info_trans_time
+
+    return 0, sku_info_trans_time
