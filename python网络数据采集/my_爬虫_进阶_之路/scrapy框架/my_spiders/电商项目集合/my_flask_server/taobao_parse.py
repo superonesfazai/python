@@ -202,7 +202,7 @@ class TaoBaoLoginAndParse(object):
             all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
             # self.my_lg.info(str(all_img_url))
             p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))   # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
-            div_desc = self._get_div_desc()
+            div_desc = self._get_div_desc(data=data, goods_id=goods_id)
             if div_desc == '':
                 return self._data_error_init()
 
@@ -357,6 +357,7 @@ class TaoBaoLoginAndParse(object):
         :return:
         '''
         data = kwargs.get('data', {})
+        goods_id = kwargs.get('goods_id')
 
         # 手机端描述地址
         if data.get('item').get('taobaoDescUrl') is not None:
