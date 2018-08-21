@@ -21,9 +21,6 @@ from time import sleep
 import gc
 from pprint import pprint
 from json import dumps
-
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from scrapy.selector import Selector
 
 from sql_str_controller import (
@@ -36,7 +33,6 @@ from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.spider.fz_phantomjs import MyPhantomjs
-from fzutils.ip_pools import MyIpPools
 from fzutils.common_utils import json_2_dict
 
 class JdParse(object):

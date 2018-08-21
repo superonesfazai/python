@@ -27,4 +27,4 @@ browser.find_element_by_id("kw").send_keys("selenium")
 browser.find_element_by_id("su").click()
 time.sleep(3)
 
-# browser.quit()
+browser.quit()
