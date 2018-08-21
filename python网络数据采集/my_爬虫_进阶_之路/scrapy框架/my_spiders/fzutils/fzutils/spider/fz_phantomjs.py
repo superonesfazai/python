@@ -10,7 +10,9 @@ import sys
 sys.path.append('..')
 
 from ..ip_pools import MyIpPools
-from ..internet_utils import get_random_pc_ua
+from ..internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
 from ..common_utils import _print
 
 from selenium import webdriver
@@ -23,7 +25,6 @@ from selenium.common.exceptions import (
     WebDriverException,
     NoSuchElementException,
 )
-
 from scrapy.selector import Selector
 
 import re
@@ -35,54 +36,128 @@ __all__ = [
 ]
 
 PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
+CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
+# 启动类型
+CHROME = 0
+PHANTOMJS = 1
+
+# user-agent类型
+PC = 0
+PHONE = 1
+
 class MyPhantomjs(object):
-    def __init__(self, load_images=False, executable_path=EXECUTABLE_PATH, logger=None, high_conceal=True):
+    def __init__(self, type=PHANTOMJS, load_images=False,
+                 executable_path=PHANTOMJS_DRIVER_PATH, logger=None,
+                 high_conceal=True, chrome_visualizate=False,
+                 user_agent_type=PC):
         '''
         初始化
         :param load_images: 是否加载图片
         :param high_conceal: ip是否高匿
+        :param chrome_visualizate: 是否为无头浏览器(针对chrome)
+        :param user_agent_type: user-agent类型
         '''
         super(MyPhantomjs, self).__init__()
-        self.my_lg = logger
+        self.type = type
         self.high_conceal = high_conceal
-        self._set_driver(load_images, executable_path)
+        self.executable_path = executable_path
+        self.load_images = load_images
+        self.chrome_visualizate = chrome_visualizate
+        self.my_lg = logger
+        self.user_agent_type = user_agent_type
+        self._set_driver()
 
-    def _set_driver(self, load_images, executable_path, num_retries=4):
+    def _set_driver(self, num_retries=4):
         '''
         初始化self.driver，并且出错重试
-        :param load_images: 是否加载图片
         :param num_retries: 重试次数
-        :param executable_path: 执行路径
         :return:
         '''
         try:
-            self.init_phantomjs(load_images, executable_path)
+            if self.type == PHANTOMJS:
+                self._init_phantomjs()
+            elif self.type == CHROME:
+                self._init_chrome()
+            else:
+                raise ValueError('type赋值异常!请检查!')
         except Exception as e:
             # _print(msg='初始化phantomjs时出错:', logger=self.my_lg, log_level=2, exception=e)
             if num_retries > 0:
-                return self._set_driver(load_images, executable_path, num_retries=num_retries - 1)
+                return self._set_driver(num_retries=num_retries-1)
             else:
                 _print(msg='初始化phantomjs时出错:', logger=self.my_lg, log_level=2, exception=e)
                 raise e
 
-    def init_phantomjs(self, load_images, executable_path):
+    def _init_phantomjs(self):
         """
         初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
         """
         _print(msg='--->>>初始化phantomjs驱动中<<<---', logger=self.my_lg)
         cap = webdriver.DesiredCapabilities.PHANTOMJS
         cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = load_images
+        cap['phantomjs.page.settings.loadImages'] = self.load_images
         cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
+        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua() if self.user_agent_type == PC else get_random_phone_ua()
         # cap['phantomjs.page.customHeaders.Cookie'] = cookies
 
-        self.driver = webdriver.PhantomJS(executable_path=executable_path, desired_capabilities=cap)
+        self.driver = webdriver.PhantomJS(executable_path=self.executable_path, desired_capabilities=cap)
 
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        wait = ui.WebDriverWait(self.driver, 20)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
+        _print(msg='------->>>初始化完毕<<<-------', logger=self.my_lg)
+
+        return True
+
+    def _init_chrome(self):
+        '''
+        如果使用chrome请设置page_timeout=30
+        :return:
+        '''
+        _print(msg='--->>>初始化chrome驱动中<<<---', logger=self.my_lg)
+        chrome_options = webdriver.ChromeOptions()
+        if not self.chrome_visualizate:
+            chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
+        # 谷歌文档提到需要加上这个属性来规避bug
+        chrome_options.add_argument('--disable-gpu')
+        # chrome_options.add_argument('--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
+        # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
+
+        # 设置无图模式
+        img_type = 1 if self.load_images else 2
+        prefs = {
+            'profile.managed_default_content_settings.images': img_type,
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
+
+        # 设置代理
+        ip_object = MyIpPools(high_conceal=self.high_conceal)
+        proxy_ip = re.compile(r'https://|http://').sub('', ip_object._get_random_proxy_ip()) if isinstance(ip_object._get_random_proxy_ip(), str) else ''
+        if proxy_ip != '':
+            chrome_options.add_argument('--proxy-server={0}'.format(proxy_ip))
+        else:
+            raise AssertionError('给chrome设置代理失败, 异常抛出!')
+
+        '''无法打开https解决方案'''
+        # 配置忽略ssl错误
+        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
+        capabilities['acceptSslCerts'] = True
+        capabilities['acceptInsecureCerts'] = True
+
+        # 修改user-agent
+        user_agent = get_random_pc_ua() if self.user_agent_type == PC else get_random_phone_ua()
+        chrome_options.add_argument('--user-agent={0}'.format(user_agent))
+
+        # 忽视证书错误
+        chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])
+
+        self.driver = webdriver.Chrome(
+            executable_path=CHROME_DRIVER_PATH,
+            chrome_options=chrome_options,
+            desired_capabilities=capabilities
+        )
+        wait = ui.WebDriverWait(self.driver, 30)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
         _print(msg='------->>>初始化完毕<<<-------', logger=self.my_lg)
 
         return True
@@ -115,32 +190,35 @@ class MyPhantomjs(object):
 
         return True
 
-    def use_phantomjs_to_get_url_body(self, url, css_selector='', exec_code=''):
+    def use_phantomjs_to_get_url_body(self, url, css_selector='', exec_code='', timeout=20):
         '''
         通过phantomjs来获取url的body
         :param url: 待获取的url
         :return: 字符串类型
         '''
-        change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        if change_ip_result is False:
-            if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
-                return ''
-            else: pass
+        if self.type == PHANTOMJS:
+            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            if change_ip_result is False:
+                if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
+                    return ''
+                else: pass
+        else:   # 其他类型不动态改变代理
+            pass
 
         try:
-            self.driver.set_page_load_timeout(20)  # 设置成10秒避免数据出错
+            self.driver.set_page_load_timeout(timeout)  # 设置成10秒避免数据出错
         except:
-            try: self.driver.set_page_load_timeout(20)
+            try: self.driver.set_page_load_timeout(timeout)
             except: return ''
 
         try:
             self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(timeout)  # 隐式等待和显式等待可以同时使用
 
             if css_selector != '':
                 locator = (By.CSS_SELECTOR, css_selector)
                 try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                    WebDriverWait(self.driver, timeout, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:
                     _print(msg='遇到错误: ', logger=self.my_lg, log_level=2, exception=e)
                     return ''
@@ -162,43 +240,46 @@ class MyPhantomjs(object):
             main_body = self._wash_html(self.driver.page_source)
             # _print(msg=str(main_body), logger=self.my_lg)
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            _print(msg='-->>time out after 20 seconds when loading page', logger=self.my_lg, log_level=2)
+            _print(msg='-->>time out after {0} seconds when loading page'.format(timeout), logger=self.my_lg, log_level=2)
             _print(msg='报错如下: ', logger=self.my_lg, log_level=2, exception=e)
             try:
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            except WebDriverException or Exception: pass        # 内部urllib.error.URLError
+            except Exception: pass        # 内部urllib.error.URLError or WebDriverException
             _print(msg='main_body为空!', logger=self.my_lg, log_level=2)
             main_body = ''
 
         return main_body
 
-    def get_url_cookies_from_phantomjs_session(self, url, css_selector=''):
+    def get_url_cookies_from_phantomjs_session(self, url, css_selector='', timeout=20):
         '''
         从session中获取cookies
         :param url:
         :return: cookies 类型 str
         '''
         _print(msg='正在获取cookies...请耐心等待...', logger=self.my_lg)
-        change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        if change_ip_result is False:
-            if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
-                return ''
-            else: pass
+        if self.type == PHANTOMJS:
+            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
+            if change_ip_result is False:
+                if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
+                    return ''
+                else: pass
+        else:       # 其他类型部动态修改代理
+            pass
 
         try:
-            self.driver.set_page_load_timeout(20)  # 设置成10秒避免数据出错
+            self.driver.set_page_load_timeout(timeout)  # 设置成10秒避免数据出错
         except:
-            try: self.driver.set_page_load_timeout(20)
+            try: self.driver.set_page_load_timeout(timeout)
             except: return ''
 
         try:
             self.driver.get(url)
-            self.driver.implicitly_wait(20)  # 隐式等待和显式等待可以同时使用
+            self.driver.implicitly_wait(timeout)  # 隐式等待和显式等待可以同时使用
 
             if css_selector != '':
                 locator = (By.CSS_SELECTOR, css_selector)
                 try:
-                    WebDriverWait(self.driver, 20, 0.5).until(EC.presence_of_element_located(locator))
+                    WebDriverWait(self.driver, timeout, 0.5).until(EC.presence_of_element_located(locator))
                 except Exception as e:
                     _print(msg='遇到错误: ', logger=self.my_lg, log_level=2, exception=e)
                     return ''
@@ -209,7 +290,7 @@ class MyPhantomjs(object):
             # _print(msg=str(cookies), logger=self.my_lg)
 
         except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            _print(msg='-->>time out after 20 seconds when loading page', logger=self.my_lg, log_level=2)
+            _print(msg='-->>time out after {0} seconds when loading page'.format(timeout), logger=self.my_lg, log_level=2)
             _print(msg='报错如下: ', logger=self.my_lg, log_level=2, exception=e)
             try:
                 self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
@@ -257,16 +338,3 @@ class MyPhantomjs(object):
         except:
             pass
         gc.collect()
-
-# from logging import INFO, ERROR
-# from fzutils.time_utils import get_shanghai_time
-# from fzutils.log_utils import set_logger
-#
-# my_lg = set_logger(
-#     log_file_name='/Users/afa/myFiles/my_spider_logs/电商项目' + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
-#     console_log_level=INFO,
-#     file_log_level=ERROR
-# )
-#
-# _ = MyPhantomjs(logger=my_lg)
-# del _

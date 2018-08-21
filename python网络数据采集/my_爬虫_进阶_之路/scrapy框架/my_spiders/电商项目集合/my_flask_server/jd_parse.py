@@ -24,10 +24,6 @@ from json import dumps
 
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import WebDriverException
 from scrapy.selector import Selector
 
 from sql_str_controller import (
@@ -39,19 +35,16 @@ from sql_str_controller import (
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.ip_pools import MyIpPools
 from fzutils.common_utils import json_2_dict
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class JdParse(object):
     def __init__(self):
         self._set_headers()
         self._set_pc_headers()
         self.result_data = {}
-        self.init_phantomjs()
-        # self._init_chrome()
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
         self.headers = {
@@ -92,27 +85,15 @@ class JdParse(object):
             print('------>>>| 得到的移动端地址为: ', phone_url)
 
             # print(tmp_url)
-
-            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            if change_ip_result is False:
-                print('phantomjs切换ip错误, 此处先跳过更新！')
-                return self._data_error_init()
-
-            try:
-                self.driver.set_page_load_timeout(15)       # 设置成15秒避免数据出错
-            except WebDriverException as e:
-                print(e)
-                return {}
-
             if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
                 # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-                self.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
+                self.my_phantomjs.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
             elif goods_id[0] == 2:
                 # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-                self.use_phantomjs_to_get_url_body(url='https://m.yiyaojd.com/cart/cartNum.json')
+                self.my_phantomjs.use_phantomjs_to_get_url_body(url='https://m.yiyaojd.com/cart/cartNum.json')
 
             # 得到总销售量
-            comment_body = self.use_phantomjs_to_get_url_body(url=comment_url)
+            comment_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=comment_url)
             if comment_body == '':  # 网络问题或者ip切换出错
                 return self._data_error_init()
 
@@ -130,12 +111,7 @@ class JdParse(object):
                 print('获取到的comment的销售量data为空!')
                 return self._data_error_init()
 
-            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            if change_ip_result is False:
-                print('phantomjs切换ip错误, 此处先跳过更新！')
-                return self._data_error_init()
-
-            body = self.use_phantomjs_to_get_url_body(url=tmp_url)
+            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
             if body == '':
                 return self._data_error_init()
 
@@ -427,11 +403,8 @@ class JdParse(object):
         elif ware_id[0] == 2:  # 表示京东大药房商品
             price_url = 'https://m.yiyaojd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
 
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()   # 每次都动态换代理ip比较危险感觉，容易跑死, 但是也不可能拿裸机ip进行爬取，京东有点坑哦，嘿嘿！
-        self.driver.set_page_load_timeout(15)  # 设置成15秒避免数据出错
-
         # print(price_url)
-        price_body = self.use_phantomjs_to_get_url_body(url=price_url)
+        price_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=price_url)
 
         price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
         if price_body_1 != []:
@@ -819,145 +792,6 @@ class JdParse(object):
 
         return site_id
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-        tmp_execute_path = EXECUTABLE_PATH
-
-        self.driver = webdriver.PhantomJS(executable_path=tmp_execute_path, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def _init_chrome(self):
-        '''
-        如果使用chrome请设置page_timeout=30
-        :return:
-        '''
-        print('--->>>初始化chrome驱动中<<<---')
-        chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
-        # 谷歌文档提到需要加上这个属性来规避bug
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--no-sandbox')     # required when running as root user. otherwise you would get no sandbox errors.
-
-        # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
-
-        # 设置无图模式
-        prefs = {
-            'profile.managed_default_content_settings.images': 2,
-        }
-        chrome_options.add_experimental_option("prefs", prefs)
-
-        # 设置代理
-        ip_object = MyIpPools()
-        proxy_ip = ip_object._get_random_proxy_ip().replace('http://', '') if isinstance(ip_object._get_random_proxy_ip(), str) else ''
-        if proxy_ip != '':
-            chrome_options.add_argument('--proxy-server={0}'.format(proxy_ip))
-
-        '''无法打开https解决方案'''
-        # 配置忽略ssl错误
-        capabilities = webdriver.DesiredCapabilities.CHROME.copy()
-        capabilities['acceptSslCerts'] = True
-        capabilities['acceptInsecureCerts'] = True
-
-        # 修改user-agent
-        chrome_options.add_argument('--user-agent={0}'.format(get_random_pc_ua()))
-
-        # 忽视证书错误
-        chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])
-
-        self.driver = webdriver.Chrome(
-            executable_path=CHROME_DRIVER_PATH,
-            chrome_options=chrome_options,
-            desired_capabilities=capabilities
-        )
-        wait = ui.WebDriverWait(self.driver, 30)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        proxy_ip = ip_object._get_random_proxy_ip()
-        if not proxy_ip:    # 失败返回False
-            return False
-
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-
-        except Exception:
-            print('动态切换ip失败')
-            return False
-
-        return True
-
-    # def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-    #     sleep(.3)
-    #
-    #     return True
-
-    def use_phantomjs_to_get_url_body(self, url, css_selector='', page_timeout=15):
-        '''
-        通过phantomjs来获取url的body
-        :param url: 待获取的url
-        :return: 字符串类型
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        try:
-            self.driver.set_page_load_timeout(page_timeout)  # 设置成10秒避免数据出错
-        except:
-            print('phantomjs切换ip错误, 此处先跳过更新！')
-            return ''
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(page_timeout)  # 隐式等待和显式等待可以同时使用
-
-            if css_selector != '':
-                locator = (By.CSS_SELECTOR, css_selector)
-                try:
-                    WebDriverWait(self.driver, page_timeout, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    print('遇到错误: ', e)
-                    return ''
-                else:
-                    print('div.d-content已经加载完毕')
-
-            main_body = self.driver.page_source
-            main_body = re.compile(r'\n').sub('', main_body)
-            main_body = re.compile(r'  ').sub('', main_body)
-            main_body = re.compile(r'\t').sub('', main_body)
-            # print(main_body)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after {0} seconds when loading page'.format(page_timeout))
-            print('报错如下: ', e)
-            # self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            print('main_body为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            main_body = ''
-
-        return main_body
-
     def get_goods_id_from_url(self, jd_url):
         '''
         注意: 初始地址可以直接用这个[https://item.jd.com/xxxxx.html]因为jd会给你重定向到正确地址
@@ -1004,7 +838,7 @@ class JdParse(object):
 
         # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
         # tmp_pc_body = MyRequests.get_url_body(url=tmp_pc_url, headers=self.pc_headers)
-        tmp_pc_body = self.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
+        tmp_pc_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
         # print(tmp_pc_body)
         if tmp_pc_body == '':
             print('#### 获取该商品的无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
@@ -1028,7 +862,8 @@ class JdParse(object):
 
     def __del__(self):
         try:
-            self.driver.quit()
+            # self.driver.quit()
+            del self.my_phantomjs
         except:
             pass
         gc.collect()

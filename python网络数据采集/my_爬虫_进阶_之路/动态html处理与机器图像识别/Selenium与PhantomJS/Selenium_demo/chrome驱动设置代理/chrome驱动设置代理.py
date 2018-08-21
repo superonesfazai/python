@@ -12,7 +12,7 @@
 """
 
 from selenium import webdriver
-from my_ip_pools import MyIpPools
+from fzutils.ip_pools import MyIpPools
 
 chrome_options = webdriver.ChromeOptions()
 # chrome_options.add_argument('--proxy-server=http://183.136.218.253:80')
