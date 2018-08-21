@@ -30,6 +30,8 @@ from sql_str_controller import (
     jp_update_str_4,
 )
 
+from multiplex_code import _jp_get_parent_dir
+
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
     timestamp_to_regulartime,
@@ -119,7 +121,7 @@ class JuanPiParse(object):
 
             self.skudata_headers = self.headers
             self.skudata_headers.update({'Host': 'webservice.juanpi.com'})
-            skudata_body = MyRequests.get_url_body(url=skudata_url, headers=self.skudata_headers)
+            skudata_body = MyRequests.get_url_body(url=skudata_url, headers=self.skudata_headers, high_conceal=True)
             if skudata_body == '':
                 print('获取到的skudata_body为空str!请检查!')
                 return self._data_error_init()
@@ -155,10 +157,11 @@ class JuanPiParse(object):
                     main_data = self._wash_main_data(main_data.get('detail', {}))
 
                     main_data['skudata'] = skudata
-                    # pprint(main_data)
-                    # print(main_data)
                     main_data['goods_id'] = goods_id
+                    main_data['parent_dir'] = _jp_get_parent_dir(phantomjs=self.my_phantomjs, goods_id=goods_id)
                     self.result_data = main_data
+                    # pprint(main_data)
+
                     return main_data
 
                 else:
@@ -213,7 +216,7 @@ class JuanPiParse(object):
             is_delete = self._get_is_delete(data=data, schedule=schedule)
             if price == 0 or taobao_price == 0:     # 没有获取到价格说明商品已经下架了
                 is_delete = 1
-            # print('is_delete = ', is_delete)
+            parent_dir = data.get('parent_dir', '')
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -231,6 +234,7 @@ class JuanPiParse(object):
                 'div_desc': div_desc,                   # div_desc
                 'is_delete': is_delete,                 # 是否下架判断
                 'schedule': schedule,                   # 商品销售时间段
+                'parent_dir': parent_dir,
             }
             # pprint(result)
             # wait_to_send_data = {
@@ -263,8 +267,7 @@ class JuanPiParse(object):
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=12)
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql语句
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
+        # pprint(params)
         # 不改价格的sql语句
         base_sql_str = jp_update_str_2
         if tmp['delete_time'] == '':
@@ -278,7 +281,6 @@ class JuanPiParse(object):
 
     def insert_into_juanpi_xianshimiaosha_table(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=15)
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
@@ -299,7 +301,6 @@ class JuanPiParse(object):
             print('此处抓到的可能是卷皮拼团券所以跳过')
             return None
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_pintuan_params(item=tmp)
@@ -313,7 +314,6 @@ class JuanPiParse(object):
         except:
             print('此处抓到的可能是卷皮拼团券所以跳过')
             return None
-        # print('------>>>| 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_pintuan_params(item=tmp)
@@ -593,6 +593,7 @@ class JuanPiParse(object):
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
+            item['parent_dir'],
 
             item['goods_id'],
         ]
@@ -631,9 +632,9 @@ class JuanPiParse(object):
             item['miaosha_end_time'],
             item['tab_id'],
             item['page'],
-
             item['site_id'],
             item['is_delete'],
+            item['parent_dir'],
         )
 
         return params
@@ -657,6 +658,7 @@ class JuanPiParse(object):
             dumps(item['miaosha_time'], ensure_ascii=False),
             item['miaosha_begin_time'],
             item['miaosha_end_time'],
+            item['parent_dir'],
 
             item['goods_id'],
         )
@@ -685,8 +687,10 @@ class JuanPiParse(object):
             item['pintuan_begin_time'],
             item['pintuan_end_time'],
             item['page'],
-
             item['site_id'],
+            item['parent_dir'],
+
+
             item['is_delete'],
         )
 
@@ -708,6 +712,7 @@ class JuanPiParse(object):
             item['div_desc'],  # 存入到DetailInfo
             dumps(item['schedule'], ensure_ascii=False),
             item['is_delete'],
+            item['parent_dir'],
 
             item['goods_id']
         )

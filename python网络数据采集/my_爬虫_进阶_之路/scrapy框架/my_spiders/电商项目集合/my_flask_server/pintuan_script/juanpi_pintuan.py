@@ -103,8 +103,27 @@ class JuanPiPinTuan(object):
         处理并存储拼团商品数据
         :return:
         '''
-        pintuan_goods_id_list = self._get_pintuan_goods_info()
+        def oo(juanpi_pintuan, item, db_goods_id_list):
+            goods_data = self.get_pintuan_goods_data(
+                juanpi_pintuan=juanpi_pintuan,
+                goods_id=item.get('goods_id', ''),
+                all_sell_count=item.get('all_sell_count', ''),
+                page=item.get('page', 0)
+            )
 
+            if goods_data == {}:  # 返回的data为空则跳过
+                pass
+            else:
+                # print(goods_data)
+                _r = juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                if _r:  # 更新
+                    db_goods_id_list.append(item.get('goods_id', ''))
+                    db_goods_id_list = list(set(db_goods_id_list))
+            sleep(1)
+
+            return db_goods_id_list
+
+        pintuan_goods_id_list = self._get_pintuan_goods_info()
         juanpi_pintuan = JuanPiParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
@@ -126,42 +145,11 @@ class JuanPiPinTuan(object):
                     else:
                         # * 注意卷皮的拼团时间跟它原先抓到的上下架时间是同一个时间 *
                         ## 所以就不用进行替换
-                        goods_data = self.get_pintuan_goods_data(
-                            juanpi_pintuan=juanpi_pintuan,
-                            goods_id=item.get('goods_id', ''),
-                            all_sell_count=item.get('all_sell_count', ''),
-                            page=item.get('page', 0)
-                        )
-
-                        if goods_data == {}:  # 返回的data为空则跳过
-                            pass
-                        else:
-                            # print(goods_data)
-                            _r = juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                            if _r:  # 更新
-                                db_goods_id_list.append(item.get('goods_id', ''))
-                                db_goods_id_list = list(set(db_goods_id_list))
-
-                        sleep(1)
+                        db_goods_id_list = oo(juanpi_pintuan=juanpi_pintuan, item=item, db_goods_id_list=db_goods_id_list)
                         index += 1
 
                 else:
-                    goods_data = self.get_pintuan_goods_data(
-                        juanpi_pintuan=juanpi_pintuan,
-                        goods_id=item.get('goods_id', ''),
-                        all_sell_count=item.get('all_sell_count', ''),
-                        page=item.get('page', 0)
-                    )
-                    if goods_data == {}:  # 返回的data为空则跳过
-                        pass
-                    else:
-                        # print(goods_data)
-                        _r = juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                        if _r:
-                            db_goods_id_list.append(item.get('goods_id', ''))
-                            db_goods_id_list = list(set(db_goods_id_list))
-
-                    sleep(1)
+                    db_goods_id_list = oo(juanpi_pintuan=juanpi_pintuan, item=item, db_goods_id_list=db_goods_id_list)
                     index += 1
 
         else:

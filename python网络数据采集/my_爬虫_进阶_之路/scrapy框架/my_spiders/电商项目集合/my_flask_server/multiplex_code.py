@@ -42,8 +42,6 @@ def _z8_get_parent_dir(goods_id):
     )
 
     url = 'https://shop.zhe800.com/products/{0}'.format(goods_id)
-    # response = requests.get(, headers=headers, params=params)
-    # print(response.text)
     body = MyRequests.get_url_body(url=url, headers=headers, params=None, high_conceal=True)
     # print(body)
 
@@ -62,6 +60,40 @@ def _z8_get_parent_dir(goods_id):
         return ''
 
     parent_dir.append(_2)
+    # 父级路径
+    parent_dir = '/'.join(parent_dir)
+    # print(parent_dir)
+
+    return parent_dir
+
+def _jp_get_parent_dir(phantomjs, goods_id):
+    '''
+    卷皮获取parent_dir(常规, 秒杀, 拼团皆可调用)
+    :param goods_id:
+    :return: '' | 'xxx/xxx'
+    '''
+    url = 'http://shop.juanpi.com/deal/{0}'.format(goods_id)
+    try:
+        body = phantomjs.use_phantomjs_to_get_url_body(url=url)
+        # print(body)
+    except Exception as e:
+        print(e)
+        return ''
+
+    try:
+        fl = Selector(text=body).css('div.place-explain.fl').extract_first()
+        # print(fl)
+        assert fl is not None, '获取到的fl为None!获取parent_dir失败!'
+        fl_a = Selector(text=fl).css('a::text').extract()
+        # print(fl_a)
+        if len(fl_a) <= 2:  # eg: ['首页', '商品名']
+            return ''
+        parent_dir = fl_a[1:-1:1]
+
+    except Exception as e:
+        print('获取parent_dir时遇到错误(默认为""):', e)
+        return ''
+
     # 父级路径
     parent_dir = '/'.join(parent_dir)
     # print(parent_dir)

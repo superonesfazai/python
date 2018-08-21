@@ -26,7 +26,6 @@ from selenium.common.exceptions import (
 
 from scrapy.selector import Selector
 
-from random import randint
 import re
 import gc
 from time import sleep
@@ -40,13 +39,15 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class MyPhantomjs(object):
-    def __init__(self, load_images=False, executable_path=EXECUTABLE_PATH, logger=None):
+    def __init__(self, load_images=False, executable_path=EXECUTABLE_PATH, logger=None, high_conceal=True):
         '''
         初始化
         :param load_images: 是否加载图片
+        :param high_conceal: ip是否高匿
         '''
         super(MyPhantomjs, self).__init__()
         self.my_lg = logger
+        self.high_conceal = high_conceal
         self._set_driver(load_images, executable_path)
 
     def _set_driver(self, load_images, executable_path, num_retries=4):
@@ -91,7 +92,7 @@ class MyPhantomjs(object):
         给phantomjs切换代理ip
         :return:
         '''
-        ip_object = MyIpPools()
+        ip_object = MyIpPools(high_conceal=self.high_conceal)
         proxy_ip = ip_object._get_random_proxy_ip()
         if not proxy_ip:
             return False

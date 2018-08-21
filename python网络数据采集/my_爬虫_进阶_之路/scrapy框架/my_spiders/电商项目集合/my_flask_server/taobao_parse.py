@@ -16,11 +16,9 @@ from random import randint
 import json
 import re
 from pprint import pprint
-from decimal import Decimal
 from json import dumps
 import asyncio
 from time import sleep
-import datetime
 import gc
 # import pycurl
 # from io import StringIO
@@ -32,7 +30,6 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     CHROME_DRIVER_PATH,
 )
-import pytz
 from logging import INFO, ERROR
 from json import JSONDecodeError
 from urllib.parse import urlencode
@@ -77,7 +74,6 @@ class TaoBaoLoginAndParse(object):
             'accept': '*/*',
             # 'referer': 'https://h5.m.taobao.com/awp/core/detail.htm?id=560666972076',
             # 'authority': 'h5api.m.taobao.com',
-            # 'cookie': 'v=0; cookie2=1e478415a5583e8e0f5ec1598fe22224; t=1bdcbe0b678123e1755897be375b453f; _tb_token_=8f81eeeb31d0; cna=UOK9Ey4N1hYCAXHXtRx8QV37; thw=cn; mt=ci%3D-1_0; enc=b5TkGZ7%2F21TQIJJszNV9Lh6NcqQo2HsiX8RUxdH1xWxdk1bDmUu4bwcp%2FdmRjjjgULSKAfJQPasgu2nWMNNlnw%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; _m_h5_tk=19d41e6c7d8fda1949de6878565815aa_1530352039810; _m_h5_tk_enc=f2fdd16bbc1f39ce53446f1cbc8a9118; isg=BCQkk16MI6DwJFftGmJ7sz3H9STWFUpaNIkeKj5FM-9R6cWzZM0Kt3oArUFxMYB_',
         }
 
     def _set_logger(self, logger):
@@ -101,7 +97,7 @@ class TaoBaoLoginAndParse(object):
 
         # 获取主接口的body
         last_url = self._get_last_url(goods_id=goods_id)
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
+        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, high_conceal=True)
         if data == '':
             self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
             return self._data_error_init()
@@ -186,42 +182,12 @@ class TaoBaoLoginAndParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
-
-            # 掌柜
             account = data['seller'].get('sellerNick', '')
-
-            # 商品名称
             title = data['item']['title']
-            # 子标题
             sub_title = data['item'].get('subtitle', '')
             sub_title = re.compile(r'\n').sub('', sub_title)
-            # 店铺主页地址
-            # shop_name_url = 'https:' + data['seller']['taoShopUrl']
-            # shop_name_url = re.compile(r'.m.').sub('.', shop_name_url)  # 手机版转换为pc版
-
-            # 商品价格
-            # price = data['apiStack'][0]['value']['price']['extraPrices'][0]['priceText']
-            tmp_taobao_price = data['apiStack'][0].get('value', '').get('price').get('price').get('priceText', '')
-            tmp_taobao_price = tmp_taobao_price.split('-')     # 如果是区间的话，分割成两个，单个价格就是一个
-            # self.my_lg.info(str(tmp_taobao_price))
-            if len(tmp_taobao_price) == 1:
-                # 商品最高价
-                # price = Decimal(tmp_taobao_price[0]).__round__(2)     # json不能处理decimal所以后期存的时候再处理
-                price = tmp_taobao_price[0]
-                # 商品最低价
-                taobao_price = price
-                # self.my_lg.info(str(price))
-                # self.my_lg.info(str(taobao_price))
-            else:
-                # price = Decimal(tmp_taobao_price[1]).__round__(2)
-                # taobao_price = Decimal(tmp_taobao_price[0]).__round__(2)
-                price = tmp_taobao_price[1]
-                taobao_price = tmp_taobao_price[0]
-                # self.my_lg.info(str(price))
-                # self.my_lg.info(str(taobao_price))
-
+            price, taobao_price = self._get_price_and_taobao_price(data=data)
             # 商品库存
             try:
                 goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
@@ -232,44 +198,13 @@ class TaoBaoLoginAndParse(object):
             # 商品标签属性名称,及其对应id值
             detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
 
-            '''
-            每个标签对应值的价格及其库存
-            '''
             price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
-
-            # 所有示例图片地址
             all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
             # self.my_lg.info(str(all_img_url))
-
-            # 详细信息p_info
             p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))   # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
-
-            '''
-            div_desc
-            '''
-            # 手机端描述地址
-            if data.get('item').get('taobaoDescUrl') is not None:
-                phone_div_url = 'https:' + data['item']['taobaoDescUrl']
-            else:
-                phone_div_url = ''
-
-            # pc端描述地址
-            if data.get('item').get('taobaoPcDescUrl') is not None:
-                pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
-                # self.my_lg.info(phone_div_url)
-                # self.my_lg.info(pc_div_url)
-
-                div_desc = self.get_div_from_pc_div_url(pc_div_url, goods_id)
-                # self.my_lg.info(div_desc)
-                if div_desc == '':
-                    self.my_lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
-                    return self._data_error_init()
-
-                # self.driver.quit()
-                gc.collect()
-            else:
-                pc_div_url = ''
-                div_desc = ''
+            div_desc = self._get_div_desc()
+            if div_desc == '':
+                return self._data_error_init()
 
             '''
             后期处理
@@ -305,7 +240,6 @@ class TaoBaoLoginAndParse(object):
                 'account': account,                                 # 掌柜
                 'title': title,                                     # 商品名称
                 'sub_title': sub_title,                             # 子标题
-                # 'shop_name_url': shop_name_url,                     # 店铺主页地址
                 'price': price,                                     # 商品价格
                 'taobao_price': taobao_price,                       # 淘宝价
                 'goods_stock': goods_stock,                         # 商品库存
@@ -314,8 +248,6 @@ class TaoBaoLoginAndParse(object):
                 'price_info_list': price_info_list,                 # 要存储的每个标签对应规格的价格及其库存
                 'all_img_url': all_img_url,                         # 所有示例图片地址
                 'p_info': p_info,                                   # 详细信息标签名对应属性
-                'phone_div_url': phone_div_url,                     # 手机端描述地址
-                'pc_div_url': pc_div_url,                           # pc端描述地址
                 'div_desc': div_desc,                               # div_desc
                 'sell_count': sell_count,                           # 月销量
                 'is_delete': is_delete,                             # 用于判断商品是否已经下架
@@ -388,6 +320,69 @@ class TaoBaoLoginAndParse(object):
         result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
         return result
+
+    def _get_price_and_taobao_price(self, **kwargs):
+        '''
+        得到price, taobao_price
+        :param kwargs:
+        :return:
+        '''
+        data = kwargs.get('data', {})
+
+        # 商品价格
+        tmp_taobao_price = data['apiStack'][0].get('value', '').get('price').get('price').get('priceText', '')
+        tmp_taobao_price = tmp_taobao_price.split('-')  # 如果是区间的话，分割成两个，单个价格就是一个
+        # self.my_lg.info(str(tmp_taobao_price))
+        if len(tmp_taobao_price) == 1:
+            # 商品最高价
+            # price = Decimal(tmp_taobao_price[0]).__round__(2)     # json不能处理decimal所以后期存的时候再处理
+            price = tmp_taobao_price[0]
+            # 商品最低价
+            taobao_price = price
+
+        else:
+            # price = Decimal(tmp_taobao_price[1]).__round__(2)
+            # taobao_price = Decimal(tmp_taobao_price[0]).__round__(2)
+            price = tmp_taobao_price[1]
+            taobao_price = tmp_taobao_price[0]
+        # self.my_lg.info(str(price))
+        # self.my_lg.info(str(taobao_price))
+
+        return price, taobao_price
+
+    def _get_div_desc(self, **kwargs):
+        '''
+        得到div_desc
+        :param kwargs:
+        :return:
+        '''
+        data = kwargs.get('data', {})
+
+        # 手机端描述地址
+        if data.get('item').get('taobaoDescUrl') is not None:
+            phone_div_url = 'https:' + data['item']['taobaoDescUrl']
+        else:
+            phone_div_url = ''
+
+        # pc端描述地址
+        if data.get('item').get('taobaoPcDescUrl') is not None:
+            pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
+            # self.my_lg.info(phone_div_url)
+            # self.my_lg.info(pc_div_url)
+
+            div_desc = self.get_div_from_pc_div_url(pc_div_url, goods_id)
+            # self.my_lg.info(div_desc)
+            if div_desc == '':
+                self.my_lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
+                return ''
+
+            # self.driver.quit()
+            gc.collect()
+        else:
+            pc_div_url = ''
+            div_desc = ''
+
+        return div_desc
 
     def _data_error_init(self):
         '''
@@ -941,7 +936,7 @@ class TaoBaoLoginAndParse(object):
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.my_lg.info(last_url)
 
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3)
+        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3, high_conceal=True)
         if data == '':
             self.my_lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
             return ''
