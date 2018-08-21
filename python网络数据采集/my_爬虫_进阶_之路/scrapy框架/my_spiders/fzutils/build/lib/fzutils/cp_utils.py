@@ -370,12 +370,15 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['session_id'] = data_list.get('session_id', '')
     tmp['parent_dir'] = data_list.get('parent_dir', '')
     tmp['sku_info_trans_time'] = data_list.get('sku_info_trans_time', '')
+    tmp['block_id'] = data_list.get('block_id', '')
+    tmp['father_sort'] = data_list.get('father_sort', '')
+    tmp['child_sort'] = data_list.get('child_sort', '')
 
     return tmp
 
 def format_price_info_list(price_info_list, site_id):
     '''
-    格式化price_info_list对象
+    格式化price_info_list对象(常规, 秒杀, 拼团)
     :param price_info_list:
     :param site_id:
     :return: list

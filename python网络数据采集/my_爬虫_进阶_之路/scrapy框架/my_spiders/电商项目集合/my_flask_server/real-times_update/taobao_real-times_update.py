@@ -84,7 +84,8 @@ def run_forever():
 
                 if tmp_sql_server.is_connect_success:
                     my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))
-                    taobao.get_goods_data(item[0])
+                    oo = taobao.get_goods_data(item[0])
+                    oo_is_delete = oo.get('is_delete', 0)   # 避免下面解析data错误休眠
                     data = taobao.deal_with_data(goods_id=item[0])
                     if data != {}:
                         data['goods_id'] = item[0]
@@ -113,8 +114,11 @@ def run_forever():
 
                         taobao.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:
-                        my_lg.info('------>>>| 休眠5s中...')
-                        sleep(5)
+                        if oo_is_delete == 1:
+                            pass
+                        else:
+                            my_lg.info('------>>>| 休眠5s中...')
+                            sleep(4)
 
                 else:  # 表示返回的data值为空值
                     my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
@@ -122,10 +126,6 @@ def run_forever():
                     pass
 
                 index += 1
-                # try:
-                #     del taobao
-                # except:
-                #     pass
                 gc.collect()
                 # 国外服务器上可以缩短时间, 可以设置为0s
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 不能太频繁，与用户请求错开尽量

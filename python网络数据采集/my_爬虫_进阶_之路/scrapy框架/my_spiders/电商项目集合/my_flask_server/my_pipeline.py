@@ -54,7 +54,7 @@ class SqlServerMyPageInfoSaveItemPipeline(BaseSqlServer):
         cs = self.conn.cursor()
         try:
             params = [
-                item['modfiy_time'],
+                item['modify_time'],
                 item['shop_name'],
                 item['account'],
                 item['title'],
@@ -66,12 +66,11 @@ class SqlServerMyPageInfoSaveItemPipeline(BaseSqlServer):
                 dumps(item['all_img_url'], ensure_ascii=False),
                 dumps(item['p_info'], ensure_ascii=False),
                 item['div_desc'],
-                item['month_sell_count'],
+                item['all_sell_count'],
                 item['is_delete'],
 
                 item['goods_id'],
             ]
-            # print(item['month_sell_count'])
 
             cs.execute('update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s',
                 tuple(params))

@@ -85,8 +85,9 @@ def run_forever():
                     elif item[0] == 6:
                         tmp_item.append(2)
                     tmp_item.append(item[1])
-                    data = tmall.get_goods_data(goods_id=tmp_item)
-                    if isinstance(data, int):       # 单独处理return 4041
+                    oo = tmall.get_goods_data(goods_id=tmp_item)
+                    oo_is_delete = oo.get('is_detele', 0)   # 避免下面解析data错误休眠
+                    if isinstance(oo, int):       # 单独处理return 4041
                         index += 1
                         sleep(TMALL_REAL_TIMES_SLEEP_TIME)
                         continue
@@ -119,8 +120,11 @@ def run_forever():
 
                         tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
-                        my_lg.info('------>>>| 休眠8s中...')
-                        sleep(8)
+                        if oo_is_delete == 1:
+                            pass
+                        else:
+                            my_lg.info('------>>>| 休眠8s中...')
+                            sleep(8)
 
                 else:  # 表示返回的data值为空值
                     my_lg.error('数据库连接失败，数据库可能关闭或者维护中')

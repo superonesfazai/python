@@ -370,6 +370,9 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['session_id'] = data_list.get('session_id', '')
     tmp['parent_dir'] = data_list.get('parent_dir', '')
     tmp['sku_info_trans_time'] = data_list.get('sku_info_trans_time', '')
+    tmp['block_id'] = data_list.get('block_id', '')
+    tmp['father_sort'] = data_list.get('father_sort', '')
+    tmp['child_sort'] = data_list.get('child_sort', '')
 
     return tmp
 

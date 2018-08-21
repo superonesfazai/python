@@ -767,54 +767,15 @@ class TaoBaoLoginAndParse(object):
         return result
 
     async def insert_into_taobao_tiantiantejia_table(self, data, pipeline):
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        tmp['goods_url'] = data_list['goods_url']  # 商品地址
-        # now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-        now_time = get_shanghai_time()
-        tmp['deal_with_time'] = now_time  # 操作时间
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            data['miaosha_begin_time'] = data.get('tejia_begin_time')
+            data['miaosha_end_time'] = data.get('tejia_end_time')
+            data['tab_id'] = data.get('tag_id')
+
+            tmp = _get_right_model_data(data=data, site_id=19)
         except Exception:
-            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
-            return
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        # 采集的来源地
-        tmp['site_id'] = 19  # 采集来源地(淘宝)
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        tmp['schedule'] = data_list.get('schedule')
-        tmp['tejia_begin_time'] = data_list.get('tejia_begin_time')
-        tmp['tejia_end_time'] = data_list.get('tejia_end_time')
-        tmp['block_id'] = data_list.get('block_id')
-        tmp['tag_id'] = data_list.get('tag_id')
-        tmp['father_sort'] = data_list.get('father_sort')
-        tmp['child_sort'] = data_list.get('child_sort')
-
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(data['goods_id']), exc_info=True)
+            return False
         self.my_lg.info('------>>>| 待存储的数据信息为: ' + str(tmp.get('goods_id')))
 
         params = self._get_db_insert_tejia_params(item=tmp)
@@ -843,55 +804,14 @@ class TaoBaoLoginAndParse(object):
         :param logger
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            data['miaosha_begin_time'] = data.get('tejia_begin_time')
+            data['miaosha_end_time'] = data.get('tejia_end_time')
+
+            tmp = _get_right_model_data(data=data, site_id=19)
         except Exception:
-            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
-            return
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        # tmp['schedule'] = data_list.get('schedule')
-        # tmp['tejia_begin_time'] = data_list.get('tejia_begin_time')
-        # tmp['tejia_end_time'] = data_list.get('tejia_end_time')
-
-        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(data['goods_id']), exc_info=True)
+            return False
         self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
         params = self._get_db_update_tejia_params(item=tmp)
@@ -914,51 +834,14 @@ class TaoBaoLoginAndParse(object):
         :param pipeline:
         :return:
         '''
-        data_list = data
-        tmp = {}
-        tmp['goods_id'] = data_list['goods_id']  # 官方商品id
-        '''
-        时区处理，时间处理到上海时间
-        '''
-        tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-        now_time = datetime.datetime.now(tz)
-
-        # 处理为精确到秒位，删除时区信息
-        now_time = re.compile(r'\..*').sub('', str(now_time))
-        # 将字符串类型转换为datetime类型
-        now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
-
-        tmp['modfiy_time'] = now_time  # 修改时间
-
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
-        tmp['title'] = data_list['title']  # 商品名称
-        tmp['sub_title'] = data_list['sub_title']  # 商品子标题
-        tmp['account'] = data_list['account']  # 掌柜名称
-        tmp['month_sell_count'] = data_list['sell_count']  # 月销量
-
-        # 设置最高价price， 最低价taobao_price
         try:
-            tmp['price'] = Decimal(data_list['price']).__round__(2)
-            tmp['taobao_price'] = Decimal(data_list['taobao_price']).__round__(2)
+            data['miaosha_begin_time'] = data.get('tejia_begin_time')
+            data['miaosha_end_time'] = data.get('tejia_end_time')
+
+            tmp = _get_right_model_data(data=data, site_id=19)
         except Exception:
-            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(tmp['goods_id']), exc_info=True)
-            return
-
-        tmp['detail_name_list'] = data_list['detail_name_list']  # 标签属性名称
-
-        """
-        得到sku_map
-        """
-        tmp['price_info_list'] = data_list.get('price_info_list')  # 每个规格对应价格及其库存
-
-        tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
-
-        tmp['p_info'] = data_list.get('p_info')  # 详细信息
-        tmp['div_desc'] = data_list.get('div_desc')  # 下方div
-
-        tmp['is_delete'] = data_list.get('is_delete')  # 逻辑删除, 未删除为0, 删除为1
-
-        # self.my_lg.info('------>>>| 待存储的数据信息为: |' + str(tmp))
+            self.my_lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(data['goods_id']), exc_info=True)
+            return False
         self.my_lg.info('------>>>| 待存储的数据信息为: |' + tmp.get('goods_id'))
 
         await pipeline.update_expired_goods_id_taobao_tiantiantejia_table(item=tmp, logger=self.my_lg)
@@ -972,8 +855,8 @@ class TaoBaoLoginAndParse(object):
         params = [
             item['goods_id'],
             item['goods_url'],
-            item['deal_with_time'],
-            item['modfiy_time'],
+            item['create_time'],
+            item['modify_time'],
             item['shop_name'],
             item['account'],
             item['title'],
@@ -985,12 +868,12 @@ class TaoBaoLoginAndParse(object):
             dumps(item['all_img_url'], ensure_ascii=False),
             dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
             item['div_desc'],  # 存入到DetailInfo
-            item['month_sell_count'],
+            item['all_sell_count'],
             dumps(item['schedule'], ensure_ascii=False),
-            item['tejia_begin_time'],
-            item['tejia_end_time'],
+            item['miaosha_begin_time'],
+            item['miaosha_end_time'],
             item['block_id'],
-            item['tag_id'],
+            item['tab_id'],
             item['father_sort'],
             item['child_sort'],
 
@@ -1007,7 +890,7 @@ class TaoBaoLoginAndParse(object):
         :return:
         '''
         params = [
-            item['modfiy_time'],
+            item['modify_time'],
             item['shop_name'],
             item['account'],
             item['title'],
@@ -1019,10 +902,10 @@ class TaoBaoLoginAndParse(object):
             dumps(item['all_img_url'], ensure_ascii=False),
             dumps(item['p_info'], ensure_ascii=False),
             item['div_desc'],
-            item['month_sell_count'],
+            item['all_sell_count'],
             # dumps(item['schedule'], ensure_ascii=False),
-            # item['tejia_begin_time'],
-            # item['tejia_end_time'],
+            # item['miaosha_begin_time'],
+            # item['miaosha_end_time'],
             item['is_delete'],
 
             item['goods_id'],

@@ -63,6 +63,9 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     fcid = Field()                  # 未知
     spider_time = Field()           # 未知
     session_id = Field()            # 未知
+    block_id = Field()              # 未知
+    father_sort = Field()           # 未知
+    child_sort = Field()            # 未知
 
 class CommentItem(Item):
     """
