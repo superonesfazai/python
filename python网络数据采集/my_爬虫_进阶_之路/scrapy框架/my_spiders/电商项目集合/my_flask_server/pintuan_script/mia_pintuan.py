@@ -132,7 +132,6 @@ class MiaPintuan(object):
                         goods_data['pid'] = item.get('pid')
 
                         # pprint(goods_data)
-                        # print(goods_data)
                         _r = mia.insert_into_mia_pintuan_table(data=goods_data, pipeline=my_pipeline)
                         if _r:  # 更新
                             db_goods_id_list.append(goods_id)

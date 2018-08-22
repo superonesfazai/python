@@ -24,6 +24,7 @@ from sql_str_controller import (
     mia_insert_str_1,
     mia_update_str_1,
 )
+from multiplex_code import _mia_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
@@ -65,7 +66,6 @@ class MiaParse(object):
 
             body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
             # print(body)
-
             if body == '':
                 return self._data_error_init()
 
@@ -76,30 +76,18 @@ class MiaParse(object):
                 # title, sub_title
                 data['title'], data['sub_title'] = self.get_title_and_sub_title(body=body)
 
-                # 获取所有示例图片
                 all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
                 if all_img_url == '':
                     return self._data_error_init()
 
-                '''
-                获取p_info
-                '''
-                tmp_p_info = Selector(text=body).css('div.showblock div p').extract_first()
-
-                if tmp_p_info == '':
+                p_info = self._get_p_info(body=body)
+                if p_info == []:
                     print('获取到的tmp_p_info为空值, 请检查!')
                     return self._data_error_init()
-                else:
-                    tmp_p_info = re.compile('<p>|</p>').sub('', tmp_p_info)
-                    tmp_p_info = re.compile(r'<!--思源品牌，隐藏品牌-->').sub('', tmp_p_info)
-                    p_info = [{'p_name': item.split('：')[0], 'p_value': item.split('：')[1]} for item in tmp_p_info.split('<br>') if item != '']
-
-                # pprint(p_info)
                 data['p_info'] = p_info
 
                 # 获取每个商品的div_desc
                 div_desc = self.get_goods_div_desc(body=body)
-
                 if div_desc == '':
                     print('获取到的div_desc为空值! 请检查')
                     return self._data_error_init()
@@ -150,7 +138,6 @@ class MiaParse(object):
                 '''单独处理all_img_url为[]的情况'''
                 if all_img_url == []:
                     all_img_url = [{'img_url': true_sku_info[0].get('img_url')}]
-
                 data['all_img_url'] = all_img_url
                 # pprint(all_img_url)
 
@@ -161,6 +148,7 @@ class MiaParse(object):
                     goods_url = sign_direct_url
 
                 data['goods_url'] = goods_url
+                data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
 
             except Exception as e:
                 print('遇到错误如下: ', e)
@@ -182,16 +170,9 @@ class MiaParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = ''
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data['title']
-
-            # 子标题
             sub_title = data['sub_title']
 
             # 商品价格和淘宝价
@@ -202,23 +183,13 @@ class MiaParse(object):
             except IndexError:
                 return self._data_error_init()
 
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
-
-            # div_desc
             div_desc = data['div_desc']
-
-            # 用于判断商品是否已经下架
             is_delete = 0
+            parent_dir = data['parent_dir']
 
             result = {
                 'goods_url': data['goods_url'],         # goods_url
@@ -235,7 +206,8 @@ class MiaParse(object):
                 'all_img_url': all_img_url,             # 所有示例图片地址
                 'p_info': p_info,                       # 详细信息标签名对应属性
                 'div_desc': div_desc,                   # div_desc
-                'is_delete': is_delete                  # 用于判断商品是否已经下架
+                'is_delete': is_delete,                 # 用于判断商品是否已经下架
+                'parent_dir': parent_dir,
             }
             # pprint(result)
             # print(result)
@@ -251,6 +223,22 @@ class MiaParse(object):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _get_p_info(self, **kwargs):
+        body = kwargs.get('body', '')
+
+        tmp_p_info = Selector(text=body).css('div.showblock div p').extract_first()
+        if tmp_p_info == '':
+            return []
+        else:
+            tmp_p_info = re.compile('<p>|</p>').sub('', tmp_p_info)
+            tmp_p_info = re.compile(r'<!--思源品牌，隐藏品牌-->').sub('', tmp_p_info)
+            p_info = [{
+                'p_name': item.split('：')[0],
+                'p_value': item.split('：')[1]
+            } for item in tmp_p_info.split('<br>') if item != '']
+
+        return p_info
 
     def _data_error_init(self):
         self.result_data = {}
@@ -275,7 +263,6 @@ class MiaParse(object):
         except:
             print('此处抓到的可能是蜜芽秒杀券所以跳过')
             return None
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
@@ -301,9 +288,9 @@ class MiaParse(object):
             item['miaosha_begin_time'],
             item['miaosha_end_time'],
             item['pid'],
-
             item['site_id'],
             item['is_delete'],
+            item['parent_dir'],
         )
 
         return params
@@ -325,6 +312,7 @@ class MiaParse(object):
             dumps(item['miaosha_time'], ensure_ascii=False),
             item['miaosha_begin_time'],
             item['miaosha_end_time'],
+            item['parent_dir'],
 
             item['goods_id'],
         )
@@ -581,5 +569,6 @@ if __name__ == '__main__':
         mia_url = input('请输入待爬取的蜜芽商品地址: ')
         mia_url.strip('\n').strip(';')
         goods_id = mia.get_goods_id_from_url(mia_url)
-        data = mia.get_goods_data(goods_id=goods_id)
-        mia.deal_with_data()
+        mia.get_goods_data(goods_id=goods_id)
+        data = mia.deal_with_data()
+        pprint(data)

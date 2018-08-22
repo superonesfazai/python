@@ -100,6 +100,20 @@ def _jp_get_parent_dir(phantomjs, goods_id):
 
     return parent_dir
 
+def _mia_get_parent_dir(p_info):
+    '''
+    蜜芽获取parent_dir(常规, 秒杀, 拼团皆可调用)
+    :param p_info:
+    :return:
+    '''
+    parent_dir = ''
+    for item in p_info:
+        if item.get('p_name', '') == '分类':
+            parent_dir = item.get('p_value', '')
+            break
+
+    return parent_dir
+
 def get_sku_info_trans_record(old_sku_info, new_sku_info, is_price_change):
     '''
     返回sku_info变化需要记录的信息

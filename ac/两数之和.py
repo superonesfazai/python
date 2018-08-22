@@ -11,7 +11,7 @@ eg:
 因为 nums[0] + nums[1] = 2 + 7 = 9
 所以返回 [0, 1]
 
-题意: 两数不等
+题意: 两数不等, 返回值索引正序
 """
 
 class Solution(object):
@@ -32,7 +32,6 @@ class Solution(object):
                 continue
 
             return sorted([index, index_2])
-
 
 nums = [3,2,4]
 # nums = [3, 3]
