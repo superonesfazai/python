@@ -57,7 +57,7 @@ class MoGuJieParse(object):
         :return:
         '''
         """
-        方法1: 原先采用调用api的方法, 无奈分析js源码未找到sign是如何md5加密，从而无法实现通过api调用参数 (pass)
+        方法1: 原先采用调用api的方法, 无奈分析js源码未找到sign是如何md5加密，从而暂时无法实现通过api调用参数 (pass)
         """
         # """     # 这些是构造参数
         # mw-appkey:100028
@@ -595,8 +595,8 @@ if __name__ == '__main__':
         mogujie_url = input('请输入待爬取的蘑菇街商品地址: ')
         mogujie_url.strip('\n').strip(';')
         goods_id = mogujie.get_goods_id_from_url(mogujie_url)
-        data = mogujie.get_goods_data(goods_id=goods_id)
-        mogujie.deal_with_data()
-        # pprint(data)
+        mogujie.get_goods_data(goods_id=goods_id)
+        data = mogujie.deal_with_data()
+        pprint(data)
 
 

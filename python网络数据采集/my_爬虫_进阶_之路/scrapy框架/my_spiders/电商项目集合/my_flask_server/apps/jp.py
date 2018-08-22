@@ -72,9 +72,9 @@ def _get_db_juanpi_insert_params(item):
         dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
         item['div_desc'],  # 存入到DetailInfo
         dumps(item['schedule'], ensure_ascii=False),
-
         item['site_id'],
         item['is_delete'],
+        item['parent_dir'],
     )
 
     return params

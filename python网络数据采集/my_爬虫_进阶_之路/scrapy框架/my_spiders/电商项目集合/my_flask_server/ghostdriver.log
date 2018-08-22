@@ -1,8 +1,46 @@
-[INFO  - 2018-08-21T02:22:12.996Z] GhostDriver - Main - running on port 58156
-[INFO  - 2018-08-21T02:22:13.273Z] Session [03c9c450-a4e9-11e8-8f7f-1daf738caaec] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9.0.3) Gecko/2008092414 Firefox/3.0.3","webSecurityEnabled":true}
-[INFO  - 2018-08-21T02:22:13.273Z] Session [03c9c450-a4e9-11e8-8f7f-1daf738caaec] - page.customHeaders:  - {}
-[INFO  - 2018-08-21T02:22:13.273Z] Session [03c9c450-a4e9-11e8-8f7f-1daf738caaec] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9.0.3) Gecko/2008092414 Firefox/3.0.3"}
-[INFO  - 2018-08-21T02:22:13.273Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 03c9c450-a4e9-11e8-8f7f-1daf738caaec
-[ERROR - 2018-08-21T02:22:15.028Z] RouterReqHand - _handle.error - {"name":"Missing Command Parameter","message":"{\"headers\":{\"Accept\":\"application/json\",\"Accept-Encoding\":\"identity\",\"Connection\":\"close\",\"Content-Length\":\"72\",\"Content-Type\":\"application/json;charset=UTF-8\",\"Host\":\"127.0.0.1:58156\",\"User-Agent\":\"Python http auth\"},\"httpVersion\":\"1.1\",\"method\":\"POST\",\"post\":\"{\\\"pageLoad\\\": 20000, \\\"sessionId\\\": \\\"03c9c450-a4e9-11e8-8f7f-1daf738caaec\\\"}\",\"url\":\"/timeouts\",\"urlParsed\":{\"anchor\":\"\",\"query\":\"\",\"file\":\"timeouts\",\"directory\":\"/\",\"path\":\"/timeouts\",\"relative\":\"/timeouts\",\"port\":\"\",\"host\":\"\",\"password\":\"\",\"user\":\"\",\"userInfo\":\"\",\"authority\":\"\",\"protocol\":\"\",\"source\":\"/timeouts\",\"queryKey\":{},\"chunks\":[\"timeouts\"]},\"urlOriginal\":\"/session/03c9c450-a4e9-11e8-8f7f-1daf738caaec/timeouts\"}","line":546,"sourceURL":"phantomjs://code/session_request_handler.js","stack":"_postTimeout@phantomjs://code/session_request_handler.js:546:73\n_handle@phantomjs://code/session_request_handler.js:148:25\n_reroute@phantomjs://code/request_handler.js:61:20\n_handle@phantomjs://code/router_request_handler.js:78:46"}
+[INFO  - 2018-08-22T04:48:39.160Z] GhostDriver - Main - running on port 55148
+[INFO  - 2018-08-22T04:48:39.562Z] Session [a33cab50-a5c6-11e8-aee5-1b600f90d4ef] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":false,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5","webSecurityEnabled":true}
+[INFO  - 2018-08-22T04:48:39.562Z] Session [a33cab50-a5c6-11e8-aee5-1b600f90d4ef] - page.customHeaders:  - {}
+[INFO  - 2018-08-22T04:48:39.562Z] Session [a33cab50-a5c6-11e8-aee5-1b600f90d4ef] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.resourceTimeout":1000,"phantomjs.page.settings.loadImages":false,"phantomjs.page.settings.disk-cache":true,"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5"}
+[INFO  - 2018-08-22T04:48:39.562Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: a33cab50-a5c6-11e8-aee5-1b600f90d4ef
+[ERROR - 2018-08-22T04:48:39.604Z] RouterReqHand - _handle.error - {"name":"Missing Command Parameter","message":"{\"headers\":{\"Accept\":\"application/json\",\"Accept-Encoding\":\"identity\",\"Connection\":\"close\",\"Content-Length\":\"72\",\"Content-Type\":\"application/json;charset=UTF-8\",\"Host\":\"127.0.0.1:55148\",\"User-Agent\":\"Python http auth\"},\"httpVersion\":\"1.1\",\"method\":\"POST\",\"post\":\"{\\\"pageLoad\\\": 20000, \\\"sessionId\\\": \\\"a33cab50-a5c6-11e8-aee5-1b600f90d4ef\\\"}\",\"url\":\"/timeouts\",\"urlParsed\":{\"anchor\":\"\",\"query\":\"\",\"file\":\"timeouts\",\"directory\":\"/\",\"path\":\"/timeouts\",\"relative\":\"/timeouts\",\"port\":\"\",\"host\":\"\",\"password\":\"\",\"user\":\"\",\"userInfo\":\"\",\"authority\":\"\",\"protocol\":\"\",\"source\":\"/timeouts\",\"queryKey\":{},\"chunks\":[\"timeouts\"]},\"urlOriginal\":\"/session/a33cab50-a5c6-11e8-aee5-1b600f90d4ef/timeouts\"}","line":546,"sourceURL":"phantomjs://code/session_request_handler.js","stack":"_postTimeout@phantomjs://code/session_request_handler.js:546:73\n_handle@phantomjs://code/session_request_handler.js:148:25\n_reroute@phantomjs://code/request_handler.js:61:20\n_handle@phantomjs://code/router_request_handler.js:78:46"}
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-08-22T04:48:50.525Z] RouterReqHand - _handle.error - {"name":"Missing Command Parameter","message":"{\"headers\":{\"Accept\":\"application/json\",\"Accept-Encoding\":\"identity\",\"Connection\":\"close\",\"Content-Length\":\"72\",\"Content-Type\":\"application/json;charset=UTF-8\",\"Host\":\"127.0.0.1:55148\",\"User-Agent\":\"Python http auth\"},\"httpVersion\":\"1.1\",\"method\":\"POST\",\"post\":\"{\\\"pageLoad\\\": 20000, \\\"sessionId\\\": \\\"a33cab50-a5c6-11e8-aee5-1b600f90d4ef\\\"}\",\"url\":\"/timeouts\",\"urlParsed\":{\"anchor\":\"\",\"query\":\"\",\"file\":\"timeouts\",\"directory\":\"/\",\"path\":\"/timeouts\",\"relative\":\"/timeouts\",\"port\":\"\",\"host\":\"\",\"password\":\"\",\"user\":\"\",\"userInfo\":\"\",\"authority\":\"\",\"protocol\":\"\",\"source\":\"/timeouts\",\"queryKey\":{},\"chunks\":[\"timeouts\"]},\"urlOriginal\":\"/session/a33cab50-a5c6-11e8-aee5-1b600f90d4ef/timeouts\"}","line":546,"sourceURL":"phantomjs://code/session_request_handler.js","stack":"_postTimeout@phantomjs://code/session_request_handler.js:546:73\n_handle@phantomjs://code/session_request_handler.js:148:25\n_reroute@phantomjs://code/request_handler.js:61:20\n_handle@phantomjs://code/router_request_handler.js:78:46"}
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-08-22T04:48:50.531Z] Session [a33cab50-a5c6-11e8-aee5-1b600f90d4ef] - page.onError - msg: Error: ajax error 0
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2018-08-22T04:48:50.531Z] Session [a33cab50-a5c6-11e8-aee5-1b600f90d4ef] - page.onError - stack:
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  notifyError (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1067)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1043)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  notifyError (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1067)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1043)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  notifyError (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1067)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1043)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  _error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  error (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1091)
+  r (https://web.juanpi.com/static/js/bootstrap.4b03152b.js:1229)
+  openUrl (:0)
+  open (phantomjs://platform/webpage.js:281)
+  (anonymous function) (phantomjs://code/session_request_handler.js:495)
+  _execFuncAndWaitForLoadDecorator (phantomjs://code/session.js:212)
+  _postUrlCommand (phantomjs://code/session_request_handler.js:494)
+  _handle (phantomjs://code/session_request_handler.js:91)
+  _reroute (phantomjs://code/request_handler.js:61)
+  _handle (phantomjs://code/router_request_handler.js:78)
 
   phantomjs://platform/console++.js:263 in error
