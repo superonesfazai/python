@@ -67,6 +67,7 @@ install_requires = [
     'jupyter',
     'ipywidgets',
     'bokeh',
+    'stem',
     # 'sip',
     # 'pyqt5',
 ]

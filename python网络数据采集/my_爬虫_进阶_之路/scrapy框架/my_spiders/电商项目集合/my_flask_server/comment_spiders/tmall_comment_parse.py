@@ -140,6 +140,7 @@ class TmallCommentParse(object):
         '''
         _comment_list = []
         for item in _tmp_comment_list:
+            # pprint(item)
             _comment_date = item.get('rateDate', '')
             assert _comment_date != '', '得到的_comment_date为空str!请检查!'
 
@@ -169,10 +170,10 @@ class TmallCommentParse(object):
                 _comment_img_list = [{'img_url': 'https:' + img} for img in _comment_img_list]
 
             '''追评'''
-            _tmp_append_comment = item.get('appendComment', {}) if item.get('appendComment', '') != '' else {}
+            _tmp_append_comment = item.get('appendComment', {}) if item.get('appendComment') is not None else {}
             # 追评的图片
-            _append_comment_img_list = _tmp_append_comment.get('pics', []) if _tmp_append_comment.get('pics',
-                                                                                                      '') != '' else []
+            # pprint(_tmp_append_comment)
+            _append_comment_img_list = _tmp_append_comment.get('pics', []) if _tmp_append_comment.get('pics', '') != '' else []
             if _append_comment_img_list != []:
                 _append_comment_img_list = [{'img_url': 'https:' + img} for img in _append_comment_img_list]
 
@@ -330,6 +331,6 @@ if __name__ == '__main__':
         _type = _type.strip('\n').strip(';')
         goods_id = input('请输入要爬取的商品goods_id(以英文分号结束): ')
         goods_id = goods_id.strip('\n').strip(';')
-        tmall._get_comment_data(type=int(_type), goods_id=goods_id)
-
+        data = tmall._get_comment_data(type=int(_type), goods_id=goods_id)
+        pprint(data)
         gc.collect()
