@@ -29,7 +29,9 @@ from fzutils.log_utils import set_logger
 from fzutils.items import GoodsItem
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.time_utils import get_shanghai_time
-from fzutils.internet_utils import tuple_or_list_params_2_dict_params
+from fzutils.internet_utils import (
+    tuple_or_list_params_2_dict_params,
+    get_random_pc_ua,)
 
 def init_celery_app():
     '''
@@ -80,7 +82,7 @@ class TaoBaoLoginAndParse(object):
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': HEADERS[randint(0, len(HEADERS)-1)],
+            'user-agent': get_random_pc_ua(),
             'accept': '*/*',
             # 'referer': 'https://h5.m.taobao.com/awp/core/detail.htm?id=560666972076',
             # 'authority': 'h5api.m.taobao.com',

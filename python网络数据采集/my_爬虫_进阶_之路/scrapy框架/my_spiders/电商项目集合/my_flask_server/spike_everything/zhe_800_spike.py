@@ -132,7 +132,7 @@ class Zhe800Spike(object):
                                         zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                                         sleep(ZHE_800_SPIKE_SLEEP_TIME)   # 放慢速度
 
-                            # sleep(2)
+                            sleep(1)
                         else:
                             pass
                         try:

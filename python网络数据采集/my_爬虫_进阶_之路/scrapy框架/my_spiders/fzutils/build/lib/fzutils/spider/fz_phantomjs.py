@@ -25,7 +25,6 @@ from selenium.common.exceptions import (
     WebDriverException,
     NoSuchElementException,
 )
-
 from scrapy.selector import Selector
 
 import re

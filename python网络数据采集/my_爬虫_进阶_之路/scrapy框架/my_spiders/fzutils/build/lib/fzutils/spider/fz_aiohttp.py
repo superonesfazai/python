@@ -34,7 +34,7 @@ class MyAiohttp(object):
         }
 
     @classmethod    # 注意timeout不是越长越好，测试发现10左右成功率较高
-    async def aio_get_url_body(self, url, headers, params=None, timeout=10, num_retries=10):
+    async def aio_get_url_body(self, url, headers, params=None, timeout=10, num_retries=10, high_conceal=True):
         '''
         异步获取url的body(简略版)
         :param url:
@@ -42,9 +42,10 @@ class MyAiohttp(object):
         :param params:
         :param had_proxy:
         :param num_retries: 出错重试次数
+        :param hign_conceal: ip是否高匿
         :return:
         '''
-        proxy = await self.get_proxy()
+        proxy = await self.get_proxy(high_conceal)
 
         # 连接池不能太大, < 500
         conn = aiohttp.TCPConnector(verify_ssl=True, limit=150, use_dns_cache=True)
@@ -79,13 +80,13 @@ class MyAiohttp(object):
         return body
 
     @classmethod
-    async def get_proxy(self):
+    async def get_proxy(self, high_conceal=True):
         '''
         异步获取proxy
         :return: 格式: 'http://ip:port'
         '''
         # 设置代理ip
-        ip_object = MyIpPools()
+        ip_object = MyIpPools(high_conceal=high_conceal)
         proxy = ip_object._get_random_proxy_ip()    # 失败返回False
 
         return proxy

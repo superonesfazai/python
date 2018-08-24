@@ -228,6 +228,14 @@ print(merge_sort([-1, 2, 1]))
 # 还有很多其他排序方法
 ```
 ```python
+from fzutils.data.pickle_utils import deserializate_pickle_object
+from pickle import dumps
+
+a = dumps({'1':1,})
+# 反序列化python对象
+print(deserializate_pickle_object(a))
+```
+```python
 from fzutils.spider.auto import auto_generate_crawler_code
 
 # 爬虫基本代码自动生成器

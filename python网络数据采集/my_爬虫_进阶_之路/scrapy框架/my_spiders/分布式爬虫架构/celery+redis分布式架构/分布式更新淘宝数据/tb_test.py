@@ -9,8 +9,9 @@
 
 from taobao_tasks import TaoBaoLoginAndParse
 from celery.utils.log import get_task_logger
-import pickle
 import redis
+
+from fzutils.data.pickle_utils import deserializate_pickle_object
 
 logger = get_task_logger('tb')
 # print(type(logger))
@@ -25,20 +26,6 @@ def get_tb_process_data(tb_object, url):
     else:
         logger.error('get_goods_data得到的data为空dict!')
         return None
-
-    return _
-
-def deserializate_pickle_object(pickle_object):
-    '''
-    反序列化pickle对象
-    :param pickle_object:
-    :return:
-    '''
-    _ = {}
-    try:
-        _ = pickle.loads(pickle_object)
-    except Exception as e:
-        print(e)
 
     return _
 

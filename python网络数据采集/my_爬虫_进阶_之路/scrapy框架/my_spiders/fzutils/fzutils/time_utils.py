@@ -8,6 +8,9 @@
 '''
 
 import time
+import pytz
+import datetime
+import re
 
 __all__ = [
     'get_shanghai_time',                            # 时区处理，得到上海时间
@@ -24,10 +27,6 @@ def get_shanghai_time():
     时区处理，得到上海时间
     :return: datetime类型
     '''
-    import pytz
-    import datetime
-    import re
-
     # TODO 时区处理，时间处理到上海时间
     # pytz查询某个国家时区
     # country_timezones_list = pytz.country_timezones('cn')

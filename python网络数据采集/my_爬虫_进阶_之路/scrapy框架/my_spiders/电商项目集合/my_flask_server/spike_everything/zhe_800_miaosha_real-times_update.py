@@ -202,10 +202,11 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             #     del tmall
             # except:
             #     pass
-            # sleep(.8)
+            sleep(1.5)
             gc.collect()
         self.my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         gc.collect()
+
 
         return
 
