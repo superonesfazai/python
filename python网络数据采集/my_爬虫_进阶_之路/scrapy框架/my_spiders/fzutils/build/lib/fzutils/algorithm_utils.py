@@ -11,6 +11,8 @@
 算法utils
 """
 
+from random import shuffle
+
 __all__ = [
     'bubble_sort',                          # 冒泡排序法
     'insertion_sort',                       # 插入排序法
@@ -91,8 +93,6 @@ def bogo_sort(collection):
     :param collection: list
     :return:
     '''
-    from random import shuffle
-
     def isSorted(collection):
         if len(collection) < 2:
             return True

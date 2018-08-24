@@ -7,6 +7,12 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import sys
+import os
+import subprocess
+
+from .common_utils import delete_list_null_str
+
 __all__ = [
     'daemon_init',                                      # 守护进程
     'restart_program',                                  # 初始化避免异步导致log重复打印
@@ -27,9 +33,6 @@ def daemon_init(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     :param stderr:
     :return:
     '''
-    import sys
-    import os
-
     sys.stdin = open(stdin, 'r')
     sys.stdout = open(stdout, 'a+')
     sys.stderr = open(stderr, 'a+')
@@ -80,8 +83,6 @@ def process_exit(process_name):
     :param process_name:
     :return: 0 不存在 | >= 1 存在
     '''
-    import os
-
     # Linux
     process_check_response = os.popen('ps aux | grep "' + process_name + '" | grep -v grep').readlines()
 
@@ -93,9 +94,6 @@ def kill_process_by_name(process_name):
     :param process_name: str
     :return:
     '''
-    import os
-    from .common_utils import delete_list_null_str
-
     if process_exit(process_name) > 0:
         try:
             process_check_response = os.popen('ps aux | grep ' + process_name).readlines()
@@ -120,8 +118,6 @@ def get_str_from_command(cmd):
     :param cmd:
     :return:
     '''
-    import subprocess
-
     return subprocess.getstatusoutput(cmd)[1]
 
 def get_current_file_path():
@@ -129,8 +125,6 @@ def get_current_file_path():
     # 得到当前文件的绝对路径
     :return:
     '''
-    import os
-
     tmp_path = os.path.abspath(__file__)
     module_path = tmp_path[:-len(__file__.split("/")[-1])]
 
@@ -141,9 +135,6 @@ def get_os_platform():
     返回当前是什么系统
     :return: mac是darwin | ...
     '''
-    import os
-    import sys
-
     if "_PYTHON_HOST_PLATFORM" in os.environ:
         return os.environ["_PYTHON_HOST_PLATFORM"]
 

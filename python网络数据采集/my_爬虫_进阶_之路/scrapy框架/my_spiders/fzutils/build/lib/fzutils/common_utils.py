@@ -7,7 +7,16 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import re
+import base64
+import os
+import io
+from random import randint
 from pprint import pprint
+from json import (
+    loads,
+    JSONDecodeError,)
+from demjson import decode
 
 __all__ = [
     'json_2_dict',                                              # json转dict
@@ -42,11 +51,6 @@ def json_2_dict(json_str, logger=None, encoding=None):
     :param encoding: 解码格式
     :return:
     '''
-    from json import (
-        loads,
-        JSONDecodeError,)
-    from demjson import decode
-
     _ = {}
     try:
         _ = loads(json_str)
@@ -96,8 +100,6 @@ def deal_with_JSONDecodeError_about_value_invalid_escape(json_str):
     :param json_str:
     :return: 正常的str类型的json字符串
     '''
-    import re
-
     return re.compile(r'\\(?![/u"])').sub(r"\\\\", json_str)
 
 def _print(**kwargs):
@@ -151,8 +153,6 @@ def get_random_int_number(start_num=0, end_num=1000):
     :param end_num:
     :return:
     '''
-    from random import randint
-
     return randint(start_num, end_num)
 
 def wash_sensitive_info(data, replace_str_list=None, add_sensitive_str_list=None):
@@ -163,8 +163,6 @@ def wash_sensitive_info(data, replace_str_list=None, add_sensitive_str_list=None
     :param add_sensitive_str_list: 增加的过滤敏感词汇(会被替换为'') eg: ['123', '456', ...]
     :return: a str
     '''
-    import re
-
     if replace_str_list is not None:            # replace
         if isinstance(replace_str_list, list):
             for item in replace_str_list:
@@ -204,8 +202,6 @@ def save_base64_img_2_local(save_path, base64_img_str):
     :param base64_img_str:
     :return:
     '''
-    import base64
-
     try:
         ## 将base64转换位图片存储
         # print(base64_img_str)
@@ -226,9 +222,6 @@ def len_pro(obj):
     :param obj:
     :return: 长度 int
     '''
-    import os
-    import io
-
     total_length = None
     current_position = 0
 

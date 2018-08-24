@@ -7,13 +7,13 @@
 @connect : superonesfazai@gmail.com
 '''
 
-__all__ = [
-    'FZEmail',              # 邮件对象
-]
-
 import smtplib
 import gc
 from email.mime.text import MIMEText
+
+__all__ = [
+    'FZEmail',              # 邮件对象
+]
 
 class FZEmail(object):
     """

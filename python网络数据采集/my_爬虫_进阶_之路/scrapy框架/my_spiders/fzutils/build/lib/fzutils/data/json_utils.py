@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import re
+
+from ..common_utils import json_2_dict
+
 __all__ = [
     'read_json_from_local_json_file',                       # 从本地json文件读取json, 并以dict返回
     'nonstandard_json_str_handle',                          # 不规范的json_str处理
@@ -18,8 +22,6 @@ def read_json_from_local_json_file(json_file_path):
     :param json_file_path:
     :return: a dict
     '''
-    from ..common_utils import json_2_dict
-
     try:
         result = ''
         with open(json_file_path, 'r') as file:
@@ -40,8 +42,6 @@ def nonstandard_json_str_handle(json_str):
     :param json_str:
     :return:
     '''
-    import re
-
     json_str = re.compile('null').sub('""', json_str)
     json_str = re.compile(':,').sub(':"",', json_str)
 

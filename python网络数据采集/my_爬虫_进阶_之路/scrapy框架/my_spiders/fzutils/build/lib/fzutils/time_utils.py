@@ -8,6 +8,11 @@
 '''
 
 import time
+import pytz
+import datetime
+import re
+import functools
+from threading import Thread
 
 __all__ = [
     'get_shanghai_time',                            # 时区处理，得到上海时间
@@ -24,10 +29,6 @@ def get_shanghai_time():
     时区处理，得到上海时间
     :return: datetime类型
     '''
-    import pytz
-    import datetime
-    import re
-
     # TODO 时区处理，时间处理到上海时间
     # pytz查询某个国家时区
     # country_timezones_list = pytz.country_timezones('cn')
@@ -47,7 +48,6 @@ def timestamp_to_regulartime(timestamp):
     '''
     将时间戳转换成时间
     '''
-    import time
     # 利用localtime()函数将时间戳转化成localtime的格式
     # 利用strftime()函数重新格式化时间
 
@@ -59,8 +59,6 @@ def string_to_datetime(string):
     :param string:
     :return:
     '''
-    import datetime
-
     return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
 
 def datetime_to_timestamp(_dateTime):
@@ -69,8 +67,6 @@ def datetime_to_timestamp(_dateTime):
     :param _dateTime:
     :return: int
     '''
-    import time
-
     return int(time.mktime(_dateTime.timetuple()))
 
 class fz_timer(object):
@@ -129,9 +125,6 @@ def fz_set_timeout(seconds, error_message='函数执行超时!'):
     :param error_message: 显示的错误信息
     :return: None | Exception: 自定义的超时异常TimeoutError
     '''
-    import functools
-    from threading import Thread
-
     def decorated(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):

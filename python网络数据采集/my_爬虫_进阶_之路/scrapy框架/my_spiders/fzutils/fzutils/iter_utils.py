@@ -11,6 +11,8 @@
 可迭代对象utils
 """
 
+from toolz.itertoolz import groupby
+
 __all__ = [
     'group_by',                     # 通过key function 给list分组
 ]
@@ -33,6 +35,4 @@ def group_by(key, seq):
     See Also:
         countby
     """
-    from toolz.itertoolz import groupby
-
     groupby(key, seq)

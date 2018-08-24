@@ -13,6 +13,7 @@
 
 from uuid import uuid3
 from uuid import NAMESPACE_DNS
+from hashlib import md5
 
 __all__ = [
     'encrypt',              # 加密算法
@@ -81,8 +82,6 @@ def md5_encrypt(target_str, encoding='utf-8'):
     :param encoding:
     :return:
     '''
-    from hashlib import md5
-
     _ = md5()
     _.update(target_str.encode(encoding=encoding))
 

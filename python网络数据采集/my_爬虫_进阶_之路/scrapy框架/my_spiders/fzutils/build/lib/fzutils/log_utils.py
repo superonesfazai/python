@@ -14,6 +14,9 @@
 """
 
 import logging
+from logging import handlers
+# import os
+# from colorama import init, Back, Fore
 
 __all__ = [
     'set_logger'
@@ -28,11 +31,6 @@ def set_logger(log_file_name,
                console_formatter=CONSOLE_FORMATTER,
                file_formatter=FILE_FORMATTER,
                logger_name='my_logger'):
-    import logging
-    from logging import handlers
-    # import os
-    # from colorama import init, Back, Fore
-
     # 创建一个logger,可以考虑如何将它封装
     logger = logging.getLogger(logger_name)     # 建议: 在有多个相互关联的文件都需要用到python的日志系统时，不要用默认的root logger。因为所有的名称都会继承root导致重复打印。用logger时一定要起名字！！
     logger.setLevel(logging.DEBUG)

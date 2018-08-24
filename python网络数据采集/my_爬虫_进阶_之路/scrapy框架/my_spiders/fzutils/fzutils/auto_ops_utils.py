@@ -11,7 +11,19 @@
 自动化运维相关包
 """
 
+import os
+import time
+import re
+from os import system
+from os.path import (
+    exists,
+    basename,)
+from os.path import (
+    basename,
+    dirname,)
 from fabric.connection import Connection
+
+from .time_utils import get_shanghai_time
 
 __all__ = [
     'judge_whether_file_exists',                                # linux server端判断一个文件是否存在
@@ -59,11 +71,6 @@ def upload_or_download_files(method, connect_object:Connection, local_file_path,
     :param remote_file_path: server待上传文件路径(必须是绝对路径)
     :return: bool
     '''
-    from os.path import (
-        basename,
-        dirname,
-    )
-
     # 本地工作上下文path
     local_work_content = dirname(local_file_path)
     local_file_name = basename(local_file_path)
@@ -111,9 +118,6 @@ def local_compress_folders(father_folders_path, folders_name, default_save_path=
     :param default_save_path: 默认存储路径
     :return:
     '''
-    from os import system
-    from os.path import exists
-
     if not exists(father_folders_path):
         raise ValueError('{0} 父目录地址不存在!请检查!'.format(father_folders_path))
     elif not exists(default_save_path):
@@ -156,8 +160,6 @@ def remote_decompress_folders(connect_object:Connection, folders_path, target_de
     :param target_decompress_path: 目标解压路径(绝对路径)
     :return:
     '''
-    from os.path import basename, exists
-
     if not exists(folders_path):
         # raise ValueError('{0} 文件不存在!请检查!'.format(folders_path))
         pass    # 报错就先不判断处理
@@ -190,11 +192,6 @@ def auto_git(path):
     :param path: 绝对路径
     :return:
     '''
-    import os
-    import time
-    import re
-    from .time_utils import get_shanghai_time
-
     os.system('cd {0} && git pull'.format(path))
     print('------>>>| 远程合并分支完毕!!!')
     print((path + ' 正在提交').center(100, '*'))

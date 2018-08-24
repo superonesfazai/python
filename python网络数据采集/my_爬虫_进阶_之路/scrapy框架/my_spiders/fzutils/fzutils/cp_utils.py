@@ -11,13 +11,21 @@
 
 import json
 import asyncio
+import re
+import execjs
+import time
+import requests
+from random import randint
+from decimal import Decimal
 
 from .common_utils import _print
-from .time_utils import string_to_datetime
-from .time_utils import get_shanghai_time
+from .time_utils import (
+    string_to_datetime,
+    get_shanghai_time,)
 from .items import GoodsItem
-from decimal import Decimal
 from .safe_utils import get_uuid3
+from .safe_utils import md5_encrypt
+from .ip_pools import MyIpPools
 
 __all__ = [
     '_get_price_change_info',                               # cp用来记录价格改变信息
@@ -43,8 +51,6 @@ def get_shelf_time_and_delete_time(tmp_data, is_delete, shelf_time, delete_time)
     :param delete_time: datetime or ''
     :return: delete_time datetime or '', shelf_time datetime or ''
     '''
-    from .time_utils import get_shanghai_time
-
     tmp_shelf_time = shelf_time if shelf_time is not None else ''
     tmp_down_time = delete_time if delete_time is not None else ''
     _ = str(get_shanghai_time())
@@ -131,11 +137,6 @@ async def calculate_right_sign(_m_h5_tk: str, data: json):
     :param data:
     :return: sign 类型str, t 类型str
     '''
-    import execjs
-    import time
-    from random import randint
-    from .safe_utils import md5_encrypt
-
     # with open('../static/js/get_h_func.js', 'r') as f:  # 打开js源文件
     #     js = f.read()
     #
@@ -164,10 +165,6 @@ async def get_taobao_sign_and_body(base_url, headers:dict, params:dict, data:jso
     :param session:
     :return: (_m_h5_tk, session, body)
     '''
-    import re
-    import requests
-    from .ip_pools import MyIpPools
-
     sign, t = await calculate_right_sign(data=data, _m_h5_tk=_m_h5_tk)
     headers['Host'] = re.compile(r'://(.*?)/').findall(base_url)[0]
     params.update({  # 添加下面几个query string
@@ -230,8 +227,6 @@ def filter_invalid_comment_content(_comment_content):
     :param _comment_content:
     :return: bool
     '''
-    import re
-
     filter_str = '''
     此用户没有填写|评价方未及时做出评价|系统默认好评!|
     假的|坏的|差的|差评|退货|不想要|无良商家|再也不买|

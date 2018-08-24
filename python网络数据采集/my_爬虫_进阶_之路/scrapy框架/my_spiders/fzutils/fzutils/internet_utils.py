@@ -9,6 +9,10 @@
 
 # Internet的utils
 
+from random import choice
+import socket
+from contextlib import closing
+
 __all__ = [
     '_get_url_contain_params',                              # 根据params组合得到包含params的url
     'tuple_or_list_params_2_dict_params',                   # tuple和list类型的params转dict类型的params
@@ -120,8 +124,6 @@ def get_random_pc_ua():
     得到一个随机pc ua
     :return:
     '''
-    from random import choice
-
     PC_HEADERS = [
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
         "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
@@ -169,8 +171,6 @@ def get_random_phone_ua():
     随机一个随机phone ua
     :return:
     '''
-    from random import choice
-
     PHONE_HEADERS = [
         'Mozilla/5.0 (iPhone 84; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.0 MQQBrowser/7.8.0 Mobile/14G60 Safari/8536.25 MttCustomUA/2 QBWebViewType/1 WKType/1',
         'Mozilla/5.0 (Linux; Android 7.0; STF-AL10 Build/HUAWEISTF-AL10; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.49 Mobile MQQBrowser/6.2 TBS/043508 Safari/537.36 V1_AND_SQ_7.2.0_730_YYB_D QQ/7.2.0.3270 NetType/4G WebP/0.3.0 Pixel/1080',
@@ -217,8 +217,6 @@ def is_ipv4(ip):
     :param ip:
     :return: bool
     '''
-    import socket
-
     try:
         socket.inet_aton(ip)
     except socket.error:
@@ -232,8 +230,6 @@ def is_ipv6(ip):
     :param ip:
     :return: bool
     '''
-    import socket
-
     try:
         socket.inet_pton(socket.AF_INET6, ip)
     except socket.error:
@@ -246,9 +242,6 @@ def get_local_free_port():
     随机获取一个可以被绑定的空闲端口
     :return: int
     '''
-    import socket
-    from contextlib import closing
-
     with closing(socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)) as s:
         s.bind(('127.0.0.1', 0))
         _, port = s.getsockname()
