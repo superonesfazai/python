@@ -112,32 +112,23 @@ class MyPhantomjs(object):
 
     def _init_chrome(self):
         '''
-        如果使用chrome请设置page_timeout=30
+        如果使用chrome请设置page_timeout=30(可用)
         :return:
         '''
         _print(msg='--->>>初始化chrome驱动中<<<---', logger=self.my_lg)
         chrome_options = webdriver.ChromeOptions()
         if not self.chrome_visualizate:
             chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
-        # 谷歌文档提到需要加上这个属性来规避bug
-        chrome_options.add_argument('--disable-gpu')
-        # chrome_options.add_argument('--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
+        chrome_options.add_argument('--disable-gpu')    # 谷歌文档提到需要加上这个属性来规避bug
+        chrome_options.add_argument('--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
         # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
 
         # 设置无图模式
-        img_type = 1 if self.load_images else 2
-        prefs = {
-            'profile.managed_default_content_settings.images': img_type,
-        }
-        chrome_options.add_experimental_option("prefs", prefs)
-
-        # 设置代理
-        ip_object = MyIpPools(high_conceal=self.high_conceal)
-        proxy_ip = re.compile(r'https://|http://').sub('', ip_object._get_random_proxy_ip()) if isinstance(ip_object._get_random_proxy_ip(), str) else ''
-        if proxy_ip != '':
-            chrome_options.add_argument('--proxy-server={0}'.format(proxy_ip))
-        else:
-            raise AssertionError('给chrome设置代理失败, 异常抛出!')
+        # prefs = {
+        #     'profile.managed_default_content_settings.images': 1 if self.load_images else 2,
+        # }
+        # chrome_options.add_experimental_option("prefs", prefs)
+        chrome_options.add_argument('blink-settings=imagesEnabled={0}'.format('true' if self.load_images else 'false'))
 
         '''无法打开https解决方案'''
         # 配置忽略ssl错误
@@ -145,15 +136,22 @@ class MyPhantomjs(object):
         capabilities['acceptSslCerts'] = True
         capabilities['acceptInsecureCerts'] = True
 
-        # 修改user-agent
-        user_agent = get_random_pc_ua() if self.user_agent_type == PC else get_random_phone_ua()
-        chrome_options.add_argument('--user-agent={0}'.format(user_agent))
+        # 设置代理
+        ip_object = MyIpPools(high_conceal=self.high_conceal)
+        proxy_ip = re.compile(r'https://|http://').sub('', ip_object._get_random_proxy_ip()) if isinstance(ip_object._get_random_proxy_ip(), str) else ''
+        if proxy_ip != '':
+            chrome_options.add_argument('--proxy-server=http://{0}'.format(proxy_ip))
+        else:
+            raise AssertionError('给chrome设置代理失败, 异常抛出!')
 
-        # 忽视证书错误
-        chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])
+        # 修改user-agent
+        chrome_options.add_argument('--user-agent={0}'.format(get_random_pc_ua() if self.user_agent_type == PC else get_random_phone_ua()))
+
+        chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])    # 忽视证书错误
+        chrome_options.add_argument('--allow-running-insecure-content')
 
         self.driver = webdriver.Chrome(
-            executable_path=CHROME_DRIVER_PATH,
+            executable_path=self.executable_path,
             chrome_options=chrome_options,
             desired_capabilities=capabilities
         )
@@ -206,7 +204,7 @@ class MyPhantomjs(object):
             pass
 
         try:
-            self.driver.set_page_load_timeout(timeout)  # 设置成10秒避免数据出错
+            self.driver.set_page_load_timeout(timeout)
         except:
             try: self.driver.set_page_load_timeout(timeout)
             except: return ''
@@ -225,6 +223,7 @@ class MyPhantomjs(object):
                 else:
                     _print(msg='{0}加载完毕'.format(css_selector), logger=self.my_lg)
 
+            # self.driver.save_screenshot('tmp_screen.png')
             if exec_code != '':     # 动态执行代码
                 # 执行代码前先替换掉'  '
                 try:
@@ -338,3 +337,16 @@ class MyPhantomjs(object):
         except:
             pass
         gc.collect()
+
+# _ = MyPhantomjs(executable_path=CHROME_DRIVER_PATH, type=CHROME, chrome_visualizate=True)
+# # url='http://ip138.com/'
+# # url = 'https://www.ip.cn/'
+# url = 'https://m.vip.com'
+# body = _.use_phantomjs_to_get_url_body(url)
+# print(body)
+# sleep(60)
+
+# _ = MyPhantomjs()
+# _.use_phantomjs_to_get_url_body(url)
+# # sleep(60)
+# del _

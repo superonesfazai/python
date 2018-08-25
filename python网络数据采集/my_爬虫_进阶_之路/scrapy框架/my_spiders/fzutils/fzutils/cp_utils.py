@@ -223,7 +223,7 @@ def get_miaosha_begin_time_and_miaosha_end_time(miaosha_time):
 
 def filter_invalid_comment_content(_comment_content):
     '''
-    过滤无效评论(复用code)
+    过滤无效评论
     :param _comment_content:
     :return: bool
     '''
@@ -325,9 +325,10 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
 
     if site_id == 2:
-        tmp['p_info'] = data_list.get('property_info', [])
+        p_info = data_list.get('property_info', [])
     else:
-        tmp['p_info'] = data_list.get('p_info', [])  # 详细信息
+        p_info = data_list.get('p_info', [])  # 详细信息
+    tmp['p_info'] = format_p_info(p_info)
 
     if site_id == 2:
         tmp['div_desc'] = data_list.get('detail_info', '')
@@ -413,5 +414,35 @@ def format_price_info_list(price_info_list, site_id):
 
     else:
         raise TypeError('获取到的price_info_list的类型错误!请检查!')
+
+    return _
+
+def format_p_info(p_info):
+    '''
+    格式化p_info(常规, 秒杀, 拼团)
+    :param p_info:
+    :return:
+    '''
+    def oo(item):
+        return [{
+            'p_name': j.get('name', ''),
+            'p_value': j.get('value', ''),
+        } for j in item]
+
+    if isinstance(p_info, list):
+        _ = []
+        for item in p_info:
+            if isinstance(item.get('p_value'), list):
+                _ += oo(item.get('p_value'))
+            else:
+                p_name = item.get('p_name', '') if item.get('p_name') is not None else item.get('name', '')
+                p_value = item.get('p_value', '') if item.get('p_value') is not None else item.get('value', '')
+
+                _.append({
+                    'p_name': p_name,
+                    'p_value': p_value,
+                })
+    else:
+        raise TypeError('获取到p_info类型异常!请检查!')
 
     return _

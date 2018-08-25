@@ -295,3 +295,31 @@ from fzutils.safe_utils import get_uuid3
 
 a = '32GB|黑色【红/蓝 柄】+ 塞尔达传说|单机标配|港版'
 print(get_uuid3(a))
+
+# p_info格式化
+_2 = [
+    {
+        "id":"0",
+        "name":"原料",
+        "value":"腈纶"
+    },
+]
+_3 = [
+    {
+        "name":"品牌",
+        "id":0,
+        "value":"Chanel/香奈儿 "
+    },
+]
+
+_8 = [
+    {
+        "p_value":[
+            {
+                "name":"品牌",
+                "value":"拉菲"
+            },
+        ],
+        "p_name":"主体"
+    }
+]
