@@ -55,13 +55,14 @@ class MyPhantomjs(object):
     def __init__(self, type=PHANTOMJS, load_images=False,
                  executable_path=PHANTOMJS_DRIVER_PATH, logger=None,
                  high_conceal=True, chrome_visualizate=False,
-                 user_agent_type=PC):
+                 user_agent_type=PC, driver_obj=None):
         '''
         初始化
         :param load_images: 是否加载图片
         :param high_conceal: ip是否高匿
         :param chrome_visualizate: 是否为无头浏览器(针对chrome)
         :param user_agent_type: user-agent类型
+        :param driver_obj: webdriver对象
         '''
         super(MyPhantomjs, self).__init__()
         self.type = type
@@ -71,7 +72,10 @@ class MyPhantomjs(object):
         self.chrome_visualizate = chrome_visualizate
         self.my_lg = logger
         self.user_agent_type = user_agent_type
-        self._set_driver()
+        if driver_obj is None:
+            self._set_driver()
+        else:
+            self.driver = driver_obj
 
     def _set_driver(self, num_retries=4):
         '''
@@ -330,6 +334,13 @@ class MyPhantomjs(object):
         html = re.compile('\n|\t|  ').sub('', html)
 
         return html
+
+    def _get_driver(self):
+        '''
+        得到driver对象
+        :return:
+        '''
+        return self.driver
 
     def __del__(self):
         try:

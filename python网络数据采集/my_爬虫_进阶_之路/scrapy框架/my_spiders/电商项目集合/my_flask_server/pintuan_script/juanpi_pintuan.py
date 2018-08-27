@@ -198,10 +198,6 @@ def just_fuck_run():
         print('一次大抓取即将开始'.center(30, '-'))
         juanpi_pintuan = JuanPiPinTuan()
         juanpi_pintuan._deal_with_data()
-        # try:
-        #     del juanpi_pintuan
-        # except:
-        #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(60*5)
@@ -216,7 +212,6 @@ def main():
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
-
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:

@@ -28,8 +28,7 @@ import gc
 from settings import MY_SPIDER_LOGS_PATH
 from settings import (
     PHANTOMJS_DRIVER_PATH,
-    CHROME_DRIVER_PATH,
-)
+    CHROME_DRIVER_PATH,)
 from logging import INFO, ERROR
 from json import JSONDecodeError
 from urllib.parse import urlencode
@@ -40,8 +39,7 @@ from sql_str_controller import (
     tb_insert_str_2,
     tb_insert_str_3,
     tb_update_str_2,
-    tb_update_str_3,
-)
+    tb_update_str_3,)
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -210,7 +208,10 @@ class TaoBaoLoginAndParse(object):
             后期处理
             '''
             # 后期处理detail_name_list, detail_value_list
-            detail_name_list = [{'spec_name': i[0]} for i in detail_name_list]
+            detail_name_list = [{
+                'spec_name': i[0],
+                'img_here': i[2],
+            } for i in detail_name_list]
 
             # 商品标签属性对应的值, 及其对应id值
             if data.get('skuBase').get('props') is None:
@@ -594,13 +595,25 @@ class TaoBaoLoginAndParse(object):
         '''
         detail_name_list = []
         detail_value_list = []
-        if data.get('skuBase') is not None:
-            if data.get('skuBase').get('props') is not None:
-                detail_name_list = [[item['name'], item['pid']] for item in data['skuBase']['props']]
+        sku_base = data.get('skuBase')
+        # pprint(sku_base)
+        if sku_base is not None:
+            if sku_base.get('props') is not None:
+                detail_name_list = []
+                for i in sku_base['props']:
+                    tmp = [i['name'], i['pid']]
+                    value = i.get('values', [])
+                    img_here = 0
+                    for j in value:
+                        if j.get('image', '') != '':
+                            img_here = 1
+                            break
+                    tmp.append(img_here)
+                    detail_name_list.append(tmp)
                 # self.my_lg.info(str(detail_name_list))
 
                 # 商品标签属性对应的值, 及其对应id值
-                tmp_detail_value_list = [item['values'] for item in data['skuBase']['props']]
+                tmp_detail_value_list = [item['values'] for item in sku_base['props']]
                 # self.my_lg.info(str(tmp_detail_value_list))
                 for item in tmp_detail_value_list:
                     tmp = [[i['name'], i['vid']] for i in item]
@@ -617,17 +630,32 @@ class TaoBaoLoginAndParse(object):
         :param detail_value_list:
         :return:
         '''
+        def add_normal_price(normal_sku_info, sku2_info):
+            '''给原先的list的item添加原价'''
+            for key1, value1 in normal_sku_info.items():
+                for key2, value2 in sku2_info.items():
+                    if key1 == key2:
+                        value2.update({
+                            'normal_price': str(float(value1.get('price', {}).get('priceText'))),
+                        })
+            return sku2_info
+
         if data.get('skuBase').get('skus') is not None:
             skus = data['skuBase']['skus']  # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
             pros = data.get('skuBase', {}).get('props', [])
             sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
+            normal_sku_info = data.get('mockData', {}).get('skuCore', {}).get('sku2info', {})
             try:
                 sku2_info.pop('0')  # 此处删除总库存的值
+                normal_sku_info.pop('0')
             except Exception:
                 pass
             # pprint(sku2_info)
+            # pprint(normal_sku_info)
+            sku2_info = add_normal_price(normal_sku_info, sku2_info)
+
             prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
-            for key in sku2_info:
+            for key, value in sku2_info.items():
                 tmp_prop_path_list = [item for item in skus if item.get('skuId') == key]  # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
 
                 # 处理propPath得到可识别的文字
@@ -648,8 +676,8 @@ class TaoBaoLoginAndParse(object):
                 spec_value = '|'.join(prop_path)  # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
                 # self.my_lg.info(prop_path)
 
-                tmp_prop_path_list[0]['sku_price'] = sku2_info[key]['price']['priceText']
-                tmp_prop_path_list[0]['quantity'] = sku2_info[key]['quantity']
+                detail_price = str(float(value['price']['priceText']))
+                rest_number = value['quantity']
                 # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
                 # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
 
@@ -657,8 +685,9 @@ class TaoBaoLoginAndParse(object):
 
                 tmp = {
                     'spec_value': spec_value,
-                    'detail_price': tmp_prop_path_list[0]['sku_price'],  # 每个规格对应的价格
-                    'rest_number': tmp_prop_path_list[0]['quantity'],    # 每个规格对应的库存量
+                    'normal_price': value.get('normal_price', ''),
+                    'detail_price': detail_price,
+                    'rest_number': rest_number,
                     'img_url': img_url,
                 }
                 prop_path_list.append(tmp)

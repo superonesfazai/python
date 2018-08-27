@@ -118,6 +118,7 @@ class YanXuanParse(object):
             return self._get_data_error_init()
 
         _ = self._wash_data(_)
+        # pprint(_)
         data = {}
         try:
             data['title'] = self._wash_sensitive_info(self._get_title(data=_))
@@ -144,6 +145,7 @@ class YanXuanParse(object):
 
         if data != {}:
             self.result_data = data
+            # pprint(data)
             return data
         else:
             self.my_lg.info('data为空值')

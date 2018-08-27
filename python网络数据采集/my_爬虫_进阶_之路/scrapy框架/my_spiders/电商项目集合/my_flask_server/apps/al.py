@@ -79,7 +79,7 @@ def get_one_1688_data(**kwargs):
     wait_to_deal_with_url = kwargs.get('wait_to_deal_with_url', '')
     my_lg = kwargs.get('my_lg')
 
-    login_ali = ALi1688LoginAndParse()
+    login_ali = ALi1688LoginAndParse(logger=my_lg)
     goods_id = login_ali.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
     if goods_id == '':  # 如果得不到goods_id, 则return error
         my_lg.info('获取到的goods_id为空!')

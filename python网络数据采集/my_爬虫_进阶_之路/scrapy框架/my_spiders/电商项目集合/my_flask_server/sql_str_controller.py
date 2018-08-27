@@ -90,9 +90,9 @@ al_select_str_4 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 al_select_str_5 = al_select_str_1
 # 常规goods待更新数据获取
 al_select_str_6 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
+select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
-where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>1
+where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>2
 order by ID desc
 '''
 

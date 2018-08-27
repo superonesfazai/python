@@ -1747,7 +1747,7 @@ def get_basic_data():
                 return result_json.decode()
 
             elif _is_jd_url(wait_to_deal_with_url):
-                jd = JdParse()
+                jd = JdParse(logger=my_lg)
 
                 goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
                 if goods_id == []:  # 如果得不到goods_id, 则return error

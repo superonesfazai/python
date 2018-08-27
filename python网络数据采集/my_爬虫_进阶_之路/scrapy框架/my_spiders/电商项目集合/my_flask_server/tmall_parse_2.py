@@ -286,7 +286,10 @@ class TmallParse(object):
             后期处理
             '''
             # 后期处理detail_name_list, detail_value_list
-            detail_name_list = [{'spec_name': i[0]} for i in detail_name_list]
+            detail_name_list = [{
+                'spec_name': i[0],
+                'img_here': i[2],
+            } for i in detail_name_list]
 
             # 商品标签属性对应的值, 及其对应id值
             if data.get('skuBase').get('props') is None:
@@ -367,9 +370,6 @@ class TmallParse(object):
         tmp = _get_right_model_data(data=data, site_id=site_id, logger=self.my_lg)
 
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
-        # 不改价格的sql
         base_sql_str = tm_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')

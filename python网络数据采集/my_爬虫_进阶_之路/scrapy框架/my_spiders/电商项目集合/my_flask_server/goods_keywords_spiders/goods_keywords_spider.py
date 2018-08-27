@@ -40,9 +40,7 @@ from sql_str_controller import (
 
 from fzutils.log_utils import set_logger
 from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_escape
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
@@ -497,7 +495,7 @@ class GoodsKeywordsSpider(object):
                 result = True   # 原先存在的情况
                 pass
             else:
-                ali_1688 = ALi1688LoginAndParse()
+                ali_1688 = ALi1688LoginAndParse(logger=self.my_lg)
                 if self.add_goods_index % 20 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     self.my_lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
@@ -639,7 +637,7 @@ class GoodsKeywordsSpider(object):
                 result = True   # 原先存在的情况
                 pass
             else:
-                jd = JdParse()
+                jd = JdParse(logger=self.my_lg)
                 if self.add_goods_index % 20 == 0:  # 每20次重连一次，避免单次长连无响应报错
                     self.my_lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()

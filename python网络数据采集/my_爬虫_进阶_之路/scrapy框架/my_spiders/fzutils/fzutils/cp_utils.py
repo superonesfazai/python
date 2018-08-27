@@ -311,6 +311,7 @@ def _get_right_model_data(data, site_id=None, logger=None):
         for item in data_list['sku_props']:
             detail_name_list.append({
                 'spec_name': item.get('prop'),
+                'img_here': item.get('img_here', 0),
             })
         tmp['detail_name_list'] = detail_name_list
     else:

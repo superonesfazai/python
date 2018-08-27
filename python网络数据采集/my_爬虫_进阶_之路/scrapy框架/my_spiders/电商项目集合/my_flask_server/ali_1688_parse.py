@@ -13,31 +13,48 @@ import gc
 from time import sleep
 from decimal import Decimal
 from json import dumps
+from logging import (
+    INFO,
+    ERROR,)
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from scrapy.selector import Selector
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import (
     al_select_str_1,
     al_update_str_1,
     al_update_str_2,
     al_insert_str_1,
-    al_insert_str_2,
-)
+    al_insert_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import get_shanghai_time
+from fzutils.log_utils import set_logger
 
 class ALi1688LoginAndParse(object):
-    def __init__(self):
+    def __init__(self, logger=None):
         super(ALi1688LoginAndParse, self).__init__()
         self._set_headers()
         self.result_data = {}
         self.is_activity_goods = False
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self._set_logger(logger)
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+
+    def _set_logger(self, logger):
+        if logger is None:
+            self.my_lg = set_logger(
+                log_file_name=MY_SPIDER_LOGS_PATH + '/1688/_/' + str(get_shanghai_time())[0:10] + '.txt',
+                console_log_level=INFO,
+                file_log_level=ERROR
+            )
+        else:
+            self.my_lg = logger
 
     def _set_headers(self):
         self.headers = {
@@ -54,14 +71,14 @@ class ALi1688LoginAndParse(object):
         if goods_id == '':
             return self._data_error_init()
 
-        # 阿里1688手机版地址: https://m.1688.com/offer/559836312862.html
         wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
-        print('------>>>| 待处理的阿里1688地址为: ', wait_to_deal_with_url)
+        self.my_lg.info('------>>>| 待处理的阿里1688地址为: {0}'.format(wait_to_deal_with_url))
 
+        self.error_base_record = '出错goods_id:{0}'.format(goods_id)
         body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=wait_to_deal_with_url, css_selector='div.d-content')
-        # print(body)
+        # self.my_lg.info(str(body))
         if body == '':
-            print('获取到的body为空str!请检查!')
+            self.my_lg.error('获取到的body为空str!请检查!' + self.error_base_record)
             return self._data_error_init()
 
         tmp_body = body
@@ -73,15 +90,14 @@ class ALi1688LoginAndParse(object):
             try:
                 tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
-                # print(is_in_db)
-            except Exception as e:
-                print(e)
-                print('数据库连接失败!')
+                # self.my_lg.info(str(is_in_db))
+            except Exception:
+                self.my_lg.error('数据库连接失败!'+self.error_base_record, exc_info=True)
                 return self._data_error_init()
 
             if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-                tmp_my_pipeline._update_table(sql_str=al_update_str_1, params=(goods_id))
-                print('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
+                tmp_my_pipeline._update_table_2(sql_str=al_update_str_1, params=(goods_id), logger=self.my_lg)
+                self.my_lg.info('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
                 tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
                 tmp_data_s['before'] = True     # 用来判断原先该goods是否在db中
                 self.result_data = {}
@@ -89,7 +105,7 @@ class ALi1688LoginAndParse(object):
                 return tmp_data_s
 
             else:       # 表示该goods_id没存在于db中
-                print('@@@ 该商品已下架[但未存在于db中], ** 此处将其插入到db中...')
+                self.my_lg.info('@@@ 该商品已下架[但未存在于db中], ** 此处将其插入到db中...')
                 tmp_data_s = self.init_pull_off_shelves_goods()      # 初始化下架商品的属性
                 tmp_data_s['before'] = False
                 self.result_data = {}
@@ -100,7 +116,7 @@ class ALi1688LoginAndParse(object):
         if body != []:
             body = body[0]
             body = r'{"beginAmount"' + body
-            # print(body)
+            # self.my_lg.info(str(body))
             body = json_2_dict(json_str=body)
             # pprint(body)
 
@@ -108,16 +124,16 @@ class ALi1688LoginAndParse(object):
                 self.result_data = self._wash_discountPriceRanges(body=body)
                 return self.result_data
             else:
-                print('data为空!')
+                self.my_lg.error('data为空!' + self.error_base_record)
                 return self._data_error_init()
 
         else:
-            print('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
+            self.my_lg.info('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
             body = re.compile(r'{"activityId"(.*?)</script></div></div>').findall(tmp_body)
             if body != []:
                 body = body[0]
                 body = r'{"activityId"' + body
-                # print(body)
+                # self.my_lg.info(str(body))
                 body = json_2_dict(json_str=body)
                 # pprint(body)
 
@@ -126,10 +142,10 @@ class ALi1688LoginAndParse(object):
                     self.is_activity_goods = True
                     return self.result_data
                 else:
-                    print('data为空!')
+                    self.my_lg.error('data为空!' + self.error_base_record)
                     return self._data_error_init()
             else:
-                print('这个商品对应活动属性未知, 此处不解析, 设置为跳过!')
+                self.my_lg.error('这个商品对应活动属性未知, 此处不解析, 设置为跳过!' + self.error_base_record)
                 return self._data_error_init()
 
     def deal_with_data(self):
@@ -141,47 +157,43 @@ class ALi1688LoginAndParse(object):
         # pprint(data)
 
         if data != {}:
-            # 公司名称
             company_name = data.get('companyName', '')
             title = self._wash_sensitive_words(data.get('subject', ''))
-            # 卖家姓名
             link_name = ''
 
             # 商品价格信息, 及其对应起批量   [{'price': '119.00', 'begin': '3'}, ...]
             price_info = self._get_price_info(data=data)
-            # print(price_info)
+            # self.my_lg.info(str(price_info))
 
             # 标签属性名称及其对应的值
             # (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
             sku_props = self._get_sku_props(data=data)
-            # print(sku_props)
+            # self.my_lg.info(str(sku_props))
 
             # 每个规格对应价格, 及其库存量
             try:
-                sku_map = self._get_sku_map(data=data, price_info=price_info)
+                sku_map = self._get_sku_map(data=data, price_info=price_info, detail_name_list=sku_props)
                 # pprint(sku_map)
-            except Exception as e:
-                print('获取sku_map时, 遇到错误:', e)
+            except Exception:
+                self.my_lg.error('获取sku_map时, 遇到错误!'+self.error_base_record, exc_info=True)
                 self.is_activity_goods = False
                 return self._data_error_init()
 
             price, taobao_price = self._get_price(price_info=price_info)
 
             all_img_url = self._get_all_img_url(data=data)
-            # pprint(all_img_url)
 
             # 即: p_info
             property_info = self._get_p_info(data=data)
-            # pprint(property_info)
 
             # 即: div_desc
             detail_info_url = data.get('detailUrl')
             if detail_info_url is not None:
-                # print(detail_info_url)
+                # self.my_lg.info(str(detail_info_url))
                 detail_info = self.get_detail_info_url_div(detail_info_url)
             else:
                 detail_info = ''
-            # print(detail_info)
+            # self.my_lg.info(str(detail_info))
 
             is_delete = self._get_is_delete(title=title)
 
@@ -200,7 +212,7 @@ class ALi1688LoginAndParse(object):
                 'is_delete': is_delete,                     # 判断是否下架
             }
             # pprint(result)
-            # print(result)
+            # self.my_lg.info(str(result))
 
             # wait_to_send_data = {
             #     'reason': 'success',
@@ -208,14 +220,14 @@ class ALi1688LoginAndParse(object):
             #     'code': 1
             # }
             # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # print(json_data)
+            # self.my_lg.info(str(json_data))
 
             # 重置self.is_activity_goods = False
             self.is_activity_goods = False
 
             return result
         else:
-            print('待处理的data为空值!')
+            self.my_lg.error('待处理的data为空值!'+self.error_base_record)
             self.is_activity_goods = False
 
             return {}
@@ -228,10 +240,7 @@ class ALi1688LoginAndParse(object):
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=2)
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql语句
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, GoodsName=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, DetailInfo=%s, PropertyInfo=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
         base_sql_str = al_update_str_2
         if tmp['delete_time'] == '':
@@ -241,7 +250,7 @@ class ALi1688LoginAndParse(object):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        pipeline._update_table(sql_str=sql_str, params=params)
+        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
     def _get_sku_props(self, **kwargs):
         '''
@@ -252,14 +261,17 @@ class ALi1688LoginAndParse(object):
         data = kwargs.get('data', {})
 
         sku_props = data.get('skuProps')
-        # print(sku_props)
+        # self.my_lg.info(str(sku_props))
         if sku_props is not None:  # 这里还是保留unit为单位值
-            # for item in sku_props:
-            #     try:
-            #         item.pop('unit')
-            #     except KeyError:
-            #         print('KeyError, [unit], 此处跳过')
-            pass
+            for i in sku_props:
+                value = i.get('value', [])
+                i.update({'img_here': 0})       # 用于判断有示例图放在哪个属性
+                if value != []:
+                    for j in value:
+                        if j.get('imageUrl') is not None:
+                            i.update({'img_here': 1})
+                        else:
+                            pass
         else:
             sku_props = []  # 存在没有规格属性的
 
@@ -289,7 +301,7 @@ class ALi1688LoginAndParse(object):
                         item.pop('convertPrice')
                     except KeyError:
                         pass
-                        # print(price_info)
+                        # self.my_lg.info(str(price_info))
             else:  # 限时优惠
                 tmp = {
                     'begin': data.get('beginAmount', ''),
@@ -309,8 +321,10 @@ class ALi1688LoginAndParse(object):
         '''skuMap == SKUInfo'''
         data = kwargs.get('data', {})
         price_info = kwargs.get('price_info', [])
+        detail_name_list = kwargs.get('detail_name_list', [])
 
         tmp_sku_map = data.get('skuMap')
+        # pprint(tmp_sku_map)
         if tmp_sku_map is not None:
             sku_map = []
             for key, value in tmp_sku_map.items():
@@ -325,7 +339,7 @@ class ALi1688LoginAndParse(object):
                     try:
                         value['discountPrice'] = price_info[0].get('price')
                     except IndexError:
-                        print('获取价格失败, 此处跳过!')
+                        self.my_lg.error('获取价格失败, 此处跳过!')
                         raise IndexError
 
                 else:
@@ -346,6 +360,25 @@ class ALi1688LoginAndParse(object):
         else:
             sku_map = []  # 存在没有规格时的情况
 
+        # 添加示例图
+        if sku_map != []:
+            img_url_list = []
+            for i in detail_name_list:
+                if i.get('img_here', 0) == 1:
+                    img_url_list = i.get('value', [])
+
+            # self.my_lg.info(str(img_url_list))
+            for i in img_url_list:
+                img_url = i.get('imageUrl', '')
+                name = i.get('name', '')
+                for j in sku_map:
+                    if name in j.get('spec_type', ''):
+                        j.update({
+                            'img_url': img_url,
+                        })
+                    else:
+                        pass
+
         return sku_map
 
     def _get_all_img_url(self, **kwargs):
@@ -364,7 +397,7 @@ class ALi1688LoginAndParse(object):
                 try:
                     item.pop('size310x310URL')
                 except KeyError:
-                    # print('KeyError, [size310x310URL], 此处设置为跳过')
+                    # self.my_lg.info('KeyError, [size310x310URL], 此处设置为跳过')
                     pass
                 tmp['img_url'] = item['originalImageURI']
                 all_img_url.append(tmp)
@@ -388,7 +421,7 @@ class ALi1688LoginAndParse(object):
                 try:
                     item.pop('unit')
                 except KeyError:
-                    # print('KeyError, [unit], 此处设置为跳过')
+                    # self.my_lg.info('KeyError, [unit], 此处设置为跳过')
                     pass
                 item['id'] = '0'
 
@@ -450,7 +483,7 @@ class ALi1688LoginAndParse(object):
         try:
             value.pop('standardPrice')
         except KeyError:
-            # print('KeyError, [skuId, specId, saleCount]错误, 此处跳过')
+            # self.my_lg.info('KeyError, [skuId, specId, saleCount]错误, 此处跳过')
             pass
 
         return value
@@ -480,7 +513,7 @@ class ALi1688LoginAndParse(object):
             body.pop('wirelessVideoInfo')
             body.pop('freightCost')
         except KeyError:
-            print('KeyError错误, 此处跳过!')
+            # self.my_lg.info('KeyError错误, 此处跳过!')
             pass
 
         return body
@@ -585,14 +618,13 @@ class ALi1688LoginAndParse(object):
     def old_ali_1688_goods_insert_into_new_table(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=2)
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
             sql_str = al_insert_str_1
         else:
             sql_str = al_insert_str_2
 
-        result = pipeline._insert_into_table(sql_str=sql_str, params=params)
+        result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
 
         return result
 
@@ -629,11 +661,10 @@ class ALi1688LoginAndParse(object):
         此处过滤得到data_tfs_url的div块
         :return:
         '''
-        detail_info = ''
-        # print(detail_info_url)
+        # self.my_lg.info(str(detail_info_url))
         if re.compile(r'https').findall(detail_info_url) == []:
             detail_info_url = 'https:' + detail_info_url
-            # print(detail_info_url)
+            # self.my_lg.info(str(detail_info_url))
         else:
             pass
         # data_tfs_url_response = requests.get(detail_info_url, headers=self.headers)
@@ -645,7 +676,7 @@ class ALi1688LoginAndParse(object):
         # 改用requests
         # '''
         # body = MyRequests.get_url_body(url=detail_info_url, headers=self.headers)
-        # print(body)
+        # self.my_lg.info(str(body))
         # if  body == '':
         #     detail_info = ''
         #
@@ -656,7 +687,7 @@ class ALi1688LoginAndParse(object):
 
         if is_offer_details != []:
             data_tfs_url_body = re.compile(r'.*?{"content":"(.*?)"};').findall(data_tfs_url_body)
-            # print(body)
+            # self.my_lg.info(str(body))
             if data_tfs_url_body != []:
                 detail_info = data_tfs_url_body[0]
                 detail_info = re.compile(r'\\').sub('', detail_info)
@@ -672,7 +703,7 @@ class ALi1688LoginAndParse(object):
                     detail_info = re.compile(r'src=\"https:').sub('src=\"', detail_info)     # 先替换部分带有https的
                     detail_info = re.compile(r'src="').sub('src=\"https:', detail_info)     # 再把所欲的换成https的
 
-        # print(detail_info)
+        # self.my_lg.info(str(detail_info))
 
         return detail_info
 
@@ -694,19 +725,20 @@ class ALi1688LoginAndParse(object):
         is_ali_1688_url = re.compile(r'https://detail.1688.com/offer/.*?').findall(ali_1688_url)
         if is_ali_1688_url != []:
             ali_1688_url = re.compile(r'https://detail.1688.com/offer/(.*?).html.*?').findall(ali_1688_url)[0]
-            print('------>>>| 得到的阿里1688商品id为:', ali_1688_url)
+            self.my_lg.info('------>>>| 得到的阿里1688商品id为:{0}'.format(ali_1688_url))
 
             return ali_1688_url
         else:
-            print('阿里1688商品url错误, 非正规的url, 请参照格式(https://detail.1688.com/offer/)开头的...')
+            self.my_lg.info('阿里1688商品url错误, 非正规的url, 请参照格式(https://detail.1688.com/offer/)开头的...')
 
             return ''
 
     def __del__(self):
         try:
             del self.my_phantomjs
+            del self.my_lg
         except Exception:
-            print("self.my_phantomjs释放失败!")
+            self.my_lg.error("self.my_phantomjs释放失败!")
             pass
         gc.collect()
 
@@ -718,7 +750,7 @@ if __name__ == '__main__':
         goods_id = ali_1688.get_goods_id_from_url(url)
         ali_1688.get_ali_1688_data(goods_id=goods_id)
         data = ali_1688.deal_with_data()
-        # pprint(data)
+        pprint(data)
 
 
 

@@ -15,54 +15,62 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-from settings import IS_BACKGROUND_RUNNING
+from logging import (
+    INFO,
+    ERROR,)
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import al_select_str_6
 from multiplex_code import get_sku_info_trans_record
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
-    format_price_info_list,
-)
+    format_price_info_list,)
 from fzutils.common_utils import json_2_dict
+from fzutils.log_utils import set_logger
 
 def run_forever():
     while True:
+        my_lg = set_logger(
+            log_file_name=MY_SPIDER_LOGS_PATH + '/1688/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
+            console_log_level=INFO,
+            file_log_level=ERROR
+        )
         #### 实时更新数据
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
             result = list(tmp_sql_server._select_table(sql_str=al_select_str_6))
         except TypeError:
-            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
+            my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
-            print('待更新个数: ', len(result))
+            my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            my_lg.info(str(result))
+            my_lg.info('--------------------------------------------------------')
+            my_lg.info('待更新个数: {0}'.format(len(result)))
 
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            ali_1688 = ALi1688LoginAndParse()
+            ali_1688 = ALi1688LoginAndParse(logger=my_lg)
             for item in result:  # 实时更新数据
                 if index % 5 == 0:
-                    ali_1688 = ALi1688LoginAndParse()
+                    ali_1688 = ALi1688LoginAndParse(logger=my_lg)
 
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
+                if index % 50 == 0:
+                    my_lg.info('正在重置，并与数据库建立新连接中...')
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
+                    my_lg.info('与数据库的新连接成功建立...')
 
                 if tmp_sql_server.is_connect_success:
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                    my_lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(item[0], index))
                     data = ali_1688.get_ali_1688_data(item[0])
                     if isinstance(data, int) is True:     # 单独处理返回tt为4041
                         continue
@@ -78,9 +86,7 @@ def run_forever():
                             shelf_time=item[4],
                             delete_time=item[5]
                         )
-                        print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
-
-                        # print('------>>>| 爬取到的数据为: ', data)
+                        # my_lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
                         ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
 
                         sleep(1.5)  # 避免服务器更新太频繁
@@ -96,7 +102,7 @@ def run_forever():
                             is_delete=item[1],
                             shelf_time=item[4],
                             delete_time=item[5])
-                        print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
+                        # my_lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
 
                         '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
                         # 业务逻辑
@@ -117,28 +123,21 @@ def run_forever():
                             is_price_change=item[7] if item[7] is not None else 0
                         )
 
-                        # print('------>>>| 爬取到的数据为: ', data)
                         ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
-
                         sleep(.3)       # 避免服务器更新太频繁
                     else:  # 表示返回的data值为空值
                         pass
                 else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
+                    my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                # try:
-                #     del ali_1688
-                # except:
-                #     pass
                 gc.collect()
                 sleep(2.2)
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
             sleep(5)
-        # del ali_1688
         gc.collect()
 
 def main():
