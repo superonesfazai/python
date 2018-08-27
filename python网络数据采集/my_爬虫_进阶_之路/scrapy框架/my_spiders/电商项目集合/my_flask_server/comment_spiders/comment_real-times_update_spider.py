@@ -10,7 +10,7 @@
 import sys
 sys.path.append('..')
 
-from my_pipeline import CommentInfoSaveItemPipeline
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
@@ -101,10 +101,10 @@ class CommentRealTimeUpdateSpider(object):
     def _just_run(self):
         while True:
             #### 更新数据
-            self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+            self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
             #  and GETDATE()-a.modify_time>1
             try:
-                result = list(self._comment_pipeline._select_table(sql_str=cm_select_str_1))
+                result = list(self._comment_pipeline._select_table(sql_str=cm_select_str_1, logger=self.my_lg))
             except TypeError:
                 self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 continue
@@ -125,7 +125,7 @@ class CommentRealTimeUpdateSpider(object):
                 if index % 20 == 0:
                     try: del self._comment_pipeline
                     except: pass
-                    self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+                    self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
                 switch = {
                     1: self.func_name_dict.get('taobao'),       # 淘宝
@@ -164,7 +164,10 @@ class CommentRealTimeUpdateSpider(object):
 
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table(sql_str=self.sql_str, params=self._get_db_update_params(item=_r))
+                    self._comment_pipeline._update_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_update_params(item=_r),
+                        logger=self.my_lg)
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
 
@@ -196,7 +199,11 @@ class CommentRealTimeUpdateSpider(object):
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table(sql_str=self.sql_str, params=self._get_db_update_params(item=_r))
+                    self._comment_pipeline._update_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_update_params(item=_r),
+                        logger=self.my_lg)
+
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
 
@@ -234,7 +241,10 @@ class CommentRealTimeUpdateSpider(object):
             _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table(sql_str=self.sql_str, params=self._get_db_update_params(item=_r))
+                    self._comment_pipeline._update_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_update_params(item=_r),
+                        logger=self.my_lg)
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
             gc.collect()
@@ -261,7 +271,10 @@ class CommentRealTimeUpdateSpider(object):
             _r = self.jd._get_comment_data(goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table(sql_str=self.sql_str, params=self._get_db_update_params(item=_r))
+                    self._comment_pipeline._update_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_update_params(item=_r),
+                        logger=self.my_lg)
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
         else:

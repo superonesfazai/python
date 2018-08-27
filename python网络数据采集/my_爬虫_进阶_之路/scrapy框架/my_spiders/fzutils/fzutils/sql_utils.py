@@ -14,6 +14,7 @@ sql utils
 from pymssql import *
 import gc
 import asyncio
+from .common_utils import _print
 
 __all__ = [
     'BaseSqlServer',        # sql_utils for sql_server
@@ -40,7 +41,7 @@ class BaseSqlServer(object):
             print('数据库连接失败!!')
             self.is_connect_success = False
 
-    def _select_table(self, sql_str, params=None, lock_timeout=20000):
+    def _select_table(self, sql_str, params=None, lock_timeout=20000, logger=None):
         '''
         搜索
         :param sql_str:
@@ -52,7 +53,7 @@ class BaseSqlServer(object):
         try:
             cs = self.conn.cursor()
         except AttributeError as e:
-            print(e.args[0])
+            _print(msg=str(e.args[0]), logger=logger, log_level=2)
             return result
 
         try:
@@ -67,7 +68,7 @@ class BaseSqlServer(object):
 
             result = cs.fetchall()
         except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
+            _print(msg='--------------------| 筛选level时报错: ', logger=logger, log_level=2, exception=e)
         finally:
             try:
                 cs.close()

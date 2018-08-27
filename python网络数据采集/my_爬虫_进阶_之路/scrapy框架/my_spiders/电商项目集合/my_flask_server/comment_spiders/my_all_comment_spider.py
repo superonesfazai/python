@@ -10,10 +10,7 @@
 import sys
 sys.path.append('..')
 
-from my_pipeline import (
-    SqlServerMyPageInfoSaveItemPipeline,
-    CommentInfoSaveItemPipeline,
-)
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
@@ -123,9 +120,9 @@ class MyAllCommentSpider(object):
                 self.my_lg.info('--------------------------------------------------------')
 
                 self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-                self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+                self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 if self._comment_pipeline.is_connect_success:
-                    _db_goods_id = self._comment_pipeline._select_table(sql_str=cm_select_str_3)
+                    _db_goods_id = self._comment_pipeline._select_table(sql_str=cm_select_str_3, logger=self.my_lg)
                     try:
                         _db_goods_id = [item[0] for item in _db_goods_id]
                     except IndexError:
@@ -152,7 +149,7 @@ class MyAllCommentSpider(object):
                         self.my_lg.info('_comment_pipeline客户端重连中...')
                         try: del self._comment_pipeline
                         except: pass
-                        self._comment_pipeline = CommentInfoSaveItemPipeline(logger=self.my_lg)
+                        self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         self.my_lg.info('_comment_pipeline客户端重连完毕!')
 
                     switch = {
@@ -197,7 +194,11 @@ class MyAllCommentSpider(object):
 
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
+                    self._comment_pipeline._insert_into_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_insert_params(item=_r),
+                        logger=self.my_lg
+                    )
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
                 
@@ -229,7 +230,12 @@ class MyAllCommentSpider(object):
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
+                    self._comment_pipeline._insert_into_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_insert_params(item=_r),
+                        logger=self.my_lg
+                    )
+
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
         else:
@@ -266,7 +272,11 @@ class MyAllCommentSpider(object):
             _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
+                    self._comment_pipeline._insert_into_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_insert_params(item=_r),
+                        logger=self.my_lg
+                    )
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
                 
@@ -296,7 +306,11 @@ class MyAllCommentSpider(object):
             if _r.get('_comment_list', []) != []:
                 # self.my_lg.info('获取评论success!')
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table(sql_str=self.sql_str, params=self._get_db_insert_params(item=_r))
+                    self._comment_pipeline._insert_into_table_2(
+                        sql_str=self.sql_str,
+                        params=self._get_db_insert_params(item=_r),
+                        logger=self.my_lg
+                    )
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
                 
@@ -321,9 +335,10 @@ class MyAllCommentSpider(object):
             if _r.get('_comment_list', []) != []:
                 # self.my_lg.info('获取评论success!')
                 if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table(
+                    self._comment_pipeline._insert_into_table_2(
                         sql_str=self.sql_str,
-                        params=self._get_db_insert_params(item=_r)
+                        params=self._get_db_insert_params(item=_r),
+                        logger=self.my_lg
                     )
             else:
                 self.my_lg.info('该商品_comment_list为空list! 此处跳过!')

@@ -212,7 +212,7 @@ class JuMeiYouPinPinTuanParse(object):
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
-    async def deal_with_data(self, jumei_pintuan_url):
+    async def deal_with_data(self, jumei_pintuan_url) -> dict:
         '''
         得到规范数据并处理
         :return:
@@ -295,7 +295,7 @@ class JuMeiYouPinPinTuanParse(object):
                 pass
             return {}
 
-    async def insert_into_jumeiyoupin_pintuan_table(self, data, pipeline, logger):
+    async def insert_into_jumeiyoupin_pintuan_table(self, data, pipeline, logger) -> bool:
         '''
         存储数据
         :param data:
@@ -320,7 +320,7 @@ class JuMeiYouPinPinTuanParse(object):
             logger.exception(e)
             return False
 
-    async def update_jumeiyoupin_pintuan_table(self, data, pipeline, logger):
+    async def update_jumeiyoupin_pintuan_table(self, data, pipeline, logger) -> bool:
         '''
         异步更新数据
         :param data:
@@ -345,7 +345,7 @@ class JuMeiYouPinPinTuanParse(object):
             logger.exception(e)
             return False
 
-    async def update_jumeiyoupin_pintuan_table_2(self, data, pipeline, logger):
+    async def update_jumeiyoupin_pintuan_table_2(self, data, pipeline, logger) -> bool:
         '''
         异步更新数据
         :param data:
@@ -370,7 +370,7 @@ class JuMeiYouPinPinTuanParse(object):
             logger.exception(e)
             return False
 
-    async def _get_db_insert_pintuan_params(self, item):
+    async def _get_db_insert_pintuan_params(self, item) -> tuple:
         params = (
             item['goods_id'],
             item['goods_url'],
@@ -625,7 +625,7 @@ class JuMeiYouPinPinTuanParse(object):
         '''
         return json_2_dict(json_str=json_str, logger=self.my_lg)
 
-    async def get_goods_id_from_url(self, jumei_url):
+    async def get_goods_id_from_url(self, jumei_url) -> list:
         '''
         得到goods_id
         :param jumei_url:

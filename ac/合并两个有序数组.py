@@ -31,11 +31,11 @@ class Solution(object):
         for i in nums2:
             nums1.append(i)
 
-        # length = len(nums1)
-        # for i in range(length - 1, -1, -1):
-        #     for j in range(i):
-        #         if nums1[j] > nums1[j + 1]:
-        #             nums1[j], nums1[j + 1] = nums1[j + 1], nums1[j]
+        length = len(nums1)
+        for i in range(length - 1, -1, -1):
+            for j in range(i):
+                if nums1[j] > nums1[j + 1]:
+                    nums1[j], nums1[j + 1] = nums1[j + 1], nums1[j]
 
         nums1 = sorted(nums1)
         # print(nums1)

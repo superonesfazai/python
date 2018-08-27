@@ -52,7 +52,7 @@ class MiaPintuanParse(MiaParse):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
-    def get_goods_data(self, goods_id:str) -> '重载获取数据的方法':
+    def get_goods_data(self, goods_id:str) -> dict:
         '''
         模拟构造得到data
         :param goods_id:
@@ -184,7 +184,7 @@ class MiaPintuanParse(MiaParse):
                 print('data为空!')
                 return self._data_error_init()
 
-    def deal_with_data(self) -> '重载数据处理方法':
+    def deal_with_data(self) -> dict:
         '''
         处理得到规范的data数据
         :return: result 类型 dict
@@ -275,7 +275,7 @@ class MiaPintuanParse(MiaParse):
         params = self._get_db_update_pintuan_params(item=tmp)
         pipeline._update_table(sql_str=mia_update_str_3, params=params)
 
-    def _get_db_insert_pintuan_params(self, item):
+    def _get_db_insert_pintuan_params(self, item) -> tuple:
         params = (
             item['goods_id'],
             item['goods_url'],
@@ -303,7 +303,7 @@ class MiaPintuanParse(MiaParse):
 
         return params
 
-    def _get_db_update_pintuan_params(self, item):
+    def _get_db_update_pintuan_params(self, item) -> tuple:
         params = (
             item['modify_time'],
             item['shop_name'],
@@ -328,7 +328,7 @@ class MiaPintuanParse(MiaParse):
 
         return params
 
-    def get_true_sku_info(self, sku_info) -> '重载得到true_sku_info的方法':
+    def get_true_sku_info(self, sku_info) -> list:
         '''
         获取每个规格对应价格跟规格以及其库存
         :param sku_info:
