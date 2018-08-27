@@ -11,7 +11,6 @@ import asyncio
 import aiohttp
 import re
 import gc
-import time
 
 from ..ip_pools import MyIpPools
 from ..internet_utils import get_random_pc_ua
@@ -20,17 +19,19 @@ class MyAiohttp(object):
     def __init__(self, max_tasks=10):
         super(MyAiohttp, self).__init__()
         self.loop = asyncio.get_event_loop()
-        self.max_tasks = max_tasks  # 接口请求进程数
+        self.max_tasks = max_tasks                  # 接口请求进程数
         self.queue = asyncio.Queue(loop=self.loop)  # 接口队列
-        self.headers = {
+
+    @property
+    def headers(self):
+        return {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Host': 'superonesfazai.github.io',
-            # 'if-modified-since': get_right_time(),
-            'User-Agent': get_random_pc_ua(),      # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),
         }
 
     @classmethod    # 注意timeout不是越长越好，测试发现10左右成功率较高
@@ -72,9 +73,7 @@ class MyAiohttp(object):
         :param body:
         :return:
         '''
-        body = re.compile('\t').sub('', body)
-        body = re.compile('  ').sub('', body)
-        body = re.compile('\r\n').sub('', body)
+        body = re.compile('\t|  |\r\n').sub('', body)
         body = re.compile('\n').sub('', body)
 
         return body

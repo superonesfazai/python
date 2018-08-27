@@ -32,7 +32,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
     def __init__(self):
         MoGuJieParse.__init__(self)
 
-    def get_goods_data(self, goods_id:str) -> '重载获取数据的方法':
+    def get_goods_data(self, goods_id:str) -> dict:
         '''
         模拟构造得到data的url
         :param goods_id:
@@ -267,7 +267,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
 
         return params
 
-    def get_goods_id_from_url(self, mogujie_url) -> '重载获取goods_id的方法':
+    def get_goods_id_from_url(self, mogujie_url) -> str:
         mogujie_url = re.compile(r'http://').sub('https://', mogujie_url)
         is_mogujie_miaosha_url = re.compile(r'https://shop.mogujie.com/rushdetail/.*?').findall(mogujie_url)
         if is_mogujie_miaosha_url != []:

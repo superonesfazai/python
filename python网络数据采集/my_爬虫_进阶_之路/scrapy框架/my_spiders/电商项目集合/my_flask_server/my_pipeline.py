@@ -8,16 +8,12 @@
 '''
 
 from pymssql import *
-from json import dumps, loads
+from json import dumps
 import gc
 import sqlalchemy
 from sqlalchemy import create_engine
 import datetime, calendar
 import asyncio
-from logging import (
-    INFO,
-    ERROR,
-)
 from pprint import pprint
 
 from settings import (
@@ -31,11 +27,8 @@ from settings import (
     PASSWORD_2,
     DATABASE_2,
     PORT_2,
-    MY_SPIDER_LOGS_PATH,
 )
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
 from fzutils.sql_utils import BaseSqlServer
 
 class SqlServerMyPageInfoSaveItemPipeline(BaseSqlServer):

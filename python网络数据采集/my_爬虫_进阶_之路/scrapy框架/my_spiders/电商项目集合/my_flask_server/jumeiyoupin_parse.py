@@ -28,8 +28,11 @@ from sql_str_controller import (
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
-from fzutils.common_utils import json_2_dict
-from fzutils.common_utils import wash_sensitive_info
+from fzutils.common_utils import (
+    json_2_dict,
+    wash_sensitive_info,)
+from fzutils.time_utils import timestamp_to_regulartime
+
 
 class JuMeiYouPinParse(object):
     def __init__(self):
@@ -484,8 +487,8 @@ class JuMeiYouPinParse(object):
 
         if isinstance(begin_time, int):
             sell_time = {
-                'begin_time': self.timestamp_to_regulartime(int(begin_time)),
-                'end_time': self.timestamp_to_regulartime(int(end_time)),
+                'begin_time': timestamp_to_regulartime(int(begin_time)),
+                'end_time': timestamp_to_regulartime(int(end_time)),
             }
 
         else:
@@ -537,20 +540,6 @@ class JuMeiYouPinParse(object):
             })
 
         return price_info_list
-
-    def timestamp_to_regulartime(self, timestamp):
-        '''
-        将时间戳转换成时间
-        '''
-        # 利用localtime()函数将时间戳转化成localtime的格式
-        # 利用strftime()函数重新格式化时间
-
-        # 转换成localtime
-        time_local = time.localtime(timestamp)
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-
-        return dt
 
     def get_goods_id_from_url(self, jumei_url):
         '''

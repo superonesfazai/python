@@ -328,7 +328,7 @@ class MiaPintuanParse(MiaParse):
 
         return params
 
-    def get_true_sku_info(self, sku_info) -> list:
+    def get_true_sku_info(self, sku_info):
         '''
         获取每个规格对应价格跟规格以及其库存
         :param sku_info:

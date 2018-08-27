@@ -11,7 +11,6 @@ import sys
 sys.path.append('..')
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
 from ali_1688_comment_parse import ALi1688CommentParse
@@ -29,8 +28,7 @@ from pprint import pprint
 from sql_str_controller import (
     cm_insert_str_1,
     cm_select_str_2,
-    cm_select_str_3,
-)
+    cm_select_str_3,)
 
 from fzutils.log_utils import set_logger
 from fzutils.linux_utils import daemon_init

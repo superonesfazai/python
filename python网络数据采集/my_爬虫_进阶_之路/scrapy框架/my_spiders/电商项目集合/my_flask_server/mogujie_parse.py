@@ -563,7 +563,7 @@ class MoGuJieParse(object):
 
         return div_desc
 
-    def get_goods_id_from_url(self, mogujie_url):
+    def get_goods_id_from_url(self, mogujie_url) -> str:
         mogujie_url = re.compile(r'http://').sub('https://', mogujie_url)
         is_mogujie_url = re.compile(r'https://shop.mogujie.com/detail/.*?').findall(mogujie_url)
         if is_mogujie_url != []:

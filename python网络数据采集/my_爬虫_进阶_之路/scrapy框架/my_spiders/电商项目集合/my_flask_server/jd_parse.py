@@ -762,9 +762,7 @@ class JdParse(object):
         :param body:
         :return:
         '''
-        body = re.compile(r'\n').sub('', body)
-        body = re.compile(r'\t').sub('', body)
-        body = re.compile(r'  ').sub('', body)
+        body = re.compile('\n|\t|  ').sub('', body)
 
         return body
 

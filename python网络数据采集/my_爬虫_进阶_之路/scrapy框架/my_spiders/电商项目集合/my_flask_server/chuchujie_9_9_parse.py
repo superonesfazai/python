@@ -256,7 +256,7 @@ class ChuChuJie_9_9_Parse(object):
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
-    def deal_with_data(self):
+    def deal_with_data(self) -> dict:
         '''
         处理得到规范的data数据
         :return: result 类型 dict

@@ -18,7 +18,7 @@ from fzutils.time_utils import get_shanghai_time
 from scrapy.selector import Selector
 import re
 
-def _z8_get_parent_dir(goods_id):
+def _z8_get_parent_dir(goods_id) -> str:
     '''
     折800获取parent_dir (常规, 拼团, 秒杀都可用)
     :param goods_id:

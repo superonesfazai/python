@@ -75,7 +75,7 @@ class ALi1688LoginAndParse(object):
                 is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
                 # print(is_in_db)
             except Exception as e:
-                print('遇到错误:', e)
+                print(e)
                 print('数据库连接失败!')
                 return self._data_error_init()
 
