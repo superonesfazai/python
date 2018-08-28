@@ -224,22 +224,10 @@ class Zhe800Parse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data.get('shop_name', '')
-            # print(shop_name)
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data.get('/app/detail/product/base', {}).get('title', '')
-            # print(title)
-
-            # 子标题
             sub_title = ''
-
-            # 商品库存
-            # 商品标签属性对应的值
 
             # 要存储的每个标签对应规格的价格及其库存
             try:
@@ -250,95 +238,28 @@ class Zhe800Parse(object):
                 return {}
 
             # pprint(tmp_price_info_list)
-            detail_name_list = []   # 初始化
-            price_info_list = []
-            price = ''              # 先初始化
-            taobao_price = ''
-            # pprint(tmp_price_info_list)
-            if len(tmp_price_info_list) == 1:     # 说明没有规格属性, 只有价格
-                is_spec = False
-                if tmp_price_info_list[0].get('curPrice', '') != '':
-                    # 商品价格
-                    # 淘宝价
-                    price = round(float(tmp_price_info_list[0].get('curPrice', '')), 2)
-                    taobao_price = price
-                else:
-                    price = round(float(tmp_price_info_list[0].get('orgPrice', '')), 2)
-                    taobao_price = price
-            else:                               # 有规格属性
-                is_spec = True
-                stock_items = data.get('stock', {}).get('stockItems')   # [{'count': 100, 'lockCount': 0, 'skuNum': '1-1001:2-1121'}, ...]
-                # pprint(stock_items)
-                for index in range(1, len(tmp_price_info_list)):
-                    # 商品标签属性名称
-                    detail_name_list = [{'spec_name': item.split('-')[0]} for item in tmp_price_info_list[index].get('propertyName').split(':')]
-                    tmp_spec_value_1 = [str(item.split('-')[1]) for item in tmp_price_info_list[index].get('propertyName').split(':')]  # ['红格', 'S']
-                    tmp_spec_value_2 = '|'.join(tmp_spec_value_1)   # '红格|S'
-                    # print(tmp_spec_value_2)
-                    property_num = tmp_price_info_list[index].get('propertyNum', '')
-                    picture = tmp_price_info_list[index].get('vPictureBig', '')
-                    if stock_items is None:     # 没有规格时, price,taobao_price值的设定
-                        is_spec = False
-                        price_info_list = []
-                        if tmp_price_info_list[0].get('curPrice', '') != '':
-                            price = tmp_price_info_list[0].get('curPrice', '')
-                            taobao_price = price
-                        else:
-                            price = tmp_price_info_list[0].get('orgPrice', '')
-                            taobao_price = price
-                    else:   # 有规格的情况
-                        is_spec = True
-                        # 每个规格对应的库存量
-                        count = [item.get('count', 0) for item in stock_items if property_num == item.get('skuNum', '')][0]
-                        if tmp_price_info_list[index].get('curPrice', '') != '':    # 促销价不为空
-                            tmp = {
-                                'spec_value': tmp_spec_value_2,
-                                'detail_price': tmp_price_info_list[index].get('curPrice', ''),
-                                'normal_price': tmp_price_info_list[index].get('orgPrice', ''),
-                                'rest_number': count,
-                                'img_url': picture,
-                            }
-                        else:   # 促销价为空值
-                            tmp = {
-                                'spec_value': tmp_spec_value_2,
-                                'detail_price': tmp_price_info_list[index].get('orgPrice', ''),
-                                'normal_price': tmp_price_info_list[index].get('orgPrice', ''),
-                                'rest_number': count,
-                                'img_url': picture,
-                            }
-                        price_info_list.append(tmp)
-
-            if is_spec:     # 得到有规格时的最高价和最低价
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
-                price = tmp_price_list[-1]          # 商品价格
-                taobao_price = tmp_price_list[0]    # 淘宝价
+            cache = self._get_detail_name_list_and_price_info_list_and_price_and_taobao_price(
+                data=data,
+                tmp_price_info_list=tmp_price_info_list)
+            detail_name_list = cache[0]
+            price_info_list= cache[1]
+            price = cache[2]
+            taobao_price = cache[3]
 
             # print('最高价为: ', price)
             # print('最低价为: ', taobao_price)
             # print(detail_name_list)
             # pprint(price_info_list)
 
-            # 所有示例图片地址
-            tmp_all_img_url = data.get('/app/detail/product/base', {}).get('images', [])
-            all_img_url = [{'img_url': item['big']} for item in tmp_all_img_url]
-            # pprint(all_img_url)
+            all_img_url = self._get_all_img_url(tmp_all_img_url=data.get('/app/detail/product/base', {}).get('images', []))
 
-            # 详细信息标签名对应属性
             try:
-                tmp_profiles = data.get('/app/detail/product/profiles')
-                if tmp_profiles is None:
-                    profiles = None
-                else:
-                    profiles = data.get('/app/detail/product/profiles', {}).get('profiles')
+                p_info = self._get_p_info(data=data)
             except AttributeError as e:
                 print('AttributeError属性报错，为: ', e)
                 print("data.get('/app/detail/product/profiles', {}).get('profiles')获取失败, 此处跳过")
+                self.result_data = {}
                 return {}
-
-            if profiles is None:
-                p_info = []
-            else:
-                p_info = [{'p_name': item['name'], 'p_value': item['value']} for item in profiles]
             # pprint(p_info)
 
             # div_desc
@@ -414,6 +335,104 @@ class Zhe800Parse(object):
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
         pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_detail_name_list_and_price_info_list_and_price_and_taobao_price(self, **kwargs):
+        '''
+        得到detail_name_list, price_info_list, price, taobao_price
+        :param kwargs:
+        :return:
+        '''
+        def _get_detail_name_list(s_item):
+            '''得到detail_name_list'''
+            detail_name_list = []
+            for item in s_item.get('propertyName').split(':'):
+                _ = item.split('-')[0]
+                img_here = 0
+                if _ == '颜色':
+                    img_here = 1
+
+                detail_name_list.append({
+                    'spec_name': _,
+                    'img_here': img_here,
+                })
+
+            return detail_name_list
+
+        data = kwargs.get('data', {})
+        tmp_price_info_list = kwargs.get('tmp_price_info_list', [])
+
+        detail_name_list = []  # 初始化
+        price_info_list = []
+        price = ''  # 先初始化
+        taobao_price = ''
+        # pprint(tmp_price_info_list)
+        if len(tmp_price_info_list) == 1:  # 说明没有规格属性, 只有价格
+            is_spec = False
+            if tmp_price_info_list[0].get('curPrice', '') != '':
+                # 商品价格
+                # 淘宝价
+                price = round(float(tmp_price_info_list[0].get('curPrice', '')), 2)
+                taobao_price = price
+            else:
+                price = round(float(tmp_price_info_list[0].get('orgPrice', '')), 2)
+                taobao_price = price
+        else:  # 有规格属性
+            is_spec = True
+            stock_items = data.get('stock', {}).get('stockItems')  # [{'count': 100, 'lockCount': 0, 'skuNum': '1-1001:2-1121'}, ...]
+            # pprint(stock_items)
+            for index in range(1, len(tmp_price_info_list)):
+                s_item = tmp_price_info_list[index]
+                # pprint(s_item)
+                # 商品标签属性名称
+                detail_name_list = _get_detail_name_list(s_item)
+
+                tmp_spec_value_1 = [str(item.split('-')[1]) for item in s_item.get('propertyName').split(':')]  # ['红格', 'S']
+                tmp_spec_value_2 = '|'.join(tmp_spec_value_1)  # '红格|S'
+                # print(tmp_spec_value_2)
+                property_num = s_item.get('propertyNum', '')
+                picture = s_item.get('vPictureBig', '')
+                if stock_items is None:  # 没有规格时, price,taobao_price值的设定
+                    is_spec = False
+                    price_info_list = []
+                    if tmp_price_info_list[0].get('curPrice', '') != '':
+                        price = tmp_price_info_list[0].get('curPrice', '')
+                        taobao_price = price
+                    else:
+                        price = tmp_price_info_list[0].get('orgPrice', '')
+                        taobao_price = price
+                else:  # 有规格的情况
+                    is_spec = True
+                    # 每个规格对应的库存量
+                    count = [item.get('count', 0) for item in stock_items if property_num == item.get('skuNum', '')][0]
+                    price_info_list.append({
+                        'spec_value': tmp_spec_value_2,
+                        'detail_price': s_item.get('curPrice', '') if s_item.get('curPrice', '') != '' else s_item.get('orgPrice', ''),     # 促销价不为空
+                        'normal_price': s_item.get('orgPrice', ''),
+                        'rest_number': count,
+                        'img_url': picture,
+                    })
+
+        if is_spec:  # 得到有规格时的最高价和最低价
+            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            price = tmp_price_list[-1]  # 商品价格
+            taobao_price = tmp_price_list[0]  # 淘宝价
+
+        return (detail_name_list, price_info_list, price, taobao_price)
+
+    def _get_p_info(self, data):
+        tmp_profiles = data.get('/app/detail/product/profiles')
+        profiles = data.get('/app/detail/product/profiles', {}).get('profiles') \
+            if tmp_profiles is not None \
+            else None
+
+        p_info = []
+        if profiles is not None:
+            p_info = [{'p_name': item['name'], 'p_value': item['value']} for item in profiles]
+
+        return p_info
+
+    def _get_all_img_url(self, tmp_all_img_url):
+        return [{'img_url': item['big']} for item in tmp_all_img_url]
 
     def _get_div_desc(self, **kwargs):
         '''

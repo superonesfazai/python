@@ -30,6 +30,7 @@ from sql_str_controller import (
     mg_select_str_2,
     mg_delete_str_2,
 )
+from multiplex_code import _get_mogujie_pintuan_price_info_list
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -143,7 +144,6 @@ class MoGuJiePinTuanRealTimesUpdate(object):
 
                             else:
                                 tmp_item_list = tmp_data.get('result', {}).get('wall', {}).get('docs', [])
-                                # print(tmp_item_list)
                                 # pprint(tmp_item_list)
 
                                 begin_time_timestamp = int(time.time())  # 开始拼团的时间戳
@@ -155,7 +155,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                     },
                                     'all_sell_count': str(item.get('salesVolume', 0)),
                                 } for item in tmp_item_list]
-                                # print(item_list)
+                                # pprint(item_list)
 
                                 pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in item_list]
                                 # print(pintuan_goods_all_goods_id)
@@ -176,21 +176,10 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                     else:
                                         # 规范化
                                         print('+++ 内部下架，其实还在售卖的商品更新')
-                                        tmp_price_info_list = goods_data['price_info_list']
-                                        price_info_list = [{
-                                            'spec_value': item_4.get('spec_value'),
-                                            'pintuan_price': item_4.get('detail_price'),
-                                            'detail_price': '',
-                                            'normal_price': item_4.get('normal_price'),
-                                            'img_url': item_4.get('img_url'),
-                                            'rest_number': item_4.get('rest_number'),
-                                        } for item_4 in tmp_price_info_list]
-
                                         goods_data['goods_id'] = item[0]
-                                        goods_data['price_info_list'] = price_info_list
+                                        goods_data['price_info_list'] = _get_mogujie_pintuan_price_info_list(goods_data['price_info_list'])
 
                                         # pprint(goods_data)
-                                        # print(goods_data)
                                         mogujie_pintuan.update_mogujie_pintuan_table_2(data=goods_data, pipeline=tmp_sql_server)
                                         sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 
@@ -203,24 +192,13 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                             if goods_data == {}: pass
                                             else:
                                                 # 规范化
-                                                tmp_price_info_list = goods_data['price_info_list']
-                                                price_info_list = [{
-                                                    'spec_value': item_4.get('spec_value'),
-                                                    'pintuan_price': item_4.get('detail_price'),
-                                                    'detail_price': '',
-                                                    'normal_price': item_4.get('normal_price'),
-                                                    'img_url': item_4.get('img_url'),
-                                                    'rest_number': item_4.get('rest_number'),
-                                                } for item_4 in tmp_price_info_list]
-
                                                 goods_data['goods_id'] = item[0]
-                                                goods_data['price_info_list'] = price_info_list
+                                                goods_data['price_info_list'] = _get_mogujie_pintuan_price_info_list(goods_data['price_info_list'])
                                                 goods_data['pintuan_time'] = item_2.get('pintuan_time', {})
                                                 goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
                                                 goods_data['all_sell_count'] = item_2.get('all_sell_count', '')
 
                                                 # pprint(goods_data)
-                                                # print(goods_data)
                                                 mogujie_pintuan.update_mogujie_pintuan_table(data=goods_data, pipeline=tmp_sql_server)
                                                 sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 

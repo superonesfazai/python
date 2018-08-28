@@ -640,6 +640,7 @@ class TaoBaoLoginAndParse(object):
                         })
             return sku2_info
 
+        # pprint(data)
         if data.get('skuBase').get('skus') is not None:
             skus = data['skuBase']['skus']  # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
             pros = data.get('skuBase', {}).get('props', [])
@@ -694,6 +695,7 @@ class TaoBaoLoginAndParse(object):
             # pprint(prop_path_list)                  # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
             price_info_list = prop_path_list
         else:
+            # self.my_lg.info(True)
             price_info_list = []
 
         return price_info_list

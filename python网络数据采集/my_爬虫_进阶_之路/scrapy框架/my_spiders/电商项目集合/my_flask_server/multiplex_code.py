@@ -157,3 +157,18 @@ def get_sku_info_trans_record(old_sku_info, new_sku_info, is_price_change):
         return 1, sku_info_trans_time
 
     return 0, sku_info_trans_time
+
+def _get_mogujie_pintuan_price_info_list(tmp_price_info_list) -> list:
+    '''
+    得到蘑菇街拼团price_info_list
+    :param tmp_price_info_list:
+    :return:
+    '''
+    return [{
+        'spec_value': item_4.get('spec_value'),
+        'pintuan_price': item_4.get('detail_price'),
+        'detail_price': '',
+        'normal_price': item_4.get('normal_price'),
+        'img_url': item_4.get('img_url'),
+        'rest_number': item_4.get('rest_number'),
+    } for item_4 in tmp_price_info_list]

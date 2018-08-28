@@ -114,7 +114,6 @@ class JdParse(object):
 
         comment_body = self._wash_url_body(body=comment_body)
         # self.my_lg.info(str(comment_body))
-
         comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
         if comment_body_1 != []:
             comment_data = comment_body_1[0]
@@ -215,8 +214,7 @@ class JdParse(object):
             _ = self._get_price_and_taobao_price_and_is_delete(
                 detail_name_list=detail_name_list,
                 price_info_list=price_info_list,
-                goods_id=goods_id
-            )
+                goods_id=goods_id)
             if _ == [0, '', '']:    # 异常退出
                 return self._data_error_init()
             else:
@@ -242,29 +240,11 @@ class JdParse(object):
                 pass
             # pprint(all_img_url)
 
-            # 详细信息标签名对应属性
             p_info = self.get_p_info(data=data)
             # pprint(p_info)      # 爬取是手机端的所以没有第一行的，就是手机端的规格
-
-            # 详细描述 div_desc
             div_desc = self.get_right_div_desc(data=data)
             # self.my_lg.info(str(div_desc))
-
-            '''
-            判断是否是京东商品类型
-            '''
-            # self.my_lg.info(str(data.get('isJdMarket')))
-            if data.get('isJdMarket'):      # False不是京东超市
-                self.my_lg.info('该链接为京东超市')
-                jd_type = 8                 # 7为京东常规商品, 8表示京东超市, 9表示京东全球购, 10表示京东大药房
-            elif goods_id[0] == 1:
-                self.my_lg.info('该链接为京东全球购')
-                jd_type = 9
-            elif goods_id[0] == 2:
-                self.my_lg.info('该链接为京东大药房')
-                jd_type = 10
-            else:
-                jd_type = 7
+            jd_type = self._get_jd_type(is_jd_market=data.get('isJdMarket'), type=goods_id[0])
             # self.my_lg.info('jd_type为: {0}'.format(jd_type))
 
             # 商品总销售量
@@ -315,6 +295,25 @@ class JdParse(object):
         self.result_data = {}
 
         return {}
+
+    def _get_jd_type(self, is_jd_market, type):
+        '''
+        判断是否是京东商品类型
+        '''
+        # self.my_lg.info(str(data.get('isJdMarket')))
+        if is_jd_market:  # False不是京东超市
+            self.my_lg.info('该链接为京东超市')
+            jd_type = 8  # 7为京东常规商品, 8表示京东超市, 9表示京东全球购, 10表示京东大药房
+        elif type == 1:
+            self.my_lg.info('该链接为京东全球购')
+            jd_type = 9
+        elif type == 2:
+            self.my_lg.info('该链接为京东大药房')
+            jd_type = 10
+        else:
+            jd_type = 7
+
+        return jd_type
 
     def _get_price_and_taobao_price_and_is_delete(self, **kwargs):
         '''
@@ -409,8 +408,7 @@ class JdParse(object):
 
         price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
         if price_body_1 != []:
-            price_data = price_body_1[0]
-            price_data = json_2_dict(json_str=price_data)
+            price_data = json_2_dict(json_str=price_body_1[0])
             try:
                 price_data.pop('defaultAddress')
                 price_data.pop('commonConfigJson')
@@ -463,13 +461,9 @@ class JdParse(object):
         :param data:
         :return:
         '''
-        had_shop_name = data.get('shopInfo', {}).get('shop')  # 店铺名字有为空的情况
-        if had_shop_name is not None:
-            shop_name = data.get('shopInfo', {}).get('shop', {}).get('name', '')
-        else:
-            shop_name = ''
-
-        return shop_name
+        return data.get('shopInfo', {}).get('shop', {}).get('name', '') \
+            if data.get('shopInfo', {}).get('shop') is not None \
+            else ''
 
     def _get_detail_name_list(self, data):
         '''
@@ -478,12 +472,21 @@ class JdParse(object):
         :return:
         '''
         detail_name_list = []
-        if data.get('skuColorSize', {}).get('colorSizeTitle', {}) != {}:
-            tmp_detail_name_list = data.get('skuColorSize', {}).get('colorSizeTitle', {})
-            for key in tmp_detail_name_list.keys():
-                tmp = {}
-                tmp['spec_name'] = tmp_detail_name_list[key]
-                detail_name_list.append(tmp)
+        color_size_title = data.get('skuColorSize', {}).get('colorSizeTitle', {})
+        # pprint(data.get('skuColorSize', {}))
+        # pprint(color_size_title)
+        if color_size_title != {}:
+            for key, value in color_size_title.items():
+                img_here = 0
+                if key == 'colorName':
+                    if value is not None:
+                        if value != '':         # 不为空则说明有图
+                            img_here = 1
+
+                detail_name_list.append({
+                    'spec_name': value,
+                    'img_here': img_here,
+                })
 
         return detail_name_list
 
@@ -871,5 +874,5 @@ if __name__ == '__main__':
         goods_id = jd.get_goods_id_from_url(jd_url)
         jd.get_goods_data(goods_id=goods_id)
         data = jd.deal_with_data(goods_id=goods_id)
-        # pprint(data)
+        pprint(data)
         

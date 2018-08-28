@@ -57,7 +57,7 @@ class MoGuJieParse(object):
         :return:
         '''
         """
-        方法1: 原先采用调用api的方法, 无奈分析js源码未找到sign是如何md5加密，从而暂时无法实现通过api调用参数 (pass)
+        方案1: 原先采用调用api的方法, 无奈分析js源码未找到sign是如何md5加密，从而暂时无法实现通过api调用参数 (pass)
         """
         # """     # 这些是构造参数
         # mw-appkey:100028
@@ -121,7 +121,7 @@ class MoGuJieParse(object):
         #     return self._data_error_init()
 
         """
-        方法2: 通过页面源码来获取
+        方案2: 通过页面源码来获取
         """
         if goods_id == '':
             return self._data_error_init()
@@ -185,12 +185,6 @@ class MoGuJieParse(object):
                     raise Exception
 
                 p_info = self.get_goods_p_info(tmp_p_info_body=tmp_p_info_body)
-                # pprint(p_info)
-                # if p_info == []:
-                #     print('获取到的p_info为空list')
-                #     return self._data_error_init()
-                # else:
-                # 存在p_info为[]的商品
                 data['p_info'] = p_info
 
                 # 获取每个商品的div_desc
@@ -446,7 +440,7 @@ class MoGuJieParse(object):
         '''
         try:
             skus = sku_info.get('skus', [])
-            # print(skus)
+            # pprint(skus)
             if skus == []:
                 print('skus为空! 每个规格的价格为空!')
                 return []

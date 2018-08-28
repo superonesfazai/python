@@ -193,21 +193,11 @@ class TmallParse(object):
             # 天猫类型
             tmall_type = data.get('type', 33)  # 33用于表示无法正确获取
             # self.my_lg.info(str(tmall_type))
-
-            # 店铺名称
             shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
-
-            # 掌柜
             account = data['seller'].get('sellerNick', '')
-
-            # 商品名称
             title = data['item']['title']
-            # 子标题
             sub_title = data['item'].get('subtitle', '')
             sub_title = re.compile(r'\n').sub('', sub_title)
-            # 店铺主页地址
-            # shop_name_url = 'https:' + data['seller']['taoShopUrl']
-            # shop_name_url = re.compile(r'.m.').sub('.', shop_name_url)  # 手机版转换为pc版
 
             # 商品价格
             # price = data['apiStack'][0]['value']['price']['extraPrices'][0]['priceText']

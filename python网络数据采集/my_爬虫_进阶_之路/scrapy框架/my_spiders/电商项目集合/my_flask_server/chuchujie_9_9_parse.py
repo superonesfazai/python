@@ -152,45 +152,17 @@ class ChuChuJie_9_9_Parse(object):
                 raise Exception
 
             data['sub_title'] = ''
-
             data['shop_name'] = Selector(text=body).css('div.other.ft14.clearfix label b::text').extract_first()
-            # print(data['shop_name'])
+            data['all_img_url'] = self._get_all_img_url(body=body)
+            data['p_info'] = []     # 由于获取的是pc端的对应没有p_info
 
-            # 获取所有示例图片
-            all_img_url = [{
-                'img_url': item
-            } for item in list(Selector(text=body).css('p.s_img label img::attr("src")').extract())]
-            # pprint(all_img_url)
-            data['all_img_url'] = all_img_url
-
-            '''
-            获取p_info
-            '''
-            # 由于获取的是pc端的对应没有p_info
-            data['p_info'] = []
-
-            '''
-            获取商品的div_desc
-            '''
             div_desc = Selector(text=body).css('div.s_two').extract_first()
-            # print(div_desc)
             if div_desc == '':
                 print('div_desc为空!请检查!')
                 raise Exception
 
             data['div_desc'] = div_desc
-
-            '''
-            获取detail_name_list
-            '''
-            detail_name_list = Selector(text=body).css('div.info-wd.bd-red dl.detail dt::text').extract()
-            if len(detail_name_list) <= 1:
-                detail_name_list = []
-
-            else:
-                detail_name_list = [{'spec_name': item} for item in detail_name_list[:-1]]
-
-            # print(detail_name_list)
+            detail_name_list = self._get_detail_name_list(body=body)
             data['detail_name_list'] = detail_name_list
 
             # 商品价格(原价)跟淘宝价格
@@ -327,6 +299,20 @@ class ChuChuJie_9_9_Parse(object):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _get_all_img_url(self, body):
+        return [{
+            'img_url': item
+        } for item in list(Selector(text=body).css('p.s_img label img::attr("src")').extract())]
+
+    def _get_detail_name_list(self, body):
+        detail_name_list = Selector(text=body).css('div.info-wd.bd-red dl.detail dt::text').extract()
+        if len(detail_name_list) <= 1:
+            detail_name_list = []
+        else:
+            detail_name_list = [{'spec_name': item} for item in detail_name_list[:-1]]
+
+        return detail_name_list
 
     def insert_into_chuchujie_xianshimiaosha_table(self, data, pipeline):
         try:

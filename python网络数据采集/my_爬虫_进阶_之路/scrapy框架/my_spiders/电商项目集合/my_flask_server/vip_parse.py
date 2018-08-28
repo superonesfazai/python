@@ -583,23 +583,45 @@ class VipParse(object):
         :param tmp_data:
         :return:
         '''
+        def _get_other(other_items):
+            other_ = []
+            for item in other_items:
+                if item.get('type', 0) == 1:  # 该规格无库存
+                    continue
+                else:  # 该规格有库存
+                    detail_price = item.get('promotion_price', '')
+                    # 还是选择所有商品都拿最优惠的价格
+                    # if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
+                    if detail_price == '':  # 为空就改为获取vipshop_price字段
+                        detail_price = item.get('vipshop_price', '')
+                    else:
+                        pass
+                    normal_price = item.get('market_price', '')
+                    if normal_price == '':
+                        normal_price = detail_price
+                    other_.append({
+                        'spec_value': item.get('sku_name', ''),
+                        'detail_price': detail_price,
+                        'normal_price': normal_price,
+                        'rest_number': item.get('leavings', 0),  # 该规格的剩余库存量
+                        'img_url': '',  # 设置默认为空值
+                    })
+
+            return other_
+
         multiColor = tmp_data[5].get('result', {})
-        # sku_price = tmp_data[2].get('result', {}).get('sku_price', [])
+        # pprint(multiColor)
         ## ** 研究发现multiColor以及productSku中的type为1时，表示该商品规格库存为0
         productSku = tmp_data[6].get('result', {}).get('productSku', {})
-        # tmp = {
-        #     'multiColor': multiColor,
-        #     # 'sku_price': sku_price,
-        #     'productSku': productSku,
-        # }
-        # pprint(tmp)
+        # pprint(productSku)
 
         true_sku_info = []
+        color_ = None
         if multiColor == {} or productSku == {}:
             return []
         else:
             if multiColor.get('items') is None:
-                color_ = None
+                pass
             else:
                 tmp_color_items = multiColor.get('items', [])
                 color_ = []
@@ -613,6 +635,7 @@ class VipParse(object):
                             'name': item.get('name', ''),
                             'img_url': 'https:' + item.get('icon', {}).get('imageUrl', '')
                         })
+                # pprint(color_)
 
             if color_ == []:    # 没有规格 也可能是 # 表示没有库存, 买完或者下架
                 print('获取到的color_为空[], 请检查!')
@@ -624,28 +647,7 @@ class VipParse(object):
 
                 else:
                     other_items = productSku.get('items', [])
-                    other_ = []
-                    for item in other_items:
-                        if item.get('type', 0) == 1:    # 该规格无库存
-                            continue
-                        else:                           # 该规格有库存
-                            detail_price = item.get('promotion_price', '')
-                            # 还是选择所有商品都拿最优惠的价格
-                            # if detail_price == '' or goods_id[0] == 1:      # 为空就改为获取vipshop_price字段
-                            if detail_price == '':      # 为空就改为获取vipshop_price字段
-                                detail_price = item.get('vipshop_price', '')
-                            else:
-                                pass
-                            normal_price = item.get('market_price', '')
-                            if normal_price == '':
-                                normal_price = detail_price
-                            other_.append({
-                                'spec_value': item.get('sku_name', ''),
-                                'detail_price': detail_price,
-                                'normal_price': normal_price,
-                                'img_url': '',      # 设置默认为空值
-                                'rest_number': item.get('leavings', 0),  # 该规格的剩余库存量
-                            })
+                    other_ = _get_other(other_items=other_items)
 
                 if color_ is None:
                     for item_2 in other_:
@@ -653,9 +655,6 @@ class VipParse(object):
                         item_2['spec_value'] = spec_value
                         item_2['img_url'] = ''
                         true_sku_info.append(item_2)
-
-                elif len(color_) == 1:    # 颜色长度为1时，表示唯品会默认选择的属性，不需要将color_相关的值添加到spec_value里面
-                    true_sku_info = other_
 
                 else:
                     for item in color_:
@@ -670,9 +669,7 @@ class VipParse(object):
                                     true_sku_info.append(item_2)
 
                         else:                                   # 表示是其他颜色对应的goods_id
-                            '''
-                            下面是获取该颜色对应goods_id的所有可售的规格价格信息
-                            '''
+                            '''下面是获取该颜色对应goods_id的所有可售的规格价格信息'''
                             url = 'https://m.vip.com/server.html'
                             params = self._set_params()
 
@@ -692,26 +689,7 @@ class VipParse(object):
                                     return []
 
                                 other_items_2 = tmp_data_2[6].get('result', {}).get('productSku', {}).get('items', [])
-                                other_2 = []
-                                for item_3 in other_items_2:
-                                    if item_3.get('type', 0) == 1:  # 该规格无库存
-                                        continue
-                                    else:  # 该规格有库存
-                                        detail_price = item_3.get('promotion_price', '')
-                                        # 还是都拿最优惠的价格 不管限时2小时时间问题的折扣
-                                        # if detail_price == '' or goods_id[0] == 1:  # 为空就改为获取vipshop_price字段
-                                        if detail_price == '':  # 为空就改为获取vipshop_price字段
-                                            detail_price = item_3.get('vipshop_price', '')
-                                        normal_price = item_3.get('market_price', '')
-                                        if normal_price == '':
-                                            normal_price = detail_price
-                                        other_2.append({
-                                            'spec_value': item_3.get('sku_name', ''),
-                                            'detail_price': detail_price,
-                                            'normal_price': normal_price,
-                                            'rest_number': item_3.get('leavings', 0),  # 设置默认的值
-                                            'img_url': '',  # 设置默认为空值
-                                        })
+                                other_2 = _get_other(other_items=other_items_2)
 
                                 for item_4 in other_2:
                                     spec_value = item.get('name', '') + '|' + item_4.get('spec_value', '')
@@ -846,4 +824,4 @@ if __name__ == '__main__':
         goods_id = vip.get_goods_id_from_url(vip_url)
         vip.get_goods_data(goods_id=goods_id)
         data = vip.deal_with_data()
-        # pprint(data)
+        pprint(data)

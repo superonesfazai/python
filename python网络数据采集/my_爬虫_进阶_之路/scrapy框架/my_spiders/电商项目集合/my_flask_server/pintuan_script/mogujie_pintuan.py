@@ -27,6 +27,7 @@ from mogujie_parse import MoGuJieParse
 from sql_str_controller import (
     mg_select_str_1,
 )
+from multiplex_code import _get_mogujie_pintuan_price_info_list
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -219,16 +220,7 @@ class MoGuJiePinTuan(object):
 
                     else:  # 否则就解析并且插入
                         # 规范化
-                        tmp_price_info_list = goods_data['price_info_list']
-                        price_info_list = [{
-                            'spec_value': item_4.get('spec_value'),
-                            'pintuan_price': item_4.get('detail_price'),
-                            'normal_price': item_4.get('normal_price'),
-                            'img_url': item_4.get('img_url'),
-                            'rest_number': item_4.get('rest_number'),
-                        } for item_4 in tmp_price_info_list]
-
-                        goods_data['price_info_list'] = price_info_list
+                        goods_data['price_info_list'] = _get_mogujie_pintuan_price_info_list(goods_data['price_info_list'])
                         goods_data['goods_url'] = tmp_url
                         goods_data['goods_id'] = str(goods_id)
                         goods_data['pintuan_time'] = item.get('pintuan_time', {})

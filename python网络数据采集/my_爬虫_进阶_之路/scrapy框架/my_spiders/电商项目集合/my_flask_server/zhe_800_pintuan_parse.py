@@ -237,15 +237,10 @@ class Zhe800PintuanParse(object):
     def _get_detail_name_list(self, data):
         img_name = data.get('sku', {}).get('img_name', '')
         size_name = data.get('sku', {}).get('size_name', '')
-        if img_name != '':
-            tmp_detail_name_list_1 = [{'spec_name': img_name}]
-        else:
-            tmp_detail_name_list_1 = []
-
-        if size_name != '':
-            tmp_detail_name_list_2 = [{'spec_name': size_name}]
-        else:
-            tmp_detail_name_list_2 = []
+        # pprint(img_name)
+        # pprint(size_name)
+        tmp_detail_name_list_1 = [{'spec_name': img_name, 'img_here': 1}] if img_name != '' else []
+        tmp_detail_name_list_2 = [{'spec_name': size_name, 'img_here': 0}] if size_name != '' else []
 
         detail_name_list = tmp_detail_name_list_1 + tmp_detail_name_list_2
 
@@ -591,5 +586,6 @@ if __name__ == '__main__':
         zhe_800_pintuan_url = input('请输入待爬取的折800拼团商品地址: ')
         zhe_800_pintuan_url.strip('\n').strip(';')
         goods_id = zhe_800_pintuan.get_goods_id_from_url(zhe_800_pintuan_url)
-        data = zhe_800_pintuan.get_goods_data(goods_id=goods_id)
-        zhe_800_pintuan.deal_with_data()
+        zhe_800_pintuan.get_goods_data(goods_id=goods_id)
+        data = zhe_800_pintuan.deal_with_data()
+        pprint(data)
