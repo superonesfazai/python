@@ -152,7 +152,7 @@ class MiaPintuanParse(MiaParse):
                 # pprint(true_sku_info)
 
                 # 设置detail_name_list
-                data['detail_name_list'] = self.get_detail_name_list(i_s=i_s)
+                data['detail_name_list'] = self.get_detail_name_list(i_s=i_s, true_sku_info=true_sku_info)
                 # print(detail_name_list)
 
                 '''单独处理all_img_url为[]的情况'''
@@ -442,5 +442,6 @@ if __name__ == '__main__':
         mia_url = input('请输入待爬取的蜜芽商品地址: ')
         mia_url.strip('\n').strip(';')
         goods_id = mia_pintuan.get_goods_id_from_url(mia_url)
-        data = mia_pintuan.get_goods_data(goods_id=goods_id)
-        mia_pintuan.deal_with_data()
+        mia_pintuan.get_goods_data(goods_id=goods_id)
+        data = mia_pintuan.deal_with_data()
+        pprint(data)

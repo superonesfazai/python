@@ -321,17 +321,17 @@ _ = {
         'img_url': 1,
     },
     '卷皮': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
     },
     '拼多多': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
     },
     '蜜芽': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
     },

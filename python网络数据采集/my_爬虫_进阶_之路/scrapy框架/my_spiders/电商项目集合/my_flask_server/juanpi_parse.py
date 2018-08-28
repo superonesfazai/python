@@ -204,11 +204,8 @@ class JuanPiParse(object):
 
             price_info_list, price, taobao_price = self._get_price_info_list_and_price_and_taobao_price(data=data)
             all_img_url = self._get_all_img_url(data=data)
-            # print(all_img_url)
             p_info = self._get_p_info(data=data)
-            # pprint(p_info)
             div_desc = self._get_div_desc(data=data)
-            # print(div_desc)
             # 商品销售时间段
             schedule = self._get_goods_schedule(data=data)
             # pprint(schedule)
@@ -343,14 +340,12 @@ class JuanPiParse(object):
         detail_name_list = []
         if sku != []:
             try:
-                if sku[0].get('av_fvalue', '') == '':
-                    fav_name = ''
-                    pass
-                else:
-                    tmp = {}
+                if sku[0].get('av_fvalue', '') != '':
                     fav_name = data.get('skudata', {}).get('info', {}).get('fav_name', '')
-                    tmp['spec_name'] = fav_name
-                    detail_name_list.append(tmp)
+                    detail_name_list.append({
+                        'spec_name': fav_name,
+                        'img_here': 0,
+                    })
             except IndexError:
                 print('IndexError错误，此处跳过!')
                 # print(sku)
@@ -360,13 +355,12 @@ class JuanPiParse(object):
 
                 return {}
 
-            if sku[0].get('av_zvalue', '') == '':
-                zav_name = ''
-            else:
-                tmp = {}
+            if sku[0].get('av_zvalue', '') != '':
                 zav_name = data.get('skudata', {}).get('info', {}).get('zav_name', '')
-                tmp['spec_name'] = zav_name
-                detail_name_list.append(tmp)
+                detail_name_list.append({
+                    'spec_name': zav_name,
+                    'img_here': 1,
+                })
 
         return detail_name_list
 

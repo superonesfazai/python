@@ -89,9 +89,8 @@ class PinduoduoParse(object):
                 return {}
 
             data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
-
             if data != []:
-                data = json_2_dict(json_str=data[0])
+                data = json_2_dict(json_str=data[0]).get('initDataObj', {})
                 if data == {}:
                     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
                     return {}
@@ -147,59 +146,15 @@ class PinduoduoParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
-            if data.get('mall') is not None:
-                shop_name = data.get('mall', {}).get('mallName', '')
-            else:
-                shop_name = ''
-
-            # 掌柜
+            shop_name = data.get('mall', {}).get('mallName', '') \
+                if data.get('mall') is not None else ''
             account = ''
-
-            # 商品名称
             title = data.get('goods', {}).get('goodsName', '')
-
-            # 子标题
             sub_title = ''
-
-            # 商品库存
-            # 商品标签属性对应的值
-
-            # 商品标签属性名称
-            if data.get('goods', {}).get('skus', []) == []:
-                detail_name_list = []
-            else:
-                if data.get('goods', {}).get('skus', [])[0].get('specs') == []:
-                    detail_name_list = []
-                else:
-                    detail_name_list = [{'spec_name': item.get('spec_key')} for item in data.get('goods', {}).get('skus', [])[0].get('specs')]
+            detail_name_list = self._get_detail_name_list(data=data)
             # print(detail_name_list)
 
-            # 要存储的每个标签对应规格的价格及其库存
-            skus = data.get('goods', {}).get('skus', [])
-            # pprint(skus)
-            price_info_list = []
-            if skus != []:          # ** 注意: 拼多多商品只有一个规格时skus也不会为空的 **
-                for index in range(0, len(skus)):
-                    tmp = {}
-                    price = skus[index].get('groupPrice', '')          # 拼团价
-                    normal_price = skus[index].get('normalPrice', '')  # 单独购买价格
-                    spec_value = [item.get('spec_value') for item in data.get('goods', {}).get('skus', [])[index].get('specs')]
-                    spec_value = '|'.join(spec_value)
-                    img_url = skus[index].get('thumbUrl', '')
-                    rest_number = skus[index].get('quantity', 0)  # 剩余库存
-                    is_on_sale = skus[index].get('isOnSale', 0)        # 用于判断是否在特价销售，1:特价 0:原价(normal_price)
-                    tmp['spec_value'] = spec_value
-                    tmp['detail_price'] = price
-                    tmp['normal_price'] = normal_price
-                    tmp['img_url'] = img_url if re.compile(r'http').findall(img_url) != [] else 'http:' + img_url
-                    if rest_number <= 0:
-                        tmp['rest_number'] = 0
-                    else:
-                        tmp['rest_number'] = rest_number
-                    tmp['is_on_sale'] = is_on_sale
-                    price_info_list.append(tmp)
-
+            price_info_list = self._get_price_info_list(data=data)
             if price_info_list == []:
                 print('price_info_list为空值')
                 return {}
@@ -221,17 +176,11 @@ class PinduoduoParse(object):
             all_img_url = self._get_all_img_url(data=data)
             # print(all_img_url)
 
-            # 详细信息标签名对应属性
-            tmp_p_value = re.compile(r'\n').sub('', data.get('goods', {}).get('goodsDesc', ''))
-            tmp_p_value = re.compile(r'\t').sub('', tmp_p_value)
-            tmp_p_value = re.compile(r'  ').sub('', tmp_p_value)
-            p_info = [{'p_name': '商品描述', 'p_value': tmp_p_value}]
+            p_info = self._get_p_info(data=data)
             # print(p_info)
 
             # 总销量
             all_sell_count = data.get('goods', {}).get('sales', 0)
-
-            # div_desc
             div_desc = data.get('div_desc', '')
 
             # 商品销售时间区间
@@ -293,6 +242,62 @@ class PinduoduoParse(object):
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
         pipeline._update_table(sql_str=sql_str, params=params)
+
+    def _get_price_info_list(self, data):
+        skus = data.get('goods', {}).get('skus', [])
+        # pprint(skus)
+        price_info_list = []
+        if skus != []:  # ** 注意: 拼多多商品只有一个规格时skus也不会为空的 **
+            for index in range(0, len(skus)):
+                s_item = skus[index]
+                price = s_item.get('groupPrice', '')  # 拼团价
+                normal_price = s_item.get('normalPrice', '')  # 单独购买价格
+                spec_value = [item.get('spec_value') for item in data.get('goods', {}).get('skus', [])[index].get('specs')]
+                spec_value = '|'.join(spec_value)
+                img_url = s_item.get('thumbUrl', '')
+                rest_number = s_item.get('quantity', 0)  # 剩余库存
+                is_on_sale = s_item.get('isOnSale', 0)  # 用于判断是否在特价销售，1:特价 0:原价(normal_price)
+                price_info_list.append({
+                    'spec_value': spec_value,
+                    'detail_price': price,
+                    'normal_price': normal_price,
+                    'img_url': img_url if re.compile(r'http').findall(img_url) != [] else 'http:' + img_url,
+                    'rest_number': rest_number if rest_number > 0 else 0,
+                    'is_on_sale': is_on_sale,
+                })
+
+        return price_info_list
+
+    def _get_p_info(self, data):
+        tmp_p_value = re.compile('\n|\t|  ').sub('', data.get('goods', {}).get('goodsDesc', ''))
+
+        return [{
+            'p_name': '商品描述',
+            'p_value': tmp_p_value
+        }]
+
+    def _get_detail_name_list(self, data):
+        detail_name_list = []
+        skus = data.get('goods', {}).get('skus', [])
+        # pprint(skus)
+        if skus == []:
+            pass
+        else:
+            if skus[0].get('specs', []) == []:
+                pass
+            else:
+                for item in skus[0].get('specs', []):
+                    img_here = 0
+                    spec_name = item.get('spec_key', '')
+                    if spec_name == '颜色':
+                        img_here = 1
+
+                    detail_name_list.append({
+                        'spec_name': spec_name,
+                        'img_here': img_here,
+                    })
+
+        return detail_name_list
 
     def _get_all_img_url(self, data):
         all_img_url = []
@@ -478,5 +483,6 @@ if __name__ == '__main__':
         pinduoduo_url = input('请输入待爬取的拼多多商品地址: ')
         pinduoduo_url.strip('\n').strip(';')
         goods_id = pinduoduo.get_goods_id_from_url(pinduoduo_url)
-        data = pinduoduo.get_goods_data(goods_id=goods_id)
-        pinduoduo.deal_with_data()
+        pinduoduo.get_goods_data(goods_id=goods_id)
+        data = pinduoduo.deal_with_data()
+        pprint(data)

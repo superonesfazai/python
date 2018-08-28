@@ -132,7 +132,7 @@ class MiaParse(object):
                 # pprint(true_sku_info)
 
                 # 设置detail_name_list
-                data['detail_name_list'] = self.get_detail_name_list(i_s=i_s)
+                data['detail_name_list'] = self.get_detail_name_list(i_s=i_s, true_sku_info=true_sku_info)
                 # print(detail_name_list)
 
                 '''单独处理all_img_url为[]的情况'''
@@ -421,16 +421,30 @@ class MiaParse(object):
 
         return div_desc
 
-    def get_detail_name_list(self, i_s):
+    def get_detail_name_list(self, i_s, true_sku_info):
         '''
         得到detail_name_list
         :param i_s:
+        :param true_sku_info:
         :return:
         '''
+        # pprint(true_sku_info)
+        # pprint(i_s)
+        img_here = 0
+        try:
+            if true_sku_info[0].get('img_url', '') != '':
+                img_here = 1
+        except IndexError:
+            pass
+
+        detail_name_list = [{'spec_name': '可选', 'img_here': img_here}]
         if len(i_s) == 1 or len(i_s) == 0:
-            detail_name_list = [{'spec_name': '可选'}]
+            pass
         else:
-            detail_name_list = [{'spec_name': '可选'}, {'spec_name': '规格'}]
+            detail_name_list.append({
+                'spec_name': '规格',
+                'img_here': 0,
+            })
 
         return detail_name_list
 
