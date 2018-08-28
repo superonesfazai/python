@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : auto.py
-@Time    : 2017/8/13 16:04
-@connect : superonesfazai@gmail.com
-'''
-
 import codecs
 from requests import get
 

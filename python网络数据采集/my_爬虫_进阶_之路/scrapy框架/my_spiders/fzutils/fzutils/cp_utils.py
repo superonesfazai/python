@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : cp_utils.py
-@Time    : 2018/7/13 18:05
-@connect : superonesfazai@gmail.com
-'''
-
 # cp的utils
 
 import json

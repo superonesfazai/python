@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : items.py
-@Time    : 2018/8/2 17:40
-@connect : superonesfazai@gmail.com
-'''
-
 from scrapy.item import Item
 from scrapy import Field    # 只能通过x['aa']或者x.get('aa')访问, x.aa无法访问, 除非重写__getattribute__()
 from pprint import pformat

@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : iter_utils.py
-@Time    : 2017/8/13 18:10
-@connect : superonesfazai@gmail.com
-'''
-
 """
 可迭代对象utils
 """
