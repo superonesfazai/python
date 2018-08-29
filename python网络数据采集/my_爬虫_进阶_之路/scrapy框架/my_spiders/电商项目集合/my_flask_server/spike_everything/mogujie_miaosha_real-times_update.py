@@ -206,7 +206,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
             else:
                 # pprint(tmp_data)
                 # print(tmp_data)
-
                 item_list = tmp_data.get('data', {}).get('list', [])
         sleep(.5)
 

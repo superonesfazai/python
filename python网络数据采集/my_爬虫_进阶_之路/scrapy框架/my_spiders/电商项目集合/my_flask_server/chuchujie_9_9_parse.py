@@ -60,7 +60,6 @@ class ChuChuJie_9_9_Parse(object):
             return {}
 
         print('------>>>| 对应的手机端地址为: ', 'https://m.chuchujie.com/details/detail.html?id=' + goods_id)
-
         '''
         1.原先直接去手机端页面api post请求数据但是死活就返回请求参数错误，反复研究无果, 就改为解析pc端的
         '''
@@ -144,7 +143,6 @@ class ChuChuJie_9_9_Parse(object):
             return {}
 
         data = {}
-
         try:
             data['title'] = Selector(text=body).css('div.zy_info_rt h3::text').extract_first()
             if data['title'] == '':
@@ -307,10 +305,14 @@ class ChuChuJie_9_9_Parse(object):
 
     def _get_detail_name_list(self, body):
         detail_name_list = Selector(text=body).css('div.info-wd.bd-red dl.detail dt::text').extract()
+        # pprint(detail_name_list)
         if len(detail_name_list) <= 1:
             detail_name_list = []
         else:
-            detail_name_list = [{'spec_name': item} for item in detail_name_list[:-1]]
+            detail_name_list = [{
+                'spec_name': item,
+                'img_here': 0,          # 楚楚街秒杀不显示图片
+            } for item in detail_name_list[:-1]]
 
         return detail_name_list
 

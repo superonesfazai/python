@@ -466,12 +466,14 @@ class KaoLaParse(object):
 
         # 第一个就可以拿出需求信息
         sku_property_list = data[0].get('skuInfo', {}).get('skuPropertyList', [])
+        # pprint(sku_property_list)
         if sku_property_list == []:     # 无detail_name_list
             return []
         else:
             for i in sku_property_list:
                 detail_name_list.append({
                     'spec_name': i.get('propertyName', ''),
+                    'img_here': 1 if i.get('imageUrl', '') != '' else 0,
                 })
 
         return detail_name_list
@@ -782,4 +784,4 @@ if __name__ == '__main__':
         goods_id = kaola.get_goods_id_from_url(kaola_url)
         kaola._get_goods_data(goods_id=goods_id)
         data = kaola._deal_with_data()
-        # pprint(data)
+        pprint(data)

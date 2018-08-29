@@ -27,6 +27,8 @@ from sql_str_controller import (
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
     timestamp_to_regulartime,
+    get_shanghai_time,
+    datetime_to_timestamp,
 )
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
@@ -282,8 +284,7 @@ class VipParse(object):
         :return: data dict类型
         '''
         if goods_id == []:
-            self.result_data = {}
-            return {}
+            return self._error_data_init()
         else:
             data = {}
             # 抓包: 唯品会微信小程序
@@ -297,22 +298,18 @@ class VipParse(object):
             # print(body)
 
             if body == '':
-                self.result_data = {}
-                return {}
+                return self._error_data_init()
 
             else:
                 tmp_data = json_2_dict(json_str=body)
                 if tmp_data == {}:
-                    self.result_data = {}
-                    return {}
+                    return self._error_data_init()
 
                 try:
                     # title, sub_title
                     data['title'] = tmp_data[2].get('result', {}).get('product_name', '')
                     assert data['title'] != '', '获取到的title为空值, 请检查!'
                     data['sub_title'] = ''
-
-                    # shop_name
                     data['shop_name'] = tmp_data[2].get('result', {}).get('brand_info', {}).get('brand_name', '')
 
                     # 获取所有示例图片
@@ -348,7 +345,6 @@ class VipParse(object):
 
                     # 设置detail_name_list
                     detail_name_list = self._get_detail_name_list(tmp_data=tmp_data)
-                    # print(detail_name_list)
                     data['detail_name_list'] = detail_name_list
 
                     '''
@@ -366,8 +362,7 @@ class VipParse(object):
 
                 except Exception as e:
                     print('遇到错误如下: ', e)
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._error_data_init()
 
                 if data != {}:
                     # pprint(data)
@@ -376,8 +371,7 @@ class VipParse(object):
 
                 else:
                     print('data为空!')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    return self._error_data_init()
 
     def deal_with_data(self):
         '''
@@ -386,48 +380,17 @@ class VipParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data['title']
-
-            # 子标题
             sub_title = data['sub_title']
-
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
             # pprint(p_info)
-
-            # div_desc
             div_desc = data['div_desc']
-
-            '''
-            用于判断商品是否已经下架
-            '''
-            is_delete = 0
-            all_rest_number = 0
-            for item in price_info_list:
-                all_rest_number += item.get('rest_number', 0)
-            if all_rest_number == 0:
-                is_delete = 1
-            # 当官方下架时间< int(time.time()) 则商品已下架 is_delete = 1
-            if int(data.get('sell_time', {}).get('end_time', '')) < int(time.time()):
-                print('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
-                is_delete = 1
-            # print(is_delete)
+            is_delete = self._get_is_delete(data=data, price_info_list=price_info_list)
 
             # 上下架时间
             schedule = [{
@@ -485,8 +448,26 @@ class VipParse(object):
 
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
-            self.result_data = {}
-            return {}
+            return self._error_data_init()
+
+    def _error_data_init(self):
+        self.result_data = {}
+
+        return {}
+
+    def _get_is_delete(self, data, price_info_list):
+        is_delete = 0
+        all_rest_number = 0
+        for item in price_info_list:
+            all_rest_number += item.get('rest_number', 0)
+        if all_rest_number == 0:
+            is_delete = 1
+        # 当官方下架时间< int(time.time()) 则商品已下架 is_delete = 1
+        if int(data.get('sell_time', {}).get('end_time', '')) < int(datetime_to_timestamp(get_shanghai_time())):
+            print('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+            is_delete = 1
+
+        return is_delete
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -559,21 +540,31 @@ class VipParse(object):
         multiColor = tmp_data[5].get('result', {})     # 新接口在'method': 'getProductMultiColor',里面
         # pprint(multiColor)
         productSku = tmp_data[6].get('result', {}).get('productSku', {})
+        # pprint(productSku)
 
         if multiColor == {} or productSku == {}:
-            print('获取detail_name_list失败, 请检查!')
-            raise Exception
+            raise ValueError('获取detail_name_list失败, 请检查!')
         else:
             if multiColor.get('items') is None:
                 pass
             elif multiColor.get('items', []).__len__() == 1:
                 pass
             else:
-                detail_name_list.append({'spec_name': multiColor.get('name', '')})
+                try:    # 有图才置1
+                    img_here = 1 if multiColor.get('items', [])[0].get('previewImages', []) != [] else 0
+                except IndexError:
+                    img_here = 0
+                detail_name_list.append({
+                    'spec_name': multiColor.get('name', ''),
+                    'img_here': img_here,
+                })
 
             other_spec_name = productSku.get('name', '')
             assert other_spec_name != '', '获取detail_name_list失败, 原因other_spec_name为空值, 请检查!'
-            detail_name_list.append({'spec_name': other_spec_name})
+            detail_name_list.append({
+                'spec_name': other_spec_name,
+                'img_here': 0,
+            })
 
         return detail_name_list
 

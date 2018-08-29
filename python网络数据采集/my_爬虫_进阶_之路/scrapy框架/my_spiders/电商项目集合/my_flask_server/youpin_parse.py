@@ -371,13 +371,20 @@ class YouPinParse(object):
 
     def _get_detail_name_list(self, data):
         detail_name_list = []
+        # pprint(data)
         for item in data:
-            if item.get('name') is None:
+            spec_name = item.get('name')
+            if spec_name is None:
                 return []
-            else:
-                detail_name_list.append({
-                    'spec_name': item.get('name')
-                })
+
+            img_here = 0
+            if re.compile('颜色').findall(spec_name) != []:
+                img_here = 1
+
+            detail_name_list.append({
+                'spec_name': spec_name,
+                'img_here': img_here,
+            })
 
         return detail_name_list
 
@@ -634,7 +641,7 @@ class YouPinParse(object):
 if __name__ == '__main__':
     yp = YouPinParse()
     while True:
-        kaola_url = input('请输入待爬取的严选商品地址: ')
+        kaola_url = input('请输入待爬取的小米有品商品地址: ')
         kaola_url.strip('\n').strip(';')
         goods_id = yp._get_goods_id_from_url(kaola_url)
         yp._get_target_data(goods_id=goods_id)

@@ -501,10 +501,20 @@ class JuMeiYouPinPinTuanParse(object):
         :param size_attr:
         :return:
         '''
-        detail_name_list = [{'spec_name': item.get('title', '')} for item in size_attr]
+        # pprint(size_attr)
+        detail_name_list = []
+        for item in size_attr:
+            detail_name_list.append({
+                'spec_name': item.get('title', ''),
+                'img_here': 1 if int(item.get('show_sku_img')) == 1 else 0,  # show_sku_img原始数据为 '1' or '0'
+            })
+
         if size_attr == []:
             # print('获取detail_name_list失败!')
-            detail_name_list = [{'spec_name': '规格'}]
+            detail_name_list = [{
+                'spec_name': '规格',
+                'img_here': 0,
+            }]
 
         return detail_name_list
 

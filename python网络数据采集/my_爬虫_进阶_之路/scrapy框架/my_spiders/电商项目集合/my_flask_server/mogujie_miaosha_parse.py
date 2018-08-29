@@ -84,62 +84,13 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 # pprint(sku_info)
                 # pprint(shop_info)
 
-                data['title'] = item_info.get('title', '')
-                if data['title'] == '':
-                    print('title为空!')
-                    raise Exception
-
+                data['title'] = self._get_title(item_info=item_info)
                 data['sub_title'] = ''
-
-                data['shop_name'] = shop_info.get('name', '')
-                # print(data['shop_name'])
-
-                # 获取所有示例图片
-                all_img_url = [{'img_url': item} for item in item_info.get('topImages', [])]
-                # pprint(all_img_url)
-                data['all_img_url'] = all_img_url
-
-                '''
-                获取p_info
-                '''
-                p_info_api_url = 'https://shop.mogujie.com/ajax/mgj.pc.detailinfo/v1?_ajax=1&itemId=' + str(goods_id)
-                tmp_p_info_body = MyRequests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True)
-                # print(tmp_p_info_body)
-                if tmp_p_info_body == '':
-                    print('获取到的tmp_p_info_body为空值, 请检查!')
-                    raise Exception
-
-                p_info = self.get_goods_p_info(tmp_p_info_body=tmp_p_info_body)
-                # pprint(p_info)
-                # if p_info == []:
-                #     print('获取到的p_info为空list')
-                #     self.result_data = {}
-                #     return {}
-                # else:
-                # 不做上面判断了因为存在没有p_info的商品
-                data['p_info'] = p_info
-
-                # 获取每个商品的div_desc
-                div_desc = self.get_goods_div_desc(tmp_p_info_body=tmp_p_info_body)
-                # print(div_desc)
-                if div_desc == '':
-                    print('获取到的div_desc为空str, 请检查!')
-                    self.result_data = {}
-                    return {}
-                else:
-                    data['div_desc'] = div_desc
-
-                '''
-                获取去detail_name_list
-                '''
-                detail_name_list = self.get_goods_detail_name_list(sku_info=sku_info)
-                # print(detail_name_list)
-                if detail_name_list == '':
-                    print('获取detail_name_list出错, 请检查!')
-                    self.result_data = {}
-                    return {}
-                else:
-                    data['detail_name_list'] = detail_name_list
+                data['shop_name'] = self._get_shop_name(shop_info=shop_info)
+                data['all_img_url'] = self._get_all_img_url(item_info=item_info)
+                data['p_info'], tmp_p_info_body  = self._get_p_info(goods_id=goods_id)
+                data['div_desc'] = self._get_div_desc(tmp_p_info_body)
+                data['detail_name_list'] = self._get_detail_name_list(sku_info)
 
                 '''
                 获取每个规格对应价格跟规格以及其库存

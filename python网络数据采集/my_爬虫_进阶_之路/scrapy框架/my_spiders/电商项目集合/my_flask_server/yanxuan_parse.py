@@ -158,31 +158,16 @@ class YanXuanParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-            # 掌柜
             account = ''
-            # 商品名称
             title = data['title']
-            # 子标题
             sub_title = data['sub_title']
-
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
             # pprint(p_info)
-
-            # div_desc
             div_desc = data['div_desc']
-
             is_delete = data['is_delete']
 
             # 上下架时间
@@ -405,12 +390,18 @@ class YanXuanParse(object):
 
     def _get_detail_name_list(self, data):
         detail_name_list = []
+        # pprint(data)
         for item in data:
             if item.get('name') is None:
                 return []
             else:
+                try:
+                    img_here = 1 if item.get('skuSpecValueList', [])[0].get('picUrl', '') != '' else 0
+                except IndexError:
+                    img_here = 0
                 detail_name_list.append({
-                    'spec_name': item.get('name')
+                    'spec_name': item.get('name'),
+                    'img_here': img_here,
                 })
 
         return detail_name_list
@@ -551,4 +542,4 @@ if __name__ == '__main__':
         goods_id = yanxuan.get_goods_id_from_url(kaola_url)
         yanxuan._get_goods_data(goods_id=goods_id)
         data = yanxuan._deal_with_data()
-        # pprint(data)
+        pprint(data)

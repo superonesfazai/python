@@ -336,38 +336,87 @@ _ = {
         'img_url': 1,
     },
     '蘑菇街': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,      # 蘑菇街拼团商品detail_price为''
         'img_url': 1,
     },
     '楚楚街': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 0,           # 无
     },
     '唯品会': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
     },
     '聚美优品': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,      # 聚美拼团商品detail_price可能='单价模式无法购买', 表示拼团情况下如语义, normal_price为''
         'img_url': 1,
     },
     '网易考拉': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
     },
     '网易严选': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
     },
     '小米有品': {
-        'sku_name': 0,
+        'sku_name': 1,
         'normal_price': 1,
         'img_url': 1,
+    },
+}
+
+# 相关参数添加情况 [0: 无 1:有], sku_name为是否已加img_here字段, img_here为1表示示例图显示在spec_name, 全为0则不显示规格示例图
+_ = {
+    '1688': {
+        'sku_name': 1,          # [{"spec_name": "颜色", "img_here": 1}, {"spec_name": "尺寸", "img_here": 0}]
+    },
+    '淘宝': {
+        'sku_name': 1,
+    },
+    '天猫': {
+        'sku_name': 1,
+    },
+    '京东': {
+        'sku_name': 1,
+    },
+    '折800': {
+        'sku_name': 1,
+    },
+    '卷皮': {
+        'sku_name': 1,
+    },
+    '拼多多': {
+        'sku_name': 1,
+    },
+    '蜜芽': {
+        'sku_name': 1,
+    },
+    '蘑菇街': {
+        'sku_name': 1,
+    },
+    '楚楚街': {
+        'sku_name': 1,
+    },
+    '唯品会': {
+        'sku_name': 1,
+    },
+    '聚美优品': {
+        'sku_name': 1,
+    },
+    '网易考拉': {
+        'sku_name': 1,
+    },
+    '网易严选': {
+        'sku_name': 1,
+    },
+    '小米有品': {
+        'sku_name': 1,
     },
 }

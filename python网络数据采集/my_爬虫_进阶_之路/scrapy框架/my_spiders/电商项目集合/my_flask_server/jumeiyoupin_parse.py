@@ -108,7 +108,6 @@ class JuMeiYouPinParse(object):
             return {}
 
         # pprint(tmp_data)
-
         data = {}
         try:
             data['title'] = self._wash_sensitive_info(tmp_data.get('data', {}).get('name', ''))
@@ -163,7 +162,9 @@ class JuMeiYouPinParse(object):
             data['sell_time'] = sell_time
 
             # 设置detail_name_list
-            detail_name_list = self.get_detail_name_list(size_attr=tmp_data.get('data_2', {}).get('size_attr', []))
+            detail_name_list = self.get_detail_name_list(
+                size_attr=tmp_data.get('data_2', {}).get('size_attr', []),
+                size=tmp_data.get('data_2', {}).get('size', []))
             # print(detail_name_list)
             data['detail_name_list'] = detail_name_list
 
@@ -221,43 +222,18 @@ class JuMeiYouPinParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data['title']
-
-            # 子标题
             sub_title = data['sub_title']
-
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
-            # pprint(p_info)
-
-            # div_desc
             div_desc = data['div_desc']
-
-            '''
-            用于判断商品是否已经下架
-            '''
             is_delete = data['is_delete']
-            # print(is_delete)
-
             # 上下架时间
             schedule = data['sell_time']
-
             # 销售总量
             all_sell_count = data['all_sell_count']
 
@@ -497,19 +473,23 @@ class JuMeiYouPinParse(object):
 
         return sell_time
 
-    def get_detail_name_list(self, size_attr):
+    def get_detail_name_list(self, size_attr, size):
         '''
         得到detail_name_list
         :param size_attr: 规格的说明的list
         :return:
         '''
+        # pprint(size_attr)
+        # pprint(size)
         if size_attr is None or size_attr == []:
-            print('size_attr为空[]')
-            raise Exception
+            raise ValueError('size_attr为空[]')
 
-        detail_name_list = [{
-            'spec_name': item.get('title', '')
-        } for item in size_attr]
+        detail_name_list = []
+        for item in size_attr:
+            detail_name_list.append({
+                'spec_name': item.get('title', ''),
+                'img_here': 1 if int(item.get('show_sku_img')) == 1 else 0,     # '1' or '0'
+            })
 
         return detail_name_list
 
@@ -555,7 +535,7 @@ class JuMeiYouPinParse(object):
                 goods_id = re.compile(r'item_id=(\w+)&{1,}').findall(jumei_url)[0]
                 # print(goods_id)
                 try:
-                    type = re.compile(r'&type=(.*)').findall(jumei_url)[0]
+                    type = re.compile(r'type=(.*)').findall(jumei_url)[0]
                 except IndexError:
                     print('获取url的type时出错, 请检查!')
                     return []

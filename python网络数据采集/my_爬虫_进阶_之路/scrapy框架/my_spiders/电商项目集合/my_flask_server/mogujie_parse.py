@@ -18,7 +18,6 @@ from json import dumps
 import re
 from pprint import pprint
 from decimal import Decimal
-
 from time import sleep
 import gc
 
@@ -128,13 +127,10 @@ class MoGuJieParse(object):
         else:
             tmp_url = 'https://shop.mogujie.com/detail/' + str(goods_id)
             print('------>>>| 原pc地址为: ', tmp_url)
-            # print('------>>>| 对应的手机端地址为: ', 'https://h5.mogujie.com/detail-normal/index.html?itemId=' + goods_id)
 
             data = {}
-
             body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
             # print(body)
-
             if body == '':
                 print('获取到的body为空str!')
                 return self._data_error_init()
@@ -159,53 +155,13 @@ class MoGuJieParse(object):
                 # pprint(sku_info)
                 # pprint(shop_info)
 
-                data['title'] = item_info.get('title', '')
-                if data['title'] == '':
-                    print('title为空!')
-                    raise Exception
-
+                data['title'] = self._get_title(item_info)
                 data['sub_title'] = ''
-
-                data['shop_name'] = shop_info.get('name', '')
-                # print(data['shop_name'])
-
-                # 获取所有示例图片
-                all_img_url = [{'img_url': item} for item in item_info.get('topImages', [])]
-                # pprint(all_img_url)
-                data['all_img_url'] = all_img_url
-
-                '''
-                获取p_info
-                '''
-                p_info_api_url = 'https://shop.mogujie.com/ajax/mgj.pc.detailinfo/v1?_ajax=1&itemId=' + str(goods_id)
-                tmp_p_info_body = MyRequests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True)
-                # print(tmp_p_info_body)
-                if tmp_p_info_body == '':
-                    print('获取到的tmp_p_info_body为空值, 请检查!')
-                    raise Exception
-
-                p_info = self.get_goods_p_info(tmp_p_info_body=tmp_p_info_body)
-                data['p_info'] = p_info
-
-                # 获取每个商品的div_desc
-                div_desc = self.get_goods_div_desc(tmp_p_info_body=tmp_p_info_body)
-                # print(div_desc)
-                if div_desc == '':
-                    print('获取到的div_desc为空str, 请检查!')
-                    return self._data_error_init()
-                else:
-                    data['div_desc'] = div_desc
-
-                '''
-                获取detail_name_list
-                '''
-                detail_name_list = self.get_goods_detail_name_list(sku_info=sku_info)
-                # print(detail_name_list)
-                if detail_name_list == '':
-                    print('获取detail_name_list出错, 请检查!')
-                    return self._data_error_init()
-                else:
-                    data['detail_name_list'] = detail_name_list
+                data['shop_name'] = self._get_shop_name(shop_info)
+                data['all_img_url'] = self._get_all_img_url(item_info=item_info)
+                data['p_info'], tmp_p_info_body = self._get_p_info(goods_id=goods_id)
+                data['div_desc'] = self._get_div_desc(tmp_p_info_body=tmp_p_info_body)
+                data['detail_name_list'] = self._get_detail_name_list(sku_info=sku_info)
 
                 '''
                 获取每个规格对应价格跟规格以及其库存
@@ -250,37 +206,17 @@ class MoGuJieParse(object):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data['title']
-
-            # 子标题
             sub_title = data['sub_title']
-
             price = data['price']  # 商品价格
             taobao_price = data['taobao_price']  # 淘宝价
-
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
-
-            # div_desc
             div_desc = data['div_desc']
-
-            # 用于判断商品是否已经下架
             is_delete = 0
 
             result = {
@@ -314,6 +250,42 @@ class MoGuJieParse(object):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _get_detail_name_list(self, sku_info):
+        # pprint(sku_info)
+        detail_name_list = self.get_goods_detail_name_list(sku_info=sku_info)
+        # print(detail_name_list)
+        assert detail_name_list != '', '获取detail_name_list出错, 请检查!'
+
+        return detail_name_list
+
+    def _get_div_desc(self, tmp_p_info_body):
+        div_desc = self.get_goods_div_desc(tmp_p_info_body=tmp_p_info_body)
+        assert div_desc != '', '获取到的div_desc为空str, 请检查!'
+
+        return div_desc
+
+    def _get_p_info(self, goods_id):
+        p_info_api_url = 'https://shop.mogujie.com/ajax/mgj.pc.detailinfo/v1?_ajax=1&itemId=' + str(goods_id)
+        tmp_p_info_body = MyRequests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True)
+        # print(tmp_p_info_body)
+        assert tmp_p_info_body != '', '获取到的tmp_p_info_body为空值, 请检查!'
+
+        p_info = self.get_goods_p_info(tmp_p_info_body=tmp_p_info_body)
+
+        return p_info, tmp_p_info_body
+
+    def _get_title(self, item_info):
+        title = item_info.get('title', '')
+        assert title != '', 'title为空!'
+
+    def _get_shop_name(self, shop_info):
+        return shop_info.get('name', '')
+
+    def _get_all_img_url(self, item_info):
+        return [{
+            'img_url': item,
+        } for item in item_info.get('topImages', [])]
 
     def _data_error_init(self):
         self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
@@ -486,6 +458,7 @@ class MoGuJieParse(object):
         :param sku_info:
         :return: '' or [] or [{}, {}, ...]
         '''
+        detail_name_list = []
         try:
             props = sku_info.get('props', [])
             # pprint(props)
@@ -493,7 +466,37 @@ class MoGuJieParse(object):
                 print('### detail_name_list为空值 ###')
                 return []
 
-            detail_name_list = [{'spec_name': item.get('label', '').replace(':', '')} for item in props if item.get('label', '') != '']
+            skus = sku_info.get('skus', [])
+            img_here = 0
+            try:
+                img = skus[0].get('img', '')
+                if img != '':
+                    img_here = 1
+            except IndexError:
+                pass
+
+            for item in props:
+                label = item.get('label', '').replace(':', '')
+                if label != '':
+                    if img_here == 1:
+                        if re.compile('颜色').findall(label) != []:
+                            detail_name_list.append({
+                                'spec_name': label,
+                                'img_here': 1,
+                            })
+                        elif re.compile('规格').findall(label) != []:
+                            detail_name_list.append({
+                                'spec_name': label,
+                                'img_here': 1,
+                            })
+                        else:
+                            pass
+                        img_here = 0    # 记录后置0
+                    else:
+                        detail_name_list.append({
+                            'spec_name': label,
+                            'img_here': 0,
+                        })
 
         except Exception as e:
             print('遇到错误: ', e)
@@ -524,20 +527,24 @@ class MoGuJieParse(object):
         :param body:
         :return: '' or str
         '''
+        def _get_div_images_list(target):
+            div_images_list = []
+            for item in target:
+                if re.compile('http').findall(item) == []:
+                    item = 'http:' + item
+                div_images_list.append(item)
+
+            return div_images_list
+
         tmp_p_info_data = json_2_dict(json_str=tmp_p_info_body)
         if tmp_p_info_data == {}:
             return ''
 
-        div_images_list = [
-            item for item in tmp_p_info_data.get('data', {}).get('detailInfos', {}).get('detailImage', [])[0].get('list', [])
-        ]
-
+        div_images_list = _get_div_images_list(target=tmp_p_info_data.get('data', {}).get('detailInfos', {}).get('detailImage', [])[0].get('list', []))
         if div_images_list == []:
             # print('div_images_list为空list, 出错请检查!')
-            div_images_list = [     # 可能在[1] 这个里面再进行处理
-                item for item in tmp_p_info_data.get('data', {}).get('detailInfos', {}).get('detailImage', [])[1].get('list', [])
-            ]
-
+            # 可能在[1] 这个里面再进行处理
+            div_images_list = _get_div_images_list(target=tmp_p_info_data.get('data', {}).get('detailInfos', {}).get('detailImage', [])[1].get('list', []))
             if div_images_list == []:
                 print('div_images_list为空list, 出错请检查!')
                 return ''
