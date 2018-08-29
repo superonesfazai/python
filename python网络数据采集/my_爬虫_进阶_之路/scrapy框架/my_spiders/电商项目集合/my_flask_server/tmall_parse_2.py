@@ -36,7 +36,9 @@ from sql_str_controller import (
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,)
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
@@ -440,6 +442,11 @@ class TmallParse(object):
         title = kwargs.get('title', '')
 
         # 天猫
+        '''
+        bug: 部分商品 存在一个bug, 本地抓取is_delete=0, server则为1!
+        预估: 是允许配送范围的问题, server在加拿大!
+        eg: https://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.16.3a476095nAD0gh&id=541895028241&skuId=3556559472007&areaId=330700&user_id=732956498&cat_id=2&is_b=1&rn=5435e2e903312b0cf8422e9938dff7ac
+        '''
         is_delete = 0
         # * 2017-10-16 先通过buyEnable字段来判断商品是否已经下架
         if data.get('trade', {}) != {}:
@@ -658,7 +665,7 @@ class TmallParse(object):
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
-            ('t', str(time.time().__round__()) + str(randint(100, 999))),
+            ('t', str(datetime_to_timestamp(get_shanghai_time())) + str(randint(100, 999))),
             # ('sign', 'de765f1adf3bdc4a07687d45fd10a6b3'),
             ('api', 'mtop.taobao.detail.getdetail'),
             ('v', '6.0'),

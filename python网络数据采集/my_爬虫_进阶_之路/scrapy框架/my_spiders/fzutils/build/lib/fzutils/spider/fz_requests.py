@@ -34,7 +34,7 @@ class MyRequests(object):
                      params=None, data=None, cookies=None,
                      had_referer=False, encoding='utf-8',
                      method='get', timeout=12, num_retries=1,
-                     high_conceal=False):
+                     high_conceal=True):
         '''
         根据url得到body
         :param url:
@@ -89,15 +89,14 @@ class MyRequests(object):
 
     @classmethod
     def _wash_html(cls, body):
-        body = re.compile('\t').sub('', body)
-        body = re.compile('  ').sub('', body)
+        body = re.compile('\t|  ').sub('', body)
         body = re.compile('\r\n').sub('', body)
         body = re.compile('\n').sub('', body)
 
         return body
 
     @classmethod
-    def _get_proxies(cls, high_conceal=False):
+    def _get_proxies(cls, high_conceal=True):
         '''
         得到单个代理ip
         :return: 格式: {'http': ip+port}

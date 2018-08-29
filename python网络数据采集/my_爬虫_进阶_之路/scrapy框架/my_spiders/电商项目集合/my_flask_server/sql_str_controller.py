@@ -392,7 +392,10 @@ mia_delete_str_4 = 'delete from dbo.mia_xianshimiaosha where miaosha_end_time < 
 mg_select_str_1 = 'select goods_id, miaosha_time, fcid, page from dbo.mogujie_pintuan where site_id=23'
 mg_select_str_2 = mg_select_str_1
 # 秒杀实时更新
-mg_select_str_3 = 'select goods_id, miaosha_time, event_time, goods_url from dbo.mogujie_xianshimiaosha where site_id=22'
+mg_select_str_3 = '''
+select goods_id, miaosha_time, event_time, goods_url 
+from dbo.mogujie_xianshimiaosha 
+where site_id=22 and is_delete = 0'''
 mg_select_str_4 = mg_select_str_3
 '''insert'''
 # 秒杀插入

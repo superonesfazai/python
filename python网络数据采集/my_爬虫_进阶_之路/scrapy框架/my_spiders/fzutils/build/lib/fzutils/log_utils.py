@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : log_utils.py
-@Time    : 2018/7/13 18:39
-@connect : superonesfazai@gmail.com
-'''
-
 # log utils
 
 """

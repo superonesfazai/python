@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : linux_utils.py
-@Time    : 2018/7/13 18:14
-@connect : superonesfazai@gmail.com
-'''
-
 import sys
 import os
 import subprocess

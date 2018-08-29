@@ -3,7 +3,7 @@
 '''
 @author = super_fazai
 @File    : time_utils.py
-@Time    : 2018/7/13 18:02
+@Time    : 2016/7/13 18:02
 @connect : superonesfazai@gmail.com
 '''
 

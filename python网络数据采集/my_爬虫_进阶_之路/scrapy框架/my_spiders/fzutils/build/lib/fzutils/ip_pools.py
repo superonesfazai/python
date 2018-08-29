@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : ip_pools.py
-@Time    : 2018/7/13 18:31
-@connect : superonesfazai@gmail.com
-'''
-
 from requests import get
 import gc
 from random import randint

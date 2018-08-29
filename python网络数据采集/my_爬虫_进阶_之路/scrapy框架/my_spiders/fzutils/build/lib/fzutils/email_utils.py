@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : email_utils.py
-@Time    : 2017/8/8 11:12
-@connect : superonesfazai@gmail.com
-'''
-
 import smtplib
 import gc
 from email.mime.text import MIMEText

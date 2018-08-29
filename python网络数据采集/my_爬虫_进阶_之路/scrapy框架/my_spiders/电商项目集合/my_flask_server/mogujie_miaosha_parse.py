@@ -55,7 +55,6 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 return {}
 
             data = {}
-
             body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
             # print(body)
 
@@ -84,7 +83,9 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 # pprint(sku_info)
                 # pprint(shop_info)
 
-                data['title'] = self._get_title(item_info=item_info)
+                title = self._get_title(item_info=item_info)
+                # print(title)
+                data['title'] = title
                 data['sub_title'] = ''
                 data['shop_name'] = self._get_shop_name(shop_info=shop_info)
                 data['all_img_url'] = self._get_all_img_url(item_info=item_info)

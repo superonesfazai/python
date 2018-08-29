@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : path_utils.py
-@Time    : 2018/8/4 12:59
-@connect : superonesfazai@gmail.com
-'''
-
 """
 提供处理路径的工具
 """

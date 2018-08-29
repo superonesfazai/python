@@ -279,6 +279,8 @@ class MoGuJieParse(object):
         title = item_info.get('title', '')
         assert title != '', 'title为空!'
 
+        return title
+
     def _get_shop_name(self, shop_info):
         return shop_info.get('name', '')
 

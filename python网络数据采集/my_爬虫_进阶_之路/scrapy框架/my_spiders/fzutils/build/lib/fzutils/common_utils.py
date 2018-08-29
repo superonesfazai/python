@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : common_utils.py
-@Time    : 2018/7/13 18:19
-@connect : superonesfazai@gmail.com
-'''
-
 import re
 import base64
 import os

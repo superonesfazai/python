@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : cp_utils.py
-@Time    : 2018/7/13 18:05
-@connect : superonesfazai@gmail.com
-'''
-
 # cp的utils
 
 import json
@@ -153,9 +146,11 @@ async def calculate_right_sign(_m_h5_tk: str, data: json):
 
     return sign, t
 
-async def get_taobao_sign_and_body(base_url, headers:dict, params:dict, data:json, timeout=13, _m_h5_tk='undefine', session=None, logger=None):
+async def get_taobao_sign_and_body(base_url, headers:dict, params:dict,
+                                   data:json, timeout=13, _m_h5_tk='undefine',
+                                   session=None, logger=None, encoding='utf-8') -> tuple:
     '''
-    得到淘宝带签名sign接口数据
+    得到淘宝加密签名sign接口数据
     :param base_url:
     :param headers:
     :param params:
@@ -173,30 +168,23 @@ async def get_taobao_sign_and_body(base_url, headers:dict, params:dict, data:jso
         'data': data,
     })
 
-    # 设置代理ip
-    ip_object = MyIpPools()
-    proxy = ip_object._get_random_proxy_ip()    # 失败返回False
-
+    ip_object = MyIpPools(high_conceal=True)
     tmp_proxies = {
-        'http': proxy,
+        'http': ip_object._get_random_proxy_ip(),   # 失败返回False
     }
 
-    if session is None:
-        session = requests.session()
-    else:
-        session = session
+    session = requests.session() if session is None else session
     try:
         response = session.get(url=base_url, headers=headers, params=params, proxies=tmp_proxies, timeout=timeout)
-        _m_h5_tk = response.cookies.get('_m_h5_tk', '')
-        _m_h5_tk = _m_h5_tk.split('_')[0]
-        # print(s.cookies.items())
-        # print(_m_h5_tk)
+        _m_h5_tk = response.cookies.get('_m_h5_tk', '').split('_')[0]
+        # logger.info(str(s.cookies.items()))
+        # logger.info(str(_m_h5_tk))
 
-        body = response.content.decode('utf-8')
-        # print(body)
+        body = response.content.decode(encoding)
+        # logger.info(str(body))
 
-    except Exception as e:
-        logger.exception(e)
+    except Exception:
+        logger.error(exc_info=True)
         _m_h5_tk = ''
         body = ''
 
@@ -221,17 +209,17 @@ def get_miaosha_begin_time_and_miaosha_end_time(miaosha_time):
 
     return miaosha_begin_time, miaosha_end_time
 
-def filter_invalid_comment_content(_comment_content):
+def filter_invalid_comment_content(_comment_content) -> bool:
     '''
     过滤无效评论
     :param _comment_content:
-    :return: bool
+    :return:
     '''
     filter_str = '''
     此用户没有填写|评价方未及时做出评价|系统默认好评!|
     假的|坏的|差的|差评|退货|不想要|无良商家|再也不买|
-    我也是服了|垃圾|破东西|打电话骂人|骚扰|狗屁东西|
-    sb|SB|MB|mb|质量太差
+    我也是服了|垃圾|打电话骂人|骚扰|狗屁东西|sb|SB
+    MB|mb|质量太差|破|粗糙
     '''.replace(' ', '').replace('\n', '')
     if re.compile(filter_str).findall(_comment_content) != []\
             or _comment_content.__len__() <= 3:

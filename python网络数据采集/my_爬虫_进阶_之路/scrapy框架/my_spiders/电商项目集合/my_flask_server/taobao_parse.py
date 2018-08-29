@@ -45,7 +45,9 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,)
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import MyRequests
@@ -494,7 +496,7 @@ class TaoBaoLoginAndParse(object):
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
-            ('t', str(time.time().__round__()) + str(randint(100, 999))),
+            ('t', str(datetime_to_timestamp(get_shanghai_time())) + str(randint(100, 999))),
             # ('sign', 'b7cd843a2b40b5238d3b53faa3bb605b'),
             ('api', 'mtop.taobao.detail.getdetail'),
             ('v', '6.0'),

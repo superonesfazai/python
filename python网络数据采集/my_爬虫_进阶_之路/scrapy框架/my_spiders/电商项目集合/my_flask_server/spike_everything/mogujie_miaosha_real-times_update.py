@@ -30,6 +30,7 @@ from sql_str_controller import (
     mg_delete_str_3,
     mg_select_str_3,
     mg_delete_str_4,
+    mg_update_str_1,
 )
 
 from fzutils.time_utils import (
@@ -94,7 +95,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
@@ -111,8 +112,9 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                             pass
 
                         elif item_list == []:
-                            print('该商品已被下架限时秒杀活动，此处将其删除')
-                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                            print('该商品已被下架限时秒杀活动，此处将其逻辑删除')
+                            # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                            tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                             print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                             pass
 
@@ -121,8 +123,9 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                             miaosha_goods_all_goods_id = [item_1.get('iid', '') for item_1 in item_list]
 
                             if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
-                                print('该商品已被下架限时秒杀活动，此处将其删除')
-                                tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                                print('该商品已被下架限时秒杀活动，此处将其逻辑删除')
+                                # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                                tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                 pass
 
@@ -152,6 +155,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                                 'miaosha_end_time': timestamp_to_regulartime(int(item_2.get('endTime', 0))),
                                             }
                                             goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
+                                            # print(goods_data['title'])
 
                                             # pprint(goods_data)
                                             # print(goods_data)

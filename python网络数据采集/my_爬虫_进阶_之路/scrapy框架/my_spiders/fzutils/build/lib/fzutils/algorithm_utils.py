@@ -1,12 +1,5 @@
 # coding:utf-8
 
-'''
-@author = super_fazai
-@File    : algorithm_utils.py
-@Time    : 2017/8/8 18:32
-@connect : superonesfazai@gmail.com
-'''
-
 """
 算法utils
 """
