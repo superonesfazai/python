@@ -256,52 +256,16 @@ class MyPhantomjs(object):
 
         return main_body
 
-    def get_url_cookies_from_phantomjs_session(self, url, css_selector='', timeout=20):
+    def get_url_cookies_from_phantomjs_session(self, url, css_selector='', exec_code='', timeout=20):
         '''
         从session中获取cookies
         :param url:
         :return: cookies 类型 str
         '''
         _print(msg='正在获取cookies...请耐心等待...', logger=self.my_lg)
-        if self.type == PHANTOMJS:
-            change_ip_result = self.from_ip_pool_set_proxy_ip_to_phantomjs()
-            if change_ip_result is False:
-                if self.from_ip_pool_set_proxy_ip_to_phantomjs() is False:      # 一次切换失败，就尝试第二次
-                    return ''
-                else: pass
-        else:       # 其他类型部动态修改代理
-            pass
-
-        try:
-            self.driver.set_page_load_timeout(timeout)  # 设置成10秒避免数据出错
-        except:
-            try: self.driver.set_page_load_timeout(timeout)
-            except: return ''
-
-        try:
-            self.driver.get(url)
-            self.driver.implicitly_wait(timeout)  # 隐式等待和显式等待可以同时使用
-
-            if css_selector != '':
-                locator = (By.CSS_SELECTOR, css_selector)
-                try:
-                    WebDriverWait(self.driver, timeout, 0.5).until(EC.presence_of_element_located(locator))
-                except Exception as e:
-                    _print(msg='遇到错误: ', logger=self.my_lg, log_level=2, exception=e)
-                    return ''
-                else:
-                    _print(msg='{0}已经加载完毕'.format(css_selector), logger=self.my_lg)
-
-            cookies = self.phantomjs_cookies_2_str(self.driver.get_cookies())
-            # _print(msg=str(cookies), logger=self.my_lg)
-
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            _print(msg='-->>time out after {0} seconds when loading page'.format(timeout), logger=self.my_lg, log_level=2)
-            _print(msg='报错如下: ', logger=self.my_lg, log_level=2, exception=e)
-            try:
-                self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            except WebDriverException: pass
-            cookies = ''
+        self.use_phantomjs_to_get_url_body(url=url, css_selector=css_selector, exec_code=exec_code, timeout=timeout)
+        cookies = self.phantomjs_cookies_2_str(self.driver.get_cookies())
+        # _print(msg=str(cookies), logger=self.my_lg)
 
         return cookies
 
