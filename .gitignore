@@ -1,5 +1,6 @@
 # python:
-*.pyc
+*.py[cod]
+*$py.class
 *.log
 *.apk
 *.zip
@@ -8,7 +9,7 @@
 dist/
 build/
 */build/
-__pycache__/
+*/__pycache__/
 
 # c
 *.so

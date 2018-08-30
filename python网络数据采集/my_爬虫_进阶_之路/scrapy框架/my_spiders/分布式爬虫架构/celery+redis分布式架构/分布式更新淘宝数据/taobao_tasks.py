@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : taobao_tasks.py
-@Time    : 2018/7/1 17:57
 @connect : superonesfazai@gmail.com
 '''
 

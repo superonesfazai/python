@@ -24,6 +24,8 @@ t = Person()
 print(t.a)             # 返回hahha
 print(t.b)             # 会让程序死掉
 
+# ** __getattr__: 只有getattribute找不到的时候,才会调用getattr
+
 #原因是：
 # 当t.b执⾏时, 会调⽤Person类中定义的__getattribute__⽅法, 但是在这个⽅法的执⾏过程中
 # if条件不满⾜, 所以 程序执⾏else⾥⾯的代码, 即return self.避免死锁 问题就在这,

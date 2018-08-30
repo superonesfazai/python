@@ -1,0 +1,1 @@
+server(flask/sanic) + rpc + 定时校验(cookies) + 模拟login(best get 原表单) + db(rabbitmq/redis/..)
