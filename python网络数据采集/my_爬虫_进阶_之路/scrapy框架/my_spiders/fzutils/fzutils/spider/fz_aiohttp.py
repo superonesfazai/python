@@ -40,7 +40,14 @@ class MyAiohttp(object):
         }
 
     @classmethod    # 注意timeout不是越长越好，测试发现10左右成功率较高
-    async def aio_get_url_body(self, url, headers, params=None, timeout=10, num_retries=10, high_conceal=True):
+    async def aio_get_url_body(self,
+                               url,
+                               headers,
+                               params=None,
+                               cookies=None,
+                               timeout=10,
+                               num_retries=10,
+                               high_conceal=True):
         '''
         异步获取url的body(简略版)
         :param url:
@@ -57,7 +64,7 @@ class MyAiohttp(object):
         conn = aiohttp.TCPConnector(verify_ssl=True, limit=150, use_dns_cache=True)
         async with aiohttp.ClientSession(connector=conn) as session:
             try:
-                async with session.get(url=url, headers=headers, params=params, proxy=proxy, timeout=timeout) as r:
+                async with session.get(url=url, headers=headers, params=params, cookies=cookies, proxy=proxy, timeout=timeout) as r:
                     result = await r.text(encoding=None)
                     result = await self.wash_html(result)
                     # print('success')
@@ -66,7 +73,7 @@ class MyAiohttp(object):
                 # print('出错:', e)
                 if num_retries > 0:
                     # 如果不是200就重试，每次递减重试次数
-                    return await self.aio_get_url_body(url=url, headers=headers, params=params, num_retries=num_retries - 1)
+                    return await self.aio_get_url_body(url=url, headers=headers, params=params, cookies=cookies, num_retries=num_retries - 1)
                 else:
                     print('异步获取body失败!')
                     return ''

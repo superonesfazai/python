@@ -30,7 +30,6 @@ from logging import INFO, ERROR
 import gc
 from time import sleep
 from pprint import pprint
-import time
 import re
 from json import dumps
 
@@ -191,7 +190,7 @@ class XiaoHongShuParse(object):
             if article_id in self.db_share_id:
                 self.my_lg.info('该{0}已存在于db中...跳过!'.format(article_id))
 
-            self.my_lg.info('正在crawl小红书地址为: {0}'.format(article_link))
+            self.my_lg.info('[+] {0}'.format(article_link))
             if article_link != '':
                 if not self.by_wx:  # 通过pc端
                     body = MyRequests.get_url_body(url=article_link, headers=self.headers, high_conceal=True)

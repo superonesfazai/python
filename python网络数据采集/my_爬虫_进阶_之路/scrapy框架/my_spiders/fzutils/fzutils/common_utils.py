@@ -6,6 +6,8 @@ import os
 import io
 from random import randint
 from pprint import pprint
+from functools import wraps
+from time import sleep
 from json import (
     loads,
     JSONDecodeError,)
@@ -34,6 +36,9 @@ __all__ = [
     # obj
     'save_obj',                                                 # 将对象持久化到本地, 方便直接调试
     'get_obj',                                                  # 使用该持久化对象进行调试
+
+    # 装饰器
+    'retry',                                                    # 函数执行出现异常时自动重试的装饰器
 ]
 
 def json_2_dict(json_str, logger=None, encoding=None):
@@ -287,3 +292,59 @@ def get_obj(file_name):
         import pickle
 
     return pickle.load(open(file_name))
+
+class StopRetry(Exception):
+    def __repr__(self):
+        return 'retry stop!'
+
+def retry(max_retries,
+          delay:(int, float)=0,
+          callback=None,
+          validate_func=None):
+    '''
+    函数执行出现异常时自动重试的装饰器
+    :param max_retries: 最多重试次数
+    :param delay: 每次重试的延迟, 单位秒
+    :param callback: 回调函数, 函数签名应接收一个参数, 每次出现异常时, 会将异常对象传入
+    :param validate_func: 验证函数, 用于验证执行结果, 并确定是否继续重试
+    :return: 被装饰函数的执行结果
+    '''
+    def decorated(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            nonlocal max_retries, delay
+            func_ex = StopRetry
+            while max_retries > 0:
+                # print(max_retries)
+                try:
+                    result = func(*args, **kwargs)
+                    # 验证函数返回False时，表示告知装饰器验证不通过，继续重试
+                    if not callable(validate_func):          # validate无法回调
+                        if max_retries <= 1:
+                            return result
+                        else:
+                            continue
+                    else:                               # 可以回调
+                        # print(result)
+                        if validate_func(result) is False:   # 检验结果
+                            continue
+                        else:
+                            return result
+                except Exception as e:
+                    # 回调函数返回True时，表示告知装饰器异常已经处理，终止重试
+                    if callable(callback) and callback(e) is True:
+                        return None
+                    func_ex = e
+                finally:
+                    max_retries -= 1
+                    if delay > 0:
+                        sleep(delay)
+            else:
+                raise func_ex
+
+        return wrapper
+
+    return decorated
+
+
+

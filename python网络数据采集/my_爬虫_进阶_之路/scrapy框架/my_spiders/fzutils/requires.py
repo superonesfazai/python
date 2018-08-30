@@ -68,6 +68,7 @@ install_requires = [
     'ipywidgets',
     'bokeh',
     'stem',
+    'pika',
     # 'sip',
     # 'pyqt5',
 ]

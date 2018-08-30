@@ -129,7 +129,6 @@ def fz_set_timeout(seconds, error_message='函数执行超时!'):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             share = [TimeoutError(error_message)]
-
             def func_with_except():
                 try:
                     share[0] = func(*args, **kwargs)

@@ -4,8 +4,18 @@
 *.apk
 *.zip
 *.egg
-*.egg-info
-dist
-build
+*.egg-info/
+dist/
+build/
 */build/
-__pycache__
+__pycache__/
+
+# c
+*.so
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py

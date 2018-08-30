@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.4.3
+Version: 0.0.1.4.5
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -40,10 +40,10 @@ Description: ```bash
         $ cd xxx/IPProxyPool && python3 IPProxy.py
         ```
         ```python
-        from fzutils.ip_pools import MyIpPools
+        from fzutils.ip_pools import IpPools
         
         # 高匿
-        ip_obj = MyIpPools(high_conceal=True)
+        ip_obj = IpPools(high_conceal=True)
         # 得到一个随机ip, eg: 'http://175.6.2.174:8088'
         proxy = ip_obj._get_random_proxy_ip()
         ```
@@ -242,6 +242,29 @@ Description: ```bash
         a = dumps({'1':1,})
         # 反序列化python对象
         print(deserializate_pickle_object(a))
+        ```
+        ```python
+        from fzutils.aio_utils import get_async_execute_result
+        
+        # 获取异步执行结果
+        res = get_async_execute_result(obj='xxx类', obj_method_name='xxx类方法',)
+        ```
+        ```python
+        from fzutils.common_utils import retry
+        
+        def validate_res(res):
+            '''验证结果的函数'''
+            if res == 5:
+                return True
+            else:
+                return False
+        
+        # 重试装饰器
+        @retry(max_retries=4, validate_func=validate_res)
+        def a(t):
+            return t - 2
+        
+        print(a(7))
         ```
         ```python
         from fzutils.spider.auto import auto_generate_crawler_code

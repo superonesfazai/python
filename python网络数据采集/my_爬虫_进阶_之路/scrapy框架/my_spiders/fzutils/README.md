@@ -236,6 +236,29 @@ a = dumps({'1':1,})
 print(deserializate_pickle_object(a))
 ```
 ```python
+from fzutils.aio_utils import get_async_execute_result
+
+# 获取异步执行结果
+res = get_async_execute_result(obj='xxx类', obj_method_name='xxx类方法',)
+```
+```python
+from fzutils.common_utils import retry
+
+def validate_res(res):
+    '''验证结果的函数'''
+    if res == 5:
+        return True
+    else:
+        return False
+
+# 重试装饰器
+@retry(max_retries=4, validate_func=validate_res)
+def a(t):
+    return t - 2
+
+print(a(7))
+```
+```python
 from fzutils.spider.auto import auto_generate_crawler_code
 
 # 爬虫基本代码自动生成器
