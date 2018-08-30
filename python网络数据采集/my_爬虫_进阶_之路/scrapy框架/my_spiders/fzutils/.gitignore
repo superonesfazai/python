@@ -2,8 +2,7 @@
 *.pyc
 *.egg
 *.log
-fzutils.egg-info
+*.egg-info
 dist
-build/
-*/build/*
-__pycache__
+build/*
+__pycache__/*
