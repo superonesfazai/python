@@ -196,7 +196,11 @@ class TaoBaoLoginAndParse(object):
                 return self._data_error_init()
 
             # 商品标签属性名称,及其对应id值
-            detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
+            try:
+                detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
+            except IndexError:
+                self.my_lg.error(exc_info=True)
+                return self._data_error_init()
 
             price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
             all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])

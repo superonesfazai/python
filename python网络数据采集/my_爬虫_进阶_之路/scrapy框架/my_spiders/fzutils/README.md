@@ -40,9 +40,9 @@ ip_obj = MyIpPools(high_conceal=True)
 proxy = ip_obj._get_random_proxy_ip()
 ```
 ```python
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 
-_ = MyPhantomjs(executable_path='xxx')
+_ = BaseDriver(executable_path='xxx')
 exec_code = '''
 js = 'document.body.scrollTop=10000'
 self.driver.execute_script(js) 
@@ -50,17 +50,17 @@ self.driver.execute_script(js)
 body = _.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
 ```
 ```python
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 
-body = MyRequests.get_url_body(method='get', url='xxx')
+body = Requests.get_url_body(method='get', url='xxx')
 ```
 ```python
 import asyncio
-from fzutils.spider.fz_aiohttp import MyAiohttp
+from fzutils.spider.fz_aiohttp import AioHttp
 
 async def tmp():
-    _ = MyAiohttp(max_tasks=5)
-    return await _.aio_get_url_body(url='xxx')
+    _ = AioHttp(max_tasks=5)
+    return await _.aio_get_url_body(url='xxx', headers={})
 ```
 ```python
 from fzutils.time_utils import (

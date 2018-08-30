@@ -15,6 +15,11 @@ import gc
 from ..ip_pools import MyIpPools
 from ..internet_utils import get_random_pc_ua
 
+__all__ = [
+    'MyAiohttp',
+    'AioHttp',
+]
+
 class MyAiohttp(object):
     def __init__(self, max_tasks=10):
         super(MyAiohttp, self).__init__()
@@ -104,6 +109,10 @@ class MyAiohttp(object):
     def __del__(self):
         self.loop.close()
         gc.collect()
+
+class AioHttp(MyAiohttp):
+    '''改名'''
+    pass
 
 # if __name__ == '__main__':
 #     start_time = time.time()

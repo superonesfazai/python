@@ -36,6 +36,8 @@ from zipfile import ZipFile
 
 __all__ = [
     'MyPhantomjs',
+    'BaseDriver',
+    'ChromeExtensioner',
 ]
 
 PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
@@ -313,6 +315,10 @@ class MyPhantomjs(object):
         except:
             pass
         gc.collect()
+
+class BaseDriver(MyPhantomjs):
+    '''改名'''
+    pass
 
 class ChromeExtensioner(object):
     '''

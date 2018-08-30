@@ -20,6 +20,7 @@ from pprint import pprint
 
 __all__ = [
     'MyRequests',
+    'Requests',
 ]
 
 class MyRequests(object):
@@ -117,3 +118,6 @@ class MyRequests(object):
     def __del__(self):
         gc.collect()
 
+class Requests(MyRequests):
+    '''改名'''
+    pass
