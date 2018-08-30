@@ -1,9 +1,8 @@
 # python:
-*.pyc
+*.py[cod]
 *.egg
 *.log
-*.egg-info
-dist
-build/*
-$GIT_DIR/*/build/
-__pycache__/*
+*.egg-info/
+dist/
+build/
+__pycache__/
