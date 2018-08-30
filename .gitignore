@@ -1,7 +1,11 @@
 # python:
 *.pyc
+*.log
+*.apk
+*.zip
 *.egg
 *.egg-info
 dist
 build
+*/build/
 __pycache__

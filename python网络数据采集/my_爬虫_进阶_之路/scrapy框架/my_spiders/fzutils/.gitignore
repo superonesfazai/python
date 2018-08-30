@@ -1,7 +1,9 @@
 # python:
 *.pyc
 *.egg
+*.log
 *.egg-info
 dist
-build
+build/
+*/build/
 __pycache__

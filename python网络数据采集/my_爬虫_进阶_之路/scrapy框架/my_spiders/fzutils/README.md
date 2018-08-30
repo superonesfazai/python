@@ -32,10 +32,10 @@ pip3 install fzutils
 $ cd xxx/IPProxyPool && python3 IPProxy.py
 ```
 ```python
-from fzutils.ip_pools import MyIpPools
+from fzutils.ip_pools import IpPools
 
 # 高匿
-ip_obj = MyIpPools(high_conceal=True)
+ip_obj = IpPools(high_conceal=True)
 # 得到一个随机ip, eg: 'http://175.6.2.174:8088'
 proxy = ip_obj._get_random_proxy_ip()
 ```

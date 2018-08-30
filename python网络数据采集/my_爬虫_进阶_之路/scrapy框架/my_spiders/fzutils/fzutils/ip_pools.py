@@ -6,6 +6,7 @@ from random import randint
 
 __all__ = [
     'MyIpPools',
+    'IpPools',
 ]
 
 class MyIpPools(object):
@@ -81,3 +82,6 @@ class MyIpPools(object):
 
     def __del__(self):
         gc.collect()
+
+class IpPools(MyIpPools):
+    pass
