@@ -69,6 +69,7 @@ install_requires = [
     'bokeh',
     'stem',
     'pika',
+    'redis',
     # 'sip',
     # 'pyqt5',
 ]

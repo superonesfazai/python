@@ -12,12 +12,16 @@ sql utils
 """
 
 from pymssql import *
-import gc
 import asyncio
+from redis import (
+    ConnectionPool,
+    StrictRedis,)
+from gc import collect
 from .common_utils import _print
 
 __all__ = [
-    'BaseSqlServer',        # sql_utils for sql_server
+    'BaseSqlServer',        # cli for sql_server
+    'BaseRedisCli',         # cli for redis
     'pretty_table',         # 美化打印table
 ]
 
@@ -348,7 +352,7 @@ class BaseSqlServer(object):
             self.conn.close()
         except Exception:
             pass
-        gc.collect()
+        collect()
 
 def pretty_table(cursor):
     '''
@@ -364,3 +368,32 @@ def pretty_table(cursor):
     print(tb)
 
     return
+
+class BaseRedisCli():
+    '''redis客户端'''
+    def __init__(self, host='127.0.0.1', port=6379, db=0):
+        self.pool = ConnectionPool(
+            host=host,
+            port=port,
+            db=db,)
+        self.redis_cli = StrictRedis(connection_pool=self.pool)
+
+    def set(self, name, value):
+        '''写/改'''
+        return self.redis_cli.set(name=name, value=value)
+
+    def get(self, name):
+        '''读'''
+        return self.redis_cli.get(name=name)
+
+    def delete(self, name):
+        '''删'''
+        return self.redis_cli.delete(name)
+
+    def __del__(self):
+        try:
+            del self.pool
+            del self.redis_cli
+        except:
+            pass
+        collect()

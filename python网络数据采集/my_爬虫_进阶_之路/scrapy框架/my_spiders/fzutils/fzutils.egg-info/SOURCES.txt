@@ -4,6 +4,7 @@ fzutils/__init__.py
 fzutils/aio_utils.py
 fzutils/algorithm_utils.py
 fzutils/auto_ops_utils.py
+fzutils/celery_utils.py
 fzutils/common_utils.py
 fzutils/cp_utils.py
 fzutils/email_utils.py

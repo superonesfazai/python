@@ -7,3 +7,4 @@
 '''
 
 MY_SPIDER_LOGS_PATH = '/Users/afa/myFiles/my_spider_logs/电商项目'
+
