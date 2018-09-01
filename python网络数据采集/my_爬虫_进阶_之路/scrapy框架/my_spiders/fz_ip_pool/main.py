@@ -10,14 +10,14 @@ from proxy_tasks import (
     _get_proxy,
     _write_into_redis,
     check_proxy_status,)
-from time import sleep
+from time import sleep, time
 from pprint import pprint
 from logging import (
     INFO,
     ERROR,)
 from pickle import dumps
-from celery.exceptions import TimeoutError
 from random import randint
+from celery.exceptions import TimeoutError
 
 from settings import (
     MAX_PROXY_NUM,
@@ -88,46 +88,94 @@ def check_all_proxy(origin_proxy_data):
     :param origin_proxy_data:
     :return:
     '''
-    def on_success(res, proxy_info):
-        '''回调函数'''
-        if not res:
-            proxy_info.update({
-                'score': score - 2,
-            })
-            lg.info('[-] {}:{}'.format(ip, port))
-        else:
-            lg.info('[+] {}:{}'.format(ip, port))
-            pass
+    def create_tasks_collection(origin_proxy_data):
+        '''建立任务集'''
+        resutls = []
+        for proxy_info in origin_proxy_data:
+            last_check_time = proxy_info['last_check_time']
+            ip = proxy_info['ip']
+            port = proxy_info['port']
+            score = proxy_info['score']
+            if score <= 88:  # 删除跳过
+                continue
 
-        # 更新监控时间
-        proxy_info.update({
-            'last_check_time': str(get_shanghai_time()),
-        })
-        return proxy_info
+            proxy = ip + ':' + str(port)
+            # lg.info('testing {}...'.format(proxy))
+            async_obj = check_proxy_status.apply_async(args=[proxy, ],)
+            resutls.append({
+                'proxy_info': proxy_info,
+                'async_obj': async_obj,
+            })
+
+        return resutls
+
+    def get_tasks_result_collection(resutls):
+        '''得到结果集'''
+        all = []
+        success_num = 1
+        available_num = 0
+        results_len = len(resutls)
+        for r in resutls:
+            async_res = False
+            try:
+                async_res = r.get('async_obj').get(timeout=CHECK_PROXY_TIMEOUT)
+            except TimeoutError:
+                pass
+            if async_res:
+                available_num += 1
+            all.append({
+                'async_res': async_res,
+                'proxy_info': r.get('proxy_info'),
+            })
+            lg.info('已检测ip个数: {}, 剩余待检测个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
+            success_num += 1
+
+        return all
+
+    def handle_tasks_result_collection(all):
+        '''处理结果集'''
+        def on_success(res, proxy_info):
+            '''回调函数'''
+            score = proxy_info.get('score')
+            ip = proxy_info.get('ip')
+            port = proxy_info.get('port')
+            if not res:
+                proxy_info.update({
+                    'score': score - 2,
+                })
+                lg.info('[-] {}:{}'.format(ip, port))
+            else:
+                lg.info('[+] {}:{}'.format(ip, port))
+                pass
+
+            # 更新监控时间
+            proxy_info.update({
+                'last_check_time': str(get_shanghai_time()),
+            })
+            return proxy_info
+
+        new_proxy_data = []
+        for index, item in all:
+            check_res = item.get('async_res')
+            proxy_info = item.get('proxy_info')
+
+            new_proxy_info = on_success(check_res, proxy_info)
+            new_proxy_data.append(new_proxy_info)
+
+        return new_proxy_data
 
     lg.info('开始检测所有proxy状态...')
-    new_proxy_data = []
-    for index, proxy_info in enumerate(origin_proxy_data):
-        last_check_time = proxy_info['last_check_time']
-        ip = proxy_info['ip']
-        port = proxy_info['port']
-        score = proxy_info['score']
-        if score <= 88:         # 删除跳过
-            continue
+    start_time = time()
+    resutls = create_tasks_collection(origin_proxy_data)
+    end_time = time()
 
-        res = False
-        try:
-            res = check_proxy_status.apply_async(args=[ip+str(port),],).get(timeout=CHECK_PROXY_TIMEOUT)
-        except TimeoutError:
-            lg.error('遇到错误: {}'.format('celery.exceptions.TimeoutError: The operation timed out.'))
-        except Exception:
-            lg.error('遇到错误:', exc_info=True)
+    lg.info('@@@ 请耐心等待所有异步结果完成...')
+    all = get_tasks_result_collection(resutls)
+    lg.info('总共耗时: {}秒!!'.format(end_time - start_time))
 
-        new_proxy_info = on_success(res, proxy_info)
-        new_proxy_data.append(new_proxy_info)
-
+    new_proxy_data = handle_tasks_result_collection(all)
     redis_cli.set(name=_key, value=dumps(new_proxy_data))
-    lg.info('检查完毕!')
+    lg.info('一次检查完毕!')
 
     return True
 

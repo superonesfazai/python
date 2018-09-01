@@ -27,6 +27,7 @@ from fzutils.safe_utils import get_uuid3
 from fzutils.data.pickle_utils import deserializate_pickle_object
 from fzutils.celery_utils import init_celery_app
 from fzutils.sql_utils import BaseRedisCli
+from fzutils.common_utils import json_2_dict
 
 app = init_celery_app()
 lg = get_task_logger('proxy_tasks')      # 当前task的logger对象, tasks内部保持使用原生celery log对象
@@ -147,26 +148,35 @@ def check_proxy_status(proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
     :return:
     '''
     res = False
-    URL = 'http://m.gx8899.com/'
+    URL = 'http://httpbin.org/get'
     headers = {
         'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
         'Upgrade-Insecure-Requests': '1',
-        'User-Agent': get_random_phone_ua(),
+        'User-Agent': get_random_pc_ua(),
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9',
     }
 
+    proxies = {
+        'http': 'http://' + proxy,
+        'https': 'https://' + proxy,
+    }
     try:
-        response = requests.request("GET", url=URL, headers=headers, proxies={'http': 'http://' + proxy}, timeout=timeout)
-        status_code = response.status_code
-        body = response.content.decode('gb2312')
-        lg.info(str(body))
-        if status_code != 200\
-                or re.compile('8899头像网吧').findall(body) == []:
-            return res
-
+        response = requests.get(url=URL, headers=headers, proxies=proxies, timeout=timeout)
+        lg.info(str(response.text))
+        if response.ok:
+            content = json_2_dict(json_str=response.text)
+            proxy_connection = content.get('headers', {}).get('Proxy-Connection', None)
+            ip = content.get('origin', '')
+            if ',' in ip:
+                pass
+            elif proxy_connection:
+                pass
+            else:                       # 只抓取高匿名代理
+                return True
     except Exception:
-        return res
+        pass
 
-    return True
+    return res

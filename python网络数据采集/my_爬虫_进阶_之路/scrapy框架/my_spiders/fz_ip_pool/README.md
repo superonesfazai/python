@@ -1,8 +1,8 @@
-# fz_proxy_pool
+# fz_ip_pool
 fz的分布式代理ip池
 
 ## 架构
-celery + redis + spiders6770934mmm
+celery + redis + spiders
 
 ## 依赖安装
 ```bash

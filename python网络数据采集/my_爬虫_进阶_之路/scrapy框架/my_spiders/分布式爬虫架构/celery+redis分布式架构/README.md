@@ -44,6 +44,16 @@ task1.apply_async(args=[admin_id], callback=on_success) # on_success是回调函
 ```python
 task1.apply_async((2, 2), queue='lopri')
 ```
+- 结果选项
+```python
+# 你可以使用以下ignore_result选项启用或禁用结果存储
+result = add.apply_async(1, 2, ignore_result=True)
+result.get() # -> None
+
+# Do not ignore result (default)
+result = add.apply_async(1, 2, ignore_result=False)
+result.get() # -> 3
+```
 
 ## 切记
 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠

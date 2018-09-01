@@ -11,7 +11,7 @@
 """
 
 # 日志存储路径
-SPIDER_LOG_PATH = '/Users/afa/myFiles/my_spider_logs/fz_proxy_pool/'
+SPIDER_LOG_PATH = '/Users/afa/myFiles/my_spider_logs/fz_ip_pool/'
 
 # ip池最大代理数
 MAX_PROXY_NUM = 500
@@ -20,7 +20,7 @@ MAX_PROXY_NUM = 500
 WAIT_TIME = 6
 
 # 检测proxy时超时设置
-CHECK_PROXY_TIMEOUT = 8
+CHECK_PROXY_TIMEOUT = 12
 
 # 测试地址
 TEST_URL = 'http://ip111.cn'
