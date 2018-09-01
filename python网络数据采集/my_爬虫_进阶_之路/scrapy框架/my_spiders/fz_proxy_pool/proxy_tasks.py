@@ -12,8 +12,12 @@ from scrapy.selector import Selector
 import requests
 from pickle import dumps
 import re
+from time import sleep
 
 from items import ProxyItem
+from settings import (
+    CHECK_PROXY_TIMEOUT,
+    parser_list,)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import (
@@ -30,23 +34,37 @@ _key = get_uuid3('proxy_tasks')  # 存储proxy_list的key
 redis_cli = BaseRedisCli()
 
 @app.task   # task修饰的方法无法修改类属性
-def _get_kuaidaili_proxy() -> list:
+def _get_proxy(random_parser_list_item_index, proxy_url) -> list:
     '''
-    spiders: 获取快代理高匿名ip
+    spiders: 获取代理高匿名ip
     :return:
     '''
     def parse_body(body):
         '''解析url body'''
-        table = Selector(text=body).css('div#list table tbody').extract_first()
         _ = []
-        for tr in Selector(text=table).css('tr').extract():
+        parser_obj = parser_list[random_parser_list_item_index]
+        try:
+            part_selector = parser_obj.get('part', '')
+            assert part_selector != '', '获取到part为空值!'
+            position = parser_obj.get('position', {})
+            assert position != {}, '获取到position为空dict!'
+            ip_selector =  position.get('ip', '')
+            assert ip_selector != '', '获取到ip_selector为空值!'
+            port_selector = position.get('port', '')
+            assert port_selector != '', '获取到port_selector为空值!'
+            ip_type_selector = position.get('ip_type', '')
+            assert ip_type_selector != '', '获取到ip_type_selector为空值!'
+        except AssertionError:
+            return []
+
+        for tr in Selector(text=body).css(part_selector).extract():
             o = ProxyItem()
             try:
-                ip = Selector(text=tr).css('td:nth-child(1) ::text').extract_first()
+                ip = Selector(text=tr).css('{} ::text'.format(ip_selector)).extract_first()
                 assert ip != '', 'ip为空值!'
-                port = Selector(text=tr).css('td:nth-child(2) ::text').extract_first()
+                port = Selector(text=tr).css('{} ::text'.format(port_selector)).extract_first()
                 assert port != '', 'port为空值!'
-                ip_type = Selector(text=tr).css('td:nth-child(4) ::text').extract_first()
+                ip_type = Selector(text=tr).css('{} ::text'.format(ip_type_selector)).extract_first()
                 assert ip_type != '', 'ip_type为空值!'
                 ip_type = 'http' if ip_type == 'HTTP' else 'https'
             except AssertionError or Exception:
@@ -78,7 +96,6 @@ def _get_kuaidaili_proxy() -> list:
         'Accept-Language': 'zh-CN,zh;q=0.9',
     }
 
-    proxy_url = 'https://www.kuaidaili.com/free/inha/' + str(randint(1, 1000))
     # 从已抓取的代理中随机代理采集, 没有则用本机ip(first crawl)!
     try:
         body = requests.get(url=proxy_url, headers=headers, params=None, cookies=None, proxies=_get_proxies()).text
@@ -86,6 +103,7 @@ def _get_kuaidaili_proxy() -> list:
     except Exception:
         lg.error('遇到错误:', exc_info=True)
         return []
+    # sleep(2)
 
     return parse_body(body)
 
@@ -122,9 +140,9 @@ def _get_proxies() -> dict:
     return proxies or {}        # 如果None则返回{}
 
 @app.task
-def check_proxy_status(proxy, timeout=8) -> bool:
+def check_proxy_status(proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
     '''
-    检测代理状态, 发现免费网站写的信息不靠谱, 还是要自己检测代理的类型
+    检测代理状态, 突然发现, 免费网站写的信息不靠谱, 还是要自己检测代理的类型
     :param proxy: 待检测代理
     :return:
     '''

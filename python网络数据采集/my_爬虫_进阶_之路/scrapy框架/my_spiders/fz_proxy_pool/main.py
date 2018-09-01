@@ -7,7 +7,7 @@
 '''
 
 from proxy_tasks import (
-    _get_kuaidaili_proxy,
+    _get_proxy,
     _write_into_redis,
     check_proxy_status,)
 from time import sleep
@@ -16,11 +16,15 @@ from logging import (
     INFO,
     ERROR,)
 from pickle import dumps
+from celery.exceptions import TimeoutError
+from random import randint
 
 from settings import (
     MAX_PROXY_NUM,
     SPIDER_LOG_PATH,
-    WAIT_TIME,)
+    WAIT_TIME,
+    CHECK_PROXY_TIMEOUT,
+    parser_list,)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -36,23 +40,29 @@ redis_cli = BaseRedisCli()
 proxy_list = []     # 存储采集的proxy结果
 _key = get_uuid3('proxy_tasks')  # 存储proxy_list的key
 
-def get_kuaidaili_proxy_process_data():
+def get_proxy_process_data():
     '''
     抓取代理并更新redis中的值
     :return:
     '''
     global proxy_list
-    res = _get_kuaidaili_proxy.apply_async(expires=5*60, retry=False)      # 过期时间
-    res_content = res.get(timeout=2)
-    sleep(2)
-    if res_content != []:
-        _write_into_redis.apply_async(args=(res_content,),)
-    try:
-        proxy_list += res    # 修改记录
-    except:
-        pass
+    random_parser_list_item_index = randint(0, len(parser_list)-1)
+    for proxy_url in parser_list[random_parser_list_item_index].get('urls', []):
+        # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
+        res = _get_proxy.apply_async(args=[random_parser_list_item_index, proxy_url,], expires=5*60, retry=False)      # 过期时间
+        res_content = res.get(timeout=2)
+        if res_content != []:
+            _write_into_redis.apply_async(args=(res_content,),)
+        try:
+            proxy_list += res    # 修改记录
+        except:
+            pass
+        if res.status == 'SUCCESS':
+            lg.info('[+] task的id: {}'.format(res.id))
+        else:
+            lg.info('[-] task的id: {}'.format(res.id))
 
-    return res
+    return True
 
 def read_celery_tasks_result_info(celery_id_list:list) -> list:
     '''
@@ -78,23 +88,8 @@ def check_all_proxy(origin_proxy_data):
     :param origin_proxy_data:
     :return:
     '''
-    lg.info('开始检测所有proxy状态...')
-    for index, proxy_info in enumerate(origin_proxy_data):
-        last_check_time = proxy_info['last_check_time']
-        ip = proxy_info['ip']
-        port = proxy_info['port']
-        score = proxy_info['score']
-
-        try:
-            res = check_proxy_status.delay(ip+str(port),).get(timeout=5)
-        except Exception:
-            lg.error('遇到错误:', exc_info=True)
-            res = False
-
-        if score <= 88:         # 删除
-            origin_proxy_data.pop(index)
-            continue
-
+    def on_success(res, proxy_info):
+        '''回调函数'''
         if not res:
             proxy_info.update({
                 'score': score - 2,
@@ -105,28 +100,43 @@ def check_all_proxy(origin_proxy_data):
             pass
 
         # 更新监控时间
-        now_time = str(get_shanghai_time())
         proxy_info.update({
-            'last_check_time': now_time,
+            'last_check_time': str(get_shanghai_time()),
         })
+        return proxy_info
 
-    redis_cli.set(name=_key, value=dumps(origin_proxy_data))
+    lg.info('开始检测所有proxy状态...')
+    new_proxy_data = []
+    for index, proxy_info in enumerate(origin_proxy_data):
+        last_check_time = proxy_info['last_check_time']
+        ip = proxy_info['ip']
+        port = proxy_info['port']
+        score = proxy_info['score']
+        if score <= 88:         # 删除跳过
+            continue
+
+        res = False
+        try:
+            res = check_proxy_status.apply_async(args=[ip+str(port),],).get(timeout=CHECK_PROXY_TIMEOUT)
+        except TimeoutError:
+            lg.error('遇到错误: {}'.format('celery.exceptions.TimeoutError: The operation timed out.'))
+        except Exception:
+            lg.error('遇到错误:', exc_info=True)
+
+        new_proxy_info = on_success(res, proxy_info)
+        new_proxy_data.append(new_proxy_info)
+
+    redis_cli.set(name=_key, value=dumps(new_proxy_data))
     lg.info('检查完毕!')
 
     return True
 
 def main():
-    celery_id_list = []
     while True:
         origin_proxy_data = deserializate_pickle_object(redis_cli.get(_key) or dumps([]))
         while len(origin_proxy_data) < MAX_PROXY_NUM:
             lg.info('Pools已存在proxy_num: {}'.format(len(origin_proxy_data)))
-            one_page_res = get_kuaidaili_proxy_process_data()
-            if one_page_res.status == 'SUCCESS':
-                lg.info('[+] task的id: {}'.format(one_page_res.id))
-            else:
-                lg.info('[-] task的id: {}'.format(one_page_res.id))
-            celery_id_list.append(str(one_page_res.id))
+            get_proxy_process_data()
             # 重置
             origin_proxy_data = deserializate_pickle_object(redis_cli.get(_key) or dumps([]))
         else:
