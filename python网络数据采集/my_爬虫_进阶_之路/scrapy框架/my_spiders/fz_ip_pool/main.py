@@ -97,7 +97,7 @@ def check_all_proxy(origin_proxy_data):
     :param origin_proxy_data:
     :return:
     '''
-    def create_tasks_list(origin_proxy_data):
+    def _create_tasks_list(origin_proxy_data):
         '''建立任务集'''
         resutls = []
         for proxy_info in origin_proxy_data:
@@ -118,7 +118,7 @@ def check_all_proxy(origin_proxy_data):
 
         return resutls
 
-    def get_tasks_result_list(resutls):
+    def _get_tasks_result_list(resutls):
         '''得到结果集'''
         def write_hign_proxy_info_2_redis(one_proxy_info):
             '''redis新写入高匿名ip'''
@@ -170,7 +170,7 @@ def check_all_proxy(origin_proxy_data):
 
         return all
 
-    def handle_tasks_result_list(all):
+    def _handle_tasks_result_list(all):
         '''处理结果集'''
         def on_success(res, proxy_info):
             '''回调函数'''
@@ -204,14 +204,14 @@ def check_all_proxy(origin_proxy_data):
 
     lg.info('开始检测所有proxy状态...')
     start_time = time()
-    resutls = create_tasks_list(origin_proxy_data)
+    resutls = _create_tasks_list(origin_proxy_data)
     end_time = time()
 
     lg.info('@@@ 请耐心等待所有异步结果完成...')
-    all = get_tasks_result_list(resutls)
+    all = _get_tasks_result_list(resutls)
     lg.info('总共耗时: {}秒!!'.format(end_time - start_time))
 
-    new_proxy_data = handle_tasks_result_list(all)
+    new_proxy_data = _handle_tasks_result_list(all)
     redis_cli.set(name=_key, value=dumps(new_proxy_data))
     lg.info('一次检查完毕!')
 

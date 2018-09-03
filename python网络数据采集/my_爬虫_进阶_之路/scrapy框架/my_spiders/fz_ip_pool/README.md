@@ -1,7 +1,7 @@
 # fz_ip_pool
 fz的分布式并行代理ip池
 
-旨在: 获取高匿可复用proxy ip
+旨在: 获取真实高匿可复用proxy ip
 
 ## 架构
 celery + redis + spiders
@@ -56,3 +56,5 @@ $ pip3 install flower
 $ celery -A proxy_tasks flower --address=127.0.0.1 --port=5555
 $ open http://localhost:5555
 ```
+
+

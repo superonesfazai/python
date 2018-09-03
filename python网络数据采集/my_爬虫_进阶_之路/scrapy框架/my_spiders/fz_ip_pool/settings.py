@@ -17,7 +17,7 @@ SPIDER_LOG_PATH = '/Users/afa/myFiles/my_spider_logs/fz_ip_pool/'
 MAX_PROXY_NUM = 500
 
 # 检索剩余ip数量的sleep time 单位秒
-WAIT_TIME = 0
+WAIT_TIME = 6
 
 # 检测proxy时超时设置
 CHECK_PROXY_TIMEOUT = 5

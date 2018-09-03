@@ -41,6 +41,18 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
     spiders: 获取代理高匿名ip
     :return:
     '''
+    def _get_base_headers():
+        return {
+            'Connection': 'keep-alive',
+            'Cache-Control': 'max-age=0',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': get_random_pc_ua(),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            # 'Referer': 'https://www.kuaidaili.com/free/intr/',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+        }
+
     def parse_body(body):
         '''解析url body'''
         def _get_ip_type(ip_type):
@@ -94,17 +106,7 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
 
         return _
 
-    headers = {
-        'Connection': 'keep-alive',
-        'Cache-Control': 'max-age=0',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': get_random_pc_ua(),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        # 'Referer': 'https://www.kuaidaili.com/free/intr/',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-CN,zh;q=0.9',
-    }
-
+    headers = _get_base_headers()
     # 从已抓取的代理中随机代理采集, 没有则用本机ip(first crawl)!
     try:
         encoding = parser_list[random_parser_list_item_index].get('charset')
@@ -149,7 +151,7 @@ def _get_proxies() -> dict:
         proxies = {
             'http': 'http://{}:{}'.format(proxies['ip'], proxies['port'])
         }
-        lg.info('正在使用代理{}crawl...'.format(proxies['http']))
+        lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
     else:
         lg.info('第一次抓取使用本机ip...')
 
