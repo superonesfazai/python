@@ -57,7 +57,6 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
             data = {}
             body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
             # print(body)
-
             if body == '':
                 print('获取到的body为空str!')
                 self.result_data = {}
@@ -103,7 +102,6 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 else:
                     # pprint(price_info_list)
                     data['price_info_list'] = price_info_list
-
 
                 if price_info_list == []:
                     print('该商品已售完，此处将商品状态改为1')
@@ -240,4 +238,4 @@ if __name__ == '__main__':
         goods_id = mogujie_miaosha.get_goods_id_from_url(mogujie_url)
         mogujie_miaosha.get_goods_data(goods_id=goods_id)
         data = mogujie_miaosha.deal_with_data()
-        # pprint(data)
+        pprint(data)

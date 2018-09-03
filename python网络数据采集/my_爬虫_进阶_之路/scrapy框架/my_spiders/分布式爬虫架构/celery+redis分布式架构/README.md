@@ -80,6 +80,38 @@ False
 ```
 完整的结果对象参考见 celery.result 
 
+## 常用接口
+- tasks.add(4,6) ---> 本地执行
+- tasks.add.delay(3,4) --> worker执行
+- t=tasks.add.delay(3,4) --> t.get() 获取结果，或卡住，阻塞
+- t.ready()---> False：未执行完，True：已执行完
+- t.get(propagate=False) 抛出简单异常，但程序不会停止
+- t.traceback 追踪完整异常
+
+## 分布式
+- 启动多个celery worker，这样即使一个worker挂掉了其他worker也能继续提供服务
+    - 方法一
+```bash
+// 启动三个worker：w1,w2,w3
+celery multi start w1 -A project -l info
+celery multi start w2 -A project -l info
+celery multi start w3 -A project -l info
+// 立即停止w1,w2，即便现在有正在处理的任务
+celery multi stop w1 w2
+// 重启w1
+celery multi restart w1 -A project -l info
+// celery multi stopwait w1 w2 w3    # 待任务执行完，停止
+```
+    - 方法二
+```bash
+// 启动多个worker，但是不指定worker名字
+// 你可以在同一台机器上运行多个worker，但要为每个worker指定一个节点名字，使用--hostname或-n选项
+// concurrency指定处理进程数，默认与cpu数量相同，因此一般无需指定
+$ celery -A proj worker --loglevel=INFO --concurrency=10 -n worker1@%h
+$ celery -A proj worker --loglevel=INFO --concurrency=10 -n worker2@%h
+$ celery -A proj worker --loglevel=INFO --concurrency=10 -n worker3@%h
+```
+
 ## Supervisor
 在生产环境中，我们通常会使用[Supervisor](http://supervisord.org/)来控制 Celery Worker 进程。
 

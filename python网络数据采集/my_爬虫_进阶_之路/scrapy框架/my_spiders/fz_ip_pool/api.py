@@ -17,7 +17,7 @@ from fzutils.sql_utils import BaseRedisCli
 from fzutils.safe_utils import get_uuid3
 from fzutils.data.pickle_utils import deserializate_pickle_object
 
-class IpPools(object):
+class IpPoolsObj(object):
     def __init__(self):
         self.redis_cli = BaseRedisCli()
         self._k = get_uuid3('proxy_tasks')
@@ -44,5 +44,5 @@ class IpPools(object):
             pass
         collect()
 
-ip_pools = IpPools()
+ip_pools = IpPoolsObj()
 print(ip_pools._get_random_ip_proxy())

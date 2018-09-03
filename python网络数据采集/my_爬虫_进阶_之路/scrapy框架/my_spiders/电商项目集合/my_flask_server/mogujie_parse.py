@@ -481,24 +481,25 @@ class MoGuJieParse(object):
                 label = item.get('label', '').replace(':', '')
                 if label != '':
                     if img_here == 1:
-                        if re.compile('颜色').findall(label) != []:
+                        try:
+                            if item.get('list', [])[0].get('type', '') == 'style':
+                                detail_name_list.append({
+                                    'spec_name': label,
+                                    'img_here': 1,
+                                })
+                        except IndexError:
                             detail_name_list.append({
                                 'spec_name': label,
-                                'img_here': 1,
+                                'img_here': 0,
                             })
-                        elif re.compile('规格').findall(label) != []:
-                            detail_name_list.append({
-                                'spec_name': label,
-                                'img_here': 1,
-                            })
-                        else:
-                            pass
                         img_here = 0    # 记录后置0
                     else:
                         detail_name_list.append({
                             'spec_name': label,
                             'img_here': 0,
                         })
+                else:
+                    pass
 
         except Exception as e:
             print('遇到错误: ', e)

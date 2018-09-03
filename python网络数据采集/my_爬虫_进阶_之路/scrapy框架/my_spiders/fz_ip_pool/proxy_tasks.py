@@ -7,7 +7,7 @@
 '''
 
 from celery.utils.log import get_task_logger
-from random import choice, randint
+from random import choice
 from scrapy.selector import Selector
 import requests
 from pickle import dumps

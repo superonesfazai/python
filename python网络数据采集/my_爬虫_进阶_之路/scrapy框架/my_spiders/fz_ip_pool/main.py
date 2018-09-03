@@ -115,20 +115,32 @@ def check_all_proxy(origin_proxy_data):
         success_num = 1
         available_num = 0
         results_len = len(resutls)
-        for r in resutls:
-            async_res = False
-            try:
-                async_res = r.get('async_obj').get(timeout=CHECK_PROXY_TIMEOUT)
-            except TimeoutError:
-                pass
-            if async_res:
-                available_num += 1
-            all.append({
-                'async_res': async_res,
-                'proxy_info': r.get('proxy_info'),
-            })
-            lg.info('已检测ip个数: {}, 剩余待检测个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
-            success_num += 1
+        while len(resutls) > 0:
+            for r_index, r in enumerate(resutls):
+                proxy = r.get('proxy_info', {}).get('ip') + ':' + str(r.get('proxy_info', {}).get('port'))
+                lg.info(r.get('async_obj').status)
+                if r.get('async_obj').ready():
+                    async_res = False
+                    try:
+                        async_res = r.get('async_obj').get(timeout=2, propagate=False)  # 抛出异常，但程序不会停止, r.get('async_obj').traceback 追踪完整异常
+                    except TimeoutError:
+                        pass
+                    if async_res:
+                        available_num += 1
+                    all.append({
+                        'async_res': async_res,
+                        'proxy_info': r.get('proxy_info'),
+                    })
+                    lg.info('已检测ip个数: {}, 剩余待检测个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
+                    success_num += 1
+                    try:
+                        resutls.pop(r_index)
+                    except: pass
+                else:
+                    lg.info('{} 未完成!'.format(proxy))
+                    pass
+        else:
+            lg.info('所有异步结果完成!!')
 
         return all
 
