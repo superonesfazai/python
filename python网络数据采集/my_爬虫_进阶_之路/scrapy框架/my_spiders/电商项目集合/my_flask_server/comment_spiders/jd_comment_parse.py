@@ -40,7 +40,7 @@ class JdCommentParse(object):
         self._set_logger(logger)
         self._set_headers()
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
         self._add_headers_cookies()
 
     def _get_comment_data(self, goods_id):

@@ -151,7 +151,7 @@ class ALi1688CommentParse(object):
         '''分析js源码: 已破解1688 m站 get必须参数_csrf的加密方式'''
         # 即从https://m.1688.com/page/offerRemark.htm?offerId=xxxx 这个页面源码拿到csrf 即为: 下次请求四五星好评所需的_csrf
         # 时间原因先不进行修改!
-        # 此外cookies也是必要的
+        # 此外cookies也是必要的, 可用driver获取到再抽离出cookies
 
         '''下面是模拟pc端好评接口'''
         member_id = self._get_this_goods_member_id(goods_id=goods_id)
