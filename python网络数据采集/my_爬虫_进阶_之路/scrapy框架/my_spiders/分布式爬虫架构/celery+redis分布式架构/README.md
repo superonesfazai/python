@@ -112,6 +112,24 @@ $ celery -A proj worker --loglevel=INFO --concurrency=10 -n worker2@%h
 $ celery -A proj worker --loglevel=INFO --concurrency=10 -n worker3@%h
 ```
 
+## 执行状态监控
+
+#### flower
+```bash
+pip3 install flower
+```
+- 用法
+```
+$ celery -A proj flower --address=127.0.0.1 --port=5555
+```
+
+#### celery事件:Curses监控
+celery事件是一个简单的curses监控用来展示任务和worker的历史。你可以监控任务的结果和调用栈，它也支持一些管理命令如频率限制和关闭worker.这个工具的目的是做概念验证的，所以你最有可能还是希望使用Flower.
+- 启动
+```bash
+$ celery -A proj events
+```
+
 ## Supervisor
 在生产环境中，我们通常会使用[Supervisor](http://supervisord.org/)来控制 Celery Worker 进程。
 

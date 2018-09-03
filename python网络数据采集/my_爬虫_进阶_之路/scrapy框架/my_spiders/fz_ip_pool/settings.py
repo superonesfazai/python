@@ -20,7 +20,12 @@ MAX_PROXY_NUM = 500
 WAIT_TIME = 0
 
 # 检测proxy时超时设置
-CHECK_PROXY_TIMEOUT = 12
+CHECK_PROXY_TIMEOUT = 5
+
+# 存储proxy_list的key 的name
+proxy_list_key_name = 'proxy_tasks'
+# 存储高匿名可用的redis key name
+high_proxy_list_key_name = 'h_proxy_list'
 
 # 测试地址
 TEST_URL = 'http://ip111.cn'
@@ -34,6 +39,7 @@ TEST_HTTPS_HEADER = 'https://httpbin.org/get'
 parser_list = [
     {
         'urls': ['https://www.kuaidaili.com/free/inha/{}'.format(page_num) for page_num in range(1, 101)],
+        'charset': 'utf-8',
         'type': 'css',
         'part': 'div#list table tbody tr',
         'position': {
@@ -42,4 +48,15 @@ parser_list = [
             'ip_type': 'td:nth-child(4)',
         }
     },
+    # {
+    #     'urls': ['http://www.66ip.cn/{}.html'.format(page_num)for page_num in ['index'] + list(range(2, 12))],
+    #     'charset': 'gb2312',
+    #     'type': 'css',
+    #     'part': 'div.containerbox table tr',
+    #     'position': {
+    #         'ip': 'td:nth-child(1)',
+    #         'port': 'td:nth-child(2)',
+    #         'ip_type': 'td:nth-child(4)',
+    #     }
+    # },
 ]

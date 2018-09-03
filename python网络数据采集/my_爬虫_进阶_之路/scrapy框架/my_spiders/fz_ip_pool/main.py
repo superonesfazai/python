@@ -24,7 +24,9 @@ from settings import (
     SPIDER_LOG_PATH,
     WAIT_TIME,
     CHECK_PROXY_TIMEOUT,
-    parser_list,)
+    parser_list,
+    proxy_list_key_name,
+    high_proxy_list_key_name,)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -38,7 +40,8 @@ lg = set_logger(
     file_log_level=ERROR)
 redis_cli = BaseRedisCli()
 proxy_list = []     # 存储采集的proxy结果
-_key = get_uuid3('proxy_tasks')  # 存储proxy_list的key
+_key = get_uuid3(proxy_list_key_name)  # 存储proxy_list的key
+_h_key = get_uuid3(high_proxy_list_key_name)
 
 def get_proxy_process_data():
     '''
@@ -49,8 +52,14 @@ def get_proxy_process_data():
     random_parser_list_item_index = randint(0, len(parser_list)-1)
     for proxy_url in parser_list[random_parser_list_item_index].get('urls', []):
         # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
-        res = _get_proxy.apply_async(args=[random_parser_list_item_index, proxy_url,], expires=5*60, retry=False)      # 过期时间
-        res_content = res.get(timeout=2)
+        res = _get_proxy.apply_async(
+            args=[random_parser_list_item_index, proxy_url,],
+            expires=5*60,
+            retry=False)      # 过期时间
+        try:
+            res_content = res.get(timeout=CHECK_PROXY_TIMEOUT)
+        except TimeoutError:
+            continue
         if res_content != []:
             _write_into_redis.apply_async(args=(res_content,),)
         try:
@@ -88,7 +97,7 @@ def check_all_proxy(origin_proxy_data):
     :param origin_proxy_data:
     :return:
     '''
-    def create_tasks_collection(origin_proxy_data):
+    def create_tasks_list(origin_proxy_data):
         '''建立任务集'''
         resutls = []
         for proxy_info in origin_proxy_data:
@@ -96,7 +105,7 @@ def check_all_proxy(origin_proxy_data):
             ip = proxy_info['ip']
             port = proxy_info['port']
             score = proxy_info['score']
-            if score <= 88:  # 删除跳过
+            if score <= 90:  # 删除跳过
                 continue
 
             proxy = ip + ':' + str(port)
@@ -109,8 +118,19 @@ def check_all_proxy(origin_proxy_data):
 
         return resutls
 
-    def get_tasks_result_collection(resutls):
+    def get_tasks_result_list(resutls):
         '''得到结果集'''
+        def write_hign_proxy_info_2_redis(one_proxy_info):
+            '''redis新写入高匿名ip'''
+            old_h_proxy_list = deserializate_pickle_object(redis_cli.get(name=_h_key) or dumps([]))
+            old_ip_list = [i.get('ip') for i in old_h_proxy_list]
+            if one_proxy_info.get('ip') not in old_ip_list:
+                old_h_proxy_list.append(one_proxy_info)
+                redis_cli.set(name=_h_key, value=dumps(old_h_proxy_list))
+            else:
+                pass
+            return None
+
         all = []
         success_num = 1
         available_num = 0
@@ -118,7 +138,10 @@ def check_all_proxy(origin_proxy_data):
         while len(resutls) > 0:
             for r_index, r in enumerate(resutls):
                 proxy = r.get('proxy_info', {}).get('ip') + ':' + str(r.get('proxy_info', {}).get('port'))
-                lg.info(r.get('async_obj').status)
+                task_id = r.get('async_obj').id
+                status = r.get('async_obj').status
+                one_proxy_info = r.get('proxy_info')
+                # lg.info('task_id: {}, status: {}'.format(task_id, status))
                 if r.get('async_obj').ready():
                     async_res = False
                     try:
@@ -127,24 +150,27 @@ def check_all_proxy(origin_proxy_data):
                         pass
                     if async_res:
                         available_num += 1
+                        # 高匿ip写入redis
+                        write_hign_proxy_info_2_redis(one_proxy_info)
+
                     all.append({
                         'async_res': async_res,
-                        'proxy_info': r.get('proxy_info'),
+                        'proxy_info': one_proxy_info,
                     })
-                    lg.info('已检测ip个数: {}, 剩余待检测个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
+                    lg.info('已检测ip: {}, 剩余个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
                     success_num += 1
                     try:
                         resutls.pop(r_index)
                     except: pass
                 else:
-                    lg.info('{} 未完成!'.format(proxy))
+                    # lg.info('{} 未完成!'.format(proxy))
                     pass
         else:
             lg.info('所有异步结果完成!!')
 
         return all
 
-    def handle_tasks_result_collection(all):
+    def handle_tasks_result_list(all):
         '''处理结果集'''
         def on_success(res, proxy_info):
             '''回调函数'''
@@ -167,7 +193,7 @@ def check_all_proxy(origin_proxy_data):
             return proxy_info
 
         new_proxy_data = []
-        for index, item in all:
+        for index, item in enumerate(all):
             check_res = item.get('async_res')
             proxy_info = item.get('proxy_info')
 
@@ -178,14 +204,14 @@ def check_all_proxy(origin_proxy_data):
 
     lg.info('开始检测所有proxy状态...')
     start_time = time()
-    resutls = create_tasks_collection(origin_proxy_data)
+    resutls = create_tasks_list(origin_proxy_data)
     end_time = time()
 
     lg.info('@@@ 请耐心等待所有异步结果完成...')
-    all = get_tasks_result_collection(resutls)
+    all = get_tasks_result_list(resutls)
     lg.info('总共耗时: {}秒!!'.format(end_time - start_time))
 
-    new_proxy_data = handle_tasks_result_collection(all)
+    new_proxy_data = handle_tasks_result_list(all)
     redis_cli.set(name=_key, value=dumps(new_proxy_data))
     lg.info('一次检查完毕!')
 
@@ -195,7 +221,7 @@ def main():
     while True:
         origin_proxy_data = deserializate_pickle_object(redis_cli.get(_key) or dumps([]))
         while len(origin_proxy_data) < MAX_PROXY_NUM:
-            lg.info('Pools已存在proxy_num: {}'.format(len(origin_proxy_data)))
+            lg.info('Ip Pools已存在proxy_num: {}'.format(len(origin_proxy_data)))
             get_proxy_process_data()
             # 重置
             origin_proxy_data = deserializate_pickle_object(redis_cli.get(_key) or dumps([]))
