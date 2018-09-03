@@ -33,7 +33,7 @@ comment
 cm_select_str_1 = '''
 select goods_id, SiteID as site_id 
 from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b 
-where a.GoodsID=b.goods_id and a.MainGoodsID is not null and a.IsDelete=0
+where a.GoodsID=b.goods_id and a.MainGoodsID is not null and a.IsDelete=0 and GETDATE()-modify_time < 1
 order by b.id asc'''
 
 cm_select_str_2 = '''

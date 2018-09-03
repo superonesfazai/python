@@ -219,7 +219,7 @@ def filter_invalid_comment_content(_comment_content) -> bool:
     此用户没有填写|评价方未及时做出评价|系统默认好评!|
     假的|坏的|差的|差评|退货|不想要|无良商家|再也不买|
     我也是服了|垃圾|打电话骂人|骚扰|狗屁东西|sb|SB
-    MB|mb|质量太差|破|粗糙
+    MB|mb|质量太差|破|粗糙|不好用|不怎么好用
     '''.replace(' ', '').replace('\n', '')
     if re.compile(filter_str).findall(_comment_content) != []\
             or _comment_content.__len__() <= 3:

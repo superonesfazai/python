@@ -11,7 +11,6 @@ import sys
 sys.path.append('..')
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 
 from ali_1688_comment_parse import ALi1688CommentParse
