@@ -24,7 +24,6 @@ from settings import (
     SPIDER_LOG_PATH,
     WAIT_TIME,
     CHECK_PROXY_TIMEOUT,
-    parser_list,
     proxy_list_key_name,
     high_proxy_list_key_name,)
 
@@ -49,6 +48,8 @@ def get_proxy_process_data():
     :return:
     '''
     global proxy_list
+    from settings import parser_list    # 动态导入
+
     random_parser_list_item_index = randint(0, len(parser_list)-1)
     for proxy_url in parser_list[random_parser_list_item_index].get('urls', []):
         # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
@@ -91,10 +92,11 @@ def read_celery_tasks_result_info(celery_id_list:list) -> list:
 
     return res
 
-def check_all_proxy(origin_proxy_data):
+def check_all_proxy(origin_proxy_data, redis_key_name):
     '''
     检查所有已抓取代理状态
     :param origin_proxy_data:
+    :param redis_key_name: redis待处理的key
     :return:
     '''
     def _create_tasks_list(origin_proxy_data):
@@ -105,7 +107,7 @@ def check_all_proxy(origin_proxy_data):
             ip = proxy_info['ip']
             port = proxy_info['port']
             score = proxy_info['score']
-            if score <= 90:  # 删除跳过
+            if score <= 88:  # 删除跳过
                 continue
 
             proxy = ip + ':' + str(port)
@@ -157,7 +159,9 @@ def check_all_proxy(origin_proxy_data):
                         'async_res': async_res,
                         'proxy_info': one_proxy_info,
                     })
-                    lg.info('已检测ip: {}, 剩余个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
+                    # lg.info('已检测ip: {}, 剩余个数: {}, 实际可用个数: {}'.format(success_num, results_len-success_num, available_num))
+                    # 动态输出, '\r'回到当前开头
+                    print('\r已检测ip: {}, 剩余个数: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
                     success_num += 1
                     try:
                         resutls.pop(r_index)
@@ -166,6 +170,7 @@ def check_all_proxy(origin_proxy_data):
                     # lg.info('{} 未完成!'.format(proxy))
                     pass
         else:
+            sleep(1)
             lg.info('所有异步结果完成!!')
 
         return all
@@ -181,9 +186,9 @@ def check_all_proxy(origin_proxy_data):
                 proxy_info.update({
                     'score': score - 2,
                 })
-                lg.info('[-] {}:{}'.format(ip, port))
+                # lg.info('[-] {}:{}'.format(ip, port))
             else:
-                lg.info('[+] {}:{}'.format(ip, port))
+                # lg.info('[+] {}:{}'.format(ip, port))
                 pass
 
             # 更新监控时间
@@ -202,17 +207,18 @@ def check_all_proxy(origin_proxy_data):
 
         return new_proxy_data
 
-    lg.info('开始检测所有proxy状态...')
     start_time = time()
     resutls = _create_tasks_list(origin_proxy_data)
     end_time = time()
 
     lg.info('@@@ 请耐心等待所有异步结果完成...')
+    sleep(1)
     all = _get_tasks_result_list(resutls)
     lg.info('总共耗时: {}秒!!'.format(end_time - start_time))
 
+    # 处理储存最新数据
     new_proxy_data = _handle_tasks_result_list(all)
-    redis_cli.set(name=_key, value=dumps(new_proxy_data))
+    redis_cli.set(name=redis_key_name, value=dumps(new_proxy_data))
     lg.info('一次检查完毕!')
 
     return True
@@ -228,7 +234,13 @@ def main():
         else:
             lg.info('达标!休眠{}s...'.format(WAIT_TIME))
             sleep(WAIT_TIME)
-            check_all_proxy(origin_proxy_data)
+            lg.info('开始检测所有proxy状态...')
+            check_all_proxy(origin_proxy_data, redis_key_name=_key)
+
+            '''删除失效的, 时刻保持最新高匿可用proxy'''
+            high_origin_proxy_list = deserializate_pickle_object(redis_cli.get(_h_key) or dumps([]))
+            lg.info('开始检测redis中高匿名proxy...')
+            check_all_proxy(high_origin_proxy_list, redis_key_name=_h_key)
 
 if __name__ == '__main__':
     main()

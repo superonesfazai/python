@@ -27,4 +27,3 @@ def baidu_check(ip, port):
     return body
 
 # print(baidu_check(ip='180.118.135.149', port=9000))
-

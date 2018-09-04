@@ -18,7 +18,8 @@ from items import ProxyItem
 from settings import (
     CHECK_PROXY_TIMEOUT,
     parser_list,
-    proxy_list_key_name,)
+    proxy_list_key_name,
+    TEST_HTTP_HEADER,)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import (
@@ -125,7 +126,7 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
 
     return parse_body(body)
 
-@app.task(name='proxy_tasks._write_into_redis', bind=True)
+@app.task(name='proxy_tasks._write_into_redis', bind=True, ignore_result=True)
 def _write_into_redis(self, res):
     '''
     读取并更新新采集的proxy
@@ -166,7 +167,6 @@ def check_proxy_status(self, proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
     '''
     # lg.info(str(self.request))
     res = False
-    URL = 'http://httpbin.org/get'
     headers = {
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
@@ -182,7 +182,7 @@ def check_proxy_status(self, proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
         'https': 'https://' + proxy,
     }
     try:
-        response = requests.get(url=URL, headers=headers, proxies=proxies, timeout=timeout)
+        response = requests.get(url=TEST_HTTP_HEADER, headers=headers, proxies=proxies, timeout=timeout)
         lg.info(str(response.text))
         if response.ok:
             content = json_2_dict(json_str=response.text)
