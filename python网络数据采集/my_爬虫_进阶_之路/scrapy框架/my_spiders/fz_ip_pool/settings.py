@@ -14,7 +14,7 @@
 SPIDER_LOG_PATH = '/Users/afa/myFiles/my_spider_logs/fz_ip_pool/'
 
 # ip池最大代理数
-MAX_PROXY_NUM = 500
+MAX_PROXY_NUM = 1500
 
 # 检索剩余ip数量的sleep time 单位秒
 WAIT_TIME = 10
@@ -41,26 +41,26 @@ REMOTE_TEST_HTTPS_HEADER = 'https://httpbin.org/get'
 
 # 可扩展的代理抓取对象
 parser_list = [
-    {
-        'urls': ['https://www.kuaidaili.com/free/inha/{}'.format(page_num) for page_num in range(1, 101)],
-        'charset': 'utf-8',
-        'type': 'css',
-        'part': 'div#list table tbody tr',
-        'position': {
-            'ip': 'td:nth-child(1)',
-            'port': 'td:nth-child(2)',
-            'ip_type': 'td:nth-child(4)',
-        }
-    },
     # {
-    #     'urls': ['http://www.66ip.cn/{}.html'.format(page_num)for page_num in ['index'] + list(range(2, 12))],
-    #     'charset': 'gb2312',
+    #     'urls': 'https://www.kuaidaili.com/free/inha/{}',
+    #     'charset': 'utf-8',
     #     'type': 'css',
-    #     'part': 'div.containerbox table tr',
+    #     'part': 'div#list table tbody tr',
     #     'position': {
     #         'ip': 'td:nth-child(1)',
     #         'port': 'td:nth-child(2)',
     #         'ip_type': 'td:nth-child(4)',
     #     }
     # },
+    {
+        'urls': 'http://www.66ip.cn/{}.html',
+        'charset': 'gb2312',
+        'type': 'css',
+        'part': 'div.containerbox table tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(4)',
+        }
+    },
 ]

@@ -10,9 +10,12 @@ from celery.utils.log import get_task_logger
 from random import choice
 from scrapy.selector import Selector
 import requests
+from requests.exceptions import (
+    ConnectTimeout,
+    ProxyError,
+    ReadTimeout,)
 from pickle import dumps
 import re
-from time import sleep
 
 from items import ProxyItem
 from settings import (
@@ -22,19 +25,20 @@ from settings import (
     TEST_HTTP_HEADER,)
 
 from fzutils.time_utils import get_shanghai_time
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,)
+from fzutils.internet_utils import get_random_pc_ua
 from fzutils.safe_utils import get_uuid3
-from fzutils.data.pickle_utils import deserializate_pickle_object
 from fzutils.celery_utils import init_celery_app
 from fzutils.sql_utils import BaseRedisCli
-from fzutils.common_utils import json_2_dict
+from fzutils.common_utils import (
+    json_2_dict,
+    delete_list_null_str,)
+from fzutils.spider.fz_requests import Requests
 
 app = init_celery_app()
 lg = get_task_logger('proxy_tasks')      # 当前task的logger对象, tasks内部保持使用原生celery log对象
 _key = get_uuid3(proxy_list_key_name)  # 存储proxy_list的key
 redis_cli = BaseRedisCli()
+a_66_ip = []
 
 @app.task(name='proxy_tasks._get_proxy', bind=True)   # task修饰的方法无法修改类属性
 def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
@@ -119,6 +123,9 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
             proxies=_get_proxies(),
             timeout=CHECK_PROXY_TIMEOUT).content.decode(encoding)
         # lg.info(body)
+    except (ConnectTimeout, ProxyError, ReadTimeout) as e:
+        lg.error('遇到错误: {}'.format(e.args[0]))
+        return []
     except Exception:
         lg.error('遇到错误:', exc_info=True)
         return []
@@ -126,37 +133,74 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
 
     return parse_body(body)
 
-@app.task(name='proxy_tasks._write_into_redis', bind=True, ignore_result=True)
-def _write_into_redis(self, res):
+def _get_66_ip_list():
     '''
-    读取并更新新采集的proxy
-    :param res:
+    先获取66高匿名ip
     :return:
     '''
-    origin_data = redis_cli.get(_key) or dumps([])  # get为None, 则返回[]
-    old = deserializate_pickle_object(origin_data)
-    old += res
-    redis_cli.set(name=_key, value=dumps(old))
+    global a_66_ip
+    headers = {
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Referer': 'http://www.66ip.cn/nm.html',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
 
-    return True
+    params = (
+        ('getnum', ''),
+        ('isp', '0'),
+        ('anonymoustype', '3'),
+        ('start', ''),
+        ('ports', ''),
+        ('export', ''),
+        ('ipaddress', ''),
+        ('area', '0'),
+        ('proxytype', '2'),
+        ('api', '66ip'),
+    )
+
+    response = requests.get('http://www.66ip.cn/nmtq.php', headers=headers, params=params, cookies=None)
+    body = Requests._wash_html(response.content.decode('gbk'))
+    try:
+        part = re.compile(r'</script>(.*)</div>').findall(body)[0]
+    except IndexError:
+        part = ''
+    part = re.compile('<script>.*?</script>|</div>.*</div>').sub('', part)
+    # print(part)
+    ip_list = delete_list_null_str(part.split('<br />'))
+    # print(ip_list)
+    a_66_ip = ip_list if ip_list != [] else []
+
+    return ip_list
 
 def _get_proxies() -> dict:
     '''
     随机一个proxy
     :return:
     '''
-    origin_data = redis_cli.get(_key) or dumps([])
-    proxy_list = deserializate_pickle_object(origin_data)
-    proxies = choice(proxy_list) if len(proxy_list) > 0 else None
-    if proxies is not None:
-        proxies = {
-            'http': 'http://{}:{}'.format(proxies['ip'], proxies['port'])
-        }
-        lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
-    else:
-        lg.info('第一次抓取使用本机ip...')
-
-    return proxies or {}        # 如果None则返回{}
+    # origin_data = redis_cli.get(_key) or dumps([])
+    # proxy_list = deserializate_pickle_object(origin_data)
+    # proxies = choice(proxy_list) if len(proxy_list) > 0 else None
+    # if proxies is not None:
+    #     proxies = {
+    #         'http': 'http://{}:{}'.format(proxies['ip'], proxies['port'])
+    #     }
+    #     lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
+    # else:
+    #     # lg.info('第一次抓取使用本机ip...')
+    #     # 使用66ip，免费高匿ip
+    #     if a_66_ip == []:
+    #         _get_66_ip_list()
+    #     proxies = {
+    #         'http': 'http://{}'.format(choice(a_66_ip)),
+    #     }
+    #     lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
+    #
+    # return proxies or {}        # 如果None则返回{}
+    return {}
 
 @app.task(name='proxy_tasks.check_proxy_status', bind=True)    # 一个绑定任务意味着任务函数的第一个参数总是任务实例本身(self)
 def check_proxy_status(self, proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
@@ -187,14 +231,17 @@ def check_proxy_status(self, proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
         if response.ok:
             content = json_2_dict(json_str=response.text)
             proxy_connection = content.get('headers', {}).get('Proxy-Connection', None)
+            lg.info('Proxy-Connection: {}'.format(proxy_connection))
             ip = content.get('origin', '')
-            if ',' in ip:
+            if ',' in ip:           # 两个ip, 匿名度: 透明
                 pass
             elif proxy_connection:
                 pass
-            else:                       # 只抓取高匿名代理
+            else:                   # 只抓取高匿名代理
                 lg.info(str('成功捕获一只高匿ip: {}'.format(proxy)))
                 return True
+        else:
+            pass
     except Exception:
         pass
 
