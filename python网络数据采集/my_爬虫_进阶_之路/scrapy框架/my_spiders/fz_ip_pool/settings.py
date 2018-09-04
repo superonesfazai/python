@@ -27,6 +27,9 @@ proxy_list_key_name = 'proxy_tasks'
 # 存储高匿名可用的redis key name
 high_proxy_list_key_name = 'h_proxy_list'
 
+# 低于下面分数就删除, 默认100
+MIN_SCORE = 80
+
 # 测试地址
 TEST_URL = 'http://ip111.cn'
 TEST_IP = 'http://httpbin.org/ip'
@@ -39,7 +42,7 @@ REMOTE_TEST_HTTPS_HEADER = 'https://httpbin.org/get'
 # 可扩展的代理抓取对象
 parser_list = [
     {
-        'urls': ['https://www.kuaidaili.com/free/inha/{}'.format(page_num) for page_num in range(1, 201)],
+        'urls': ['https://www.kuaidaili.com/free/inha/{}'.format(page_num) for page_num in range(1, 101)],
         'charset': 'utf-8',
         'type': 'css',
         'part': 'div#list table tbody tr',

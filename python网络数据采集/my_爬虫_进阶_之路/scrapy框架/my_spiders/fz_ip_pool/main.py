@@ -25,7 +25,8 @@ from settings import (
     WAIT_TIME,
     CHECK_PROXY_TIMEOUT,
     proxy_list_key_name,
-    high_proxy_list_key_name,)
+    high_proxy_list_key_name,
+    MIN_SCORE,)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -51,6 +52,9 @@ def get_proxy_process_data():
     from settings import parser_list    # 动态导入
 
     random_parser_list_item_index = randint(0, len(parser_list)-1)
+    success_num = 0
+    fail_num = 0
+    sleep(.8)
     for proxy_url in parser_list[random_parser_list_item_index].get('urls', []):
         # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
         res = _get_proxy.apply_async(
@@ -68,9 +72,12 @@ def get_proxy_process_data():
         except:
             pass
         if res.status == 'SUCCESS':
-            lg.info('[+] task的id: {}'.format(res.id))
+            # lg.info('[+] task的id: {}'.format(res.id))
+            success_num += 1
         else:
-            lg.info('[-] task的id: {}'.format(res.id))
+            # lg.info('[-] task的id: {}'.format(res.id))
+            fail_num += 1
+        print('\rproxy_tasks._get_proxy [success_num: {}, fail_num: {}]'.format(success_num, fail_num), end='', flush=True)
 
     return True
 
@@ -107,7 +114,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name):
             ip = proxy_info['ip']
             port = proxy_info['port']
             score = proxy_info['score']
-            if score <= 88:  # 删除跳过
+            if score <= MIN_SCORE:  # 删除跳过
                 continue
 
             proxy = ip + ':' + str(port)
@@ -127,6 +134,10 @@ def check_all_proxy(origin_proxy_data, redis_key_name):
             old_h_proxy_list = deserializate_pickle_object(redis_cli.get(name=_h_key) or dumps([]))
             old_ip_list = [i.get('ip') for i in old_h_proxy_list]
             if one_proxy_info.get('ip') not in old_ip_list:
+                old_score = one_proxy_info.get('score')
+                one_proxy_info.update({     # 加分
+                    'score': old_score + 5,
+                })
                 old_h_proxy_list.append(one_proxy_info)
                 redis_cli.set(name=_h_key, value=dumps(old_h_proxy_list))
             else:
@@ -170,8 +181,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name):
                     # lg.info('{} 未完成!'.format(proxy))
                     pass
         else:
-            sleep(1)
-            lg.info('所有异步结果完成!!')
+            lg.info('\n所有异步结果完成!!')
 
         return all
 
@@ -232,6 +242,7 @@ def main():
             # 重置
             origin_proxy_data = deserializate_pickle_object(redis_cli.get(_key) or dumps([]))
         else:
+            sleep(.8)
             lg.info('达标!休眠{}s...'.format(WAIT_TIME))
             sleep(WAIT_TIME)
             lg.info('开始检测所有proxy状态...')
