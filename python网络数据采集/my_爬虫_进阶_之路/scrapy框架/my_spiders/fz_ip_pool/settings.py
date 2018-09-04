@@ -27,8 +27,8 @@ proxy_list_key_name = 'proxy_tasks'
 # 存储高匿名可用的redis key name
 high_proxy_list_key_name = 'h_proxy_list'
 
-# 低于下面分数就删除, 默认100
-MIN_SCORE = 80
+# 高匿proxy低于以下分数就删除, 默认100
+MIN_SCORE = 60
 
 # 测试地址
 TEST_URL = 'http://ip111.cn'

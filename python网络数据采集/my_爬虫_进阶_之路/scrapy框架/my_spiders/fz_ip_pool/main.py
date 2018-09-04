@@ -99,11 +99,12 @@ def read_celery_tasks_result_info(celery_id_list:list) -> list:
 
     return res
 
-def check_all_proxy(origin_proxy_data, redis_key_name):
+def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
     '''
     检查所有已抓取代理状态
     :param origin_proxy_data:
     :param redis_key_name: redis待处理的key
+    :param delete_score: 最低删除分数
     :return:
     '''
     def _create_tasks_list(origin_proxy_data):
@@ -114,7 +115,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name):
             ip = proxy_info['ip']
             port = proxy_info['port']
             score = proxy_info['score']
-            if score <= MIN_SCORE:  # 删除跳过
+            if score <= delete_score:  # 删除跳过
                 continue
 
             proxy = ip + ':' + str(port)
@@ -181,7 +182,8 @@ def check_all_proxy(origin_proxy_data, redis_key_name):
                     # lg.info('{} 未完成!'.format(proxy))
                     pass
         else:
-            lg.info('\n所有异步结果完成!!')
+            print()
+            lg.info('所有异步结果完成!!')
 
         return all
 
@@ -246,12 +248,12 @@ def main():
             lg.info('达标!休眠{}s...'.format(WAIT_TIME))
             sleep(WAIT_TIME)
             lg.info('开始检测所有proxy状态...')
-            check_all_proxy(origin_proxy_data, redis_key_name=_key)
+            check_all_proxy(origin_proxy_data, redis_key_name=_key, delete_score=88)
 
             '''删除失效的, 时刻保持最新高匿可用proxy'''
             high_origin_proxy_list = deserializate_pickle_object(redis_cli.get(_h_key) or dumps([]))
             lg.info('开始检测redis中高匿名proxy...')
-            check_all_proxy(high_origin_proxy_list, redis_key_name=_h_key)
+            check_all_proxy(high_origin_proxy_list, redis_key_name=_h_key, delete_score=MIN_SCORE)
 
 if __name__ == '__main__':
     main()

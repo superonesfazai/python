@@ -1,7 +1,7 @@
 # fz_ip_pool
 *分布式并发代理ip池*
 
-旨在: 获取真实高匿可复用proxy ip
+旨在: 获取真实高匿可复用的免费proxy ip
 
 ## 架构
 celery + redis + httpbin + spiders
@@ -56,7 +56,7 @@ celery multi start w4 -A proxy_tasks
 ## API demo
 eg: api.py's IpPoolsObj class
 
-## 状态监控
+## tasks状态监控
 ```bash
 $ pip3 install flower
 ```
