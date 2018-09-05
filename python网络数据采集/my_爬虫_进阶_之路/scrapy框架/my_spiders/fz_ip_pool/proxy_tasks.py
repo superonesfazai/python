@@ -22,12 +22,14 @@ from settings import (
     CHECK_PROXY_TIMEOUT,
     parser_list,
     proxy_list_key_name,
+    high_proxy_list_key_name,
     TEST_HTTP_HEADER,)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.safe_utils import get_uuid3
 from fzutils.celery_utils import init_celery_app
+from fzutils.data.pickle_utils import deserializate_pickle_object
 from fzutils.sql_utils import BaseRedisCli
 from fzutils.common_utils import (
     json_2_dict,
@@ -35,8 +37,9 @@ from fzutils.common_utils import (
 from fzutils.spider.fz_requests import Requests
 
 app = init_celery_app()
-lg = get_task_logger('proxy_tasks')      # 当前task的logger对象, tasks内部保持使用原生celery log对象
-_key = get_uuid3(proxy_list_key_name)  # 存储proxy_list的key
+lg = get_task_logger('proxy_tasks')             # 当前task的logger对象, tasks内部保持使用原生celery log对象
+_key = get_uuid3(proxy_list_key_name)           # 存储proxy_list的key
+_h_key = get_uuid3(high_proxy_list_key_name)    # 高匿key
 redis_cli = BaseRedisCli()
 a_66_ip = []
 
@@ -178,29 +181,27 @@ def _get_66_ip_list():
 
 def _get_proxies() -> dict:
     '''
-    随机一个proxy
+    随机一个高匿名proxy(极大概率失败, 耐心!)
     :return:
     '''
-    # origin_data = redis_cli.get(_key) or dumps([])
-    # proxy_list = deserializate_pickle_object(origin_data)
-    # proxies = choice(proxy_list) if len(proxy_list) > 0 else None
-    # if proxies is not None:
-    #     proxies = {
-    #         'http': 'http://{}:{}'.format(proxies['ip'], proxies['port'])
-    #     }
-    #     lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
-    # else:
-    #     # lg.info('第一次抓取使用本机ip...')
-    #     # 使用66ip，免费高匿ip
-    #     if a_66_ip == []:
-    #         _get_66_ip_list()
-    #     proxies = {
-    #         'http': 'http://{}'.format(choice(a_66_ip)),
-    #     }
-    #     lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
-    #
-    # return proxies or {}        # 如果None则返回{}
-    return {}
+    proxy_list = deserializate_pickle_object(redis_cli.get(_h_key) or dumps([]))
+    proxies = choice(proxy_list) if len(proxy_list) > 0 else None
+    if proxies is not None:
+        proxies = {
+            'http': 'http://{}:{}'.format(proxies['ip'], proxies['port'])
+        }
+        lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
+    else:
+        lg.info('第一次抓取使用本机ip...')
+        # 使用66ip，免费高匿ip
+        # if a_66_ip == []:
+        #     _get_66_ip_list()
+        # proxies = {
+        #     'http': 'http://{}'.format(choice(a_66_ip)),
+        # }
+        # lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
+
+    return proxies or {}        # 如果None则返回{}
 
 @app.task(name='proxy_tasks.check_proxy_status', bind=True)    # 一个绑定任务意味着任务函数的第一个参数总是任务实例本身(self)
 def check_proxy_status(self, proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
@@ -223,7 +224,7 @@ def check_proxy_status(self, proxy, timeout=CHECK_PROXY_TIMEOUT) -> bool:
 
     proxies = {
         'http': 'http://' + proxy,
-        'https': 'https://' + proxy,
+        # 'https': 'https://' + proxy,
     }
     try:
         response = requests.get(url=TEST_HTTP_HEADER, headers=headers, proxies=proxies, timeout=timeout)

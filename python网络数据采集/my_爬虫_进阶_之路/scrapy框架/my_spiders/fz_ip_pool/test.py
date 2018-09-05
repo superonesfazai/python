@@ -6,12 +6,20 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from fzutils.internet_utils import get_random_pc_ua
-import requests
+import re
+from random import choice
+from requests import get
 from requests.exceptions import (
     ConnectTimeout,
     ReadTimeout,
-    ProxyError,)
+    ProxyError,
+    SSLError,)
+from chardet import detect
+
+from api import IpPoolsObj
+
+from fzutils.internet_utils import get_random_pc_ua
+from fzutils.common_utils import json_2_dict
 
 headers = {
     'Connection': "keep-alive",
@@ -31,38 +39,43 @@ def proxy_ip_check(url, headers, ip, port):
     }
     body = ''
     try:
-        response = requests.request("GET", url, headers=headers, proxies=proxies, timeout=5)
-        body = response.content.decode('utf-8')
-    except (ConnectTimeout, ReadTimeout, ProxyError) as e:
+        response = get(url, headers=headers, proxies=proxies, timeout=8)
+        # try:
+        #     body = response.content.decode(response.encoding or detect(response.content).get('encoding'))
+        # except:
+        #     body = response.text
+        body = response.text
+
+    except (ConnectTimeout, ReadTimeout, ProxyError, SSLError) as e:
+        # print('遇到错误: ', e.args[0])
+        pass
+
+    except Exception as e:
         print('遇到错误: ', e.args[0])
 
     return body
 
-from pickle import dumps
-from fzutils.sql_utils import BaseRedisCli
-from fzutils.data.pickle_utils import deserializate_pickle_object
-from fzutils.safe_utils import get_uuid3
-from fzutils.data.list_utils import list_remove_repeat_dict
-
-redis_cli = BaseRedisCli()
-_ = deserializate_pickle_object(redis_cli.get(get_uuid3('proxy_tasks')) or dumps([]))
-_ = list_remove_repeat_dict(target=_, repeat_key='ip')
+_ = IpPoolsObj()
+h_proxys = _._get_all_ip_proxy()
+# print(h_proxys)
 
 # url = 'https://www.baidu.com'
-# url = 'http://127.0.0.1/get'
-# url = 'https://whatleaks.com/'
-url = 'http://amibehindaproxy.com/'
-# body = proxy_ip_check(url=url, headers=headers, ip='125.122.151.10', port=9000)
-# print(body)
+url = 'http://httpbin.org/get'
 
-import requests
+h_proxys_len = len(h_proxys)
+success_num = 0
+for i in h_proxys:
+    one = choice(h_proxys)
+    ip = one.get('ip')
+    port = one.get('port')
+    body = proxy_ip_check(url=url, headers=headers, ip=ip, port=port)
+    # print(body)
+    res = json_2_dict(body)
+    origin = res.get('origin', '')
+    if origin != '':
+        print('[+] {}:{}'.format(ip, port))
+        success_num += 1
+    else:
+        print('[-] {}:{}'.format(ip, port))
 
-headers = {
-    'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
-    # 'X-DevTools-Emulate-Network-Conditions-Client-Id': '82EE68AF7DC0F43BF063AE41D795B860',
-}
-
-response = requests.get('http://www.66ip.cn/2.html', headers=headers)
-body = response.content.decode('gb2312')
-print(body)
+print('成功率:{}%'.format(success_num/h_proxys_len*100))

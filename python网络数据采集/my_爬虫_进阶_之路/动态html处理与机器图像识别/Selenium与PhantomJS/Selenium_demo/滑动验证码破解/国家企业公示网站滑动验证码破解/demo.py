@@ -127,7 +127,7 @@ class Slide(object):
             bg_pic.location['y'], bg_pic.location['y'] + bg_pic.size['height'],
             bg_pic.location['x'], bg_pic.location['x'] + bg_pic.size['width'])
         time.sleep(1)
-        cp1 = self.crop(left, top, right, bottom, '1.png')
+        cp1 = self.crop(left, top, right, bottom, '12.png')
 
         # 获取滑块按钮并点击一下
         slide = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,

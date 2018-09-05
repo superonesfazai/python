@@ -21,7 +21,7 @@ class ShanDongEnvir(object):
     def run(self):
         self.driver.get('http://58.56.98.78:8801/AirDeploy.Web/AirQuality/MapMain.aspx?type=kqzl')
 
-        # self.driver.save_screenshot('1.png')
+        # self.driver.save_screenshot('12.png')
         js = 'document.getElementById("div_FirstText").style.display="none";'
 
         self.driver.execute_script(js)

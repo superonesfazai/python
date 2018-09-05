@@ -15,6 +15,7 @@ from random import choice
 from pprint import pprint
 from gc import collect
 from settings import high_proxy_list_key_name
+
 from fzutils.sql_utils import BaseRedisCli
 from fzutils.safe_utils import get_uuid3
 from fzutils.data.pickle_utils import deserializate_pickle_object
@@ -52,8 +53,9 @@ class IpPoolsObj(object):
             pass
         collect()
 
-ip_pools = IpPoolsObj()
-# print(ip_pools._get_random_ip_proxy())
-all_ip_proxy = ip_pools._get_all_ip_proxy()
-pprint(all_ip_proxy)
-print(len(all_ip_proxy))
+if __name__ == '__main__':
+    ip_pools = IpPoolsObj()
+    # print(ip_pools._get_random_ip_proxy())
+    all_ip_proxy = ip_pools._get_all_ip_proxy()
+    pprint(all_ip_proxy)
+    print(len(all_ip_proxy))

@@ -14,13 +14,13 @@
 SPIDER_LOG_PATH = '/Users/afa/myFiles/my_spider_logs/fz_ip_pool/'
 
 # ip池最大代理数
-MAX_PROXY_NUM = 1500
+MAX_PROXY_NUM = 1000
 
 # 检索剩余ip数量的sleep time 单位秒
 WAIT_TIME = 10
 
 # 检测proxy时超时设置
-CHECK_PROXY_TIMEOUT = 5
+CHECK_PROXY_TIMEOUT = 6
 
 # 存储proxy_list的key 的name
 proxy_list_key_name = 'proxy_tasks'
@@ -33,8 +33,8 @@ MIN_SCORE = 60
 # 测试地址
 TEST_URL = 'http://ip111.cn'
 TEST_IP = 'http://httpbin.org/ip'
-TEST_HTTP_HEADER = 'http://0.0.0.0:80/get'
-# TEST_HTTP_HEADER = 'http://httpbin.org/get'
+# TEST_HTTP_HEADER = 'http://0.0.0.0:80/get'
+TEST_HTTP_HEADER = 'http://httpbin.org/get'
 REMOTE_TEST_HTTPS_HEADER = 'https://httpbin.org/get'
 # 现在使用检测的网址是httpbin.org, 但是即使ip通过了验证和检测
 # ** 也只能说明通过此代理ip可以到达httpbin.org, 但是不一定能到达用户爬取的网址
