@@ -60,6 +60,4 @@ if __name__ == '__main__':
     # print(ip_pools._get_random_ip_proxy())
     all_ip_proxy = ip_pools._get_all_ip_proxy()
     pprint(all_ip_proxy)
-    all_ip_proxy = serialize_obj_item_2_dict(all_ip_proxy)
-    ip_pools.redis_cli.set(name=ip_pools._k, value=dumps(all_ip_proxy))
     print(len(all_ip_proxy))

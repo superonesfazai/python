@@ -229,7 +229,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
                         'proxy_info': one_proxy_info,
                     })
                     # 动态输出, '\r'回到当前开头
-                    print('\r' + _get_simulate_log_info() + '已检测ip: {}, 剩余个数: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
+                    print('\r' + _get_simulate_log_info() + '已检测ip: {}, 剩余: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
                     success_num += 1
                     try:
                         resutls.pop(r_index)
@@ -277,7 +277,6 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
     global time_str
 
     resutls = _create_tasks_list(origin_proxy_data)
-    lg.info('@@@ 请耐心等待所有异步结果完成...')
     sleep(.8)
     all = _get_tasks_result_list(resutls)
 
@@ -310,7 +309,7 @@ def main():
             print()
             lg.info('达标!休眠{}s...'.format(WAIT_TIME))
             sleep(WAIT_TIME)
-            lg.info('Checking all_proxy(匿名度未知)...')
+            lg.info('Async Checking all_proxy(匿名度未知)...')
             origin_proxy_data = list_remove_repeat_dict(target=origin_proxy_data, repeat_key='ip')
             check_all_proxy(origin_proxy_data, redis_key_name=_key, delete_score=88)
 
@@ -318,11 +317,12 @@ def main():
             high_origin_proxy_list = list_remove_repeat_dict(
                 target=deserializate_pickle_object(redis_cli.get(_h_key) or dumps([])),
                 repeat_key='ip')
-            lg.info('Checking hign_proxy(高匿名)状态...')
+            lg.info('Async Checking hign_proxy(高匿名)状态...')
             check_all_proxy(high_origin_proxy_list, redis_key_name=_h_key, delete_score=MIN_SCORE)
 
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
+        print()
         lg.info('KeyboardInterrupt 退出 !!!')

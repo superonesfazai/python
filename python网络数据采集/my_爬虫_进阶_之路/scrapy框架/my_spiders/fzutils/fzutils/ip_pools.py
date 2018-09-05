@@ -104,6 +104,9 @@ class MyIpPools(object):
         return None
 
     def __del__(self):
+        try:
+            del self.redis_cli
+        except: pass
         gc.collect()
 
 class IpPools(MyIpPools):

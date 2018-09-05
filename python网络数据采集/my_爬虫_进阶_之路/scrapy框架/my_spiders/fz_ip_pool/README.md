@@ -1,7 +1,7 @@
 # fz_ip_pool
-*分布式并发代理ip池*
+*分布式并发可扩展的代理ip池*
 
-旨在: 获取真实高匿可复用的免费proxy ip
+旨在: 获取真实高匿可复用的免费proxy ip, 并且实时更新ip pool
 
 ## 架构
 celery + redis + httpbin + spiders
@@ -45,15 +45,22 @@ $ redis-cli
 # info
 $ celery -A proxy_tasks worker -l info
 # debug
-celery -A proxy_tasks worker -l debug
+$ celery -A proxy_tasks worker -l debug
 ```
 - worker多开(推荐)
 ```bash
-celery multi start w1 -A proxy_tasks 
-celery multi start w2 -A proxy_tasks 
-celery multi start w3 -A proxy_tasks 
-celery multi start w4 -A proxy_tasks 
-celery multi start w5 -A proxy_tasks 
+$ celery multi start w1 w2 w3 w4 w5 -A proxy_tasks 
+> Starting nodes...
+	> w1@afahostdeiMac.local: OK
+Stale pidfile exists - Removing it.
+	> w2@afahostdeiMac.local: OK
+Stale pidfile exists - Removing it.
+	> w3@afahostdeiMac.local: OK
+Stale pidfile exists - Removing it.
+	> w4@afahostdeiMac.local: OK
+Stale pidfile exists - Removing it.
+	> w5@afahostdeiMac.local: OK
+Stale pidfile exists - Removing it.
 ```
 *开5个worker的网络并发状态*
 
@@ -75,4 +82,16 @@ $ open http://localhost:5555
 ```
 ![](images/12.png)
 
+## 版权和保修
+此发行版中的代码为版权所有 (c) super_fazai, 除非另有明确说明.
+
+fzutils根据MIT许可证提供, 包含的LICENSE文件详细描述了这一点.
+
+## 贡献者
+-  super_fazai
+
+## 作者
+super_fazai
+
+<author_email: superonesfazai@gmail.com>
 
