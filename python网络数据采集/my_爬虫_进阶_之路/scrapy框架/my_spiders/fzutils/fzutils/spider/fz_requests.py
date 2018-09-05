@@ -11,7 +11,10 @@ sys.path.append('..')
 
 import requests
 from random import randint
-from ..ip_pools import MyIpPools
+from ..ip_pools import (
+    MyIpPools,
+    ip_proxy_pool,
+    fz_ip_pool,)
 from ..internet_utils import get_base_headers
 from ..common_utils import _print
 import re
@@ -31,11 +34,19 @@ class MyRequests(object):
         super(MyRequests, self).__init__()
 
     @classmethod
-    def get_url_body(cls, url, headers:dict=get_base_headers(),
-                     params=None, data=None, cookies=None,
-                     had_referer=False, encoding='utf-8',
-                     method='get', timeout=12, num_retries=1,
-                     high_conceal=True):
+    def get_url_body(cls,
+                     url,
+                     headers:dict=get_base_headers(),
+                     params=None,
+                     data=None,
+                     cookies=None,
+                     had_referer=False,
+                     encoding='utf-8',
+                     method='get',
+                     timeout=12,
+                     num_retries=1,
+                     high_conceal=True,
+                     ip_pool_type=ip_proxy_pool):
         '''
         根据url得到body
         :param url:
@@ -52,7 +63,7 @@ class MyRequests(object):
         :return: '' 表示error | str 表示success
         '''
         # 设置代理ip
-        tmp_proxies = cls._get_proxies(high_conceal=high_conceal)
+        tmp_proxies = cls._get_proxies(ip_pool_type=ip_pool_type, high_conceal=high_conceal)
         if tmp_proxies == {}:
             print('获取代理失败, 此处跳过!')
             return ''
@@ -97,13 +108,13 @@ class MyRequests(object):
         return body
 
     @classmethod
-    def _get_proxies(cls, high_conceal=True):
+    def _get_proxies(cls, ip_pool_type=ip_proxy_pool, high_conceal=True):
         '''
         得到单个代理ip
         :return: 格式: {'http': ip+port}
         '''
-        ip_object = MyIpPools(high_conceal=high_conceal)
-        proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
+        ip_obj = MyIpPools(type=ip_pool_type, high_conceal=high_conceal)
+        proxies = ip_obj.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         try:
             proxy = proxies.get('http', None)[randint(0, len(proxies) - 1)]
         except TypeError:

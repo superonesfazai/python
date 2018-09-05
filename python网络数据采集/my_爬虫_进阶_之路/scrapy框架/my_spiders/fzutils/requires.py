@@ -71,6 +71,7 @@ install_requires = [
     'pika',
     'redis',
     'flower',
+    'items',
     # 'sip',
     # 'pyqt5',
 ]

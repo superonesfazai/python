@@ -10,8 +10,13 @@ from fzutils.sql_utils import BaseRedisCli
 from fzutils.safe_utils import get_uuid3
 from fzutils.data.pickle_utils import deserializate_pickle_object
 from fzutils.linux_utils import kill_process_by_name
+from fzutils.time_utils import get_shanghai_time
+from fzutils.common_utils import get_random_int_number
+from fzutils.common_utils import retry
 from pprint import pprint
 from pickle import dumps
+from time import sleep
+from random import choice
 
 # print(get_uuid3('proxy_tasks'))
 # _ = BaseRedisCli()

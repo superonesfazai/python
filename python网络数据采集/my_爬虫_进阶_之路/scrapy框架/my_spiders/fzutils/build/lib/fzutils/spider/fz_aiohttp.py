@@ -12,7 +12,10 @@ import aiohttp
 import re
 import gc
 
-from ..ip_pools import MyIpPools
+from ..ip_pools import (
+    MyIpPools,
+    ip_proxy_pool,
+    fz_ip_pool,)
 from ..internet_utils import get_random_pc_ua
 
 __all__ = [
@@ -21,11 +24,12 @@ __all__ = [
 ]
 
 class MyAiohttp(object):
-    def __init__(self, max_tasks=10):
+    def __init__(self, ip_pool_type=ip_proxy_pool, max_tasks=10):
         super(MyAiohttp, self).__init__()
         self.loop = asyncio.get_event_loop()
         self.max_tasks = max_tasks                  # 接口请求进程数
         self.queue = asyncio.Queue(loop=self.loop)  # 接口队列
+        self.ip_pool_type = ip_pool_type
 
     @property
     def headers(self):
@@ -97,7 +101,7 @@ class MyAiohttp(object):
         :return: 格式: 'http://ip:port'
         '''
         # 设置代理ip
-        ip_object = MyIpPools(high_conceal=high_conceal)
+        ip_object = MyIpPools(type=self.ip_pool_type, high_conceal=high_conceal)
         proxy = ip_object._get_random_proxy_ip()    # 失败返回False
 
         return proxy

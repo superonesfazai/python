@@ -123,9 +123,9 @@ class Zhe800Parse(object):
                 # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
 
                 # 得到并处理detail(即图文详情显示信息)
-                # http://m.zhe800.com/gateway/app/detail/graph?productId=
                 tmp_detail_url = 'https://th5.m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
                 detail_data_body = MyRequests.get_url_body(url=tmp_detail_url, headers=self.headers, high_conceal=True)
+                # print(detail_data_body)
                 if detail_data_body == '':
                     print('detail_data为[]!')
                     self.result_data = {}
@@ -738,7 +738,7 @@ if __name__ == '__main__':
         zhe_800_url = input('请输入待爬取的折800商品地址: ')
         zhe_800_url.strip('\n').strip(';')
         goods_id = zhe_800.get_goods_id_from_url(zhe_800_url)
-        data = zhe_800.get_goods_data(goods_id=goods_id)
+        zhe_800.get_goods_data(goods_id=goods_id)
         data = zhe_800.deal_with_data()
         pprint(data)
 

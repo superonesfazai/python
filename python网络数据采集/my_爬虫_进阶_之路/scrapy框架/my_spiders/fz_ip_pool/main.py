@@ -29,10 +29,13 @@ from settings import (
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
-from fzutils.data.pickle_utils import deserializate_pickle_object
+from fzutils.data.pickle_utils import (
+    deserializate_pickle_object,
+    serialize_obj_item_2_dict,)
 from fzutils.safe_utils import get_uuid3
 from fzutils.sql_utils import BaseRedisCli
 from fzutils.data.list_utils import list_remove_repeat_dict
+from fzutils.common_utils import get_random_int_number
 
 lg = set_logger(
     log_file_name=SPIDER_LOG_PATH + str(get_shanghai_time())[0:10]+'.log',
@@ -41,6 +44,22 @@ lg = set_logger(
 redis_cli = BaseRedisCli()
 _key = get_uuid3(proxy_list_key_name)  # 存储proxy_list的key
 _h_key = get_uuid3(high_proxy_list_key_name)
+
+def _get_simulate_log_info(retries=10) -> str:
+    '''
+    print仿生log.info
+    :return:
+    '''
+    time_str = lambda x='': str(get_shanghai_time()) + ',' + str(get_random_int_number(100, 999)) + ' [INFO  ] ➞ '
+    try:
+        time_str = time_str()
+    except ValueError:
+        if retries > 0:
+            return _get_simulate_log_info(retries-1)
+        else:
+            return ''
+
+    return time_str
 
 def get_proxy_process_data():
     '''
@@ -83,9 +102,10 @@ def get_proxy_process_data():
                     except: pass
                 else:
                     pass
-                print('\rproxy_tasks._get_proxy [success_num: {}, rest_num: {}]'.format(success_num, results_len-success_num), end='', flush=True)
+
+                print('\r' + _get_simulate_log_info() + 'proxy_tasks._get_proxy [success_num: {}, rest_num: {}]'.format(success_num, results_len-success_num), end='', flush=True)
         else:
-            print()
+            pass
 
         return all
 
@@ -99,6 +119,7 @@ def get_proxy_process_data():
                 old += res_content
 
         old = list_remove_repeat_dict(target=old, repeat_key='ip')
+        old = serialize_obj_item_2_dict(old)      # 转化为dict, 避免反序列化时无法识别ProxyItem
         redis_cli.set(name=_key, value=dumps(old))
 
         return True
@@ -175,6 +196,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
                     'score': old_score + 5,
                 })
                 old_h_proxy_list.append(one_proxy_info)
+                old_h_proxy_list = serialize_obj_item_2_dict(old_h_proxy_list)    # 防止反序列化时, 提示无法识别ProxyItem
                 redis_cli.set(name=_h_key, value=dumps(old_h_proxy_list))
             else:
                 pass
@@ -207,7 +229,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
                         'proxy_info': one_proxy_info,
                     })
                     # 动态输出, '\r'回到当前开头
-                    print('\r已检测ip: {}, 剩余个数: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
+                    print('\r' + _get_simulate_log_info() + '已检测ip: {}, 剩余个数: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
                     success_num += 1
                     try:
                         resutls.pop(r_index)
@@ -252,6 +274,8 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
 
         return new_proxy_data
 
+    global time_str
+
     resutls = _create_tasks_list(origin_proxy_data)
     lg.info('@@@ 请耐心等待所有异步结果完成...')
     sleep(.8)
@@ -261,19 +285,22 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
     new_proxy_data = list_remove_repeat_dict(
         target=_handle_tasks_result_list(all),
         repeat_key='ip',)
+    new_proxy_data = serialize_obj_item_2_dict(new_proxy_data)
     redis_cli.set(name=redis_key_name, value=dumps(new_proxy_data))
-    lg.info('一次检查完毕!')
+    # lg.info('一次检查完毕!')
 
     return True
 
 def main():
+    global time_str
+
     while True:
         origin_proxy_data = list_remove_repeat_dict(
             target=deserializate_pickle_object(redis_cli.get(_key) or dumps([])),
             repeat_key='ip')
+        # print()
         while len(origin_proxy_data) < MAX_PROXY_NUM:
-            print()
-            lg.info('Ip Pools已存在proxy_num: {}'.format(len(origin_proxy_data)))
+            print('\r' + _get_simulate_log_info() + 'Ip Pools --->>> 已存在proxy_num(匿名度未知): {}'.format(len(origin_proxy_data)), end='', flush=True)
             get_proxy_process_data()
             # 重置
             origin_proxy_data = list_remove_repeat_dict(
@@ -283,7 +310,7 @@ def main():
             print()
             lg.info('达标!休眠{}s...'.format(WAIT_TIME))
             sleep(WAIT_TIME)
-            lg.info('开始检测所有proxy状态...')
+            lg.info('Checking all_proxy(匿名度未知)...')
             origin_proxy_data = list_remove_repeat_dict(target=origin_proxy_data, repeat_key='ip')
             check_all_proxy(origin_proxy_data, redis_key_name=_key, delete_score=88)
 
@@ -291,7 +318,7 @@ def main():
             high_origin_proxy_list = list_remove_repeat_dict(
                 target=deserializate_pickle_object(redis_cli.get(_h_key) or dumps([])),
                 repeat_key='ip')
-            lg.info('开始检测redis中高匿名proxy...')
+            lg.info('Checking hign_proxy(高匿名)状态...')
             check_all_proxy(high_origin_proxy_list, redis_key_name=_h_key, delete_score=MIN_SCORE)
 
 if __name__ == '__main__':

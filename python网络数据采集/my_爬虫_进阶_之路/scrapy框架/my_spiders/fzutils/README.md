@@ -25,24 +25,32 @@ pip3 install fzutils
 
 ## 要求
 -  Python 3或更高版本.
--  依靠的代理池是IPProxyPool < https://github.com/qiyeboy/IPProxyPool >
+-  依靠的代理池(二选一)
+    - [IPProxyPool](https://github.com/qiyeboy/IPProxyPool)
+    - [fz_ip_pool](https://github.com/superonesfazai/fz_ip_pools)
 
 ## simple use
 ```bash
 $ cd xxx/IPProxyPool && python3 IPProxy.py
 ```
 ```python
-from fzutils.ip_pools import IpPools
+from fzutils.ip_pools import (
+    IpPools,
+    ip_proxy_pool,
+    fz_ip_pool,)
 
 # 高匿
-ip_obj = IpPools(high_conceal=True)
+# type默认是ip_proxy_pool, 可修改为fz_ip_pool, 具体看你使用哪个ip池
+ip_obj = IpPools(type=ip_proxy_pool, high_conceal=True)     
 # 得到一个随机ip, eg: 'http://175.6.2.174:8088'
 proxy = ip_obj._get_random_proxy_ip()
 ```
 ```python
 from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.ip_pools import ip_proxy_pool
 
-_ = BaseDriver(executable_path='xxx')
+# ip_pool_type默认也是ip_proxy_pool
+_ = BaseDriver(executable_path='xxx', ip_pool_type=ip_proxy_pool)   
 exec_code = '''
 js = 'document.body.scrollTop=10000'
 self.driver.execute_script(js) 
@@ -51,8 +59,10 @@ body = _.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
 ```
 ```python
 from fzutils.spider.fz_requests import Requests
+from fzutils.ip_pools import ip_proxy_pool
 
-body = Requests.get_url_body(method='get', url='xxx')
+# ip_pool_type默认也是ip_proxy_pool
+body = Requests.get_url_body(method='get', url='xxx', ip_pool_type=ip_proxy_pool)   
 ```
 ```python
 import asyncio

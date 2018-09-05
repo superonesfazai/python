@@ -9,7 +9,10 @@
 import sys
 sys.path.append('..')
 
-from ..ip_pools import MyIpPools
+from ..ip_pools import (
+    MyIpPools,
+    ip_proxy_pool,
+    fz_ip_pool,)
 from ..internet_utils import (
     get_random_pc_ua,
     get_random_phone_ua,)
@@ -54,10 +57,16 @@ PC = 0
 PHONE = 1
 
 class MyPhantomjs(object):
-    def __init__(self, type=PHANTOMJS, load_images=False,
-                 executable_path=PHANTOMJS_DRIVER_PATH, logger=None,
-                 high_conceal=True, chrome_visualizate=False,
-                 user_agent_type=PC, driver_obj=None):
+    def __init__(self,
+                 type=PHANTOMJS,
+                 load_images=False,
+                 executable_path=PHANTOMJS_DRIVER_PATH,
+                 logger=None,
+                 high_conceal=True,
+                 chrome_visualizate=False,
+                 user_agent_type=PC,
+                 driver_obj=None,
+                 ip_pool_type=ip_proxy_pool):
         '''
         初始化
         :param load_images: 是否加载图片
@@ -65,6 +74,7 @@ class MyPhantomjs(object):
         :param chrome_visualizate: 是否为无头浏览器(针对chrome)
         :param user_agent_type: user-agent类型
         :param driver_obj: webdriver对象
+        :param ip_pool_type: ip_pool type
         '''
         super(MyPhantomjs, self).__init__()
         self.type = type
@@ -74,6 +84,7 @@ class MyPhantomjs(object):
         self.chrome_visualizate = chrome_visualizate
         self.my_lg = logger
         self.user_agent_type = user_agent_type
+        self.ip_pool_type = ip_pool_type
         if driver_obj is None:
             self._set_driver()
         else:
@@ -146,7 +157,7 @@ class MyPhantomjs(object):
         capabilities['acceptInsecureCerts'] = True
 
         # 设置代理
-        ip_object = MyIpPools(high_conceal=self.high_conceal)
+        ip_object = MyIpPools(type=self.ip_pool_type, high_conceal=self.high_conceal)
         proxy_ip = re.compile(r'https://|http://').sub('', ip_object._get_random_proxy_ip()) if isinstance(ip_object._get_random_proxy_ip(), str) else ''
         if proxy_ip != '':
             chrome_options.add_argument('--proxy-server=http://{0}'.format(proxy_ip))
@@ -171,10 +182,10 @@ class MyPhantomjs(object):
 
     def from_ip_pool_set_proxy_ip_to_phantomjs(self):
         '''
-        给phantomjs切换代理ip
+        给phantomjs切换代理
         :return:
         '''
-        ip_object = MyIpPools(high_conceal=self.high_conceal)
+        ip_object = MyIpPools(type=self.ip_pool_type, high_conceal=self.high_conceal)
         proxy_ip = ip_object._get_random_proxy_ip()
         if not proxy_ip:
             return False
@@ -257,6 +268,9 @@ class MyPhantomjs(object):
             main_body = ''
 
         return main_body
+
+    def get_url_body(self, *params, **kwargs):
+        return self.use_phantomjs_to_get_url_body(*params, **kwargs)
 
     def get_url_cookies_from_phantomjs_session(self, url, css_selector='', exec_code='', timeout=20):
         '''

@@ -18,7 +18,9 @@ from settings import high_proxy_list_key_name
 
 from fzutils.sql_utils import BaseRedisCli
 from fzutils.safe_utils import get_uuid3
-from fzutils.data.pickle_utils import deserializate_pickle_object
+from fzutils.data.pickle_utils import (
+    deserializate_pickle_object,
+    serialize_obj_item_2_dict,)
 
 class IpPoolsObj(object):
     def __init__(self):
@@ -58,4 +60,6 @@ if __name__ == '__main__':
     # print(ip_pools._get_random_ip_proxy())
     all_ip_proxy = ip_pools._get_all_ip_proxy()
     pprint(all_ip_proxy)
+    all_ip_proxy = serialize_obj_item_2_dict(all_ip_proxy)
+    ip_pools.redis_cli.set(name=ip_pools._k, value=dumps(all_ip_proxy))
     print(len(all_ip_proxy))

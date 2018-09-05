@@ -50,8 +50,11 @@ from fzutils.time_utils import (
     datetime_to_timestamp,)
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.ip_pools import (
+    fz_ip_pool,
+    ip_proxy_pool,)
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -65,6 +68,7 @@ class TaoBaoLoginAndParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self.msg = ''
+        self.ip_pool_type = ip_proxy_pool
 
     def _set_headers(self):
         self.headers = {
@@ -97,7 +101,7 @@ class TaoBaoLoginAndParse(object):
 
         # 获取主接口的body
         last_url = self._get_last_url(goods_id=goods_id)
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, high_conceal=True)
+        data = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, high_conceal=True, ip_pool_type=self.ip_pool_type)
         if data == '':
             self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
             return self._data_error_init()
@@ -974,7 +978,7 @@ class TaoBaoLoginAndParse(object):
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.my_lg.info(last_url)
 
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3, high_conceal=True)
+        data = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3, high_conceal=True, ip_pool_type=self.ip_pool_type)
         if data == '':
             self.my_lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
             return ''
