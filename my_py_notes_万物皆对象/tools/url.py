@@ -57,7 +57,7 @@ if __name__ == '__main__':
     # test_url = 'http://suining.58.com/zhongdiangong/?sort=pingfen'
     # print urlparse(test_url).hostname.rstrip('.58.com')
     # print urlparse(test_url).path.strip('/')
-    test_url = 'http://localhost/避免死锁.py?a=hello&b=world'
+    test_url = 'http://localhost/避免死锁.md.py?a=hello&b=world'
     print(get_url_param_value(test_url, 'a'))
     print(get_url_param_value(test_url, 'as'))
 

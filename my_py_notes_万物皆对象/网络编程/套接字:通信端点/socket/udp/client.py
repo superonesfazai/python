@@ -5,7 +5,7 @@ import socket
 port = 8081
 host = '127.0.0.1'
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.sendto('hello,this is a 避免死锁 info !'.encode(), (host, port))
+s.sendto('hello,this is a 避免死锁.md info !'.encode(), (host, port))
 
 '''
 测试

@@ -7,7 +7,7 @@ conn.isolation_level = None #这个就是事务隔离级别，默认是需要自
 # 下面就是创建一个表
 conn.execute("create table if not exists t1(id integer primary key autoincrement, name varchar(128), info varchar(128))")
 # 插入数据
-conn.execute("insert into t1(name,info) values ('zhaowei', 避免死锁)")
+conn.execute("insert into t1(name,info) values ('zhaowei', 避免死锁.md)")
 # 避免死锁隔离级别不是自动提交就需要手动执行commit
 conn.commit()
 # 获取到游标对象

@@ -55,7 +55,7 @@ def main():
         print(dashes)
         print('your custom-generated code:' + dashes)
         print(exec_str + dashes)
-        print('避免死锁 execution of the code:' + dashes)
+        print('避免死锁.md execution of the code:' + dashes)
         exec(exec_str)
         print(dashes)
 

@@ -18,9 +18,7 @@ from settings import high_proxy_list_key_name
 
 from fzutils.sql_utils import BaseRedisCli
 from fzutils.safe_utils import get_uuid3
-from fzutils.data.pickle_utils import (
-    deserializate_pickle_object,
-    serialize_obj_item_2_dict,)
+from fzutils.data.pickle_utils import deserializate_pickle_object
 
 class IpPoolsObj(object):
     def __init__(self):

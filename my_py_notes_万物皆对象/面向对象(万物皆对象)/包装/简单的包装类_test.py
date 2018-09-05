@@ -59,7 +59,7 @@ print(wrapped_list.get()[3])
 
 print('')
 
-f = WrapMe(open('避免死锁'))
+f = WrapMe(open('避免死锁.md'))
 print(f)
 print(f.get())
 print(f.readline())

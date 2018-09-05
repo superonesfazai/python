@@ -143,7 +143,7 @@ def test_replace_char_entity():
     """
     测试特殊字符转html标签
     """
-    html_test = '''&nbsp;&nbsp;this is a 避免死锁;&nbsp;&nbsp;'''
+    html_test = '''&nbsp;&nbsp;this is a 避免死锁.md;&nbsp;&nbsp;'''
     print(html_entities_2_standard_html(html_test))
 
 

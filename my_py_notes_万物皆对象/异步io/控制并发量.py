@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 控制并发量.py
-@Time    : 2018/4/3 18:22
 @connect : superonesfazai@gmail.com
 '''
 

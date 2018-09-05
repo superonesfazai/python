@@ -34,7 +34,7 @@ class Test1(object):
         self.__func()
 @Test1
 def test():
-    print("---避免死锁---")
+    print("---避免死锁.md---")
 
 test()
 # showpy()    # 如果把这句话注释, 重新运行程序, 依然会看到"---初始化---"

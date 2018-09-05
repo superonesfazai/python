@@ -5,9 +5,9 @@
 
 import os
 
-print(os.path.split('~/避免死锁.txt'))
+print(os.path.split('~/避免死锁.md.txt'))
 
-(filepath, filename) = os.path.split('~/避免死锁.txt')
+(filepath, filename) = os.path.split('~/避免死锁.md.txt')
 
 print(filepath, ' ', filename)
 

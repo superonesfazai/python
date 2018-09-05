@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : py3.5后的异步io.py
-@Time    : 2018/3/23 10:00
 @connect : superonesfazai@gmail.com
 '''
 

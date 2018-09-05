@@ -82,6 +82,36 @@ $ open http://localhost:5555
 ```
 ![](images/12.png)
 
+## Extendable
+```python
+# 设置代理抓取对象
+parser_list = [
+    # {
+    #     'urls': 'https://www.kuaidaili.com/free/inha/{}',
+    #     'charset': 'utf-8',
+    #     'type': 'css',
+    #     'part': 'div#list table tbody tr',
+    #     'position': {
+    #         'ip': 'td:nth-child(1)',
+    #         'port': 'td:nth-child(2)',
+    #         'ip_type': 'td:nth-child(4)',
+    #     }
+    # },
+    {
+        'urls': 'http://www.66ip.cn/{}.html',
+        'charset': 'gb2312',
+        'type': 'css',
+        'part': 'div.containerbox table tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(4)',
+        }
+    },
+    ...
+]
+```
+
 ## 版权和保修
 此发行版中的代码为版权所有 (c) super_fazai, 除非另有明确说明.
 

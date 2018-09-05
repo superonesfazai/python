@@ -3,6 +3,6 @@
 
 from distutils.core import setup, Extension
 
-MOD = "避免死锁"
+MOD = "避免死锁.md"
 
-setup(name = MOD, ext_modules = [Extension(MOD, sources = ['避免死锁.c', 'testc_wrapper.c'])])
+setup(name = MOD, ext_modules = [Extension(MOD, sources = ['避免死锁.md.c', 'testc_wrapper.c'])])
