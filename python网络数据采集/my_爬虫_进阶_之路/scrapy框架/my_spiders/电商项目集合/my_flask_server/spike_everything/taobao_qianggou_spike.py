@@ -28,7 +28,8 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     TAOBAO_QIANGGOU_SPIDER_HOUR_LIST,
     IS_BACKGROUND_RUNNING,
-    TMALL_REAL_TIMES_SLEEP_TIME
+    TMALL_REAL_TIMES_SLEEP_TIME,
+    IP_POOL_TYPE,
 )
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
@@ -59,6 +60,7 @@ class TaoBaoQiangGou(object):
         self._set_headers()
         self._set_logger(logger)
         self.msg = ''
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -221,7 +223,8 @@ class TaoBaoQiangGou(object):
             headers=self.headers,
             params=params,
             data=data,
-            logger=self.my_lg
+            logger=self.my_lg,
+            ip_pool_type=self.ip_pool_type
         )
         _m_h5_tk = result_1[0]
 
@@ -238,7 +241,8 @@ class TaoBaoQiangGou(object):
             data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
-            logger=self.my_lg
+            logger=self.my_lg,
+            ip_pool_type=self.ip_pool_type
         )
         body = result_2[2]
 

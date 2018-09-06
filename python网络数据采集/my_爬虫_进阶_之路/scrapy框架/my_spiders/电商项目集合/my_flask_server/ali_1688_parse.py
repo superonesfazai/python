@@ -21,7 +21,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from scrapy.selector import Selector
 from settings import (
     PHANTOMJS_DRIVER_PATH,
-    MY_SPIDER_LOGS_PATH,)
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     al_select_str_1,
@@ -32,7 +33,7 @@ from sql_str_controller import (
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import get_shanghai_time
 from fzutils.log_utils import set_logger
@@ -44,7 +45,7 @@ class ALi1688LoginAndParse(object):
         self.result_data = {}
         self.is_activity_goods = False
         self._set_logger(logger)
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
 
     def _set_logger(self, logger):
         if logger is None:

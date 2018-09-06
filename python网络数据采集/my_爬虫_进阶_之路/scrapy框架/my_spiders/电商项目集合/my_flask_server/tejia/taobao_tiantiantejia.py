@@ -14,21 +14,23 @@
 import sys
 sys.path.append('..')
 
-import time
 import json
 import re
 from pprint import pprint
-from decimal import Decimal
 from time import sleep
 import datetime
 import gc
-import execjs
 from logging import INFO, ERROR
 import asyncio
 
-from settings import MY_SPIDER_LOGS_PATH
-from settings import PHANTOMJS_DRIVER_PATH, IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    TAOBAO_REAL_TIMES_SLEEP_TIME,
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
+from my_pipeline import (
+    SqlServerMyPageInfoSaveItemPipeline,
+    SqlPools,)
 
 from taobao_parse import TaoBaoLoginAndParse
 
@@ -45,7 +47,6 @@ from fzutils.linux_utils import (
     restart_program,
 )
 from fzutils.cp_utils import (
-    calculate_right_sign,
     get_taobao_sign_and_body,
     get_miaosha_begin_time_and_miaosha_end_time,
 )
@@ -56,6 +57,7 @@ class TaoBaoTianTianTeJia(object):
         self._set_logger(logger)
         self.msg = ''
         self._set_main_sort()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -303,7 +305,8 @@ class TaoBaoTianTianTeJia(object):
             headers=self.headers,
             params=params,
             data=data,
-            logger=self.my_lg
+            logger=self.my_lg,
+            ip_pool_type=self.ip_pool_type
         )
         _m_h5_tk = result_1[0]
 
@@ -320,7 +323,8 @@ class TaoBaoTianTianTeJia(object):
             data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
-            logger=self.my_lg
+            logger=self.my_lg,
+            ip_pool_type=self.ip_pool_type
         )
         body = result_2[2]
         # self.my_lg.info(str(body))

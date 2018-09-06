@@ -20,7 +20,9 @@ import os
 import sys
 sys.path.append('..')
 
-from settings import IS_BACKGROUND_RUNNING
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,)
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -34,12 +36,13 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuanPiPinTuan(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -64,7 +67,7 @@ class JuanPiPinTuan(object):
             )
             print('正在抓取的页面地址为: ', tmp_url)
 
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
             if body == '': body = '{}'
             try:
                 tmp_data = json.loads(body)

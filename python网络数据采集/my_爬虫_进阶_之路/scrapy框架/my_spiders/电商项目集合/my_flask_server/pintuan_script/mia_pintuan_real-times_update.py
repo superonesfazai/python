@@ -22,7 +22,10 @@ from time import sleep
 import json
 from pprint import pprint
 import time
-from settings import IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING, 
+    MIA_SPIKE_SLEEP_TIME,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     mia_delete_str_1,
@@ -36,7 +39,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.common_utils import json_2_dict
 
@@ -44,6 +47,7 @@ class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = mia_delete_str_1
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -108,7 +112,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                         tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(item[2]) + '/0/'
                         # print(tmp_url)
 
-                        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+                        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
 
                         if body == '':
                             print('获取到的body为空值! 此处跳过')

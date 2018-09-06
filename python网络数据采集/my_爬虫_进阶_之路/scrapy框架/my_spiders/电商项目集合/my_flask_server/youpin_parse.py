@@ -22,6 +22,7 @@ from json import dumps
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,
 )
 
 from sql_str_controller import (
@@ -31,7 +32,7 @@ from sql_str_controller import (
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_phone_ua
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
@@ -46,6 +47,7 @@ class YouPinParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_logger(self, logger):
         if logger is None:
@@ -91,7 +93,7 @@ class YouPinParse(object):
 
         write_info = '出错goods_id:{0}, 出错地址: {1}'.format(goods_id, m_url)
 
-        body = MyRequests.get_url_body(method='post', url=base_url, headers=self.headers, cookies=None, data=post_data)
+        body = Requests.get_url_body(method='post', url=base_url, headers=self.headers, cookies=None, data=post_data, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(str(body))
         if body == '':
             self.my_lg.error('获取到的body为空值!'+write_info)
@@ -359,7 +361,7 @@ class YouPinParse(object):
         if div_desc_url == '':
             raise ValueError('获取div_desc_url为空值!')
 
-        body = MyRequests.get_url_body(url=div_desc_url, headers=self.headers)
+        body = Requests.get_url_body(url=div_desc_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(str(body))
         if body == '':
             raise ValueError('获取到的div_desc为空值!')

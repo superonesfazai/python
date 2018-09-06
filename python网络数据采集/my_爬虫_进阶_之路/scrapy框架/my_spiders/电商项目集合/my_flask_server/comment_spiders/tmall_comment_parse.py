@@ -16,7 +16,8 @@ from taobao_parse import TaoBaoLoginAndParse
 from my_items import CommentItem
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    PHANTOMJS_DRIVER_PATH,)
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from random import randint
 from time import sleep
@@ -34,7 +35,7 @@ from fzutils.time_utils import (
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import wash_sensitive_info
 
 class TmallCommentParse(object):
@@ -45,7 +46,7 @@ class TmallCommentParse(object):
         self._set_headers()
         self.page_size = '10'
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
         self.g_data = {}                # 临时数据
         self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
 
@@ -91,7 +92,7 @@ class TmallCommentParse(object):
             _url = _get_url_contain_params(url=_url, params=params)     # 根据params组合得到url
             # self.my_lg.info(_url)
 
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=_url)
+            body = self.driver.use_phantomjs_to_get_url_body(url=_url)
             # self.my_lg.info(str(body))
             if body == '':
                 self.my_lg.error('获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
@@ -318,7 +319,7 @@ class TmallCommentParse(object):
     def __del__(self):
         try:
             del self.my_lg
-            del self.my_phantomjs
+            del self.driver
             del self.g_data
         except:
             pass

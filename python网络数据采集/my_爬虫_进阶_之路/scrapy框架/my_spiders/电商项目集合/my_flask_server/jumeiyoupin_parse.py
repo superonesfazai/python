@@ -20,24 +20,24 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 
+from settings import IP_POOL_TYPE
 from sql_str_controller import (
     jm_insert_str_1,
-    jm_update_str_1,
-)
+    jm_update_str_1,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
 from fzutils.time_utils import timestamp_to_regulartime
 
-
 class JuMeiYouPinParse(object):
     def __init__(self):
         self._set_headers()
         self.result_data = {}
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -69,7 +69,7 @@ class JuMeiYouPinParse(object):
         #** 获取ajaxStaticDetail请求中的数据
         tmp_url = 'https://h5.jumei.com/product/ajaxStaticDetail?item_id=' + goods_id[0] + '&type=' + str(goods_id[1])
         self.headers['Referer'] = goods_url
-        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
         # print(body)
 
         if body == '':
@@ -87,7 +87,7 @@ class JuMeiYouPinParse(object):
 
         #** 获取ajaxDynamicDetail请求中的数据
         tmp_url_2 = 'https://h5.jumei.com/product/ajaxDynamicDetail?item_id=' + str(goods_id[0]) + '&type=' + str(goods_id[1])
-        body_2 = MyRequests.get_url_body(url=tmp_url_2, headers=self.headers)
+        body_2 = Requests.get_url_body(url=tmp_url_2, headers=self.headers, ip_pool_type=self.ip_pool_type)
         # print(body)
         if body_2 == '':
             print('获取到的body为空str!')

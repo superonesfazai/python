@@ -21,22 +21,23 @@ from decimal import Decimal
 from time import sleep
 import gc
 
+from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mg_insert_str_2,
     mg_update_str_3,
-    mg_update_str_4,
-)
+    mg_update_str_4,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 
 class MoGuJieParse(object):
     def __init__(self):
         self._set_headers()
         self.result_data = {}
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -129,7 +130,7 @@ class MoGuJieParse(object):
             print('------>>>| 原pc地址为: ', tmp_url)
 
             data = {}
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(body)
             if body == '':
                 print('获取到的body为空str!')
@@ -267,7 +268,7 @@ class MoGuJieParse(object):
 
     def _get_p_info(self, goods_id):
         p_info_api_url = 'https://shop.mogujie.com/ajax/mgj.pc.detailinfo/v1?_ajax=1&itemId=' + str(goods_id)
-        tmp_p_info_body = MyRequests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True)
+        tmp_p_info_body = Requests.get_url_body(url=p_info_api_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(tmp_p_info_body)
         assert tmp_p_info_body != '', '获取到的tmp_p_info_body为空值, 请检查!'
 

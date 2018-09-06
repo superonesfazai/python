@@ -7,14 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
 import json
-import requests
 import re
 from pprint import pprint
 import gc
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from time import sleep
 
 import sys
@@ -23,10 +19,13 @@ sys.path.append('..')
 from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST,
+    PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST,
+    IP_POOL_TYPE,)
 
 from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
-import datetime
 
 from sql_str_controller import pd_select_str_3
 
@@ -36,7 +35,8 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.ip_pools import MyIpPools
+from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -44,7 +44,8 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 class PinduoduoSpike(object):
     def __init__(self):
         self._set_headers()
-        self.init_phantomjs()
+        self.ip_pool_type = IP_POOL_TYPE
+        self.driver = BaseDriver(executable_path=EXECUTABLE_PATH, ip_pool_type=self.ip_pool_type)
 
     def _set_headers(self):
         self.headers = {
@@ -64,7 +65,7 @@ class PinduoduoSpike(object):
         '''
         all_miaosha_goods_list = self.get_all_miaosha_goods_list()
         try:
-            self.driver.quit()
+            del self.driver
         except:
             pass
         gc.collect()
@@ -106,7 +107,7 @@ class PinduoduoSpike(object):
                             goods_data['taobao_price'] = item.get('taobao_price')  # 秒杀价
                             goods_data['sub_title'] = item.get('sub_title', '')
                             goods_data['miaosha_time'] = item.get('miaosha_time')
-                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
+                            goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
 
                             if item.get('stock_info').get('activity_stock') <= 2:
                                 # 实时秒杀库存小于等于2时就标记为 已售罄
@@ -130,27 +131,34 @@ class PinduoduoSpike(object):
         gc.collect()
 
     def get_all_miaosha_goods_list(self):
+        def get_data(body):
+            '''处理返回的body'''
+            _ = '{}'
+            try:
+                _ = re.compile(r'<body>(.*)</body>').findall(body)[0]
+            except IndexError:
+                print('获取all_miaosha_goods_list出现索引异常!')
+
+            return _
+
         # 今日秒杀
         tmp_url = 'http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000'
         print('待爬取的今日限时秒杀数据的地址为: ', tmp_url)
-        # today_data = self.get_url_body(tmp_url=tmp_url)
-        today_data = self.phantomjs_get_url_body(tmp_url=tmp_url)
+        today_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url))
         today_data = self.json_to_dict(tmp_data=today_data)
         sleep(PINDUODUO_SLEEP_TIME)
 
         # 明日的秒杀
         tmp_url_2 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000'
         print('待爬取的明日限时秒杀数据的地址为: ', tmp_url_2)
-        # tomorrow_data = self.get_url_body(tmp_url=tmp_url_2)
-        tomorrow_data = self.phantomjs_get_url_body(tmp_url=tmp_url_2)
+        tomorrow_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url_2))
         tomorrow_data = self.json_to_dict(tmp_data=tomorrow_data)
         sleep(PINDUODUO_SLEEP_TIME)
 
         # 未来的秒杀
         tmp_url_3 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000'
         print('待爬取的未来限时秒杀数据的地址为: ', tmp_url_3)
-        # all_after_data = self.get_url_body(tmp_url=tmp_url_3)
-        all_after_data = self.phantomjs_get_url_body(tmp_url=tmp_url_3)
+        all_after_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url_3))
         all_after_data = self.json_to_dict(tmp_data=all_after_data)
         sleep(PINDUODUO_SLEEP_TIME)
 
@@ -186,116 +194,6 @@ class PinduoduoSpike(object):
         print('当前所有限时秒杀商品list为: ', all_miaosha_goods_list)
 
         return all_miaosha_goods_list
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
-
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-
-        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
-    def get_url_body(self, tmp_url):
-        '''
-        得到url的body
-        :param tmp_url: 待爬取的url
-        :return: str
-        '''
-        # 设置代理ip
-        ip_object = MyIpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-        try:
-            response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            data = response.content.decode('utf-8')
-            # print(data)
-        except Exception:
-            print('requests.get()请求超时....')
-            print('today的data为空!')
-            data = '{}'
-        return data
-
-    def phantomjs_get_url_body(self, tmp_url):
-        '''
-        返回给与的url的body
-        :param tmp_url:
-        :return: str
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.set_page_load_timeout(10)  # 设置成10秒避免数据出错
-
-        try:
-            self.driver.get(tmp_url)
-            self.driver.implicitly_wait(15)
-            body = self.driver.page_source
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-            body = re.compile(r'<body>(.*)</body>').findall(body)[0]
-            # print(body)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 10 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            body = '{}'
-
-        return body
 
     def json_to_dict(self, tmp_data):
         try:
@@ -351,7 +249,7 @@ class PinduoduoSpike(object):
 
     def __del__(self):
         try:
-            self.driver.quit()
+            del self.driver
         except:
             pass
         gc.collect()
@@ -367,6 +265,7 @@ def just_fuck_run():
             pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        sleep(60*3)
 
 def main():
     '''

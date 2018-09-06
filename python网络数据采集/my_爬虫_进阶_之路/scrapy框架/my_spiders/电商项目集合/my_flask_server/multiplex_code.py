@@ -11,6 +11,8 @@
 复用code
 """
 
+from settings import IP_POOL_TYPE
+
 from fzutils.spider.fz_requests import MyRequests
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.time_utils import get_shanghai_time
@@ -42,7 +44,7 @@ def _z8_get_parent_dir(goods_id) -> str:
     )
 
     url = 'https://shop.zhe800.com/products/{0}'.format(goods_id)
-    body = MyRequests.get_url_body(url=url, headers=headers, params=None, high_conceal=True)
+    body = MyRequests.get_url_body(url=url, headers=headers, params=None, high_conceal=True, ip_pool_type=IP_POOL_TYPE)
     # print(body)
 
     parent_dir = []

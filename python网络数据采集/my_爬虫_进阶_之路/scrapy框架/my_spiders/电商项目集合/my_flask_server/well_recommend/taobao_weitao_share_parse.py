@@ -25,6 +25,7 @@ from urllib.parse import unquote
 from settings import (
     MY_SPIDER_LOGS_PATH,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
+    IP_POOL_TYPE,
 )
 from my_items import WellRecommendArticle
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -36,7 +37,7 @@ from fzutils.linux_utils import restart_program
 from fzutils.cp_utils import get_taobao_sign_and_body
 from fzutils.common_utils import list_duplicate_remove
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 
 class TaoBaoWeiTaoShareParse():
     def __init__(self, logger=None):
@@ -44,6 +45,7 @@ class TaoBaoWeiTaoShareParse():
         self._set_logger(logger)
         self.msg = ''
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -78,7 +80,7 @@ class TaoBaoWeiTaoShareParse():
             target_url = taobao_short_url
 
         else:
-            body = MyRequests.get_url_body(url=taobao_short_url, headers=self.headers)
+            body = Requests.get_url_body(url=taobao_short_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
             # self.my_lg.info(str(body))
             if body == '':
                 self.my_lg.error('获取到的body为空值, 出错短链接地址: {0}'.format(str(taobao_short_url)))
@@ -173,7 +175,8 @@ class TaoBaoWeiTaoShareParse():
             headers=self.headers,
             params=params,
             data=data,
-            logger=self.my_lg
+            logger=self.my_lg,
+            ip_pool_type=self.ip_pool_type
         )
         _m_h5_tk = result_1[0]
 
@@ -188,7 +191,8 @@ class TaoBaoWeiTaoShareParse():
             data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
-            logger=self.my_lg
+            logger=self.my_lg,
+            ip_pool_type=self.ip_pool_type
         )
         body = result_2[2]
 

@@ -18,24 +18,24 @@ from time import sleep
 from settings import MIA_SPIKE_SLEEP_TIME
 from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     mia_select_str_1,
 )
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MiaPintuan(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -58,7 +58,7 @@ class MiaPintuan(object):
             tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(index) + '/0/'
             print('正在抓取: ', tmp_url)
 
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, high_conceal=True)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, high_conceal=True, ip_pool_type=self.ip_pool_type)
             # print(body)
 
             if body == '':

@@ -3,12 +3,12 @@
 '''
 @author = super_fazai
 @File    : tmall_parse.py
-@Time    : 2017/10/26 22:53
 @connect : superonesfazai@gmail.com
 '''
 
 """
 tmall爬虫能对应爬取解析对象为: (天猫, 天猫超市, 天猫国际)
+    [已弃用]
 """
 
 import json
@@ -27,8 +27,10 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 
-from settings import PHANTOMJS_DRIVER_PATH
-from settings import TAOBAO_USERNAME, TAOBAO_PASSWD, _tmall_cookies
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    TAOBAO_USERNAME,
+    TAOBAO_PASSWD,)
 import pytz, datetime
 from scrapy.selector import Selector
 

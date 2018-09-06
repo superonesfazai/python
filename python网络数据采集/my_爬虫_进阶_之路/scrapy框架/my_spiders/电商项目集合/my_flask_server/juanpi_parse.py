@@ -18,7 +18,9 @@ from time import sleep
 import re
 import gc
 
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import (
@@ -27,8 +29,7 @@ from sql_str_controller import (
     jp_insert_str_1,
     jp_update_str_3,
     jp_insert_str_2,
-    jp_update_str_4,
-)
+    jp_update_str_4,)
 
 from multiplex_code import _jp_get_parent_dir
 
@@ -37,8 +38,8 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
 )
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
 
 # phantomjs驱动地址
@@ -49,7 +50,8 @@ class JuanPiParse(object):
         super(JuanPiParse, self).__init__()
         self._set_headers()
         self.result_data = {}
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.ip_pool_type = IP_POOL_TYPE
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
     def _set_headers(self):
         self.headers = {
@@ -121,7 +123,7 @@ class JuanPiParse(object):
 
             self.skudata_headers = self.headers
             self.skudata_headers.update({'Host': 'webservice.juanpi.com'})
-            skudata_body = MyRequests.get_url_body(url=skudata_url, headers=self.skudata_headers, high_conceal=True)
+            skudata_body = Requests.get_url_body(url=skudata_url, headers=self.skudata_headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
             if skudata_body == '':
                 print('获取到的skudata_body为空str!请检查!')
                 return self._data_error_init()

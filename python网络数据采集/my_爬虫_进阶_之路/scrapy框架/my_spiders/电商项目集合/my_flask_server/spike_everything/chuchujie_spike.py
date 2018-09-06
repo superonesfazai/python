@@ -27,6 +27,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     IS_BACKGROUND_RUNNING,
     PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,
 )
 
 from sql_str_controller import cc_select_str_2
@@ -37,13 +38,14 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -127,7 +129,7 @@ class ChuChuJie_9_9_Spike(object):
             db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=cc_select_str_2))]
             # print(db_goods_id_list)
 
-            # my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+            # my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
             # index = 1
             for item in item_list:
                 if item.get('goods_id', '') in db_goods_id_list:
@@ -148,7 +150,7 @@ class ChuChuJie_9_9_Spike(object):
                         pass
 
                     else:   # 否则就解析并且插入
-                        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+                        my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
 
                         # 获取剩余时间
                         tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(
@@ -242,7 +244,7 @@ class ChuChuJie_9_9_Spike(object):
             'page': page
         }
 
-        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=data)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=data, ip_pool_type=self.ip_pool_type)
         if body == '':
             body = '{}'
 

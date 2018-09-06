@@ -19,16 +19,18 @@ from time import sleep
 import gc
 from scrapy.selector import Selector
 from json import dumps
-from settings import PHANTOMJS_DRIVER_PATH
+
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     cc_insert_str_1,
-    cc_update_str_1,
-)
+    cc_update_str_1,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 
 class ChuChuJie_9_9_Parse(object):
     def __init__(self):
@@ -131,7 +133,7 @@ class ChuChuJie_9_9_Parse(object):
 
         # 开始常规requests有数据, 后面无数据, 改用phantomjs
         # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
-        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
         body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
         try: del my_phantomjs
         except: pass

@@ -20,6 +20,7 @@ import gc
 from scrapy import Selector
 from json import dumps
 
+from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mia_insert_str_1,
     mia_update_str_1,
@@ -28,13 +29,14 @@ from multiplex_code import _mia_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 
 class MiaParse(object):
     def __init__(self):
         self._set_headers()
         self.result_data = {}
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -64,7 +66,7 @@ class MiaParse(object):
             # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
+            body = Requests.get_url_body(url=goods_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(body)
             if body == '':
                 return self._data_error_init()
@@ -334,7 +336,7 @@ class MiaParse(object):
                 sign_direct_url = ''
                 print('获取跳转的地址时出错!')
 
-            body = MyRequests.get_url_body(url=sign_direct_url, headers=self.headers, had_referer=True)
+            body = Requests.get_url_body(url=sign_direct_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
 
             if re.compile(r'://m.miyabaobei.hk/').findall(sign_direct_url) != []:
                 # 表示为全球购商品
@@ -390,7 +392,7 @@ class MiaParse(object):
         else:
             tmp_url_2 = 'https://www.mia.com/item-' + str(goods_id) + '.html'
 
-        tmp_body_2 = MyRequests.get_url_body(url=tmp_url_2, headers=self.headers, had_referer=True)
+        tmp_body_2 = Requests.get_url_body(url=tmp_url_2, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(Selector(text=tmp_body_2).css('div.small').extract())
 
         if tmp_body_2 == '':
@@ -485,7 +487,7 @@ class MiaParse(object):
             else:
                 tmp_url = 'https://www.mia.com/item-' + item.get('goods_id') + '.html'
 
-            tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+            tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(tmp_body)
 
             if sign_direct_url != '':
@@ -517,7 +519,7 @@ class MiaParse(object):
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
         # print(tmp_url)
 
-        tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+        tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(tmp_body)
 
         tmp_data = json_2_dict(json_str=tmp_body).get('data', [])

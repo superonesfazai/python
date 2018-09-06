@@ -23,12 +23,9 @@ from settings import (
 from sql_str_controller import (
     z8_delete_str_1,
     z8_select_str_2,
-    z8_delete_str_2,
-)
+    z8_delete_str_2,)
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 
 def run_forever():

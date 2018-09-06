@@ -10,24 +10,23 @@
 import sys
 sys.path.append('..')
 
-import scrapy
 import requests
-import json
 from scrapy.selector import Selector
 from time import sleep
-from settings import SINA_COOKIES, IS_BACKGROUND_RUNNING
+from settings import (
+    SINA_COOKIES, 
+    IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from random import randint
 import gc
 import re
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.ip_pools import MyIpPools
+from fzutils.ip_pools import IpPools
 
 class SinaSpeciesSpiderNewSpider():
     def __init__(self):
@@ -42,6 +41,7 @@ class SinaSpeciesSpiderNewSpider():
             'User-Agent': get_random_pc_ua(),
             'cookie': SINA_COOKIES,
         }
+        self.ip_pool_type = IP_POOL_TYPE
 
         self.species = {
             1: [4288, '明星'],
@@ -138,7 +138,7 @@ class SinaSpeciesSpiderNewSpider():
                 print('-' * 100 + '一次大循环爬取完成')
                 print()
                 print('-' * 100 + '即将重新开始爬取....')
-                ip_object = MyIpPools()
+                ip_object = IpPools(type=self.ip_pool_type)
                 self.proxies = ip_object.get_proxy_ip_from_ip_pool()     # 获取新的代理pool
                 self.index = 1
 
@@ -242,7 +242,7 @@ class SinaSpeciesSpiderNewSpider():
         :return: str
         '''
         # 设置代理ip
-        ip_object = MyIpPools()
+        ip_object = IpPools(type=self.ip_pool_type)
         self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 

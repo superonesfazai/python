@@ -7,30 +7,17 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import time
 from random import randint
 import json
 import requests
 import re
 from pprint import pprint
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.wait import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# import selenium.webdriver.support.ui as ui
-# from selenium.webdriver.common.proxy import Proxy
-# from selenium.webdriver.common.proxy import ProxyType
-# from scrapy import Selector
-# from urllib.request import urlopen
-# from PIL import Image
 from time import sleep
 import gc
-# import pycurl
-# from io import StringIO
-# import traceback
-# from io import BytesIO
 
-from settings import PHANTOMJS_DRIVER_PATH, CHROME_DRIVER_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    CHROME_DRIVER_PATH,)
 
 from fzutils.internet_utils import get_random_pc_ua
 

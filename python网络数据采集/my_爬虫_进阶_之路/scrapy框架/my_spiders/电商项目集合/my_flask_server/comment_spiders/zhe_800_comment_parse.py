@@ -11,22 +11,22 @@ import sys
 sys.path.append('..')
 
 from my_items import CommentItem
-from settings import MY_SPIDER_LOGS_PATH
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 
 from random import randint
 from time import sleep
 import gc
 from logging import INFO, ERROR
-import re, datetime, json
+import re
 from pprint import pprint
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 
 class Zhe800CommentParse(object):
@@ -38,6 +38,7 @@ class Zhe800CommentParse(object):
         self._set_headers()
         self.page_size = '20'  # 固定值
         self.comment_page_switch_sleep_time = 1.5  # 评论下一页sleep time
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_logger(self, logger):
         '''
@@ -86,7 +87,7 @@ class Zhe800CommentParse(object):
             self.headers.update({
                 'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
             })
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='utf-8')
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='utf-8', ip_pool_type=self.ip_pool_type)
             # self.my_lg.info(str(body))
 
             data = json_2_dict(json_str=body, logger=self.my_lg)
@@ -115,7 +116,7 @@ class Zhe800CommentParse(object):
             self.result_data = {}
             return {}
 
-        _t = datetime.datetime.now()
+        _t = get_shanghai_time()
 
         _r = CommentItem()
         _r['goods_id'] = str(goods_id)

@@ -27,6 +27,7 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     JUMEIYOUPIN_SLEEP_TIME,
     PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,
 )
 
 from sql_str_controller import (
@@ -38,14 +39,15 @@ from sql_str_controller import (
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuMeiYouPinMiaoShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = jm_delete_str_1
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -84,7 +86,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
             index = 1
 
             # 获取cookies
-            my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+            my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
             cookies = my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://h5.jumei.com/')
             try: del my_phantomjs
             except: pass
@@ -186,7 +188,7 @@ class JuMeiYouPinMiaoShaRealTimeUpdate(object):
         all_goods_list = []
         tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=formal&page_key=1521336720'.format(str(page))
         # print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
-        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
         # print(body)
 
         try:

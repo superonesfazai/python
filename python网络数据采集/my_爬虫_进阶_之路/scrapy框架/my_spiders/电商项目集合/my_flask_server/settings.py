@@ -7,7 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import json
+from json import loads
+from fzutils.ip_pools import (
+    fz_ip_pool,
+    ip_proxy_pool,)
 
 """
 驱动相关设置
@@ -20,6 +23,11 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 # 我自己服务器上的地址
 # CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
 # PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+
+"""
+ip_pool_type: 使用的ip_pool类型
+"""
+IP_POOL_TYPE = ip_proxy_pool
 
 """
 db_info_json_path
@@ -40,7 +48,7 @@ taobao_u_and_p_path = '/Users/afa/my_username_and_passwd.json'
 def get_u_and_p_info():
     try:
         with open(taobao_u_and_p_path, 'r') as f:
-            _tmp = json.loads(f.readline())
+            _tmp = loads(f.readline())
     except FileNotFoundError:
         print('严重错误, 数据库初始配置json文件未找到!请检查!')
         return ('', '')
@@ -170,12 +178,10 @@ basic_app_key
 '''
 BASIC_APP_KEY = 'yiuxiu6688'
 
-import json
-
 def get_db_info():
     try:
         with open(db_info_json_path, 'r') as f:
-            _tmp = json.loads(f.readline())
+            _tmp = loads(f.readline())
     except FileNotFoundError:
         print('严重错误, 数据库初始配置json文件未找到!请检查!')
         return ('', '', '', '', 1433)

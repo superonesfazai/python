@@ -14,7 +14,6 @@
 import time
 from pprint import pprint
 from time import sleep
-import re
 import gc
 from scrapy import Selector
 from json import dumps
@@ -28,10 +27,11 @@ from sql_str_controller import (
     mia_update_str_3,
 )
 from multiplex_code import _mia_get_parent_dir
+from settings import IP_POOL_TYPE
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import timestamp_to_regulartime
 
@@ -39,6 +39,7 @@ class MiaPintuanParse(MiaParse):
     def __init__(self):
         MiaParse.__init__(self)
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -68,7 +69,7 @@ class MiaPintuanParse(MiaParse):
             # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = MyRequests.get_url_body(url=goods_url, headers=self.headers, had_referer=True)
+            body = Requests.get_url_body(url=goods_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(body)
 
             if body == '':
@@ -339,7 +340,7 @@ class MiaPintuanParse(MiaParse):
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
         # print(tmp_url)
 
-        tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+        tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(tmp_body)
 
         tmp_data = json_2_dict(json_str=tmp_body).get('data', [])

@@ -17,12 +17,17 @@ from time import sleep
 import sys
 sys.path.append('..')
 
-from settings import BASE_SESSION_ID, MAX_SESSION_ID, SPIDER_START_HOUR, SPIDER_END_HOUR, ZHE_800_SPIKE_SLEEP_TIME
-from zhe_800_parse import Zhe800Parse
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
+    BASE_SESSION_ID, 
+    MAX_SESSION_ID, 
+    SPIDER_START_HOUR, 
+    SPIDER_END_HOUR, 
+    ZHE_800_SPIKE_SLEEP_TIME,
+    IP_POOL_TYPE,
     IS_BACKGROUND_RUNNING,
     PHANTOMJS_DRIVER_PATH,)
+from zhe_800_parse import Zhe800Parse
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import z8_select_str_5
 
@@ -32,12 +37,13 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 
 class Zhe800Spike(object):
     def __init__(self):
         self._set_headers()
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.ip_pool_type = IP_POOL_TYPE
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
     def _set_headers(self):
         self.headers = {

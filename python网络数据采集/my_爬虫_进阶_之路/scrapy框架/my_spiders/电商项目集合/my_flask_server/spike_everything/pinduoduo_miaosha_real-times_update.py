@@ -19,11 +19,11 @@ import re
 import json
 from pprint import pprint
 import time
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
-from random import randint
-import requests
-from settings import IS_BACKGROUND_RUNNING, PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST
+from settings import (
+    IS_BACKGROUND_RUNNING, 
+    PINDUODUO_MIAOSHA_BEGIN_HOUR_LIST, 
+    PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST,
+    IP_POOL_TYPE,)
 
 from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
 
@@ -38,8 +38,8 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.ip_pools import MyIpPools
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.spider.fz_phantomjs import BaseDriver
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -51,8 +51,9 @@ EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 class Pinduoduo_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.init_phantomjs()
         self.delete_sql_str = pd_delete_str_1
+        self.ip_pool_type = IP_POOL_TYPE
+        self.driver = BaseDriver(executable_path=EXECUTABLE_PATH, ip_pool_type=self.ip_pool_type)
 
     def _set_headers(self):
         self.headers = {
@@ -174,22 +175,32 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         gc.collect()
 
     def get_all_miaosha_goods_list(self):
+        def get_data(body):
+            '''处理返回的body'''
+            _ = '{}'
+            try:
+                _ = re.compile(r'<body>(.*)</body>').findall(body)[0]
+            except IndexError:
+                print('获取all_miaosha_goods_list出现索引异常!')
+
+            return _
+
         # 今日秒杀
         tmp_url = 'http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000'
         # print('待爬取的今日限时秒杀数据的地址为: ', tmp_url)
-        today_data = self.phantomjs_get_url_body(tmp_url=tmp_url)
+        today_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url))
         today_data = self.json_to_dict(tmp_data=today_data)
 
         # 明日的秒杀
         tmp_url_2 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000'
         # print('待爬取的明日限时秒杀数据的地址为: ', tmp_url_2)
-        tomorrow_data = self.phantomjs_get_url_body(tmp_url=tmp_url_2)
+        tomorrow_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url_2))
         tomorrow_data = self.json_to_dict(tmp_data=tomorrow_data)
 
         # 未来的秒杀
         tmp_url_3 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000'
         # print('待爬取的未来限时秒杀数据的地址为: ', tmp_url_3)
-        all_after_data = self.phantomjs_get_url_body(tmp_url=tmp_url_3)
+        all_after_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url_3))
         all_after_data = self.json_to_dict(tmp_data=all_after_data)
 
         if today_data != []:
@@ -264,32 +275,6 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                 pass
         return miaosha_goods_list
 
-    def phantomjs_get_url_body(self, tmp_url):
-        '''
-        返回给与的url的body
-        :param tmp_url:
-        :return: str
-        '''
-        self.from_ip_pool_set_proxy_ip_to_phantomjs()
-        self.driver.set_page_load_timeout(10)  # 设置成10秒避免数据出错
-
-        try:
-            self.driver.get(tmp_url)
-            self.driver.implicitly_wait(15)
-            body = self.driver.page_source
-            body = re.compile(r'\n').sub('', body)
-            body = re.compile(r'\t').sub('', body)
-            body = re.compile(r'  ').sub('', body)
-            # print(body)
-            body = re.compile(r'<body>(.*)</body>').findall(body)[0]
-            # print(body)
-        except Exception as e:  # 如果超时, 终止加载并继续后续操作
-            print('-->>time out after 10 seconds when loading page')
-            self.driver.execute_script('window.stop()')  # 当页面加载时间超过设定时间，通过执行Javascript来stop加载，即可执行后续动作
-            body = '{}'
-
-        return body
-
     def json_to_dict(self, tmp_data):
         try:
             data = json.loads(tmp_data)
@@ -321,53 +306,9 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         else:
             return 2    # 未来时间的暂时不用更新
 
-    def init_phantomjs(self):
-        """
-        初始化带cookie的驱动，之所以用phantomjs是因为其加载速度很快(快过chrome驱动太多)
-        """
-        '''
-        研究发现, 必须以浏览器的形式进行访问才能返回需要的东西
-        常规requests模拟请求会被服务器过滤, 并返回请求过于频繁的无用页面
-        '''
-        print('--->>>初始化phantomjs驱动中<<<---')
-        cap = webdriver.DesiredCapabilities.PHANTOMJS
-        cap['phantomjs.page.settings.resourceTimeout'] = 1000  # 1秒
-        cap['phantomjs.page.settings.loadImages'] = False
-        cap['phantomjs.page.settings.disk-cache'] = True
-        cap['phantomjs.page.settings.userAgent'] = get_random_pc_ua()  # 随机一个请求头
-        # cap['phantomjs.page.customHeaders.Cookie'] = cookies
-
-        self.driver = webdriver.PhantomJS(executable_path=EXECUTABLE_PATH, desired_capabilities=cap)
-
-        wait = ui.WebDriverWait(self.driver, 15)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-        print('------->>>初始化完毕<<<-------')
-
-    def from_ip_pool_set_proxy_ip_to_phantomjs(self):
-        ip_object = MyIpPools()
-        ip_list = ip_object.get_proxy_ip_from_ip_pool().get('http')
-        proxy_ip = ''
-        try:
-            proxy_ip = ip_list[randint(0, len(ip_list) - 1)]        # 随机一个代理ip
-        except Exception:
-            print('从ip池获取随机ip失败...正在使用本机ip进行爬取!')
-        # print('------>>>| 正在使用的代理ip: {} 进行爬取... |<<<------'.format(proxy_ip))
-        proxy_ip = re.compile(r'http://').sub('', proxy_ip)     # 过滤'http://'
-        proxy_ip = proxy_ip.split(':')                          # 切割成['xxxx', '端口']
-
-        try:
-            tmp_js = {
-                'script': 'phantom.setProxy({}, {});'.format(proxy_ip[0], proxy_ip[1]),
-                'args': []
-            }
-            self.driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
-            self.driver.execute('executePhantomScript', tmp_js)
-        except Exception:
-            print('动态切换ip失败')
-            pass
-
     def __del__(self):
         try:
-            self.driver.quit()
+            del self.driver
         except:
             pass
         gc.collect()
@@ -383,6 +324,7 @@ def just_fuck_run():
             pass
         gc.collect()
         print('一次大更新完毕'.center(30, '-'))
+        sleep(3*60)
 
 def main():
     '''

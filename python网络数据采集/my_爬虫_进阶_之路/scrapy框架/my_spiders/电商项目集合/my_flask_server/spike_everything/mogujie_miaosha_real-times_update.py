@@ -23,7 +23,10 @@ import re
 import json
 from pprint import pprint
 import time
-from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING, 
+    MOGUJIE_SLEEP_TIME,
+    IP_POOL_TYPE,)
 from decimal import Decimal
 
 from sql_str_controller import (
@@ -39,13 +42,14 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MoGuJieMiaoShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = mg_delete_str_3
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -183,7 +187,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         :return: item_list 类型 list
         '''
         tmp_url = 'https://qiang.mogujie.com//jsonp/fastBuyListActionLet/1?eventTime={0}&bizKey=rush_main'.format(str(event_time))
-        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(body)
 
         if body == '':

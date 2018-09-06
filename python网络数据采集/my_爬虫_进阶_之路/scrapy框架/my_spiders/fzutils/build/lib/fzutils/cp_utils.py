@@ -18,7 +18,10 @@ from .time_utils import (
 from .items import GoodsItem
 from .safe_utils import get_uuid3
 from .safe_utils import md5_encrypt
-from .ip_pools import MyIpPools
+from .ip_pools import (
+    MyIpPools,
+    fz_ip_pool,
+    ip_proxy_pool,)
 
 __all__ = [
     '_get_price_change_info',                               # cp用来记录价格改变信息
@@ -146,9 +149,16 @@ async def calculate_right_sign(_m_h5_tk: str, data: json):
 
     return sign, t
 
-async def get_taobao_sign_and_body(base_url, headers:dict, params:dict,
-                                   data:json, timeout=13, _m_h5_tk='undefine',
-                                   session=None, logger=None, encoding='utf-8') -> tuple:
+async def get_taobao_sign_and_body(base_url,
+                                   headers:dict,
+                                   params:dict,
+                                   data:json,
+                                   timeout=13,
+                                   _m_h5_tk='undefine',
+                                   session=None,
+                                   logger=None,
+                                   encoding='utf-8',
+                                   ip_pool_type=ip_proxy_pool) -> tuple:
     '''
     得到淘宝加密签名sign接口数据
     :param base_url:
@@ -168,7 +178,7 @@ async def get_taobao_sign_and_body(base_url, headers:dict, params:dict,
         'data': data,
     })
 
-    ip_object = MyIpPools(high_conceal=True)
+    ip_object = MyIpPools(type=ip_pool_type, high_conceal=True)
     tmp_proxies = {
         'http': ip_object._get_random_proxy_ip(),   # 失败返回False
     }

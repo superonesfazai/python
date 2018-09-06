@@ -19,19 +19,20 @@ from time import sleep
 import re
 import gc
 
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     z8_insert_str_2,
-    z8_update_str_3,
-)
+    z8_update_str_3,)
 
 from multiplex_code import _z8_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.common_utils import json_2_dict
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 # from fzutils.spider.fz_phantomjs import MyPhantomjs
 
 # phantomjs驱动地址
@@ -41,6 +42,7 @@ class Zhe800PintuanParse(object):
     def __init__(self):
         self._set_headers()
         self.result_data = {}
+        self.ip_pool_type = IP_POOL_TYPE
         # self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
@@ -70,7 +72,7 @@ class Zhe800PintuanParse(object):
             '''
             原先采用requests来模拟的，之前能用，但是数据多了请求多了sleep也不管用后面会获取不到信息
             '''
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
             # print(body)
             if body == '':
                 print('获取到的tmp_url的body为空值, 此处跳过!')
@@ -469,7 +471,7 @@ class Zhe800PintuanParse(object):
         div_desc_url = 'https://pina.m.zhe800.com/nnc/product/detail_content.json?zid=' + str(goods_id)
 
         # 使用requests
-        div_desc_body = MyRequests.get_url_body(url=div_desc_url, headers=self.headers, high_conceal=True)
+        div_desc_body = Requests.get_url_body(url=div_desc_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
         if div_desc_body == '':
             div_desc_body = '{}'
 
@@ -504,7 +506,7 @@ class Zhe800PintuanParse(object):
         :return: 返回一个list
         '''
         p_info_url = 'https://pina.m.zhe800.com/cns/products/get_product_properties_list.json?productId=' + str(goods_id)
-        p_info_body = MyRequests.get_url_body(url=p_info_url, headers=self.headers, high_conceal=True)
+        p_info_body = Requests.get_url_body(url=p_info_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
         if p_info_body == '':
             print('获取到的p_info_body为空值, 此处跳过!')
             p_info_body = '{}'
@@ -530,7 +532,7 @@ class Zhe800PintuanParse(object):
         :return: 返回dict类型
         '''
         stock_info_url = 'https://pina.m.zhe800.com/cns/products/' + str(goods_id) + '/realtime_info.json'
-        stock_info_body = MyRequests.get_url_body(url=stock_info_url, headers=self.headers, high_conceal=True)
+        stock_info_body = Requests.get_url_body(url=stock_info_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
         if stock_info_body == '':
             print('获取到的stock_info_body为空值!')
             stock_info_body = '{}'

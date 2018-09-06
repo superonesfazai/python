@@ -28,12 +28,12 @@ from random import randint
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    PHANTOMJS_DRIVER_PATH,)
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_aiohttp import MyAiohttp
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_aiohttp import AioHttp
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -46,7 +46,8 @@ class GX8899Spider(object):
         self._set_logger(logger)
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         self.update_sql = 'update dbo.sina_weibo set head_img_url=%s, modify_time=%s where id=%s'
-        self.phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+        self.ip_pool_type = IP_POOL_TYPE
+        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=self.ip_pool_type)
         self.id_list = []
         self.update_index = 0
 
@@ -172,14 +173,14 @@ class GX8899Spider(object):
 
             if index % 15 == 0:
                 try:
-                    del self.phantomjs
+                    del self.driver
                 except:
                     pass
                 gc.collect()
-                self.phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+                self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=self.ip_pool_type)
                 self.my_lg.info('[+] phantomjs已重置!')
 
-            body = self.phantomjs.use_phantomjs_to_get_url_body(url=url)
+            body = self.driver.use_phantomjs_to_get_url_body(url=url)
             # self.my_lg.info(str(body))
             if re.compile(r'<title>404 - 找不到文件或目录。</title>').findall(body) != []:
                 break
@@ -218,7 +219,7 @@ class GX8899Spider(object):
         }
 
         # body = self._get_loop_run_result(url=url, headers=headers)
-        body = self.phantomjs.use_phantomjs_to_get_url_body(url=url)
+        body = self.driver.use_phantomjs_to_get_url_body(url=url)
         if body == '':
             self.my_lg.info('获取到img list为空list!出错地址:{}'.format(url))
             return []
@@ -255,7 +256,7 @@ class GX8899Spider(object):
         :param headers:
         :return:
         '''
-        body = await MyAiohttp.aio_get_url_body(url=url, headers=headers)
+        body = await AioHttp.aio_get_url_body(url=url, headers=headers, ip_pool_type=self.ip_pool_type)
 
         return body
 
@@ -270,7 +271,7 @@ class GX8899Spider(object):
 
     def __del__(self):
         try:
-            del self.phantomjs
+            del self.driver
             del self.my_lg
         except:
             pass

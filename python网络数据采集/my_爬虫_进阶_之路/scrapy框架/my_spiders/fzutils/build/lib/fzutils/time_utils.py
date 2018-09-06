@@ -8,8 +8,10 @@
 '''
 
 import time
-import pytz
-import datetime
+from pytz import (
+    timezone,
+    country_timezones,)
+from datetime import datetime
 import re
 import functools
 from threading import Thread
@@ -24,23 +26,28 @@ __all__ = [
     'fz_set_timeout',                               # 可以给任意可能会hang住的函数添加超时功能[这个功能在编写外部API调用, 网络爬虫, 数据库查询的时候特别有用]
 ]
 
-def get_shanghai_time():
+def get_shanghai_time(retries=10):
     '''
     时区处理，得到上海时间
     :return: datetime类型
     '''
     # TODO 时区处理，时间处理到上海时间
     # pytz查询某个国家时区
-    # country_timezones_list = pytz.country_timezones('cn')
+    # country_timezones_list = country_timezones('cn')
     # print(country_timezones_list)
 
-    tz = pytz.timezone('Asia/Shanghai')  # 创建时区对象
-    now_time = datetime.datetime.now(tz)
+    tz = timezone('Asia/Shanghai')                                      # 创建时区对象
+    now_time = datetime.now(tz)
 
     # 处理为精确到秒位，删除时区信息
     now_time = re.compile(r'\..*').sub('', str(now_time))
-    # 将字符串类型转换为datetime类型
-    now_time = datetime.datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')
+    try:
+        now_time = datetime.strptime(now_time, '%Y-%m-%d %H:%M:%S')     # 将字符串类型转换为datetime类型
+    except ValueError as e:                                             # 捕获 ValueError: unconverted data remains: +08:00 异常!
+        if retries > 0:
+            return get_shanghai_time(retries=retries-1)
+        else:
+            raise e
 
     return now_time
 
@@ -59,7 +66,7 @@ def string_to_datetime(string):
     :param string:
     :return:
     '''
-    return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
+    return datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
 
 def datetime_to_timestamp(_dateTime):
     '''

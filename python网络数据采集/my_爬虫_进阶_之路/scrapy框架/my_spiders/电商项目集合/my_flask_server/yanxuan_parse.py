@@ -21,14 +21,15 @@ from logging import (
 from json import dumps
 from settings import (
     PHANTOMJS_DRIVER_PATH,
-    MY_SPIDER_LOGS_PATH,)
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     yx_update_str_1,
 )
 
 # from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
@@ -51,7 +52,7 @@ class YanXuanParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self._set_headers()
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
 
     def _set_logger(self, logger):
         if logger is None:

@@ -14,7 +14,8 @@ from my_items import CommentItem
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    PHANTOMJS_DRIVER_PATH,)
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from random import (
     randint,
@@ -41,8 +42,8 @@ from fzutils.time_utils import (
 )
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
 
 class ALi1688CommentParse(object):
@@ -55,7 +56,8 @@ class ALi1688CommentParse(object):
         self.msg = ''
         self._set_headers()
         self._set_logger(logger)
-        # self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.ip_pool_type = IP_POOL_TYPE
+        # self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
         # 可动态执行的代码
         self._exec_code = '''
         _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
@@ -177,8 +179,8 @@ class ALi1688CommentParse(object):
             tmp_headers.update({
                 'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
             })
-            # 原先用MyRequests老是404，改用phantomjsy也还是老是404
-            body = MyRequests.get_url_body(url=url, headers=tmp_headers, params=params)
+            # 原先用Requests老是404，改用phantomjsy也还是老是404
+            body = Requests.get_url_body(url=url, headers=tmp_headers, params=params, ip_pool_type=self.ip_pool_type)
             # self.my_lg.info(str(body))
 
             # 用phantomjs
@@ -302,7 +304,7 @@ class ALi1688CommentParse(object):
         )
 
         url = 'https://m.1688.com/page/offerRemark.htm'
-        body = MyRequests.get_url_body(url=url, headers=headers, params=params)
+        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(str(body))
         if body == '':
             self.my_lg.error('获取到的body为空值!此处跳过!')

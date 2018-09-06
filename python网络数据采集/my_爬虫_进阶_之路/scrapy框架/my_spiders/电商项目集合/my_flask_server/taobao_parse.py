@@ -25,10 +25,11 @@ import gc
 # import traceback
 # from io import BytesIO
 
-from settings import MY_SPIDER_LOGS_PATH
 from settings import (
     PHANTOMJS_DRIVER_PATH,
-    CHROME_DRIVER_PATH,)
+    CHROME_DRIVER_PATH,
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 from logging import INFO, ERROR
 from json import JSONDecodeError
 from urllib.parse import urlencode
@@ -52,9 +53,6 @@ from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
-from fzutils.ip_pools import (
-    fz_ip_pool,
-    ip_proxy_pool,)
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -68,7 +66,7 @@ class TaoBaoLoginAndParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self.msg = ''
-        self.ip_pool_type = ip_proxy_pool
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {

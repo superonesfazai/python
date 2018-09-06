@@ -13,7 +13,6 @@
 直接requests开始时是可以的，后面就只返回错误的信息，估计将我IP过滤了
 """
 
-import time
 from random import randint
 import requests
 from pprint import pprint
@@ -22,18 +21,19 @@ import re
 import gc
 from json import dumps
 
-from settings import PHANTOMJS_DRIVER_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     pd_update_str_1,
     pd_insert_str_1,
-    pd_update_str_2,
-)
+    pd_update_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.ip_pools import MyIpPools
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import timestamp_to_regulartime
@@ -46,7 +46,7 @@ class PinduoduoParse(object):
         self._set_headers()
         self.result_data = {}
         # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
 
     def _set_headers(self):
         self.headers = {
@@ -76,7 +76,7 @@ class PinduoduoParse(object):
             '''
             1.采用requests，由于经常返回错误的body(即requests.get返回的为空的html), So pass
             '''
-            # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+            # body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
 
             '''
             2.采用phantomjs来获取

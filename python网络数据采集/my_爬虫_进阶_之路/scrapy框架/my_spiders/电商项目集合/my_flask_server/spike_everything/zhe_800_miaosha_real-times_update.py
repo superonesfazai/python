@@ -21,7 +21,9 @@ from logging import (
     INFO,
     ERROR,
 )
-from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MY_SPIDER_LOGS_PATH,)
 
 from zhe_800_spike import Zhe800Spike
 
@@ -122,6 +124,8 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                     self.my_lg.info('过期的goods_id为({0}), 限时秒杀开始时间为({1}), 删除成功!'.format(item[0], json.loads(item[1]).get('miaosha_begin_time')))
 
                 elif self.is_recent_time(miaosha_begin_time) == 2:
+                    # 可能包括过期的
+                    self.my_lg.info('未来时间暂时不更新! {}'.format(timestamp_to_regulartime(miaosha_begin_time)))
                     pass  # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                 else:  # 返回1，表示在待更新区间内
@@ -202,11 +206,10 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
             #     del tmall
             # except:
             #     pass
-            sleep(1.5)
+            sleep(1.2)
             gc.collect()
         self.my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         gc.collect()
-
 
         return
 

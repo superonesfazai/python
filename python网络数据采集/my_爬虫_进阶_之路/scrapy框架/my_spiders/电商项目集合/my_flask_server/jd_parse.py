@@ -15,7 +15,7 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     CHROME_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
-)
+    IP_POOL_TYPE,)
 
 import re
 from time import sleep
@@ -30,13 +30,12 @@ from logging import (
 from sql_str_controller import (
     jd_update_str_1,
     jd_insert_str_1,
-    jd_insert_str_2,
-)
+    jd_insert_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
@@ -47,7 +46,7 @@ class JdParse(object):
         self._set_pc_headers()
         self.result_data = {}
         self._set_logger(logger)
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
 
     def _set_logger(self, logger):
         if logger is None:
@@ -102,13 +101,13 @@ class JdParse(object):
         # self.my_lg.info(str(tmp_url))
         if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
             # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-            self.my_phantomjs.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
+            self.driver.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
         elif goods_id[0] == 2:
             # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-            self.my_phantomjs.use_phantomjs_to_get_url_body(url='https://m.yiyaojd.com/cart/cartNum.json')
+            self.driver.use_phantomjs_to_get_url_body(url='https://m.yiyaojd.com/cart/cartNum.json')
 
         # 得到总销售量
-        comment_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=comment_url)
+        comment_body = self.driver.use_phantomjs_to_get_url_body(url=comment_url)
         if comment_body == '':  # 网络问题或者ip切换出错
             return self._data_error_init()
 
@@ -125,7 +124,7 @@ class JdParse(object):
             self.my_lg.error('获取到的comment的销售量data为空!'+self.error_record)
             return self._data_error_init()
 
-        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
         if body == '':
             return self._data_error_init()
 
@@ -135,7 +134,7 @@ class JdParse(object):
         body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
 
         ## ** 起初是拿phantomjs来进行url请求的，本来想着用requests来优化，但是改动有点大，就先暂时不改动 **
-        # body_1 = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+        # body_1 = Requests.get_url_body(url=tmp_url, headers=self.headers)
         # if body_1 == '':
         #     body_1 = []
         # else:
@@ -404,7 +403,7 @@ class JdParse(object):
             price_url = 'https://m.yiyaojd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
 
         # self.my_lg.info(str(price_url))
-        price_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=price_url)
+        price_body = self.driver.use_phantomjs_to_get_url_body(url=price_url)
 
         price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
         if price_body_1 != []:
@@ -835,8 +834,8 @@ class JdParse(object):
             return {}
 
         # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
-        # tmp_pc_body = MyRequests.get_url_body(url=tmp_pc_url, headers=self.pc_headers)
-        tmp_pc_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
+        # tmp_pc_body = Requests.get_url_body(url=tmp_pc_url, headers=self.pc_headers)
+        tmp_pc_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
         # self.my_lg.info(str(tmp_pc_body))
         if tmp_pc_body == '':
             self.my_lg.info('#### 获取该商品的无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
@@ -860,7 +859,7 @@ class JdParse(object):
 
     def __del__(self):
         try:
-            del self.my_phantomjs
+            del self.driver
             del self.my_lg
         except:
             pass

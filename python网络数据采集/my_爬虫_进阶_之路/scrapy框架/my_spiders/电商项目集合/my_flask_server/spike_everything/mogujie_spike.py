@@ -11,15 +11,12 @@
 蘑菇街秒杀抓取
 '''
 
-from random import randint
 import json
 import re
 import time
 from pprint import pprint
 import gc
-import pytz
 from time import sleep
-import os
 
 import sys
 sys.path.append('..')
@@ -27,7 +24,10 @@ sys.path.append('..')
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from settings import IS_BACKGROUND_RUNNING, MOGUJIE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING, 
+    MOGUJIE_SLEEP_TIME,
+    IP_POOL_TYPE,)
 import datetime
 from decimal import Decimal
 
@@ -39,11 +39,12 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 
 class MoGuJieSpike(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -161,7 +162,7 @@ class MoGuJieSpike(object):
         '''
         # 先遍历today的需求的整点时间戳
         tmp_url = 'https://qiang.mogujie.com//jsonp/fastBuyListActionLet/1?eventTime={0}&bizKey=rush_main'.format(str(item))
-        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(body)
 
         if body == '':

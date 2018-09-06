@@ -22,20 +22,19 @@ from scrapy.selector import Selector
 from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
-)
+    IP_POOL_TYPE,)
 from logging import INFO, ERROR
 
 from sql_str_controller import (
     jm_insert_str_2,
     jm_update_str_2,
-    jm_update_str_3,
-)
+    jm_update_str_3,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
-from fzutils.spider.fz_aiohttp import MyAiohttp
+from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import get_shanghai_time
 
@@ -80,7 +79,7 @@ class JuMeiYouPinPinTuanParse(object):
             return {}
 
         '''
-        原先采用requests被过滤无返回结果, 于是用aiohttp无奈速度过慢, 换用phantomjs
+        原先采用requests被过滤无返回结果, 于是用AioHttp无奈速度过慢, 换用phantomjs
         '''
         # 拼团商品手机地址
         goods_url = 'https://s.h5.jumei.com/yiqituan/detail?item_id={0}&type={1}'.format(goods_id[0], goods_id[1])
@@ -94,24 +93,24 @@ class JuMeiYouPinPinTuanParse(object):
         #     'item_id': str(goods_id[0]),
         #     'type': [goods_id[1]][0],
         # }
-        # body = await MyAiohttp.aio_get_url_body(url=tmp_url, headers=self.headers, params=params, timeout=JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT)
+        # body = await AioHttp.aio_get_url_body(url=tmp_url, headers=self.headers, params=params, timeout=JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT)
         # # 获取原始url的tmp_body
-        # tmp_body = await MyAiohttp.aio_get_url_body(url=goods_url, headers=self.headers, timeout=JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT)
+        # tmp_body = await AioHttp.aio_get_url_body(url=goods_url, headers=self.headers, timeout=JUMEIYOUPIN_PINTUAN_GOODS_TIMEOUT)
         # # print(tmp_body)
 
         '''
         换用phantomjs
         '''
-        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
-        body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+        driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
+        body = driver.use_phantomjs_to_get_url_body(url=tmp_url)
         # print(body)
         try:
             body = re.compile('<pre .*?>(.*)</pre>').findall(body)[0]
             # print(body)
         except IndexError: body = ''
-        tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(url=goods_url)
+        tmp_body = driver.use_phantomjs_to_get_url_body(url=goods_url)
         # print(tmp_body)
-        try: del my_phantomjs
+        try: del driver
         except: pass
 
         if body == '' or tmp_body == '':
@@ -160,7 +159,7 @@ class JuMeiYouPinPinTuanParse(object):
 
             # 获取div_desc
             div_desc = await self.get_div_desc(body=tmp_body)
-            div_desc = await MyAiohttp.wash_html(div_desc)
+            div_desc = await AioHttp.wash_html(div_desc)
             # print(div_desc)
             data['div_desc'] = div_desc
 

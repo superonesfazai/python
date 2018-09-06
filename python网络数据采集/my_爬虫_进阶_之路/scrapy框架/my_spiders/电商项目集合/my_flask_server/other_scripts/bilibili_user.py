@@ -18,7 +18,6 @@ import requests
 import json
 import random
 # import pymysql
-import datetime
 import time
 from imp import reload
 from multiprocessing.dummy import Pool as ThreadPool
@@ -27,9 +26,10 @@ from pprint import pprint
 import re, gc
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,)
 
-from requests.exceptions import ReadTimeout, ConnectionError
 # from requests_futures.sessions import FuturesSession
 
 import asyncio
@@ -39,11 +39,9 @@ from sql_str_controller import (
     hi_select_str_1,
 )
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
-from fzutils.ip_pools import MyIpPools
+from fzutils.ip_pools import IpPools
 
 reload(sys)
 
@@ -117,7 +115,7 @@ class BiLiBiLiUser(object):
 
             def getsource(url):
                 payload = {
-                    '_': self.datetime_to_timestamp_in_milliseconds(datetime.datetime.now()),
+                    '_': self.datetime_to_timestamp_in_milliseconds(get_shanghai_time()),
                     'mid': url.replace('https://space.bilibili.com/', '')
                 }
                 ua = random.choice(self.uas)
@@ -125,7 +123,7 @@ class BiLiBiLiUser(object):
                 self.head['Referer'] = 'https://space.bilibili.com/' + str(i) + '?from=search&seid=' + str(random.randint(10000, 50000))
 
                 # 设置ip代理
-                ip_object = MyIpPools()
+                ip_object = IpPools(type=IP_POOL_TYPE)
                 proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
                 if proxies == []:   # 避免报错跳出
                     return None

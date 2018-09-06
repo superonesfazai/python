@@ -19,7 +19,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 import gc
 from time import sleep
-import re, pytz, datetime
 from settings import IS_BACKGROUND_RUNNING
 
 from sql_str_controller import (

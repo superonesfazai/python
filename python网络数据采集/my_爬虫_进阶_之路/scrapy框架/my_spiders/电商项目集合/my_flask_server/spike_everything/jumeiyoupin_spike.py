@@ -11,16 +11,10 @@
 聚美优品每日10点上新限时秒杀，商品信息抓取
 """
 
-from random import randint
 import json
-import re
-import time
 from pprint import pprint
 import gc
-import pytz
 from time import sleep
-import os, datetime
-from decimal import Decimal
 
 import sys
 sys.path.append('..')
@@ -32,6 +26,7 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     JUMEIYOUPIN_SLEEP_TIME,
     PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,
 )
 
 from sql_str_controller import jm_select_str_2
@@ -39,13 +34,14 @@ from sql_str_controller import jm_select_str_2
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuMeiYouPinSpike(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -67,7 +63,7 @@ class JuMeiYouPinSpike(object):
         :return:
         '''
         all_goods_list = []
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
         cookies = self.my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://h5.jumei.com/')
         try: del self.my_phantomjs
         except: pass
@@ -82,7 +78,7 @@ class JuMeiYouPinSpike(object):
         for page in range(1, 50):   # 1, 开始
             tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=formal&page_key=1521336720'.format(str(page))
             print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
             # print(body)
 
             try:
@@ -109,7 +105,7 @@ class JuMeiYouPinSpike(object):
         for page in range(1, 50):   # 1, 开始
             tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=pre&page_key=1521858480'.format(str(page))
             print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
             # print(body)
 
             try:

@@ -14,7 +14,10 @@ from taobao_parse import TaoBaoLoginAndParse
 
 import gc
 from time import sleep
-from settings import IS_BACKGROUND_RUNNING, TAOBAO_REAL_TIMES_SLEEP_TIME, MY_SPIDER_LOGS_PATH
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    TAOBAO_REAL_TIMES_SLEEP_TIME,
+    MY_SPIDER_LOGS_PATH,)
 import datetime
 from logging import INFO, ERROR
 import asyncio

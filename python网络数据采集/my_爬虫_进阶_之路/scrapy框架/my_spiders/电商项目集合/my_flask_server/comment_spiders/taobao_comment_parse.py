@@ -11,25 +11,25 @@ import sys
 sys.path.append('..')
 
 from my_items import CommentItem
-from settings import MY_SPIDER_LOGS_PATH
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 
 from random import randint
 from time import sleep
 import gc
 from logging import INFO, ERROR
 from scrapy.selector import Selector
-import re, datetime, json
+import re
 from pprint import pprint
 import requests
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import get_shanghai_time
 
 class TaoBaoCommentParse(object):
     def __init__(self, logger=None):
@@ -38,6 +38,7 @@ class TaoBaoCommentParse(object):
         self.msg = ''
         self._set_logger(logger=logger)
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
 
     def _get_comment_data(self, goods_id):
@@ -57,7 +58,7 @@ class TaoBaoCommentParse(object):
             _params = self._set_params(current_page_num=current_page_num, goods_id=goods_id)
 
             self.headers.update({'referer': 'https://item.taobao.com/item.htm?id='+goods_id})
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='gbk')
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='gbk', ip_pool_type=self.ip_pool_type)
             # self.my_lg.info(str(body))
 
             try:
@@ -89,7 +90,7 @@ class TaoBaoCommentParse(object):
             self.result_data = {}
             return {}
 
-        _t = datetime.datetime.now()
+        _t = get_shanghai_time()
 
         _r = CommentItem()
         _r['goods_id'] = str(goods_id)
@@ -191,7 +192,7 @@ class TaoBaoCommentParse(object):
         :param url:
         :return:
         '''
-        tmp_proxies = MyRequests._get_proxies()
+        tmp_proxies = Requests._get_proxies(ip_pool_type=self.ip_pool_type)
 
         try:
             _res = requests.get(url=url, headers=self.headers, proxies=tmp_proxies)

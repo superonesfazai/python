@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import time
 from random import randint
 import json
 import re
@@ -15,11 +14,12 @@ from pprint import pprint
 from json import dumps
 from time import sleep
 import gc
-from scrapy.selector import Selector
 
-from settings import PHANTOMJS_DRIVER_PATH, MY_SPIDER_LOGS_PATH
+from settings import (
+    PHANTOMJS_DRIVER_PATH, 
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 from logging import INFO, ERROR
-from requests.exceptions import ProxyError
 from urllib.parse import urlencode
 
 from taobao_parse import TaoBaoLoginAndParse
@@ -31,8 +31,7 @@ from sql_str_controller import (
     tm_insert_str_2,
     tm_insert_str_3,
     tm_update_str_2,
-    tm_update_str_3,
-)
+    tm_update_str_3,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.log_utils import set_logger
@@ -41,7 +40,7 @@ from fzutils.time_utils import (
     datetime_to_timestamp,)
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 
 class TmallParse(object):
@@ -50,6 +49,7 @@ class TmallParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self.msg = ''
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -89,7 +89,7 @@ class TmallParse(object):
 
         self.headers.update({'Referer': tmp_url})
         last_url = self._get_last_url(goods_id=goods_id)
-        body = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
+        body = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, ip_pool_type=self.ip_pool_type)
         if body == '':
             self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
             self.result_data = {}

@@ -1,3 +1,4 @@
+# celery
 ## celery 架构
 ![](./images/111.png)
 Celery包含如下组件：
@@ -7,6 +8,10 @@ Celery包含如下组件：
 - Celery Worker：执行任务的消费者，通常会在多台服务器运行多个消费者来提高执行效率。
 - Broker：消息代理，或者叫作消息中间件，接受任务生产者发送过来的任务消息，存进队列再按序分发给任务消费方（通常是消息队列或者数据库）。
 - Result Backend：任务处理完后保存状态信息和结果，以供查询。Celery默认已支持Redis、RabbitMQ、MongoDB、Django ORM、SQLAlchemy等方式。
+
+## celery 与 kombu
+python 基于AMQP的库，比较常用的有两个，pika 和 kombu。kombu 相对pika 是更高层面的抽象，pika 只支持AMQP 0.9.1协议，而kombu 抽象了中间的broker，可以支持多种broker（redis,zookeeper,mongodb等）。而且相对pika 提供了很多特性：重连策略，连接池，failover 策略等等。这些策略都是一些常用且比较重要的特性，如果用pika 的话需要自己去造轮子。
+kombo 更像是celery 的定制库，在celery中大量使用了kombu中的概念，kombu的更底层是调用的librabbitmq 库或py-amqp库来实现AMQP 0.9.1 ，在这个层面上，pika更接近py-amqp库。这里再提一嘴，open stack 项目在kombu的基础上又针对性的封装了一层，就是著名的oslo.messaging公共库了。
 
 ## Celery序列化
 在客户端和消费者之间传输数据需要序列化和反序列化，Celery支持如下的序列化方案：

@@ -24,6 +24,7 @@ sys.path.append('..')
 from settings import (
     MY_SPIDER_LOGS_PATH,
     IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,
 )
 
 from logging import INFO, ERROR
@@ -41,7 +42,7 @@ from fzutils.time_utils import (
     get_shanghai_time,
     string_to_datetime,)
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.linux_utils import daemon_init
 from fzutils.common_utils import (
     json_2_dict,
@@ -67,6 +68,7 @@ class XiaoHongShuParse(object):
         self.CRAWL_ARTICLE_SLEEP_TIME = 1       # 抓每天文章的sleep_time(wx=1/app=2)
         self.LONG_SLEEP_TIME = 0                # 每抓10条休眠时间
         self.db_share_id = []                   # db原先存在的
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -129,7 +131,7 @@ class XiaoHongShuParse(object):
         )
 
         url = 'https://www.xiaohongshu.com/api/sns/v6/homefeed'
-        body = MyRequests.get_url_body(url=url, headers=headers, params=params, cookies=None, high_conceal=True)
+        body = Requests.get_url_body(url=url, headers=headers, params=params, cookies=None, high_conceal=True, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(body)
         if body == '':
             self.my_lg.error('获取到的body为空值!请检查!')
@@ -193,7 +195,7 @@ class XiaoHongShuParse(object):
             self.my_lg.info('[+] {0}'.format(article_link))
             if article_link != '':
                 if not self.by_wx:  # 通过pc端
-                    body = MyRequests.get_url_body(url=article_link, headers=self.headers, high_conceal=True)
+                    body = Requests.get_url_body(url=article_link, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
                     try:
                         article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
                         # self.my_lg.info(str(article_info))
@@ -215,7 +217,8 @@ class XiaoHongShuParse(object):
                     params = {
                         "sid": "session.1210427606534613282",  # 对方服务器用来判断登录是否过期(过期则替换这个即可再次采集)
                     }
-                    body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
+                    body = Requests.get_url_body(url=url, headers=self.headers, params=params, ip_pool_type=self.ip_pool_type)
+                    # self.my_lg.info(str(body))
                     if body == '':
                         self.my_lg.error('获取到的article的body为空值!跳过!')
                         sleep(self.CRAWL_ARTICLE_SLEEP_TIME)

@@ -15,7 +15,10 @@ from time import sleep
 import sys
 sys.path.append('..')
 
-from settings import IS_BACKGROUND_RUNNING, ZHE_800_PINTUAN_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    ZHE_800_PINTUAN_SLEEP_TIME,
+    IP_POOL_TYPE,)
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -23,12 +26,13 @@ from sql_str_controller import z8_select_str_1
 
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Zhe800Pintuan(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -51,7 +55,7 @@ class Zhe800Pintuan(object):
             tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(str(page))
             print('正在抓取的页面地址为: ', tmp_url)
 
-            tmp_body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True)
+            tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
             if tmp_body == '':
                 tmp_body = '{}'
             try:

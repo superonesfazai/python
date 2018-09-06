@@ -18,7 +18,9 @@ from time import sleep
 import json
 from pprint import pprint
 import time
-from settings import IS_BACKGROUND_RUNNING
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     jp_delete_str_3,
@@ -33,7 +35,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
@@ -43,6 +45,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = jp_delete_str_3
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -108,7 +111,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                         )
                         # print('待爬取的tab_id, page地址为: ', tmp_url)
 
-                        data = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+                        data = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
                         if data == '':
                             break
 

@@ -7,17 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
 import json
-import re
-import time
 from pprint import pprint
 import gc
-import pytz
-from selenium import webdriver
-import selenium.webdriver.support.ui as ui
 from time import sleep
-import os
 
 import sys
 sys.path.append('..')
@@ -25,7 +18,9 @@ sys.path.append('..')
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from settings import IS_BACKGROUND_RUNNING
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import jp_select_str_5
 
@@ -36,11 +31,12 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 
 class JuanPiSpike(object):
     def __init__(self):
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -67,7 +63,7 @@ class JuanPiSpike(object):
                 )
                 print('待抓取的限时秒杀地址为: ', tmp_url)
 
-                data = MyRequests.get_url_body(url=tmp_url, headers=self.headers)
+                data = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
                 if data == '': break
 
                 try:

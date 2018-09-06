@@ -23,7 +23,10 @@ import json
 from pprint import pprint
 import time
 
-from settings import IS_BACKGROUND_RUNNING, CHUCHUJIE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING, 
+    CHUCHUJIE_SLEEP_TIME,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     cc_delete_str_1,
@@ -34,12 +37,13 @@ from sql_str_controller import (
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = cc_delete_str_1
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -226,7 +230,7 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
             'page': page
         }
 
-        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, params=data)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=data, ip_pool_type=self.ip_pool_type)
         if body == '':
             body = '{}'
 

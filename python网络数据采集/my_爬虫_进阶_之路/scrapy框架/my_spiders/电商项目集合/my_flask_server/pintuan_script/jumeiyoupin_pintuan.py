@@ -18,7 +18,6 @@ import gc
 from time import sleep
 from logging import INFO, ERROR
 import asyncio
-import aiohttp
 
 from settings import MY_SPIDER_LOGS_PATH
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -27,6 +26,7 @@ from settings import (
     JUMEIYOUPIN_SLEEP_TIME,
     JUMEIYOUPIN_PINTUAN_API_TIMEOUT,
     PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,
 )
 import datetime
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
@@ -41,7 +41,7 @@ from fzutils.linux_utils import (
     restart_program,
 )
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
@@ -92,12 +92,12 @@ class JuMeiYouPinPinTuan(object):
         '''
         s_time = time.time()
         goods_list = []
-        my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+        driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
         for key in self.tab_dict:
             self.msg = '正在抓取的分类为: ' + key
             self.my_lg.info(self.msg)
             for index in range(1, 20):
-                item_list = await self.get_one_page_goods_list(my_phantomjs=my_phantomjs, key=key, tab=self.tab_dict[key], index=index)
+                item_list = await self.get_one_page_goods_list(driver=driver, key=key, tab=self.tab_dict[key], index=index)
 
                 all_goods_id = list(set([s.get('goods_id', '') for s in goods_list]))
                 for item in item_list:
@@ -108,7 +108,7 @@ class JuMeiYouPinPinTuan(object):
             #     break
             # break
 
-        try: del my_phantomjs
+        try: del driver
         except: pass
         self.my_lg.info(str(goods_list))
         self.my_lg.info('本次抓到所有拼团商品个数为: ' + str(len(goods_list)))
@@ -183,7 +183,7 @@ class JuMeiYouPinPinTuan(object):
         :param kwargs:
         :return: item_list 类型list
         '''
-        my_phantomjs = kwargs.get('my_phantomjs')
+        driver = kwargs.get('driver')
         key = kwargs.get('key', '')
         tab = kwargs.get('tab', '')
         index = kwargs.get('index')
@@ -196,7 +196,7 @@ class JuMeiYouPinPinTuan(object):
         # body = await MyAiohttp.aio_get_url_body(url=tmp_url, headers=self.headers, timeout=JUMEIYOUPIN_PINTUAN_API_TIMEOUT)
 
         # 改用phantomjs，aiohttp太慢
-        body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+        body = driver.use_phantomjs_to_get_url_body(url=tmp_url)
         try: body = re.compile('<pre .*?>(.*)</pre>').findall(body)[0]
         except: pass
         await asyncio.sleep(1)

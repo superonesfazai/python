@@ -21,7 +21,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     IS_BACKGROUND_RUNNING,
     MOGUJIE_SLEEP_TIME,
-    PHANTOMJS_DRIVER_PATH,)
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 from mogujie_parse import MoGuJieParse
 
 from sql_str_controller import (
@@ -35,7 +36,7 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MoGuJiePinTuan(object):
@@ -127,7 +128,7 @@ class MoGuJiePinTuan(object):
         '''
         方法二: 通过pc端来获取拼团商品列表
         '''
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
         for key in self.fcid_dict:
             print('正在抓取的分类为: ', key)
             for index in range(1, 100):
@@ -135,7 +136,7 @@ class MoGuJiePinTuan(object):
                     try: del self.my_phantomjs
                     except: pass
                     gc.collect()
-                    self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+                    self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
 
                 fcid = self.fcid_dict[key]
                 tmp_url = 'http://list.mogujie.com/search?page={0}&fcid={1}&algoKey=pc_tuan_book_pop&cKey=pc-tuan'.format(

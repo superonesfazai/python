@@ -19,11 +19,13 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 from time import sleep
-import datetime
 import json
 from pprint import pprint
 import time
-from settings import IS_BACKGROUND_RUNNING, MIA_SPIKE_SLEEP_TIME
+from settings import (
+    IS_BACKGROUND_RUNNING, 
+    MIA_SPIKE_SLEEP_TIME,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     mia_delete_str_3,
@@ -37,13 +39,14 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Mia_Miaosha_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = mia_delete_str_3
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -107,7 +110,7 @@ class Mia_Miaosha_Real_Time_Update(object):
 
                         tmp_url = 'https://m.mia.com/instant/seckill/seckillPromotionItem/' + str(item[2])
 
-                        body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+                        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
                         # print(body)
 
                         if body == '' or body == '[]':

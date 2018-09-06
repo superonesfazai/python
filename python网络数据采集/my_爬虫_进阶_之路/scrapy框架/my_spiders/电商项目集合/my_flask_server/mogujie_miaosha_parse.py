@@ -18,19 +18,20 @@ import gc
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
+from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mg_update_str_1,
     mg_insert_str_1,
-    mg_update_str_2,
-)
+    mg_update_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 
 class MoGuJieMiaoShaParse(MoGuJieParse):
     def __init__(self):
         MoGuJieParse.__init__(self)
+        self.ip_pool_type = IP_POOL_TYPE
 
     def get_goods_data(self, goods_id:str) -> dict:
         '''
@@ -55,7 +56,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse):
                 return {}
 
             data = {}
-            body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(body)
             if body == '':
                 print('获取到的body为空str!')

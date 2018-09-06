@@ -17,9 +17,9 @@ from pprint import pprint
 from time import sleep
 import re
 import gc
-from scrapy import Selector
 from json import dumps
 
+from settings import IP_POOL_TYPE
 from sql_str_controller import (
     vip_update_str_1,
 )
@@ -31,7 +31,7 @@ from fzutils.time_utils import (
     datetime_to_timestamp,
 )
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 
 '''
@@ -144,7 +144,7 @@ def test():
         },
     ])
 
-    body = MyRequests.get_url_body(method='post', url=url, headers=headers, params=params, data=data)
+    body = Requests.get_url_body(method='post', url=url, headers=headers, params=params, data=data, ip_pool_type=IP_POOL_TYPE)
     # print(body)
     data = json_2_dict(json_str=body)
 
@@ -157,6 +157,7 @@ class VipParse(object):
     def __init__(self):
         self._set_headers()
         self.result_data = {}
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -294,7 +295,7 @@ class VipParse(object):
             page = 'product-0-' + str(goods_id[1]) + '.html'
             post_data = self._set_post_data(page=page)
 
-            body = MyRequests.get_url_body(method='post', url=url, headers=self.headers, params=params, data=post_data)
+            body = Requests.get_url_body(method='post', url=url, headers=self.headers, params=params, data=post_data, ip_pool_type=self.ip_pool_type)
             # print(body)
 
             if body == '':
@@ -667,7 +668,7 @@ class VipParse(object):
                             page = 'product-0-' + str(goods_id[1]) + '.html'
                             post_data = self._set_post_data(page=page)
 
-                            tmp_data_2 = MyRequests.get_url_body(method='post', url=url, headers=self.headers, params=params, data=post_data)
+                            tmp_data_2 = Requests.get_url_body(method='post', url=url, headers=self.headers, params=params, data=post_data, ip_pool_type=self.ip_pool_type)
                             # print(tmp_data_2)
 
                             # 先处理得到dict数据

@@ -19,6 +19,7 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
+    IP_POOL_TYPE,
 )
 
 import gc
@@ -43,7 +44,7 @@ from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_e
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.data.excel_utils import read_info_from_excel_file
 
@@ -57,6 +58,7 @@ class GoodsKeywordsSpider(object):
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         # 插入数据到goods_id_and_keyword_middle_table表
         self.add_keyword_id_for_goods_id_sql_str = kw_insert_str_1
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_logger(self):
         self.my_lg = set_logger(
@@ -219,7 +221,7 @@ class GoodsKeywordsSpider(object):
         )
 
         s_url = 'https://s.taobao.com/search'
-        body = MyRequests.get_url_body(url=s_url, headers=headers, params=params)
+        body = Requests.get_url_body(url=s_url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         if body == '':
             return []
         else:
@@ -267,7 +269,7 @@ class GoodsKeywordsSpider(object):
         )
 
         url = 'https://m.1688.com/offer_search/-6161.html'
-        body = MyRequests.get_url_body(url=url, headers=headers, params=params)
+        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(str(body))
         if body == '':
             return []
@@ -310,7 +312,7 @@ class GoodsKeywordsSpider(object):
         }
 
         s_url = 'https://list.tmall.com/m/search_items.htm'
-        body = MyRequests.get_url_body(url=s_url, headers=headers, params=params)
+        body = Requests.get_url_body(url=s_url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(str(body))
         if body == '':
             return []
@@ -372,7 +374,7 @@ class GoodsKeywordsSpider(object):
         )
 
         s_url = 'https://so.m.jd.com/ware/search._m2wq_list'
-        body = MyRequests.get_url_body(url=s_url, headers=headers, params=params)
+        body = Requests.get_url_body(url=s_url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # self.my_lg.info(str(body))
         if body == '':
             return []

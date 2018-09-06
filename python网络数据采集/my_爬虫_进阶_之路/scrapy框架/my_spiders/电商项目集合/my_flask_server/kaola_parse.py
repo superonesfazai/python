@@ -22,14 +22,15 @@ from json import dumps
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
-    MY_SPIDER_LOGS_PATH,)
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 
 from sql_str_controller import (
     kl_update_str_1,
 )
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 # from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.common_utils import (
     json_2_dict,
@@ -51,6 +52,7 @@ class KaoLaParse(object):
         self.result_data = {}
         self._set_logger(logger)
         self._set_headers()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -122,15 +124,16 @@ class KaoLaParse(object):
             # TODO 获取m站的sku_info(但是没有税费)
             # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
             # params = self._get_params(goods_id=goods_id)
-            # body = MyRequests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
+            # body = Requests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
 
             # 获取pc站的sku_info
             sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
             params = self._get_pc_sku_info_params(goods_id=goods_id)
-            body = MyRequests.get_url_body(
+            body = Requests.get_url_body(
                 url=sku_info_url,
                 headers=self._get_pc_sku_info_headers(),
-                params=params)
+                params=params,
+                ip_pool_type=self.ip_pool_type)
 
             sku_info = json_2_dict(json_str=body, logger=self.my_lg).get('data')
             if sku_info is None:
@@ -351,7 +354,7 @@ class KaoLaParse(object):
             # ('anstipamActiCheatValidate', 'anstipam_acti_default_validate'),
         )
 
-        body = MyRequests.get_url_body(url=url, headers=headers, params=params)
+        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # print(body)
 
         return body

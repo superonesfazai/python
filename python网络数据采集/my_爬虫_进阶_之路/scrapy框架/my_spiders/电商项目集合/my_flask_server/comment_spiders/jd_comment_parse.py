@@ -13,7 +13,8 @@ sys.path.append('..')
 from my_items import CommentItem
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    PHANTOMJS_DRIVER_PATH,)
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from time import sleep
 import gc
@@ -29,8 +30,8 @@ from fzutils.time_utils import (
 )
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import MyPhantomjs
+from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
 
 class JdCommentParse(object):
@@ -40,7 +41,8 @@ class JdCommentParse(object):
         self._set_logger(logger)
         self._set_headers()
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
-        self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg)
+        self.ip_pool_type = IP_POOL_TYPE
+        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=self.ip_pool_type)
         self._add_headers_cookies()
 
     def _get_comment_data(self, goods_id):
@@ -60,7 +62,7 @@ class JdCommentParse(object):
             _url = 'https://item.m.jd.com/newComments/newCommentsDetail.json'
 
             params = self._set_params(goods_id=goods_id, current_page=current_page)
-            body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params)
+            body = Requests.get_url_body(url=_url, headers=self.headers, params=params, ip_pool_type=self.ip_pool_type)
             # self.my_lg.info(str(body))
 
             _data = json_2_dict(json_str=body, logger=self.my_lg).get('wareDetailComment', {}).get('commentInfoList', [])
@@ -158,7 +160,7 @@ class JdCommentParse(object):
     def _add_headers_cookies(self):
         # 测试发现得带cookies, 详细到cookies中的sid字符必须有
         # 先获取cookies
-        _cookies = self.my_phantomjs.get_url_cookies_from_phantomjs_session(url='https://item.m.jd.com/')
+        _cookies = self.driver.get_url_cookies_from_phantomjs_session(url='https://item.m.jd.com/')
         # self.my_lg.info(str(_cookies))
         self.headers.update({
             'cookie': _cookies,
@@ -223,7 +225,7 @@ class JdCommentParse(object):
     def __del__(self):
         try:
             del self.my_lg
-            del self.my_phantomjs
+            del self.driver
             del self.headers
         except:
             pass
