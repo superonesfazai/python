@@ -195,7 +195,11 @@ class XiaoHongShuParse(object):
             self.my_lg.info('[+] {0}'.format(article_link))
             if article_link != '':
                 if not self.by_wx:  # 通过pc端
-                    body = Requests.get_url_body(url=article_link, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+                    params = (
+                        ('_at', '499a292d16aed3d80a068fc60e0c1e3ee3410'),
+                    )
+                    body = Requests.get_url_body(url=article_link, headers=self.headers, params=params, high_conceal=True, ip_pool_type=self.ip_pool_type)
+                    # self.my_lg.info(str(body))
                     try:
                         article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
                         # self.my_lg.info(str(article_info))
@@ -213,7 +217,9 @@ class XiaoHongShuParse(object):
                     # pprint(article_info)
 
                 else:               # 通过wx小程序
-                    url = "https://www.xiaohongshu.com/wx_mp_api/sns/v1/note/" + article_id
+                    # url = "https://www.xiaohongshu.com/wx_mp_api/sns/v1/note/" + article_id
+                    # wx接口改版, 需要一个参数Auth认证, 暂时没处理
+                    url = 'https://www.xiaohongshu.com/sapi/wx_mp_api/sns/v1/note/' + article_id
                     params = {
                         "sid": "session.1210427606534613282",  # 对方服务器用来判断登录是否过期(过期则替换这个即可再次采集)
                     }
@@ -558,7 +564,7 @@ class XiaoHongShuParse(object):
 
 def just_fuck_run():
     # _ = XiaoHongShuParse()
-    _ = XiaoHongShuParse(by_wx=True)
+    _ = XiaoHongShuParse(by_wx=False)   # wx headers加了个Auth, pc老死
 
     while True:
         # 处理主页推荐地址

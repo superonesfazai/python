@@ -119,7 +119,7 @@ def serverdisconnect(self, conn: mitmproxy.connections.ServerConnection):
 ```python
 def next_layer(self, layer: mitmproxy.proxy.protocol.Layer):
 ```
-(Called when) 网络 layer 发生切换。你可以通过返回一个新的 layer 对象来改变将被使用的 layer。详见 layer[https://github.com/mitmproxy/mitmproxy/blob/fc80aa562e5fdd239c82aab1ac73502adb4f67dd/mitmproxy/proxy/protocol/__init__.py#L2] 的定义。
+(Called when) 网络 layer 发生切换。你可以通过返回一个新的 layer 对象来改变将被使用的 layer。详见 [layer](https://github.com/mitmproxy/mitmproxy/blob/fc80aa562e5fdd239c82aab1ac73502adb4f67dd/mitmproxy/proxy/protocol/__init__.py#L2) 的定义。
 
 5. 通用生命周期
 ```python
