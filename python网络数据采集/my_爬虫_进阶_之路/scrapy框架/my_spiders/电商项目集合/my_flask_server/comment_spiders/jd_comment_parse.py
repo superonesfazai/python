@@ -18,38 +18,38 @@ from settings import (
 
 from time import sleep
 import gc
-from logging import INFO, ERROR
 import re
 import datetime
 from pprint import pprint
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-    string_to_datetime,
-)
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
-from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
-class JdCommentParse(object):
+class JdCommentParse(Crawler):
     def __init__(self, logger=None):
+        super(JdCommentParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/京东/comment/',
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+        )
         self.result_data = {}
         self.msg = ''
-        self._set_logger(logger)
         self._set_headers()
         self.comment_page_switch_sleep_time = 1.2  # 评论下一页sleep time
-        self.ip_pool_type = IP_POOL_TYPE
-        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=self.ip_pool_type)
         self._add_headers_cookies()
 
     def _get_comment_data(self, goods_id):
         if goods_id == '':
             self.result_data = {}
             return {}
-        self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
+        self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
         self.goods_id = goods_id
         self.headers.update({
@@ -63,11 +63,11 @@ class JdCommentParse(object):
 
             params = self._set_params(goods_id=goods_id, current_page=current_page)
             body = Requests.get_url_body(url=_url, headers=self.headers, params=params, ip_pool_type=self.ip_pool_type)
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
 
-            _data = json_2_dict(json_str=body, logger=self.my_lg).get('wareDetailComment', {}).get('commentInfoList', [])
+            _data = json_2_dict(json_str=body, logger=self.lg).get('wareDetailComment', {}).get('commentInfoList', [])
             if _data == []:
-                self.my_lg.error('出错goods_id:{0}'.format(self.goods_id))
+                self.lg.error('出错goods_id:{0}'.format(self.goods_id))
 
             _tmp_comment_list += _data
 
@@ -77,8 +77,8 @@ class JdCommentParse(object):
         try:
             _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
         except Exception as e:
-            self.my_lg.error('出错goods_id:{0}'.format(goods_id))
-            self.my_lg.exception(e)
+            self.lg.error('出错goods_id:{0}'.format(goods_id))
+            self.lg.exception(e)
             self.result_data = {}
             return {}
 
@@ -106,7 +106,7 @@ class JdCommentParse(object):
 
             # sku_info(有些商品评论是没有规格的所以默认为空即可，不加assert检查!)
             ware_attributes = item.get('wareAttributes', [])
-            # self.my_lg.info(str(ware_attributes))
+            # self.lg.info(str(ware_attributes))
             sku_info = ' '.join([i.get('key', '')+':'+i.get('value', '') for i in ware_attributes])
             # assert sku_info != '', '得到的sku_info为空str!请检查!'
 
@@ -161,22 +161,12 @@ class JdCommentParse(object):
         # 测试发现得带cookies, 详细到cookies中的sid字符必须有
         # 先获取cookies
         _cookies = self.driver.get_url_cookies_from_phantomjs_session(url='https://item.m.jd.com/')
-        # self.my_lg.info(str(_cookies))
+        # self.lg.info(str(_cookies))
         self.headers.update({
             'cookie': _cookies,
         })
 
         return None
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/京东/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         self.headers = {
@@ -224,7 +214,7 @@ class JdCommentParse(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.driver
             del self.headers
         except:

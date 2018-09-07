@@ -315,7 +315,7 @@ jm_update_str_3 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=
 # 秒杀下架删除
 jm_delete_str_1 = 'delete from dbo.jumeiyoupin_xianshimiaosha where goods_id=%s'
 # 秒杀过期清空
-jm_delete_str_2 = 'delete from dbo.jumeiyoupin_xianshimiaosha where miaosha_end_time<GETDATE()-2'
+jm_delete_str_2 = 'delete from dbo.jumeiyoupin_xianshimiaosha where miaosha_end_time < GETDATE()-2'
 
 """
 楚楚街

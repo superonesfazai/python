@@ -34,29 +34,22 @@ from sql_str_controller import (
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
+from fzutils.spider.crawler import Crawler
 
-class JdParse(object):
+class JdParse(Crawler):
     def __init__(self, logger=None):
+        super(JdParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/jd/_/',
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+        )
         self._set_headers()
-        self._set_pc_headers()
         self.result_data = {}
-        self._set_logger(logger)
-        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/jd/_/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         self.headers = {
@@ -69,17 +62,6 @@ class JdParse(object):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
-    def _set_pc_headers(self):
-        # pc头, 只识别小写
-        self.pc_headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'cache-control': 'max-age=0',
-            'connection': 'keep-alive',
-            'user-agent': get_random_pc_ua(),
-        }
-
     def get_goods_data(self, goods_id):
         '''
         模拟构造得到data的url
@@ -87,7 +69,7 @@ class JdParse(object):
         :return: data   类型dict
         '''
         if goods_id == []:
-            self.my_lg.error('goods_id为空list')
+            self.lg.error('goods_id为空list')
             return self._data_error_init()
 
         if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
@@ -96,9 +78,9 @@ class JdParse(object):
         self.error_record = '出错goods_id:{0}'.format(goods_id[1])
 
         phone_url, tmp_url, comment_url = self._get_need_url(goods_id=goods_id)
-        self.my_lg.info('------>>>| 得到的移动端地址为: {0}'.format(phone_url))
+        self.lg.info('------>>>| 得到的移动端地址为: {0}'.format(phone_url))
 
-        # self.my_lg.info(str(tmp_url))
+        # self.lg.info(str(tmp_url))
         if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
             # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
             self.driver.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
@@ -112,7 +94,7 @@ class JdParse(object):
             return self._data_error_init()
 
         comment_body = self._wash_url_body(body=comment_body)
-        # self.my_lg.info(str(comment_body))
+        # self.lg.info(str(comment_body))
         comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
         if comment_body_1 != []:
             comment_data = comment_body_1[0]
@@ -121,7 +103,7 @@ class JdParse(object):
             all_sell_count = comment_data.get('wareDetailComment', {}).get('allCnt', '0')
 
         else:
-            self.my_lg.error('获取到的comment的销售量data为空!'+self.error_record)
+            self.lg.error('获取到的comment的销售量data为空!'+self.error_record)
             return self._data_error_init()
 
         body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
@@ -129,7 +111,7 @@ class JdParse(object):
             return self._data_error_init()
 
         body = self._wash_url_body(body=body)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
 
         body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
 
@@ -138,13 +120,13 @@ class JdParse(object):
         # if body_1 == '':
         #     body_1 = []
         # else:
-        # # self.my_lg.info(str(body_1[0]))
+        # # self.lg.info(str(body_1[0]))
 
         if body_1 != []:
             data = body_1[0]
             data = json_2_dict(json_str=data)
             if data == {}:
-                self.my_lg.error(r'此处直接返回data为{}'+self.error_record)
+                self.lg.error(r'此处直接返回data为{}'+self.error_record)
                 return self._data_error_init()
 
             # pprint(data)
@@ -160,13 +142,13 @@ class JdParse(object):
             if data.get('wi') is not None:
                 # 用于获取p_info
                 code = data.get('wi', {}).get('code', '')
-                # self.my_lg.info('wi,code的为: {}'.format(code))
+                # self.lg.info('wi,code的为: {}'.format(code))
                 if code != '':
                     code = json_2_dict(json_str=code)
                     try:
                         data.get('wi', {})['code'] = code
                     except Exception as e:  # 对应p_info解析错误的, 换方法解析
-                        self.my_lg.info('wi中的code对应json解析错误, 为:', e)
+                        self.lg.info('wi中的code对应json解析错误, 为:', e)
                         code = data.get('wi', {}).get('wareQD', '')
                         data.get('wi', {})['code'] = code
             else:
@@ -183,11 +165,11 @@ class JdParse(object):
                 # pprint(data)
                 return data
             else:
-                self.my_lg.error('获取到的data的key值ware为空!'+self.error_record)
+                self.lg.error('获取到的data的key值ware为空!'+self.error_record)
                 return self._data_error_init()
 
         else:
-            self.my_lg.error('获取到的data为空!'+self.error_record)
+            self.lg.error('获取到的data为空!'+self.error_record)
             return self._data_error_init()
 
     def deal_with_data(self, goods_id):
@@ -218,7 +200,7 @@ class JdParse(object):
                 return self._data_error_init()
             else:
                 is_delete, price, taobao_price = _
-            # self.my_lg.info('最高价: {0}, 最低价: {1}'.format(price, taobao_price))
+            # self.lg.info('最高价: {0}, 最低价: {1}'.format(price, taobao_price))
 
             # 所有示例图片地址
             '''
@@ -242,14 +224,14 @@ class JdParse(object):
             p_info = self.get_p_info(data=data)
             # pprint(p_info)      # 爬取是手机端的所以没有第一行的，就是手机端的规格
             div_desc = self.get_right_div_desc(data=data)
-            # self.my_lg.info(str(div_desc))
+            # self.lg.info(str(div_desc))
             jd_type = self._get_jd_type(is_jd_market=data.get('isJdMarket'), type=goods_id[0])
-            # self.my_lg.info('jd_type为: {0}'.format(jd_type))
+            # self.lg.info('jd_type为: {0}'.format(jd_type))
 
             # 商品总销售量
             all_sell_count = str(data.get('all_sell_count', '0'))
             if is_delete == 1:
-                self.my_lg.info('**** 该商品已下架...')
+                self.lg.info('**** 该商品已下架...')
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -271,19 +253,19 @@ class JdParse(object):
                 'all_sell_count': all_sell_count,       # 商品总销售量
             }
             # pprint(result)
-            # self.my_lg.info(str(result))
+            # self.lg.info(str(result))
             # wait_to_send_data = {
             #     'reason': 'success',
             #     'data': result,
             #     'code': 1
             # }
             # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # self.my_lg.info(str(json_data))
+            # self.lg.info(str(json_data))
             gc.collect()
             return result
 
         else:
-            self.my_lg.info('待处理的data为空的dict'+self.error_record)
+            self.lg.info('待处理的data为空的dict'+self.error_record)
             return {}
 
     def _data_error_init(self):
@@ -299,15 +281,15 @@ class JdParse(object):
         '''
         判断是否是京东商品类型
         '''
-        # self.my_lg.info(str(data.get('isJdMarket')))
+        # self.lg.info(str(data.get('isJdMarket')))
         if is_jd_market:  # False不是京东超市
-            self.my_lg.info('该链接为京东超市')
+            self.lg.info('该链接为京东超市')
             jd_type = 8  # 7为京东常规商品, 8表示京东超市, 9表示京东全球购, 10表示京东大药房
         elif type == 1:
-            self.my_lg.info('该链接为京东全球购')
+            self.lg.info('该链接为京东全球购')
             jd_type = 9
         elif type == 2:
-            self.my_lg.info('该链接为京东大药房')
+            self.lg.info('该链接为京东大药房')
             jd_type = 10
         else:
             jd_type = 7
@@ -335,7 +317,7 @@ class JdParse(object):
                 price, taobao_price = (0, 0,)
             else:
                 try:
-                    # self.my_lg.info(str(self.from_ware_id_get_price_info(ware_id=goods_id)[0]))
+                    # self.lg.info(str(self.from_ware_id_get_price_info(ware_id=goods_id)[0]))
                     price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
                     taobao_price = price
                 except TypeError:
@@ -345,15 +327,15 @@ class JdParse(object):
             try:
                 tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
             except ValueError:
-                self.my_lg.error('tmp_price_list的ValueError，此处设置为跳过' + self.error_record)
+                self.lg.error('tmp_price_list的ValueError，此处设置为跳过' + self.error_record)
                 return [0, '', '']
 
-            # self.my_lg.info(str(tmp_price_list))
+            # self.lg.info(str(tmp_price_list))
             if tmp_price_list != []:
                 price = tmp_price_list[-1]
                 taobao_price = tmp_price_list[0]
             else:
-                self.my_lg.error('获取最高价最低价时错误' + self.error_record)
+                self.lg.error('获取最高价最低价时错误' + self.error_record)
                 return [0, '', '']
 
         return [is_delete, price, taobao_price]
@@ -378,7 +360,7 @@ class JdParse(object):
             tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
             comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
 
-            self.my_lg.info('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
+            self.lg.info('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
             return {}
 
         elif goods_id[0] == 2:  # 表示京东大药房商品
@@ -402,7 +384,7 @@ class JdParse(object):
         elif ware_id[0] == 2:  # 表示京东大药房商品
             price_url = 'https://m.yiyaojd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
 
-        # self.my_lg.info(str(price_url))
+        # self.lg.info(str(price_url))
         price_body = self.driver.use_phantomjs_to_get_url_body(url=price_url)
 
         price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
@@ -451,7 +433,7 @@ class JdParse(object):
             ]
 
         else:
-            # self.my_lg.error('获取到的price_data为空!')
+            # self.lg.error('获取到的price_data为空!')
             return []
 
     def _get_shop_name(self, data):
@@ -519,7 +501,7 @@ class JdParse(object):
                         tmp_spec_value.append(item.get('spec'))
 
                     tmp_spec_value = '|'.join(tmp_spec_value)  # 具体规格
-                    # self.my_lg.info(str(tmp_spec_value))
+                    # self.lg.info(str(tmp_spec_value))
 
                     sku_id = item.get('skuId')
                     # 对每个sku_id就行一次请求，来获得对应sku_id的价格数据
@@ -639,19 +621,19 @@ class JdParse(object):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        res = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        res = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
         return res
 
     def insert_into_jd_table(self, data, pipeline):
         site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
         if site_id == 0:
-            self.my_lg.error('site_id获取异常, 请检查!')
+            self.lg.error('site_id获取异常, 请检查!')
             return False
 
         tmp = _get_right_model_data(data=data, site_id=site_id)
 
-        self.my_lg.info('------>>>| 待存储的数据信息为:{0}'.format(tmp.get('goods_id')))
+        self.lg.info('------>>>| 待存储的数据信息为:{0}'.format(tmp.get('goods_id')))
 
         pipeline.insert_into_jd_table(item=tmp)
 
@@ -666,11 +648,11 @@ class JdParse(object):
         '''
         site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
         if site_id == 0:
-            self.my_lg.error('site_id获取异常, 请检查!')
+            self.lg.error('site_id获取异常, 请检查!')
             return False
 
         tmp = _get_right_model_data(data=data, site_id=site_id)
-        self.my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(tmp.get('goods_id')))
+        self.lg.info('------>>>| 待存储的数据信息为: {0}'.format(tmp.get('goods_id')))
 
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
@@ -679,7 +661,7 @@ class JdParse(object):
         else:
             sql_str = jd_insert_str_2
 
-        result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        result = pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
         return result
 
@@ -798,22 +780,22 @@ class JdParse(object):
         is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(jd_url)
         if is_jd_url != []:
             goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(jd_url)[0]
-            self.my_lg.info('------>>>| 得到的京东商品id为:{0}'.format(goods_id))
+            self.lg.info('------>>>| 得到的京东商品id为:{0}'.format(goods_id))
             return [0, goods_id]            # 0表示京东常规商品, 包括京东超市, 京东精选
         else:
             is_jd_hk_url = re.compile(r'https://item.jd.hk/.*?').findall(jd_url)
             if is_jd_hk_url != []:
                 goods_id = re.compile(r'https://item.jd.hk/(.*?).html.*?').findall(jd_url)[0]
-                self.my_lg.info('------>>>| 得到的京东全球购商品id为:{0}'.format(goods_id))
+                self.lg.info('------>>>| 得到的京东全球购商品id为:{0}'.format(goods_id))
                 return [1, goods_id]        # 1表示京东全球购商品
             else:
                 is_yiyao_jd_url = re.compile(r'https://item.yiyaojd.com/.*?').findall(jd_url)
                 if is_yiyao_jd_url != []:
                     goods_id = re.compile(r'https://item.yiyaojd.com/(.*?).html.*?').findall(jd_url)[0]
-                    self.my_lg.info('------>>>| 得到的京东大药房商品id为:{}'.format(goods_id))
+                    self.lg.info('------>>>| 得到的京东大药房商品id为:{}'.format(goods_id))
                     return [2, goods_id]    # 2表示京东大药房
                 else:
-                    self.my_lg.info('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
+                    self.lg.info('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
                     return []
 
     def get_pc_no_watermark_picture(self, goods_id):
@@ -834,15 +816,15 @@ class JdParse(object):
             return {}
 
         # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
-        # tmp_pc_body = Requests.get_url_body(url=tmp_pc_url, headers=self.pc_headers)
         tmp_pc_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
-        # self.my_lg.info(str(tmp_pc_body))
+        # self.lg.info(str(tmp_pc_body))
         if tmp_pc_body == '':
-            self.my_lg.info('#### 获取该商品的无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
+            self.lg.info('#### 获取该商品的无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
             all_img_url = []
         else:
             try:
-                all_img_url = list(Selector(text=tmp_pc_body).css('div#spec-list ul.lh li img::attr("src")').extract())
+                all_img_url = list(Selector(text=tmp_pc_body).css('div#spec-list ul.lh li img ::attr("src")').extract())
+                # self.lg.info(str(all_img_url))
                 if all_img_url != []:
                     all_img_url = ['https:' + item_img_url for item_img_url in all_img_url if re.compile(r'^http').findall(item_img_url) == []]
                     all_img_url = [re.compile(r'/n5.*?jfs/').sub('/n1/jfs/', item_img_url) for item_img_url in all_img_url]
@@ -852,7 +834,7 @@ class JdParse(object):
                 else:
                     all_img_url = []
             except Exception as e:
-                self.my_lg.error('获取商品pc版无水印示例图片时出错: ', e)
+                self.lg.error('获取商品pc版无水印示例图片时出错: ', e)
                 all_img_url = []
 
         return all_img_url
@@ -860,7 +842,7 @@ class JdParse(object):
     def __del__(self):
         try:
             del self.driver
-            del self.my_lg
+            del self.lg
         except:
             pass
         gc.collect()

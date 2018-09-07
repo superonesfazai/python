@@ -28,16 +28,18 @@ from sql_str_controller import (
     mg_update_str_4,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
-class MoGuJieParse(object):
+class MoGuJieParse(Crawler):
     def __init__(self):
+        super(MoGuJieParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+        )
         self._set_headers()
         self.result_data = {}
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {

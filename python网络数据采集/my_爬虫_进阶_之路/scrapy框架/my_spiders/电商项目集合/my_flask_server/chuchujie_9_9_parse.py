@@ -30,10 +30,15 @@ from sql_str_controller import (
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.crawler import Crawler
 
-class ChuChuJie_9_9_Parse(object):
+class ChuChuJie_9_9_Parse(Crawler):
     def __init__(self):
+        super(ChuChuJie_9_9_Parse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH)
         self._set_headers()
         self.result_data = {}
 
@@ -133,10 +138,8 @@ class ChuChuJie_9_9_Parse(object):
 
         # 开始常规requests有数据, 后面无数据, 改用phantomjs
         # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
-        my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
-        body = my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
-        try: del my_phantomjs
-        except: pass
+        
+        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
         # print(body)
 
         if body == '':
@@ -524,6 +527,10 @@ class ChuChuJie_9_9_Parse(object):
             return ''
 
     def __del__(self):
+        try:
+            del self.driver
+        except:
+            pass
         gc.collect()
 
 if __name__ == '__main__':

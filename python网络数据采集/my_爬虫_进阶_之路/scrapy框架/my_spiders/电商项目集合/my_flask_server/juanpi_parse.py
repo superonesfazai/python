@@ -39,19 +39,22 @@ from fzutils.time_utils import (
 )
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
-from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
-class JuanPiParse(object):
+class JuanPiParse(Crawler):
     def __init__(self):
-        super(JuanPiParse, self).__init__()
+        super(JuanPiParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+        )
         self._set_headers()
         self.result_data = {}
-        self.ip_pool_type = IP_POOL_TYPE
-        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
     def _set_headers(self):
         self.headers = {
@@ -97,8 +100,8 @@ class JuanPiParse(object):
             '''
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
-            # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)    # 该css为手机端标题块
+            # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
+            body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)    # 该css为手机端标题块
             # print(body)
             if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:    # 页面为空处理
                 _ = SqlServerMyPageInfoSaveItemPipeline()
@@ -160,7 +163,7 @@ class JuanPiParse(object):
 
                     main_data['skudata'] = skudata
                     main_data['goods_id'] = goods_id
-                    main_data['parent_dir'] = _jp_get_parent_dir(phantomjs=self.my_phantomjs, goods_id=goods_id)
+                    main_data['parent_dir'] = _jp_get_parent_dir(phantomjs=self.driver, goods_id=goods_id)
                     self.result_data = main_data
                     # pprint(main_data)
 
@@ -739,7 +742,7 @@ class JuanPiParse(object):
 
     def __del__(self):
         try:
-            del self.my_phantomjs
+            del self.driver
             del self.result_data
         except:
             pass

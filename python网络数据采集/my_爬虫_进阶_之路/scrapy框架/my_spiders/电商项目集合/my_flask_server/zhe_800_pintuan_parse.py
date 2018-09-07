@@ -33,17 +33,20 @@ from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.fz_requests import Requests
-# from fzutils.spider.fz_phantomjs import MyPhantomjs
+# from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.crawler import Crawler
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
-class Zhe800PintuanParse(object):
+class Zhe800PintuanParse(Crawler):
     def __init__(self):
+        super(Zhe800PintuanParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+        )
         self._set_headers()
         self.result_data = {}
-        self.ip_pool_type = IP_POOL_TYPE
-        # self.my_phantomjs = MyPhantomjs(executable_path=PHANTOMJS_DRIVER_PATH)
+        # self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
         self.headers = {
@@ -97,7 +100,7 @@ class Zhe800PintuanParse(object):
             '''
             采用phantomjs
             '''
-            # main_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, css='div.title')
+            # main_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css='div.title')
             # # print(main_body)
             # if main_body == '':
             #     print('获取到的main_body为空值, 此处跳过!')
@@ -476,7 +479,7 @@ class Zhe800PintuanParse(object):
             div_desc_body = '{}'
 
         # 使用phantomjs
-        # div_desc_body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=div_desc_url)
+        # div_desc_body = self.driver.use_phantomjs_to_get_url_body(url=div_desc_url)
         # # print(div_desc_body)
         # if div_desc_body == '':
         #     div_desc_body = '{}'
@@ -577,7 +580,7 @@ class Zhe800PintuanParse(object):
 
     def __del__(self):
         # try:
-        #     del self.my_phantomjs
+        #     del self.driver
         # except:
         #     pass
         gc.collect()

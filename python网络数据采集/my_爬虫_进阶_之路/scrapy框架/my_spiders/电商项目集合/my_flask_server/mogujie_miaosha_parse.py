@@ -27,11 +27,11 @@ from sql_str_controller import (
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
-class MoGuJieMiaoShaParse(MoGuJieParse):
+class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):
     def __init__(self):
         MoGuJieParse.__init__(self)
-        self.ip_pool_type = IP_POOL_TYPE
 
     def get_goods_data(self, goods_id:str) -> dict:
         '''

@@ -22,31 +22,32 @@ from settings import (
 from random import randint
 from time import sleep
 import gc
-from logging import INFO, ERROR
-from scrapy.selector import Selector
 import re, datetime, json
 from pprint import pprint
 from random import choice
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import wash_sensitive_info
+from fzutils.spider.crawler import Crawler
 
-class TmallCommentParse(object):
+class TmallCommentParse(Crawler):
     def __init__(self, logger=None):
+        super(TmallCommentParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/comment/',
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+        )
         self.result_data = {}
         self.msg = ''
-        self._set_logger(logger)
         self._set_headers()
         self.page_size = '10'
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
-        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
         self.g_data = {}                # 临时数据
         self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
 
@@ -54,14 +55,14 @@ class TmallCommentParse(object):
         if goods_id == '' or type == '':
             self.result_data = {}
             return {}
-        self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
+        self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
         '''先获取到sellerId'''
         try:
             seller_id = self._get_seller_id(type=type, goods_id=goods_id)
         except AssertionError or IndexError as e:
-            self.my_lg.error('出错goods_id: %s' % goods_id)
-            self.my_lg.error(e.args[0])
+            self.lg.error('出错goods_id: %s' % goods_id)
+            self.lg.error(e.args[0])
             self.result_data = {}
             self.random_sku_info_list = []
             return {}
@@ -69,17 +70,17 @@ class TmallCommentParse(object):
         """再获取price_info_list"""
         try:
             self.random_sku_info_list = self._get_random_sku_info_list()
-            # self.my_lg.info(self.random_sku_info_list)
+            # self.lg.info(self.random_sku_info_list)
         except Exception as e:
-            self.my_lg.error('出错goods_id: %s' % str(goods_id))
-            self.my_lg.exception(e)
+            self.lg.error('出错goods_id: %s' % str(goods_id))
+            self.lg.exception(e)
             self.result_data = {}
             self.random_sku_info_list = []
             return {}
 
         _tmp_comment_list = []
         for current_page in range(1, 4):
-            self.my_lg.info('------>>>| 正在抓取第 {0} 页的评论...'.format(str(current_page)))
+            self.lg.info('------>>>| 正在抓取第 {0} 页的评论...'.format(str(current_page)))
             _url = 'https://rate.tmall.com/list_detail_rate.htm'
 
             params = self._set_params(goods_id=goods_id, seller_id=seller_id, current_page=current_page)
@@ -90,12 +91,12 @@ class TmallCommentParse(object):
 
             # 所以直接用phantomjs来获取相关api数据
             _url = _get_url_contain_params(url=_url, params=params)     # 根据params组合得到url
-            # self.my_lg.info(_url)
+            # self.lg.info(_url)
 
             body = self.driver.use_phantomjs_to_get_url_body(url=_url)
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
             if body == '':
-                self.my_lg.error('获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
+                self.lg.error('获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
                 self.result_data = {}
                 return {}
 
@@ -103,22 +104,22 @@ class TmallCommentParse(object):
                 _ = re.compile('\((.*)\)').findall(body)[0]
             except IndexError:
                 _ = {}
-                self.my_lg.error('索引异常! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
+                self.lg.error('索引异常! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
 
             try:
                 data = json.loads(_).get('rateDetail', {}).get('rateList', [])
                 # pprint(data)
             except:
                 data = []
-                self.my_lg.error('json.loads转换_出错! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
+                self.lg.error('json.loads转换_出错! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
             _tmp_comment_list += data
             sleep(self.comment_page_switch_sleep_time)
 
         try:
             _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
         except Exception as e:
-            self.my_lg.error('出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
-            self.my_lg.exception(e)
+            self.lg.error('出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
+            self.lg.exception(e)
             self.result_data = {}
             return {}
 
@@ -218,11 +219,11 @@ class TmallCommentParse(object):
         :param goods_id:
         :return:
         '''
-        _ = TmallParse(logger=self.my_lg)
+        _ = TmallParse(logger=self.lg)
         _g = [type, goods_id]
         self.g_data = _.get_goods_data(goods_id=_g)
         seller_id = str(self.g_data.get('seller', {}).get('userId', 0))
-        # self.my_lg.info('获取到的seller_id: ' + seller_id)
+        # self.lg.info('获取到的seller_id: ' + seller_id)
         try:
             del _
         except:
@@ -237,7 +238,7 @@ class TmallCommentParse(object):
         :return:
         '''
         assert self.g_data != {}, 'g_data为空dict'
-        _t = TaoBaoLoginAndParse(logger=self.my_lg)
+        _t = TaoBaoLoginAndParse(logger=self.lg)
         # 得到每个标签对应值的价格及其库存
         price_info_list = _t._get_price_info_list(
             data=self.g_data,
@@ -247,16 +248,6 @@ class TmallCommentParse(object):
         except: pass
 
         return list(set([_i.get('spec_value', '') for _i in price_info_list]))
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/天猫/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         self.headers = {
@@ -318,7 +309,7 @@ class TmallCommentParse(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.driver
             del self.g_data
         except:

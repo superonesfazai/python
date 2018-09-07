@@ -32,26 +32,29 @@ from sql_str_controller import (
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.spider.fz_phantomjs import BaseDriver
-from fzutils.ip_pools import MyIpPools
+from fzutils.ip_pools import IpPools
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import timestamp_to_regulartime
+from fzutils.spider.crawler import Crawler
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
-class PinduoduoParse(object):
+class PinduoduoParse(Crawler):
     def __init__(self):
+        super(PinduoduoParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+        )
         self._set_headers()
         self.result_data = {}
         # self.set_cookies_key_api_uid()  # 设置cookie中的api_uid的值
-        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
 
     def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
@@ -81,7 +84,7 @@ class PinduoduoParse(object):
             '''
             2.采用phantomjs来获取
             '''
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+            body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
 
             if body == '':
                 print('body中re匹配到的data为空!')
@@ -426,7 +429,7 @@ class PinduoduoParse(object):
         :return:
         '''
         # 设置代理ip
-        ip_object = MyIpPools()
+        ip_object = IpPools()
         self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
         self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
 
@@ -472,7 +475,7 @@ class PinduoduoParse(object):
 
     def __del__(self):
         try:
-            del self.my_phantomjs
+            del self.driver
         except:
             pass
         gc.collect()

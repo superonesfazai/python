@@ -27,19 +27,18 @@ from sql_str_controller import (
     mia_update_str_3,
 )
 from multiplex_code import _mia_get_parent_dir
-from settings import IP_POOL_TYPE
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import timestamp_to_regulartime
+from fzutils.spider.crawler import Crawler
 
-class MiaPintuanParse(MiaParse):
+class MiaPintuanParse(MiaParse, Crawler):
     def __init__(self):
-        MiaParse.__init__(self)
+        super(MiaPintuanParse, self).__init__()
         self._set_headers()
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -436,6 +435,9 @@ class MiaPintuanParse(MiaParse):
         new_str[0] = month
 
         return  ' '.join(new_str)
+
+    def __del__(self):
+        gc.collect()
 
 if __name__ == '__main__':
     mia_pintuan = MiaPintuanParse()

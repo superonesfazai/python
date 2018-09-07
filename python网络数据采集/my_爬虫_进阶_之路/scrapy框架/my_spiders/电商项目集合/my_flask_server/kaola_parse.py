@@ -13,10 +13,6 @@
 
 import re
 import gc
-from logging import (
-    INFO,
-    ERROR,
-)
 from pprint import pprint
 from json import dumps
 
@@ -38,57 +34,34 @@ from fzutils.common_utils import (
 from fzutils.internet_utils import (
     get_random_phone_ua,
     get_random_pc_ua,)
-from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
     timestamp_to_regulartime,
     string_to_datetime,
 )
+from fzutils.spider.crawler import Crawler
 
-class KaoLaParse(object):
+class KaoLaParse(Crawler):
     def __init__(self, logger=None):
-        super(KaoLaParse, self).__init__()
+        super(KaoLaParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/网易考拉/_/',
+        )
         self.result_data = {}
-        self._set_logger(logger)
         self._set_headers()
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
-            # 'cookie': 'davisit=2; usertrack=O2+g2Ftatitk7YwIAwY2Ag==; _ntes_nnid=7732365205c88dc47486ad1208406e7e,1532671534874; _ga=GA1.2.960357080.1532671535; _gid=GA1.2.1543960295.1532671535; JSESSIONID-WKL-8IO=JpPe0U2ISOSX%2B7b86uwx%2FDCCROKOxwv%2B9vh7Yj%2BBTVVOOIQXHVnSAe19xxMrURx2OK5Q6PV1E%2FSR5UOnm%5C0U2i1RDD3ur5uh%2F7lHemHDcbf90BrkXSqTqZySf%2F%5CWgGSu81cjbESgntQrE%2FYJU89hyhg%5CtPZ6jYgVrxw3yil6BxlEonas%3A1532757935029; _klhtxd_=31; kaola_user_key=47cca4d0-57c9-41ca-ae67-2172c4a81500; KAOLA_NEW_USER_COOKIE=yes; __da_ntes_utma=2525167.1705273738.1532671535.1532671535.1532671535.1; davisit=1; __da_ntes_utmb=2525167.1.10.1532671535; __da_ntes_utmz=2525167.1532671535.1.1.utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none); __da_ntes_utmfc=utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none); _jzqa=1.658432386831847000.1532671536.1532671536.1532671536.1; _jzqc=1; _jzqx=1.1532671536.1532671536.1.jzqsr=google%2Ecom|jzqct=/.-; _jzqckmp=1; WM_TID=BuJzWuW25WT9h9YnJbNPwKuHb0%2FJdiEw; __kaola_usertrack=20180727140634933960; _da_ntes_uid=20180727140634933960; NTES_KAOLA_ADDRESS_CONTROL=330000|330100|330102|1; _jzqb=1.8.10.1532671536.1; NTES_KAOLA_RV=1472242_1532671698324_0|27979_1532671614705_0; _gat=1',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
             'user-agent': get_random_phone_ua(),
             'content-type': 'application/x-www-form-urlencoded',
             'accept': '*/*',
-            # 'referer': 'https://m-goods.kaola.com/product/27979.html?ri=navigation&from=page1&zn=result&zp=page1-5&position=5&istext=0&srId=7891cc6632688f65bdcb4f04e150950c&isMarketPriceShow=true&hcAntiCheatSwitch=0&anstipamActiCheatSwitch=1&anstipamActiCheatToken=de3223456456fa2e3324354u4567lt&anstipamActiCheatValidate=anstipam_acti_default_validate',
-            'authority': 'm-goods.kaola.com',
+            # 'authority': 'm-goods.kaola.com',
             'x-requested-with': 'XMLHttpRequest',
-        }
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/网易考拉/_/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
-
-    def _get_pc_sku_info_headers(self):
-        return {
-            # 'cookie': "davisit=133; usertrack=O2+g2Ftatitk7YwIAwY2Ag==; _ntes_nnid=7732365205c88dc47486ad1208406e7e,1532671534874; _ga=GA1.2.960357080.1532671535; _gid=GA1.2.1543960295.1532671535; _klhtxd_=31; kaola_user_key=47cca4d0-57c9-41ca-ae67-2172c4a81500; __da_ntes_utma=2525167.1705273738.1532671535.1532671535.1532671535.1; davisit=1; __da_ntes_utmz=2525167.1532671535.1.1.utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none); __da_ntes_utmfc=utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none); _jzqc=1; WM_TID=BuJzWuW25WT9h9YnJbNPwKuHb0%2FJdiEw; __kaola_usertrack=20180727140634933960; _da_ntes_uid=20180727140634933960; _ga=GA1.3.960357080.1532671535; KAOLA_NEW_USER_COOKIE=no; _gid=GA1.3.1543960295.1532671535; _kaola_user_beta_traffic=11900565161; NETEASE_WDA_UID=\"ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com#|#1494121379042\"; S_INFO=1533005764|0|##|ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com; P_INFO=ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com|1533005764|0|kaola|00&99|null#0|null|kaola|ojk_rue0z670a55c0640959dc5053c7bab711ceab3@wx.163.com; NTES_OSESS=yYsn9MHD7G6TaLObUuWLbAz1ON8RoRfBZWUrWt7ORjAoWWhz6L9pI2UdlONyjpcbXvEjUTUQ3xmiHvJRReaDb2QTGF3XbGkuwkwoFcQ3ao1h4vbxvjk_SepopEgeUc_Pf6ZCSGQMSqhvzBLCfajZ37DH0_ECJb0bZn3alkCujGl95Ahlw5L7emqExM3GFwnw5u_ukogIaAhvj9NVmayKH8Y.wDj6Bz9Wy6ny48S4TB859; _ntes_nuid=c199afa0a5f0b5a2869b8cf66c6be415; _qzjc=1; davisit=2; NTES_KAOLA_ORDER_FLAG_NEW=-1533432028; JSESSIONID-WKL-8IO=zmtn3E1vXCr4M%5C%5Cmw7zWBwH%2B596vBzoqQRnzDgY%5CpIOn3DUZTp1LWf%5CsXXf7EI4o5D%2BDtY9BOeKcOlyxZ7yxrBmH9O6b7sRaNBgSWHLby224bWjd%5CnlVkUe9BWOsBfWviE5jcOr8Jf5iMngMw2SW9yM%2Fh7M1Wq6k0Sap6lzRgZAUeLx%2F%3A1533099535404; NTES_KAOLA_ADDRESS_CONTROL=330000|330100|330102|1; __da_ntes_utmb=2525167.1.10.1533086704; _jzqa=1.658432386831847000.1532671536.1533054637.1533086706.23; _jzqx=1.1532671536.1533086706.6.jzqsr=google%2Ecom|jzqct=/.jzqsr=kaola%2Ecom|jzqct=/; _jzqckmp=1; _qzja=1.171255260.1532671601817.1533008724580.1533086710431.1533086734453.1533086755814..0.0.28.9; _qzjb=1.1533086710431.4.0.0.0; _qzjto=4.1.0; _jzqb=1.9.10.1533086706.1; NTES_KAOLA_RV=16029_1533086756435_0|1917464_1533086735090_0|17992_1533086721244_0|27757_1533086711248_0|2066692_1533008725460_0|1453977_1533006382331_0|1351750_1533006337428_0|27979_1532939381249_0|2059765_1532939045569_0|2268339_1532938432179_0|2254882_1532938240407_0|2208483_1532930588764_0|1330333_1532918029707_0|1472242_1532671698324_0",
-            'accept-encoding': "gzip, deflate, br",
-            'accept-language': "zh-CN,zh;q=0.9",
-            'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36",
-            'content-type': "application/x-www-form-urlencoded",
-            'accept': "*/*",
-            # 'referer': "https://goods.kaola.com/product/16029.html?ri=navigation&from=page1&zn=result&zp=page1-20&position=20&istext=0&srId=8ef2e561233225619e300ebc5782c129&isMarketPriceShow=true&hcAntiCheatSwitch=0&anstipamActiCheatSwitch=1&anstipamActiCheatToken=de3223456456fa2e3324354u4567lt&anstipamActiCheatValidate=anstipam_acti_default_validate",
-            'authority': "goods.kaola.com",
-            'x-requested-with': "XMLHttpRequest",
-            'Cache-Control': "no-cache",
         }
 
     def _get_goods_data(self, goods_id):
@@ -98,7 +71,7 @@ class KaoLaParse(object):
         :return: 
         '''
         if goods_id == '':
-            self.my_lg.error('获取到的goods_id为空值!此处跳过!')
+            self.lg.error('获取到的goods_id为空值!此处跳过!')
             return self._get_data_error_init()
 
         # 网易考拉pc站抓取, m站p_info信息不全(不采用)
@@ -106,10 +79,10 @@ class KaoLaParse(object):
         # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
 
         url = 'https://goods.kaola.com/product/{0}.html'.format(goods_id)
-        self.my_lg.info('------>>>| 正在抓取考拉地址为: {0}'.format(url))
+        self.lg.info('------>>>| 正在抓取考拉地址为: {0}'.format(url))
 
         body = self._get_pc_goods_body(url=url, goods_id=goods_id)
-        # self.my_lg.info(body)
+        # self.lg.info(body)
         if body == '':
             return self._get_data_error_init()
 
@@ -117,7 +90,7 @@ class KaoLaParse(object):
         _ = self._get_pc_right_body(body)   # pc端
         # pprint(_)
         if _ == {}:
-            self.my_lg.error('获取body时索引异常!出错goods_id为:{0}, 出错地址: {1}'.format(goods_id, url))
+            self.lg.error('获取body时索引异常!出错goods_id为:{0}, 出错地址: {1}'.format(goods_id, url))
             return self._get_data_error_init()
 
         else:
@@ -131,13 +104,13 @@ class KaoLaParse(object):
             params = self._get_pc_sku_info_params(goods_id=goods_id)
             body = Requests.get_url_body(
                 url=sku_info_url,
-                headers=self._get_pc_sku_info_headers(),
+                headers=self.headers,
                 params=params,
                 ip_pool_type=self.ip_pool_type)
 
-            sku_info = json_2_dict(json_str=body, logger=self.my_lg).get('data')
+            sku_info = json_2_dict(json_str=body, logger=self.lg).get('data')
             if sku_info is None:
-                self.my_lg.error('获取到we的sku_info为None!出错goods_id: {0}, 出错地址: {1}'.format(goods_id, url))
+                self.lg.error('获取到we的sku_info为None!出错goods_id: {0}, 出错地址: {1}'.format(goods_id, url))
             _['sku_info'] = sku_info
             # pprint(_)
 
@@ -167,15 +140,15 @@ class KaoLaParse(object):
             data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
 
         except Exception:
-            self.my_lg.error('遇到错误:', exc_info=True)
-            self.my_lg.error('出错goods_id: {0}, 地址: {1}'.format(goods_id, url))
+            self.lg.error('遇到错误:', exc_info=True)
+            self.lg.error('出错goods_id: {0}, 地址: {1}'.format(goods_id, url))
             return self._get_data_error_init()
 
         if data != {}:
             self.result_data = data
             return data
         else:
-            self.my_lg.info('data为空值')
+            self.lg.info('data为空值')
             return self._get_data_error_init()
 
     def _deal_with_data(self):
@@ -258,7 +231,7 @@ class KaoLaParse(object):
             return result
 
         else:
-            self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            self.lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
 
@@ -269,7 +242,7 @@ class KaoLaParse(object):
         :param pipeline:
         :return:
         '''
-        tmp = _get_right_model_data(data, site_id=29, logger=self.my_lg)
+        tmp = _get_right_model_data(data, site_id=29, logger=self.lg)
 
         params = self._get_db_update_params(item=tmp)
         base_sql_str = kl_update_str_1
@@ -280,7 +253,7 @@ class KaoLaParse(object):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
     def _get_db_update_params(self, item):
         '''
@@ -604,7 +577,7 @@ class KaoLaParse(object):
         if data['sell_time'] != {}:
             end_time = datetime_to_timestamp(string_to_datetime(data.get('sell_time', {}).get('end_time', '')))
             if end_time < datetime_to_timestamp(get_shanghai_time()):
-                self.my_lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+                self.lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
                 is_delete = 1
             # print(is_delete)
 
@@ -643,14 +616,14 @@ class KaoLaParse(object):
             goodsDetailContent = re.compile(r'goodsDetailContent: (.*?), //图文详情').findall(body)[0]
             kaolaSuperMarket = re.compile(r'kaolaSuperMarket: (.*?), //needSelfTag').findall(body)[0]
 
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
         except IndexError:
-            self.my_lg.error('遇到错误:', exc_info=True)
+            self.lg.error('遇到错误:', exc_info=True)
             return {}
 
         _ = {}
-        _['goodsInfoBase'] = json_2_dict(json_str=goodsInfoBase, logger=self.my_lg)
-        _['goodsDetailContent'] = json_2_dict(json_str=goodsDetailContent, logger=self.my_lg)
+        _['goodsInfoBase'] = json_2_dict(json_str=goodsInfoBase, logger=self.lg)
+        _['goodsDetailContent'] = json_2_dict(json_str=goodsDetailContent, logger=self.lg)
         _['kaolaSuperMarket'] = kaolaSuperMarket
 
         return _
@@ -674,18 +647,18 @@ class KaoLaParse(object):
             goodsDetailContent = re.compile(r'goodsDetailContent: (.*?),vipGoods').findall(body_1)[0]
             vipGoods = re.compile(r'vipGoods: (.*?),vipGoodsLogo').findall(body_1)[0]
 
-            # self.my_lg.info(str(sizeChartImgs))
-            # self.my_lg.info(str(body_1))
+            # self.lg.info(str(sizeChartImgs))
+            # self.lg.info(str(body_1))
         except IndexError:
-            self.my_lg.error('遇到错误:', exc_info=True)
+            self.lg.error('遇到错误:', exc_info=True)
             return {}
 
         _ = {}
-        _['basicInfo'] = json_2_dict(json_str=basicInfo, logger=self.my_lg)
-        _['skuPropertyList'] = json_2_dict(json_str=skuPropertyList, logger=self.my_lg)
+        _['basicInfo'] = json_2_dict(json_str=basicInfo, logger=self.lg)
+        _['skuPropertyList'] = json_2_dict(json_str=skuPropertyList, logger=self.lg)
         _['kaolaSuperMarket'] = kaolaSuperMarket
         _['brandGoodsAmount'] = brandGoodsAmount
-        _['goodsDetailContent'] = json_2_dict(json_str=goodsDetailContent, logger=self.my_lg)
+        _['goodsDetailContent'] = json_2_dict(json_str=goodsDetailContent, logger=self.lg)
         _['vipGoods'] = vipGoods
         _['sizeChartImgs'] = sizeChartImgs
         # pprint(_)
@@ -766,15 +739,15 @@ class KaoLaParse(object):
         if is_kaola_url != []:
             if re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(kaola_url) != []:
                 goods_id = re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(kaola_url)[0]
-                self.my_lg.info('------>>>| 得到的考拉商品的goods_id为: {0}'.format(goods_id))
+                self.lg.info('------>>>| 得到的考拉商品的goods_id为: {0}'.format(goods_id))
                 return goods_id
         else:
-            self.my_lg.info('网易考拉商品url错误, 非正规的url, 请参照格式(https://goods.kaola.com/product/xxx.html)开头的...')
+            self.lg.info('网易考拉商品url错误, 非正规的url, 请参照格式(https://goods.kaola.com/product/xxx.html)开头的...')
             return ''
     
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
         except:
             pass
         gc.collect()

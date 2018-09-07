@@ -27,7 +27,6 @@ from settings import (
     IP_POOL_TYPE,
 )
 
-from logging import INFO, ERROR
 import gc
 from time import sleep
 from pprint import pprint
@@ -37,9 +36,7 @@ from json import dumps
 from my_items import WellRecommendArticle
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
-    get_shanghai_time,
     string_to_datetime,)
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
@@ -50,16 +47,21 @@ from fzutils.common_utils import (
     get_random_int_number,
     list_duplicate_remove,
     wash_sensitive_info,)
+from fzutils.spider.crawler import Crawler
 
-class XiaoHongShuParse(object):
+class XiaoHongShuParse(Crawler):
     def __init__(self, logger=None, by_wx=False):
         '''
         :param logger:
         :param by_wx: 抓取wx小程序(弊端: 没有tags值 优点: 可长期采集, 不容易被封) √
                       vs 抓取app(弊端: 测试发现就算用高匿proxy每跑20个, 就被封3-5分钟, 效率低)
         '''
-        super(XiaoHongShuParse, self).__init__()
-        self._set_logger(logger)
+        super(XiaoHongShuParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/小红书/_/',
+        )
         self._set_headers()
         self.by_wx = by_wx
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
@@ -79,30 +81,13 @@ class XiaoHongShuParse(object):
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            # 'cookie': 'Hm_lvt_9df7d19786b04345ae62033bd17f6278=1530954715,1530954763,1530954908,1531113520; Hm_lvt_d0ae755ac51e3c5ff9b1596b0c09c826=1530954716,1530954763,1530954907,1531113520; Hm_lpvt_d0ae755ac51e3c5ff9b1596b0c09c826=1531119425; Hm_lpvt_9df7d19786b04345ae62033bd17f6278=1531119425; beaker.session.id=b8a1a4ca0c2293ec3d447c7edbdc9dc2c528b5f2gAJ9cQEoVQhfZXhwaXJlc3ECY2RhdGV0aW1lCmRhdGV0aW1lCnEDVQoH4gcOCQIMAD2ghVJxBFUDX2lkcQVVIDNmMmM5NmE1YjQzNDQyMjA5MDM5OTIyNjU4ZjE3NjIxcQZVDl9hY2Nlc3NlZF90aW1lcQdHQdbQwdBhhRtVDl9jcmVhdGlvbl90aW1lcQhHQdbQIEMRyBF1Lg==; xhs_spses.5dde=*; xhs_spid.5dde=af753270e27cdd3c.1530953997.5.1531119433.1531115989.18f4b29f-8212-42a2-8ad6-002c47ebdb65',
         }
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/小红书/_/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _get_xiaohongshu_home_aritles_info(self):
         '''
         小红书主页json模拟获取(模拟app端主页请求)
         :return:
         '''
-        # cookies = {
-        #     'beaker.session.id': '2ce91a013076367573e263a34e3691a510bb0479gAJ9cQEoVQhfZXhwaXJlc3ECY2RhdGV0aW1lCmRhdGV0aW1lCnEDVQoH4gcNDQoiDh9FhVJxBFULc2Vzc2lvbmlkLjFxBVgbAAAAc2Vzc2lvbi4xMjEwNDI3NjA2NTM0NjEzMjgycQZVCHVzZXJpZC4xcQdYGAAAADU4ZWRlZjc0NWU4N2U3NjBjOWMyNzAyNHEIVQNfaWRxCVUgMjMyNTRkOWU1MDUyNDY3NDkzZTMzZGM0YjE1MzUzZmZxClUOX2FjY2Vzc2VkX3RpbWVxC0dB1s/aksJmZlUOX2NyZWF0aW9uX3RpbWVxDEdB1s/akrUrE3Uu',
-        #     'xhsTrackerId': '96359c99-a7b3-4725-c75d-2ee052cf2cc1',
-        #     'xhs_spid.5dde': '9f350c095b58c416.1529844024.1.1529844045.1529844024.dfa500dd-18b6-4cf1-a094-3bc87addd183',
-        # }
-
         headers = {
             'Accept-Encoding': 'br, gzip, deflate',
             'Connection': 'keep-alive',
@@ -132,20 +117,20 @@ class XiaoHongShuParse(object):
 
         url = 'https://www.xiaohongshu.com/api/sns/v6/homefeed'
         body = Requests.get_url_body(url=url, headers=headers, params=params, cookies=None, high_conceal=True, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(body)
+        # self.lg.info(body)
         if body == '':
-            self.my_lg.error('获取到的body为空值!请检查!')
+            self.lg.error('获取到的body为空值!请检查!')
             return []
 
         if re.compile(r'<title>403 Forbidden</title>').findall(body) != []:
-            self.my_lg.info('此次抓取被403禁止!')
+            self.lg.info('此次抓取被403禁止!')
             sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
             return []
 
-        _ = json_2_dict(body, logger=self.my_lg).get('data', [])
+        _ = json_2_dict(body, logger=self.lg).get('data', [])
         # pprint(_)
         if _ == []:
-            self.my_lg.error('获取到的data为空值!请检查!')
+            self.lg.error('获取到的data为空值!请检查!')
             return []
 
         _ = [{
@@ -158,15 +143,15 @@ class XiaoHongShuParse(object):
     def _deal_with_home_article(self):
         home_articles_link_list = self._get_xiaohongshu_home_aritles_info()
         # pprint(home_articles_link_list)
-        self.my_lg.info(home_articles_link_list)
+        self.lg.info(home_articles_link_list)
 
-        # self.my_lg.info(str(home_articles_link_list) + '\n')
+        # self.lg.info(str(home_articles_link_list) + '\n')
         data = self._deal_with_articles(articles_list=home_articles_link_list)
         # pprint(data)
 
         self._save_articles(data=data)
 
-        self.my_lg.info('一次采集完毕, 进入{0}s休眠...'.format(self.LONG_SLEEP_TIME))
+        self.lg.info('一次采集完毕, 进入{0}s休眠...'.format(self.LONG_SLEEP_TIME))
         sleep(self.LONG_SLEEP_TIME)   # 设置休眠, 实现周期抓取, 避免频繁抓取被封禁(测试发现抓20个就会封一会)
 
         return True
@@ -181,7 +166,7 @@ class XiaoHongShuParse(object):
         _db = self.my_pipeline._select_table(sql_str='select share_id from dbo.daren_recommend')
         if _db is not None and _db != [] and _db != [()]:
             self.db_share_id = [item[0] for item in _db]
-            # self.my_lg.info(self.db_share_id)
+            # self.lg.info(self.db_share_id)
 
         for item in articles_list:
             self.index += 1
@@ -190,25 +175,25 @@ class XiaoHongShuParse(object):
             article_id = re.compile(r'/item/(\w+)').findall(article_link)[0]
 
             if article_id in self.db_share_id:
-                self.my_lg.info('该{0}已存在于db中...跳过!'.format(article_id))
+                self.lg.info('该{0}已存在于db中...跳过!'.format(article_id))
 
-            self.my_lg.info('[+] {0}'.format(article_link))
+            self.lg.info('[+] {0}'.format(article_link))
             if article_link != '':
                 if not self.by_wx:  # 通过pc端
                     params = (
                         ('_at', '499a292d16aed3d80a068fc60e0c1e3ee3410'),
                     )
                     body = Requests.get_url_body(url=article_link, headers=self.headers, params=params, high_conceal=True, ip_pool_type=self.ip_pool_type)
-                    # self.my_lg.info(str(body))
+                    # self.lg.info(str(body))
                     try:
                         article_info = re.compile('window.__INITIAL_SSR_STATE__=(.*?)</script>').findall(body)[0]
-                        # self.my_lg.info(str(article_info))
+                        # self.lg.info(str(article_info))
                     except IndexError:
-                        self.my_lg.error('获取article_info时IndexError!请检查!')
+                        self.lg.error('获取article_info时IndexError!请检查!')
                         sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
                         continue
 
-                    article_info = self._wash_article_info(json_2_dict(json_str=article_info, logger=self.my_lg))
+                    article_info = self._wash_article_info(json_2_dict(json_str=article_info, logger=self.lg))
                     # pprint(article_info)
                     article_info = self._parse_page(
                         article_link=article_link,
@@ -224,12 +209,12 @@ class XiaoHongShuParse(object):
                         "sid": "session.1210427606534613282",  # 对方服务器用来判断登录是否过期(过期则替换这个即可再次采集)
                     }
                     body = Requests.get_url_body(url=url, headers=self.headers, params=params, ip_pool_type=self.ip_pool_type)
-                    # self.my_lg.info(str(body))
+                    # self.lg.info(str(body))
                     if body == '':
-                        self.my_lg.error('获取到的article的body为空值!跳过!')
+                        self.lg.error('获取到的article的body为空值!跳过!')
                         sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
                         continue
-                    article_info = self._wash_article_info_from_wx(json_2_dict(json_str=body, logger=self.my_lg))
+                    article_info = self._wash_article_info_from_wx(json_2_dict(json_str=body, logger=self.lg))
                     article_info = self._parse_page_from_wx(
                         article_link=article_link,
                         article_info=article_info,
@@ -241,7 +226,7 @@ class XiaoHongShuParse(object):
             else:
                 pass
 
-        self.my_lg.info('@@@ 抓取完毕!')
+        self.lg.info('@@@ 抓取完毕!')
         # pprint(data)
 
         return data
@@ -304,7 +289,7 @@ class XiaoHongShuParse(object):
 
         except Exception:
             sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
-            self.my_lg.error('遇到错误: ', exc_info=True)
+            self.lg.error('遇到错误: ', exc_info=True)
             return {}
 
         _ = WellRecommendArticle()
@@ -388,7 +373,7 @@ class XiaoHongShuParse(object):
 
         except Exception:
             sleep(self.CRAWL_ARTICLE_SLEEP_TIME)
-            self.my_lg.error('遇到错误:', exc_info=True)
+            self.lg.error('遇到错误:', exc_info=True)
             return {}
 
         _ = WellRecommendArticle()
@@ -418,7 +403,7 @@ class XiaoHongShuParse(object):
         :param data:
         :return:
         '''
-        self.my_lg.info('即将开始存储该文章...')
+        self.lg.info('即将开始存储该文章...')
         sql_str = 'insert into dbo.daren_recommend(share_id, nick_name, head_url, profile, gather_url, title, comment_content, share_img_url_list, div_body, create_time, site_id, tags, video_url, likes, collects) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
         for item in data:
             if self.index % 20 == 0:
@@ -429,19 +414,19 @@ class XiaoHongShuParse(object):
                 if share_id == '':
                     continue
 
-                self.my_lg.info('------>>>| 正在存储share_id: {0}...'.format(share_id))
+                self.lg.info('------>>>| 正在存储share_id: {0}...'.format(share_id))
                 try:
                     params = self._get_db_insert_into_params(item=item)
                 except Exception:
                     continue
-                result = self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+                result = self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.lg)
                 if result:
                     self.success_insert_db_num += 1
 
             else:
-                self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(item.get('gather_url', '')))
+                self.lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(item.get('gather_url', '')))
 
-        self.my_lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.success_insert_db_num))
+        self.lg.info('@' * 9 + ' 目前成功存储{0}个!'.format(self.success_insert_db_num))
 
         return True
 
@@ -480,7 +465,7 @@ class XiaoHongShuParse(object):
         '''
         tmp_tags = list_duplicate_remove(
             [str(item.get('name', '')) for item in article_info.get('noteInfo', {}).get('relatedTags', [])])
-        # self.my_lg.info(str(tmp_tags))
+        # self.lg.info(str(tmp_tags))
         # list先转str, 去掉敏感字眼, 再转list, 并去除''元素, 得到最后list
         tmp_tags = delete_list_null_str(self.wash_sensitive_info('|'.join(tmp_tags)).split('|'))
         tags = [{  # tags可以为空list!
@@ -556,7 +541,7 @@ class XiaoHongShuParse(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.my_pipeline
         except:
             pass

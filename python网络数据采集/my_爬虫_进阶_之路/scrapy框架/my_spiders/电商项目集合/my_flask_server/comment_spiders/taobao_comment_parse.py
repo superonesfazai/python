@@ -18,27 +18,28 @@ from settings import (
 from random import randint
 from time import sleep
 import gc
-from logging import INFO, ERROR
-from scrapy.selector import Selector
 import re
 from pprint import pprint
 import requests
 
-from fzutils.log_utils import set_logger
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import get_shanghai_time
+from fzutils.spider.crawler import Crawler
 
-class TaoBaoCommentParse(object):
+class TaoBaoCommentParse(Crawler):
     def __init__(self, logger=None):
-        super(TaoBaoCommentParse, self).__init__()
+        super(TaoBaoCommentParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/comment/',
+        )
         self.result_data = {}
         self.msg = ''
-        self._set_logger(logger=logger)
         self._set_headers()
-        self.ip_pool_type = IP_POOL_TYPE
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
 
     def _get_comment_data(self, goods_id):
@@ -46,33 +47,33 @@ class TaoBaoCommentParse(object):
             self.result_data = {}
             return {}
         _tmp_comment_list = []
-        self.my_lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
+        self.lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
 
         '''
         下面抓取的是pc端的数据地址
         '''
         # 获取评论数据
         for current_page_num in range(1, 4):
-            self.my_lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
+            self.lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
             tmp_url = 'https://rate.taobao.com/feedRateList.htm'
             _params = self._set_params(current_page_num=current_page_num, goods_id=goods_id)
 
             self.headers.update({'referer': 'https://item.taobao.com/item.htm?id='+goods_id})
             body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='gbk', ip_pool_type=self.ip_pool_type)
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
 
             try:
                 body = re.compile('\((.*)\)').findall(body)[0]
             except IndexError:
-                self.my_lg.error('re得到需求body时出错! 出错goods_id: ' + goods_id)
+                self.lg.error('re得到需求body时出错! 出错goods_id: ' + goods_id)
                 sleep(.5)
                 self.result_data = {}
                 return {}
 
-            data = json_2_dict(json_str=body, logger=self.my_lg).get('comments')
+            data = json_2_dict(json_str=body, logger=self.lg).get('comments')
             # pprint(data)
             if data is None:
-                self.my_lg.error('出错goods_id: ' + goods_id)
+                self.lg.error('出错goods_id: ' + goods_id)
                 self.result_data = {}
                 return {}
             if data == []:  # 该页的"comments"=[], 跳出本次循环
@@ -81,12 +82,12 @@ class TaoBaoCommentParse(object):
             _tmp_comment_list += data
             sleep(self.comment_page_switch_sleep_time)
 
-        # self.my_lg.info(str(len(_tmp_comment_list)))
+        # self.lg.info(str(len(_tmp_comment_list)))
         try:
             _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
         except Exception as e:
-            self.my_lg.error('出错goods_id: ' + goods_id)
-            self.my_lg.exception(e)
+            self.lg.error('出错goods_id: ' + goods_id)
+            self.lg.exception(e)
             self.result_data = {}
             return {}
 
@@ -116,7 +117,7 @@ class TaoBaoCommentParse(object):
             comment_date = self._get_comment_date(comment_date)
 
             sku_info = item.get('auction', {}).get('sku', '')
-            # self.my_lg.info(sku_info)
+            # self.lg.info(sku_info)
             if sku_info == '' and _sku_info_list == []:  # 规格为空就跳过, 即只抓取有效评论
                 continue
             if sku_info != '':  # 不为空存入
@@ -148,9 +149,9 @@ class TaoBaoCommentParse(object):
 
             # 无法识别是否为同一张图 只能先拿到这种规律的然后请求图片看齐地址
             # elif re.compile(r'vGNuOHcWv88YXF').findall(tmp_head_img) != []:
-            #     # self.my_lg.info('https:' + tmp_head_img)
+            #     # self.lg.info('https:' + tmp_head_img)
             #     if self._judge_is_taobao_head_img(url='https:' + tmp_head_img):
-            #         self.my_lg.info('https:' + tmp_head_img)
+            #         self.lg.info('https:' + tmp_head_img)
             #         head_img = ''
             #     else:
             #         head_img = 'https:' + tmp_head_img
@@ -196,29 +197,14 @@ class TaoBaoCommentParse(object):
 
         try:
             _res = requests.get(url=url, headers=self.headers, proxies=tmp_proxies)
-            self.my_lg.info(str(_res.url))
+            self.lg.info(str(_res.url))
             if _res.url == 'https://gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
                 return True
             else:
                 return False
         except:
-            self.my_lg.info('检测图片地址时网络错误! 跳过!')
+            self.lg.info('检测图片地址时网络错误! 跳过!')
             return False
-
-    def _set_logger(self, logger):
-        '''
-        设置logger
-        :param logger:
-        :return:
-        '''
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         '''
@@ -284,7 +270,7 @@ class TaoBaoCommentParse(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
         except:
             pass
         gc.collect()

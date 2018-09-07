@@ -14,10 +14,6 @@
 import gc
 import re
 from pprint import pprint
-from logging import (
-    INFO,
-    ERROR,
-)
 from json import dumps
 
 from settings import (
@@ -29,10 +25,10 @@ from sql_str_controller import (
     yp_update_str_1,
 )
 
-from fzutils.log_utils import set_logger
 from fzutils.internet_utils import get_random_phone_ua
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import Requests
+from fzutils.spider.crawler import Crawler
 from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
@@ -41,23 +37,16 @@ from fzutils.time_utils import (
     datetime_to_timestamp,
     string_to_datetime,)
 
-class YouPinParse(object):
+class YouPinParse(Crawler):
     def __init__(self, logger=None):
-        super(YouPinParse, self).__init__()
+        super(YouPinParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/小米有品/_/',
+        )
         self.result_data = {}
-        self._set_logger(logger)
         self._set_headers()
-        self.ip_pool_type = IP_POOL_TYPE
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/小米有品/_/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         self.headers = {
@@ -80,7 +69,7 @@ class YouPinParse(object):
         goods_id = kwargs.get('goods_id', '')
 
         if goods_id == '':
-            self.my_lg.error('获取到的goods_id为空值!此处跳过!')
+            self.lg.error('获取到的goods_id为空值!此处跳过!')
             return self._get_data_error_init()
 
         # 小米有品m站抓取
@@ -89,26 +78,26 @@ class YouPinParse(object):
         post_data = self._get_post_data(goods_id=goods_id)
 
         m_url = 'https://home.mi.com/detail?gid={0}'.format(goods_id)
-        self.my_lg.info('------>>>| 正在抓取小米有品地址为: {0}'.format(m_url))
+        self.lg.info('------>>>| 正在抓取小米有品地址为: {0}'.format(m_url))
 
         write_info = '出错goods_id:{0}, 出错地址: {1}'.format(goods_id, m_url)
 
         body = Requests.get_url_body(method='post', url=base_url, headers=self.headers, cookies=None, data=post_data, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         if body == '':
-            self.my_lg.error('获取到的body为空值!'+write_info)
+            self.lg.error('获取到的body为空值!'+write_info)
             return self._get_data_error_init()
 
-        _ = json_2_dict(json_str=body, logger=self.my_lg).get('result', {}).get('detail', {}).get('data', {})
+        _ = json_2_dict(json_str=body, logger=self.lg).get('result', {}).get('detail', {}).get('data', {})
         # pprint(_)
         if _ == {}:
-            self.my_lg.error('获取到的data为空dict!'+write_info)
+            self.lg.error('获取到的data为空dict!'+write_info)
             return self._get_data_error_init()
 
         try:
             _ = self._wash_target_data(_)
         except Exception:
-            self.my_lg.error('清洗数据时出错!'+write_info, exc_info=True)
+            self.lg.error('清洗数据时出错!'+write_info, exc_info=True)
             self._get_data_error_init()
 
         # pprint(_)
@@ -133,15 +122,15 @@ class YouPinParse(object):
 
 
         except Exception:
-            self.my_lg.error('遇到错误:', exc_info=True)
-            self.my_lg.error(write_info)
+            self.lg.error('遇到错误:', exc_info=True)
+            self.lg.error(write_info)
             return self._get_data_error_init()
 
         if data != {}:
             self.result_data = data
             return data
         else:
-            self.my_lg.info('data为空值')
+            self.lg.info('data为空值')
             return self._get_data_error_init()
 
     def _handle_target_data(self):
@@ -224,7 +213,7 @@ class YouPinParse(object):
             return result
 
         else:
-            self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            self.lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
 
@@ -235,7 +224,7 @@ class YouPinParse(object):
         :param pipeline:
         :return:
         '''
-        tmp = _get_right_model_data(data, site_id=31, logger=self.my_lg)
+        tmp = _get_right_model_data(data, site_id=31, logger=self.lg)
 
         params = self._get_db_update_params(item=tmp)
         base_sql_str = yp_update_str_1
@@ -246,7 +235,7 @@ class YouPinParse(object):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
         return result
 
@@ -362,12 +351,12 @@ class YouPinParse(object):
             raise ValueError('获取div_desc_url为空值!')
 
         body = Requests.get_url_body(url=div_desc_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         if body == '':
             raise ValueError('获取到的div_desc为空值!')
 
         div_desc = '<div>' + _get_right_body(body) + '</div>'
-        # self.my_lg.info(str(div_desc))
+        # self.lg.info(str(div_desc))
 
         return div_desc
 
@@ -400,7 +389,7 @@ class YouPinParse(object):
         # size_name_list = ['尺寸', '尺寸大小']
         # for item in origin_group:
         #     children = []
-        #     # self.my_lg.info(str(item))
+        #     # self.lg.info(str(item))
         #     if item.get('name', '') in size_name_list:  # 单独处理属性有尺寸的
         #         had_size = True
         #     for i in item.get('tags', []):
@@ -411,7 +400,7 @@ class YouPinParse(object):
         group = []
         for item in origin_group:
             children = []
-            # self.my_lg.info(str(item))
+            # self.lg.info(str(item))
             for i in item.get('tags', []):
                 children.append({
                     'tid': i.get('tid'),
@@ -428,7 +417,7 @@ class YouPinParse(object):
             '''获取spec_value'''
             # 方案1: 自己找规律拼接成spec_value, 错误较多
             # name = item.get('name', '')
-            # # self.my_lg.info(name)
+            # # self.lg.info(name)
             # spec_value_list = []
             # for i in group:
             #     for spec_value in i:    # spec_value eg: '黑色'
@@ -438,7 +427,7 @@ class YouPinParse(object):
             #             if had_size:        # 单独处理属性中有尺寸的
             #                 try:
             #                     size_num = re.compile('\d+.{0,1}\d+').findall(name)[0]
-            #                     # self.my_lg.info(str(size_num))
+            #                     # self.lg.info(str(size_num))
             #                 except IndexError:
             #                     continue
             #                 if size_num in spec_value:
@@ -447,7 +436,7 @@ class YouPinParse(object):
             #                     pass
             #             else:
             #                 pass
-            # # self.my_lg.info(str(spec_value_list))
+            # # self.lg.info(str(spec_value_list))
 
             # 方案2: 根据官方查找属性方式
             pid = item.get('pid', '')
@@ -510,7 +499,7 @@ class YouPinParse(object):
         if data['sell_time'] != {}:
             end_time = datetime_to_timestamp(string_to_datetime(data.get('sell_time', {}).get('end_time', '')))
             if end_time < datetime_to_timestamp(get_shanghai_time()):
-                self.my_lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+                self.lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
                 is_delete = 1
             # print(is_delete)
 
@@ -547,7 +536,7 @@ class YouPinParse(object):
         activitys = {}
         try:
             for key ,value in tmp_activitys.items():
-                value = json_2_dict(value, logger=self.my_lg)
+                value = json_2_dict(value, logger=self.lg)
                 activitys.update({
                     key: value,
                 })
@@ -619,14 +608,14 @@ class YouPinParse(object):
             try:
                 goods_id = re.compile(r'gid=(\d+)').findall(yp_url)[0]
             except IndexError:
-                self.my_lg.error('获取goods_id时索引异常! 出错地址:{0}'.format(yp_url))
+                self.lg.error('获取goods_id时索引异常! 出错地址:{0}'.format(yp_url))
                 return ''
 
-            self.my_lg.info('------>>>| 得到的小米有品商品的goods_id为: {0}'.format(goods_id))
+            self.lg.info('------>>>| 得到的小米有品商品的goods_id为: {0}'.format(goods_id))
             return goods_id
 
         else:
-            self.my_lg.info('小米有品商品url错误, 非正规的url, 请参照格式(https://youpin.mi.com/detail)开头的...')
+            self.lg.info('小米有品商品url错误, 非正规的url, 请参照格式(https://youpin.mi.com/detail)开头的...')
             return ''
 
     def _get_data_error_init(self):
@@ -635,7 +624,7 @@ class YouPinParse(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
         except:
             pass
         gc.collect()

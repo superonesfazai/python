@@ -18,42 +18,29 @@ from settings import (
 from random import randint
 from time import sleep
 import gc
-from logging import INFO, ERROR
 import re
 from pprint import pprint
 
-from fzutils.log_utils import set_logger
 from fzutils.time_utils import get_shanghai_time
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
-class Zhe800CommentParse(object):
+class Zhe800CommentParse(Crawler):
     def __init__(self, logger=None):
-        super(Zhe800CommentParse, self).__init__()
+        super(Zhe800CommentParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/折800/comment/',
+        )
         self.result_data = {}
         self.msg = ''
-        self._set_logger(logger=logger)
         self._set_headers()
         self.page_size = '20'  # 固定值
         self.comment_page_switch_sleep_time = 1.5  # 评论下一页sleep time
-        self.ip_pool_type = IP_POOL_TYPE
-
-    def _set_logger(self, logger):
-        '''
-        设置logger
-        :param logger:
-        :return:
-        '''
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/折800/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         '''
@@ -74,13 +61,13 @@ class Zhe800CommentParse(object):
             self.result_data = {}
             return {}
         _tmp_comment_list = []
-        self.my_lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
+        self.lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
 
         '''
         下面是抓取m.zhe800.com的数据地址
         '''
         for current_page_num in range(1, 4):    # 起始页为1
-            self.my_lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
+            self.lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
             tmp_url = 'https://th5.m.zhe800.com/app/detail/comment/list'
             _params = self._set_params(current_page_num=current_page_num, goods_id=goods_id)
 
@@ -88,9 +75,9 @@ class Zhe800CommentParse(object):
                 'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
             })
             body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='utf-8', ip_pool_type=self.ip_pool_type)
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
 
-            data = json_2_dict(json_str=body, logger=self.my_lg)
+            data = json_2_dict(json_str=body, logger=self.lg)
             # pprint(data)
 
             if data.get('comments') is not None:
@@ -101,18 +88,18 @@ class Zhe800CommentParse(object):
                 break
 
             if data.get('comments') is None and data.get('hasNext') is None:    # 默认为空，如果下页没有的话，但是上面已经进行下页判断，此处加这个用于异常退出
-                self.my_lg.error('获取到的data为None, 出错goods_id: ' + goods_id)
+                self.lg.error('获取到的data为None, 出错goods_id: ' + goods_id)
                 self.result_data = {}
                 return {}
 
             sleep(self.comment_page_switch_sleep_time)
 
-        # self.my_lg.info(str(len(_tmp_comment_list)))
+        # self.lg.info(str(len(_tmp_comment_list)))
         try:
             _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
         except Exception as e:
-            self.my_lg.error('出错goods_id: ' + goods_id)
-            self.my_lg.exception(e)
+            self.lg.error('出错goods_id: ' + goods_id)
+            self.lg.exception(e)
             self.result_data = {}
             return {}
 
@@ -148,14 +135,14 @@ class Zhe800CommentParse(object):
             _comment_content = self._wash_comment(comment=_comment_content)
 
             sku_info = item.get('skuDesc', '')
-            # self.my_lg.info(sku_info)
+            # self.lg.info(sku_info)
             # 存在规格为空的
             # assert sku_info != '', '得到的sku_info为空str!请检查!'
             sku_info = self._wash_sku_info(sku_info)
 
             # 第一次评论照片
             img_url_list = item.get('firstEvidences', [])
-            # self.my_lg.info(img_url_list)
+            # self.lg.info(img_url_list)
             if img_url_list is None:
                 img_url_list = []
             else:
@@ -171,7 +158,7 @@ class Zhe800CommentParse(object):
                 _tmp_append_comment_content = item.get('append', '')
                 # 追评的图片
                 _append_comment_img_list = [{'img_url': img.get('big', '')} for img in item.get('appendEvidences')] if item.get('appendEvidences') is not None else []
-                # self.my_lg.info(_append_comment_img_list)
+                # self.lg.info(_append_comment_img_list)
 
                 append_comment = {
                     'comment_date': item.get('appendTime', ''),
@@ -274,7 +261,7 @@ class Zhe800CommentParse(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
         except:
             pass
         gc.collect()

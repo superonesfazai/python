@@ -33,6 +33,7 @@ from fzutils.time_utils import (
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
 '''
 改版抓包微信唯品会商品数据接口
@@ -153,11 +154,13 @@ def test():
 # _ = test()
 # pprint(_)
 
-class VipParse(object):
+class VipParse(Crawler):
     def __init__(self):
+        super(VipParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+        )
         self._set_headers()
         self.result_data = {}
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {

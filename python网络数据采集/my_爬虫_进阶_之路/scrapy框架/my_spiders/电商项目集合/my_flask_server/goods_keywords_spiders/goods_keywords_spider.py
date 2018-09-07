@@ -23,7 +23,6 @@ from settings import (
 )
 
 import gc
-from logging import INFO, ERROR
 from time import sleep
 
 from pprint import pprint
@@ -39,18 +38,22 @@ from sql_str_controller import (
     kw_insert_str_2,
 )
 
-from fzutils.log_utils import set_logger
 from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_escape
-from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.data.excel_utils import read_info_from_excel_file
+from fzutils.spider.crawler import Crawler
 
-class GoodsKeywordsSpider(object):
+class GoodsKeywordsSpider(Crawler):
     def __init__(self):
-        self._set_logger()
+        super(GoodsKeywordsSpider, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=None,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/goods_keywords/_/',
+        )
         self.msg = ''
         self._init_debugging_api()
         self.debugging_api = self._init_debugging_api()
@@ -58,14 +61,6 @@ class GoodsKeywordsSpider(object):
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         # 插入数据到goods_id_and_keyword_middle_table表
         self.add_keyword_id_for_goods_id_sql_str = kw_insert_str_1
-        self.ip_pool_type = IP_POOL_TYPE
-
-    def _set_logger(self):
-        self.my_lg = set_logger(
-            log_file_name=MY_SPIDER_LOGS_PATH + '/goods_keywords/_/' + str(get_shanghai_time())[0:10] + '.txt',
-            console_log_level=INFO,
-            file_log_level=ERROR
-        )
 
     def _init_debugging_api(self):
         '''
@@ -92,21 +87,21 @@ class GoodsKeywordsSpider(object):
             # 获取原先goods_db的所有已存在的goods_id
             try:
                 result = list(self.my_pipeline._select_table(sql_str=kw_select_str_1))
-                self.my_lg.info('正在获取db中已存在的goods_id...')
+                self.lg.info('正在获取db中已存在的goods_id...')
                 result_2 = list(self.my_pipeline._select_table(sql_str=kw_select_str_2))
-                self.my_lg.info('db中已存在的goods_id获取成功!')
+                self.lg.info('db中已存在的goods_id获取成功!')
 
             except TypeError:
-                self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+                self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
                 result_2 = None
 
             if result is not None and result_2 is not None:
-                self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-                self.my_lg.info(str(result))
-                self.my_lg.info('--------------------------------------------------------')
+                self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+                self.lg.info(str(result))
+                self.lg.info('--------------------------------------------------------')
 
-                self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+                self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
                 self.add_goods_index = 0           # 用于定位增加商品的个数
                 self.db_existed_goods_id_list = [item[0] for item in result_2]
                 # 即时释放资源
@@ -115,21 +110,21 @@ class GoodsKeywordsSpider(object):
                 gc.collect()
 
                 for item in result:     # 每个关键字在True的接口都抓完, 再进行下一次
-                    self.my_lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(item[0], item[1]))
+                    self.lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(item[0], item[1]))
                     for type, type_value in self.debugging_api.items():  # 遍历待抓取的电商分类
                         if type_value is False:
-                            self.my_lg.info('api为False, 跳过!')
+                            self.lg.info('api为False, 跳过!')
                             continue
 
                         if self.add_goods_index % 20 == 0:
-                            self.my_lg.info('my_pipeline客户端重连中...')
+                            self.lg.info('my_pipeline客户端重连中...')
                             try: del self.my_pipeline
                             except: pass
                             self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                            self.my_lg.info('my_pipeline客户端重连完毕!')
+                            self.lg.info('my_pipeline客户端重连完毕!')
 
                         goods_id_list = self._get_keywords_goods_id_list(type=type, keyword=item)
-                        self.my_lg.info('关键字为{0}, 获取到的goods_id_list 如下: {1}'.format(item[1], str(goods_id_list)))
+                        self.lg.info('关键字为{0}, 获取到的goods_id_list 如下: {1}'.format(item[1], str(goods_id_list)))
                         '''处理goods_id_list'''
                         self._deal_with_goods_id_list(
                             type=type,
@@ -146,16 +141,16 @@ class GoodsKeywordsSpider(object):
         :return:
         '''
         if type == 1:
-            self.my_lg.info('下面是淘宝的关键字采集...')
+            self.lg.info('下面是淘宝的关键字采集...')
             goods_id_list = self._get_taobao_goods_keywords_goods_id_list(keyword=keyword)
         elif type == 2:
-            self.my_lg.info('下面是阿里1688的关键字采集...')
+            self.lg.info('下面是阿里1688的关键字采集...')
             goods_id_list = self._get_1688_goods_keywords_goods_id_list(keyword=keyword)
         elif type == 3:
-            self.my_lg.info('下面是天猫的关键字采集...')
+            self.lg.info('下面是天猫的关键字采集...')
             goods_id_list = self._get_tmall_goods_keywords_goods_id_list(keyword=keyword)
         elif type == 4:
-            self.my_lg.info('下面是京东的关键字采集...')
+            self.lg.info('下面是京东的关键字采集...')
             goods_id_list = self._get_jd_goods_keywords_goods_id_list(keyword=keyword)
 
         else:
@@ -228,17 +223,17 @@ class GoodsKeywordsSpider(object):
             try:
                 data = re.compile('\((.*)\)').findall(body)[0]
             except IndexError:
-                self.my_lg.error('re获取淘宝data时出错, 出错关键字为{0}'.format(keyword[1]))
+                self.lg.error('re获取淘宝data时出错, 出错关键字为{0}'.format(keyword[1]))
                 return []
 
-            data = json_2_dict(json_str=data, logger=self.my_lg)
+            data = json_2_dict(json_str=data, logger=self.lg)
             if data == {}:
-                self.my_lg.error('获取到的淘宝搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
+                self.lg.error('获取到的淘宝搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
                 return []
             else:
                 goods_id_list = data.get('mainInfo', {}).get('traceInfo', {}).get('traceData', {}).get('allNids', [])
                 if goods_id_list is None or goods_id_list == []:
-                    self.my_lg.error('获取淘宝搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                    self.lg.error('获取淘宝搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
                     return []
                 else:
                     return goods_id_list
@@ -270,7 +265,7 @@ class GoodsKeywordsSpider(object):
 
         url = 'https://m.1688.com/offer_search/-6161.html'
         body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         if body == '':
             return []
         else:
@@ -278,8 +273,8 @@ class GoodsKeywordsSpider(object):
                 goods_id_list = Selector(text=body).css('div.list_group-item::attr("data-offer-id")').extract()
                 # pprint(goods_id_list)
             except Exception as e:
-                self.my_lg.exception(e)
-                self.my_lg.error('获取1688搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                self.lg.exception(e)
+                self.lg.error('获取1688搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
                 goods_id_list = []
 
         return goods_id_list
@@ -313,24 +308,24 @@ class GoodsKeywordsSpider(object):
 
         s_url = 'https://list.tmall.com/m/search_items.htm'
         body = Requests.get_url_body(url=s_url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         if body == '':
             return []
         else:
-            data = json_2_dict(json_str=body, logger=self.my_lg)
+            data = json_2_dict(json_str=body, logger=self.lg)
             if data == {}:
-                self.my_lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
+                self.lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
                 return []
             else:
                 _ = data.get('item', [])
                 if _ is None or _ == []:
-                    self.my_lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                    self.lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
                     return []
                 try:
                     goods_id_list = [str(item.get('url', '')) for item in _]
                 except Exception as e:
-                    self.my_lg.exception(e)
-                    self.my_lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
+                    self.lg.exception(e)
+                    self.lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
                     return []
 
                 return goods_id_list
@@ -375,21 +370,21 @@ class GoodsKeywordsSpider(object):
 
         s_url = 'https://so.m.jd.com/ware/search._m2wq_list'
         body = Requests.get_url_body(url=s_url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         if body == '':
             return []
         else:
             try:
                 data = re.compile('jdSearchResultBkCbA\((.*)\)').findall(body)[0]
             except IndexError:
-                self.my_lg.error('获取jd的关键字数据时, IndexError! 出错关键字为{0}'.format((keyword[1])))
+                self.lg.error('获取jd的关键字数据时, IndexError! 出错关键字为{0}'.format((keyword[1])))
                 return []
 
             '''问题在于编码中是\xa0之类的，当遇到有些 不用转义的\http之类的，则会出现以上错误。'''
             data = deal_with_JSONDecodeError_about_value_invalid_escape(json_str=data)
-            data = json_2_dict(json_str=data, logger=self.my_lg)
+            data = json_2_dict(json_str=data, logger=self.lg)
             if data == {}:
-                self.my_lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
+                self.lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
                 return []
             else:
                 # 注意拿到的数据如果是京东拼购则跳过
@@ -402,7 +397,7 @@ class GoodsKeywordsSpider(object):
                     return goods_id_list
 
                 else:
-                    self.my_lg.error('获取到的data为空list, 请检查!')
+                    self.lg.error('获取到的data为空list, 请检查!')
                     return []
 
     def _taobao_keywords_spider(self, **kwargs):
@@ -415,36 +410,36 @@ class GoodsKeywordsSpider(object):
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https://item.taobao.com/item.htm?id=' + item for item in goods_id_list]
 
-        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
         for item in goods_url_list:     # item为goods_url
             result = False  # 用于判断某个goods是否被插入的参数
             try:
                 goods_id = re.compile(r'id=(\d+)').findall(item)[0]
             except IndexError:
-                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                self.lg.error('re获取goods_id时出错, 请检查!')
                 continue
 
             if goods_id in self.db_existed_goods_id_list:
-                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                self.lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
                 result = True   # 原先存在的情况
                 pass
 
             else:
-                taobao = TaoBaoLoginAndParse(logger=self.my_lg)
+                taobao = TaoBaoLoginAndParse(logger=self.lg)
                 if self.add_goods_index % 20 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    self.my_lg.info('与数据库的新连接成功建立...')
+                    self.lg.info('与数据库的新连接成功建立...')
 
                 if self.my_pipeline.is_connect_success:
                     goods_id = taobao.get_goods_id_from_url(item)
                     if goods_id == '':
-                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        self.lg.error('@@@ 原商品的地址为: {0}'.format(item))
                         continue
 
                     else:
-                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(self.add_goods_index)))
+                        self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(self.add_goods_index)))
                         tt = taobao.get_goods_data(goods_id)
                         data = taobao.deal_with_data(goods_id=goods_id)
                         if data != {}:
@@ -459,7 +454,7 @@ class GoodsKeywordsSpider(object):
                             pass
 
                 else:  # 表示返回的data值为空值
-                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
                 gc.collect()
@@ -469,7 +464,7 @@ class GoodsKeywordsSpider(object):
             else:
                 pass
 
-        self.my_lg.info('该关键字的商品已经抓取完毕!')
+        self.lg.info('该关键字的商品已经抓取完毕!')
 
         return True
 
@@ -483,33 +478,33 @@ class GoodsKeywordsSpider(object):
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https://detail.1688.com/offer/{0}.html'.format(item) for item in goods_id_list]
 
-        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
         for item in goods_url_list:
             result = False  # 每次重置
             try:
                 goods_id = re.compile('offer/(.*?).html').findall(item)[0]
             except IndexError:
-                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                self.lg.error('re获取goods_id时出错, 请检查!')
                 continue
             if goods_id in self.db_existed_goods_id_list:
-                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                self.lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
                 result = True   # 原先存在的情况
                 pass
             else:
-                ali_1688 = ALi1688LoginAndParse(logger=self.my_lg)
+                ali_1688 = ALi1688LoginAndParse(logger=self.lg)
                 if self.add_goods_index % 20 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    self.my_lg.info('与数据库的新连接成功建立...')
+                    self.lg.info('与数据库的新连接成功建立...')
 
                 if self.my_pipeline.is_connect_success:
                     goods_id = ali_1688.get_goods_id_from_url(item)
                     if goods_id == '':
-                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        self.lg.error('@@@ 原商品的地址为: {0}'.format(item))
                         continue
                     else:
-                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(self.add_goods_index)))
+                        self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(self.add_goods_index)))
                         tt = ali_1688.get_ali_1688_data(goods_id)
                         if tt.get('is_delete') == 1 and tt.get('before') is False:    # 处理已下架的但是还是要插入的
                             # 下架的商品就pass
@@ -527,7 +522,7 @@ class GoodsKeywordsSpider(object):
                             pass
 
                 else:  # 表示返回的data值为空值
-                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
                 try: del ali_1688
@@ -539,7 +534,7 @@ class GoodsKeywordsSpider(object):
             else:
                 pass
 
-        self.my_lg.info('该关键字的商品已经抓取完毕!')
+        self.lg.info('该关键字的商品已经抓取完毕!')
 
         return True
 
@@ -553,34 +548,34 @@ class GoodsKeywordsSpider(object):
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https:' + re.compile('&skuId=.*').sub('', item) for item in goods_id_list]
 
-        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
         for item in goods_url_list:     # item为goods_url
             result = False  # 用于判断某个goods是否被插入的参数
             try:
                 goods_id = re.compile(r'id=(\d+)').findall(item)[0]
             except IndexError:
-                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                self.lg.error('re获取goods_id时出错, 请检查!')
                 continue
 
             if goods_id in self.db_existed_goods_id_list:
-                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                self.lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
                 result = True   # 原先存在的情况
                 pass
             else:
-                tmall = TmallParse(logger=self.my_lg)
+                tmall = TmallParse(logger=self.lg)
                 if self.add_goods_index % 20 == 0:  # 每20次重连一次，避免单次长连无响应报错
-                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    self.my_lg.info('与数据库的新连接成功建立...')
+                    self.lg.info('与数据库的新连接成功建立...')
 
                 if self.my_pipeline.is_connect_success:
                     goods_id = tmall.get_goods_id_from_url(item)
                     if goods_id == []:
-                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        self.lg.error('@@@ 原商品的地址为: {0}'.format(item))
                         continue
                     else:
-                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id[1], str(self.add_goods_index)))
+                        self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id[1], str(self.add_goods_index)))
                         tt = tmall.get_goods_data(goods_id)
                         data = tmall.deal_with_data()
                         goods_id = goods_id[1]
@@ -590,7 +585,7 @@ class GoodsKeywordsSpider(object):
                             data['main_goods_id'] = None
                             data['goods_url'] = tmall._from_tmall_type_get_tmall_url(type=data['type'], goods_id=goods_id)
                             if data['goods_url'] == '':
-                                self.my_lg.error('该goods_url为空值! 此处跳过!')
+                                self.lg.error('该goods_url为空值! 此处跳过!')
                                 continue
 
                             result = tmall.old_tmall_goods_insert_into_new_table(data, pipeline=self.my_pipeline)
@@ -598,7 +593,7 @@ class GoodsKeywordsSpider(object):
                             pass
 
                 else:
-                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
                 gc.collect()
@@ -608,7 +603,7 @@ class GoodsKeywordsSpider(object):
             else:
                 pass
 
-        self.my_lg.info('该关键字的商品已经抓取完毕!')
+        self.lg.info('该关键字的商品已经抓取完毕!')
 
         return True
 
@@ -624,34 +619,34 @@ class GoodsKeywordsSpider(object):
         # 所以这边jd就不分类存，一律存为常规商品site_id = 7
         goods_url_list = ['https://item.jd.com/{0}.html'.format(str(item)) for item in goods_id_list]
 
-        self.my_lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
 
         for item in goods_url_list:     # item为goods_url
             result = False  # 用于判断某个goods是否被插入db的参数
             try:
                 goods_id = re.compile('\/(\d+)\.html').findall(item)[0]
             except IndexError:
-                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                self.lg.error('re获取goods_id时出错, 请检查!')
                 continue
 
             if goods_id in self.db_existed_goods_id_list:
-                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                self.lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
                 result = True   # 原先存在的情况
                 pass
             else:
-                jd = JdParse(logger=self.my_lg)
+                jd = JdParse(logger=self.lg)
                 if self.add_goods_index % 20 == 0:  # 每20次重连一次，避免单次长连无响应报错
-                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    self.my_lg.info('与数据库的新连接成功建立...')
+                    self.lg.info('与数据库的新连接成功建立...')
 
                 if self.my_pipeline.is_connect_success:
                     goods_id = jd.get_goods_id_from_url(item)
                     if goods_id == []:
-                        self.my_lg.error('@@@ 原商品的地址为: {0}'.format(item))
+                        self.lg.error('@@@ 原商品的地址为: {0}'.format(item))
                         continue
                     else:
-                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id[1], str(self.add_goods_index)))
+                        self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id[1], str(self.add_goods_index)))
                         tt = jd.get_goods_data(goods_id)
                         data = jd.deal_with_data(goods_id)
                         goods_id = goods_id[1]
@@ -665,7 +660,7 @@ class GoodsKeywordsSpider(object):
                         else:
                             pass
                 else:
-                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
                 sleep(1)
@@ -679,7 +674,7 @@ class GoodsKeywordsSpider(object):
             else:
                 pass
 
-        self.my_lg.info('该关键字的商品已经抓取完毕!')
+        self.lg.info('该关键字的商品已经抓取完毕!')
 
         return True
 
@@ -691,8 +686,8 @@ class GoodsKeywordsSpider(object):
         '''
         goods_id = str(kwargs['goods_id'])
         keyword_id = int(kwargs['keyword_id'])
-        # self.my_lg.info(goods_id)
-        # self.my_lg.info(keyword_id)
+        # self.lg.info(goods_id)
+        # self.lg.info(keyword_id)
         result = False
 
         '''先判断中间表goods_id_and_keyword_middle_table是否已新增该关键字的id'''
@@ -702,15 +697,15 @@ class GoodsKeywordsSpider(object):
             _ = [i[0] for i in _]
             # pprint(_)
         except Exception:
-            self.my_lg.error('执行中间表goods_id_and_keyword_middle_table是否已新增该关键字的id的sql语句时出错, 跳过给商品加keyword_id')
+            self.lg.error('执行中间表goods_id_and_keyword_middle_table是否已新增该关键字的id的sql语句时出错, 跳过给商品加keyword_id')
             return result
 
         if keyword_id not in _:
             params = (
                 goods_id,
                 keyword_id,)
-            self.my_lg.info('------>>>| 正在插入keyword_id为{0}, goods_id为{1}'.format(params[1], params[0]))
-            result = self.my_pipeline._insert_into_table_2(sql_str=self.add_keyword_id_for_goods_id_sql_str, params=params, logger=self.my_lg)
+            self.lg.info('------>>>| 正在插入keyword_id为{0}, goods_id为{1}'.format(params[1], params[0]))
+            result = self.my_pipeline._insert_into_table_2(sql_str=self.add_keyword_id_for_goods_id_sql_str, params=params, logger=self.lg)
 
         return result
 
@@ -720,18 +715,18 @@ class GoodsKeywordsSpider(object):
         :return:
         '''
         excel_file_path = '/Users/afa/Desktop/2018-07-18-淘宝phone-top20万.xlsx'
-        self.my_lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
+        self.lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
         try:
             excel_result = read_info_from_excel_file(excel_file_path=excel_file_path)
         except Exception:
-            self.my_lg.error('遇到错误:', exc_info=True)
+            self.lg.error('遇到错误:', exc_info=True)
             return False
 
-        self.my_lg.info('读取完毕!!')
-        self.my_lg.info('正在读取db中原先的keyword...')
+        self.lg.info('读取完毕!!')
+        self.lg.info('正在读取db中原先的keyword...')
         db_keywords = self.my_pipeline._select_table(sql_str=kw_select_str_4)
         db_keywords = [i[0] for i in db_keywords]
-        self.my_lg.info('db keywords 读取完毕!')
+        self.lg.info('db keywords 读取完毕!')
 
         for item in excel_result:
             keyword = item.get('关键词', None)
@@ -739,19 +734,19 @@ class GoodsKeywordsSpider(object):
                 continue
 
             if keyword in db_keywords:
-                self.my_lg.info('该关键字{0}已经存在于db中...'.format(keyword))
+                self.lg.info('该关键字{0}已经存在于db中...'.format(keyword))
                 continue
 
-            self.my_lg.info('------>>>| 正在存储关键字 {0}'.format(keyword))
-            self.my_pipeline._insert_into_table_2(sql_str=kw_insert_str_2, params=(str(keyword), 0), logger=self.my_lg)
+            self.lg.info('------>>>| 正在存储关键字 {0}'.format(keyword))
+            self.my_pipeline._insert_into_table_2(sql_str=kw_insert_str_2, params=(str(keyword), 0), logger=self.lg)
 
-        self.my_lg.info('全部写入完毕!')
+        self.lg.info('全部写入完毕!')
 
         return True
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
             del self.my_pipeline
         except:
@@ -768,10 +763,6 @@ def just_fuck_run():
         _tmp = GoodsKeywordsSpider()
         # _tmp._add_keyword_2_db_from_excel_file()
         _tmp._just_run()
-        # try:
-        #     del _tmp
-        # except:
-        #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(60*5)
@@ -781,10 +772,9 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

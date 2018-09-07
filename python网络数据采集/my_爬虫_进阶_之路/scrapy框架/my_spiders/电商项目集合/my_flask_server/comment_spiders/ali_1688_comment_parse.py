@@ -24,7 +24,6 @@ from random import (
 
 import gc
 from time import sleep
-from logging import INFO, ERROR
 from scrapy.selector import Selector
 import re
 import datetime
@@ -35,28 +34,27 @@ from sql_str_controller import (
     al_select_str_2,
 )
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-    string_to_datetime,
-)
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import json_2_dict
+from fzutils.spider.crawler import Crawler
 
-class ALi1688CommentParse(object):
+class ALi1688CommentParse(Crawler):
     '''
     阿里1688评论抓取解析类
     '''
     def __init__(self, logger=None):
-        super(ALi1688CommentParse, self).__init__()
+        super(ALi1688CommentParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/阿里1688/comment/',
+        )
         self.result_data = {}
         self.msg = ''
         self._set_headers()
-        self._set_logger(logger)
-        self.ip_pool_type = IP_POOL_TYPE
         # self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
         # 可动态执行的代码
         self._exec_code = '''
@@ -81,16 +79,16 @@ class ALi1688CommentParse(object):
         if goods_id == '':
             self.result_data = {}
             return {}
-        self.my_lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
+        self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
         # # 原先采用phantomjs, 改用手机端抓html(speed slow, give up)
         # tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(goods_id)
         # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, exec_code=self._exec_code)
-        # # self.my_lg.info(str(body))
+        # # self.lg.info(str(body))
         #
         # if body == '':
         #     self.result_data = {}
-        #     self.my_lg.error('该地址的body为空值, 出错地址: ' + tmp_url)
+        #     self.lg.error('该地址的body为空值, 出错地址: ' + tmp_url)
         #     return {}
         #
         # _html_comment_list = list(Selector(text=body).css('div.remark-item').extract())
@@ -105,7 +103,7 @@ class ALi1688CommentParse(object):
         #         try:
         #             quantify = int(re.compile(r'\d+').findall(quantify)[0])
         #         except IndexError:
-        #             self.my_lg.error('获取quantify时索引异常! 出错地址: ' + tmp_url)
+        #             self.lg.error('获取quantify时索引异常! 出错地址: ' + tmp_url)
         #             self.result_data = {}
         #             return {}
         #
@@ -146,7 +144,7 @@ class ALi1688CommentParse(object):
         #     # pprint(self.result_data)
         #     return self.result_data
         # else:
-        #     self.my_lg.error('该商品的comment为空list! 出错地址: ' + tmp_url)
+        #     self.lg.error('该商品的comment为空list! 出错地址: ' + tmp_url)
         #     self.result_data = {}
         #     return {}
 
@@ -157,22 +155,22 @@ class ALi1688CommentParse(object):
 
         '''下面是模拟pc端好评接口'''
         member_id = self._get_this_goods_member_id(goods_id=goods_id)
-        self.my_lg.info('------>>>| 获取到的member_id: {0}'.format(member_id))
+        self.lg.info('------>>>| 获取到的member_id: {0}'.format(member_id))
         if member_id == '':
-            self.my_lg.error('获取到的member_id为空值!请检查!')
+            self.lg.error('获取到的member_id为空值!请检查!')
             self.result_data = {}
             return {}
 
         # 这里从db获取该商品原先的规格值
         sku_info = self._get_sku_info_from_db(goods_id)
-        # self.my_lg.info('sku_info: {0}'.format(sku_info))
+        # self.lg.info('sku_info: {0}'.format(sku_info))
         if sku_info == []:
             self.result_data = {}
             return {}
 
         _comment_list = []
         for page_num in range(1, 4):
-            self.my_lg.info('------>>>| 正在抓取第{0}页...'.format(page_num))
+            self.lg.info('------>>>| 正在抓取第{0}页...'.format(page_num))
             params = self._set_params(goods_id=goods_id, member_id=member_id, page_num=page_num)
             url = 'https://rate.1688.com/remark/offerDetail/rates.json'
             tmp_headers = self.headers
@@ -181,31 +179,31 @@ class ALi1688CommentParse(object):
             })
             # 原先用Requests老是404，改用phantomjsy也还是老是404
             body = Requests.get_url_body(url=url, headers=tmp_headers, params=params, ip_pool_type=self.ip_pool_type)
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
 
             # 用phantomjs
             # url = self._set_url(url=url, params=params)
-            # self.my_lg.info(url)
+            # self.lg.info(url)
             # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url)
             # try:
             #     body = re.compile('<pre.*?>(.*)</pre>').findall(body)[0]
             # except IndexError:
-            #     self.my_lg.error('获取body时索引异常!')
+            #     self.lg.error('获取body时索引异常!')
             #     self.result_data = {}
             #     return {}
 
             if body == '':
                 self.result_data = {}
-                self.my_lg.error('该地址的body为空值, 出错goods_id: {0}'.format(goods_id))
+                self.lg.error('该地址的body为空值, 出错goods_id: {0}'.format(goods_id))
                 return {}
 
-            data = json_2_dict(json_str=body, logger=self.my_lg)
+            data = json_2_dict(json_str=body, logger=self.lg)
             if data.get('url') is not None:
-                self.my_lg.info('------>>>| 被重定向到404页面, 休眠{0}s中...'.format(self._page_sleep_time))
+                self.lg.info('------>>>| 被重定向到404页面, 休眠{0}s中...'.format(self._page_sleep_time))
                 sleep(self._page_sleep_time)
                 break
 
-            # self.my_lg.info(str(body))
+            # self.lg.info(str(body))
             data = data.get('data', {}).get('rates', [])
             # pprint(data)
             if data == []:
@@ -244,7 +242,7 @@ class ALi1688CommentParse(object):
 
             except Exception:
                 self.result_data = {}
-                self.my_lg.error('出错商品goods_id: {0}'.format(goods_id), exc_info=True)
+                self.lg.error('出错商品goods_id: {0}'.format(goods_id), exc_info=True)
                 return {}
 
             sleep(self._page_sleep_time)
@@ -262,7 +260,7 @@ class ALi1688CommentParse(object):
 
             return self.result_data
         else:
-            self.my_lg.error('出错goods_id: {0}'.format(goods_id))
+            self.lg.error('出错goods_id: {0}'.format(goods_id))
             self.result_data = {}
             return {}
 
@@ -279,7 +277,7 @@ class ALi1688CommentParse(object):
             # print(_r)
             sku_info = decode(_r)
         except Exception:
-            self.my_lg.error('demjson.decode数据时遇到错误!', exc_info=True)
+            self.lg.error('demjson.decode数据时遇到错误!', exc_info=True)
             return []
 
         if sku_info == []:
@@ -305,15 +303,15 @@ class ALi1688CommentParse(object):
 
         url = 'https://m.1688.com/page/offerRemark.htm'
         body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         if body == '':
-            self.my_lg.error('获取到的body为空值!此处跳过!')
+            self.lg.error('获取到的body为空值!此处跳过!')
             return ''
 
         try:
             member_id = re.compile(r'"memberId":"(.*?)",').findall(body)[0]
         except IndexError:
-            self.my_lg.error('获取member_id时索引异常!请检查!')
+            self.lg.error('获取member_id时索引异常!请检查!')
             return ''
 
         return member_id
@@ -349,16 +347,6 @@ class ALi1688CommentParse(object):
             # 其中的ali-ss为必须参数
             'cookie': 'ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiJFOF9XcF9NMWV5QWRKWHBVb1lLTlhaZk8iLCJfZXhwaXJlIjoxNTMxNTM0MTMwODMzLCJfbWF4QWdlIjo4NjQwMDAwMH0=; ali-ss.sig=573tlT1Aed2ggvlhClMHb8sZatbgVlRrIxljURSRZys; JSESSIONID=9L78RXlv1-k80a7jb9VDbOxXoH4H-OW2AexQ-jQ3d; cookie2=10d7bba23bbc61948af48e1dd2611282; t=1bdcbe0b678123e1755897be375b453f; _tb_token_=77fe63e3066b3; _tmp_ck_0=3Oo5x6beKeA77mSeFyI8GT8FHF5re5voELqxVsc%2FfpE4tqj%2B88wXi1tm1CBqsrie3iytT%2FtexS2f1gz4cNHi2Eu4hv7YjQ3LERzyqyHdFPQhvo0xY7gXNGXM9%2FZ1vj7kgF%2FDvB6r3ddV6BnQSr5Z6yrZIruC7DPdfJO0g23ShfLkoDeSB6j7j5l9OOSrQ0hXXsClBhhps89CzdCYLvmRWeOqmbTf1LoCMhMayyk116UUrhNQqpgoaurnG6C1XKdmm1QpNwyCdPzmJxb2%2FhafYOVC8Zmqu9DtlO48topX3Pg9HVynFVMDXBBTq6GYgoVx5rwkN6JkXezXK9RU9OIu3o9TtslpsNTXIwD1NkXOb4mUmH1PDBJ3yvST9GePCQeaxovWab0bwzQ%3D;',
         }
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/阿里1688/comment/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_url(self, url, params):
         '''
@@ -429,7 +417,7 @@ class ALi1688CommentParse(object):
     def __del__(self):
         try:
             # del self.my_phantomjs
-            del self.my_lg
+            del self.lg
             del self.msg
         except:
             pass

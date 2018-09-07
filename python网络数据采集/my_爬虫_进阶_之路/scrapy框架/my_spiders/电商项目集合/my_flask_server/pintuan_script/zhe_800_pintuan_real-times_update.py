@@ -55,6 +55,11 @@ def run_forever():
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     print('与数据库的新连接成功建立...')
 
+                if index % 300 == 0:    # 每更新300个，休眠3分钟
+                    sleep_time = 3 * 60
+                    sleep(sleep_time)
+                    print('休眠{}s中...'.format(sleep_time))
+
                 if tmp_sql_server.is_connect_success:
                     tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
                     # 不用这个了因为会影响到正常情况的商品

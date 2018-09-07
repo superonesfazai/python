@@ -14,10 +14,6 @@
 import gc
 import re
 from pprint import pprint
-from logging import (
-    INFO,
-    ERROR,
-)
 from json import dumps
 from settings import (
     PHANTOMJS_DRIVER_PATH,
@@ -29,12 +25,10 @@ from sql_str_controller import (
 )
 
 # from fzutils.spider.fz_requests import MyRequests
-from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
 from fzutils.data.json_utils import nonstandard_json_str_handle
-from fzutils.log_utils import set_logger
 from fzutils.internet_utils import (
     get_random_phone_ua,
     _get_url_contain_params,)
@@ -45,24 +39,21 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
     string_to_datetime,)
 from fzutils.data.list_utils import unique_list_and_keep_original_order
+from fzutils.spider.crawler import Crawler
 
-class YanXuanParse(object):
+class YanXuanParse(Crawler):
     def __init__(self, logger=None):
-        super(YanXuanParse, self).__init__()
+        super(YanXuanParse, self).__init__(
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/网易严选/_/',
+            
+            is_use_driver=True,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+        )
         self.result_data = {}
-        self._set_logger(logger)
         self._set_headers()
-        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/网易严选/_/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_headers(self):
         self.headers = {
@@ -81,7 +72,7 @@ class YanXuanParse(object):
         :return:
         '''
         if goods_id == '':
-            self.my_lg.error('获取到的goods_id为空值!此处跳过!')
+            self.lg.error('获取到的goods_id为空值!此处跳过!')
             return self._get_data_error_init()
 
         # 网易严选m站抓取
@@ -89,33 +80,33 @@ class YanXuanParse(object):
         params = self._get_params(goods_id=goods_id)
 
         m_url = url + '?id={0}'.format(goods_id)
-        self.my_lg.info('------>>>| 正在抓取严选地址为: {0}'.format(m_url))
+        self.lg.info('------>>>| 正在抓取严选地址为: {0}'.format(m_url))
 
         write_info = '出错goods_id:{0}, 出错地址: {1}'.format(goods_id, m_url)
 
         '''requests被无限转发'''
         # body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
 
         '''改用phantomjs'''
-        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=_get_url_contain_params(url=url, params=params))
+        body = self.driver.use_phantomjs_to_get_url_body(url=_get_url_contain_params(url=url, params=params))
         if body == '':
-            self.my_lg.error('获取到的body为空值!'+write_info)
+            self.lg.error('获取到的body为空值!'+write_info)
             return self._get_data_error_init()
 
         try:
             body = re.compile('var jsonData=(.*?),policyList=').findall(body)[0]
         except IndexError:
-            self.my_lg.error('获取body时索引异常!'+write_info, exc_info=True)
+            self.lg.error('获取body时索引异常!'+write_info, exc_info=True)
             return self._get_data_error_init()
 
         body = nonstandard_json_str_handle(json_str=body)
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
         _ = json_2_dict(
-            json_str=body, logger=self.my_lg)
+            json_str=body, logger=self.lg)
         # pprint(_)
         if _ == {}:
-            self.my_lg.error('获取到的data为空dict!'+write_info)
+            self.lg.error('获取到的data为空dict!'+write_info)
             return self._get_data_error_init()
 
         _ = self._wash_data(_)
@@ -140,8 +131,8 @@ class YanXuanParse(object):
                 data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
 
         except Exception:
-            self.my_lg.error('遇到错误:', exc_info=True)
-            self.my_lg.error(write_info)
+            self.lg.error('遇到错误:', exc_info=True)
+            self.lg.error(write_info)
             return self._get_data_error_init()
 
         if data != {}:
@@ -149,7 +140,7 @@ class YanXuanParse(object):
             # pprint(data)
             return data
         else:
-            self.my_lg.info('data为空值')
+            self.lg.info('data为空值')
             return self._get_data_error_init()
 
     def _deal_with_data(self):
@@ -217,7 +208,7 @@ class YanXuanParse(object):
             return result
 
         else:
-            self.my_lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            self.lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
 
@@ -228,7 +219,7 @@ class YanXuanParse(object):
         :param pipeline:
         :return:
         '''
-        tmp = _get_right_model_data(data, site_id=30, logger=self.my_lg)
+        tmp = _get_right_model_data(data, site_id=30, logger=self.lg)
 
         params = self._get_db_update_params(item=tmp)
         base_sql_str = yx_update_str_1
@@ -239,7 +230,7 @@ class YanXuanParse(object):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+        result = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
         return result
 
@@ -331,7 +322,7 @@ class YanXuanParse(object):
     def _get_div_desc(self, data):
         div_desc = data.get('itemDetail', {}).get('detailHtml', '')
         assert div_desc != '', '获取到的div_desc为空值!请检查!'
-        # self.my_lg.info(str(div_desc))
+        # self.lg.info(str(div_desc))
 
         div_desc = self._wash_div_desc(div_desc)
         # print(div_desc)
@@ -471,7 +462,7 @@ class YanXuanParse(object):
         if data['sell_time'] != {}:
             end_time = datetime_to_timestamp(string_to_datetime(data.get('sell_time', {}).get('end_time', '')))
             if end_time < datetime_to_timestamp(get_shanghai_time()):
-                self.my_lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
+                self.lg.info('该商品已经过期下架...! 进行逻辑删除 is_delete=1')
                 is_delete = 1
             # print(is_delete)
 
@@ -521,16 +512,16 @@ class YanXuanParse(object):
         if is_yanxuan_url != []:
             if re.compile(r'id=(\d+)').findall(yanxuan_url) != []:
                 goods_id = re.compile(r'id=(\d+)').findall(yanxuan_url)[0]
-                self.my_lg.info('------>>>| 得到的严选商品的goods_id为: {0}'.format(goods_id))
+                self.lg.info('------>>>| 得到的严选商品的goods_id为: {0}'.format(goods_id))
                 return goods_id
         else:
-            self.my_lg.info('网易严选商品url错误, 非正规的url, 请参照格式(https://you.163.com/item/detail)开头的...')
+            self.lg.info('网易严选商品url错误, 非正规的url, 请参照格式(https://you.163.com/item/detail)开头的...')
             return ''
 
     def __del__(self):
         try:
-            del self.my_phantomjs
-            del self.my_lg
+            del self.driver
+            del self.lg
         except:
             pass
         gc.collect()

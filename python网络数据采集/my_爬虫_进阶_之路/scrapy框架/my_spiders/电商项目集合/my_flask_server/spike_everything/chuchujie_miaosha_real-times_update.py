@@ -86,8 +86,6 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                 # print(miaosha_end_time)
 
                 data = {}
-                # 释放内存, 在外面声明就会占用很大的, 所以此处优化内存的方法是声明后再删除释放
-                chuchujie_miaosha = ChuChuJie_9_9_Parse()
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
@@ -103,6 +101,8 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                         pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                     else:   # 返回1，表示在待更新区间内
+                        # 释放内存, 在外面声明就会占用很大的, 所以此处优化内存的方法是声明后再删除释放
+                        chuchujie_miaosha = ChuChuJie_9_9_Parse()
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                         data['goods_id'] = item[0]
 
@@ -188,7 +188,7 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(5)
+            sleep(5*60)
         gc.collect()
 
     def get_one_page_goods_info(self, *params):

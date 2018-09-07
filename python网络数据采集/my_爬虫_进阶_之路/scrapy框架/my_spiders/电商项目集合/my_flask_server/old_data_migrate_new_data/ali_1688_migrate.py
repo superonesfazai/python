@@ -80,11 +80,6 @@ def run_forever():
 
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')
-                    # try:
-                    #     del tmp_sql_server
-                    # except:
-                    #     pass
-                    # gc.collect()
                     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                     print('与数据库的新连接成功建立...')
 
@@ -141,10 +136,6 @@ def run_forever():
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                # try:
-                #     del ali_1688
-                # except:
-                #     pass
                 gc.collect()
                 sleep(2)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
@@ -152,7 +143,6 @@ def run_forever():
             sleep(60 * 60 * 5.5)
         else:
             sleep(5)
-        # del ali_1688
         gc.collect()
 
 def main():
