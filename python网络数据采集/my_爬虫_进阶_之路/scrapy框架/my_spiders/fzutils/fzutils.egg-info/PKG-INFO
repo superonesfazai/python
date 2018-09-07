@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.6.0
+Version: 0.0.1.6.2
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -25,6 +25,8 @@ Description: ```bash
         
         ## 这是什么?
         这是fz的python utils包, for Spider.
+        
+        旨在: 高效快速的进行爬虫开发的集成包
         
         ## Install
         ```bash
@@ -52,6 +54,24 @@ Description: ```bash
         ip_obj = IpPools(type=ip_proxy_pool, high_conceal=True)     
         # 得到一个随机ip, eg: 'http://175.6.2.174:8088'
         proxy = ip_obj._get_random_proxy_ip()
+        ```
+        ```python
+        from fzutils.spider.crawler import Crawler
+        from fzutils.ip_pools import fz_ip_pool
+        
+        class ASpider(Crawler):     # Crawler为爬虫基类
+            def __init__(self, logger=None) -> None:
+                super(ASpider, self).__init__(
+                    ip_pool_type=fz_ip_pool,
+                    log_print=True,
+                    logger=logger,
+                    log_save_path='log文件存储path',
+                    
+                    is_use_driver=True,
+                    driver_executable_path='驱动path',
+                )
+        
+        _ = ASpider()
         ```
         ```python
         from fzutils.spider.fz_phantomjs import BaseDriver

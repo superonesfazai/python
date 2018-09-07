@@ -72,6 +72,7 @@ install_requires = [
     'redis',
     'flower',
     'items',
+    'baidu-aip',
     # 'sip',
     # 'pyqt5',
 ]

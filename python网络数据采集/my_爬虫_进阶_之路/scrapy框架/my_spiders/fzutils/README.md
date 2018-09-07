@@ -18,6 +18,8 @@
 ## 这是什么?
 这是fz的python utils包, for Spider.
 
+旨在: 高效快速的进行爬虫开发的集成包
+
 ## Install
 ```bash
 pip3 install fzutils
