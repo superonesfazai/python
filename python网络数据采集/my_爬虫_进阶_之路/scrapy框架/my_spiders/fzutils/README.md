@@ -289,6 +289,17 @@ def a(t):
 print(a(7))
 ```
 ```python
+from fzutils.orc_utils import baidu_orc_captcha
+
+# 百度orc识别captcha
+baidu_orc_captcha(
+    app_id='xx', 
+    api_key='xx', 
+    secret_key='xx', 
+    img_path='图片地址', 
+    orc_type=2)
+```
+```python
 from fzutils.spider.auto import auto_generate_crawler_code
 
 # 爬虫基本代码自动生成器
