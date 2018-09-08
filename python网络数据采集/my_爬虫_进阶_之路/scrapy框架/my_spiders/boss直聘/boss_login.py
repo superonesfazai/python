@@ -17,7 +17,7 @@ from scrapy.selector import Selector
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.img_utils import save_img_through_url
 from fzutils.common_utils import json_2_dict
-from fzutils.orc_utils import baidu_orc_captcha
+from fzutils.ocr_utils import baidu_ocr_captcha
 
 def login(phone_num):
     '''
@@ -38,7 +38,7 @@ def login(phone_num):
         secret_key = baidu_orc_info['secret_key']
 
         save_img_through_url(img_url=captcha_url, save_path=img_path)
-        orc_res = baidu_orc_captcha(
+        orc_res = baidu_ocr_captcha(
             app_id=app_id,
             api_key=api_key,
             secret_key=secret_key,

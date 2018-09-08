@@ -2,16 +2,29 @@
 
 '''
 @author = super_fazai
-@File    : fz_baidu_orc.py
+@File    : ocr_utils.py
 @connect : superonesfazai@gmail.com
 '''
 
-from fzutils.common_utils import json_2_dict
-from aip import AipOcr
+"""
+光学识别
+"""
 
-def baidu_orc_captcha(app_id, api_key, secret_key, img_path, orc_type=3):
+from aip import AipOcr
+import requests
+
+from .internet_utils import get_random_pc_ua
+from .img_utils import read_img_use_base64
+from .common_utils import json_2_dict
+
+__all__ = [
+    'baidu_ocr_captcha',            # 百度ocr识别captcha
+    'baidu_orc_image_main_body',    # 百度orc图像主体位置识别
+]
+
+def baidu_ocr_captcha(app_id, api_key, secret_key, img_path, orc_type=3) -> dict:
     '''
-    百度orc识别captcha
+    百度ocr识别captcha
     :param app_id:
     :param api_key:
     :param secret_key:
@@ -70,22 +83,57 @@ def baidu_orc_captcha(app_id, api_key, secret_key, img_path, orc_type=3):
     else:
         raise ValueError('orc_type赋值异常!')
 
-baidu_orc_info_path = '/Users/afa/baidu_orc.json'
+def baidu_orc_image_main_body(img_url='', local_img_path=None) -> dict:
+    '''
+    百度orc图像主体位置识别
+    hack 百度图像主体检测功能演示, 旨在: 常规使用不付费
+    https://ai.baidu.com/tech/imagerecognition/general
+    :param img_url: 跟下面参数, 二选一
+    :param local_img_path: 如果没有url, 则可通过本地图片path
+    :return:
+        success eg:
+            {
+                'errno': 0,
+                'msg': 'success',
+                'data': {
+                    'log_id': '2587356961021549289',
+                    'result': {
+                        'width': 103,   # 宽度103px
+                        'top': 2,       # 距上2px
+                        'left': 10,     # 距左10px
+                        'height': 115,  # 高度115px
+                    }
+                }
+            }
+    '''
+    # BAIDUID是cookies的唯一必要参数
+    cookies = {
+        'BAIDUID': 'D668B34BE04D9BF359FB05917F1E1340:FG=1',
+    }
 
-with open(baidu_orc_info_path, 'r') as f:
-    baidu_orc_info = json_2_dict(f.read())
+    headers = {
+        'Origin': 'https://ai.baidu.com',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'User-Agent': get_random_pc_ua(),
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': '*/*',
+        # 'Referer': 'https://ai.baidu.com/tech/imagerecognition/general',
+        'Connection': 'keep-alive',
+    }
 
-img_path = './images/captcha2.jpg'
-# img_path = './images/pin.png'
+    img_content = ''
+    if local_img_path is not None:
+        img_content = read_img_use_base64(file_path=local_img_path)
+        img_url = ''
+        # print(img_content)
 
-app_id = str(baidu_orc_info['app_id'])
-api_key = baidu_orc_info['api_key']
-secret_key = baidu_orc_info['secret_key']
+    data = [
+      ('image', img_content),
+      ('image_url', img_url),
+      ('type', 'object_detect'),
+    ]
 
-print(baidu_orc_captcha(
-    app_id=app_id,
-    api_key=api_key,
-    secret_key=secret_key,
-    img_path=img_path,
-    orc_type=1))
+    response = requests.post('https://ai.baidu.com/aidemo', headers=headers, cookies=cookies, data=data)
 
+    return json_2_dict(response.text)

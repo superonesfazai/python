@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.6.2
+Version: 0.0.1.6.5
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -295,6 +295,17 @@ Description: ```bash
             return t - 2
         
         print(a(7))
+        ```
+        ```python
+        from fzutils.ocr_utils import baidu_ocr_captcha
+        
+        # 百度orc识别captcha
+        baidu_ocr_captcha(
+            app_id='xx', 
+            api_key='xx', 
+            secret_key='xx', 
+            img_path='图片地址', 
+            orc_type=2)
         ```
         ```python
         from fzutils.spider.auto import auto_generate_crawler_code
