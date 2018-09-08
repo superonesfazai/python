@@ -127,7 +127,7 @@ class CrackGeetest():
         slider = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'geetest_slider_button')))
         return slider
 
-    def get_geetest_image(self, name='captcha.png'):
+    def get_geetest_image(self, name='captcha.jpg'):
         """
         获取验证码图片
         :return: 图片对象

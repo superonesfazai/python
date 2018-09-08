@@ -64,6 +64,7 @@ class MyPhantomjs(object):
                  logger=None,
                  high_conceal=True,
                  chrome_visualizate=False,
+                 chrome_use_proxy=True,
                  user_agent_type=PC,
                  driver_obj=None,
                  ip_pool_type=ip_proxy_pool):
@@ -72,6 +73,7 @@ class MyPhantomjs(object):
         :param load_images: 是否加载图片
         :param high_conceal: ip是否高匿
         :param chrome_visualizate: 是否为无头浏览器(针对chrome)
+        :param chrome_use_proxy: chrome是否使用代理
         :param user_agent_type: user-agent类型
         :param driver_obj: webdriver对象
         :param ip_pool_type: ip_pool type
@@ -82,6 +84,7 @@ class MyPhantomjs(object):
         self.executable_path = executable_path
         self.load_images = load_images
         self.chrome_visualizate = chrome_visualizate
+        self.chrome_use_proxy = chrome_use_proxy
         self.my_lg = logger
         self.user_agent_type = user_agent_type
         self.ip_pool_type = ip_pool_type
@@ -156,13 +159,14 @@ class MyPhantomjs(object):
         capabilities['acceptSslCerts'] = True
         capabilities['acceptInsecureCerts'] = True
 
-        # 设置代理
-        ip_object = MyIpPools(type=self.ip_pool_type, high_conceal=self.high_conceal)
-        proxy_ip = re.compile(r'https://|http://').sub('', ip_object._get_random_proxy_ip()) if isinstance(ip_object._get_random_proxy_ip(), str) else ''
-        if proxy_ip != '':
-            chrome_options.add_argument('--proxy-server=http://{0}'.format(proxy_ip))
-        else:
-            raise AssertionError('给chrome设置代理失败, 异常抛出!')
+        if self.chrome_use_proxy:
+            # 设置代理
+            ip_object = MyIpPools(type=self.ip_pool_type, high_conceal=self.high_conceal)
+            proxy_ip = re.compile(r'https://|http://').sub('', ip_object._get_random_proxy_ip()) if isinstance(ip_object._get_random_proxy_ip(), str) else ''
+            if proxy_ip != '':
+                chrome_options.add_argument('--proxy-server=http://{0}'.format(proxy_ip))
+            else:
+                raise AssertionError('给chrome设置代理失败, 异常抛出!')
 
         # 修改user-agent
         chrome_options.add_argument('--user-agent={0}'.format(get_random_pc_ua() if self.user_agent_type == PC else get_random_phone_ua()))
