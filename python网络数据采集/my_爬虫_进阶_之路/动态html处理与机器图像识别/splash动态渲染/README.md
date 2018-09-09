@@ -229,6 +229,7 @@ function main(splash, args)
 end
 ```
 `wait()`
+
 此方法可以控制页面的等待时间，使用方法如下：
 ```
 ok, reason = splash:wait{time, cancel_on_redirect=false, cancel_on_error=true}
@@ -247,6 +248,7 @@ function main(splash)
 end
 ```
 `jsfunc()`
+
 此方法可以直接调用JavaScript定义的方法，但是所调用的方法需要用双中括号包围，这相当于实现了JavaScript方法到Lua脚本的转换。示例如下：
 ```
 function main(splash, args)
@@ -265,11 +267,13 @@ end
 关于JavaScript到Lua脚本的更多转换细节, 可以参考[官方文档](https://splash.readthedocs.io/en/stable/scripting-ref.html#splash-jsfunc)
 
 `evaljs()`
+
 此方法可以执行JavaScript代码并返回最后一条JavaScript语句的返回结果，使用方法如下：
 ```
 result = splash:evaljs(js)
 ```
 `runjs()`
+
 与evaljs()的功能类似，但是更偏向于执行某些动作或声明某些方法。例如：
 ```
 function main(splash, args)
@@ -281,6 +285,7 @@ end
 ```
 
 `autoload()`
+
 此方法可以设置每个页面访问时自动加载的对象
 ```
 ok, reason = splash:autoload{source_or_url, source=nil, url=nil}
@@ -315,6 +320,7 @@ end
 ```
 
 `call_later()`
+
 此方法可以通过设置定时任务和延迟时间来实现任务延时执行，并且可以在执行前通过cancel()方法重新执行定时任务。
 ```
 function main(splash, args)
@@ -332,6 +338,7 @@ end
 这里我们设置了一个定时任务，0.2秒的时候获取网页截图，然后等待1秒，1.2秒时再次获取网页截图，访问的页面是淘宝，最后将截图结果返回
 
 `http_get()`
+
 可以模拟发送HTTP的GET请求
 ```
 response = splash:http_get{url, headers=nil, follow_redirects=true}
@@ -349,6 +356,7 @@ end
 ```
 
 `http_post()`
+
 模拟发送POST请求, 不过多了一个参数body
 ```
 response = splash:http_post{url, headers=nil, follow_redirects=true, body=nil}
@@ -372,6 +380,7 @@ end
 ```
 
 `set_content()`
+
 用来设置页面的内容
 ```
 function main(splash)
@@ -381,6 +390,7 @@ end
 ```
 
 `html()`
+
 此方法用来获取网页的源代码，它是非常简单又常用的方法。
 ```
 function main(splash, args)
@@ -390,6 +400,7 @@ end
 ```
 
 `png()`
+
 用来获取PNG格式的网页截图
 ```
 function main(splash, args)
@@ -399,9 +410,11 @@ end
 ```
 
 `jpeg()`
+
 类似png()
 
 `har()`
+
 此方法用来获取页面加载过程描述
 ```
 function main(splash, args)
@@ -411,6 +424,7 @@ end
 ```
 
 `url()`
+
 获取当前正在访问的URL
 ```
 function main(splash, args)
@@ -420,6 +434,7 @@ end
 ```
 
 `get_cookies()`
+
 获取当前页面的cookies
 ```
 function main(splash, args)
@@ -429,6 +444,7 @@ end
 ```
 
 `add_cookie()`
+
 为当前页面添加Cookie
 ```
 cookies = splash:add_cookie{name, value, path=nil, domain=nil, expires=nil, httpOnly=nil, secure=nil}
@@ -443,6 +459,7 @@ end
 ```
 
 `clear_cookies()`
+
 清除所有的Cookies
 ```
 function main(splash)
@@ -457,6 +474,7 @@ Splash Response: Array[0]
 ```
 
 `get_viewport_size()`
+
 获取当前浏览器页面的大小，即宽高
 ```
 function main(splash)
@@ -466,15 +484,18 @@ end
 ```
 
 `set_viewport_size()`
+
 设置当前浏览器页面的大小，即宽高
 ```
 splash:set_viewport_size(width, height)
 ```
 
 `set_viewport_full()`
+
 可以设置浏览器全屏显示
 
 `set_user_agent()`
+
 设置浏览器的User-Agent
 ```
 function main(splash)
@@ -485,6 +506,7 @@ end
 ```
 
 `set_custom_headers()`
+
 设置请求头
 ```
 function main(splash)
@@ -498,6 +520,7 @@ end
 ```
 
 `select()`
+
 该方法可以选中符合条件的第一个节点，如果有多个节点符合条件，则只会返回一个，其参数是CSS选择器。
 ```
 function main(splash)
@@ -510,6 +533,7 @@ end
 ```
 
 `select_all()`
+
 此方法可以选中所有符合条件的节点，其参数是CSS选择器。
 ```
 function main(splash)
@@ -527,6 +551,7 @@ end
 这里我们通过CSS选择器选中了节点的正文内容，随后遍历了所有节点，将其中的文本获取下来
 
 `mouse_click()`
+
 可以模拟鼠标点击操作，传入的参数为坐标值x和y。此外，也可以直接选中某个节点，然后调用此方法
 ```
 function main(splash)
