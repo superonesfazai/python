@@ -13,7 +13,9 @@ import requests
 from requests.exceptions import (
     ConnectTimeout,
     ProxyError,
-    ReadTimeout,)
+    ReadTimeout,
+    ConnectionError,
+    TooManyRedirects,)
 from pickle import dumps
 import re
 
@@ -56,7 +58,6 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': get_random_pc_ua(),
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'Referer': 'https://www.kuaidaili.com/free/intr/',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
@@ -88,6 +89,7 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
             o = ProxyItem()
             try:
                 ip = Selector(text=tr).css('{} ::text'.format(ip_selector)).extract_first()
+                assert ip is not None, 'ip为None!'
                 if re.compile('\d+').findall(ip) == []:     # 处理不是ip地址
                     continue
                 assert ip != '', 'ip为空值!'
@@ -118,15 +120,20 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
     # 从已抓取的代理中随机代理采集, 没有则用本机ip(first crawl)!
     try:
         encoding = parser_list[random_parser_list_item_index].get('charset')
-        body = requests.get(
+        response = requests.get(
             url=proxy_url,
             headers=headers,
             params=None,
             cookies=None,
             proxies=_get_proxies(),
-            timeout=CHECK_PROXY_TIMEOUT).content.decode(encoding)
-        # lg.info(body)
-    except (ConnectTimeout, ProxyError, ReadTimeout) as e:
+            timeout=CHECK_PROXY_TIMEOUT)
+        try:
+            body = response.content.decode(encoding)
+            # lg.info(body)
+        except UnicodeDecodeError:
+            body = response.text
+
+    except (ConnectTimeout, ProxyError, ReadTimeout, ConnectionError, TooManyRedirects) as e:
         lg.error('遇到错误: {}'.format(e.args[0]))
         return []
     except Exception:
@@ -145,7 +152,7 @@ def _get_66_ip_list():
     headers = {
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+        'User-Agent': get_random_pc_ua(),
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Referer': 'http://www.66ip.cn/nm.html',
         'Accept-Encoding': 'gzip, deflate',

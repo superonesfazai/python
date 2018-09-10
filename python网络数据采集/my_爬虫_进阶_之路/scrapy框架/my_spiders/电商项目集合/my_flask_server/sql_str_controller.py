@@ -93,7 +93,7 @@ al_select_str_6 = '''
 select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>2
-order by ID desc
+order by ModfiyTime, ID desc
 '''
 
 '''update'''

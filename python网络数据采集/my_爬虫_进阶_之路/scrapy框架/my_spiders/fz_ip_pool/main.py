@@ -71,7 +71,7 @@ def get_proxy_process_data():
         random_parser_list_item_index = kwargs.get('random_parser_list_item_index')
 
         results = []
-        tmp_page_num_list = [randint(1, 1300) for i in range(1, 12)]
+        tmp_page_num_list = [randint(1, 1300) for i in range(1, 25)]
         urls = [urls.format(page_num) for page_num in tmp_page_num_list]
         for proxy_url in urls:
             # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
@@ -102,10 +102,10 @@ def get_proxy_process_data():
                     except: pass
                 else:
                     pass
-
-                print('\r' + _get_simulate_log_info() + 'proxy_tasks._get_proxy [success_num: {}, rest_num: {}]'.format(success_num, results_len-success_num), end='', flush=True)
+                print('\r' + _get_simulate_log_info() + 'proxy_tasks._get_proxy: success_num: {}, rest_num: {}'.format(success_num, results_len-success_num), end='', flush=True)
         else:
             pass
+        print('\r', end='', flush=True)
 
         return all
 
@@ -240,6 +240,8 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
         else:
             print()
             # lg.info('所有异步结果完成!!')
+
+        print('\r', end='', flush=True)
 
         return all
 

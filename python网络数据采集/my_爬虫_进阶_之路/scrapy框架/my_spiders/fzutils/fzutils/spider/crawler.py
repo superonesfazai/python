@@ -47,7 +47,7 @@ class Crawler(object):
                  driver_executable_path=None,
                  driver_type=PHANTOMJS,
                  driver_load_images=False,
-                 chrome_visualizate=False,
+                 headless=False,
                  driver_obj=None):
         '''
         :param ip_pool_type: 使用ip池的类型
@@ -74,7 +74,7 @@ class Crawler(object):
                 load_images=driver_load_images,
                 executable_path=driver_executable_path,
                 logger=self.lg,
-                chrome_visualizate=chrome_visualizate,
+                headless=headless,
                 user_agent_type=user_agent_type,
                 driver_obj=driver_obj,
                 ip_pool_type=ip_pool_type)

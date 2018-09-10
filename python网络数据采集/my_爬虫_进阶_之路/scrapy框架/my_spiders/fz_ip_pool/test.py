@@ -55,27 +55,28 @@ def proxy_ip_check(url, headers, ip, port):
 
     return body
 
-_ = IpPoolsObj()
-h_proxys = _._get_all_ip_proxy()
-# print(h_proxys)
+# _ = IpPoolsObj()
+# h_proxys = _._get_all_ip_proxy()
+# # print(h_proxys)
+#
+# # url = 'https://www.baidu.com'
+# url = 'http://httpbin.org/get'
+#
+# h_proxys_len = len(h_proxys)
+# success_num = 0
+# for i in h_proxys:
+#     one = choice(h_proxys)
+#     ip = one.get('ip')
+#     port = one.get('port')
+#     body = proxy_ip_check(url=url, headers=headers, ip=ip, port=port)
+#     # print(body)
+#     res = json_2_dict(body)
+#     origin = res.get('origin', '')
+#     if origin != '':
+#         print('[+] {}:{}'.format(ip, port))
+#         success_num += 1
+#     else:
+#         print('[-] {}:{}'.format(ip, port))
+#
+# print('成功率:{}%'.format(success_num/h_proxys_len*100))
 
-# url = 'https://www.baidu.com'
-url = 'http://httpbin.org/get'
-
-h_proxys_len = len(h_proxys)
-success_num = 0
-for i in h_proxys:
-    one = choice(h_proxys)
-    ip = one.get('ip')
-    port = one.get('port')
-    body = proxy_ip_check(url=url, headers=headers, ip=ip, port=port)
-    # print(body)
-    res = json_2_dict(body)
-    origin = res.get('origin', '')
-    if origin != '':
-        print('[+] {}:{}'.format(ip, port))
-        success_num += 1
-    else:
-        print('[-] {}:{}'.format(ip, port))
-
-print('成功率:{}%'.format(success_num/h_proxys_len*100))
