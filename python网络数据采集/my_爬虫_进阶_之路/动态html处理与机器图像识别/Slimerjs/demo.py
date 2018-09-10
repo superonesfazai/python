@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : demo.py
-@Time    : 2018/4/14 11:47
 @connect : superonesfazai@gmail.com
 '''
 
@@ -11,7 +10,6 @@ from selenium import webdriver
 import time
 from time import sleep, time
 import gc
-
 
 SLIMERJS_DRIVER_PATH = '/Users/afa/myFiles/tools/slimerjs-1.0.0/slimerjs'
 

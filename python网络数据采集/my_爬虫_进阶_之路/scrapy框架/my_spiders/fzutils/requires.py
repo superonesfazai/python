@@ -73,6 +73,7 @@ install_requires = [
     'flower',
     'items',
     'baidu-aip',
+    'scrapy-splash',
     # 'sip',
     # 'pyqt5',
 ]
