@@ -57,7 +57,6 @@ class ZhiHuLogin(object):
 
     def action(self):
         '''
-        行为
         :return:
         '''
         driver = self.driver
@@ -93,6 +92,7 @@ class ZhiHuLogin(object):
         else:
             print('img_captcha为空值!')
 
+        # TODO 出现: Missing argument grant_type
         sleep(10)
         # sleep(8)
         # driver.find_element_by_css_selector('button.SignFlow-submitButton').click()
