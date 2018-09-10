@@ -564,6 +564,30 @@ function main(splash)
   return splash:png()
 end
 ```
+
+`focus()`
+
+得到输入框焦点
+```
+function main(splash, args)
+    function focus(sel)
+        splash:select(sel):focus()
+    end
+
+    assert(splash:go(args.url))
+    assert(splash:wait(0.5))
+    focus('input[name=username]')
+    splash:send_text(args.username)
+    assert(splash:wait(0))
+    focus('input[name=password]')
+    splash:send_text(args.password)
+    splash:select('input[type=submit]'):mouse_click()
+    assert(splash:wait(0))
+    -- Usually, wait for the submit request to finish
+    -- ...
+end
+```
+
 前面介绍了Splash的常用API操作，还有一些API在这不再一一介绍，更加详细和权威的说明可以参见[官方文档](https://splash.readthedocs.io/en/stable/scripting-ref.html), 此页面介绍了Splash对象的所有API操作。另外，还有[针对页面元素的API操作](https://splash.readthedocs.io/en/stable/scripting-element-object.html)
 
 ## Splash API调用

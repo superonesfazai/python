@@ -38,6 +38,7 @@ fzutils/spider/__init__.py
 fzutils/spider/auto.py
 fzutils/spider/crawler.py
 fzutils/spider/fz_aiohttp.py
+fzutils/spider/fz_driver.py
 fzutils/spider/fz_phantomjs.py
 fzutils/spider/fz_requests.py
 fzutils/spider/templates/__init__.py

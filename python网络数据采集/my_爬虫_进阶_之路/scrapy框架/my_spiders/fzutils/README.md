@@ -66,16 +66,17 @@ class ASpider(Crawler):     # Crawler为爬虫基类
 _ = ASpider()
 ```
 ```python
-from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.fz_driver import BaseDriver, PHANTOMJS
 from fzutils.ip_pools import ip_proxy_pool
 
 # ip_pool_type默认也是ip_proxy_pool
-_ = BaseDriver(executable_path='xxx', ip_pool_type=ip_proxy_pool)   
+# BaseDriver支持phantomjs, chromedriver, firefoxdriver
+_ = BaseDriver(type=PHANTOMJS, executable_path='xxx', ip_pool_type=ip_proxy_pool)   
 exec_code = '''
 js = 'document.body.scrollTop=10000'
 self.driver.execute_script(js) 
 '''
-body = _.use_phantomjs_to_get_url_body(url='xxx', exec_code=exec_code)
+body = _.get_url_body(url='xxx', exec_code=exec_code)
 ```
 ```python
 from fzutils.spider.fz_requests import Requests
