@@ -28,7 +28,7 @@ proxy_list_key_name = 'proxy_tasks'
 high_proxy_list_key_name = 'h_proxy_list'
 
 # 高匿proxy低于以下分数就删除, 默认100
-MIN_SCORE = 60
+MIN_SCORE = 50
 
 # 测试地址
 TEST_URL = 'http://ip111.cn'
