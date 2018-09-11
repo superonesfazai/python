@@ -4,7 +4,7 @@
 安全相关
 """
 
-from uuid import uuid3
+from uuid import uuid1, uuid3
 from uuid import NAMESPACE_DNS
 from hashlib import md5
 
@@ -12,6 +12,7 @@ __all__ = [
     'encrypt',              # 加密算法
     'decrypt',              # 解密算法
     'md5_encrypt',          # 得到md5加密的字符串
+    'get_uuid1',            # 根据时间戳等, 随机生成一个唯一的uuid
     'get_uuid3',            # 得到一个uuid3加密的唯一标识符
 ]
 
@@ -82,7 +83,14 @@ def md5_encrypt(target_str, encoding='utf-8'):
 
     return result
 
-def get_uuid3(target_str):
+def get_uuid1() -> str:
+    '''
+    根据时间戳等, 随机生成一个唯一的uuid
+    :return:
+    '''
+    return str(uuid1())
+
+def get_uuid3(target_str) -> str:
     '''
     make a UUID using an MD5 hash of a namespace UUID and a name(唯一的识别码)
     :param target_str:

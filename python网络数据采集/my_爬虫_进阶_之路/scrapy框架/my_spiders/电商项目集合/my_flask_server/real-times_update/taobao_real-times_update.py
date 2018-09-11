@@ -38,7 +38,6 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import (
     daemon_init,
-    restart_program,
 )
 from fzutils.cp_utils import (
     _get_price_change_info,
@@ -46,13 +45,14 @@ from fzutils.cp_utils import (
     format_price_info_list,
 )
 from fzutils.common_utils import json_2_dict
+from fzutils.safe_utils import get_uuid1
 
 def run_forever():
     #### 实时更新数据
     while True:
         # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
-        restart_program()
         my_lg = set_logger(
+            logger_name=get_uuid1(),
             log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR

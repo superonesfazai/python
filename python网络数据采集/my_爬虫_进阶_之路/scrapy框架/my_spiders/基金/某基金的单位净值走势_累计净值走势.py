@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 某基金的单位净值走势_累计净值走势.py
-@Time    : 2017/7/10 18:26
 @connect : superonesfazai@gmail.com
 '''
 

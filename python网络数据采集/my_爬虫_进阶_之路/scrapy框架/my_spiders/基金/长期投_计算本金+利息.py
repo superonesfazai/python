@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 长期投_计算本金+利息.py
-@Time    : 2018/7/31 18:02
 @connect : superonesfazai@gmail.com
 '''
 
@@ -31,7 +30,7 @@ def long_invest_principal_add_interest(principal, interest, day, every_month_add
     return tmp_principal
 
 '''理财的重要性'''
-invest_year = 30
+invest_year = 5
 for i in range(1, invest_year + 1):
     # 例如: 1W的本金, 每月定投6000
     principal = 10000

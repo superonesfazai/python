@@ -293,6 +293,20 @@ appActivity：它是入口Activity名，这里通常需要以'.'开头。
 
 ## 安装dash
 
+## autojump
+shell下的目录快速跳转
+```
+$ brew install autojump
+$ vim ~/.zshrc
+```
+1. 找到 plugins=，在后面添加autojump：plugins=(git autojump)
+2. 新开一行，添加：
+```
+[[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+```
+3. :wq保存退出，source ~/.zshrc
+4. 重启终端。
+
 ## qt designer + pycharm开发GUI
 首先下载qt最新安装包.dmg, 并安装
 

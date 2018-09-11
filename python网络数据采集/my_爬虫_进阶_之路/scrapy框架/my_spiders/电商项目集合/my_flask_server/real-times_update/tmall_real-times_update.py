@@ -17,6 +17,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep
 from logging import INFO, ERROR
+from uuid import uuid4
+
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
@@ -27,21 +29,20 @@ from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
 )
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,)
+from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
     format_price_info_list,
 )
 from fzutils.common_utils import json_2_dict
+from fzutils.safe_utils import get_uuid1
 
 def run_forever():
     while True:
         # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
-        restart_program()
         my_lg = set_logger(
+            logger_name=get_uuid1(),
             log_file_name=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR

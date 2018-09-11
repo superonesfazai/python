@@ -18,6 +18,7 @@ from time import sleep
 from logging import (
     INFO,
     ERROR,)
+
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)
@@ -26,20 +27,19 @@ from sql_str_controller import al_select_str_6
 from multiplex_code import get_sku_info_trans_record
 
 from fzutils.time_utils import get_shanghai_time
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,)
+from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
     format_price_info_list,)
 from fzutils.common_utils import json_2_dict
 from fzutils.log_utils import set_logger
+from fzutils.safe_utils import get_uuid1
 
 def run_forever():
     while True:
-        restart_program()
         my_lg = set_logger(
+            logger_name=get_uuid1(),
             log_file_name=MY_SPIDER_LOGS_PATH + '/1688/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR

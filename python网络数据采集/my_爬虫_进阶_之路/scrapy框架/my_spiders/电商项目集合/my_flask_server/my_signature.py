@@ -34,7 +34,7 @@ class Signature(object):
         self._access_keys = [
             {"access_key_id": "yiuxiu", "access_key_secret": "yiuxiu6688"}
         ]
-        self._timestamp_expiration = 40     # 时间戳有效时长，单位秒
+        self._timestamp_expiration = 50     # 时间戳有效时长，单位秒
         self.my_lg = logger
 
     def _check_req_timestamp(self, req_timestamp):
