@@ -18,7 +18,7 @@ from pickle import dumps
 from time import sleep
 from random import choice
 
-# print(get_uuid3('proxy_tasks'))
+print(get_uuid3('proxy_tasks'))
 # _ = BaseRedisCli()
 # pprint(deserializate_pickle_object(_.get('5e421d78-a394-3b44-aae1-fd86aa127255') or dumps([])))
 

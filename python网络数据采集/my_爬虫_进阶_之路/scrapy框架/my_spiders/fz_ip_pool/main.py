@@ -68,10 +68,12 @@ def get_proxy_process_data():
     '''
     def _create_tasks_list(**kwargs):
         urls = kwargs.get('urls', '')
+        page_range = kwargs.get('page_range', {})
+        page_min, page_max = page_range['min'], page_range['max']
         random_parser_list_item_index = kwargs.get('random_parser_list_item_index')
 
         results = []
-        tmp_page_num_list = [randint(1, 1300) for i in range(1, 25)]
+        tmp_page_num_list = [randint(page_min, page_max) for i in range(1, 25)]
         urls = [urls.format(page_num) for page_num in tmp_page_num_list]
         for proxy_url in urls:
             # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
@@ -130,6 +132,7 @@ def get_proxy_process_data():
     random_parser_list_item_index = randint(0, len(parser_list) - 1)
     results = _create_tasks_list(
         urls=parser_list[random_parser_list_item_index].get('urls', ''),
+        page_range=parser_list[random_parser_list_item_index].get('page_range', {}),
         random_parser_list_item_index=random_parser_list_item_index)
     all = _get_tasks_result_list(results=results)
     res = _handle_tasks_result_list(all=all)

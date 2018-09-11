@@ -57,8 +57,8 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
             'Cache-Control': 'max-age=0',
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': get_random_pc_ua(),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
 
@@ -116,23 +116,23 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
 
         return _
 
-    headers = _get_base_headers()
     # 从已抓取的代理中随机代理采集, 没有则用本机ip(first crawl)!
     try:
         encoding = parser_list[random_parser_list_item_index].get('charset')
+        proxies = _get_proxies()
         response = requests.get(
             url=proxy_url,
-            headers=headers,
+            headers=_get_base_headers(),
             params=None,
             cookies=None,
-            proxies=_get_proxies(),
+            proxies=proxies,
             timeout=CHECK_PROXY_TIMEOUT)
         try:
             body = response.content.decode(encoding)
-            # lg.info(body)
         except UnicodeDecodeError:
             body = response.text
-
+        body = Requests._wash_html(body)
+        # lg.info(body)
     except (ConnectTimeout, ProxyError, ReadTimeout, ConnectionError, TooManyRedirects) as e:
         lg.error('遇到错误: {}'.format(e.args[0]))
         return []
@@ -141,7 +141,11 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
         return []
     # sleep(2)
 
-    return parse_body(body)
+    res = parse_body(body)
+    if res == []:
+        lg.error('html页面解析错误!跳过!')
+
+    return res
 
 def _get_66_ip_list():
     '''
@@ -194,8 +198,10 @@ def _get_proxies() -> dict:
     proxy_list = deserializate_pickle_object(redis_cli.get(_h_key) or dumps([]))
     proxies = choice(proxy_list) if len(proxy_list) > 0 else None
     if proxies is not None:
+        ip, port = proxies['ip'], proxies['port']
         proxies = {
-            'http': 'http://{}:{}'.format(proxies['ip'], proxies['port'])
+            'http': 'http://{}:{}'.format(ip, port),
+            'https': 'https://{}:{}'.format(ip, port),
         }
         lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
     else:

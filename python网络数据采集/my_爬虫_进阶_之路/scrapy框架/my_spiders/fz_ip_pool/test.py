@@ -79,4 +79,3 @@ def proxy_ip_check(url, headers, ip, port):
 #         print('[-] {}:{}'.format(ip, port))
 #
 # print('成功率:{}%'.format(success_num/h_proxys_len*100))
-
