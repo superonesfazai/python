@@ -118,10 +118,10 @@ tb_select_str_1 = 'select GoodsID, IsDelete, MyShelfAndDownTime from dbo.GoodsIn
 tb_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
 # 常规goods实时更新
 tb_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
+select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where SiteID=1 and MainGoodsID is not null
-order by ID desc'''
+order by ModfiyTime desc'''
 # 淘抢购实时更新
 tb_select_str_4 = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
 tb_select_str_5 = tb_select_str_4
@@ -161,10 +161,10 @@ tm_select_str_1 = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, 
 tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
 # 常规goods实时更新
 tm_select_str_3 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
+select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null
-order by ID desc'''
+order by ModfiyTime desc'''
 '''insert'''
 # 带MainGoodsID的插入
 tm_insert_str_1 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

@@ -27,7 +27,9 @@ from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
 )
-from fzutils.linux_utils import daemon_init
+from fzutils.linux_utils import (
+    daemon_init,
+    restart_program,)
 from fzutils.cp_utils import (
     _get_price_change_info,
     get_shelf_time_and_delete_time,
@@ -38,6 +40,7 @@ from fzutils.common_utils import json_2_dict
 def run_forever():
     while True:
         # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
+        restart_program()
         my_lg = set_logger(
             log_file_name=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,

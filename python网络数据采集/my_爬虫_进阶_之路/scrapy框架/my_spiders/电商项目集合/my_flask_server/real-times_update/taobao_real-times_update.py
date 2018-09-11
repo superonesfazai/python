@@ -51,6 +51,7 @@ def run_forever():
     #### 实时更新数据
     while True:
         # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
+        restart_program()
         my_lg = set_logger(
             log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
@@ -135,7 +136,6 @@ def run_forever():
         else:
             sleep(5)
         gc.collect()
-        restart_program()
 
 def main():
     '''
