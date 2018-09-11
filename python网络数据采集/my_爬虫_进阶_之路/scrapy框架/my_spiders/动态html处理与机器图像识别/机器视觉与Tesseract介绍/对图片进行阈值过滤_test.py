@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 对图片进行阈值过滤_test.py
-@Time    : 2017/8/31 14:18
 @connect : superonesfazai@gmail.com
 '''
 

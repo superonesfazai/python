@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : TensorFlow_cnn_批量生成验证码并用cnn训练.py
-@Time    : 2018/4/8 10:51
 @connect : superonesfazai@gmail.com
 '''
 

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : selenium_get_cookie.py
-@Time    : 2017/1/23 19:34
 @connect : superonesfazai@gmail.com
 '''
 

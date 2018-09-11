@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : select_处理下拉框.py
-@Time    : 2017/8/31 11:14
 @connect : superonesfazai@gmail.com
 '''
 

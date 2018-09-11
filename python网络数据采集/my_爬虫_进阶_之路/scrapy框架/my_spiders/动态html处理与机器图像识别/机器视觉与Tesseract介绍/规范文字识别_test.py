@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 规范文字识别_test.py
-@Time    : 2017/8/31 13:31
 @connect : superonesfazai@gmail.com
 '''
 

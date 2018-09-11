@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : selenium_webdriver_ActionChains.py
-@Time    : 2017/8/31 10:56
 @connect : superonesfazai@gmail.com
 '''
 

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 图片进行降噪处理.py
-@Time    : 2018/2/27 13:31
 @connect : superonesfazai@gmail.com
 '''
 

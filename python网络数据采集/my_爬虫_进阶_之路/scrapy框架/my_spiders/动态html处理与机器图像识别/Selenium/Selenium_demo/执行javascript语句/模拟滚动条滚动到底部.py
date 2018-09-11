@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 模拟滚动条滚动到底部.py
-@Time    : 2017/8/31 12:29
 @connect : superonesfazai@gmail.com
 '''
 

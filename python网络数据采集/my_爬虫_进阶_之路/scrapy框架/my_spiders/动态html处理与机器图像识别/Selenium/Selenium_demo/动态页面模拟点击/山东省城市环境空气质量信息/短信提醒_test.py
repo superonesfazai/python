@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 短信提醒_test.py
-@Time    : 2017/9/22 20:04
 @connect : superonesfazai@gmail.com
 '''
 

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 生成汉字正立或倒立.py
-@Time    : 2017/9/1 18:26
 @connect : superonesfazai@gmail.com
 '''
 from PIL import Image,ImageDraw,ImageFont
@@ -62,8 +61,7 @@ class ImageChar():
         start = 0
         num_flip_list = random.sample(range(num), num_flip)
         # logger.info('num flip list:{0}'.format(num_flip_list))
-        print
-        'num flip list:{0}'.format(num_flip_list)
+        print('num flip list:{0}'.format(num_flip_list))
         char_list = []
         for i in range(0, num):
             char = RandomChar().GB2312()

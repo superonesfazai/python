@@ -7,17 +7,14 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from selenium import webdriver
 from scrapy.selector import Selector
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 from time import sleep
-from my_ip_pools import MyIpPools
 import random
 from PIL import Image
 from io import BytesIO
@@ -26,66 +23,23 @@ import uuid
 # import StringIO
 from io import StringIO
 
-def _init_chrome(is_headless=True, is_pic=True, is_proxy=True):
-    '''
-    如果使用chrome请设置page_timeout=30
-    :return:
-    '''
-    from selenium.webdriver.support import ui
-    from selenium import webdriver
+from fzutils.ip_pools import IpPools
+from fzutils.spider.fz_driver import (
+    BaseDriver,
+    CHROME,)
 
-    CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
-    print('--->>>初始化chrome驱动中<<<---')
-    chrome_options = webdriver.ChromeOptions()
-    if is_headless:
-        chrome_options.add_argument('--headless')     # 注意: 设置headless无法访问网页
-    # 谷歌文档提到需要加上这个属性来规避bug
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
-
-    # chrome_options.add_argument('window-size=1200x600')   # 设置窗口大小
-
-    # 设置无图模式
-    if is_pic:
-        prefs = {
-            'profile.managed_default_content_settings.images': 2,
-        }
-        chrome_options.add_experimental_option("prefs", prefs)
-
-    # 设置代理
-    if is_proxy:
-        ip_object = MyIpPools()
-        proxy_ip = ip_object._get_random_proxy_ip().replace('http://', '') if isinstance(ip_object._get_random_proxy_ip(), str) else ''
-        if proxy_ip != '':
-            chrome_options.add_argument('--proxy-server={0}'.format(proxy_ip))
-
-    '''无法打开https解决方案'''
-    # 配置忽略ssl错误
-    capabilities = webdriver.DesiredCapabilities.CHROME.copy()
-    capabilities['acceptSslCerts'] = True
-    capabilities['acceptInsecureCerts'] = True
-
-    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
-    # 修改user-agent
-    chrome_options.add_argument('--user-agent={0}'.format(user_agent))
-
-    # 忽视证书错误
-    chrome_options.add_experimental_option('excludeSwitches', ['ignore-certificate-errors'])
-
-    driver = webdriver.Chrome(
-        executable_path=CHROME_DRIVER_PATH,
-        chrome_options=chrome_options,
-        desired_capabilities=capabilities
-    )
-    wait = ui.WebDriverWait(driver, 30)  # 显示等待n秒, 每过0.5检查一次页面是否加载完毕
-    print('------->>>初始化完毕<<<-------')
-
-    return driver
+CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
 
 class Slide(object):
     """滑动验证码破解"""
     def __init__(self):
-        self.driver = _init_chrome(is_headless=False, is_pic=False, is_proxy=False)
+        _ = BaseDriver(
+            type=CHROME,
+            executable_path=CHROME_DRIVER_PATH,
+            headless=False,
+            load_images=False,
+            driver_use_proxy=False)
+        self.driver = _._get_driver()
         self.wait = WebDriverWait(self.driver, 10)
 
     def crop(self, left, top, right, bottom, pic_name):
@@ -406,7 +360,13 @@ class IndustryAndCommerceGeetestCrack(BaseGeetestCrack):
         self.drag_and_drop(x_offset=x_offset)
 
 def main():
-    driver = _init_chrome(is_headless=False, is_pic=True, is_proxy=False)
+    _ = BaseDriver(
+        type=CHROME,
+        executable_path=CHROME_DRIVER_PATH,
+        headless=False,
+        load_images=True,
+        driver_use_proxy=False)
+    driver = _._get_driver()
     url = 'http://www.sto.cn/Home/Index'
     driver.get(url)
     cracker = IndustryAndCommerceGeetestCrack(driver)
@@ -414,7 +374,7 @@ def main():
     print(driver.get_window_size())
     sleep(3)
     driver.save_screenshot("screen.png")
-    driver.close()
+    driver.quit()
 
 if __name__ == '__main__':
     # _ = Slide()

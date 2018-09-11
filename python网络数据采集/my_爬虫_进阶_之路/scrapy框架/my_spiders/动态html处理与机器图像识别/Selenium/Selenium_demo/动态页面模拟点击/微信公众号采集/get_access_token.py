@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : get_access_token.py
-@Time    : 2017/9/24 09:03
 @connect : superonesfazai@gmail.com
 '''
 

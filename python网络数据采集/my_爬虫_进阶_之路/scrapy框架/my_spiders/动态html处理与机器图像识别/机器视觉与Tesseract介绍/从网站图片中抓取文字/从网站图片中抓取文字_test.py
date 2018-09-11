@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 从网站图片中抓取文字_test.py
-@Time    : 2017/8/31 14:35
 @connect : superonesfazai@gmail.com
 '''
 

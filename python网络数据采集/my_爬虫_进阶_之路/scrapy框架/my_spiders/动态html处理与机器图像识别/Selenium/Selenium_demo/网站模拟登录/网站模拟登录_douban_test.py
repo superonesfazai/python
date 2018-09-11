@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 网站模拟登录_douban_test.py
-@Time    : 2017/8/31 11:55
 @connect : superonesfazai@gmail.com
 '''
 

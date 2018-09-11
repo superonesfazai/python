@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 动态页面模拟点击_test.py
-@Time    : 2017/8/31 12:03
 @connect : superonesfazai@gmail.com
 '''
 

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 测试批量验证码生成训练集.py
-@Time    : 2018/4/8 10:01
 @connect : superonesfazai@gmail.com
 '''
 

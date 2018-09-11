@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : weixin_spider.py
-@Time    : 2017/1/23 20:25
 @connect : superonesfazai@gmail.com
 '''
 

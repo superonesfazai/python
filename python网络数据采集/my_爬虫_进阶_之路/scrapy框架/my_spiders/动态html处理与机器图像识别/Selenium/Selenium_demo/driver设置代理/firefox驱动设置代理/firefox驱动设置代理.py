@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : firefox驱动设置代理.py
-@Time    : 2017/11/1 10:45
 @connect : superonesfazai@gmail.com
 '''
 

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 隐藏百度图片.py
-@Time    : 2017/8/31 12:22
 @connect : superonesfazai@gmail.com
 '''
 

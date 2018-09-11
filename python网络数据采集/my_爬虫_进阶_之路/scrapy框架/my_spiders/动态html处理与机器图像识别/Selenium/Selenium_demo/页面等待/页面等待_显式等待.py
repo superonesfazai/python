@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 页面等待_显式等待.py
-@Time    : 2017/8/31 11:30
 @connect : superonesfazai@gmail.com
 '''
 
