@@ -150,7 +150,8 @@ from fzutils.linux_utils import daemon_init
 from fzutils.common_utils import json_2_dict
 from fzutils.safe_utils import (
     encrypt,
-    decrypt,)
+    decrypt,
+    get_uuid1,)
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -177,6 +178,7 @@ inner_pass = 'adminss'
 tmp_wait_to_save_data_list = []
 
 my_lg = set_logger(
+    logger_name=get_uuid1(),
     log_file_name=MY_SPIDER_LOGS_PATH + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
     console_log_level=INFO,
     file_log_level=INFO
@@ -1843,17 +1845,14 @@ def _goods():
 
         if _is_taobao_url_plus(goods_link):
             my_lg.info('该link为淘宝link...')
-
             return _deal_with_tb_goods(goods_link=goods_link, my_lg=my_lg)
 
         elif _is_tmall_url_plus(goods_link):
             my_lg.info('该link为天猫link...')
-
             return _deal_with_tm_goods(goods_link=goods_link, my_lg=my_lg)
 
         elif _is_jd_url_plus(goods_link):
             my_lg.info('该link为京东link...')
-
             return _deal_with_jd_goods(goods_link=goods_link, my_lg=my_lg)
 
         else:

@@ -164,7 +164,7 @@ def _deal_with_tb_goods(goods_link, my_lg):
         return _error_data(msg=msg)
 
     tb_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
-    data = get_one_tb_data(tb_url=tb_url)
+    data = get_one_tb_data(tb_url=tb_url, my_lg=my_lg)
     my_lg.info(str(data))
     if data.get('msg', '') == 'data为空!':
         msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)

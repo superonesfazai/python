@@ -204,7 +204,7 @@ def _deal_with_tm_goods(goods_link, my_lg):
         return _error_data(msg=msg)
 
     tm_url = 'https://detail.tmall.com/item.htm?id={0}'.format(goods_id)
-    data = get_one_tm_data(wait_to_deal_with_url=tm_url)
+    data = get_one_tm_data(wait_to_deal_with_url=tm_url, my_lg=my_lg)
     if data.get('msg', '') == 'data为空!':
         msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
         return _error_data(msg=msg)

@@ -14,7 +14,7 @@ import sys
 sys.path.append('..')
 
 import hashlib
-import requests
+from requests import get
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -30,12 +30,14 @@ class RequestClient(object):
     def __init__(self):
         self._version = "v1"
         self._access_key_id = "yiuxiu"
-        self._access_key_secret = "yiuxiu6688"
+        self._access_key_secret = "22879be192793e9d80289b58a451f857"
 
-    def _sign(self, parameters):
-        """ 签名
-        @param parameters dict: uri请求参数(包含除signature外的公共参数)
-        """
+    def _sign(self, parameters:dict) -> str:
+        '''
+        签名
+        :param parameters: url请求参数(包含除signature外的公共参数)
+        :return:
+        '''
         if "sign" in parameters:
             parameters.pop("sign")
 
@@ -53,15 +55,18 @@ class RequestClient(object):
         # NO.3 加密返回签名: signature
         return md5(canonicalized_query_string.encode('utf-8')).lower()
 
-    def request(self):
-        """测试用例"""
+    def _request(self):
+        '''
+        测试用例
+        :return:
+        '''
         # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198&umpChannel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&u_channel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&spm=a2141.8147851.1.1'
-        # link中不能带&否则会被编码在sign中加密
+        # link中不能带&否则会被编码在sign中加密, 因此先进行b64encode格式化再decode
 
         # tb
-        # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198'
+        goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198'
         # tm
-        goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
+        # goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
         # jd
         # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
         # goods_link = 'https://item.jd.com/5025518.html'
@@ -69,25 +74,25 @@ class RequestClient(object):
         from base64 import b64encode
 
         now_timestamp = get_current_timestamp() - 5
-        print('请求时间戳为: {0}[{1}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
+        print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
         params = {
             'access_key_id': self._access_key_id,
-            'version': self._version,
-            'timestamp': now_timestamp,
-            'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte
+            'v': self._version,
+            't': now_timestamp,
+            'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte, pc地址或m地址都可, server会识别
         }
 
         params.update({
             'sign': self._sign(params)
         })
 
-        # url = 'http://127.0.0.1:5000/api/goods'
-        url = 'http://spider.taobao_tmall.k85u.com/api/goods'
+        url = 'http://127.0.0.1:5000/api/goods'
+        # url = 'http://spider.taobao_tmall.k85u.com/api/goods'
         # url = 'http://spider.other.k85u.com/api/goods'
 
-        result = requests.get(url, params=params)
+        result = get(url, params=params).text
 
         return result
 
 m = RequestClient()
-print(m.request())
+print(m._request())

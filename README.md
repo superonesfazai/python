@@ -15,8 +15,6 @@
 [![Github commit merge status](https://img.shields.io/github/commit-status/badges/shields/master/5d4ab86b1b5ddfb3c4a70a70bd19932c52603b8c.svg)]()
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/superonesfazai/python.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fsuperonesfazai%2Fpython)
 
-旨在: 记录下自己与python的点滴, 并让更多人深入理解python ☺️
-
 - give me a star or a fork, my friend!
 
 ![](./images/ayst.png)

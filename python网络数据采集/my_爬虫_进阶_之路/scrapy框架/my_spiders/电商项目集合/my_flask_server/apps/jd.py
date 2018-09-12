@@ -178,7 +178,7 @@ def _deal_with_jd_goods(goods_link, my_lg):
         return _error_data(msg=msg)
 
     jd_url = 'https://item.jd.com/{0}.html'.format(goods_id)
-    data = get_one_jd_data(wait_to_deal_with_url=jd_url)
+    data = get_one_jd_data(wait_to_deal_with_url=jd_url, my_lg=my_lg)
     if data.get('msg', '') == 'data为空!':
         msg = '该goods_id:{0}, 抓取数据失败!'.format(goods_id)
         return _error_data(msg=msg)
@@ -193,7 +193,7 @@ def _deal_with_jd_goods(goods_link, my_lg):
 
     params = _get_db_jd_insert_params(item=data)
     sql_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-    is_insert_into = my_pipeline._insert_into_table(sql_str=sql_str, params=params)
+    is_insert_into = my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
     if is_insert_into:  # 如果返回值为True
         pass
     else:               # 不处理存储结果
