@@ -9,9 +9,11 @@ fzutils/common_utils.py
 fzutils/cp_utils.py
 fzutils/email_utils.py
 fzutils/exceptions.py
+fzutils/free_api_utils.py
 fzutils/img_utils.py
 fzutils/internet_utils.py
 fzutils/ip_pools.py
+fzutils/ip_utils.py
 fzutils/items.py
 fzutils/iter_utils.py
 fzutils/linux_utils.py
@@ -20,6 +22,7 @@ fzutils/ocr_utils.py
 fzutils/path_utils.py
 fzutils/safe_utils.py
 fzutils/sql_utils.py
+fzutils/thread_utils.py
 fzutils/time_utils.py
 fzutils/url_utils.py
 fzutils.egg-info/PKG-INFO

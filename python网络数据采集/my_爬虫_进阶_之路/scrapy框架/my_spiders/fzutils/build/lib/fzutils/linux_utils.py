@@ -3,6 +3,7 @@
 import sys
 import os
 import subprocess
+import socket
 
 from .common_utils import delete_list_null_str
 
@@ -12,6 +13,7 @@ __all__ = [
     'process_exit',                                     # 判断进程是否存在
     'kill_process_by_name',                             # 根据进程名杀掉对应进程(linux/mac测试通过!)
     'get_os_platform',                                  # 返回当前是什么系统
+    'get_random_free_port',                             # 从主机中随机获取一个可用端口
 
     # shell
     'get_str_from_command',                             # shell下执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为""
@@ -70,7 +72,7 @@ def restart_program():
     python = sys.executable
     os.execl(python, python, *sys.argv)
 
-def process_exit(process_name):
+def process_exit(process_name) -> int:
     '''
     判断进程是否存在
     :param process_name:
@@ -81,7 +83,7 @@ def process_exit(process_name):
 
     return len(process_check_response)
 
-def kill_process_by_name(process_name):
+def kill_process_by_name(process_name) -> None:
     '''
     根据进程名杀掉对应进程(linux/mac测试通过!)
     :param process_name: str
@@ -123,7 +125,7 @@ def get_current_file_path():
 
     return module_path
 
-def get_os_platform():
+def get_os_platform() -> str:
     '''
     返回当前是什么系统
     :return: mac是darwin | ...
@@ -135,3 +137,17 @@ def get_os_platform():
         return 'osf1'
 
     return sys.platform
+
+def get_random_free_port() -> int:
+    '''
+    从主机中随机获取一个可用端口
+    :return:
+    '''
+    free_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    free_socket.bind(('0.0.0.0', 0))
+    free_socket.listen(5)
+    port = free_socket.getsockname()[1]
+    free_socket.close()
+
+    return port
+

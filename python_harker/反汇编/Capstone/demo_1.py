@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : demo_1.py
-@Time    : 2018/4/26 10:29
 @connect : superonesfazai@gmail.com
 '''
 

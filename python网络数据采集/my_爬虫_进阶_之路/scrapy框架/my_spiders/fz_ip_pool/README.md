@@ -86,17 +86,6 @@ $ open http://localhost:5555
 ```python
 # 设置代理抓取对象
 parser_list = [
-    # {
-    #     'urls': 'https://www.kuaidaili.com/free/inha/{}',
-    #     'charset': 'utf-8',
-    #     'type': 'css',
-    #     'part': 'div#list table tbody tr',
-    #     'position': {
-    #         'ip': 'td:nth-child(1)',
-    #         'port': 'td:nth-child(2)',
-    #         'ip_type': 'td:nth-child(4)',
-    #     }
-    # },
     {
         'urls': 'http://www.66ip.cn/{}.html',
         'charset': 'gb2312',
@@ -106,9 +95,96 @@ parser_list = [
             'ip': 'td:nth-child(1)',
             'port': 'td:nth-child(2)',
             'ip_type': 'td:nth-child(4)',
+        },
+        'page_range': {
+            'min': 1,       # 最小页码
+            'max': 1300,    # 最大页码
         }
     },
-    ...
+    {
+        'urls': 'http://www.mimiip.com/gngao/{}',
+        'charset': 'utf-8',
+        'type': 'css',
+        'part': 'div.content table.list tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(5)',
+        },
+        'page_range': {
+            'min': 1,
+            'max': 680,
+        }
+    },
+    {
+        'urls': 'http://www.ip3366.net/?stype=1&page={}',
+        'charset': 'gb2312',
+        'type': 'css',
+        'part': 'div#list tbody tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(4)',
+        },
+        'page_range': {
+            'min': 1,
+            'max': 100,
+        }
+    },
+    {
+        'urls': 'http://www.data5u.com/free/gngn/index{}.shtml',
+        'charset': 'utf-8',
+        'type': 'css',
+        'part': 'div.wlist ul.l2',
+        'position': {
+            'ip': 'span:nth-child(1) li:nth-child(1)',
+            'port': 'span:nth-child(2) li:nth-child(1)',
+            'ip_type': 'span:nth-child(4) li:nth-child(1)',
+        },
+        'page_range': {
+            'min': 1,
+            'max': 100,
+        }
+    },
+    {
+        'urls': 'http://ip.jiangxianli.com/?page={}',
+        'charset': 'utf-8',
+        'type': 'css',
+        'part': 'table tr',
+        'position': {
+            'ip': 'td:nth-child(2)',
+            'port': 'td:nth-child(3)',
+            'ip_type': 'td:nth-child(5)',
+        },
+        'page_range': {
+            'min': 1,
+            'max': 26,
+        }
+    },
+
+    # 下面为弃用代理
+    # {   # 西刺代理可用质量过低, 弃用
+    #     'urls': 'http://www.xicidaili.com/nn/{}',
+    #     'charset': 'utf-8',
+    #     'type': 'css',
+    #     'part': 'table#ip_list tr',
+    #     'position': {
+    #         'ip': 'td:nth-child(2)',
+    #         'port': 'td:nth-child(3)',
+    #         'ip_type': 'td:nth-child(6)',
+    #     },
+    # }
+    # {
+    #     'urls': 'https://www.kuaidaili.com/free/inha/{}',
+    #     'charset': 'utf-8',
+    #     'type': 'css',
+    #     'part': 'div#list table tbody tr',
+    #     'position': {
+    #         'ip': 'td:nth-child(1)',
+    #         'port': 'td:nth-child(2)',
+    #         'ip_type': 'td:nth-child(4)',
+    #     },
+    # },
 ]
 ```
 

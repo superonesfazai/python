@@ -41,15 +41,16 @@ __all__ = [
     'retry',                                                    # 函数执行出现异常时自动重试的装饰器
 ]
 
-def json_2_dict(json_str, logger=None, encoding=None):
+def json_2_dict(json_str, logger=None, encoding=None, default_res=None):
     '''
     json字符串转dict
     :param json_str:
     :param logger:
     :param encoding: 解码格式
+    :param default_res: 默认返回结果
     :return:
     '''
-    _ = {}
+    _ = default_res if default_res is not None else {}
     try:
         _ = loads(json_str)
     except JSONDecodeError:

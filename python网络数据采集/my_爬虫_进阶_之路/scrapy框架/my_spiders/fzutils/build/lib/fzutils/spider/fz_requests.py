@@ -36,6 +36,7 @@ class MyRequests(object):
     @classmethod
     def get_url_body(cls,
                      url,
+                     use_proxy=True,
                      headers:dict=get_base_headers(),
                      params=None,
                      data=None,
@@ -50,6 +51,7 @@ class MyRequests(object):
         '''
         根据url得到body
         :param url:
+        :param use_proxy: 是否使用代理模式, 默认使用
         :param headers:
         :param params:
         :param data:
@@ -62,12 +64,15 @@ class MyRequests(object):
         :param high_conceal: 代理是否为高匿名
         :return: '' 表示error | str 表示success
         '''
-        # 设置代理ip
-        tmp_proxies = cls._get_proxies(ip_pool_type=ip_pool_type, high_conceal=high_conceal)
-        if tmp_proxies == {}:
-            print('获取代理失败, 此处跳过!')
-            return ''
-        # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(tmp_proxies.get('http')))
+        if use_proxy:
+            # 设置代理ip
+            tmp_proxies = cls._get_proxies(ip_pool_type=ip_pool_type, high_conceal=high_conceal)
+            if tmp_proxies == {}:
+                print('获取代理失败, 此处跳过!')
+                return ''
+            # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(tmp_proxies.get('http')))
+        else:
+            tmp_proxies = {}
 
         tmp_headers = headers
         tmp_headers['Host'] = re.compile(r'://(.*?)/').findall(url)[0]
