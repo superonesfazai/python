@@ -12,7 +12,6 @@ def cleanFile(filePath, newFilePath):
     image = image.point(lambda x: 0 if x<143 else 255)
     image.save(newFilePath)
 
-
     #子进程调用tesseract  Tesseract 最大的缺点是对渐变背景色的处理
     subprocess.call(["tesseract", newFilePath, "test"])
     

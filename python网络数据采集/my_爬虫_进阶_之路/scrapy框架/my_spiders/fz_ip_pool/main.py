@@ -14,6 +14,7 @@ from pprint import pprint
 from logging import (
     INFO,
     ERROR,)
+import re
 from pickle import dumps
 from random import randint
 from celery.exceptions import TimeoutError
@@ -67,14 +68,28 @@ def get_proxy_process_data():
     :return:
     '''
     def _create_tasks_list(**kwargs):
-        urls = kwargs.get('urls', '')
+        urls = kwargs.get('urls')
         page_range = kwargs.get('page_range', {})
         page_min, page_max = page_range['min'], page_range['max']
         random_parser_list_item_index = kwargs.get('random_parser_list_item_index')
 
         results = []
-        tmp_page_num_list = [randint(page_min, page_max) for i in range(1, 25)]
-        urls = [urls.format(page_num) for page_num in tmp_page_num_list]
+        if isinstance(urls, str):
+            tmp_page_num_list = list(set([randint(page_min, page_max) for i in range(1, 20)]))
+            urls = [urls.format(page_num) for page_num in tmp_page_num_list]
+        elif isinstance(urls, list):
+            _urls = []
+            for item in urls:
+                if re.compile('{}').findall(item) != []:
+                    tmp_page_num_list = list(set([randint(page_min, page_max) for i in range(1, 20)]))
+                    _s = [item.format(page_num) for page_num in tmp_page_num_list]
+                    _urls += _s
+                else:
+                    _urls.append(item)
+            urls = list(set(_urls))
+        else:
+            raise TypeError('urls类型异常!')
+
         for proxy_url in urls:
             # 异步, 不要在外部调用task的函数中sleep阻塞进程, 可在task内休眠
             async_obj = _get_proxy.apply_async(
@@ -316,7 +331,7 @@ def main():
             sleep(WAIT_TIME)
             lg.info('Async Checking all_proxy(匿名度未知)...')
             origin_proxy_data = list_remove_repeat_dict(target=origin_proxy_data, repeat_key='ip')
-            check_all_proxy(origin_proxy_data, redis_key_name=_key, delete_score=88)
+            check_all_proxy(origin_proxy_data, redis_key_name=_key, delete_score=90)
 
             '''删除失效的, 时刻保持最新高匿可用proxy'''
             high_origin_proxy_list = list_remove_repeat_dict(

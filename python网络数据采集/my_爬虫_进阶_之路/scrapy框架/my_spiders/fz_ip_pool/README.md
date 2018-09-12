@@ -40,13 +40,6 @@ $ redis-cli
 ```
 
 #### 2. 运行proxy_spiders_tasks worker
-- 单一worker
-```bash
-# info
-$ celery -A proxy_tasks worker -l info
-# debug
-$ celery -A proxy_tasks worker -l debug
-```
 - worker多开(推荐)
 ```bash
 $ celery multi start w1 w2 w3 w4 w5 -A proxy_tasks 
@@ -61,6 +54,13 @@ Stale pidfile exists - Removing it.
 Stale pidfile exists - Removing it.
 	> w5@afahostdeiMac.local: OK
 Stale pidfile exists - Removing it.
+```
+- 单一worker
+```bash
+# info
+$ celery -A proxy_tasks worker -l info
+# debug
+$ celery -A proxy_tasks worker -l debug
 ```
 *开5个worker的网络并发状态*
 
@@ -161,6 +161,72 @@ parser_list = [
             'max': 26,
         }
     },
+    {
+        'urls': 'https://www.kuaidaili.com/free/inha/{}',
+        'charset': 'utf-8',
+        'type': 'css',
+        'part': 'div#list table tbody tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(4)',
+        },
+        'page_range': {
+            'min': 1,
+            'max': 2400,
+        }
+    },
+    {
+        'urls': 'http://mrhinkydink.com/proxies{}.htm',
+        'charset': 'utf-8',
+        'type': 'css',
+        'part': 'table:nth-child(2) tr.text',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(3)',
+        },
+        'page_range': {
+            'min': 2,
+            'max': 8,
+        }
+    },
+    {
+        'urls': [
+            'http://www.iphai.com/free/ng',
+            'http://www.iphai.com/free/wg',
+        ],
+        'charset': 'utf-8',
+        'type': 'css',
+        'part': 'table tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(4)',
+        },
+        'page_range': {
+            'min': 0,   # 不取值
+            'max': 0,
+        }
+    },
+    {
+        'urls': [
+            'http://www.swei360.com/free/?stype=1&page={}',
+            'http://www.swei360.com/free/?stype=3&page={}',
+        ],
+        'charset': 'gb2312',
+        'type': 'css',
+        'part': 'table.table tr',
+        'position': {
+            'ip': 'td:nth-child(1)',
+            'port': 'td:nth-child(2)',
+            'ip_type': 'td:nth-child(4)',
+        },
+        'page_range': {
+            'min': 1,
+            'max': 7,
+        }
+    },
 
     # 下面为弃用代理
     # {   # 西刺代理可用质量过低, 弃用
@@ -174,17 +240,6 @@ parser_list = [
     #         'ip_type': 'td:nth-child(6)',
     #     },
     # }
-    # {
-    #     'urls': 'https://www.kuaidaili.com/free/inha/{}',
-    #     'charset': 'utf-8',
-    #     'type': 'css',
-    #     'part': 'div#list table tbody tr',
-    #     'position': {
-    #         'ip': 'td:nth-child(1)',
-    #         'port': 'td:nth-child(2)',
-    #         'ip_type': 'td:nth-child(4)',
-    #     },
-    # },
 ]
 ```
 

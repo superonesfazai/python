@@ -40,22 +40,21 @@ def get_jd_one_goods_price_info(goods_id) -> list:
 def get_express_info(express_type, express_id) -> dict:
     '''
     获取快递信息
-        express_type: ps: 传字典对应的value
-            {
-                '申通': 'shentong',
-                'ems': 'ems',
-                '顺丰': 'shunfeng',
-                '圆通': 'yuantong',
-                '中通': 'zhongtong',
-                '韵达': 'yunda',
-                '天天': 'tiantian',
-                '汇通': 'huitongkuaidi',
-                '全峰': 'quanfengkuaidi',
-                '德邦': 'debangwuliu',
-                '宅急送': 'zhaijisong',
-                ...
-            }
-
+    express_type: ps: 传字典对应的value
+        {
+            '申通': 'shentong',
+            'ems': 'ems',
+            '顺丰': 'shunfeng',
+            '圆通': 'yuantong',
+            '中通': 'zhongtong',
+            '韵达': 'yunda',
+            '天天': 'tiantian',
+            '汇通': 'huitongkuaidi',
+            '全峰': 'quanfengkuaidi',
+            '德邦': 'debangwuliu',
+            '宅急送': 'zhaijisong',
+            ...
+        }
     :param express_type: 快递公司名
     :param express_id: 快递号
     :return:
@@ -104,4 +103,3 @@ def get_baidu_baike_info(keyword, bk_length=1000) -> dict:
     body = Requests.get_url_body(url=url, params=params, use_proxy=False)
 
     return json_2_dict(body)
-

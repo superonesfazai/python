@@ -25,7 +25,8 @@ from settings import (
     parser_list,
     proxy_list_key_name,
     high_proxy_list_key_name,
-    TEST_HTTP_HEADER,)
+    TEST_HTTP_HEADER,
+    start_up_ip_url_list,)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import get_random_pc_ua
@@ -43,7 +44,18 @@ lg = get_task_logger('proxy_tasks')             # 当前task的logger对象, tas
 _key = get_uuid3(proxy_list_key_name)           # 存储proxy_list的key
 _h_key = get_uuid3(high_proxy_list_key_name)    # 高匿key
 redis_cli = BaseRedisCli()
-a_66_ip = []
+ori_ip_list = []
+
+def _get_base_headers() -> dict:
+    return {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': get_random_pc_ua(),
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
 
 @app.task(name='proxy_tasks._get_proxy', bind=True)   # task修饰的方法无法修改类属性
 def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
@@ -51,17 +63,6 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
     spiders: 获取代理高匿名ip
     :return:
     '''
-    def _get_base_headers():
-        return {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': get_random_pc_ua(),
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-        }
-
     def parse_body(body):
         '''解析url body'''
         def _get_ip_type(ip_type):
@@ -90,15 +91,21 @@ def _get_proxy(self, random_parser_list_item_index, proxy_url) -> list:
             try:
                 ip = Selector(text=tr).css('{} ::text'.format(ip_selector)).extract_first()
                 assert ip is not None, 'ip为None!'
+                ip = re.compile(r'<script .*?</script>').sub('', ip)
                 if re.compile('\d+').findall(ip) == []:     # 处理不是ip地址
                     continue
+                lg.info(str(ip))
+                ip = re.compile('\d+\.\d+\.\d+\.\d+').findall(ip)[0]
                 assert ip != '', 'ip为空值!'
                 port = Selector(text=tr).css('{} ::text'.format(port_selector)).extract_first()
                 assert port != '', 'port为空值!'
                 ip_type = Selector(text=tr).css('{} ::text'.format(ip_type_selector)).extract_first()
                 assert ip_type != '', 'ip_type为空值!'
                 ip_type = _get_ip_type(ip_type)
-            except AssertionError or Exception:
+            except IndexError:
+                lg.error('获取ip时索引异常!跳过!')
+                continue
+            except (AssertionError, Exception):
                 lg.error('遇到错误:', exc_info=True)
                 continue
             o['ip'] = ip
@@ -152,17 +159,7 @@ def _get_66_ip_list():
     先获取66高匿名ip
     :return:
     '''
-    global a_66_ip
-    headers = {
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': get_random_pc_ua(),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Referer': 'http://www.66ip.cn/nm.html',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept-Language': 'zh-CN,zh;q=0.9',
-    }
-
+    global ori_ip_list
     params = (
         ('getnum', ''),
         ('isp', '0'),
@@ -176,7 +173,10 @@ def _get_66_ip_list():
         ('api', '66ip'),
     )
 
-    response = requests.get('http://www.66ip.cn/nmtq.php', headers=headers, params=params, cookies=None)
+    try:
+        response = requests.get('http://www.66ip.cn/nmtq.php', headers=_get_base_headers(), params=params, cookies=None)
+    except Exception:
+        return []
     body = Requests._wash_html(response.content.decode('gbk'))
     try:
         part = re.compile(r'</script>(.*)</div>').findall(body)[0]
@@ -186,7 +186,28 @@ def _get_66_ip_list():
     # print(part)
     ip_list = delete_list_null_str(part.split('<br />'))
     # print(ip_list)
-    a_66_ip = ip_list if ip_list != [] else []
+    ori_ip_list = ip_list if ip_list != [] else []
+
+    return ip_list
+
+def get_start_up_ip_list(url):
+    '''
+    初始抓取时调用
+    :param url:
+    :return:
+    '''
+    body = requests.get(url, headers=_get_base_headers()).text
+    if body == '':
+        return []
+    tmp_ip_list = delete_list_null_str(body.split('\r\n'))
+
+    ip_list = []
+    for item in tmp_ip_list:
+        try:
+            tmp = re.compile('\d+\.\d+\.\d+\.\d+:\d+').findall(item)[0]
+            ip_list.append(tmp)
+        except IndexError:
+            continue
 
     return ip_list
 
@@ -195,6 +216,7 @@ def _get_proxies() -> dict:
     随机一个高匿名proxy(极大概率失败, 耐心!)
     :return:
     '''
+    global ori_ip_list
     proxy_list = deserializate_pickle_object(redis_cli.get(_h_key) or dumps([]))
     proxies = choice(proxy_list) if len(proxy_list) > 0 else None
     if proxies is not None:
@@ -205,14 +227,22 @@ def _get_proxies() -> dict:
         }
         lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
     else:
-        lg.info('第一次抓取使用本机ip...')
-        # 使用66ip，免费高匿ip
-        # if a_66_ip == []:
-        #     _get_66_ip_list()
-        # proxies = {
-        #     'http': 'http://{}'.format(choice(a_66_ip)),
-        # }
-        # lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
+        if ori_ip_list == []:
+            for url in start_up_ip_url_list:
+                tmp = get_start_up_ip_list(url)
+                ori_ip_list += tmp
+            if ori_ip_list == []:
+                ori_ip_list = _get_66_ip_list()
+                if ori_ip_list == []:
+                    lg.info('正在使用本机ip抓取...')
+
+        else:
+            pass
+        ori_ip_list = list(set(ori_ip_list))
+        proxies = {
+            'http': 'http://{}'.format(choice(ori_ip_list)),
+        }
+        lg.info('正在使用代理 {} crawl...'.format(proxies['http']))
 
     return proxies or {}        # 如果None则返回{}
 

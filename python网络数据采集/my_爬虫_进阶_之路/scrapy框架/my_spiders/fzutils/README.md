@@ -28,8 +28,8 @@ pip3 install fzutils
 ## 要求
 -  Python 3或更高版本.
 -  依靠的代理池(二选一)
-    - [IPProxyPool](https://github.com/qiyeboy/IPProxyPool)
     - [fz_ip_pool](https://github.com/superonesfazai/fz_ip_pools)
+    - [IPProxyPool](https://github.com/qiyeboy/IPProxyPool)
 
 ## simple use
 ```bash

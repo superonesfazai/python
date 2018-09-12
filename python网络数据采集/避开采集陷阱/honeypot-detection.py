@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 
-driver = webdriver.PhantomJS(executable_path='/Users/xxg/phantomjs-2.1.1-macosx/bin/phantomjs')
+driver = webdriver.PhantomJS(executable_path='xxxx')
 driver.get("http://pythonscraping.com/pages/itsatrap.html")
 links = driver.find_elements_by_tag_name("a")
 for link in links:
