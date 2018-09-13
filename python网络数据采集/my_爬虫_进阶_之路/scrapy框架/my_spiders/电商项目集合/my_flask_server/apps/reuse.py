@@ -70,8 +70,8 @@ def compatible_api_goods_data(data, my_lg):
         'sell_count': data.get('sell_count') if not data.get('sell_count') else data.get('all_sell_count'),
         'img_url': data.get('all_img_url'),             # 商品示例图, eg: [{'img_url': xxx}, ...]
         'spider_url': data.get('spider_url') if not data.get('spider_url') else data.get('goods_url'),
-        'sku_name': data.get('detail_name_list', []),   # 规格名, eg: 颜色，尺码 [{'spec_name': '颜色'}, ...]
-        'sku_info': data.get('price_info_list', []),    # 详细规格, eg: [{"spec_value": "10片", "detail_price": "79", "rest_number": "3394"}, ...]
+        'sku_name': data.get('detail_name_list', []),   # 规格名, eg: 颜色，尺码 [{'spec_name': '颜色', 'img_here': 1}, ...]
+        'sku_info': data.get('price_info_list', []),    # 详细规格, eg: [{"spec_value": "10片", "detail_price": "79", "rest_number": "3394", ...}, ...]
     }
 
     my_lg.info('此次请求接口返回数据: {0}'.format(str(_)))

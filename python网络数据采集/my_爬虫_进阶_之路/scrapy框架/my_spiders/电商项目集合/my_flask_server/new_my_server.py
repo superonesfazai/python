@@ -1833,7 +1833,7 @@ def _get_basic_data_2():
 '''
 /api/goods
 '''
-@app.route('/api/goods', methods=['GET', 'POST'])
+@app.route('/api/goods', methods=['GET'])
 @Sign.signature_required
 def _goods():
     _ = get_goods_link(request=request)
