@@ -20,6 +20,9 @@ from .common_utils import json_2_dict
 __all__ = [
     'baidu_ocr_captcha',            # 百度ocr识别captcha
     'baidu_orc_image_main_body',    # 百度orc图像主体位置识别
+
+    # 轨迹生成
+    'get_tracks_based_on_distance', # 根据给与的距离生成不规律的移动轨迹tracks
 ]
 
 def baidu_ocr_captcha(app_id, api_key, secret_key, img_path, orc_type=3) -> dict:
@@ -137,3 +140,33 @@ def baidu_orc_image_main_body(img_url='', local_img_path=None) -> dict:
     response = requests.post('https://ai.baidu.com/aidemo', headers=headers, cookies=cookies, data=data)
 
     return json_2_dict(response.text)
+
+def get_tracks_based_on_distance(distance: int) -> dict:
+    '''
+    根据给与的距离生成不规律的移动轨迹tracks
+    :param distance:
+    :return: {'forward_tracks': [...], 'back_tracks': [...]}
+    '''
+    print('移动距离为:{}'.format(distance))
+    distance += 20
+    v = 0
+    t = 0.2
+    forward_tracks = []
+    current = 0
+    mid = distance * 3 / 5
+    while current < distance:
+        if current < mid:
+            a = 2
+        else:
+            a = -3
+        s = v * t + 0.5 * a * (t ** 2)
+        v = v + a * t
+        current += s
+        forward_tracks.append(round(s))
+
+    back_tracks = [-3, -3, -2, -2, -2, -2, -2, -1, -1, -1]
+
+    return {
+        'forward_tracks': forward_tracks,
+        'back_tracks': back_tracks,
+    }

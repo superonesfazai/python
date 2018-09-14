@@ -1,10 +1,15 @@
-## Selenium
+# Selenium
 Selenium是一个Web的自动化测试工具，最初是为网站自动化测试而开发的，类型像我们玩游戏用的按键精灵，可以按指定的命令自动操作，不同是Selenium 可以直接运行在浏览器上，它支持所有主流的浏览器（包括PhantomJS这些无界面的浏览器）。
 
 Selenium 可以根据我们的指令，让浏览器自动加载页面，获取需要的数据，甚至页面截屏，或者判断网站上某些动作是否发生。
 
 Selenium 自己不带浏览器，不支持浏览器的功能，它需要与第三方浏览器结合在一起才能使用。但是我们有时候需要让它内嵌在代码中运行，所以我们可以用一个叫 PhantomJS 的工具代替真实的浏览器。
 [Selenium 官方参考文档](http://selenium-python.readthedocs.io/index.html)
+
+## selenium IDE
+Selenium IDE是一个Firefox/chrome插件，可用于记录Firefox本身的测试步骤。Selenium IDE可用于以 各种编程语言（即C＃，Java，Python和Ruby）生成快速而肮脏的测试代码。
+
+鉴于通过Selenium IDE生成的代码的可维护性，建议不要将其用于了解元素定位器或生成 丢弃代码。我们确信，一旦习惯了WebDriver API，就永远不会使用Selenium IDE。
 
 ## PhantomJS
 PhantomJS 是一个基于Webkit的“无界面”(headless)浏览器，它会把网站加载到内存并执行页面上的 JavaScript，因为不会展示图形界面，所以运行起来比完整的浏览器要高效。

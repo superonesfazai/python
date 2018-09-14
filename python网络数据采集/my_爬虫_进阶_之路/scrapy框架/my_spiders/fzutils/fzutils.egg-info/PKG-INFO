@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.7.4
+Version: 0.0.1.7.6
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -36,8 +36,8 @@ Description: ```bash
         ## 要求
         -  Python 3或更高版本.
         -  依靠的代理池(二选一)
-            - [IPProxyPool](https://github.com/qiyeboy/IPProxyPool)
             - [fz_ip_pool](https://github.com/superonesfazai/fz_ip_pools)
+            - [IPProxyPool](https://github.com/qiyeboy/IPProxyPool)
         
         ## simple use
         ```bash

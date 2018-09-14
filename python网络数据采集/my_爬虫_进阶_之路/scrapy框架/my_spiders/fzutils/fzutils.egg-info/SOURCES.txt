@@ -44,5 +44,6 @@ fzutils/spider/fz_aiohttp.py
 fzutils/spider/fz_driver.py
 fzutils/spider/fz_phantomjs.py
 fzutils/spider/fz_requests.py
+fzutils/spider/selenium_always.py
 fzutils/spider/templates/__init__.py
 fzutils/spider/templates/config.py

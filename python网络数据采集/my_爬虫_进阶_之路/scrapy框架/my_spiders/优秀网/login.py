@@ -17,14 +17,11 @@ from fzutils.spider.fz_driver import (
     FIREFOX,
     CHROME,)
 from fzutils.img_utils import save_img_through_url
+from fzutils.spider.selenium_always import *
+from fzutils.ocr_utils import get_tracks_based_on_distance
 
 from PIL import Image
 from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 import cv2
 import numpy as np
 from time import sleep
@@ -82,7 +79,7 @@ class CrackSlider():
         self._before_act()
         self.get_slide_captcha_img()
         distance = self.match()
-        tracks = self.get_tracks((distance + 7 ) * self.zoom)       # 对位移的缩放计算
+        tracks = get_tracks_based_on_distance((distance + 7 ) * self.zoom)       # 对位移的缩放计算
         print(tracks)
         slider = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'yidun_slider')))
         ActionChains(self.driver).click_and_hold(slider).perform()
@@ -174,28 +171,6 @@ class CrackSlider():
                 R -= (R - L) / 2
 
         return loc[1][0]
-
-    def get_tracks(self, distance):
-        print(distance)
-        distance += 20
-        v = 0
-        t = 0.2
-        forward_tracks = []
-        current = 0
-        mid = distance * 3 / 5
-        while current < distance:
-            if current < mid:
-                a = 2
-            else:
-                a = -3
-            s = v * t + 0.5 * a * (t ** 2)
-            v = v + a * t
-            current += s
-            forward_tracks.append(round(s))
-
-        back_tracks = [-3, -3, -2, -2, -2, -2, -2, -1, -1, -1]
-
-        return {'forward_tracks': forward_tracks, 'back_tracks': back_tracks}
 
     def __del__(self):
         try:
