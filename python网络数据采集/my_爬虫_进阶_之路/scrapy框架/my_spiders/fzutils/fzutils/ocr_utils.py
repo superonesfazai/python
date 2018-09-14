@@ -12,6 +12,7 @@
 
 from aip import AipOcr
 import requests
+from time import sleep
 
 from .internet_utils import get_random_pc_ua
 from .img_utils import read_img_use_base64
@@ -19,6 +20,7 @@ from .common_utils import json_2_dict
 
 __all__ = [
     'baidu_ocr_captcha',            # 百度ocr识别captcha
+    'yundama_ocr_captcha',          # 云打码识别captcha
     'baidu_orc_image_main_body',    # 百度orc图像主体位置识别
 
     # 轨迹生成
@@ -170,3 +172,137 @@ def get_tracks_based_on_distance(distance: int) -> dict:
         'forward_tracks': forward_tracks,
         'back_tracks': back_tracks,
     }
+
+def yundama_ocr_captcha(username,
+                        pwd,
+                        img_path,
+                        app_key: str,
+                        app_id=4039,
+                        code_type=5000,
+                        timeout=60) -> str:
+    '''
+    云打码识别captcha
+    :param username: 用的是普通用户的账号密码，而不是开发者的
+    :param pwd:
+    :param app_id: 软件id, 登录开发者后台【我的软件】获得
+    :param app_key: 软件密钥, 登录开发者后台【我的软件】获得
+    :param img_path: 图片路径
+    :param code_type: 验证码类型 eg: 1004表示4位字母数字，不同类型收费不同: http://www.yundama.com/price.html
+    :param timeout: 超时时长, 单位秒
+    :return: 识别结果字符串
+    '''
+    class YDMClient:
+        '''云打码官方示例'''
+        def __init__(self, username, password, appid, app_key):
+            self.api_url = 'http://api.yundama.com/api.php'
+            self.username = username
+            self.pwd = password
+            self.app_id = str(appid)
+            self.app_key = app_key
+
+        def request(self, fields, files=[]):
+            response = self.post_url(self.api_url, fields, files)
+            res = json_2_dict(response)
+
+            return res
+
+        def balance(self):
+            data = {
+                'method': 'balance',
+                'username': self.username,
+                'password': self.pwd,
+                'appid': self.app_id,
+                'appkey': self.app_key
+            }
+            response = self.request(data)
+            if (response):
+                if (response['ret'] and response['ret'] < 0):
+                    return response['ret']
+                else:
+                    return response['balance']
+            else:
+                return -9001
+
+        def login(self):
+            data = {
+                'method': 'login',
+                'username': self.username,
+                'password': self.pwd,
+                'appid': self.app_id,
+                'appkey': self.app_key
+            }
+            response = self.request(data)
+            if (response):
+                if (response['ret'] and response['ret'] < 0):
+                    return response['ret']
+                else:
+                    return response['uid']
+            else:
+                return -9001
+
+        def upload(self, img_path, code_type, timeout):
+            data = {
+                'method': 'upload',
+                'username': self.username,
+                'password': self.pwd,
+                'appid': self.app_id,
+                'appkey': self.app_key,
+                'codetype': str(code_type),
+                'timeout': str(timeout)
+            }
+            file = {'file': img_path}
+            response = self.request(data, file)
+            if (response):
+                if (response['ret'] and response['ret'] < 0):
+                    return response['ret']
+                else:
+                    return response['cid']
+            else:
+                return -9001
+
+        def result(self, cid):
+            data = {
+                'method': 'result',
+                'username': self.username,
+                'password': self.pwd,
+                'appid': self.app_id,
+                'appkey': self.app_key,
+                'cid': str(cid)
+            }
+            response = self.request(data)
+
+            return response and response['text'] or ''
+
+        def decode(self, img_path, code_type, timeout) -> tuple:
+            cid = self.upload(img_path, code_type, timeout)
+            if (cid > 0):
+                for i in range(0, timeout):
+                    result = self.result(cid)
+                    if (result != ''):
+                        return (cid, result)
+                    else:
+                        sleep(1)
+                return (-3003, '')
+            else:
+                return (cid, '')
+
+        def post_url(self, url, fields, files=[]):
+            for key in files:
+                files[key] = open(files[key], 'rb')
+            res = requests.post(url, files=files, data=fields)
+
+            return res.text
+
+    yundama = YDMClient(username, pwd, app_id, app_key)
+    # 先登陆
+    uid = yundama.login()
+    # print('uid: %s' % uid)
+    # 查询余额
+    balance = yundama.balance()
+    # print('账户余额: %s' % balance)
+
+    # 识别
+    cid, res = yundama.decode(img_path, code_type, timeout)
+    # print('cid: %s, result: %s' % (cid, res))
+
+    return res

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.7.6
+Version: 0.0.1.7.7
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -40,9 +40,6 @@ Description: ```bash
             - [IPProxyPool](https://github.com/qiyeboy/IPProxyPool)
         
         ## simple use
-        ```bash
-        $ cd xxx/IPProxyPool && python3 IPProxy.py
-        ```
         ```python
         from fzutils.ip_pools import (
             IpPools,
@@ -301,7 +298,8 @@ Description: ```bash
         ```python
         from fzutils.ocr_utils import (
             baidu_ocr_captcha,
-            baidu_orc_image_main_body,)
+            baidu_orc_image_main_body,
+            get_tracks_based_on_distance,)
         
         # 百度orc识别captcha
         captcah = baidu_ocr_captcha(
@@ -314,6 +312,9 @@ Description: ```bash
         # 百度ocr识别图片主体内容位置
         img_url = 'https://www.baidu.com/link?url=phUVHvSMIfwj2DPXnprj0BTv4loPocnLfNn-CVb7UQE4NLe7PH8GbrYKDkX2hzyp17Eqhy-s1rP8Zg92NEt0vqUxm_nhLoyRTaaxMFwq1oMdPaG_krazDsxHgLlql9QkZB92VhsTirtG53MvyecIFLjWeHjdyGCyTOaS-UcksfOJkPFOAJOFe4AoCxW5qQUbTahhjhjXWyihP-XmYIR5z-Gt3esBvFJpuHhUy7W6OODMrUZ2v7mUa9ng2BFKDy2MREyZQcXW80D3eDqWbIFLQ5BtEqWEknWa_1kxKXf4qo7GAZjkANyTP8D2PN0jHRw2AiWtN3d57J6GP4hksByVAzwIJWeWIiObv69Q1ekb2O_WsYLbKfzIsVLdlZGm5SHXnMgKZkRay_I8NKeq-wUb2wLKsGCjhRC1AV-GSv5Q7fIEj1QrSgQjLnW6Fjh55M5AaM9JRJLlXWhANegCn6jpJhnL7vcV1-kDgUcKQVFNq27fol2E2fG-d7ja03dizHCawAsIr6ortoWeqDdpyW4VOesI1VU6_WDdAWs96KZqVD2gATBs1U_D5nbYC9DAuZYK&wd=&eqid=81209347000143bf000000035b933e62'
         res = baidu_orc_image_main_body(img_url=img_url)
+        
+        # 根据给与距离生成仿生移动轨迹
+        tracks = get_tracks_based_on_distance(distance=100)
         ```
         
         ### 代码模板生成
