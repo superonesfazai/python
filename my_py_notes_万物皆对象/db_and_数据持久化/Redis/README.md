@@ -1,10 +1,18 @@
+# redis
+
 ## redis简介
 Redis 是完全开源免费的，是使用C语言编写、支持网络、基于内存（亦可持久化）的高性能的key-value内存数据库，可以用作数据库、缓存和消息中间件。
 
 [中文网站](http://redis.cn)
+
 [官方网站](http://redis.io)
 
-#### Redis 有三个主要的特点, 有别于其它很多竞争对手 ：
+### [深入学习 Redis（1）：Redis 内存模型](www.cnblogs.com/kismetv/p/8654978.html)
+### [深入学习 Redis（2）：持久化](www.cnblogs.com/kismetv/p/9137897.html)
+### [深入学习 Redis（3）：主从复制](http://www.cnblogs.com/kismetv/p/9236731.html)
+### [深入学习 Redis（4）：哨兵](www.cnblogs.com/kismetv/p/9609938.html)
+
+#### Redis 有三个主要的特点, 有别于其它很多竞争对手
 * Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。
 
 * Redis不仅仅支持简单的key-value类型的数据，同时还提供 string(字符串)、list(链表)、set(集合)、zset(sortedset--有序集合)和hash（哈希类型）数据结构的存储。

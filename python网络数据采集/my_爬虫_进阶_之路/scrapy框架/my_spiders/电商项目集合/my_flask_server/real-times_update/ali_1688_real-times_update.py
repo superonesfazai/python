@@ -64,7 +64,7 @@ def run_forever():
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             ali_1688 = ALi1688LoginAndParse(logger=my_lg)
             for item in result:  # 实时更新数据
-                if index % 5 == 0:
+                if index % 6 == 0:
                     ali_1688 = ALi1688LoginAndParse(logger=my_lg)
 
                 if index % 50 == 0:
@@ -141,6 +141,14 @@ def run_forever():
             sleep(60*60*5.5)
         else:
             sleep(5)
+        try:
+            del my_lg
+        except:
+            pass
+        try:
+            del ali_1688
+        except:
+            pass
         gc.collect()
 
 def main():

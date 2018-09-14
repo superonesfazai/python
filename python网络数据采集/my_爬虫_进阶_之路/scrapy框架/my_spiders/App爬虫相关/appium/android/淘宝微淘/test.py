@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : test.py
-@Time    : 2018/5/26 09:47
 @connect : superonesfazai@gmail.com
 '''
 
@@ -12,12 +11,11 @@ from pprint import pprint
 from json import loads, dumps
 import re
 import asyncio
-from my_logging import set_logger
 from logging import INFO, ERROR
-from my_utils import (
-    get_shanghai_time,
-    get_taobao_sign_and_body,
-)
+
+from fzutils.log_utils import set_logger
+from fzutils.time_utils import get_shanghai_time
+from fzutils.cp_utils import get_taobao_sign_and_body
 
 MY_SPIDER_LOGS_PATH = '/Users/afa/myFiles/my_spider_logs/电商项目'
 

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : my_aiohttp.py
-@Time    : 2018/3/23 13:06
 @connect : superonesfazai@gmail.com
 '''
 
@@ -11,7 +10,7 @@ import asyncio, aiohttp
 import re, gc, time
 from random import randint
 
-from my_ip_pools import MyIpPools
+from fzutils.ip_pools import IpPools
 
 class MyAiohttp(object):
     def __init__(self, max_tasks=10):
@@ -76,7 +75,7 @@ class MyAiohttp(object):
         :return: 格式: 'http://ip:port'
         '''
         # 设置代理ip
-        ip_object = MyIpPools()
+        ip_object = IpPools()
         ip_list = ip_object.get_proxy_ip_from_ip_pool()['http']
         proxy = ip_list[randint(0, len(ip_list) - 1)]
 

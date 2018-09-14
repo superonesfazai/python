@@ -4,7 +4,9 @@ Selenium是一个Web的自动化测试工具，最初是为网站自动化测试
 Selenium 可以根据我们的指令，让浏览器自动加载页面，获取需要的数据，甚至页面截屏，或者判断网站上某些动作是否发生。
 
 Selenium 自己不带浏览器，不支持浏览器的功能，它需要与第三方浏览器结合在一起才能使用。但是我们有时候需要让它内嵌在代码中运行，所以我们可以用一个叫 PhantomJS 的工具代替真实的浏览器。
-[Selenium 官方参考文档](http://selenium-python.readthedocs.io/index.html)
+
+- [Selenium 官方参考文档](http://selenium-python.readthedocs.io/index.html)
+- [最新selenium 官方参考文档](https://seleniumhq.github.io/docs/index.html)
 
 ## selenium IDE
 Selenium IDE是一个Firefox/chrome插件，可用于记录Firefox本身的测试步骤。Selenium IDE可用于以 各种编程语言（即C＃，Java，Python和Ruby）生成快速而肮脏的测试代码。
