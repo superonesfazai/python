@@ -17,14 +17,18 @@ from time import sleep
 from .internet_utils import get_random_pc_ua
 from .img_utils import read_img_use_base64
 from .common_utils import json_2_dict
+from .spider.fz_requests import Requests
 
 __all__ = [
-    'baidu_ocr_captcha',            # 百度ocr识别captcha
-    'yundama_ocr_captcha',          # 云打码识别captcha
-    'baidu_orc_image_main_body',    # 百度orc图像主体位置识别
+    'baidu_ocr_captcha',                # 百度ocr识别captcha
+    'yundama_ocr_captcha',              # 云打码识别captcha
+    'baidu_orc_image_main_body',        # 百度orc图像主体位置识别
 
     # 轨迹生成
-    'get_tracks_based_on_distance', # 根据给与的距离生成不规律的移动轨迹tracks
+    'get_tracks_based_on_distance',     # 根据给与的距离生成不规律的移动轨迹tracks
+
+    # 行为验证码
+    'crack_wy_point_select_captcha',    # 接入第三方获取validate, 破解网易点选验证码
 ]
 
 def baidu_ocr_captcha(app_id, api_key, secret_key, img_path, orc_type=3) -> dict:
@@ -306,3 +310,36 @@ def yundama_ocr_captcha(username,
     # print('cid: %s, result: %s' % (cid, res))
 
     return res
+
+def crack_wy_point_select_captcha(username,
+                                  pwd,
+                                  id,
+                                  referer,
+                                  r_username='',
+                                  r_pwd='') -> str:
+    '''
+    接入第三方获取validate, 破解网易点选验证码
+    :param username: 用户名
+    :param pwd: 密码
+    :param id: 抓包到的id, 详情见: https://www.kancloud.cn/chensuilong/jiyan/546145
+    :param referer: 抓包的请求的referer
+    :param r_username: kancloud支持的其他平台的账号
+    :param r_pwd: 其他平台的密码
+    :return: '' 表示出错
+    '''
+    url = 'http://wyydapi.c2567.com:10001/wyyd/shibie'
+    params = (
+        ('username', username),
+        ('password', pwd),
+        ('id', id),
+        ('referer', referer),
+        ('supportclick', ''),           # 内置汉字点选, 无需第三方点选, 如需点选下方设置三方打码
+        ('supportuser', r_username),    # 若快打码平台账号
+        ('supportpass', r_pwd),         # 若快打码平台pwd
+    )
+    body = Requests.get_url_body(url=url, use_proxy=False, params=params)
+    # print(body)
+    res = json_2_dict(body)
+    validate = res.get('validate', '') if res.get('status', 'fail') == 'ok' else ''
+
+    return validate
