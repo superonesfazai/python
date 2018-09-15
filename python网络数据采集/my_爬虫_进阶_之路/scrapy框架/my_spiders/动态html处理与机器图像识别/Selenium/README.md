@@ -8,10 +8,16 @@ Selenium 自己不带浏览器，不支持浏览器的功能，它需要与第�
 - [Selenium 官方参考文档](http://selenium-python.readthedocs.io/index.html)
 - [最新selenium 官方参考文档](https://seleniumhq.github.io/docs/index.html)
 
+## selenium定位不到元素的几种情况和解决方法
+[here](https://blog.csdn.net/huahuashijie1992/article/details/78039209)
+
 ## selenium IDE
 Selenium IDE是一个Firefox/chrome插件，可用于记录Firefox本身的测试步骤。Selenium IDE可用于以 各种编程语言（即C＃，Java，Python和Ruby）生成快速而肮脏的测试代码。
 
 鉴于通过Selenium IDE生成的代码的可维护性，建议不要将其用于了解元素定位器或生成 丢弃代码。我们确信，一旦习惯了WebDriver API，就永远不会使用Selenium IDE。
+
+## firefox
+firefox安全性强，不允许跨域调用出现报错。导致定位不到元素, 这种就可以使用chromedriver
 
 ## PhantomJS
 PhantomJS 是一个基于Webkit的“无界面”(headless)浏览器，它会把网站加载到内存并执行页面上的 JavaScript，因为不会展示图形界面，所以运行起来比完整的浏览器要高效。

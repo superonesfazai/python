@@ -74,6 +74,7 @@ install_requires = [
     'items',
     'baidu-aip',
     'scrapy-splash',
+    'opencv-python',
     # 'sip',
     # 'pyqt5',
 ]

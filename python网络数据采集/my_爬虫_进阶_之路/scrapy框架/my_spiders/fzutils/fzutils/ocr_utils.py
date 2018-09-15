@@ -10,6 +10,13 @@
 光学识别
 """
 
+from cv2 import (
+    imread,
+    cvtColor,
+    COLOR_BGR2GRAY,
+    matchTemplate,
+    TM_CCOEFF_NORMED,)
+from numpy import where
 from aip import AipOcr
 import requests
 from time import sleep
@@ -29,6 +36,7 @@ __all__ = [
 
     # 行为验证码
     'crack_wy_point_select_captcha',    # 接入第三方获取validate, 破解网易点选验证码
+    'dichotomy_match_gap_distance',     # 用二分法匹配滑块与缺口间的距离
 ]
 
 def baidu_ocr_captcha(app_id, api_key, secret_key, img_path, orc_type=3) -> dict:
@@ -343,3 +351,56 @@ def crack_wy_point_select_captcha(username,
     validate = res.get('validate', '') if res.get('status', 'fail') == 'ok' else ''
 
     return validate
+
+def dichotomy_match_gap_distance(bg_img_path, slide_img_path) -> (int, float):
+    '''
+    用二分法匹配滑块与缺口间的距离
+    :slide_img_path: 滑块的save path
+    :bg_img_path: 背景图的save path
+    :return:
+    '''
+    """
+    看来每个图片的阈值是不一样的啊。我没去细究其中的原理，不过猜想一下感觉还是有道理的，不同颜色的图片，明暗不一样，缺口的位置不一样，缺口的颜色就会不一样，所以阈值一定是有区别的。
+    测试时调阈值的情况，阈值设置得太大就没有结果，设置得太小就有N个结果，这不就是高中还是初中数学学的二分法的应用题吗。
+    想到之后觉得此题已经被我拿下了，于是马上上手撸代码。阈值的范围区间是[0,1]，分别设置成左端L和右端R，算法如下：
+    阈值始终为区间左端和右端的均值，即 threshhold = (R+L)/2；
+    如果当前阈值查找结果数量大于1，则说明阈值太小，需要往右端靠近，即左端就增大，即L += (R - L) / 2；
+    如果结果数量为0，则说明阈值太大，右端应该减小，即R -= (R - L) / 2；
+    当结果数量为1时，说明阈值刚好
+    """
+    img_rgb = imread(slide_img_path)
+    img_gray = cvtColor(img_rgb, COLOR_BGR2GRAY)
+    template = imread(bg_img_path, 0)
+    run = 1
+    w, h = template.shape[::-1]
+    # print(w, h)
+    res = matchTemplate(img_gray, template, TM_CCOEFF_NORMED)
+
+    # 使用二分法查找阈值的精确值
+    L = 0
+    R = 1
+    loc = None
+    while run < 30:
+        run += 1
+        threshold = (R + L) / 2
+        # print(threshold)
+        if threshold < 0:
+            print('Error')
+            return None
+
+        loc = where(res >= threshold)
+        # print(len(loc[1]))
+        if len(loc[1]) > 1:
+            L += (R - L) / 2
+        elif len(loc[1]) == 1:
+            print('目标区域起点x坐标为：%d' % loc[1][0])
+            break
+        elif len(loc[1]) < 1:
+            R -= (R - L) / 2
+
+    try:
+        res = loc[1][0]
+    except TypeError:
+        raise AssertionError('res获取失败!')
+
+    return res

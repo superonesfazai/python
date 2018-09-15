@@ -291,7 +291,8 @@ print(a(7))
 from fzutils.ocr_utils import (
     baidu_ocr_captcha,
     baidu_orc_image_main_body,
-    get_tracks_based_on_distance,)
+    get_tracks_based_on_distance,
+    dichotomy_match_gap_distance,)
 
 # 百度orc识别captcha
 captcah = baidu_ocr_captcha(
@@ -307,6 +308,9 @@ res = baidu_orc_image_main_body(img_url=img_url)
 
 # 根据给与距离生成仿生移动轨迹
 tracks = get_tracks_based_on_distance(distance=100)
+
+# 二分法匹配滑块与缺口间的距离
+distance = dichotomy_match_gap_distance(bg_img_path='xxx', slide_img_path='xxx')
 ```
 
 ### 代码模板生成

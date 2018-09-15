@@ -1,4 +1,4 @@
-# fz_ip_pool
+# fz_ip_pool(长期维护, 开箱即用)
 *分布式并发可扩展的代理ip池*
 
 旨在: 获取真实高匿可复用的免费proxy ip, 并且实时更新ip pool
