@@ -398,6 +398,17 @@ class MyPhantomjs(object):
 
         return html
 
+    def _get_cookies(self) -> dict:
+        '''
+        得到当前页面的cookies
+        :return:
+        '''
+        cookies_list = self.driver.get_cookies()
+        res = {}
+        [res.update({i.get('name', ''): i.get('value', '')}) for i in cookies_list]
+
+        return res
+
     def _get_driver(self):
         '''
         得到driver对象

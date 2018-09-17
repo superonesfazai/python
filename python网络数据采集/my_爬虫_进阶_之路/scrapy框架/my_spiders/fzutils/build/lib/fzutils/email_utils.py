@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import smtplib
-import gc
+from gc import collect
 from email.mime.text import MIMEText
 
 __all__ = [
@@ -60,4 +60,4 @@ class FZEmail(object):
             self.server.quit()  # 断开smtp连接
         except:
             pass
-        gc.collect()
+        collect()

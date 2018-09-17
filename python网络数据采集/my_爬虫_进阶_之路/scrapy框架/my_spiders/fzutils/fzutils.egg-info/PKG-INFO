@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fzutils
-Version: 0.0.1.8.0
+Version: 0.1.8.2
 Summary: A Python utils for spider
 Home-page: https://www.github.com/superonesfazai
 Author: super_fazai
@@ -299,7 +299,8 @@ Description: ```bash
         from fzutils.ocr_utils import (
             baidu_ocr_captcha,
             baidu_orc_image_main_body,
-            get_tracks_based_on_distance,)
+            get_tracks_based_on_distance,
+            dichotomy_match_gap_distance,)
         
         # 百度orc识别captcha
         captcah = baidu_ocr_captcha(
@@ -315,6 +316,9 @@ Description: ```bash
         
         # 根据给与距离生成仿生移动轨迹
         tracks = get_tracks_based_on_distance(distance=100)
+        
+        # 二分法匹配滑块与缺口间的距离
+        distance = dichotomy_match_gap_distance(bg_img_path='xxx', slide_img_path='xxx')
         ```
         
         ### 代码模板生成

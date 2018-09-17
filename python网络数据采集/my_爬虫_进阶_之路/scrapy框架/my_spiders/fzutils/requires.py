@@ -73,6 +73,7 @@ install_requires = [
     'flower',
     'items',
     'baidu-aip',
+    'pytesseract',
     'scrapy-splash',
     'opencv-python',
     # 'sip',

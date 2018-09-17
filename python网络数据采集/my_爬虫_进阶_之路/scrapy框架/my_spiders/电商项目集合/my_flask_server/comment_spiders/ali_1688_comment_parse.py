@@ -29,6 +29,7 @@ import re
 import datetime
 from pprint import pprint
 from demjson import decode
+from json import dumps
 
 from sql_str_controller import (
     al_select_str_2,
@@ -38,8 +39,13 @@ from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_phantomjs import BaseDriver
-from fzutils.common_utils import json_2_dict
+from fzutils.common_utils import (
+    json_2_dict,
+    get_random_int_number,)
 from fzutils.spider.crawler import Crawler
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,)
 
 class ALi1688CommentParse(Crawler):
     '''
@@ -50,12 +56,12 @@ class ALi1688CommentParse(Crawler):
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
             logger=logger,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/阿里1688/comment/',
+            log_save_path=MY_SPIDER_LOGS_PATH + '/1688/comment/',
         )
         self.result_data = {}
         self.msg = ''
         self._set_headers()
-        # self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
+        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type, logger=self.lg)
         # 可动态执行的代码
         self._exec_code = '''
         _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
@@ -74,6 +80,7 @@ class ALi1688CommentParse(Crawler):
         sleep(4)
         '''
         self._page_sleep_time = 2
+        self.max_page = 4
 
     def _get_comment_data(self, goods_id):
         if goods_id == '':
@@ -83,7 +90,7 @@ class ALi1688CommentParse(Crawler):
 
         # # 原先采用phantomjs, 改用手机端抓html(speed slow, give up)
         # tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(goods_id)
-        # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url, exec_code=self._exec_code)
+        # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, exec_code=self._exec_code)
         # # self.lg.info(str(body))
         #
         # if body == '':
@@ -148,25 +155,48 @@ class ALi1688CommentParse(Crawler):
         #     self.result_data = {}
         #     return {}
 
-        '''分析js源码: 已破解1688 m站 get必须参数_csrf的加密方式'''
+        '''改版抓取m站接口, 分析js源码: 已破解1688 m站 get必须参数_csrf的加密方式'''
         # 即从https://m.1688.com/page/offerRemark.htm?offerId=xxxx 这个页面源码拿到csrf 即为: 下次请求四五星好评所需的_csrf
         # 时间原因先不进行修改!
         # 此外cookies也是必要的, 可用driver获取到再抽离出cookies
+        # 研究发现: 其中ali-ss, ali-ss.sig为cookies必要字段
+        # 下面还有问题不管怎么请求只能获取到第一页的评论
+        #
+        # tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(goods_id)
+        # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
+        # # self.lg.info(str(body))
+        #
+        # if body == '':
+        #     self.lg.error('该地址的body为空值, 出错地址: ' + tmp_url)
+        #     return self._error_init()
+        # try:
+        #     csrf = re.compile('\"csrf\":\"(.*?)\",').findall(body)[0]
+        # except IndexError:
+        #     self.lg.error('获取csrf失败!')
+        #     return self._error_init()
+        #
+        # self.lg.info('获取到的csrf值为: {}'.format(csrf))
+        # cookies = self.driver._get_cookies()
+        # cookies = dict_cookies_2_str(cookies)
+        # self.lg.info('获取到的cookies为: {}'.format(cookies))
+        # origin_comment_list = self._get_origin_comment_list(
+        #     csrf=csrf,
+        #     goods_id=goods_id,
+        #     cookies=cookies, )
+        # pprint(origin_comment_list)
 
         '''下面是模拟pc端好评接口'''
         member_id = self._get_this_goods_member_id(goods_id=goods_id)
         self.lg.info('------>>>| 获取到的member_id: {0}'.format(member_id))
         if member_id == '':
             self.lg.error('获取到的member_id为空值!请检查!')
-            self.result_data = {}
-            return {}
+            return self._error_init()
 
         # 这里从db获取该商品原先的规格值
         sku_info = self._get_sku_info_from_db(goods_id)
         # self.lg.info('sku_info: {0}'.format(sku_info))
         if sku_info == []:
-            self.result_data = {}
-            return {}
+            return self._error_init()
 
         _comment_list = []
         for page_num in range(1, 4):
@@ -184,7 +214,7 @@ class ALi1688CommentParse(Crawler):
             # 用phantomjs
             # url = self._set_url(url=url, params=params)
             # self.lg.info(url)
-            # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url)
+            # body = self.driver.use_phantomjs_to_get_url_body(url)
             # try:
             #     body = re.compile('<pre.*?>(.*)</pre>').findall(body)[0]
             # except IndexError:
@@ -193,9 +223,8 @@ class ALi1688CommentParse(Crawler):
             #     return {}
 
             if body == '':
-                self.result_data = {}
                 self.lg.error('该地址的body为空值, 出错goods_id: {0}'.format(goods_id))
-                return {}
+                return self._error_init()
 
             data = json_2_dict(json_str=body, logger=self.lg)
             if data.get('url') is not None:
@@ -239,17 +268,15 @@ class ALi1688CommentParse(Crawler):
                         'append_comment': {},               # 追评
                     }
                     _comment_list.append(_)
-
             except Exception:
-                self.result_data = {}
                 self.lg.error('出错商品goods_id: {0}'.format(goods_id), exc_info=True)
-                return {}
+                return self._error_init()
 
             sleep(self._page_sleep_time)
 
         if _comment_list != []:
             # pprint(_comment_list)
-            _t = datetime.datetime.now()
+            _t = get_shanghai_time()
 
             _r = CommentItem()
             _r['goods_id'] = str(goods_id)
@@ -261,8 +288,64 @@ class ALi1688CommentParse(Crawler):
             return self.result_data
         else:
             self.lg.error('出错goods_id: {0}'.format(goods_id))
-            self.result_data = {}
-            return {}
+            return self._error_init()
+
+    def _get_origin_comment_list(self, **kwargs) -> list:
+        '''
+        得到加密的接口数据信息
+        :param kwargs:
+        :return:
+        '''
+        csrf = kwargs.get('csrf', '')
+        goods_id = kwargs.get('goods_id', '')
+        cookies = kwargs.get('cookies', '')
+
+        url = 'https://m.1688.com/page/offerRemark.htm'
+        headers = {
+            'cookie': cookies,
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': get_random_pc_ua(),
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'referer': 'https://m.1688.com/page/offerRemark.htm?offerId={}'.format(goods_id),
+            'authority': 'm.1688.com',
+            'x-requested-with': 'XMLHttpRequest',
+        }
+
+        origin_comment_list = []
+        for i in range(1, self.max_page):
+            __wing_navigate_options = {
+                'data': {
+                    'bizType': 'trade',
+                    'itemId': int(goods_id),
+                    'offerId': str(goods_id),
+                    'page': i,
+                    'pageSize': 5,
+                    # 'receiveUserId': 989036456,
+                    'starLevel': 7
+                }
+            }
+            params = (
+                ('_csrf', csrf),
+                ('__wing_navigate_type', 'view'),
+                ('__wing_navigate_url', 'detail:modules/offerRemarkList/view'),
+                ('__wing_navigate_options', dumps(__wing_navigate_options)),
+                ('_', str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(start_num=100, end_num=999))),
+            )
+            body = Requests.get_url_body(url=url, headers=headers, params=params)
+            data = json_2_dict(body, encoding='ascii').get('data', {})
+            # pprint(data)
+            one = data.get('model', [])
+            pprint(one)
+            origin_comment_list += one
+            sleep(.25)
+
+        return origin_comment_list
+
+    def _error_init(self):
+        self.result_data = {}
+
+        return {}
 
     def _get_sku_info_from_db(self, goods_id):
         '''
@@ -416,7 +499,7 @@ class ALi1688CommentParse(Crawler):
 
     def __del__(self):
         try:
-            # del self.my_phantomjs
+            del self.driver
             del self.lg
             del self.msg
         except:

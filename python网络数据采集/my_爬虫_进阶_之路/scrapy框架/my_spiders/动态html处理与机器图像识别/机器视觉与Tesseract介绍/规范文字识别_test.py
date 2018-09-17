@@ -10,7 +10,9 @@ import pytesseract
 from PIL import Image
 import requests
 from io import BytesIO
-import json, re, base64
+import re, base64
+from fzutils.internet_utils import get_random_pc_ua
+from fzutils.common_utils import json_2_dict
 
 '''
 1. 从网络获取验证码(识别中文)
@@ -23,13 +25,12 @@ import json, re, base64
 ### test_2，测试折800的验证码
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    # 'Accept-Encoding:': 'gzip',
     'Accept-Language': 'zh-CN,zh;q=0.9',
     'Cache-Control': 'max-age=0',
     'Connection': 'keep-alive',
     'Host': 'diablo.alibaba.com',
     'Proxy-Connection': 'keep-alive',
-    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1'
+    'User-Agent': get_random_pc_ua(),
 }
 
 query_string = {
@@ -44,7 +45,7 @@ body = response.content.decode('utf-8')
 
 try:
     body = re.compile('jsonp_08668900079497168\((.*)\);').findall(body)[0]
-    img_data = json.loads(body)
+    img_data = json_2_dict(body)
     base64_img_str = img_data.get('result', {}).get('data', [])[0]
 except Exception as e:
     print('遇到错误: ', e)
@@ -75,6 +76,7 @@ def convert_Image(img, standard=127.5):
                 pixels[x, y] = 255
             else:
                 pixels[x, y] = 0
+
     return image
 
 img = Image.open('./images/some_img.jpg')
