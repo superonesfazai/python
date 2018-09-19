@@ -21,6 +21,7 @@ fzutils/log_utils.py
 fzutils/ocr_utils.py
 fzutils/path_utils.py
 fzutils/safe_utils.py
+fzutils/sniff_utils.py
 fzutils/sql_utils.py
 fzutils/thread_utils.py
 fzutils/time_utils.py
@@ -32,10 +33,12 @@ fzutils.egg-info/requires.txt
 fzutils.egg-info/top_level.txt
 fzutils.egg-info/zip-safe
 fzutils/data/__init__.py
+fzutils/data/binary_utils.py
 fzutils/data/excel_utils.py
 fzutils/data/json_utils.py
 fzutils/data/list_utils.py
 fzutils/data/pickle_utils.py
+fzutils/data/queue_utils.py
 fzutils/data/str_utils.py
 fzutils/spider/__init__.py
 fzutils/spider/auto.py

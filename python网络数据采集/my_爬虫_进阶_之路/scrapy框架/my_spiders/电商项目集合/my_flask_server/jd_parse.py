@@ -816,10 +816,10 @@ class JdParse(Crawler):
             return {}
 
         # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
-        tmp_pc_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#spec-list ul.lh li img')  # 该css为示例图片
+        tmp_pc_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#preview')  # 该css为示例图片
         # self.lg.info(str(tmp_pc_body))
         if tmp_pc_body == '':
-            self.lg.info('#### 获取该商品的无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
+            self.lg.info('#### 获取无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
             all_img_url = []
         else:
             try:

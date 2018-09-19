@@ -62,4 +62,3 @@ def char_is_other(uchar):
         return True
     else:
         return False
-

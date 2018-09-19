@@ -96,3 +96,13 @@ dns有两条报文, 一条是query报文, 一条是response报文
     Window size value: 64800                                                            #流量控制的窗口大小
     Checksum: 0x677e [validation disabled]                                              #TCP数据段的校验和
 ```
+
+## wireshark之文件还原
+
+### winhex(windows)
+winhex是一款16进制的编辑器，用来检修各种文件，恢复删除文件以及硬盘损坏造成的数据丢失
+
+### HexFiend(mac)
+开源，长期更新, 数字取证
+[github地址](https://github.com/ridiculousfish/hexfiend)
+[下载地址](http://ridiculousfish.com/hexfiend/)

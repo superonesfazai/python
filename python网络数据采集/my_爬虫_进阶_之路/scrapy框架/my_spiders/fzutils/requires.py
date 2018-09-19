@@ -72,6 +72,8 @@ install_requires = [
     'redis',
     'flower',
     'items',
+    'scapy',
+    'scapy-http',
     'baidu-aip',
     'pytesseract',
     'scrapy-splash',
