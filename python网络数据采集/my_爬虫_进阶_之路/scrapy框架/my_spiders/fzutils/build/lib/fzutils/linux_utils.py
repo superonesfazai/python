@@ -5,7 +5,10 @@ import os
 import subprocess
 import socket
 
-from .common_utils import delete_list_null_str
+from .common_utils import (
+    delete_list_null_str,
+    get_random_int_number,)
+from .time_utils import get_shanghai_time
 
 __all__ = [
     'daemon_init',                                      # 守护进程
@@ -150,4 +153,20 @@ def get_random_free_port() -> int:
     free_socket.close()
 
     return port
+
+def _get_simulate_logger(retries=10) -> str:
+    '''
+    print仿生log.info
+    :return:
+    '''
+    time_str = lambda x='': str(get_shanghai_time()) + ',' + str(get_random_int_number(100, 999)) + ' [INFO  ] ➞ '
+    try:
+        time_str = time_str()
+    except ValueError:
+        if retries > 0:
+            return _get_simulate_logger(retries-1)
+        else:
+            return ''
+
+    return time_str
 

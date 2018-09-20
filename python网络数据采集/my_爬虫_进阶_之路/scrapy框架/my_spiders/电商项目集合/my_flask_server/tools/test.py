@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : test.py
+@File    : 每日幸运大转盘.py
 @Time    : 2017/10/11 14:24
 @connect : superonesfazai@gmail.com
 '''

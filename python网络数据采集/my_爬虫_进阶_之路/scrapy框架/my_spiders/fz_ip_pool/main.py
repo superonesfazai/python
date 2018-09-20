@@ -36,7 +36,7 @@ from fzutils.data.pickle_utils import (
 from fzutils.safe_utils import get_uuid3
 from fzutils.sql_utils import BaseRedisCli
 from fzutils.data.list_utils import list_remove_repeat_dict
-from fzutils.common_utils import get_random_int_number
+from fzutils.linux_utils import _get_simulate_logger
 
 lg = set_logger(
     log_file_name=SPIDER_LOG_PATH + str(get_shanghai_time())[0:10]+'.log',
@@ -45,22 +45,6 @@ lg = set_logger(
 redis_cli = BaseRedisCli()
 _key = get_uuid3(proxy_list_key_name)  # 存储proxy_list的key
 _h_key = get_uuid3(high_proxy_list_key_name)
-
-def _get_simulate_log_info(retries=10) -> str:
-    '''
-    print仿生log.info
-    :return:
-    '''
-    time_str = lambda x='': str(get_shanghai_time()) + ',' + str(get_random_int_number(100, 999)) + ' [INFO  ] ➞ '
-    try:
-        time_str = time_str()
-    except ValueError:
-        if retries > 0:
-            return _get_simulate_log_info(retries-1)
-        else:
-            return ''
-
-    return time_str
 
 def get_proxy_process_data():
     '''
@@ -119,7 +103,7 @@ def get_proxy_process_data():
                     except: pass
                 else:
                     pass
-                print('\r' + _get_simulate_log_info() + 'proxy_tasks._get_proxy: success_num: {}, rest_num: {}'.format(success_num, results_len-success_num), end='', flush=True)
+                print('\r' + _get_simulate_logger() + 'proxy_tasks._get_proxy: success_num: {}, rest_num: {}'.format(success_num, results_len-success_num), end='', flush=True)
         else:
             pass
         print('\r', end='', flush=True)
@@ -247,7 +231,7 @@ def check_all_proxy(origin_proxy_data, redis_key_name, delete_score):
                         'proxy_info': one_proxy_info,
                     })
                     # 动态输出, '\r'回到当前开头
-                    print('\r' + _get_simulate_log_info() + '已检测ip: {}, 剩余: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
+                    print('\r' + _get_simulate_logger() + '已检测ip: {}, 剩余: {}, 实际可用高匿个数: {}'.format(success_num, results_len-success_num, available_num), end='', flush=True)
                     success_num += 1
                     try:
                         resutls.pop(r_index)
@@ -319,7 +303,7 @@ def main():
             repeat_key='ip')
         # print()
         while len(origin_proxy_data) < MAX_PROXY_NUM:
-            print('\r' + _get_simulate_log_info() + 'Ip Pools --->>> 已存在proxy_num(匿名度未知): {}'.format(len(origin_proxy_data)), end='', flush=True)
+            print('\r' + _get_simulate_logger() + 'Ip Pools --->>> 已存在proxy_num(匿名度未知): {}'.format(len(origin_proxy_data)), end='', flush=True)
             get_proxy_process_data()
             # 重置
             origin_proxy_data = list_remove_repeat_dict(

@@ -1,7 +1,7 @@
 # coding: utf-8
 __author__ = 'super_fazai'
 # @Time    : 17-7-20 下午9:08
-# @File    : test.py
+# @File    : 每日幸运大转盘.py
 
 # 计算1!+2!+3!...+20! =
 tmp = []

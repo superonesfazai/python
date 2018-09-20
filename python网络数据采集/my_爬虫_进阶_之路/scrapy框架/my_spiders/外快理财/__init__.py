@@ -2,7 +2,6 @@
 
 '''
 @author = super_fazai
-@File    : 每日幸运大转盘.py
+@File    : __init__.py.py
 @connect : superonesfazai@gmail.com
 '''
-
