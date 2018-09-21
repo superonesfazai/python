@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : celery_config.py
-@Time    : 2018/7/1 17:33
 @connect : superonesfazai@gmail.com
 '''
 

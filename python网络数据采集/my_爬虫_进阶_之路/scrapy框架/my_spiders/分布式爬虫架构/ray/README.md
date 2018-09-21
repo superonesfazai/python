@@ -266,7 +266,7 @@ ray.wait(object_ids，num_returns = 1，timeout = None，worker = <ray.worker.Wo
 返回：	准备好的对象ID列表以及剩余对象ID的列表。
 
 ```python
-ray.put（value，worker = <ray.worker.Worker object> ）
+ray.put(value，worker = <ray.worker.Worker object>)
 ```
 将对象存储在对象库中。
 
@@ -275,14 +275,14 @@ ray.put（value，worker = <ray.worker.Worker object> ）
 返回：	分配给此值的对象ID。
 
 ```python
-ray.get_gpu_ids（）
+ray.get_gpu_ids()
 ```
 获取工作人员可用的GPU的ID。
 
 返回：	GPU ID列表。
 
 ```python
-ray.get_resource_ids（）
+ray.get_resource_ids()
 ```
 获取工作人员可用的资源的ID。
 
@@ -291,7 +291,7 @@ ray.get_resource_ids（）
 返回：	将资源名称映射到对列表的字典，其中每对由资源的ID和为该worker保留的资源的分数组成。
 
 ```python
-ray.shutdown（worker = <ray.worker.Worker object> ）
+ray.shutdown(worker = <ray.worker.Worker object> )
 ```
 断开worker的连接，并终止ray.init()启动的进程。
 
@@ -300,7 +300,7 @@ ray.shutdown（worker = <ray.worker.Worker object> ）
 请注意，这将清除所有远程函数定义，actor定义和现有actor，因此如果您希望在调用ray.shutdown()之后使用任何先前定义的远程函数或actor，则需要重新定义它们。如果它们是在导入的模块中定义的，那么您将需要重新加载模块。
 
 ```python
-ray.method（* args，** kwargs ）
+ray.method(* args，** kwargs )
 ```
 注释actor方法。
 ```python
