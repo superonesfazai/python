@@ -1,4 +1,4 @@
-# 送给老是换mac的人 
+# mac环境搭建
 
 ## 安装sublime3
 http://www.sublimetext.com/3
