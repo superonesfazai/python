@@ -11,6 +11,8 @@
 url parser
 """
 
+from urllib.parse import unquote
+
 __all__ = [
     'unquote_plus',         # url解码
 ]
@@ -24,8 +26,6 @@ def unquote_plus(string, encoding='utf-8', errors='replace'):
     :param errors:
     :return:
     '''
-    from urllib.parse import unquote
-
     string = string.replace('+', ' ')
 
     return unquote(string=string, encoding=encoding, errors=errors)

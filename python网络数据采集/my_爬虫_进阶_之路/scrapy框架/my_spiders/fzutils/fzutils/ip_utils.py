@@ -14,7 +14,8 @@ from .common_utils import json_2_dict
 from .spider.fz_requests import Requests
 
 __all__ = [
-    'get_ip_address_info',      # 获取ip的address信息
+    'get_ip_address_info',              # 获取ip的address信息
+    'get_local_external_network_ip',    # 获取本机外网ip地址
 ]
 
 def get_ip_address_info(ip) -> dict:
@@ -41,3 +42,14 @@ def get_ip_address_info(ip) -> dict:
         }
     except Exception as e:
         raise e
+
+def get_local_external_network_ip() -> str:
+    '''
+    获取本机外网ip地址
+    :return: '' 表示获取失败!
+    '''
+    url = 'http://httpbin.org/get'
+    local_ip = json_2_dict(Requests.get_url_body(use_proxy=False, url=url)).get('origin', '')
+
+    return local_ip
+

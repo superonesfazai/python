@@ -16,6 +16,7 @@ __all__ = [
     'char_is_chinese',              # 判断单个字符是否是汉字
     'char_is_number',               # 判断单个字符是否是数字
     'char_is_other',                # 判断单个字符是否非汉字，数字和英文字符
+    'str_2_unicode',                # str 转 unicode
 ]
 
 def char_is_alphabet(uchar):
@@ -62,3 +63,11 @@ def char_is_other(uchar):
         return True
     else:
         return False
+
+def str_2_unicode(target:str):
+    '''
+    str 转 unicode
+    :param target:
+    :return:
+    '''
+    return target.encode('unicode_escape').decode('utf-8')

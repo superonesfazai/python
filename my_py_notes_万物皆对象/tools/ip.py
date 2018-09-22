@@ -9,6 +9,7 @@ def get_local_ip_list():
     # result = os.system(cmd)
     result = os.popen(cmd).read()
     ip_list = result.strip().split('\n')
+
     return ip_list
 
 def check_ip(ipaddr):
