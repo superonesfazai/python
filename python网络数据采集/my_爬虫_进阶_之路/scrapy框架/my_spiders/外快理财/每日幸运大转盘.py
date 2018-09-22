@@ -46,7 +46,6 @@ def share_2_wx() -> bool:
     分享给微信
     :return:
     '''
-    res = False
     cookies = {
         'wk_': '8llgqrevckd0bmllcdgrtqjv88elq3fl',
     }
@@ -63,11 +62,8 @@ def share_2_wx() -> bool:
 
     url = 'https://ios.riyiwk.com//user/shareCallback'
     message = json_2_dict(Requests.get_url_body(method='post', use_proxy=False, url=url, headers=headers, cookies=cookies, data=data)).get('message', '')
-    if message == '成功':
-        res = True
-        print('[+] 分享微信成功!')
-    else:
-        print('[-] 分享微信失败!')
+    label, res = ('+', True,) if message == '成功' else ('-', False,)
+    print('[{}] 分享微信成功!'.format(label))
 
     return res
 
