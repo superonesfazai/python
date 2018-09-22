@@ -2,8 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : 进程池之异步.py
-@Time    : 2017/8/9 11:15
+@File    : 异步进程池.py
 @connect : superonesfazai@gmail.com
 '''
 

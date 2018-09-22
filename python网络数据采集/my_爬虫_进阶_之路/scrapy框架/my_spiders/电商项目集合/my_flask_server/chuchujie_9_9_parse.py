@@ -68,7 +68,7 @@ class ChuChuJie_9_9_Parse(Crawler):
 
         print('------>>>| 对应的手机端地址为: ', 'https://m.chuchujie.com/details/detail.html?id=' + goods_id)
         '''
-        1.原先直接去手机端页面api post请求数据但是死活就返回请求参数错误，反复研究无果, 就改为解析pc端的
+        1.原先直接去手机端页面api post请求数据但是死活就返回请求参数错误，反复研究无果, 就先改为解析pc端的
         '''
         # tmp_url = 'https://api-product.chuchujie.com/api.php?method=product_detail'
         # self.headers['Referer'] = 'https://m.chuchujie.com/details/detail.html?id=' + str(goods_id)

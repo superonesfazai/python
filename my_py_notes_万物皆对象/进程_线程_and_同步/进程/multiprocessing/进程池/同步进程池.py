@@ -2,8 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : 进程池_Pool_test.py
-@Time    : 2017/8/9 10:54
+@File    : 同步进程池.py
 @connect : superonesfazai@gmail.com
 '''
 
@@ -13,12 +12,11 @@ import os, time, random
 def worker(msg):
     t_start = time.time()
     print('%s开始执行, 进程号为%d' % (msg, os.getpid()))
-    # random.random()随机生成0-1之间的浮点数
-    time.sleep(random.random() * 2)
+    time.sleep(random.random() * 2)         # random.random()随机生成0-1之间的浮点数
     t_stop = time.time()
     print(msg, '执行完毕, 耗时%0.3f' % (t_stop-t_start))
 
-po = Pool(3)        # 定义一个进程池, 最大进程数为3, 参数表示进程池预先创建的进程个数
+po = Pool(3)        # 实例化进程池obj, 最大进程数为3, 参数表示进程池预先创建的进程个数
 for i in range(0, 10):
     # Pool.apply_async(要调用的目标, (传递给目标的参数元组,))
     # 每次循环将会用空闲的子进程去调用目标

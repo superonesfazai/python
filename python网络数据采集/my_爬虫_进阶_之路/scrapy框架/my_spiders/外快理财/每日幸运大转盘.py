@@ -24,7 +24,6 @@ def turn_one_time() -> dict:
         'Hm_lvt_fa0ddec29ac177a2d127cebe209832e3': '1537161510,1537228200,1537353114,1537411854',       # 定值
         'wk_': '9umq63s8g6leobk2p285frmp583nhm9t',                                                      # 定值
     }
-
     headers = {
         'Host': 'm.riyiwk.com',
         'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -34,7 +33,6 @@ def turn_one_time() -> dict:
         'x-requested-with': 'XMLHttpRequest',
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Mobile/15A5341f/RIYIWK 2.6.0/USER_ID 203793/TOKEN 3a3988e07be98db064a70fc635c0b590',
     }
-
     url = 'https://m.riyiwk.com/lottery/start.html'
     res = json_2_dict(Requests.get_url_body(method='post', use_proxy=False, url=url, headers=headers, cookies=cookies))
     # pprint(res)
@@ -49,7 +47,6 @@ def share_2_wx() -> bool:
     cookies = {
         'wk_': '8llgqrevckd0bmllcdgrtqjv88elq3fl',
     }
-
     headers = {
         'Host': 'ios.riyiwk.com',
         'accept': '*/*',
@@ -57,7 +54,6 @@ def share_2_wx() -> bool:
         'user-agent': 'ExtraIncome/2.6.0 (iPhone; iOS 11.0; Scale/3.00)',
         'accept-language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
     }
-
     data = 'data=6FutSNjTIN512XBvPZXgztwPxRaLLFygqXFrzxnaSHhKJ0RMskgPCJ1veAFe71DmE/Weqi3qbl9Jp%2BWfhSSCtlPnKIheoydBjmxWvUtEh9qV4RXkSil0AWr5P5f8V4jL/OnQQxXgTeOBhhsJK7140Iuc/kdtw0qP'
 
     url = 'https://ios.riyiwk.com//user/shareCallback'

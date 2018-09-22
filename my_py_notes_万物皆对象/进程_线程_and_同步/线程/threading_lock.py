@@ -60,11 +60,9 @@ def run_with_lock():
     print(end_time - start_time)
     print(balance)
 
-
 # 这是银行账户修改的简单例子，以下分别测试不加锁与加锁的运行情况
 # run_without_lock()
 run_with_lock()
-
 
 '''
 run_without_lock()运行结果：

@@ -42,8 +42,7 @@ class ALi1688LoginAndParse(Crawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/1688/_/',
 
             is_use_driver=True,
-            driver_executable_path=PHANTOMJS_DRIVER_PATH,
-        )
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,)
         self._set_headers()
         self.result_data = {}
         self.is_activity_goods = False
@@ -159,32 +158,25 @@ class ALi1688LoginAndParse(Crawler):
 
             # 标签属性名称及其对应的值
             # (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
-            sku_props = self._get_sku_props(data=data)
+            sku_props = self._get_detail_name_list(data=data)
             # self.lg.info(str(sku_props))
 
             # 每个规格对应价格, 及其库存量
             try:
-                sku_map = self._get_sku_map(data=data, price_info=price_info, detail_name_list=sku_props)
+                sku_map = self._get_sku_info(data=data, price_info=price_info, detail_name_list=sku_props)
                 # pprint(sku_map)
             except Exception:
                 self.lg.error('获取sku_map时, 遇到错误!'+self.error_base_record, exc_info=True)
                 self.is_activity_goods = False
                 return self._data_error_init()
 
-            price, taobao_price = self._get_price(price_info=price_info)
-
+            price, taobao_price = self._get_price_and_taobao_price(price_info=price_info)
             all_img_url = self._get_all_img_url(data=data)
-
-            # 即: p_info
-            property_info = self._get_p_info(data=data)
+            property_info = self._get_p_info(data=data)     # 即: p_info
 
             # 即: div_desc
-            detail_info_url = data.get('detailUrl')
-            if detail_info_url is not None:
-                # self.lg.info(str(detail_info_url))
-                detail_info = self.get_detail_info_url_div(detail_info_url)
-            else:
-                detail_info = ''
+            detail_info_url = data.get('detailUrl', '')
+            detail_info = self._get_div_desc(detail_info_url) if detail_info_url != '' else ''
             # self.lg.info(str(detail_info))
 
             is_delete = self._get_is_delete(title=title)
@@ -221,8 +213,7 @@ class ALi1688LoginAndParse(Crawler):
         else:
             self.lg.error('待处理的data为空值!'+self.error_base_record)
             self.is_activity_goods = False
-
-            return {}
+            return self._data_error_init()
 
     def _data_error_init(self):
         self.result_data = {}
@@ -244,7 +235,7 @@ class ALi1688LoginAndParse(Crawler):
 
         pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
-    def _get_sku_props(self, **kwargs):
+    def _get_detail_name_list(self, **kwargs):
         '''
         得到sku_props
         :param kwargs:
@@ -303,7 +294,7 @@ class ALi1688LoginAndParse(Crawler):
 
         return price_info
 
-    def _get_sku_map(self, **kwargs):
+    def _get_sku_info(self, **kwargs):
         '''
         得到sku_map
         :param kwargs:
@@ -547,7 +538,7 @@ class ALi1688LoginAndParse(Crawler):
 
         return tuple(params)
 
-    def _get_price(self, price_info):
+    def _get_price_and_taobao_price(self, price_info):
         '''
         获取商品的最高价跟最低价
         :param price_info:
@@ -648,7 +639,7 @@ class ALi1688LoginAndParse(Crawler):
 
         return tuple(params)
 
-    def get_detail_info_url_div(self, detail_info_url):
+    def _get_div_desc(self, detail_info_url):
         '''
         此处过滤得到data_tfs_url的div块
         :return:

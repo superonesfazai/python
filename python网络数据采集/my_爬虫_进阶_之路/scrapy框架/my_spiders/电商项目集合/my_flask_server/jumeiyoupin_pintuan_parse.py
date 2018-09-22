@@ -207,16 +207,9 @@ class JuMeiYouPinPinTuanParse(Crawler):
         '''
         data = await self.get_goods_data(jumei_pintuan_url=jumei_pintuan_url)
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data['title']
-
-            # 子标题
             sub_title = data['sub_title']
 
             # 商品价格和淘宝价
@@ -230,22 +223,11 @@ class JuMeiYouPinPinTuanParse(Crawler):
                 self.result_data = {}
                 return {}
 
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
-
-            # div_desc
             div_desc = data['div_desc']
-
-            # 用于判断商品是否已经下架
             is_delete = data['is_delete']
 
             result = {
@@ -295,7 +277,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
             tmp = _get_right_model_data(data=data, site_id=27, logger=self.lg)  # 采集来源地(聚美优品拼团商品)
         except:
             self.lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
-            return None
+            return False
         # print('------>>> | 待存储的数据信息为: |', tmp)
         self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
         logger.info(self.msg)
@@ -320,7 +302,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
             tmp = _get_right_model_data(data=data, site_id=27, logger=self.lg)
         except:
             self.lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
-            return None
+            return False
         # print('------>>> | 待存储的数据信息为: |', tmp)
         self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
         logger.info(self.msg)
@@ -345,7 +327,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
             tmp = _get_right_model_data(data=data, site_id=27, logger=self.lg)
         except:
             self.lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
-            return None
+            return False
         # print('------>>> | 待存储的数据信息为: |', tmp)
         logger.info('------>>>| 待存储的数据信息为: ' + str(tmp.get('goods_id')))
 
@@ -616,7 +598,6 @@ class JuMeiYouPinPinTuanParse(Crawler):
 
             if re.compile(r'item_id=(\w+)&{1,}.*?').findall(jumei_url) != []:
                 goods_id = re.compile(r'item_id=(\w+)&{1,}.*').findall(jumei_url)[0]
-                # print(goods_id)
                 try:
                     type = re.compile(r'&type=(.*?)&{1,}.*').findall(jumei_url)[0]
                 except IndexError:
