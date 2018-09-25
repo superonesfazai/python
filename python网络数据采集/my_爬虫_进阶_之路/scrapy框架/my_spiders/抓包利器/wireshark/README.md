@@ -1,4 +1,5 @@
 # wireshark抓包ios(世界清静了!!)
+Wireshark使用WinPCAP作为接口，直接与网卡进行数据报文交换。
 - $ sudo wireshark
 - wifi
     - 用mac连接有线，在“设置”中选择“共享”，共享wifi给手机
