@@ -2,6 +2,6 @@
 
 '''
 @author = super_fazai
-@File    : test.py
+@File    : __init__.py.py
 @connect : superonesfazai@gmail.com
 '''

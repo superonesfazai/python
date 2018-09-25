@@ -1,19 +1,21 @@
 # coding:utf-8
 
 """
-安全相关
+安全相关, hacker utils
 """
 
+from pprint import pprint
 from uuid import uuid1, uuid3
 from uuid import NAMESPACE_DNS
 from hashlib import md5
 
 __all__ = [
-    'encrypt',              # 加密算法
-    'decrypt',              # 解密算法
-    'md5_encrypt',          # 得到md5加密的字符串
-    'get_uuid1',            # 根据时间戳等, 随机生成一个唯一的uuid
-    'get_uuid3',            # 得到一个uuid3加密的唯一标识符
+    'encrypt',                                                      # 加密算法
+    'decrypt',                                                      # 解密算法
+    'md5_encrypt',                                                  # 得到md5加密的字符串
+    'get_uuid1',                                                    # 根据时间戳等, 随机生成一个唯一的uuid
+    'get_uuid3',                                                    # 得到一个uuid3加密的唯一标识符
+    'get_all_func_class_name_where_no_import_packages_called',      # 得到所有不导入皆可被调用的class name (使用mro不导入任何包，调用原生类)
 ]
 
 def encrypt(key, tmp_str):
@@ -97,3 +99,14 @@ def get_uuid3(target_str) -> str:
     :return: str
     '''
     return str(uuid3(NAMESPACE_DNS, target_str))
+
+def get_all_func_class_name_where_no_import_packages_called() -> list:
+    '''
+    得到所有不导入皆可被调用的class name (使用mro不导入任何包，调用原生类)
+    :param target_class_name: 待被调用的类名
+    :return:  eg: [<class 'type'>, <class 'weakref'>, ...]
+    '''
+    _ = ''.__class__.__mro__[-1].__subclasses__()
+    # pprint(_)
+
+    return _
