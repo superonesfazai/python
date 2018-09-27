@@ -25,6 +25,7 @@ fz_vi_insert_str = fz_pd_insert_str
 fz_kl_insert_str = fz_pd_insert_str
 fz_yx_insert_str = fz_pd_insert_str
 fz_yp_insert_str = fz_pd_insert_str
+fz_mi_insert_str = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, Schedule, parent_dir, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 
 """
 comment
@@ -362,6 +363,12 @@ mia_select_str_2 = mia_select_str_1
 # 秒杀实时更新
 mia_select_str_3 = 'select goods_id, miaosha_time, pid from dbo.mia_xianshimiaosha where site_id=20'
 mia_select_str_4 = mia_select_str_3
+# 常规goods实时更新
+mia_select_str_5 = '''
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
+from dbo.GoodsInfoAutoGet 
+where SiteID=32 and GETDATE()-ModfiyTime>0.2 and MainGoodsID is not null
+order by ModfiyTime asc'''
 '''insert'''
 # 秒杀插入
 mia_insert_str_1 = 'insert into dbo.mia_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, pid, site_id, is_delete, parent_dir) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
@@ -373,7 +380,11 @@ mia_update_str_1 = 'update dbo.mia_xianshimiaosha set modfiy_time = %s, shop_nam
 # 拼团下架标记
 mia_update_str_2 = 'update dbo.mia_pintuan set is_delete=1 where goods_id = %s'
 # 拼团更新
-mia_update_str_3 = 'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s, parent_dir=%s where goods_id = %s'
+mia_update_str_3 = 'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s, parent_dir=%s where goods_id=%s'
+# 常规商品实时更新
+mia_update_str_4 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, parent_dir=%s, {0} {1} where GoodsID=%s'
+# 常规商品下架标记
+mia_update_str_5 = tb_update_str_3
 '''delete'''
 # 拼团过期标记
 mia_delete_str_1 = 'delete from dbo.mia_pintuan where goods_id=%s'

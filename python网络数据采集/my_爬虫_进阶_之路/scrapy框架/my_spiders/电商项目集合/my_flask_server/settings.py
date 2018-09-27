@@ -238,6 +238,7 @@ VIP_SPIDER_TO_SHOW_PATH = 'templates/vip_spider_to_show.html'
 KAOLA_SPIDER_2_SHOW_PATH = 'templates/kaola_spider_2_show.html'
 YANXUAN_SPIDER_2_SHOW_PATH = 'templates/yanxuan_spider_2_show.html'
 YOUPIN_SPIDER_2_SHOW_PATH = 'templates/youpin_spider_2_show.html'
+MIA_SPIDER_2_SHOW_PATH = 'templates/mia_spider_2_show.html'
 
 """
 error_html_code(用于处理: 未登录时进行的非法操作)

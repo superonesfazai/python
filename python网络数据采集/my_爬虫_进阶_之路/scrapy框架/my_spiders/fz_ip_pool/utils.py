@@ -25,4 +25,4 @@ print(get_uuid3(high_proxy_list_key_name))
 # pprint(deserializate_pickle_object(_.get('5e421d78-a394-3b44-aae1-fd86aa127255') or dumps([])))
 
 # 清除celery workers
-# kill_process_by_name(process_name='celery')
+kill_process_by_name(process_name='celery')

@@ -33,12 +33,12 @@
 		padding-top: 1.96rem;
 		display: flex;
 	}
-	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip,.kaola,.yanxuan, .youpin{
+	.ali,.taob,.tianm,.jd,.zhe_800,.juanpi,.pinduoduo,.vip,.kaola,.yanxuan, .youpin, .mia{
 		height: 1.0rem;
 		flex: 1;
 		text-align: center;
 	}
-	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span,.kaola span,.yanxuan span, .youpin span{
+	.ali span,.taob span,.tianm span,.jd span,.zhe_800 span,.juanpi span,.pinduoduo span,.vip span,.kaola span,.yanxuan span, .youpin span, .mia span{
 		display: block;
 		width: 1.0rem;
 		height: 1.0rem;
@@ -87,6 +87,10 @@
         background: url(../static/images/xiaomi_yp.jpg)no-repeat;
         background-size: 100% 100%;
     }
+    .mia span{
+        background: url(../static/images/mia.jpg)no-repeat;
+        background-size: 100% 100%;
+    }
 	.ali span:hover .login-btn{
 		display: block;
 	}
@@ -118,6 +122,9 @@
 		display: block;
 	}
 	.youpin span:hover .login-btn{
+		display: block;
+	}
+    .mia span:hover .login-btn{
 		display: block;
 	}
 	.login-btn{
@@ -293,6 +300,13 @@
     				</a>
     			</span>
     		</div>
+            <div class="mia passListItem">
+    			<span>
+    				<a class="login-btn" href="/show_mia" target="_blank">
+						请点击登录
+    				</a>
+    			</span>
+    		</div>
         </div>
     	<!--<ul class="login" id="login">
     		<li class="loginList">
@@ -451,6 +465,16 @@
 						async:true,
 						data:{
 							confirm_login:'youpin_login'
+						}
+					});
+				});
+				$('.login-btn').eq(11).click(function(){
+					$.ajax({
+						type:"post",
+						url:"",
+						async:true,
+						data:{
+							confirm_login:'mia_login'
 						}
 					});
 				})

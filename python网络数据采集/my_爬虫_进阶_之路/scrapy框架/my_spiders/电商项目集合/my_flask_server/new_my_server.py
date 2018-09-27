@@ -47,6 +47,7 @@ from settings import (
     KAOLA_SPIDER_2_SHOW_PATH,
     YANXUAN_SPIDER_2_SHOW_PATH,
     YOUPIN_SPIDER_2_SHOW_PATH,
+    MIA_SPIDER_2_SHOW_PATH,
     ADMIN_NAME,
     ADMIN_PASSWD,
     SERVER_PORT,
@@ -104,12 +105,13 @@ from apps.yx import (
     get_one_yanxuan_data,)
 from apps.yp import (
     get_one_youpin_data,)
+from apps.mi import (
+    get_one_mia_data,)
 from apps.save import (
     get_who_wait_to_save_data_goods_id_list,
     get_who_right_data,
     get_db_who_insert_params,)
 
-import hashlib
 import json
 import time
 from time import sleep
@@ -128,7 +130,6 @@ except Exception as e:
     from gevent.pywsgi import WSGIServer
 
 import gc
-
 from sql_str_controller import (
     fz_al_insert_str,
     fz_tb_insert_str,
@@ -141,6 +142,7 @@ from sql_str_controller import (
     fz_kl_insert_str,
     fz_yx_insert_str,
     fz_yp_insert_str,
+    fz_mi_insert_str,
 )
 
 from fzutils.log_utils import set_logger
@@ -260,48 +262,40 @@ def select():
         if request.form.get('confirm_login'):       # 根据ajax请求类型的分别处理
             ajax_request = request.form.get('confirm_login')
             if ajax_request == 'ali_login':
-                response = make_response(redirect('show_ali'))    # 重定向到新的页面
-                return response
+                return make_response(redirect('show_ali'))
 
             elif ajax_request == 'taob_login':
-                response = make_response(redirect('show_taobao'))
-                return response
+                return make_response(redirect('show_taobao'))
 
             elif ajax_request == 'tianm_login':
-                response = make_response(redirect('show_tmall'))
-                return response
+                return make_response(redirect('show_tmall'))
 
             elif ajax_request == 'jd_login':
-                response = make_response(redirect('show_jd'))
-                return response
+                return make_response(redirect('show_jd'))
 
             elif ajax_request == 'zhe_800_login':
-                response = make_response(redirect('show_zhe_800'))
-                return response
+                return make_response(redirect('show_zhe_800'))
 
             elif ajax_request == 'juanpi_login':
-                response = make_response(redirect('show_juanpi'))
-                return response
+                return make_response(redirect('show_juanpi'))
 
             elif ajax_request == 'pinduoduo_login':
-                response = make_response(redirect('show_pinduoduo'))
-                return response
+                return make_response(redirect('show_pinduoduo'))
 
             elif ajax_request == 'vip_login':
-                response = make_response(redirect('show_vip'))
-                return response
+                return make_response(redirect('show_vip'))
 
             elif ajax_request == 'kaola_login':
-                response = make_response(redirect('show_kaola'))
-                return response
+                return make_response(redirect('show_kaola'))
 
             elif ajax_request == 'yanxuan_login':
-                response = make_response(redirect('show_yanxuan'))
-                return response
+                return make_response(redirect('show_yanxuan'))
 
             elif ajax_request == 'youpin_login':
-                response = make_response(redirect('show_youpin'))
-                return response
+                return make_response(redirect('show_youpin'))
+
+            elif ajax_request == 'mia_login':
+                return make_response(redirect('show_mia'))
 
             else:
                 return ERROR_HTML_CODE
@@ -531,7 +525,7 @@ def show_kaola_info():
     if not is_login(request=request):
         return ERROR_HTML_CODE
     else:
-        my_lg.info('正在获取爬取考拉页面...')
+        my_lg.info('正在获取考拉页面...')
         if request.method == 'POST':
             pass
         else:
@@ -542,7 +536,7 @@ def show_yanxuan_info():
     if not is_login(request=request):
         return ERROR_HTML_CODE
     else:
-        my_lg.info('正在获取爬取严选页面...')
+        my_lg.info('正在获取严选页面...')
         if request.method == 'POST':
             pass
         else:
@@ -553,11 +547,22 @@ def show_youpin_info():
     if not is_login(request=request):
         return ERROR_HTML_CODE
     else:
-        my_lg.info('正在获取爬取小米有品页面...')
+        my_lg.info('正在获取小米有品页面...')
         if request.method == 'POST':
             pass
         else:
             return send_file(YOUPIN_SPIDER_2_SHOW_PATH)
+
+@app.route('/show_mia', methods=['GET', 'POST'])
+def show_mia_info():
+    if not is_login(request=request):
+        return ERROR_HTML_CODE
+    else:
+        my_lg.info('正在获取蜜芽页面...')
+        if request.method == 'POST':
+            pass
+        else:
+            return send_file(MIA_SPIDER_2_SHOW_PATH)
 
 ######################################################
 # 阿里1688
@@ -1629,6 +1634,95 @@ def youpin_to_save_data():
         return _error_msg(msg='')
 
 ######################################################
+# 蜜芽
+@app.route('/mia_data', methods=['POST'])
+def get_mia_data():
+    if is_login(request=request):  # request.cookies -> return a dict
+        if request.form.get('goodsLink'):
+            my_lg.info('正在获取mia相应数据中...')
+
+            username = decrypt(key, request.cookies.get('username'))
+            my_lg.info('发起获取请求的员工的username为: {0}'.format(username))
+
+            goodsLink = request.form.get('goodsLink')
+            if goodsLink:
+                wait_to_deal_with_url = goodsLink
+            else:
+                my_lg.info('goodsLink为空值...')
+                return _null_goods_link()
+
+            wait_to_save_data = get_one_mia_data(
+                username=username,
+                wait_to_deal_with_url=wait_to_deal_with_url,
+                my_lg=my_lg
+            )
+            if wait_to_save_data.get('goods_id', '') == '':
+                return _null_goods_id()
+
+            elif wait_to_save_data.get('msg', '') == 'data为空!':
+                return _null_goods_data()
+
+            else:
+                pass
+
+            tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
+            gc.collect()
+
+            my_lg.info('------>>>| 下面是爬取到的蜜芽页面信息: ')
+            my_lg.info(str(wait_to_save_data))
+            my_lg.info('-------------------------------')
+            msg = '蜜芽抓取成功!'
+
+            return _success_data(data=wait_to_save_data, msg=msg)
+
+        else:       # 直接把空值给pass，不打印信息
+            return _null_goods_link()
+
+    else:
+        result = {
+            'reason': 'error',
+            'data': '',
+            'error_code': 0,
+        }
+        result = json.dumps(result)
+        return result
+
+@app.route('/mia_to_save_data', methods=['POST'])
+def mia_to_save_data():
+    # 蜜芽 site_id=32
+    global tmp_wait_to_save_data_list
+    if is_login(request=request):
+        if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
+            wait_to_save_data_url_list = list(request.form.getlist('saveData[]'))  # 一个待存取的url的list
+
+            wait_to_save_data_url_list = [re.compile(r'\n').sub('', item) for item in wait_to_save_data_url_list]
+            # my_lg.info('缓存中待存储url的list为: {0}'.format(str(tmp_wait_to_save_data_list)))
+            my_lg.info('获取到的待存取的url的list为: {0}'.format(str(wait_to_save_data_url_list)))
+            if wait_to_save_data_url_list != []:
+                tmp_list, goods_to_delete = get_tmp_list_and_goods_2_delete_list(
+                    type='mia',
+                    wait_to_save_data_url_list=wait_to_save_data_url_list
+                )
+
+                return save_every_url_right_data(
+                    type='mia',
+                    tmp_list=tmp_list,
+                    sql_str=fz_mi_insert_str,
+                    goods_to_delete=goods_to_delete
+                )
+
+            else:
+                msg = 'saveData为空!'
+                my_lg.info(msg)
+                return _error_msg(msg)
+        else:
+            my_lg.info(save_data_null_msg)
+            return _error_msg(save_data_null_msg)
+
+    else:
+        return _error_msg(msg='')
+
+######################################################
 @app.route('/basic_data', methods=['POST'])
 def get_basic_data():
     '''
@@ -2013,14 +2107,9 @@ def just_fuck_run():
     # app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
     my_lg.info('========主函数开始========')
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     my_lg.info('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == "__main__":

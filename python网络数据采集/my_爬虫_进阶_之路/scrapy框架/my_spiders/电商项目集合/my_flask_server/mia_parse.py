@@ -13,7 +13,6 @@
 
 import json
 from pprint import pprint
-from decimal import Decimal
 from time import sleep
 import re
 import gc
@@ -24,13 +23,16 @@ from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mia_insert_str_1,
     mia_update_str_1,
+    mia_update_str_4,
 )
 from multiplex_code import _mia_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
+from fzutils.common_utils import (
+    json_2_dict,
+    wash_sensitive_info,)
 from fzutils.spider.crawler import Crawler
 
 class MiaParse(Crawler):
@@ -69,14 +71,14 @@ class MiaParse(Crawler):
             # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = Requests.get_url_body(url=goods_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+            body = Requests.get_url_body(url=goods_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
             # print(body)
             if body == '':
                 return self._data_error_init()
 
             # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)
             body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
-
+            # print(body)
             try:
                 # title, sub_title
                 data['title'], data['sub_title'] = self.get_title_and_sub_title(body=body)
@@ -90,6 +92,7 @@ class MiaParse(Crawler):
                     print('获取到的tmp_p_info为空值, 请检查!')
                     return self._data_error_init()
                 data['p_info'] = p_info
+                # pprint(p_info)
 
                 # 获取每个商品的div_desc
                 div_desc = self.get_goods_div_desc(body=body)
@@ -154,6 +157,7 @@ class MiaParse(Crawler):
 
                 data['goods_url'] = goods_url
                 data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
+                data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'])
 
             except Exception as e:
                 print('遇到错误如下: ', e)
@@ -183,8 +187,8 @@ class MiaParse(Crawler):
             # 商品价格和淘宝价
             try:
                 tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
-                price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品价格
-                taobao_price = Decimal(tmp_price_list[0]).__round__(2)  # 淘宝价
+                price = tmp_price_list[-1]
+                taobao_price = tmp_price_list[0]
             except IndexError:
                 return self._data_error_init()
 
@@ -193,8 +197,9 @@ class MiaParse(Crawler):
             all_img_url = data['all_img_url']
             p_info = data['p_info']
             div_desc = data['div_desc']
-            is_delete = 0
+            is_delete = data['is_delete']
             parent_dir = data['parent_dir']
+            schedule = []
 
             result = {
                 'goods_url': data['goods_url'],         # goods_url
@@ -206,12 +211,12 @@ class MiaParse(Crawler):
                 'taobao_price': taobao_price,           # 淘宝价
                 # 'goods_stock': goods_stock,            # 商品库存
                 'detail_name_list': detail_name_list,   # 商品标签属性名称
-                # 'detail_value_list': detail_value_list,# 商品标签属性对应的值
                 'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
                 'all_img_url': all_img_url,             # 所有示例图片地址
                 'p_info': p_info,                       # 详细信息标签名对应属性
                 'div_desc': div_desc,                   # div_desc
                 'is_delete': is_delete,                 # 用于判断商品是否已经下架
+                'schedule': schedule,
                 'parent_dir': parent_dir,
             }
             # pprint(result)
@@ -228,6 +233,77 @@ class MiaParse(Crawler):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _get_is_delete(self, price_info_list):
+        '''
+        是否下架
+        :param price_info_list:
+        :return:
+        '''
+        all_num = 0
+        for i in price_info_list:
+            all_num += i.get('rest_number', 0)
+
+        is_delete = 0 if all_num != 0 else 1
+
+        return is_delete
+
+    def _to_right_and_update_data(self, data, pipeline):
+        '''
+        实时更新数据
+        :param data:
+        :param pipeline:
+        :return:
+        '''
+        tmp = _get_right_model_data(data, site_id=31, logger=self.lg)
+
+        params = self._get_db_update_params(item=tmp)
+        base_sql_str = mia_update_str_4
+        if tmp['delete_time'] == '':
+            sql_str = base_sql_str.format('shelf_time=%s', '')
+        elif tmp['shelf_time'] == '':
+            sql_str = base_sql_str.format('delete_time=%s', '')
+        else:
+            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
+
+        result = pipeline._update_table(sql_str=sql_str, params=params)
+
+        return result
+
+    def _get_db_update_params(self, item):
+        params = [
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            # item['price'],
+            # item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            item['is_delete'],
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
+            item['parent_dir'],
+
+            item['goods_id'],
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
+
+        return tuple(params)
 
     def _get_p_info(self, **kwargs):
         body = kwargs.get('body', '')
@@ -330,27 +406,30 @@ class MiaParse(Crawler):
         :param body: 待解析的url的body
         :return: (body, sign_direct_url, is_hk) | 类型: str, str, boolean
         '''
+        is_hk = False
+        sign_direct_url = ''
         if re.compile(r'_sign_direct_url = ').findall(body) != []:  # 表明是跳转，一般会出现这种情况的是拼团商品
             # 出现跳转时
             try:
-                sign_direct_url = re.compile(r"_sign_direct_url = '(.*?)';").findall(body)[0]
+                sign_direct_url = re.compile("_sign_direct_url = \'(.*?)\'").findall(body)[0]
                 print('*** 获取到跳转地址为: ', sign_direct_url)
             except IndexError:
                 sign_direct_url = ''
                 print('获取跳转的地址时出错!')
 
-            body = Requests.get_url_body(url=sign_direct_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
-
-            if re.compile(r'://m.miyabaobei.hk/').findall(sign_direct_url) != []:
-                # 表示为全球购商品
-                print('*** 此商品为全球购商品!')
-                is_hk = True
+            if sign_direct_url != '':
+                body = Requests.get_url_body(url=sign_direct_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
+                try:
+                    _ = re.compile(r'://m.miyabaobei.hk/').findall(sign_direct_url)[0]
+                    # 表示为全球购商品
+                    print('*** 此商品为全球购商品!')
+                    is_hk = True
+                except IndexError:
+                    pass
             else:
-                is_hk = False
-
+                pass
         else:
-            is_hk = False
-            sign_direct_url = ''
+            pass
 
         return (body, sign_direct_url, is_hk)
 
@@ -381,7 +460,17 @@ class MiaParse(Crawler):
             sub_title = ''
         # print(sub_title)
 
-        return (title, sub_title)
+        return (self._wash_sensitive_info(title), self._wash_sensitive_info(sub_title))
+
+    def _wash_sensitive_info(self, target):
+        replace_str_list = [
+            ('蜜芽', '优秀网'),
+            ('mia', 'yiuxiu'),
+        ]
+
+        return wash_sensitive_info(
+            data=target,
+            replace_str_list=replace_str_list)
 
     def get_all_img_url(self, goods_id, is_hk):
         '''
@@ -526,6 +615,7 @@ class MiaParse(Crawler):
         # print(tmp_body)
 
         tmp_data = json_2_dict(json_str=tmp_body).get('data', [])
+        # pprint(tmp_data)
         if tmp_data == []:
             return self._data_error_init()
 
@@ -564,17 +654,17 @@ class MiaParse(Crawler):
         :param mia_url:
         :return: goods_id (类型str)
         '''
-        is_mia_irl = re.compile(r'https://www.mia.com/item-.*?.html.*?').findall(mia_url)
+        mia_url = re.compile(r';').sub('', mia_url)
+        is_mia_irl = re.compile(r'mia.com/item|miyabaobei.hk/item').findall(mia_url)
         if is_mia_irl != []:
-            if re.compile(r'https://www.mia.com/item-(\d+).html.*?').findall(mia_url) != []:
-                tmp_mia_url = re.compile(r'https://www.mia.com/item-(\d+).html.*?').findall(mia_url)[0]
-                if tmp_mia_url != '':
-                    goods_id = tmp_mia_url
-                else:   # 只是为了在pycharm运行时不跳到chrome，其实else完全可以不要的
-                    mia_url = re.compile(r';').sub('', mia_url)
-                    goods_id = re.compile(r'https://www.mia.com/item-(\d+).html.*?').findall(mia_url)[0]
+            try:
+                goods_id = re.compile(r'item-(\d+).html.*?').findall(mia_url)[0]
                 print('------>>>| 得到的蜜芽商品的地址为:', goods_id)
-                return goods_id
+                assert goods_id != '', 'goods_id为空值!'
+            except (IndexError, AssertionError):
+                return ''
+
+            return goods_id
         else:
             print('蜜芽商品url错误, 非正规的url, 请参照格式(https://www.mia.com/item-)开头的...')
             return ''
