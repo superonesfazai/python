@@ -47,11 +47,15 @@ async def deal_with_result(result):
         for _ in list(Selector(text=item).css('div.table_con ul li').extract()):
             if isinstance(_, bool):
                 continue
-            sort = Selector(text=_).css('span.book em a::text').extract_first().__str__()
-            book_name = Selector(text=_).css('span.book a::attr("title")').extract()[1].__str__()
-            book_link = 'http://huayu.baidu.com' + Selector(text=_).css('span.book a::attr("href")').extract()[1].__str__()
-            book_click_number = Selector(text=_).css('span.click::text').extract_first().__str__()
-            author = Selector(text=_).css('span.author a::attr("title")').extract_first().__str__()
+            try:
+                sort = Selector(text=_).css('span.book em a::text').extract_first().__str__()
+                book_name = Selector(text=_).css('span.book a::attr("title")').extract()[1].__str__()
+                book_link = 'http://huayu.baidu.com' + Selector(text=_).css('span.book a::attr("href")').extract()[1].__str__()
+                book_click_number = Selector(text=_).css('span.click::text').extract_first().__str__()
+                assert book_click_number is not None, 'book_click_number为None!'
+                author = Selector(text=_).css('span.author a::attr("title")').extract_first().__str__()
+            except AssertionError:
+                continue
 
             one_data = {
                 'sort': sort,

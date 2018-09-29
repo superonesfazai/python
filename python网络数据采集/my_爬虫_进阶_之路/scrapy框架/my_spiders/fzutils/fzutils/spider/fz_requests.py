@@ -47,7 +47,8 @@ class MyRequests(object):
                      timeout=12,
                      num_retries=1,
                      high_conceal=True,
-                     ip_pool_type=ip_proxy_pool):
+                     ip_pool_type=ip_proxy_pool,
+                     verify=None):
         '''
         根据url得到body
         :param url:
@@ -62,6 +63,7 @@ class MyRequests(object):
         :param timeout:
         :param num_retries:
         :param high_conceal: 代理是否为高匿名
+        :param verify:
         :return: '' 表示error | str 表示success
         '''
         if use_proxy:
@@ -84,7 +86,7 @@ class MyRequests(object):
 
         with requests.session() as s:
             try:
-                response = s.request(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, proxies=tmp_proxies, timeout=timeout)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
+                response = s.request(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, proxies=tmp_proxies, timeout=timeout, verify=verify)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
                 # print(str(response.url))
                 try:
                     _ = response.content.decode(encoding)
@@ -96,7 +98,7 @@ class MyRequests(object):
             except Exception as e:
                 # print(e)
                 if num_retries > 1:
-                    return cls.get_url_body(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, had_referer=had_referer, encoding=encoding, timeout=timeout, num_retries=num_retries-1)
+                    return cls.get_url_body(method=method, url=url, headers=tmp_headers, params=params, data=data, cookies=cookies, had_referer=had_referer, encoding=encoding, timeout=timeout, verify=verify, num_retries=num_retries-1)
                 else:
                     print('requests.get()请求超时....')
                     print('data为空!')

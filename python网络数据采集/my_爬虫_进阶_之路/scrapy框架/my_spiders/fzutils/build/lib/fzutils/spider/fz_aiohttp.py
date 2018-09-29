@@ -47,10 +47,12 @@ class MyAiohttp(object):
     async def aio_get_url_body(self,
                                url,
                                headers,
+                               method='get',
                                params=None,
                                timeout=10,
                                num_retries=10,
                                high_conceal=True,
+                               data=None,
                                ip_pool_type=ip_proxy_pool):
         '''
         异步获取url的body(简略版)
@@ -60,6 +62,7 @@ class MyAiohttp(object):
         :param had_proxy:
         :param num_retries: 出错重试次数
         :param hign_conceal: ip是否高匿
+        :param data: post的data
         :return:
         '''
         proxy = await self.get_proxy(high_conceal, ip_pool_type=ip_pool_type)
@@ -68,7 +71,7 @@ class MyAiohttp(object):
         conn = aiohttp.TCPConnector(verify_ssl=True, limit=150, use_dns_cache=True)
         async with aiohttp.ClientSession(connector=conn) as session:
             try:
-                async with session.get(url=url, headers=headers, params=params, proxy=proxy, timeout=timeout) as r:
+                async with session.request(method=method, url=url, headers=headers, params=params, data=data, proxy=proxy, timeout=timeout) as r:
                     result = await r.text(encoding=None)
                     result = await self.wash_html(result)
                     # print('success')
@@ -77,7 +80,7 @@ class MyAiohttp(object):
                 # print('出错:', e)
                 if num_retries > 0:
                     # 如果不是200就重试，每次递减重试次数
-                    return await self.aio_get_url_body(url=url, headers=headers, params=params, num_retries=num_retries - 1)
+                    return await self.aio_get_url_body(method=method, url=url, headers=headers, params=params, data=data, num_retries=num_retries-1)
                 else:
                     print('异步获取body失败!')
                     return ''

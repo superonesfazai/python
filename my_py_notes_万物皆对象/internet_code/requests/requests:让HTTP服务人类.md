@@ -1,3 +1,5 @@
+# requests
+
 虽然Python的标准库中 urllib2 模块已经包含了平常我们使用的大多数功能，但是它的 API 使用起来让人感觉不太好，而 Requests 自称 “HTTP for Humans”，说明使用更简洁方便。
 
 ```
@@ -16,3 +18,10 @@ Requests的文档非常完备，中文文档也相当不错。Requests能完全�
 
 使用response.content 时，返回的是服务器响应数据的原始二进制字节流，可以用来保存图片等二进制文件。
 ```
+
+## CA证书
+请使用证书从包装[CERTIFI](https://certifiio.readthedocs.io/)。这允许用户在不更改请求版本的情况下更新其受信任的证书。
+
+在2.16版之前，Requests捆绑了一组它信任的根CA，这些CA来自Mozilla信任库。证书仅针对每个请求版本更新一次。如果certifi未安装，则在使用显着较旧版本的请求时，会导致极其过时的证书捆绑包。
+
+为安全起见，建议经常升级certifi！
