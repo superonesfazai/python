@@ -6,6 +6,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+裁判文书网
+"""
+
 from asyncio import get_event_loop
 from gc import collect
 import urllib3
@@ -47,18 +51,6 @@ class ChinaAdjueDocsSpider(object):
             'vjkl5': '452b08fde99ff271a1601a11831f77c020f8e29d',
         }
 
-    async def _get_post_data(self) -> dict:
-        return {
-          'Param': '案件类型:刑事案件',
-          'Index': '3',
-          'Page': '10',
-          'Order': '法院层级',
-          'Direction': 'asc',
-          'vl5x': 'f83cc8fdec03895f73371c8d',
-          'number': '/wen',
-          'guid': '32e2007b-0fe8-8bc0d5ed-938a16027a01'
-        }
-
     async def _get_js_parser_res(self, js_path, func_name, **args):
         '''
         python调用js, 并返回结果
@@ -83,9 +75,15 @@ class ChinaAdjueDocsSpider(object):
             func_name='get_vl5x',
             vjkl5=vjkl5,
         )
+        o_random_vl5x = await self._get_js_parser_res(
+            js_path='./js/o_get_vl5x.js',
+            func_name='GetVl5x',
+            cookie=vjkl5,
+        )
         print('得到vl5x: {}'.format(random_vl5x))
+        print('得到o_vl5x: {}'.format(o_random_vl5x))
 
-        return random_vl5x
+        return o_random_vl5x
 
     async def _get_guid(self) -> str:
         guid = await self._get_js_parser_res(
@@ -106,8 +104,8 @@ class ChinaAdjueDocsSpider(object):
             'guid': await self._get_guid(),
         }
         url = 'https://wenshu.court.gov.cn/ValiCode/GetCode'
-        # body = Requests.get_url_body(method='post', url=url, headers=self.headers, cookies=None, data=data, verify=False, proxies=proxies)
-        response = requests.post(url=url, headers=self.headers, data=data, verify=False, proxies=proxies)
+        # body = self.session.get_url_body(method='post', url=url, headers=self.headers, cookies=None, data=data, verify=False, proxies=proxies)
+        response = self.session.post(url=url, headers=self.headers, data=data, verify=False, proxies=proxies)
         body = response.text
         print('获取到的captcha: {}'.format(body))
 
@@ -126,7 +124,11 @@ class ChinaAdjueDocsSpider(object):
         '''
         await self._get_headers()
         proxies = await self._get_random_proxy()
-        response = requests.get(url='https://wenshu.court.gov.cn/List/List', headers=self.headers, verify=False, proxies=proxies)
+        self.session = requests.Session()
+
+        # url = 'https://wenshu.court.gov.cn/List/List'
+        url = 'https://wenshu.court.gov.cn/List/List?sorttype=1&conditions=searchWord+2++%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6+%E6%A1%88%E4%BB%B6%E7%B1%BB%E5%9E%8B:%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6'
+        response = self.session.get(url=url, headers=self.headers, verify=False, proxies=proxies)
         response_cookies = response.cookies.get_dict()
         # pprint(response_cookies)
         if 'vjkl5' not in response_cookies:
@@ -136,12 +138,16 @@ class ChinaAdjueDocsSpider(object):
             print('得到的vjkl5: {}'.format(vjkl5))
 
         random_vl5x = await self._get_vl5x(vjkl5)
-        data = await self._get_post_data()
-        data.update({
-            'vl5x': random_vl5x,
-            'guid': await self._get_guid(),
-            'number': await self._get_number(proxies=proxies),
-        })
+        data = {
+          'Param': '案件类型:刑事案件',
+          'Index': '3',
+          'Page': '10',
+          'Order': '法院层级',
+          'Direction': 'asc',
+          'vl5x': random_vl5x,
+          'number': await self._get_number(proxies=proxies),
+          'guid': await self._get_guid()
+        }
         pprint(data)
         cookies = await self._get_cookie()
         cookies.update({
@@ -150,11 +156,11 @@ class ChinaAdjueDocsSpider(object):
 
         url = 'https://wenshu.court.gov.cn/List/ListContent'
         # 设置verify不校验证书
-        # response = requests.post(url=url, headers=headers, cookies=cookies, data=data, verify=False)
+        # response = self.session.post(url=url, headers=headers, cookies=cookies, data=data, verify=False)
         # print(response.text)    # 返回 "remind key" -> 说明某个参数提交错误
 
-        # body = Requests.get_url_body(method='post', url=url, headers=await self._get_headers(), cookies=cookies, data=data, verify=False)
-        body = requests.post(url=url, headers=await self._get_headers(), cookies=cookies, data=data, verify=False, proxies=proxies).text
+        # body = self.session.get_url_body(method='post', url=url, headers=await self._get_headers(), cookies=cookies, data=data, verify=False)
+        body = self.session.post(url=url, headers=await self._get_headers(), cookies=cookies, data=data, verify=False, proxies=proxies).text
         print(body)
 
         return
