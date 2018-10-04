@@ -15,10 +15,12 @@ from asyncio import get_event_loop, wait
 from asyncio import sleep as async_sleep
 from time import sleep
 from pprint import pprint
+
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import fz_set_timeout
 from fzutils.sms_utils import sms_2_somebody_by_twilio
+from fzutils.safe_utils import get_uuid1
 
 with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
     twilio_pwd_info = json_2_dict(f.read())
@@ -27,7 +29,7 @@ class MoneyCaffeine(object):
     """钱咖"""
     def __init__(self):
         self.loop = get_event_loop()
-        self.sleep_time = 1.5
+        self.sleep_time = 1.3
         self.account_sid = twilio_pwd_info['account_sid']
         self.auth_token = twilio_pwd_info['auth_token']
 
@@ -110,29 +112,36 @@ class MoneyCaffeine(object):
 
         return data
 
+    @fz_set_timeout(11*60)
+    def do_tasking(self):
+        '''
+        doing task
+        :param auth_token:
+        :return:
+        '''
+        sms_body = '抢到一个任务(uuid:{})请抓紧完成!'.format(get_uuid1())
+        sms_res = sms_2_somebody_by_twilio(
+            account_sid=self.account_sid,
+            auth_token=self.auth_token,
+            body=sms_body)
+        label = '+' if sms_res else '-'
+        print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
+
+        while True:
+            completed = input('已完成该任务请输入(y):')
+            if completed in ('y', 'Y',):
+                break
+            else:
+                print('输入有误!请重新输入!')
+                pass
+
+        return
+
     async def _fck_run(self):
         '''
         main
         :return:
         '''
-        @fz_set_timeout(9*60)
-        def do_tasking():
-            print('抢到一个任务, 请抓紧完成!')
-            sms_2_somebody_by_twilio(
-                account_sid=self.account_sid,
-                auth_token=self.auth_token,
-                body='抢到一个任务, 请抓紧完成!')
-
-            while True:
-                completed = input('已完成该任务请输入(y):')
-                if completed == 'y' or 'Y':
-                    break
-                else:
-                    print('输入有误!请重新输入!')
-                    pass
-
-            return
-
         index = 1
         while True:
             try:
@@ -160,21 +169,32 @@ class MoneyCaffeine(object):
                     continue
 
                 print('success_num: {}, fail_num: {}'.format(len(success_jobs), len(fail_jobs)))
-                all_res = [r.result().get('payload', {}) for r in success_jobs]
+                # all_res为空则休眠
+                all_res = []
+                for r in success_jobs:
+                    one = r.result().get('payload', {})
+                    if one != {}:
+                        all_res.append(one)
                 pprint(all_res)
+                assert all_res != [], 'all_res为空list!'
+
                 for item in all_res:
-                    if '进行中' in item.get('message', ''):
+                    message = item.get('message', '')
+                    if '进行中' in message or '已抢到' in message:
+                        print('抢到一个任务, 请抓紧完成!'.center(120, '@'))
                         try:
-                            do_tasking()
+                            self.do_tasking()
                         except Exception as e:
                             print(e)
+                        finally:
+                            break
                     else:
                         pass
 
             except (AssertionError,) as e:
                 print(e)
-                ss = 10
-                print('休眠{}s中...'.format(10))
+                ss = 5
+                print('休眠{}s中...'.format(ss))
                 sleep(ss)
             except KeyboardInterrupt:
                 break

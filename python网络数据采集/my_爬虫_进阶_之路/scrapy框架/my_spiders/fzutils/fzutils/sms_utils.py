@@ -24,6 +24,7 @@ def sms_2_somebody_by_twilio(account_sid,
     '''
     通过twilio发送短信
         官网: https://www.twilio.com
+        添加手机号: https://www.twilio.com/console/phone-numbers/verified
     :param account_sid: sid
     :param auth_token:
     :return:
