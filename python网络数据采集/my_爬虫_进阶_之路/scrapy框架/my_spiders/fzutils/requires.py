@@ -78,6 +78,7 @@ install_requires = [
     'pytesseract',
     'scrapy-splash',
     'opencv-python',
+    'twilio',               # 免费发短信
     # 'sip',
     # 'pyqt5',
 ]

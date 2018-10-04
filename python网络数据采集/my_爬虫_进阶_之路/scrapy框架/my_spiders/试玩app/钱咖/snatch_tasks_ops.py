@@ -17,12 +17,19 @@ from time import sleep
 from pprint import pprint
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import fz_set_timeout
+from fzutils.sms_utils import sms_2_somebody_by_twilio
+
+with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
+    twilio_pwd_info = json_2_dict(f.read())
 
 class MoneyCaffeine(object):
     """钱咖"""
     def __init__(self):
         self.loop = get_event_loop()
-        self.sleep_time = 5
+        self.sleep_time = 1.5
+        self.account_sid = twilio_pwd_info['account_sid']
+        self.auth_token = twilio_pwd_info['auth_token']
 
     async def _get_cookies(self):
         return {
@@ -108,14 +115,33 @@ class MoneyCaffeine(object):
         main
         :return:
         '''
+        @fz_set_timeout(9*60)
+        def do_tasking():
+            print('抢到一个任务, 请抓紧完成!')
+            sms_2_somebody_by_twilio(
+                account_sid=self.account_sid,
+                auth_token=self.auth_token,
+                body='抢到一个任务, 请抓紧完成!')
+
+            while True:
+                completed = input('已完成该任务请输入(y):')
+                if completed == 'y' or 'Y':
+                    break
+                else:
+                    print('输入有误!请重新输入!')
+                    pass
+
+            return
+
+        index = 1
         while True:
             try:
                 tasks_list = await self._get_tasks_list()
                 # pprint(tasks_list)
                 assert tasks_list != {}, 'tasks_list为空dict!此处跳过!'
                 now_tasks = [i for i in tasks_list.get('now_tasks', []) if i.get('qty', 0) != 0]
-                pprint(now_tasks)
-
+                # pprint(now_tasks)
+                print('--->>> 发现任务个数: {}'.format(len(now_tasks)))
                 tmp = await self._action()
                 # pprint(tmp)
 
@@ -126,19 +152,38 @@ class MoneyCaffeine(object):
                     print('创建task: {}'.format(task_id))
                     _.append(self.loop.create_task(self._snatch_task(task_id=task_id, quality=quality)))
 
-                success_jobs, fail_jobs = await wait(_)
+                try:
+                    success_jobs, fail_jobs = await wait(_)
+                except ValueError as e:
+                    # assert e.args[0]
+                    sleep(self.sleep_time)
+                    continue
+
                 print('success_num: {}, fail_num: {}'.format(len(success_jobs), len(fail_jobs)))
                 all_res = [r.result().get('payload', {}) for r in success_jobs]
                 pprint(all_res)
+                for item in all_res:
+                    if '进行中' in item.get('message', ''):
+                        try:
+                            do_tasking()
+                        except Exception as e:
+                            print(e)
+                    else:
+                        pass
 
             except (AssertionError,) as e:
                 print(e)
+                ss = 10
+                print('休眠{}s中...'.format(10))
+                sleep(ss)
             except KeyboardInterrupt:
                 break
             finally:
                 # await async_sleep(10)
                 print('休眠{}s中...'.format(self.sleep_time))
                 sleep(self.sleep_time)
+                print('第 {} 次扫描结束...'.format(index).center(60, '-'))
+                index += 1
 
         print('KeyboardInterrupt暂停!')
 

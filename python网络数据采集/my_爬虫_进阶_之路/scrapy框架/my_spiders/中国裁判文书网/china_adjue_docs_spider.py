@@ -18,6 +18,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import requests
 import execjs
 from pprint import pprint
+from urllib.parse import quote_plus
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.ip_pools import IpPools
@@ -126,8 +127,9 @@ class ChinaAdjueDocsSpider(object):
         proxies = await self._get_random_proxy()
         self.session = requests.Session()
 
-        # url = 'https://wenshu.court.gov.cn/List/List'
-        url = 'https://wenshu.court.gov.cn/List/List?sorttype=1&conditions=searchWord+2++%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6+%E6%A1%88%E4%BB%B6%E7%B1%BB%E5%9E%8B:%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6'
+        # url = 'https://wenshu.court.gov.cn/List/List?sorttype=1&conditions=searchWord+2++%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6+%E6%A1%88%E4%BB%B6%E7%B1%BB%E5%9E%8B:%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6'
+        data_param = '案件类型:刑事案件'.split(':')
+        url = 'https://wenshu.court.gov.cn/List/List?sorttype=1&conditions=searchWord+2++{}+{}:{}'.format(quote_plus('刑事案件'), quote_plus(data_param[0]), quote_plus(data_param[1]))
         response = self.session.get(url=url, headers=self.headers, verify=False, proxies=proxies)
         response_cookies = response.cookies.get_dict()
         # pprint(response_cookies)
@@ -139,14 +141,14 @@ class ChinaAdjueDocsSpider(object):
 
         random_vl5x = await self._get_vl5x(vjkl5)
         data = {
-          'Param': '案件类型:刑事案件',
+          'Param': ':'.join(data_param),
           'Index': '3',
           'Page': '10',
           'Order': '法院层级',
           'Direction': 'asc',
           'vl5x': random_vl5x,
           'number': await self._get_number(proxies=proxies),
-          'guid': await self._get_guid()
+          'guid': await self._get_guid(),
         }
         pprint(data)
         cookies = await self._get_cookie()
@@ -160,7 +162,7 @@ class ChinaAdjueDocsSpider(object):
         # print(response.text)    # 返回 "remind key" -> 说明某个参数提交错误
 
         # body = self.session.get_url_body(method='post', url=url, headers=await self._get_headers(), cookies=cookies, data=data, verify=False)
-        body = self.session.post(url=url, headers=await self._get_headers(), cookies=cookies, data=data, verify=False, proxies=proxies).text
+        body = self.session.post(url=url, headers=await self._get_headers(), cookies=None, data=data, verify=False, proxies=proxies).text
         print(body)
 
         return
