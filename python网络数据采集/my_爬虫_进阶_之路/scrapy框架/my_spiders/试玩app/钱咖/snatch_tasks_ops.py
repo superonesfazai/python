@@ -15,12 +15,18 @@ from asyncio import get_event_loop, wait
 from asyncio import sleep as async_sleep
 from time import sleep
 from pprint import pprint
+import re
 
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import fz_set_timeout
+from fzutils.time_utils import (
+    fz_set_timeout,
+    get_shanghai_time,
+    datetime_to_timestamp,)
 from fzutils.sms_utils import sms_2_somebody_by_twilio
 from fzutils.safe_utils import get_uuid1
+from fzutils.common_utils import get_random_int_number
+from fzutils.internet_utils import get_random_pc_ua
 
 with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
     twilio_pwd_info = json_2_dict(f.read())
@@ -29,7 +35,7 @@ class MoneyCaffeine(object):
     """钱咖"""
     def __init__(self):
         self.loop = get_event_loop()
-        self.sleep_time = 1.3
+        self.sleep_time = 1.
         self.account_sid = twilio_pwd_info['account_sid']
         self.auth_token = twilio_pwd_info['auth_token']
 
@@ -112,18 +118,59 @@ class MoneyCaffeine(object):
 
         return data
 
-    @fz_set_timeout(11*60)
+    def real_time_remind_by_china_unicom(self, phone_num=18698570079) -> bool:
+        '''
+        通过联通提醒抢到任务(免费)
+        :param phone_num:
+        :return:
+        '''
+        res = False
+        headers = {
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'User-Agent': get_random_pc_ua(),
+            'Accept': 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01',
+            'Referer': 'https://uac.10010.com/portal/homeLoginNew',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Connection': 'keep-alive',
+        }
+        t = str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(100, 999))
+        print(t)
+        params = (
+            ('callback', 'jQuery172017190182360065043_{}'.format(t)),
+            ('req_time', t),
+            ('mobile', str(phone_num)),
+            ('_', t),
+        )
+        # resultCode 0000 表示发送成功
+        url = 'https://uac.10010.com/portal/Service/SendMSG'
+        body = Requests.get_url_body(url=url, headers=headers, params=params, cookies=None)
+        try:
+            body = re.compile('\((.*)\)').findall(body)[0]
+            res_code = json_2_dict(body).get('resultCode', '0')
+            if res_code == '0000':
+                res = True
+        except IndexError:
+            pass
+
+        return res
+
+    @fz_set_timeout(4*60)
     def do_tasking(self):
         '''
         doing task
         :param auth_token:
         :return:
         '''
-        sms_body = '抢到一个任务(uuid:{})请抓紧完成!'.format(get_uuid1())
-        sms_res = sms_2_somebody_by_twilio(
-            account_sid=self.account_sid,
-            auth_token=self.auth_token,
-            body=sms_body)
+        # send sms by twilio
+        # sms_body = '抢到一个任务(uuid:{})请抓紧完成!'.format(get_uuid1())
+        # sms_res = sms_2_somebody_by_twilio(
+        #     account_sid=self.account_sid,
+        #     auth_token=self.auth_token,
+        #     body=sms_body)
+
+        # send sms by 联通
+        sms_res = self.real_time_remind_by_china_unicom()
         label = '+' if sms_res else '-'
         print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
 
@@ -144,6 +191,12 @@ class MoneyCaffeine(object):
         '''
         index = 1
         while True:
+            now_time = get_shanghai_time()
+            if now_time.hour > 0 and now_time.hour < 6:
+                print('{}不在工作范围...'.format(str(now_time)))
+                sleep(60)
+                continue
+
             try:
                 tasks_list = await self._get_tasks_list()
                 # pprint(tasks_list)
@@ -190,7 +243,6 @@ class MoneyCaffeine(object):
                             break
                     else:
                         pass
-
             except (AssertionError,) as e:
                 print(e)
                 ss = 5
@@ -218,3 +270,4 @@ if __name__ == '__main__':
     _ = MoneyCaffeine()
     loop = get_event_loop()
     res = loop.run_until_complete(_._fck_run())
+
