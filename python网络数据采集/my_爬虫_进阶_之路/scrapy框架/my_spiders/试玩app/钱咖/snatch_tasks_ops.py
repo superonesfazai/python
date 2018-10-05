@@ -245,7 +245,7 @@ class MoneyCaffeine(object):
                         pass
             except (AssertionError,) as e:
                 print(e)
-                ss = 5
+                ss = 4.5
                 print('休眠{}s中...'.format(ss))
                 sleep(ss)
             except KeyboardInterrupt:

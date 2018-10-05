@@ -125,7 +125,7 @@ class SiMuSpider(object):
         tasks = []
         for page_num in range(1, self.max_dc_num):
             print('创建task:{}'.format(page_num))
-            tasks.append(self._get_one_page_private_placement_funds_rank_info(page_num=page_num))
+            tasks.append(self.loop.create_task(self._get_one_page_private_placement_funds_rank_info(page_num=page_num)))
 
         print('请耐心等待所有任务完成...')
         success_jobs, fail_jobs = await wait(tasks)
