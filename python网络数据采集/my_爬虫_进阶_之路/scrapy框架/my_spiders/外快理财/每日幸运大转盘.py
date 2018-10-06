@@ -12,6 +12,7 @@
 """
 
 from pprint import pprint
+from time import sleep
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import (
@@ -64,16 +65,23 @@ def share_2_wx() -> bool:
     return res
 
 def main():
-    _ = turn_one_time()
-    pprint(_)
-    res = share_2_wx()
-    if res:
-        _ = turn_one_time()
-        pprint(_)
-    else:
-        print('模拟第二次转动转盘失败!')
-
-    return
+    sleep_time = 60 * 20
+    while True:
+        _hour = int(get_shanghai_time().hour)
+        if _hour not in (9,):
+            print('不在服务时间, 休眠中...')
+            sleep(sleep_time)
+        else:
+            print('--->>> {} 转动转盘一次'.format(str(get_shanghai_time())))
+            _ = turn_one_time()
+            pprint(_)
+            res = share_2_wx()
+            if res:
+                _ = turn_one_time()
+                pprint(_)
+            else:
+                print('模拟第二次转动转盘失败!')
+            sleep(sleep_time)
 
 if __name__ == '__main__':
     main()

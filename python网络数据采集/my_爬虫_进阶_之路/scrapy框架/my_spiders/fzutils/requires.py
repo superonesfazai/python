@@ -79,6 +79,8 @@ install_requires = [
     'scrapy-splash',
     'opencv-python',
     'twilio',               # 免费发短信
+    'fonttools',
+    'xmltodict',
     # 'sip',
     # 'pyqt5',
 ]
