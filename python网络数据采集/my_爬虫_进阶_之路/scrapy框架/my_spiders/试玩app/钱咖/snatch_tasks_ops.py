@@ -155,7 +155,7 @@ class MoneyCaffeine(object):
 
         return res
 
-    @fz_set_timeout(4*60)
+    @fz_set_timeout(60*4)
     def do_tasking(self):
         '''
         doing task
@@ -172,13 +172,12 @@ class MoneyCaffeine(object):
         # send sms by 联通
         sms_res = self.real_time_remind_by_china_unicom()
         label = '+' if sms_res else '-'
-        print('[{}] 短信发送{}\n'.format(label, '成功!' if sms_res else '失败!'))
+        print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
         while True:
             completed = input('已完成该任务请输入(y):')
-            if completed in ('y', 'Y',):
+            if completed == 'y':
                 break
             else:
-                print('输入有误!请重新输入!\n')
                 pass
 
         return

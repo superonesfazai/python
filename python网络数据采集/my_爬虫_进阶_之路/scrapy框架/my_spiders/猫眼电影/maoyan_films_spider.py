@@ -202,7 +202,7 @@ class MaoYanFilmsSpider(object):
             <GlyphID id="10" name="uniECC7" />	7
             <GlyphID id="11" name="uniE1FD" />	3
         </GlyphOrder>
-        # 正确顺序位置在
+        # 下面也是错误的顺序
         <hmtx>
             <mtx name="glyph00000" width="1024" lsb="0" />
             <mtx name="uniE0F2" width="556" lsb="0" />
@@ -217,6 +217,7 @@ class MaoYanFilmsSpider(object):
             <mtx name="uniF69C" width="556" lsb="0" />
             <mtx name="x" width="100" lsb="0" />
         </hmtx>
+        # 可以直接抓取https://piaofang.maoyan.com/dashboard的ajax数据, 不需要走这条路
         """
         with open(font_xml_save_path, 'r') as f:
             xml_content = f.read()
@@ -320,7 +321,7 @@ class MaoYanFilmsSpider(object):
             print('获取font_base64_str时索引异常!')
             font_base64_str = ''
 
-        save_path = '/Users/afa/Desktop/x.ttf'
+        save_path = '/Users/afa/Desktop/x.woff'
         if font_base64_str != '':
             save_font_res = save_base64_img_2_local(save_path=save_path, base64_img_str=font_base64_str)
             if not save_font_res:
