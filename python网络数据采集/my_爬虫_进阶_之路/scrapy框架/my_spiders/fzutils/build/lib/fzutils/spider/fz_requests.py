@@ -6,20 +6,22 @@
 @Time    : 2017/3/22 10:13
 @connect : superonesfazai@gmail.com
 '''
+
 import sys
 sys.path.append('..')
 
 import requests
+import re
+import gc
 from random import randint
+from pprint import pprint
+
 from ..ip_pools import (
     MyIpPools,
     ip_proxy_pool,
     fz_ip_pool,)
 from ..internet_utils import get_base_headers
 from ..common_utils import _print
-import re
-import gc
-from pprint import pprint
 
 __all__ = [
     'MyRequests',
@@ -132,6 +134,43 @@ class MyRequests(object):
         }
 
         return tmp_proxies
+
+    @classmethod
+    def _download_file(cls,
+                       url,
+                       file_save_path,
+                       headers=None,
+                       params=None,
+                       cookies=None,
+                       use_proxy=True,
+                       ip_pool_type=ip_proxy_pool,
+                       high_conceal=True) -> bool:
+        '''
+        下载文件
+        :param url:
+        :param file_save_path: 文件存储路径
+        :param use_proxy: 是否使用代理
+        :return:
+        '''
+        if use_proxy:
+            tmp_proxies = cls._get_proxies(ip_pool_type=ip_pool_type, high_conceal=high_conceal)
+            if tmp_proxies == {}:
+                print('获取代理失败, 此处跳过!')
+                return False
+        else:
+            tmp_proxies = {}
+
+        with requests.get(url=url, headers=headers, params=params, cookies=cookies, proxies=tmp_proxies, stream=True) as response:
+            chunk_size = 1024                                       # 单次请求最大值
+            content_size = int(response.headers['content-length'])  # 内容体总大小
+            if response.status_code == 200:
+                with open(file_save_path, 'wb') as f:
+                    for data in response.iter_content(chunk_size=chunk_size):
+                        f.write(data)
+            else:
+                return False
+
+        return True
 
     def __del__(self):
         gc.collect()

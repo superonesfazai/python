@@ -7,7 +7,7 @@
 '''
 
 """
-猫眼电影爬虫(可获取影院信息，电影信息，票房[字体反爬])
+猫眼电影爬虫(可获取影院信息，电影信息，今日票房[字体反爬])
 """
 
 import re
@@ -16,7 +16,6 @@ from asyncio import get_event_loop
 from pprint import pprint
 from fontTools.ttLib import TTFont
 from scrapy.selector import Selector
-from xmltodict import parse
 
 from fzutils.spider.fz_requests import Requests
 from fzutils.internet_utils import (
@@ -157,10 +156,11 @@ class MaoYanFilmsSpider(object):
 
         # TODO 下面就先不写了
 
-    async def _get_char_dict(self, font_path, font_xml_save_path) -> dict:
+    async def _get_char_dict(self, old_font_path, new_font_path, font_xml_save_path) -> dict:
         '''
         获取字符字典
-        :param font_path: 字体路径(.tff/.otf)
+        :param old_font_path: 原先肉眼识别对应关系的原字体文件路径
+        :param new_font_path: 新获取到的字体文件路径(.tff/.otf)
         :param font_xml_save_path: font文件转xml后的存储路径(用于分析规则)
         :return:
         '''
@@ -168,20 +168,11 @@ class MaoYanFilmsSpider(object):
         # 可利用fontTools可以获取每一个字符对象，这个对象你可以简单的理解为保存着这个字符的形状信息。而且编码可以作为这个对象的id，具有一一对应的关系。
 
         # 像猫眼电影，虽然字符的编码是变化的，但是字符的形状是不变的，也就是说这个对象是不变的。
-        font = TTFont(font_path)
         # 字体文件->xml格式，以便打开查看里面的数据结构。
         # xml文件中, 这里我们用到的标签是<GlyphOrder...>和<glyf...>
         # <GlyphOrder...> 内包含着所有编码信息
         # <glyf...> 内包含着每一个字符对象<TTGlyph>
         # <TTGlyph>对象，里面是一些坐标点的信息，用来描绘字体形状的
-        font.saveXML(fileOrPath=font_xml_save_path)
-
-        # 获取所有字符的对象，去除第一个和最后一个
-        obj_list = font.getGlyphNames()[1:-1]  # eg: ['uniE19B', ...]
-        # 获取所有编码，去除前2个
-        uni_list = font.getGlyphOrder()[2:]
-        # pprint(obj_list)
-        # pprint(uni_list)
 
         # 字典
         '''跟源代码中对应验证一下可以得出他们的位置对应关系如下。'''
@@ -202,40 +193,43 @@ class MaoYanFilmsSpider(object):
             <GlyphID id="10" name="uniECC7" />	7
             <GlyphID id="11" name="uniE1FD" />	3
         </GlyphOrder>
-        # 下面也是错误的顺序
-        <hmtx>
-            <mtx name="glyph00000" width="1024" lsb="0" />
-            <mtx name="uniE0F2" width="556" lsb="0" />
-            <mtx name="uniE59B" width="556" lsb="0" />
-            <mtx name="uniE796" width="556" lsb="0" />
-            <mtx name="uniE8DC" width="556" lsb="0" />
-            <mtx name="uniE992" width="556" lsb="0" />
-            <mtx name="uniEBDD" width="556" lsb="0" />
-            <mtx name="uniED60" width="556" lsb="0" />
-            <mtx name="uniF279" width="556" lsb="0" />
-            <mtx name="uniF46D" width="556" lsb="0" />
-            <mtx name="uniF69C" width="556" lsb="0" />
-            <mtx name="x" width="100" lsb="0" />
-        </hmtx>
         # 可以直接抓取https://piaofang.maoyan.com/dashboard的ajax数据, 不需要走这条路
         """
-        with open(font_xml_save_path, 'r') as f:
-            xml_content = f.read()
+        old_font = TTFont(old_font_path)                    # 自己肉眼识别过的字体文件
+        old_obj_list = old_font.getGlyphNames()[1:-1]       # 获取所有字符的对象，去除第一个和最后一个
+        old_uni_list = old_font.getGlyphOrder()[2:]         # 获取所有编码，去除前2个
+        # 第一次先肉眼识别对应关系
+        eyes_see_dict = {
+            'f60d': '0',
+            'f0be': '1',
+            'edf6': '2',
+            'e659': '3',
+            'e03b': '4',
+            'e37d': '5',
+            'ee0f': '6',
+            'e233': '7',
+            'e097': '8',
+            'e478': '9',
+        }
 
-        xml_dict = dict(parse(xml_input=xml_content))
-        # pprint(xml_dict)
-        _ = xml_dict['ttFont']['hmtx']['mtx'][1:-1]
-        a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        _ = [dict(item).get('@name') for item in _]
-        _ = list(zip(_, a))
-        # pprint(_)
+        new_font = TTFont(new_font_path)                    # 网页中新获取的字体文件
+        new_font.saveXML(fileOrPath=font_xml_save_path)
+        new_obj_list = new_font.getGlyphNames()[1:-1]       # eg: ['uniE19B', ...]
+        new_uni_list = new_font.getGlyphOrder()[2:]
+        # pprint(new_obj_list)
+        # pprint(new_uni_list)
 
         all_font_list = {}
-        for item in _:
-            all_font_list.update({
-                item[0].lower().replace('uni', ''): str(item[1])
-            })
-        # pprint(all_font_list)
+        # ** 基本思路: 先通过编码AAAA找到这个字符在02.ttf中的对象，并且把它和01.ttf中的对象逐个对比，直到找到相同的对象，然后获取这个对象在01.ttf中的编码，再通过编码确认是哪个数字。
+        # TODO 总结: 对于这种类似的解决方案: 先保存一份字体, 肉眼识别其字形, 记录下来, 再对比新字形, 字形一致的则在老字体中查找到对应的字符是什么 !!
+        for uni2 in new_uni_list:
+            obj2 = new_font['glyf'][uni2]   # 获取编码在uni2在x.woff中对应的对象
+            for uni1 in old_uni_list:
+                obj1 = old_font['glyf'][uni1]
+                if obj1 == obj2:
+                    all_font_list.update({
+                        uni2.lower().replace('uni', '') : eyes_see_dict[uni1.lower().replace('uni', '')]
+                    })
 
         return all_font_list
 
@@ -321,15 +315,16 @@ class MaoYanFilmsSpider(object):
             print('获取font_base64_str时索引异常!')
             font_base64_str = ''
 
-        save_path = '/Users/afa/Desktop/x.woff'
+        save_path = '/Users/afa/myFiles/tmp/字体反爬/猫眼电影/x.woff'
+        old_save_path = '/Users/afa/myFiles/tmp/字体反爬/猫眼电影/old_x.woff'
         if font_base64_str != '':
             save_font_res = save_base64_img_2_local(save_path=save_path, base64_img_str=font_base64_str)
             if not save_font_res:
                 print('保存字体文件失败!')
                 return []
 
-        font_xml_save_path = '/Users/afa/Desktop/x.xml'
-        char_dict = await self._get_char_dict(font_path=save_path, font_xml_save_path=font_xml_save_path)
+        font_xml_save_path = '/Users/afa/myFiles/tmp/字体反爬/猫眼电影/x.xml'
+        char_dict = await self._get_char_dict(old_font_path=old_save_path, new_font_path=save_path, font_xml_save_path=font_xml_save_path)
         pprint(char_dict)
 
         # origin_all_res = await _handle_films_box_office_info(body=body)
