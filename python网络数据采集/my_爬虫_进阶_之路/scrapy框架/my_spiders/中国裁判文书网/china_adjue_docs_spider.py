@@ -22,6 +22,7 @@ from urllib.parse import quote_plus
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.ip_pools import IpPools
+from fzutils.js_utils import get_js_parser_res
 
 class ChinaAdjueDocsSpider(object):
     def __init__(self):
@@ -52,31 +53,15 @@ class ChinaAdjueDocsSpider(object):
             'vjkl5': '452b08fde99ff271a1601a11831f77c020f8e29d',
         }
 
-    async def _get_js_parser_res(self, js_path, func_name, **args):
-        '''
-        python调用js, 并返回结果
-        :param js_path: js文件路径
-        :param func_name: 待调用的函数名
-        :param args: 该函数待传递的参数
-        :return: res
-        '''
-        with open(js_path, 'r') as f:
-            js_code = f.read()
-
-        js_parser = execjs.compile(js_code)
-        res = js_parser.call(func_name, *args)
-
-        return res
-
     async def _get_vl5x(self, vjkl5):
         # 查看ListContent接口所在js源码
         # 1. vl5x 生成方式(找到)(狗血，层层加密!)
-        random_vl5x = await self._get_js_parser_res(
+        random_vl5x = get_js_parser_res(
             js_path='./js/get_vl5x.js',
             func_name='get_vl5x',
             vjkl5=vjkl5,
         )
-        o_random_vl5x = await self._get_js_parser_res(
+        o_random_vl5x = get_js_parser_res(
             js_path='./js/o_get_vl5x.js',
             func_name='GetVl5x',
             cookie=vjkl5,
@@ -87,7 +72,7 @@ class ChinaAdjueDocsSpider(object):
         return o_random_vl5x
 
     async def _get_guid(self) -> str:
-        guid = await self._get_js_parser_res(
+        guid = get_js_parser_res(
             js_path='./js/get_guid.js',
             func_name='get_guid',
             func_params=None,
