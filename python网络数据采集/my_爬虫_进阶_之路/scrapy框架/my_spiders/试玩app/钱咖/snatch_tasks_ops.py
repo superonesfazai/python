@@ -118,7 +118,7 @@ class MoneyCaffeine(object):
 
         return data
 
-    async def real_time_remind_by_china_unicom(self, phone_num=18698570079) -> bool:
+    def real_time_remind_by_china_unicom(self, phone_num=18698570079) -> bool:
         '''
         通过联通提醒抢到任务(免费)
         :param phone_num:
@@ -156,7 +156,7 @@ class MoneyCaffeine(object):
         return res
 
     @fz_set_timeout(60*4)
-    async def do_tasking(self):
+    def do_tasking(self):
         '''
         doing task
         :param auth_token:
@@ -170,7 +170,7 @@ class MoneyCaffeine(object):
         #     body=sms_body)
 
         # send sms by 联通
-        sms_res = await self.real_time_remind_by_china_unicom()
+        sms_res = self.real_time_remind_by_china_unicom()
         label = '+' if sms_res else '-'
         print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
         while True:
@@ -232,7 +232,7 @@ class MoneyCaffeine(object):
                     if '进行中' in message or '已抢到' in message:
                         print('抢到一个任务, 请抓紧完成!'.center(120, '@'))
                         try:
-                            await self.do_tasking()
+                            self.do_tasking()
                         except Exception as e:
                             print(e)
                         finally:
