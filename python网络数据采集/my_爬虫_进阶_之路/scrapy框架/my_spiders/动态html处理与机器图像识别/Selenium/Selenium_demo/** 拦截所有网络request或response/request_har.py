@@ -7,7 +7,7 @@
 '''
 
 """
-拦截所有网络请求或者网络请求结果
+拦截浏览器所有网络请求或者网络请求结果
 
 使用须知: (具体操作可见: https://github.com/lightbody/browsermob-proxy)
     先启动browsermob-proxy eg: ./browsermob-proxy -port 8080 --use-littleproxy false

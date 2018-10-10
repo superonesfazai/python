@@ -15,7 +15,6 @@ eg:
 import mitmproxy.http
 from mitmproxy import ctx
 
-
 class Counter:
     def __init__(self):
         self.num = 0

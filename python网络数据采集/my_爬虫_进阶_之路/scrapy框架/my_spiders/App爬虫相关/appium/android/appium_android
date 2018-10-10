@@ -43,6 +43,13 @@ appPackage = com.mm.android.hsy
 appActivity = .ui.LoginActivity
 ```
 
+## 连接android真机
+- usb连接
+    - adb devices 确保设备已经连接成功
+    - adb tcpip 5555（PS：5555是连接时的默认端口号，可以设置为任何未占用的端口号）
+        - 返回restarting in TCP mode port: 5555则代表服务开启成功，可以拔掉数据线断开电脑和手机的连接
+- wifi连接
+
 ## 查找元素
 我们可以使用Selenium中通用的查找方法来实现元素的查找，如下所示：
 ```python
