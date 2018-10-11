@@ -16,3 +16,7 @@
 - Toggle breakpoints
 
 切换断点启用、禁用状态，同时保证各自的启用状态不会受到影响。
+
+## packed混淆
+[https://www.cnblogs.com/c-x-a/p/9273148.html](https://www.cnblogs.com/c-x-a/p/9273148.html)
+[https://www.cnblogs.com/c-x-a/p/9273785.html](https://www.cnblogs.com/c-x-a/p/9273785.html)

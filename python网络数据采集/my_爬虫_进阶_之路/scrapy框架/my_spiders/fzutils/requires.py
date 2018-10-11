@@ -81,6 +81,8 @@ install_requires = [
     'twilio',               # 免费发短信
     'fonttools',
     'xmltodict',
+    'python-dateutil',
+    'newspaper3k',          # 文章提取
     # 'sip',
     # 'pyqt5',
 ]

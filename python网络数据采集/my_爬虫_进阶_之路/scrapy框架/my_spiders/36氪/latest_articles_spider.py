@@ -36,7 +36,6 @@ class _36Krypton(object):
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'User-Agent': get_random_pc_ua(),
-            # 'X-Tingyun-Id': 'Dio1ZtdC5G4;r=422695830',
             'Accept': '*/*',
             'Referer': 'https://36kr.com/',
             'Connection': 'keep-alive',
