@@ -9,6 +9,15 @@ Scapy是一个功能强大的基于Python的交互式数据包操作程序和库
 [官方教程](https://scapy.readthedocs.io/en/latest/usage.html#starting-scapy)
 [BPF语法](https://community.dynatrace.com/community/display/DCRUM124/Filter+error+messages+and+syntax)
 
+## 数据包结构
+tcp/ip五层分层结构
+
+![](../images/2018011513344128.png)
+
+数据分装过程
+
+![](../images/2018011513344129.jpg)
+
 ## 使用
 
 ### 交互式shell用法
