@@ -21,6 +21,7 @@ __all__ = [
     'timestamp_to_regulartime',                     # 时间戳转规范的时间字符串
     'string_to_datetime',                           # 将字符串转换成时间
     'datetime_to_timestamp',                        # datetime转timestamp
+    'date_parse',                                   # 不规范日期解析为datetime类型
 
     'fz_timer',                                     # 一个装饰器或者上下文管理器, 用于计算某函数耗时
     'fz_set_timeout',                               # 可以给任意可能会hang住的函数添加超时功能[这个功能在编写外部API调用, 网络爬虫, 数据库查询的时候特别有用]
@@ -160,3 +161,18 @@ def fz_set_timeout(seconds, error_message='函数执行超时!'):
 
     return decorated
 
+def date_parse(target_date_str) -> datetime:
+    '''
+    不规范日期解析为datetime类型
+        eg:
+            In [5]: parse('2018-10-11T07:46:19Z')
+            Out[5]: datetime.datetime(2018, 10, 11, 7, 46, 19, tzinfo=tzutc())
+
+            In [6]: parse('Sun, 25 Nov 2018 14:46:19 +0800')
+            Out[6]: datetime.datetime(2018, 11, 25, 14, 46, 19, tzinfo=tzoffset(None, 28800))
+    :param target_date_str:
+    :return:
+    '''
+    from dateutil.parser import parse
+
+    return parse(target_date_str)

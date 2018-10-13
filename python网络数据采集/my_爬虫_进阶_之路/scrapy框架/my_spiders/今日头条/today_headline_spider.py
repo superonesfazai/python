@@ -16,12 +16,8 @@
 """
 
 from gc import collect
-from asyncio import get_event_loop
 
-from fzutils.js_utils import get_js_parser_res
-from fzutils.spider.fz_requests import Requests
-from fzutils.internet_utils import get_random_phone_ua
-from fzutils.common_utils import json_2_dict
+from fzutils.spider.async_always import *
 
 class TodayHeadlineSpider(object):
     def __init__(self):

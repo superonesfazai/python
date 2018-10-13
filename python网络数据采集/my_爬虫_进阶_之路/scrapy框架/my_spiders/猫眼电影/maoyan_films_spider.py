@@ -10,25 +10,10 @@
 猫眼电影爬虫(可获取影院信息，电影信息，今日票房[字体反爬])
 """
 
-import re
 from gc import collect
-from asyncio import get_event_loop
-from pprint import pprint
 from fontTools.ttLib import TTFont
-from scrapy.selector import Selector
 
-from fzutils.spider.fz_requests import Requests
-from fzutils.internet_utils import (
-    get_random_phone_ua,
-    get_random_pc_ua,)
-from fzutils.common_utils import (
-    json_2_dict,
-    save_base64_img_2_local,)
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,)
-from fzutils.common_utils import get_random_int_number
-from fzutils.aio_utils import async_wait_tasks_finished
+from fzutils.spider.async_always import *
 
 class MaoYanFilmsSpider(object):
     def __init__(self):

@@ -62,6 +62,7 @@ class DingDing(object):
                 sleep(1.)
             except:
                 pass
+            sleep(2.)
             self.driver.find_element_by_id('com.alibaba.android.rimet:id/et_phone_input').clear()
             self.driver.find_element_by_id('com.alibaba.android.rimet:id/et_phone_input').send_keys(self.username)
             self.driver.find_element_by_id('com.alibaba.android.rimet:id/et_pwd_login').send_keys(self.pwd)
@@ -190,7 +191,11 @@ def main():
             if start_work or end_work:
                 _ = DingDing(username=ding_info['username'], pwd=ding_info['pwd'], start_work=start_work, end_work=end_work)
                 loop = get_event_loop()
-                loop.run_until_complete(_._fck_run())
+                res = loop.run_until_complete(_._fck_run())
+                if not res:
+                    print('打卡失败!重试中...')
+                    continue
+
                 sleep(60 * 15)
 
         else:

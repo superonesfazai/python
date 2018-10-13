@@ -46,6 +46,7 @@ fzutils/data/pickle_utils.py
 fzutils/data/queue_utils.py
 fzutils/data/str_utils.py
 fzutils/spider/__init__.py
+fzutils/spider/async_always.py
 fzutils/spider/auto.py
 fzutils/spider/crawler.py
 fzutils/spider/fz_aiohttp.py
