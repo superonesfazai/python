@@ -11,22 +11,8 @@
 """
 
 from gc import collect
-from asyncio import get_event_loop, wait
-from asyncio import sleep as async_sleep
-from time import sleep
-from pprint import pprint
-import re
 
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import (
-    fz_set_timeout,
-    get_shanghai_time,
-    datetime_to_timestamp,)
-from fzutils.sms_utils import sms_2_somebody_by_twilio
-from fzutils.safe_utils import get_uuid1
-from fzutils.common_utils import get_random_int_number
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.async_always import *
 
 with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
     twilio_pwd_info = json_2_dict(f.read())
@@ -118,7 +104,7 @@ class MoneyCaffeine(object):
 
         return data
 
-    def real_time_remind_by_china_unicom(self, phone_num=18698570079) -> bool:
+    async def real_time_remind_by_china_unicom(self, phone_num=18698570079) -> bool:
         '''
         通过联通提醒抢到任务(免费)
         :param phone_num:
@@ -155,11 +141,9 @@ class MoneyCaffeine(object):
 
         return res
 
-    @fz_set_timeout(60*4)
-    def do_tasking(self):
+    async def do_tasking(self):
         '''
         doing task
-        :param auth_token:
         :return:
         '''
         # send sms by twilio
@@ -170,7 +154,7 @@ class MoneyCaffeine(object):
         #     body=sms_body)
 
         # send sms by 联通
-        sms_res = self.real_time_remind_by_china_unicom()
+        sms_res = await self.real_time_remind_by_china_unicom()
         label = '+' if sms_res else '-'
         print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
         while True:
@@ -232,8 +216,9 @@ class MoneyCaffeine(object):
                     if '进行中' in message or '已抢到' in message:
                         print('抢到一个任务, 请抓紧完成!'.center(120, '@'))
                         try:
-                            self.do_tasking()
-                        except Exception as e:
+                            with async_timeout(timeout=60*4):
+                                await self.do_tasking()
+                        except (AsyncTimeoutError, Exception) as e:
                             print(e)
                         finally:
                             break
