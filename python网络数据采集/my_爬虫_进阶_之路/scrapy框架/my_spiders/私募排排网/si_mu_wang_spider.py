@@ -10,22 +10,10 @@
 私募排排网: 私募排名抓取
 """
 
-import re
 from requests import get
-from pprint import pprint
-from asyncio import (
-    get_event_loop,
-    wait,)
 from gc import collect
 
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import (
-    json_2_dict,
-    get_random_int_number,)
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,)
+from fzutils.spider.async_always import *
 
 class SiMuSpider(object):
     def __init__(self, loop=None):
@@ -94,7 +82,7 @@ class SiMuSpider(object):
         '''
         async def oo():
             return json_2_dict(
-                json_str=Requests.get_url_body('https://dc.simuwang.com/ranking/get', headers=headers, params=params, cookies=self.cookies),
+                json_str=Requests.get_url_body(url='https://dc.simuwang.com/ranking/get', headers=headers, params=params, cookies=self.cookies),
                 default_res={}).get('data', [])
 
         headers = await self._get_headers()

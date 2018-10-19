@@ -7,10 +7,11 @@
 '''
 
 import aiohttp
-import asyncio
+from asyncio import get_event_loop, wait, Semaphore
+
 NUMBERS = range(12)
 URL = 'http://httpbin.org/get?a={}'
-sema = asyncio.Semaphore(3)
+sema = Semaphore(3)
 
 async def fetch_async(a):
     async with aiohttp.request('GET', URL.format(a)) as r:
@@ -22,7 +23,7 @@ async def print_result(a):
         r = await fetch_async(a)
         print('fetch({}) = {}'.format(a, r))
 
-loop = asyncio.get_event_loop()
-f = asyncio.wait([print_result(num) for num in NUMBERS])
+loop = get_event_loop()
+f = wait([print_result(num) for num in NUMBERS])
 loop.run_until_complete(f)
 loop.close()

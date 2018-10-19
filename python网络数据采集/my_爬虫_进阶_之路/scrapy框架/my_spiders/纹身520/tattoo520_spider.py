@@ -11,17 +11,13 @@
 """
 
 from gc import collect
-import asyncio
-from asyncio import CancelledError
-from scrapy.selector import Selector
-from pprint import pprint
-from fzutils.spider.fz_requests import Requests
-from fzutils.internet_utils import get_random_pc_ua
+
+from fzutils.spider.async_always import *
 
 class Tattoo520Spider(object):
     def __init__(self):
         self.max_page_num = 20
-        self.loop = asyncio.get_event_loop()
+        self.loop = get_event_loop()
 
     async def _get_headers(self):
         return {
@@ -29,7 +25,6 @@ class Tattoo520Spider(object):
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': get_random_pc_ua(),
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'Referer': 'https://www.wenshen520.com/s.php?k=%E5%8E%9F%E7%A8%BF%E5%9B%BE&p=1',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
@@ -87,7 +82,7 @@ class Tattoo520Spider(object):
             tasks.append(self.loop.create_task(self._parse_page(page_num=page_num)))
 
         print('请耐心等待所有任务完成...')
-        success_jobs, fail_jobs = await asyncio.wait(tasks)
+        success_jobs, fail_jobs = await wait(tasks)
         print('success_num: {}, fail_num: {}'.format(len(success_jobs), len(fail_jobs)))
         all_res = [r.result() for r in success_jobs]
         # pprint(all_res)
@@ -120,7 +115,7 @@ class Tattoo520Spider(object):
 
 if __name__ == '__main__':
     _ = Tattoo520Spider()
-    loop = asyncio.get_event_loop()
+    loop = get_event_loop()
     res = loop.run_until_complete(_._fck_run())
     try:
         del loop

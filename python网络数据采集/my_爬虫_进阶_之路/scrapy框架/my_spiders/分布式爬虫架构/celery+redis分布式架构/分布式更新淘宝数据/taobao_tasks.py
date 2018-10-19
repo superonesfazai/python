@@ -26,37 +26,14 @@ import time
 
 from fzutils.log_utils import set_logger
 from fzutils.items import GoodsItem
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.time_utils import get_shanghai_time
 from fzutils.internet_utils import (
     tuple_or_list_params_2_dict_params,
     get_random_pc_ua,)
+from fzutils.celery_utils import init_celery_app
 
-def init_celery_app():
-    '''
-    初始化一个celery对象
-    :return:
-    '''
-    app = Celery(
-        'taobao_tasks',  # 创建一个celery实例, 名叫'task'
-        broker='redis://127.0.0.1:6379',  # 指定消息中间件，用redis
-        backend='redis://127.0.0.1:6379/0'  # 指定存储用redis
-    )
-
-    app.conf.update(
-        CELERY_TIMEZONE='Asia/Shanghai',  # 指定时区, 默认是'UTC'
-        CELERY_ACKS_LATE=True,
-        CELERY_ACCEPT_CONTENT=['pickle', 'json'],   # 注意: 'pickle'是一种Python特有的自描述的数据编码, 可序列化自定义对象
-        CELERY_TASK_SERIALIZER='pickle',
-        CELERY_RESULT_SERIALIZER='pickle',
-        CELERYD_FORCE_EXECV=True,
-        CELERYD_MAX_TASKS_PER_CHILD=500,
-        BROKER_HEARTBEAT=0,
-    )
-
-    return app
-
-app = init_celery_app()
+app = init_celery_app(name='taobao_tasks')
 
 class task_method(object):
     def __init__(self, task, *args, **kwargs):
@@ -83,9 +60,6 @@ class TaoBaoLoginAndParse(object):
             'accept-language': 'zh-CN,zh;q=0.9',
             'user-agent': get_random_pc_ua(),
             'accept': '*/*',
-            # 'referer': 'https://h5.m.taobao.com/awp/core/detail.htm?id=560666972076',
-            # 'authority': 'h5api.m.taobao.com',
-            # 'cookie': 'v=0; cookie2=1e478415a5583e8e0f5ec1598fe22224; t=1bdcbe0b678123e1755897be375b453f; _tb_token_=8f81eeeb31d0; cna=UOK9Ey4N1hYCAXHXtRx8QV37; thw=cn; mt=ci%3D-1_0; enc=b5TkGZ7%2F21TQIJJszNV9Lh6NcqQo2HsiX8RUxdH1xWxdk1bDmUu4bwcp%2FdmRjjjgULSKAfJQPasgu2nWMNNlnw%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; _m_h5_tk=19d41e6c7d8fda1949de6878565815aa_1530352039810; _m_h5_tk_enc=f2fdd16bbc1f39ce53446f1cbc8a9118; isg=BCQkk16MI6DwJFftGmJ7sz3H9STWFUpaNIkeKj5FM-9R6cWzZM0Kt3oArUFxMYB_',
         }
 
     def _set_logger(self, logger):
@@ -112,7 +86,7 @@ class TaoBaoLoginAndParse(object):
 
         # 获取主接口的body
         last_url = self._get_last_url(goods_id=goods_id)
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
+        data = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14)
         if data == '':
             self.my_lg.error('出错goods_id: {0}'.format((goods_id)))
             self.result_data = {}
@@ -751,7 +725,7 @@ class TaoBaoLoginAndParse(object):
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.my_lg.info(last_url)
 
-        data = MyRequests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3)
+        data = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3)
         if data == '':
             self.my_lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
             return ''

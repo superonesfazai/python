@@ -332,5 +332,5 @@ class MaoYanFilmsSpider(object):
 if __name__ == '__main__':
     _ = MaoYanFilmsSpider()
     loop = get_event_loop()
-    # loop.run_until_complete(_._fck_run())
-    loop.run_until_complete(_._get_today_films_box_office_info())
+    loop.run_until_complete(_._fck_run())
+    # loop.run_until_complete(_._get_today_films_box_office_info())
