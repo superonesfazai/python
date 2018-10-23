@@ -127,8 +127,8 @@ def run_forever():
                         if oo_is_delete == 1:
                             pass
                         else:
-                            my_lg.info('------>>>| 休眠8s中...')
-                            sleep(8)
+                            my_lg.info('------>>>| 休眠7s中...')
+                            sleep(7.)
 
                 else:  # 表示返回的data值为空值
                     my_lg.error('数据库连接失败，数据库可能关闭或者维护中')

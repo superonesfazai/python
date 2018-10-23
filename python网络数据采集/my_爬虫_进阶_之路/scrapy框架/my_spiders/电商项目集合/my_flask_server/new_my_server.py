@@ -112,7 +112,7 @@ from apps.save import (
     get_who_right_data,
     get_db_who_insert_params,)
 
-import json
+from json import dumps
 import time
 from time import sleep
 import datetime
@@ -142,8 +142,7 @@ from sql_str_controller import (
     fz_kl_insert_str,
     fz_yx_insert_str,
     fz_yp_insert_str,
-    fz_mi_insert_str,
-)
+    fz_mi_insert_str,)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -590,8 +589,7 @@ def get_all_data():
             wait_to_save_data = get_one_1688_data(
                 username=username,
                 wait_to_deal_with_url=wait_to_deal_with_url,
-                my_lg=my_lg
-            )
+                my_lg=my_lg)
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
 
@@ -617,7 +615,7 @@ def get_all_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/to_save_data', methods=['POST'])
@@ -704,7 +702,7 @@ def get_taobao_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/taobao_to_save_data', methods=['POST'])
@@ -793,7 +791,7 @@ def get_tmall_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/tmall_to_save_data', methods=['POST'])
@@ -887,7 +885,7 @@ def get_jd_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/jd_to_save_data', methods=['POST'])
@@ -998,7 +996,7 @@ def get_zhe_800_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/zhe_800_to_save_data', methods=['POST'])
@@ -1106,7 +1104,7 @@ def get_juanpi_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/juanpi_to_save_data', methods=['POST'])
@@ -1213,7 +1211,7 @@ def get_pinduoduo_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/pinduoduo_to_save_data', methods=['POST'])
@@ -1322,7 +1320,7 @@ def get_vip_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/vip_to_save_data', methods=['POST'])
@@ -1413,7 +1411,7 @@ def get_kaola_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/kaola_to_save_data', methods=['POST'])
@@ -1504,7 +1502,7 @@ def get_yanxuan_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/yanxuan_to_save_data', methods=['POST'])
@@ -1595,7 +1593,7 @@ def get_youpin_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/youpin_to_save_data', methods=['POST'])
@@ -1684,7 +1682,7 @@ def get_mia_data():
             'data': '',
             'error_code': 0,
         }
-        result = json.dumps(result)
+        result = dumps(result)
         return result
 
 @app.route('/mia_to_save_data', methods=['POST'])
@@ -1773,7 +1771,7 @@ def get_basic_data():
                     'error_code': 0,
                 }
 
-                result_json = json.dumps(result, ensure_ascii=False).encode()
+                result_json = dumps(result, ensure_ascii=False).encode()
                 my_lg.info('------>>>| 下面是爬取到的页面信息: ')
                 my_lg.info(str(result_json.decode()))
                 my_lg.info('-------------------------------')
@@ -1833,7 +1831,7 @@ def get_basic_data():
                     'error_code': 0,
                 }
 
-                result_json = json.dumps(result, ensure_ascii=False).encode()
+                result_json = dumps(result, ensure_ascii=False).encode()
                 my_lg.info('------>>>| 下面是爬取到的页面信息: ')
                 my_lg.info(str(result_json.decode()))
                 my_lg.info('-------------------------------')
@@ -1892,7 +1890,7 @@ def get_basic_data():
                     'error_code': 0,
                 }
 
-                result_json = json.dumps(result, ensure_ascii=False).encode()
+                result_json = dumps(result, ensure_ascii=False).encode()
                 my_lg.info('------>>>| 下面是爬取到的页面信息: ')
                 my_lg.info(str(result_json.decode()))
                 my_lg.info('-------------------------------')
@@ -1911,7 +1909,7 @@ def get_basic_data():
             return _null_goods_link()
 
     else:
-        return json.dumps({
+        return dumps({
             'reason': 'error',
             'data': '',
             'error_code': 0,
@@ -1921,7 +1919,7 @@ def get_basic_data():
 @Sign.signature_required
 def _get_basic_data_2():
     # 正确请求将返回以下内容，否则将被signature_required拦截，返回请求验证信息： {"msg": "Invaild message", "success": False}
-    return json.dumps({'ping':"pong"})
+    return dumps({'ping':"pong"})
 
 ######################################################
 '''

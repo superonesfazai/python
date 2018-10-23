@@ -116,7 +116,7 @@ TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 20000             # 起始session_id
+BASE_SESSION_ID = 21000             # 起始session_id
 MAX_SESSION_ID = 25000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点

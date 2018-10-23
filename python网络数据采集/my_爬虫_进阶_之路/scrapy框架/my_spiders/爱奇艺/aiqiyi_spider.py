@@ -18,7 +18,7 @@
 
 # 2. 或者直接解析m站的视频块div得到其播放地址
 
-# 下面是示例
+# 下面是某次请求的示例
 import requests
 
 cookies = {

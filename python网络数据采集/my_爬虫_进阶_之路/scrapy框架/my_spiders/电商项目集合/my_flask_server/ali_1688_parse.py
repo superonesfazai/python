@@ -582,18 +582,18 @@ class ALi1688LoginAndParse(Crawler):
         '''
         is_delete = 1
         result = {
-            'company_name': '',  # 公司名称
-            'title': '',  # 商品名称
-            'link_name': '',  # 卖家姓名
-            'price_info': [],  # 商品价格信息, 及其对应起批量
+            'company_name': '',         # 公司名称
+            'title': '',                # 商品名称
+            'link_name': '',            # 卖家姓名
+            'price_info': [],           # 商品价格信息, 及其对应起批量
             'price': 0,
             'taobao_price': 0,
-            'sku_props': [],  # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
-            'sku_map': [],  # 每个规格对应价格, 及其库存量
-            'all_img_url': [],  # 所有示例图片地址
-            'property_info': [],  # 详细信息的标签名, 及其对应的值
-            'detail_info': '',  # 下方详细div块
-            'is_delete': is_delete,  # 判断是否下架
+            'sku_props': [],            # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
+            'sku_map': [],              # 每个规格对应价格, 及其库存量
+            'all_img_url': [],          # 所有示例图片地址
+            'property_info': [],        # 详细信息的标签名, 及其对应的值
+            'detail_info': '',          # 下方详细div块
+            'is_delete': is_delete,     # 判断是否下架
         }
 
         return result
@@ -684,8 +684,7 @@ class ALi1688LoginAndParse(Crawler):
                     detail_info = desc[0]
                     detail_info = self._wash_div_desc(detail_info=detail_info)
                     detail_info = re.compile(r'src=\"https:').sub('src=\"', detail_info)     # 先替换部分带有https的
-                    detail_info = re.compile(r'src="').sub('src=\"https:', detail_info)     # 再把所欲的换成https的
-
+                    detail_info = re.compile(r'src="').sub('src=\"https:', detail_info)      # 再把所欲的换成https的
         # self.lg.info(str(detail_info))
 
         return detail_info
@@ -704,7 +703,6 @@ class ALi1688LoginAndParse(Crawler):
         return detail_info
 
     def get_goods_id_from_url(self, ali_1688_url):
-        # https://detail.1688.com/offer/559526148757.html?spm=b26110380.sw1688.mof001.28.sBWF6s
         is_ali_1688_url = re.compile(r'https://detail.1688.com/offer/.*?').findall(ali_1688_url)
         if is_ali_1688_url != []:
             ali_1688_url = re.compile(r'https://detail.1688.com/offer/(.*?).html.*?').findall(ali_1688_url)[0]

@@ -93,7 +93,7 @@ al_select_str_5 = al_select_str_1
 al_select_str_6 = '''
 select top 500 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
-where SiteID=2 and MainGoodsID is not null and GETDATE()-ModfiyTime>2
+where SiteID=2 and MainGoodsID is not null and IsDelete=0
 order by ModfiyTime asc
 '''
 
@@ -121,8 +121,8 @@ tb_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 tb_select_str_3 = '''
 select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
-where SiteID=1 and MainGoodsID is not null
-order by ModfiyTime desc'''
+where SiteID=1 and MainGoodsID is not null and IsDelete=0
+order by ModfiyTime asc'''
 # 淘抢购实时更新
 tb_select_str_4 = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
 tb_select_str_5 = tb_select_str_4
@@ -160,12 +160,12 @@ tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s
 tm_select_str_1 = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where (SiteID=3 or SiteID=4 or SiteID=6) order by ID desc'
 # old表转新表数据查询
 tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
-# 常规goods实时更新
+# 常规goods实时更新(下架的不更新)
 tm_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
-where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null
-order by ModfiyTime desc'''
+where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null and IsDelete=0
+order by ModfiyTime asc'''
 '''insert'''
 # 带MainGoodsID的插入
 tm_insert_str_1 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

@@ -5,26 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin/linkedin_spider.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/YouTuBe/youtube_downloader.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/qq音乐/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/qq音乐/qq_music_spider.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/中国知网/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷/js/tmp.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷/youku_spider.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/分布式爬虫架构/dask/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/分布式爬虫架构/dask/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/js/tmp.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/airbnb/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/tmp.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/url2io/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/url2io/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/items.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/tmp.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/wx_article_parse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/python.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/async_always.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/async_always.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/ali_1688_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/ali_1688_parse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,6 +83,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test_sql_str.coverage" NAME="test_sql_str Coverage Results" MODIFIED="1528936042662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/sql_lang" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$re_html__test.coverage" NAME="re_html_文本提取_test Coverage Results" MODIFIED="1508718517059" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$juanpi_pintuan_real_times_update.coverage" NAME="juanpi_pintuan_real-times_update Coverage Results" MODIFIED="1524198567655" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/pintuan_script" />
+    <SUITE FILE_PATH="coverage/python$wx_article_parse__1_.coverage" NAME="wx_article_parse (1) Coverage Results" MODIFIED="1540284656286" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$redis_set1.coverage" NAME="redis_set1 Coverage Results" MODIFIED="1505219227203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/redis/redis与python交互" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$draw_text.coverage" NAME="draw_text Coverage Results" MODIFIED="1502878619703" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/painting" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$urllib_urlencode.coverage" NAME="urllib_urlencode Coverage Results" MODIFIED="1503838591548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code" />
@@ -140,10 +141,11 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$re__test.coverage" NAME="re_得到二级域名_test Coverage Results" MODIFIED="1506916119475" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/re/re高级" />
     <SUITE FILE_PATH="coverage/python$QCheckBox.coverage" NAME="QCheckBox Coverage Results" MODIFIED="1533714697511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/widgets(小部件)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$sign.coverage" NAME="模拟生成淘宝签名sign Coverage Results" MODIFIED="1517397357120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽/my_flask_server/tools/淘宝api测试" />
-    <SUITE FILE_PATH="coverage/python$fried_eggs_spider.coverage" NAME="fried_eggs_spider Coverage Results" MODIFIED="1537427567857" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/煎蛋网" />
+    <SUITE FILE_PATH="coverage/python$fried_eggs_spider.coverage" NAME="fried_eggs_spider Coverage Results" MODIFIED="1540172482830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/煎蛋网" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$filter_test.coverage" NAME="filter_test Coverage Results" MODIFIED="1502092563342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/__builtins__" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$pinduoduo_miaosha_real_times_update.coverage" NAME="pinduoduo_miaosha_real-times_update Coverage Results" MODIFIED="1517653054420" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街/my_flask_server/spike_everything" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$tetris_game.coverage" NAME="tetris_game Coverage Results" MODIFIED="1502882370669" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/tetris" />
+    <SUITE FILE_PATH="coverage/python$register_utils.coverage" NAME="register_utils Coverage Results" MODIFIED="1540180173868" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$Unittests_in_request_test_py.coverage" NAME="Unittests in request_test.py Coverage Results" MODIFIED="1500643220591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/internet_code/request" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$pprint_pformat_demo.coverage" NAME="pprint_pformat_demo Coverage Results" MODIFIED="1503276310637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules/pprint(打印美化)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$main__2_.coverage" NAME="main (2) Coverage Results" MODIFIED="1506824329948" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/sina_weibo_项目/sina_weibo_home_info_spider" />
@@ -165,7 +167,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$urllib_proxy_demo2.coverage" NAME="urllib_proxy_demo2 Coverage Results" MODIFIED="1503891261881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$test_ali_1688_phone.coverage" NAME="test_ali_1688_phone Coverage Results" MODIFIED="1509011899423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/阿里_1688_项目/ali_1688_simple_page_spider_方案2/my_flask_server/tools" />
     <SUITE FILE_PATH="coverage/PythonDoc$juanpi_real_times_update.coverage" NAME="juanpi_real-times_update Coverage Results" MODIFIED="1531388640101" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/real-times_update" />
-    <SUITE FILE_PATH="coverage/python$demo.coverage" NAME="demo Coverage Results" MODIFIED="1540024183196" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
+    <SUITE FILE_PATH="coverage/python$demo.coverage" NAME="demo Coverage Results" MODIFIED="1540271820392" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$tcp__select.coverage" NAME="tcp_单进程服务器_select版 Coverage Results" MODIFIED="1503027637672" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/服务器模型" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$_test.coverage" NAME="规范文字识别_test Coverage Results" MODIFIED="1504233001181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/机器视觉与Tesseract介绍" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$aio_huayu_spider.coverage" NAME="aio_huayu_spider Coverage Results" MODIFIED="1521804579584" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/小说网/花语女生网" />
@@ -225,7 +227,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$_event_handler.coverage" NAME="重写_event_handler Coverage Results" MODIFIED="1502782131191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/events_and_signals" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$QGridLayout_review.coverage" NAME="QGridLayout_review Coverage Results" MODIFIED="1502771860673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/layout_manage" />
     <SUITE FILE_PATH="coverage/python$taobao_qianggou_spike.coverage" NAME="taobao_qianggou_spike Coverage Results" MODIFIED="1536214210453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/spike_everything" />
-    <SUITE FILE_PATH="coverage/python$linkedin_spider.coverage" NAME="linkedin_spider Coverage Results" MODIFIED="1539924416606" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin" />
+    <SUITE FILE_PATH="coverage/python$linkedin_spider.coverage" NAME="linkedin_spider Coverage Results" MODIFIED="1540204005099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$my_aiohttp.coverage" NAME="my_aiohttp Coverage Results" MODIFIED="1521974160997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$personal_info_spider.coverage" NAME="personal_info_spider Coverage Results" MODIFIED="1506689125988" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/sina_weibo_项目/sina_weibo_personal_info_spider/sina_weibo_personal_info_spider/spiders" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$main.coverage" NAME="main Coverage Results" MODIFIED="1514953914120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/py_games/飞机大战" />
@@ -289,7 +291,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$urllib_proxy_demo1.coverage" NAME="urllib_proxy_demo1 Coverage Results" MODIFIED="1503894722062" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener" />
     <SUITE FILE_PATH="coverage/python$numpy_base.coverage" NAME="numpy_base Coverage Results" MODIFIED="1534326379340" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python量化交易" />
     <SUITE FILE_PATH="coverage/python$mia_parse.coverage" NAME="mia_parse Coverage Results" MODIFIED="1538018751682" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
-    <SUITE FILE_PATH="coverage/python$__.coverage" NAME="长期投_计算本金+利息 Coverage Results" MODIFIED="1538708749966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金" />
+    <SUITE FILE_PATH="coverage/python$__.coverage" NAME="长期投_计算本金+利息 Coverage Results" MODIFIED="1540190320823" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金" />
     <SUITE FILE_PATH="coverage/python$cmath_test.coverage" NAME="cmath_test Coverage Results" MODIFIED="1533799732289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/cmath" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$performance.coverage" NAME="performance Coverage Results" MODIFIED="1502931741787" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1528770737789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/tools" />
@@ -356,6 +358,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$my_server.coverage" NAME="my_server Coverage Results" MODIFIED="1508815662421" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/阿里_1688_项目/ali_1688_simple_page_spider_方案2/my_flask_server" />
     <SUITE FILE_PATH="coverage/python$yanxuan_parse.coverage" NAME="yanxuan_parse Coverage Results" MODIFIED="1535513233610" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$PythonDoc.coverage" NAME="PythonDoc Coverage Results" MODIFIED="1505877161710" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/python$wx_article_parse.coverage" NAME="wx_article_parse Coverage Results" MODIFIED="1540272714566" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$tmall_parse.coverage" NAME="tmall_parse Coverage Results" MODIFIED="1510030986065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/play_with_scrapy_module/my_spiders/电商项目/阿里1688_淘宝_天猫/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$taobao_tiantiantejia.coverage" NAME="taobao_tiantiantejia Coverage Results" MODIFIED="1515743420941" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多/my_flask_server/tejia" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$simple_menu.coverage" NAME="simple_menu Coverage Results" MODIFIED="1507773134631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/menus_and_toolbars" />
@@ -485,7 +488,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$compile_exec_eval_test.coverage" NAME="compile_exec_eval_test Coverage Results" MODIFIED="1501767123531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/执行环境" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$zhe_800_miaosha_real_times_update.coverage" NAME="zhe_800_miaosha_real-times_update Coverage Results" MODIFIED="1526358889032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/spike_everything" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$juanpi_parse.coverage" NAME="juanpi_parse Coverage Results" MODIFIED="1529478230035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server" />
-    <SUITE FILE_PATH="coverage/python$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1540024642749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
+    <SUITE FILE_PATH="coverage/python$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1540190288808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$my_client.coverage" NAME="my_client Coverage Results" MODIFIED="1527141413990" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/tools" />
     <SUITE FILE_PATH="coverage/python$mogujie_pintuan_real_times_update.coverage" NAME="mogujie_pintuan_real-times_update Coverage Results" MODIFIED="1534575179832" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$selenium_demo.coverage" NAME="selenium_demo Coverage Results" MODIFIED="1504099735382" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/Selenium与PhantomJS/Selenium_demo" />
@@ -842,7 +845,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$tmall_parse_2.coverage" NAME="tmall_parse_2 Coverage Results" MODIFIED="1526721383997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$____.coverage" NAME="对象值(==)比较 Coverage Results" MODIFIED="1501725724528" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象/对象值(==)比较" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$__test.coverage" NAME="静态方法_类方法_test Coverage Results" MODIFIED="1500857363587" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/面向对象" />
-    <SUITE FILE_PATH="coverage/python$demo__1_.coverage" NAME="demo (1) Coverage Results" MODIFIED="1539768897212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/重试类库/tenacity" />
+    <SUITE FILE_PATH="coverage/python$demo__1_.coverage" NAME="demo (1) Coverage Results" MODIFIED="1540272637482" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$demo_2__1_.coverage" NAME="demo_2 (1) Coverage Results" MODIFIED="1521781432647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/异步aiohttp(加速你的spider)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$QPixmap__.coverage" NAME="QPixmap(照片控件) Coverage Results" MODIFIED="1502877084983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/ui_and_python/py_Qt/PyQT5/widgets(小部件)" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$pygoogle.coverage" NAME="pygoogle Coverage Results" MODIFIED="1517469079698" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python绝技/violent_python" />
@@ -1063,7 +1066,7 @@
           <entry key="gitignore" value="18" />
           <entry key="glob" value="1" />
           <entry key="h" value="1" />
-          <entry key="html" value="57" />
+          <entry key="html" value="62" />
           <entry key="http协议_notes" value="1" />
           <entry key="iml" value="5" />
           <entry key="ipynb" value="1" />
@@ -1073,7 +1076,7 @@
           <entry key="json" value="7" />
           <entry key="kv" value="1" />
           <entry key="log" value="33" />
-          <entry key="md" value="335" />
+          <entry key="md" value="337" />
           <entry key="mitmproxy_note" value="3" />
           <entry key="mongodb启动方式" value="1" />
           <entry key="note" value="3" />
@@ -1082,9 +1085,9 @@
           <entry key="phantomjs_selenium_动态修改代理" value="2" />
           <entry key="pid" value="2" />
           <entry key="png" value="68" />
-          <entry key="py" value="3301" />
+          <entry key="py" value="3357" />
           <entry key="pygame的模块" value="2" />
-          <entry key="pyi" value="20" />
+          <entry key="pyi" value="21" />
           <entry key="re_notes" value="2" />
           <entry key="readme" value="2" />
           <entry key="redis_notes" value="2" />
@@ -1140,17 +1143,17 @@
         <counts>
           <entry key="C++" value="1" />
           <entry key="Erlang" value="1" />
-          <entry key="HTML" value="57" />
+          <entry key="HTML" value="62" />
           <entry key="IDEA_MODULE" value="5" />
           <entry key="IPNB" value="1" />
           <entry key="Image" value="113" />
           <entry key="Ini" value="1" />
           <entry key="JSON" value="7" />
           <entry key="JavaScript" value="21" />
-          <entry key="Markdown" value="349" />
+          <entry key="Markdown" value="351" />
           <entry key="PLAIN_TEXT" value="188" />
-          <entry key="Python" value="3301" />
-          <entry key="PythonStub" value="20" />
+          <entry key="Python" value="3357" />
+          <entry key="PythonStub" value="21" />
           <entry key="ReST" value="3" />
           <entry key="SQL" value="2" />
           <entry key="Scratch" value="6" />
@@ -1162,12 +1165,12 @@
           <entry key="appium_android" value="941" />
           <entry key="dummy" value="80" />
           <entry key="gitignore" value="145" />
-          <entry key="html" value="1553" />
+          <entry key="html" value="1609" />
           <entry key="js" value="538" />
           <entry key="json" value="139" />
-          <entry key="md" value="15077" />
+          <entry key="md" value="15094" />
           <entry key="mitmproxy_note" value="218" />
-          <entry key="py" value="204037" />
+          <entry key="py" value="209087" />
           <entry key="rst" value="85" />
           <entry key="sql" value="74" />
           <entry key="txt" value="224" />
@@ -1178,12 +1181,12 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="94" />
-          <entry key="HTML" value="1553" />
+          <entry key="HTML" value="1609" />
           <entry key="JSON" value="139" />
           <entry key="JavaScript" value="538" />
-          <entry key="Markdown" value="15795" />
+          <entry key="Markdown" value="15812" />
           <entry key="PLAIN_TEXT" value="474" />
-          <entry key="Python" value="204364" />
+          <entry key="Python" value="209414" />
           <entry key="ReST" value="85" />
           <entry key="RegExp" value="1" />
           <entry key="SQL" value="19" />
@@ -1198,37 +1201,21 @@
     <favorites_list name="python" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="813">
-              <caret line="84" column="1" lean-forward="true" selection-start-line="84" selection-start-column="1" selection-end-line="84" selection-end-column="1" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Jupyter Notebook" />
         <option value="Erlang Module" />
-        <option value="HTML File" />
-        <option value="Python Script" />
         <option value="JavaScript File" />
+        <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>function(canCreateDiscussions, exports, __webpack_require__)</find>
-      <find>bljy</find>
-      <find>this.state =</find>
-      <find>aws4</find>
-      <find>version =</find>
-      <find>listData</find>
       <find>_signature</find>
       <find>function Object.defineProperty</find>
       <find>Object.defineProperty</find>
@@ -1253,11 +1240,14 @@
       <find>url_encoded_fmt_stream_map</find>
       <find>游钓</find>
       <find>1540023747</find>
+      <find>json.dumps</find>
+      <find>&lt;head&gt;</find>
+      <find>parse_info</find>
+      <find>https://mmbiz.qpic.cn/mmbiz_gif/Jyco923vDiaiaMle4iczgThJ8iaETDBFtsIF9ZxTN9EbZ4nyD5ibua2agK5H5f2ibSsf1CnOM6qFfJ7UzWm19qpG5vmA/640?wx_fmt=gif</find>
+      <find>publish_time</find>
+      <find>oo</find>
     </findStrings>
     <replaceStrings>
-      <replace>Aiohttp</replace>
-      <replace>IpPool</replace>
-      <replace>AioHttp</replace>
       <replace>BaseDriver</replace>
       <replace>baidu_ocr_captcha</replace>
       <replace>headless</replace>
@@ -1285,6 +1275,9 @@
       <replace>tasks</replace>
       <replace>=self.cookies</replace>
       <replace>Requests</replace>
+      <replace>dumps</replace>
+      <replace>parse_obj</replace>
+      <replace>self._parse_field</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -1298,21 +1291,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/scapy/README.md" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/js加密破解/node_js/README.md" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/动态html处理与机器图像识别/Selenium/Selenium_demo/动态页面模拟点击/微信公众号采集/cookie.txt" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/动态html处理与机器图像识别/Selenium/Selenium_demo/动态页面模拟点击/微信公众号采集/weixin_spider.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/动态html处理与机器图像识别/Selenium/Selenium_demo/动态页面模拟点击/微信公众号采集/selenium_get_cookie.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/微信/微信公众号/weixin_spider.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/微信/微信公众号/selenium_get_cookie.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/微信/微信公众号/get_wx_public_num_cookies.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/微信/微信公众号/cookie.txt" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/网易/网易新闻/wy_news_spider.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/今日头条/today_headline_spider.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/微信/微信公众号/wx_public_num_spider.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/钉钉/dingding_auto_punch_clock.py" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/模糊字符串匹配/fuzzywuzzy/README.md" />
-        <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/unicode工具/ftfy/README.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/汉字转拼音/xpinyin/README.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/电话号码解析/phonenumbers/README.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/sql解析器/sqlparse/README.md" />
@@ -1345,10 +1323,25 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷/youku_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷/js/tmp.js" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.html" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/js/tmp.js" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/fz_requests.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/register_utils.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/ali_1688_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/url2io/README.md" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/demo.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/wx_article_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/tmp.html" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/tmp.html" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/items.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/settings.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/wx_article_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" />
       </list>
     </option>
   </component>
@@ -1365,9 +1358,11 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="1920" />
-    <option name="height" value="1080" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="664" />
+    <option name="y" value="23" />
+    <option name="width" value="1256" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -1501,7 +1496,17 @@
               <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
               <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="爱奇艺" type="462c0819:PsiDirectoryNode" />
+              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
+              <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1752,19 +1757,19 @@
     <option name="SHOW_DIALOG" value="false" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取" />
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/images" />
+      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/异步io/协程/gevent" />
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/static/images" />
+      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/templates" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/网易" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/微信/微信公众号" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/中国裁判文书网/js" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/中国裁判文书网" />
       <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/appium/android" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/images" />
-      <recent name="$PROJECT_DIR$/my_py_notes_万物皆对象/异步io/协程/gevent" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/static/images" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/templates" />
-      <recent name="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -1779,8 +1784,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test (1)">
-    <configuration name="demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.wx_article_parse (1)">
+    <configuration name="demo (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -1794,6 +1799,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/demo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1846,6 +1873,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="linkedin_spider" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin/linkedin_spider.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="pandas_test" type="PythonConfigurationType" factoryName="Python">
       <module name="PythonDoc" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -1860,28 +1909,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_cookbook_notes/data_deal_with/use_pandas_deal_with_datas/pandas_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="qq_music_spider" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="python" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/qq音乐" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/qq音乐/qq_music_spider.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -2000,28 +2027,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="python" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="test" type="PythonConfigurationType" factoryName="Python">
       <module name="PythonDoc" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -2066,7 +2071,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="youku_spider" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="wx_article_parse (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -2074,12 +2079,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/优酷/youku_spider.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/wx_article_parse.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -2088,7 +2093,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="youtube_downloader" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="wx_article_parse" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -2096,12 +2101,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/YouTuBe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/YouTuBe/youtube_downloader.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/wx_article_parse.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -2162,19 +2167,19 @@
       <item itemvalue="Python.str_format_文本缩进_test" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.turtle_test" />
+      <item itemvalue="Python.linkedin_spider" />
       <item itemvalue="Python.demo" />
-      <item itemvalue="Python.test (1)" />
-      <item itemvalue="Python.qq_music_spider" />
-      <item itemvalue="Python.youtube_downloader" />
-      <item itemvalue="Python.youku_spider" />
+      <item itemvalue="Python.demo (1)" />
+      <item itemvalue="Python.wx_article_parse" />
+      <item itemvalue="Python.wx_article_parse (1)" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test (1)" />
+        <item itemvalue="Python.wx_article_parse (1)" />
+        <item itemvalue="Python.wx_article_parse" />
+        <item itemvalue="Python.demo (1)" />
         <item itemvalue="Python.demo" />
-        <item itemvalue="Python.youku_spider" />
-        <item itemvalue="Python.youtube_downloader" />
-        <item itemvalue="Python.qq_music_spider" />
+        <item itemvalue="Python.linkedin_spider" />
       </list>
     </recent_temporary>
   </component>
@@ -2239,16 +2244,15 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
-    <editor active="true" />
+    <frame x="664" y="23" width="1256" height="1057" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4990099" visible="true" weight="0.13631523" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4990099" visible="true" weight="0.21087314" />
       <window_info id="Structure" order="1" sideWeight="0.5009901" side_tool="true" weight="0.12140575" />
       <window_info id="Favorites" order="2" sideWeight="0.5009901" side_tool="true" weight="0.12140575" />
       <window_info anchor="bottom" id="Database Console" order="0" weight="0.34059405" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.30891088" />
-      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.49893504" weight="0.36039603" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.49893504" weight="0.35841584" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
@@ -2332,244 +2336,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/分布式爬虫架构/celery+redis分布式架构/分布式实现抓图片/celery_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/分布式爬虫架构/celery+redis分布式架构/分布式实现抓图片/run.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/分布式爬虫架构/celery+redis分布式架构/分布式更新淘宝数据/taobao_tasks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/spider/fz_requests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="111" column="8" selection-start-line="111" selection-start-column="8" selection-end-line="111" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/celery_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/异步io/优先级队列.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="13" lean-forward="true" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/异步io/控制并发量.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="12" lean-forward="true" selection-start-line="28" selection-start-column="12" selection-end-line="28" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/今日头条/today_headline_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="678">
-          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
-          <folding>
-            <element signature="e#265#287#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抖音/异步高并发_抖音video_id_暴力扫描器.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/猫眼电影/maoyan_films_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="543">
-          <caret line="313" lean-forward="true" selection-start-line="313" selection-end-line="313" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/百度云/fastsoso/fastsoso_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/私募排排网/si_mu_wang_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="34" lean-forward="true" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/纹身520/tattoo520_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="105" lean-forward="true" selection-start-line="105" selection-end-line="105" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/万能下载器_by_super_fazai/downloader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="138">
-          <caret line="26" column="25" lean-forward="true" selection-start-line="26" selection-start-column="25" selection-end-line="26" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/80s/80s_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="631">
-          <caret line="70" column="14" lean-forward="true" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6550" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/巨潮资讯网/juchao_info_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="333">
-          <caret line="98" column="18" lean-forward="true" selection-start-line="98" selection-start-column="18" selection-end-line="98" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="285">
-            <caret line="19" column="22" lean-forward="true" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="3" lean-forward="true" selection-start-line="6" selection-start-column="3" selection-end-line="6" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金/关注基金代码.py" />
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金/长期投_计算本金+利息.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/金融数据/tushare/获取个股历史交易数据.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="71" lean-forward="true" selection-start-line="28" selection-start-column="71" selection-end-line="28" selection-end-column="71" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/金融数据/tushare/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="210">
-            <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金/某基金的单位净值走势_累计净值走势.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
-          <caret line="72" column="55" selection-start-line="72" selection-start-column="55" selection-end-line="72" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/scapy/使用scapy抓包.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="67" lean-forward="true" selection-start-line="67" selection-end-line="67" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/scapy/基于scapy制造syn泛洪_attack.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="32" column="33" lean-forward="true" selection-start-line="32" selection-start-column="33" selection-end-line="32" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/scapy/sniff_phone_pkt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="438">
-          <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/mitmproxy/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="570">
-            <caret line="170" lean-forward="true" selection-start-line="170" selection-end-line="170" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/抓包利器/wireshark/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="480">
-            <caret line="83" column="48" selection-start-line="83" selection-start-column="48" selection-end-line="83" selection-end-column="48" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin/linkedin_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-226">
-          <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/js_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/linux_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="139" column="19" selection-start-line="139" selection-start-column="19" selection-end-line="139" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/google/google_crack_captcha.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/分布式爬虫架构/dask/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -2622,13 +2388,6 @@
             <caret line="21" column="4" selection-start-line="21" selection-start-column="4" selection-end-line="21" selection-end-column="4" />
           </first_editor>
           <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/fz_requests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="503">
-          <caret line="170" column="28" lean-forward="true" selection-start-line="162" selection-start-column="8" selection-end-line="170" selection-end-column="28" />
         </state>
       </provider>
     </entry>
@@ -2689,13 +2448,195 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="44" column="32" lean-forward="true" selection-start-line="44" selection-start-column="32" selection-end-line="44" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/煎蛋网/fried_eggs_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="53" column="20" lean-forward="true" selection-start-line="53" selection-start-column="20" selection-end-line="53" selection-end-column="20" />
+          <folding>
+            <element signature="e#115#124#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/fz_requests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="140" lean-forward="true" selection-start-line="140" selection-end-line="140" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/mac_envir_build.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="337">
+            <caret line="23" column="3" lean-forward="true" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/基金/长期投_计算本金+利息.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="28" lean-forward="true" selection-start-line="23" selection-start-column="28" selection-end-line="23" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        <state relative-caret-position="255">
+          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
           <folding>
             <element signature="e#102#127#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/register_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="768">
+          <caret line="89" lean-forward="true" selection-start-line="89" selection-end-line="89" />
+          <folding>
+            <element signature="e#134#156#0" expanded="true" />
+            <marker date="1540180336808" expanded="true" signature="441:446" ph="..." />
+            <marker date="1540180336808" expanded="true" signature="689:842" ph="..." />
+            <marker date="1540180336808" expanded="true" signature="1487:2770" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fz_ip_pool/proxy_tasks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2667">
+          <caret line="58" lean-forward="true" selection-start-line="58" selection-end-line="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/Linkedin/linkedin_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="678">
+          <caret line="94" lean-forward="true" selection-start-line="94" selection-end-line="94" />
+          <folding>
+            <element signature="e#133#155#0" expanded="true" />
+            <marker date="1539924539327" expanded="true" signature="257:262" ph="..." />
+            <marker date="1539924539327" expanded="true" signature="416:903" ph="..." />
+            <marker date="1539924539327" expanded="true" signature="934:3184" ph="..." />
+            <marker date="1539924539327" expanded="true" signature="987:995" ph="..." />
+            <marker date="1539924539327" expanded="true" signature="3209:3255" ph="..." />
+            <marker date="1539924539327" expanded="true" signature="3304:3583" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/other_scripts/bilibili_user.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-301">
+          <caret line="19" column="16" lean-forward="true" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/chuchujie_9_9_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="17" column="22" lean-forward="true" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/jd_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-8875">
+          <caret line="39" column="23" lean-forward="true" selection-start-line="39" selection-start-column="23" selection-end-line="39" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/other_scripts/region_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="17" column="22" lean-forward="true" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="642">
+          <caret line="80" column="16" lean-forward="true" selection-start-line="80" selection-start-column="16" selection-end-line="80" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="401">
+          <caret line="118" column="20" selection-start-line="118" selection-start-column="20" selection-end-line="118" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/spike_everything/zhe_800_spike.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3377" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/my_signature.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-927">
+          <caret line="35" column="10" lean-forward="true" selection-start-line="35" selection-start-column="10" selection-end-line="35" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/ali_1688_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-44">
+          <caret line="96" lean-forward="true" selection-start-line="96" selection-end-line="96" />
+          <folding>
+            <element signature="e#140#165#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/url2io/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="15">
+            <caret line="1" column="33" lean-forward="true" selection-start-line="1" selection-start-column="33" selection-end-line="1" selection-end-column="33" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/newspaper/network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/newspaper/article.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="169" column="42" selection-start-line="169" selection-start-column="42" selection-end-line="169" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/wx_article_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
+          <folding>
+            <element signature="e#132#154#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" selection-start-line="29" selection-end-line="29" />
         </state>
       </provider>
     </entry>
@@ -2706,10 +2647,588 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/爱奇艺/aiqiyi_spider.py">
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/newspaper/tmp.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/AtricleSpider/AtricleSpider/spiders/jobbole.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="813">
-          <caret line="84" column="1" lean-forward="true" selection-start-line="84" selection-start-column="1" selection-end-line="84" selection-end-column="1" />
+        <state relative-caret-position="-1139" />
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/builtins.pyi">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="207">
+          <caret line="901" column="4" selection-start-line="901" selection-start-column="4" selection-end-line="901" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/AtricleSpider/AtricleSpider/items.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/tmp.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="17" lean-forward="true" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
+          <folding>
+            <element signature="n#style#0;n#section#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#section#0;n#section#0;n#section#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#4;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#strong#0;n#p#1;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#1;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#strong#0;n#p#2;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#2;n#section#5;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#strong#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#1;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#2;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#2;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#2;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#4;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#4;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#7;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#7;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#10;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#2;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#1;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#3;n#p#0;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#11;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#12;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#12;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#13;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#13;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#14;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#1;n#p#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#2;n#p#0;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#15;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#16;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#16;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#17;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#17;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#18;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#18;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#19;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#19;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#19;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#19;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#19;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#19;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#20;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#20;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#21;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#21;n#section#0;n#section#0;n#section#0;n#section#2;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#1;n#p#1;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#3;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#5;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#5;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#1;n#p#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#2;n#p#0;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#6;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#7;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#8;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#8;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#9;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#span#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#span#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#4;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#4;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#7;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#8;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#9;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#10;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#10;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#span#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#11;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#12;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#12;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#13;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#13;n#section#0;n#section#0;n#section#11;n#section#6;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#4;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#4;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#4;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#2;n#p#0;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#span#0;n#p#1;n#section#5;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#6;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#2;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#1;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#2;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#4;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#4;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#5;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#span#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#6;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#span#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#7;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#3;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#3;n#section#0;n#section#0;n#section#8;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#1;n#p#0;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#p#1;n#section#1;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#2;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#0;n#section#0;n#section#9;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#section#0;n#section#0;n#section#0;n#section#10;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#0;n#section#9;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#10;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#10;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#10;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#section#0;n#section#0;n#section#10;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#11;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#11;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#11;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#section#0;n#section#0;n#section#11;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#1;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#section#0;n#section#1;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#2;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#section#0;n#section#2;n#section#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#p#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#a#0;n#p#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#span#0;n#p#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#p#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#p#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#1;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#span#0;n#p#1;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#3;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#p#3;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#4;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#a#0;n#p#2;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#3;n#section#0;n#section#0;n#section#0;n#section#13;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#0;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#strong#0;n#p#0;n#section#0;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#section#1;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#0;n#section#1;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#section#1;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#2;n#section#1;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#span#0;n#p#3;n#section#1;n#section#0;n#section#0;n#section#14;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/scrapy/selector/unified.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="47" column="63" lean-forward="true" selection-start-line="47" selection-start-column="63" selection-end-line="47" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/wx_article_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="108" column="29" lean-forward="true" selection-start-line="108" selection-start-column="29" selection-end-line="108" selection-end-column="29" />
+          <folding>
+            <element signature="e#132#154#0" expanded="true" />
+            <marker date="1540285498991" expanded="true" signature="1821:2806" ph="..." />
+            <marker date="1540285498991" expanded="true" signature="2858:4838" ph="..." />
+            <marker date="1540285498991" expanded="true" signature="2953:2961" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="10" lean-forward="true" selection-start-line="14" selection-start-column="10" selection-end-line="14" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/文章提取/微信公众号文章提取/items.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="20" selection-start-line="14" selection-start-column="20" selection-end-line="14" selection-end-column="20" />
+          <folding>
+            <marker date="1540281984443" expanded="true" signature="159:164" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="449">
+          <caret line="49" lean-forward="true" selection-start-line="49" selection-end-line="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/taobao_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="294">
+          <caret line="62" column="12" lean-forward="true" selection-start-line="62" selection-start-column="12" selection-end-line="62" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="98" lean-forward="true" selection-start-line="98" selection-end-line="98" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/ali_1688_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="49" column="74" lean-forward="true" selection-start-line="49" selection-start-column="74" selection-end-line="49" selection-end-column="74" />
         </state>
       </provider>
     </entry>
