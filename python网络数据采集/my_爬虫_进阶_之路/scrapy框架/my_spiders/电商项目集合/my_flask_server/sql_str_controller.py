@@ -93,7 +93,7 @@ al_select_str_5 = al_select_str_1
 al_select_str_6 = '''
 select top 500 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange
 from dbo.GoodsInfoAutoGet 
-where SiteID=2 and MainGoodsID is not null and IsDelete=0
+where SiteID=2 and MainGoodsID is not null and IsDelete=0 and GETDATE()-ModfiyTime>2
 order by ModfiyTime asc
 '''
 

@@ -60,7 +60,6 @@ class EyeCheckSpider(object):
             print(e)
             return []
 
-
     async def _fck_run(self):
         search_key = 'aa'
         await self._search(search_key=search_key)
