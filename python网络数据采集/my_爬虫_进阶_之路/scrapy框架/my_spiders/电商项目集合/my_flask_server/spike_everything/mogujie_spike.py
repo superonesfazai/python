@@ -103,13 +103,13 @@ class MoGuJieSpike(object):
                 else:
                     goods_id = str(item.get('iid', ''))
                     tmp_url = item.get('link', '')
+                    # print(tmp_url)
 
                     try:
-                        object_id = re.compile(r'objectId=(.*?)&').findall(tmp_url)[0]
+                        object_id = re.compile('objectId=(\w+)').findall(tmp_url)[0]
                     except IndexError:      # 表示匹配到的地址不是秒杀商品的地址
                         print('+++++++ 这个url不是秒杀的url: ', tmp_url)
                         continue
-
                     tmp_url = 'https://shop.mogujie.com/rushdetail/{0}?objectId={1}&type=rush'.format(goods_id, object_id)
 
                     tmp_ = mogujie.get_goods_id_from_url(tmp_url)

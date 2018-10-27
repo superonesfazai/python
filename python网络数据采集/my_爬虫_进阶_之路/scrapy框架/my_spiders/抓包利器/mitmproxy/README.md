@@ -9,6 +9,42 @@
 
 事实上，以上说的仅是 mitmproxy 以正向代理模式工作的情况，通过调整配置，mitmproxy 还可以作为透明代理、反向代理、上游代理、SOCKS 代理等，但这些工作模式针对 mitmproxy 来说似乎不大常用.
 
+[github](https://github.com/mitmproxy/mitmproxy)
+
+[官方doc](https://docs.mitmproxy.org/stable)
+
+## 安装
+```bash
+$ pip3 install mitmproxy
+```
+
+## 常用功能
+- 拦截HTTP和HTTPS请求和响应。
+- 保存HTTP会话并进行分析。
+- 模拟客户端发起请求，模拟服务端返回响应。
+- 利用反向代理将流量转发给指定的服务器。
+- 支持Mac和Linux上的透明代理。
+- 利用Python对HTTP请求和响应进行实时处理。
+
+## 启动
+```bash
+# 它会监听8080端口
+$ mitmproxy
+# 常用
+$ mitmweb
+```
+
+## mitmdump的使用
+mitmdump是mitmproxy的命令行接口，同时还可以对接Python对请求进行处理，这是相比Fiddler、Charles等工具更加方便的地方。有了它我们可以不用手动截获和分析HTTP请求和响应，只需写好请求和响应的处理逻辑即可。它还可以实现数据的解析、存储等工作，这些过程都可以通过Python实现。
+
+## 下断点
+```bash
+输入i,进入编辑模式,可在最下面编辑条件,ESC或Enter退出编辑
+断点的条件和过滤是一样的,符合条件的链接会被拦截
+比如这个 : ~d safecode & ~m post & ~u \.php
+域名包含safecode,链接包含.php的post请求会被拦截
+```
+
 # 脚本
 eg:
 ```python
