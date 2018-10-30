@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : 公司订单量分析.py
-@Time    : 2018/3/17 13:22
 @connect : superonesfazai@gmail.com
 '''
 
@@ -11,7 +10,6 @@ import sys
 sys.path.append('..')
 
 from my_pipeline import DataAnalysisDbPipeline
-import pandas
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties

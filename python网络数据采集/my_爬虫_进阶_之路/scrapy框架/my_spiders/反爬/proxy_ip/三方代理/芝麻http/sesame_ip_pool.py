@@ -15,7 +15,6 @@ from gc import collect
 from requests import session
 from random import choice
 from fzutils.sql_utils import BaseRedisCli
-from fzutils.data.pickle_utils import deserializate_pickle_object
 from fzutils.data.list_utils import list_remove_repeat_dict
 from fzutils.spider.async_always import *
 
@@ -108,6 +107,7 @@ class SesameIpPool(object):
         获取一个proxy
         :return:
         '''
+        # http://webapi.http.zhimacangku.com/getip?num=200&type=2&pro=&city=0&yys=0&port=1&time=1&ts=1&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=
         params = (
             ('num', str(ip_num)),   # 提取ip数
             ('type', '2'),          # 数据格式：1:TXT 2:JSON 3:html
@@ -153,8 +153,18 @@ class SesameIpPool(object):
 
         return now_ip
 
+    async def _add_local_ip_to_white_list(self, local_ip):
+        '''
+        长期爬取，需要定时将本地ip设置进白名单, 否则获取不到ip_list
+        :return:
+        '''
+        url = 'http://web.http.cnapi.cc/index/index/save_white?neek=55393&appkey=71988e7028eb9587fac0eea29a5150fa&white={}'.format(local_ip)
+        await self._request(url=url, headers=await self._get_phone_headers())
+
+        return None
+
     async def _fck_run(self):
-        print('*    芝麻http ip pool    *')
+        print('芝麻http ip pool'.center(30, '@'))
         while True:
             res = await self._get_ip_proxy_list()
             # pprint(res)

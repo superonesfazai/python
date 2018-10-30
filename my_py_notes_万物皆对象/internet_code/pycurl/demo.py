@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : demo.py
+@File    : tasks.py
 @Time    : 2017/11/3 07:02
 @connect : superonesfazai@gmail.com
 '''

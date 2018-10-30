@@ -13,6 +13,7 @@ from pprint import pprint
 from scrapy.selector import Selector
 
 from fzutils.spider.fz_aiohttp import MyAiohttp
+from fzutils.spider.async_always import *
 
 def get_right_time():
     a = time.ctime().split()
@@ -31,7 +32,7 @@ headers = {
     'Connection': 'keep-alive',
     'Host': 'huayu.baidu.com',
     'if-modified-since': get_right_time(),
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36',      # 随机一个请求头
+    'User-Agent': get_random_pc_ua(),      # 随机一个请求头
 }
 
 async def deal_with_result(result):
@@ -81,6 +82,7 @@ async def main(loop):
     tasks = []
     for _ in range(1, 18):
         url = 'http://huayu.baidu.com/rank/c0/u14/p{0}/v0/ALL.html'.format(str(_))
+        print('create task url: {}'.format(url))
         tasks.append(loop.create_task(MyAiohttp.aio_get_url_body(url=url, headers=headers, params=None, timeout=12, num_retries=8)))
 
     finished, unfinished = await asyncio.wait(tasks)

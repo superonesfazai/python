@@ -9,4 +9,6 @@ ADSL （Asymmetric Digital Subscriber Line ，非对称数字用户环路）是�
 
 这时，你就需要一台VPS拨号主机。
 
-[blog](https://cuiqingcai.com/3443.html)
+[使用Tornado+Redis维护ADSL拨号服务器代理池](https://cuiqingcai.com/4596.html)
+
+[利用动态拨号VPS构建无限稳定ip池(Linux+Windows)](https://www.jianshu.com/p/9a7db46e525d)

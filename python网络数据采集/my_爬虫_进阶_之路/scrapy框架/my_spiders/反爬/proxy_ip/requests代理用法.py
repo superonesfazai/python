@@ -25,7 +25,7 @@ proxyMeta = "http://%(host)s:%(port)s" % {
     "port" : proxyPort,
 }
 
-#pip install -U requests[socks]  socks5代理
+# pip install -U requests[socks]  socks5代理
 # proxyMeta = "socks5://%(host)s:%(port)s" % {
 #     "host" : proxyHost,
 #     "port" : proxyPort,

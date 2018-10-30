@@ -14,11 +14,12 @@ from gc import collect
 from requests import get
 from shutil import copyfileobj
 from urllib.parse import parse_qs
+from fzutils.spider.crawler import AsyncCrawler
 from fzutils.spider.async_always import *
 
-class YouTuBeDownloader(object):
-    def __init__(self):
-        self.loop = get_event_loop()
+class YouTuBeDownloader(AsyncCrawler):
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(self, *params, **kwargs)
         self.movie_save_path = '/Users/afa/Downloads/'   # 视频存储路径
 
     async def _download(self, url) -> bool:
@@ -27,6 +28,7 @@ class YouTuBeDownloader(object):
         :param url: 视频地址
         :return:
         '''
+        print('movie_url: {}'.format(url))
         try:
             v = re.compile('v=(\w+)').findall(url)[0]
         except IndexError:
@@ -63,9 +65,6 @@ class YouTuBeDownloader(object):
                 copyfileobj(response.raw, f)
 
         return True
-
-    def __del__(self):
-        collect()
 
 if __name__ == '__main__':
     _ = YouTuBeDownloader()

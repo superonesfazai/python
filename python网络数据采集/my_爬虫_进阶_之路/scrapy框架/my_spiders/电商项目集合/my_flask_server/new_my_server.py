@@ -2041,10 +2041,7 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
                     data_list=data_list,
                     my_lg=my_lg
                 )
-
-                # my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(str(tmp)))
                 my_lg.info('------>>>| 待存储的数据信息为: {0}'.format(tmp.get('goods_id')))
-
                 tmp_list.append(tmp)
                 try:
                     goods_to_delete.append(tmp_wait_to_save_data_list[index])  # 避免在遍历时进行删除，会报错，所以建临时数组
@@ -2078,10 +2075,8 @@ def save_every_url_right_data(**kwargs):
     is_inserted_and_goods_id_list = []
     for item in tmp_list:
         my_lg.info('------>>>| 正在存储的数据为: {0}'.format(str(item.get('goods_id'))))
-
         params = get_db_who_insert_params(type=type, item=item)
         is_insert_into = my_page_info_save_item_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
-
         is_inserted_and_goods_id_list.append((is_insert_into, str(item.get('goods_id'))))
 
     tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入

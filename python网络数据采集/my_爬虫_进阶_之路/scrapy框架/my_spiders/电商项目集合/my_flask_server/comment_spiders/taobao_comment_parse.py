@@ -49,9 +49,7 @@ class TaoBaoCommentParse(Crawler):
         _tmp_comment_list = []
         self.lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
 
-        '''
-        下面抓取的是pc端的数据地址
-        '''
+        # TODO 下面抓取的是pc端的数据地址(新版pc被重定向到登陆页, 强制登陆) 可以抓取h5站点的在mtop.taobao.rate.detaillist.get接口里面, 有签名
         # 获取评论数据
         for current_page_num in range(1, 4):
             self.lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))

@@ -238,37 +238,17 @@ class ChuChuJie_9_9_Parse(Crawler):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-
-            # 掌柜
             account = ''
-
-            # 商品名称
             title = data['title']
-
-            # 子标题
             sub_title = data['sub_title']
-
             price = data['price']  # 商品价格
             taobao_price = data['taobao_price']  # 淘宝价
-
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
-
-            # div_desc
             div_desc = data['div_desc']
-
-            # 用于判断商品是否已经下架
             is_delete = data['is_delete']
 
             result = {
