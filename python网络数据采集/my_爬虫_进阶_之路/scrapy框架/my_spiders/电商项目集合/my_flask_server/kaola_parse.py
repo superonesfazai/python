@@ -144,12 +144,8 @@ class KaoLaParse(Crawler):
             self.lg.error('出错goods_id: {0}, 地址: {1}'.format(goods_id, url))
             return self._get_data_error_init()
 
-        if data != {}:
-            self.result_data = data
-            return data
-        else:
-            self.lg.info('data为空值')
-            return self._get_data_error_init()
+        self.result_data = data
+        return data
 
     def _deal_with_data(self):
         '''
@@ -158,31 +154,16 @@ class KaoLaParse(Crawler):
         '''
         data = self.result_data
         if data != {}:
-            # 店铺名称
             shop_name = data['shop_name']
-            # 掌柜
             account = ''
-            # 商品名称
             title = data['title']
-            # 子标题
             sub_title = data['sub_title']
-
-            # 商品标签属性名称
             detail_name_list = data['detail_name_list']
-
-            # 要存储的每个标签对应规格的价格及其库存
             price_info_list = data['price_info_list']
-
-            # 所有示例图片地址
             all_img_url = data['all_img_url']
-
-            # 详细信息标签名对应属性
             p_info = data['p_info']
             # pprint(p_info)
-
-            # div_desc
             div_desc = data['div_desc']
-
             is_delete = data['is_delete']
 
             # 上下架时间
@@ -194,10 +175,7 @@ class KaoLaParse(Crawler):
             else:
                 schedule = []
 
-            # 销售总量
             all_sell_count = ''
-
-            # 商品价格和淘宝价
             price, taobao_price = data['price'], data['taobao_price']
 
             result = {
@@ -732,8 +710,6 @@ class KaoLaParse(Crawler):
         :return: goods_id 
         '''
         kaola_url = kaola_url.replace('http://', 'https://').replace(';', '')
-
-        # https://goods.kaola.com/product/27757.html?ri=navigation&from=page1&zn=result&zp=page1-0&position=0&istext=0&srId=8bd1e06482b5730be802f6ce6f56dacf&isMarketPriceShow=true&hcAntiCheatSwitch=0&anstipamActiCheatSwitch=1&anstipamActiCheatToken=de3223456456fa2e3324354u4567lt&anstipamActiCheatValidate=anstipam_acti_default_validate
         is_kaola_url = re.compile(r'https://goods.kaola.com/product/.*?').findall(kaola_url)
         if is_kaola_url != []:
             if re.compile(r'https://goods.kaola.com/product/(\d+).html.*').findall(kaola_url) != []:

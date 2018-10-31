@@ -13,7 +13,7 @@ from decimal import Decimal
 from json import dumps
 
 from time import sleep
-import gc
+from gc import collect
 
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -40,109 +40,98 @@ class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):
         :return: data dict类型
         '''
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error()
+
+        if re.compile(r'/rushdetail/').findall(goods_id) != []:
+            tmp_url = goods_id
+            print('------>>>| 原pc地址为: ', tmp_url)
+
+            goods_id = re.compile('https://shop.mogujie.com/rushdetail/(.*?)\?.*?').findall(goods_id)[0]
+            print('------>>>| 得到的蘑菇街商品id为:', goods_id)
+
         else:
-            if re.compile(r'/rushdetail/').findall(goods_id) != []:
-                tmp_url = goods_id
-                print('------>>>| 原pc地址为: ', tmp_url)
+            print('获取到的蘑菇街买哦啥地址错误!请检查')
+            return self._data_error()
 
-                goods_id = re.compile('https://shop.mogujie.com/rushdetail/(.*?)\?.*?').findall(goods_id)[0]
-                print('------>>>| 得到的蘑菇街商品id为:', goods_id)
+        data = {}
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+        # print(body)
+        if body == '':
+            print('获取到的body为空str!')
+            return self._data_error()
 
-            else:
-                print('获取到的蘑菇街买哦啥地址错误!请检查')
-                self.result_data = {}
-                return {}
+        try:
+            goods_info = re.compile(r'var detailInfo = (.*?);</script>').findall(body)[0]
+            # print(goods_info)
 
-            data = {}
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
-            # print(body)
-            if body == '':
-                print('获取到的body为空str!')
-                self.result_data = {}
-                return {}
+            item_info = re.compile(r'itemInfo:(.*?) ,priceRuleImg').findall(goods_info)[0]
+            # print(item_info)
 
-            try:
-                goods_info = re.compile(r'var detailInfo = (.*?);</script>').findall(body)[0]
-                # print(goods_info)
+            sku_info = re.compile(r'skuInfo:(.*?),pinTuanInfo').findall(goods_info)[0]
+            # print(sku_info)
 
-                item_info = re.compile(r'itemInfo:(.*?) ,priceRuleImg').findall(goods_info)[0]
-                # print(item_info)
+            shop_info = re.compile(r'shopInfo:(.*?),skuInfo').findall(goods_info)[0]
+            # print(shop_info)
 
-                sku_info = re.compile(r'skuInfo:(.*?),pinTuanInfo').findall(goods_info)[0]
-                # print(sku_info)
+            item_info = json_2_dict(json_str=item_info)
+            sku_info = json_2_dict(json_str=sku_info)
+            shop_info = json_2_dict(json_str=shop_info)
+            # pprint(item_info)
+            # pprint(sku_info)
+            # pprint(shop_info)
 
-                shop_info = re.compile(r'shopInfo:(.*?),skuInfo').findall(goods_info)[0]
-                # print(shop_info)
+            title = self._get_title(item_info=item_info)
+            # print(title)
+            data['title'] = title
+            data['sub_title'] = ''
+            data['shop_name'] = self._get_shop_name(shop_info=shop_info)
+            data['all_img_url'] = self._get_all_img_url(item_info=item_info)
+            data['p_info'], tmp_p_info_body  = self._get_p_info(goods_id=goods_id)
+            data['div_desc'] = self._get_div_desc(tmp_p_info_body)
+            data['detail_name_list'] = self._get_detail_name_list(sku_info)
 
-                item_info = json_2_dict(json_str=item_info)
-                sku_info = json_2_dict(json_str=sku_info)
-                shop_info = json_2_dict(json_str=shop_info)
-                # pprint(item_info)
-                # pprint(sku_info)
-                # pprint(shop_info)
-
-                title = self._get_title(item_info=item_info)
-                # print(title)
-                data['title'] = title
-                data['sub_title'] = ''
-                data['shop_name'] = self._get_shop_name(shop_info=shop_info)
-                data['all_img_url'] = self._get_all_img_url(item_info=item_info)
-                data['p_info'], tmp_p_info_body  = self._get_p_info(goods_id=goods_id)
-                data['div_desc'] = self._get_div_desc(tmp_p_info_body)
-                data['detail_name_list'] = self._get_detail_name_list(sku_info)
-
-                '''
-                获取每个规格对应价格跟规格以及其库存
-                '''
-                price_info_list = self.get_price_info_list(sku_info=sku_info)
-                # pprint(price_info_list)
-                if price_info_list == '':
-                    raise Exception
-                else:
-                    # pprint(price_info_list)
-                    data['price_info_list'] = price_info_list
-
-                if price_info_list == []:
-                    print('该商品已售完，此处将商品状态改为1')
-                    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    try:
-                        my_pipeline._update_table(sql_str=mg_update_str_1, params=(goods_id))
-                    except:
-                        print('将该商品逻辑删除时出错!')
-                        pass
-                    print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
-                    self.result_data = {}
-                    return {}
-
-                # 商品价格和淘宝价
+            '''
+            获取每个规格对应价格跟规格以及其库存
+            '''
+            price_info_list = self.get_price_info_list(sku_info=sku_info)
+            assert price_info_list != '', 'price_info_list为空值!'
+            # pprint(price_info_list)
+            data['price_info_list'] = price_info_list
+            if price_info_list == []:
+                print('该商品已售完, 此处将商品状态改为1')
+                my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                 try:
-                    tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
-                    price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品价格
-                    taobao_price = Decimal(tmp_price_list[0]).__round__(2)  # 淘宝价
-                    # print('商品的最高价: ', price, ' 最低价: ', taobao_price)
-                except IndexError:
-                    print('获取price和taobao_price时出错! 请检查')
-                    raise Exception
+                    my_pipeline._update_table(sql_str=mg_update_str_1, params=(goods_id))
+                except:
+                    print('将该商品逻辑删除时出错!')
+                    pass
+                print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
+                return self._data_error()
 
-                data['price'] = price
-                data['taobao_price'] = taobao_price
+            # 商品价格和淘宝价
+            try:
+                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
+                price = Decimal(tmp_price_list[-1]).__round__(2)  # 商品价格
+                taobao_price = Decimal(tmp_price_list[0]).__round__(2)  # 淘宝价
+                # print('商品的最高价: ', price, ' 最低价: ', taobao_price)
+            except IndexError:
+                print('获取price和taobao_price时出错! 请检查')
+                raise Exception
+            data['price'] = price
+            data['taobao_price'] = taobao_price
 
-            except Exception as e:
-                print('遇到错误: ', e)
-                self.result_data = {}
-                return {}
+        except Exception as e:
+            print('遇到错误: ', e)
+            return self._data_error()
 
-            if data != {}:
-                # pprint(data)
-                self.result_data = data
-                return data
+        self.result_data = data
 
-            else:
-                print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+        return data
+
+    def _data_error(self):
+        self.result_data = {}
+
+        return {}
 
     def insert_into_mogujie_xianshimiaosha_table(self, data, pipeline):
         try:
@@ -229,7 +218,7 @@ class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):
                 return ''
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     mogujie_miaosha = MoGuJieMiaoShaParse()

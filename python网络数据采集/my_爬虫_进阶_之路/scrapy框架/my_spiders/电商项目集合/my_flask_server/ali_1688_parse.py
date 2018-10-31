@@ -50,7 +50,6 @@ class ALi1688LoginAndParse(Crawler):
     def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
@@ -73,71 +72,43 @@ class ALi1688LoginAndParse(Crawler):
             return self._data_error_init()
 
         tmp_body = body
-        try:
-            pull_off_shelves = Selector(text=body).css('div.d-content p.info::text').extract_first()
-        except:
-            pull_off_shelves = ''
+        pull_off_shelves = Selector(text=body).css('div.d-content p.info::text').extract_first() or ''
         if pull_off_shelves == '该商品无法查看或已下架':   # 表示商品已下架, 同样执行插入数据操作
+            return self._handle_goods_is_delete(goods_id=goods_id)
+
+        try:
+            body = re.compile(r'{"beginAmount"(.*?)</script></div></div>').findall(body)[0]
+        except IndexError:
+            self.lg.info('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
             try:
-                tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
-                # self.lg.info(str(is_in_db))
-            except Exception:
-                self.lg.error('数据库连接失败!'+self.error_base_record, exc_info=True)
+                body = re.compile(r'{"activityId"(.*?)</script></div></div>').findall(tmp_body)[0]
+            except IndexError:
+                self.lg.error('这个商品对应活动属性未知, 此处不解析, 设置为跳过!' + self.error_base_record)
                 return self._data_error_init()
 
-            if is_in_db != []:        # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-                tmp_my_pipeline._update_table_2(sql_str=al_update_str_1, params=(goods_id), logger=self.lg)
-                self.lg.info('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
-                tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
-                tmp_data_s['before'] = True     # 用来判断原先该goods是否在db中
-                self.result_data = {}
-
-                return tmp_data_s
-
-            else:       # 表示该goods_id没存在于db中
-                self.lg.info('@@@ 该商品已下架[但未存在于db中], ** 此处将其插入到db中...')
-                tmp_data_s = self.init_pull_off_shelves_goods()      # 初始化下架商品的属性
-                tmp_data_s['before'] = False
-                self.result_data = {}
-
-                return tmp_data_s
-
-        body = re.compile(r'{"beginAmount"(.*?)</script></div></div>').findall(body)
-        if body != []:
-            body = body[0]
-            body = r'{"beginAmount"' + body
+            body = r'{"activityId"' + body
             # self.lg.info(str(body))
             body = json_2_dict(json_str=body)
             # pprint(body)
 
             if body.get('discountPriceRanges') is not None:
                 self.result_data = self._wash_discountPriceRanges(body=body)
+                self.is_activity_goods = True
                 return self.result_data
             else:
                 self.lg.error('data为空!' + self.error_base_record)
                 return self._data_error_init()
 
+        body = r'{"beginAmount"' + body
+        # self.lg.info(str(body))
+        body = json_2_dict(json_str=body)
+        # pprint(body)
+        if body.get('discountPriceRanges') is not None:
+            self.result_data = self._wash_discountPriceRanges(body=body)
+            return self.result_data
         else:
-            self.lg.info('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
-            body = re.compile(r'{"activityId"(.*?)</script></div></div>').findall(tmp_body)
-            if body != []:
-                body = body[0]
-                body = r'{"activityId"' + body
-                # self.lg.info(str(body))
-                body = json_2_dict(json_str=body)
-                # pprint(body)
-
-                if body.get('discountPriceRanges') is not None:
-                    self.result_data = self._wash_discountPriceRanges(body=body)
-                    self.is_activity_goods = True
-                    return self.result_data
-                else:
-                    self.lg.error('data为空!' + self.error_base_record)
-                    return self._data_error_init()
-            else:
-                self.lg.error('这个商品对应活动属性未知, 此处不解析, 设置为跳过!' + self.error_base_record)
-                return self._data_error_init()
+            self.lg.error('data为空!' + self.error_base_record)
+            return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -146,74 +117,101 @@ class ALi1688LoginAndParse(Crawler):
         '''
         data = self.result_data
         # pprint(data)
-
-        if data != {}:
-            company_name = data.get('companyName', '')
-            title = self._wash_sensitive_words(data.get('subject', ''))
-            link_name = ''
-
-            # 商品价格信息, 及其对应起批量   [{'price': '119.00', 'begin': '3'}, ...]
-            price_info = self._get_price_info(data=data)
-            # self.lg.info(str(price_info))
-
-            # 标签属性名称及其对应的值
-            # (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
-            sku_props = self._get_detail_name_list(data=data)
-            # self.lg.info(str(sku_props))
-
-            # 每个规格对应价格, 及其库存量
-            try:
-                sku_map = self._get_sku_info(data=data, price_info=price_info, detail_name_list=sku_props)
-                # pprint(sku_map)
-            except Exception:
-                self.lg.error('获取sku_map时, 遇到错误!'+self.error_base_record, exc_info=True)
-                self.is_activity_goods = False
-                return self._data_error_init()
-
-            price, taobao_price = self._get_price_and_taobao_price(price_info=price_info)
-            all_img_url = self._get_all_img_url(data=data)
-            property_info = self._get_p_info(data=data)     # 即: p_info
-
-            # 即: div_desc
-            detail_info_url = data.get('detailUrl', '')
-            detail_info = self._get_div_desc(detail_info_url) if detail_info_url != '' else ''
-            # self.lg.info(str(detail_info))
-
-            is_delete = self._get_is_delete(title=title)
-
-            result = {
-                'company_name': company_name,               # 公司名称
-                'title': title,                             # 商品名称
-                'link_name': link_name,                     # 卖家姓名
-                'price_info': price_info,                   # 商品价格信息, 及其对应起批量
-                'price': price,                             # 起批的最高价
-                'taobao_price': taobao_price,               # 起批的最低价
-                'sku_props': sku_props,                     # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
-                'sku_map': sku_map,                         # 每个规格对应价格, 及其库存量
-                'all_img_url': all_img_url,                 # 所有示例图片地址
-                'property_info': property_info,             # 详细信息的标签名, 及其对应的值
-                'detail_info': detail_info,                 # 下方详细div块
-                'is_delete': is_delete,                     # 判断是否下架
-            }
-            # pprint(result)
-            # self.lg.info(str(result))
-
-            # wait_to_send_data = {
-            #     'reason': 'success',
-            #     'data': result,
-            #     'code': 1
-            # }
-            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # self.lg.info(str(json_data))
-
-            # 重置self.is_activity_goods = False
+        if data == {}:
+            self.lg.error('待处理的data为空值!' + self.error_base_record)
             self.is_activity_goods = False
 
-            return result
-        else:
-            self.lg.error('待处理的data为空值!'+self.error_base_record)
+            return self._data_error_init()
+
+        company_name = data.get('companyName', '')
+        title = self._wash_sensitive_words(data.get('subject', ''))
+        link_name = ''
+
+        # 商品价格信息, 及其对应起批量   [{'price': '119.00', 'begin': '3'}, ...]
+        price_info = self._get_price_info(data=data)
+        # self.lg.info(str(price_info))
+
+        # 标签属性名称及其对应的值
+        # (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
+        sku_props = self._get_detail_name_list(data=data)
+        # self.lg.info(str(sku_props))
+
+        # 每个规格对应价格, 及其库存量
+        try:
+            sku_map = self._get_sku_info(data=data, price_info=price_info, detail_name_list=sku_props)
+            # pprint(sku_map)
+        except Exception:
+            self.lg.error('获取sku_map时, 遇到错误!'+self.error_base_record, exc_info=True)
             self.is_activity_goods = False
             return self._data_error_init()
+
+        price, taobao_price = self._get_price_and_taobao_price(price_info=price_info)
+        all_img_url = self._get_all_img_url(data=data)
+        property_info = self._get_p_info(data=data)     # 即: p_info
+
+        # 即: div_desc
+        detail_info_url = data.get('detailUrl', '')
+        detail_info = self._get_div_desc(detail_info_url) if detail_info_url != '' else ''
+        # self.lg.info(str(detail_info))
+        is_delete = self._get_is_delete(title=title)
+
+        result = {
+            'company_name': company_name,               # 公司名称
+            'title': title,                             # 商品名称
+            'link_name': link_name,                     # 卖家姓名
+            'price_info': price_info,                   # 商品价格信息, 及其对应起批量
+            'price': price,                             # 起批的最高价
+            'taobao_price': taobao_price,               # 起批的最低价
+            'sku_props': sku_props,                     # 标签属性名称及其对应的值  (可能有图片(url), 无图(imageUrl=None))
+            'sku_map': sku_map,                         # 每个规格对应价格, 及其库存量
+            'all_img_url': all_img_url,                 # 所有示例图片地址
+            'property_info': property_info,             # 详细信息的标签名, 及其对应的值
+            'detail_info': detail_info,                 # 下方详细div块
+            'is_delete': is_delete,                     # 判断是否下架
+        }
+        # pprint(result)
+        # self.lg.info(str(result))
+
+        # wait_to_send_data = {
+        #     'reason': 'success',
+        #     'data': result,
+        #     'code': 1
+        # }
+        # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+        # self.lg.info(str(json_data))
+
+        # 重置self.is_activity_goods = False
+        self.is_activity_goods = False
+
+        return result
+
+
+    def _handle_goods_is_delete(self, goods_id):
+        '''
+        处理商品无法查看或者下架的
+        :return:
+        '''
+        try:
+            tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+            is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
+            # self.lg.info(str(is_in_db))
+        except Exception:
+            self.lg.error('数据库连接失败!' + self.error_base_record, exc_info=True)
+            return self._data_error_init()
+
+        self.result_data = {}
+        if is_in_db != []:  # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
+            tmp_my_pipeline._update_table_2(sql_str=al_update_str_1, params=(goods_id), logger=self.lg)
+            self.lg.info('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
+            tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
+            tmp_data_s['before'] = True  # 用来判断原先该goods是否在db中
+
+        else:  # 表示该goods_id没存在于db中
+            self.lg.info('@@@ 该商品已下架[但未存在于db中], ** 此处将其插入到db中...')
+            tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
+            tmp_data_s['before'] = False
+
+        return tmp_data_s
 
     def _data_error_init(self):
         self.result_data = {}

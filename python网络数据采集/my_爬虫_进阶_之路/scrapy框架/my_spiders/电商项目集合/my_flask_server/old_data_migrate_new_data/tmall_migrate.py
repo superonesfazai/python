@@ -10,7 +10,7 @@
 import sys
 sys.path.append('..')
 
-from tmall_parse import TmallParse
+from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
 from time import sleep

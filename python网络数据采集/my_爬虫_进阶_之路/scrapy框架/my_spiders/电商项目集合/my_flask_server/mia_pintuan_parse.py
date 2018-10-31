@@ -60,129 +60,108 @@ class MiaPintuanParse(MiaParse, Crawler):
         '''
         if goods_id == '':
             self._data_error_init()
-        else:
-            data = {}
-            # 常规商品手机地址
-            goods_url = 'https://m.mia.com/item-' + str(goods_id) + '.html'
-            # 常规商品pc地址
-            # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
-            print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = Requests.get_url_body(url=goods_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
-            # print(body)
+        data = {}
+        # 常规商品手机地址
+        goods_url = 'https://m.mia.com/item-' + str(goods_id) + '.html'
+        # 常规商品pc地址
+        # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
+        print('------>>>| 待抓取的地址为: ', goods_url)
 
-            if body == '':
-                return self._data_error_init()
+        body = Requests.get_url_body(url=goods_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+        # print(body)
+        if body == '':
+            return self._data_error_init()
 
-            is_mia_mian_page = Selector(text=body).css('div.item-center::text').extract_first()
-            # print(is_mia_mian_page)
-            if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
-                print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
-                tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                tmp_pipeline._update_table(sql_str=mia_update_str_2, params=(goods_id,))
-                print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
-                gc.collect()
-                return self._data_error_init()
+        is_mia_mian_page = Selector(text=body).css('div.item-center::text').extract_first()
+        # print(is_mia_mian_page)
+        if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
+            print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
+            tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+            tmp_pipeline._update_table(sql_str=mia_update_str_2, params=(goods_id,))
+            print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
+            gc.collect()
+            return self._data_error_init()
 
-            # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)
-            body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
+        # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)
+        body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
+        try:
+            data['title'], data['sub_title'] = self.get_title_and_sub_title(body=body)
+            all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
+            assert all_img_url != '', 'all_img_url为空值!'
 
-            try:
-                # title, sub_title
-                data['title'], data['sub_title'] = self.get_title_and_sub_title(body=body)
+            p_info = self._get_p_info(body=body)
+            assert p_info != [], '获取到的tmp_p_info为空值, 请检查!'
+            data['p_info'] = p_info
 
-                # 获取所有示例图片
-                all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
-                if all_img_url == '':
-                    return self._data_error_init()
+            # 获取每个商品的div_desc
+            div_desc = self.get_goods_div_desc(body=body)
+            assert div_desc != '', '获取到的div_desc为空值! 请检查'
+            data['div_desc'] = div_desc
 
-                p_info = self._get_p_info(body=body)
-                if p_info == []:
-                    print('获取到的tmp_p_info为空值, 请检查!')
-                    return self._data_error_init()
-                data['p_info'] = p_info
+            '''
+            获取每个规格的goods_id，跟规格名，以及img_url, 用于后面的处理
+            '''
+            sku_info = self.get_tmp_sku_info(body, goods_id, sign_direct_url, is_hk)
+            assert sku_info != {}, 'sku_info为空dict'
 
-                # 获取每个商品的div_desc
-                div_desc = self.get_goods_div_desc(body=body)
+            '''
+            由于这个拿到的都是小图，分辨率相当低，所以采用获取每个goods_id的phone端地址来获取每个规格的高清规格图
+            '''
+            # # print(Selector(text=body).css('dd.color_list li').extract())
+            # for item in Selector(text=body).css('dd.color_list li').extract():
+            #     # print(item)
+            #     try:
+            #         # 该颜色的商品的goods_id
+            #         color_goods_id = Selector(text=item).css('a::attr("href")').extract_first()
+            #         # 该颜色的名字
+            #         color_name = Selector(text=item).css('a::attr("title")').extract_first()
+            #         # 该颜色的img_url
+            #         color_goods_img_url = Selector(text=item).css('img::attr("src")').extract_first()
+            #
+            #         color_goods_id = re.compile('(\d+)').findall(color_goods_id)[0]
+            #     except IndexError:      # 表示该li为这个tmp_url的地址 (单独处理goods_id)
+            #         color_goods_id = goods_id
+            #         color_name = Selector(text=item).css('a::attr("title")').extract_first()
+            #         color_goods_img_url = Selector(text=item).css('img::attr("src")').extract_first()
+            #     print(color_goods_id, ' ', color_name, ' ', color_goods_img_url)
 
-                if div_desc == '':
-                    print('获取到的div_desc为空值! 请检查')
-                    return self._data_error_init()
+            '''
+            获取每个规格对应价格跟规格以及其库存
+            '''
+            if self.get_true_sku_info(sku_info=sku_info) == {}:     # 表示出错退出
+                return {}
+            else:                                                   # 成功获取
+                true_sku_info, i_s, pintuan_time, all_sell_count = self.get_true_sku_info(sku_info=sku_info)
+                data['price_info_list'] = true_sku_info
+                data['pintuan_time'] = pintuan_time
+                data['all_sell_count'] = all_sell_count
+            # pprint(true_sku_info)
 
-                data['div_desc'] = div_desc
+            # 设置detail_name_list
+            data['detail_name_list'] = self.get_detail_name_list(i_s=i_s, true_sku_info=true_sku_info)
+            # print(detail_name_list)
 
-                '''
-                获取每个规格的goods_id，跟规格名，以及img_url, 用于后面的处理
-                '''
-                sku_info = self.get_tmp_sku_info(body, goods_id, sign_direct_url, is_hk)
-                if sku_info == {}:
-                    return {}
+            '''单独处理all_img_url为[]的情况'''
+            if all_img_url == []:
+                all_img_url = [{'img_url': true_sku_info[0].get('img_url')}]
 
-                '''
-                由于这个拿到的都是小图，分辨率相当低，所以采用获取每个goods_id的phone端地址来获取每个规格的高清规格图
-                '''
-                # # print(Selector(text=body).css('dd.color_list li').extract())
-                # for item in Selector(text=body).css('dd.color_list li').extract():
-                #     # print(item)
-                #     try:
-                #         # 该颜色的商品的goods_id
-                #         color_goods_id = Selector(text=item).css('a::attr("href")').extract_first()
-                #         # 该颜色的名字
-                #         color_name = Selector(text=item).css('a::attr("title")').extract_first()
-                #         # 该颜色的img_url
-                #         color_goods_img_url = Selector(text=item).css('img::attr("src")').extract_first()
-                #
-                #         color_goods_id = re.compile('(\d+)').findall(color_goods_id)[0]
-                #     except IndexError:      # 表示该li为这个tmp_url的地址 (单独处理goods_id)
-                #         color_goods_id = goods_id
-                #         color_name = Selector(text=item).css('a::attr("title")').extract_first()
-                #         color_goods_img_url = Selector(text=item).css('img::attr("src")').extract_first()
-                #     print(color_goods_id, ' ', color_name, ' ', color_goods_img_url)
+            data['all_img_url'] = all_img_url
+            # pprint(all_img_url)
 
-                '''
-                获取每个规格对应价格跟规格以及其库存
-                '''
-                if self.get_true_sku_info(sku_info=sku_info) == {}:     # 表示出错退出
-                    return {}
-                else:                                                   # 成功获取
-                    true_sku_info, i_s, pintuan_time, all_sell_count = self.get_true_sku_info(sku_info=sku_info)
-                    data['price_info_list'] = true_sku_info
-                    data['pintuan_time'] = pintuan_time
-                    data['all_sell_count'] = all_sell_count
-                # pprint(true_sku_info)
+            # 单独处理得到goods_url
+            if sign_direct_url != '':
+                goods_url = sign_direct_url
 
-                # 设置detail_name_list
-                data['detail_name_list'] = self.get_detail_name_list(i_s=i_s, true_sku_info=true_sku_info)
-                # print(detail_name_list)
+            data['goods_url'] = goods_url
+            data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
 
-                '''单独处理all_img_url为[]的情况'''
-                if all_img_url == []:
-                    all_img_url = [{'img_url': true_sku_info[0].get('img_url')}]
+        except Exception as e:
+            print('遇到错误如下: ', e)
+            return self._data_error_init()
 
-                data['all_img_url'] = all_img_url
-                # pprint(all_img_url)
-
-                '''
-                单独处理得到goods_url
-                '''
-                if sign_direct_url != '':
-                    goods_url = sign_direct_url
-
-                data['goods_url'] = goods_url
-                data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
-
-            except Exception as e:
-                print('遇到错误如下: ', e)
-                return self._data_error_init()
-
-            if data != {}:
-                # pprint(data)
-                self.result_data = data
-                return data
-
-            else:
-                print('data为空!')
-                return self._data_error_init()
+        self.result_data = data
+        return data
 
     def deal_with_data(self) -> dict:
         '''

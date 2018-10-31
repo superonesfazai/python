@@ -138,8 +138,7 @@ class JdParse(Crawler):
             except Exception:
                 pass
 
-            # 处理'wi' 'code'
-            if data.get('wi') is not None:
+            if data.get('wi') is not None:  # 处理'wi' 'code'
                 # 用于获取p_info
                 code = data.get('wi', {}).get('code', '')
                 # self.lg.info('wi,code的为: {}'.format(code))
@@ -154,12 +153,8 @@ class JdParse(Crawler):
             else:
                 data['wi'] = {'code': []}
 
-            # 处理wdis
-            data['wdis'] = wdis
-
-            # 商品总销售量
-            data['all_sell_count'] = all_sell_count
-
+            data['wdis'] = wdis                         # 处理wdis
+            data['all_sell_count'] = all_sell_count     # 商品总销售量
             if data != {}:
                 self.result_data = data
                 # pprint(data)

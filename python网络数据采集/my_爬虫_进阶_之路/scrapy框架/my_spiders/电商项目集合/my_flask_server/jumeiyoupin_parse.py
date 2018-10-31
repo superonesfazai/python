@@ -11,13 +11,10 @@
 聚美优品常规商品页面解析系统
 """
 
-import time
 import re
 from pprint import pprint
 from json import dumps
-
-from time import sleep
-import gc
+from gc import collect
 
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
@@ -31,7 +28,7 @@ from fzutils.spider.crawler import Crawler
 from fzutils.common_utils import (
     json_2_dict,
     wash_sensitive_info,)
-from fzutils.time_utils import timestamp_to_regulartime
+from fzutils.time_utils import *
 
 class JuMeiYouPinParse(Crawler):
     def __init__(self):
@@ -47,7 +44,6 @@ class JuMeiYouPinParse(Crawler):
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Connection': 'keep-alive',
-            # 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Host': 'h5.jumei.com',
             'Referer': 'http://h5.jumei.com/product/detail?item_id=ht180310p3365132t1&type=global_deal',
             'Cache-Control': 'max-age=0',
@@ -62,8 +58,7 @@ class JuMeiYouPinParse(Crawler):
         :return: data 类型dict
         '''
         if goods_id == []:
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         goods_url = 'https://h5.jumei.com/product/detail?item_id=' + str(goods_id[0]) + '&type=' + str(goods_id[1])
         print('------>>>| 对应的手机端地址为: ', goods_url)
@@ -73,18 +68,11 @@ class JuMeiYouPinParse(Crawler):
         self.headers['Referer'] = goods_url
         body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
         # print(body)
+        if body == '' or json_2_dict(json_str=body) == {}:
+            print('获取到的body为空str! 或者 tmp_data为空dict!')
+            return self._data_error()
 
-        if body == '':
-            print('获取到的body为空str!')
-            self.result_data = {}
-            return {}
-
-        tmp_data = json_2_dict(json_str=body)
-        if tmp_data == {}:
-            self.result_data = {}
-            return {}
-
-        tmp_data = self.wash_data(data=tmp_data)
+        tmp_data = self.wash_data(data=json_2_dict(json_str=body))
         # pprint(tmp_data)
 
         #** 获取ajaxDynamicDetail请求中的数据
@@ -93,51 +81,33 @@ class JuMeiYouPinParse(Crawler):
         # print(body)
         if body_2 == '':
             print('获取到的body为空str!')
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         tmp_data_2 = json_2_dict(json_str=body_2)
         if tmp_data_2 == {}:
-            self.result_data = {}
-            return {}
+            return self._data_error()
+
         tmp_data_2 = self.wash_data_2(data=tmp_data_2)
         # pprint(tmp_data_2)
-
         tmp_data['data_2'] = tmp_data_2.get('data', {}).get('result', {})
         if tmp_data['data_2'] == {}:
             print('获取到的ajaxDynamicDetail中的数据为空值!请检查!')
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         # pprint(tmp_data)
+        return self._get_target_data(tmp_data=tmp_data)
+
+    def _get_target_data(self, tmp_data):
         data = {}
         try:
             data['title'] = self._wash_sensitive_info(tmp_data.get('data', {}).get('name', ''))
+            assert data['title'] != '', '获取到的title为空值, 请检查!'
             data['sub_title'] = ''
             # print(data['title'])
 
-            if data['title'] == '':
-                print('获取到的title为空值, 请检查!')
-                raise Exception
-
-            # shop_name
-            if tmp_data.get('data_2', {}).get('shop_info') == []:
-                data['shop_name'] = ''
-            else:
-                data['shop_name'] = tmp_data.get('data_2', {}).get('shop_info', {}).get('store_title', '')
+            data['shop_name'] = tmp_data.get('data_2', {}).get('shop_info', {}).get('store_title', '') if tmp_data.get('data_2', {}).get('shop_info') != [] else ''
             # print(data['shop_name'])
-
-            # 获取所有示例图片
-            all_img_url = tmp_data.get('data', {}).get('image_url_set', {}).get('single_many', [])
-            if all_img_url == []:
-                print('获取到的all_img_url为空[], 请检查!')
-                raise Exception
-            else:
-                all_img_url = [{
-                    'img_url': item.get('800', ''),
-                } for item in all_img_url]
-            # pprint(all_img_url)
-            data['all_img_url'] = all_img_url
+            data['all_img_url'] = self._get_all_img_url(tmp_data)
 
             # 获取p_info
             p_info = self.get_p_info(tmp_data=tmp_data)
@@ -147,15 +117,11 @@ class JuMeiYouPinParse(Crawler):
             # 获取每个商品的div_desc
             # 注意其商品的div_desc = description + description_usage + description_images
             div_desc = self.get_goods_div_desc(tmp_data=tmp_data)
+            assert div_desc != '', '获取到的div_desc为空值! 请检查'
             # print(div_desc)
-            if div_desc == '':
-                print('获取到的div_desc为空值! 请检查')
-                raise Exception
             data['div_desc'] = div_desc
 
-            '''
-            上下架时间 (注意:聚美优品常规今日10点上新商品，销售时长都是24小时)
-            '''
+            # 上下架时间 (注意:聚美优品常规今日10点上新商品，销售时长都是24小时)
             sell_time = self.get_sell_time(
                 begin_time=tmp_data.get('data_2', {}).get('start_time'),
                 end_time=tmp_data.get('data_2', {}).get('end_time')
@@ -170,52 +136,22 @@ class JuMeiYouPinParse(Crawler):
             # print(detail_name_list)
             data['detail_name_list'] = detail_name_list
 
-            '''
-            获取每个规格对应价格跟规格以及库存
-            '''
             true_sku_info = self.get_true_sku_info(size=tmp_data.get('data_2', {}).get('size', []))
+            assert true_sku_info != [], '获取到的sku_info为空值, 请检查!'
             # pprint(true_sku_info)
-            if true_sku_info == []:
-                print('获取到的sku_info为空值, 请检查!')
-                raise Exception
-            else:
-                data['price_info_list'] = true_sku_info
+            data['price_info_list'] = true_sku_info
+            data['is_delete'] = self._get_is_delete(tmp_data, true_sku_info)
 
-            '''
-            is_delete
-            '''
-            if int(tmp_data.get('data_2', {}).get('end_time')) < int(time.time()):
-                is_delete = 1
-            else:
-                all_stock = 0
-                for item in true_sku_info:
-                    all_stock += item.get('rest_number', 0)
-                # print(all_stock)
-                if all_stock == 0:
-                    is_delete = 1
-                else:
-                    is_delete = 0
-            # print(is_delete)
-            data['is_delete'] = is_delete
-
-            # all_sell_count
             all_sell_count = tmp_data.get('data_2', {}).get('buyer_number', '0')
             data['all_sell_count'] = all_sell_count
 
         except Exception as e:
             print('遇到错误如下: ', e)
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error()
 
-        if data != {}:
-            # pprint(data)
-            self.result_data = data
-            return data
-
-        else:
-            print('data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+        # pprint(data)
+        self.result_data = data
+        return data
 
     def deal_with_data(self):
         '''
@@ -287,6 +223,36 @@ class JuMeiYouPinParse(Crawler):
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             self.result_data = {}
             return {}
+
+    def _data_error(self):
+        self.result_data = {}
+
+        return {}
+
+    def _get_is_delete(self, tmp_data, true_sku_info):
+        is_delete = 0
+        if int(tmp_data.get('data_2', {}).get('end_time')) < datetime_to_timestamp(get_shanghai_time()):
+            is_delete = 1
+        else:
+            all_stock = 0
+            for item in true_sku_info:
+                all_stock += item.get('rest_number', 0)
+            # print(all_stock)
+            if all_stock == 0:
+                is_delete = 1
+        # print(is_delete)
+
+        return is_delete
+
+    def _get_all_img_url(self, tmp_data):
+        all_img_url = tmp_data.get('data', {}).get('image_url_set', {}).get('single_many', [])
+        assert all_img_url != [], '获取到的all_img_url为空[], 请检查!'
+        all_img_url = [{
+            'img_url': item.get('800', ''),
+        } for item in all_img_url]
+        # pprint(all_img_url)
+
+        return all_img_url
 
     def _wash_sensitive_info(self, data):
         add_sensitive_str_list = [
@@ -459,19 +425,13 @@ class JuMeiYouPinParse(Crawler):
         :param end_time: 类型int
         :return: [] 表示出错 | {'xx':'yyy'} 表示success
         '''
-        if begin_time is None:
-            print('获取到该商品的begin_time是None')
-            raise Exception
+        assert begin_time is not None, '获取到该商品的begin_time是None'
+        assert isinstance(begin_time, int), '获取该商品的begin_time类型错误, 请检查!'
 
-        if isinstance(begin_time, int):
-            sell_time = {
-                'begin_time': timestamp_to_regulartime(int(begin_time)),
-                'end_time': timestamp_to_regulartime(int(end_time)),
-            }
-
-        else:
-            print('获取该商品的begin_time类型错误, 请检查!')
-            raise Exception
+        sell_time = {
+            'begin_time': timestamp_to_regulartime(int(begin_time)),
+            'end_time': timestamp_to_regulartime(int(end_time)),
+        }
 
         return sell_time
 
@@ -483,9 +443,7 @@ class JuMeiYouPinParse(Crawler):
         '''
         # pprint(size_attr)
         # pprint(size)
-        if size_attr is None or size_attr == []:
-            raise ValueError('size_attr为空[]')
-
+        assert size_attr is not None or size_attr != [], 'size_attr为空[]'
         detail_name_list = []
         for item in size_attr:
             detail_name_list.append({
@@ -529,31 +487,30 @@ class JuMeiYouPinParse(Crawler):
         :param jumei_url:
         :return: goods_id 类型list eg: [] 表示非法url | ['xxxx', 'type=yyyy']
         '''
-        jumei_url = re.compile(r'http://').sub(r'https://', jumei_url)
-        jumei_url = re.compile(r';').sub('', jumei_url)
-        is_jumei_url = re.compile(r'https://h5.jumei.com/product/detail').findall(jumei_url)
-        if is_jumei_url != []:
-            if re.compile(r'https://h5.jumei.com/product/detail\?.*?item_id=(\w+)&{1,}.*?').findall(jumei_url) != []:
-                goods_id = re.compile(r'item_id=(\w+)&{1,}').findall(jumei_url)[0]
-                # print(goods_id)
-                try:
-                    type = re.compile(r'type=(.*)').findall(jumei_url)[0]
-                except IndexError:
-                    print('获取url的type时出错, 请检查!')
-                    return []
-                print('------>>>| 得到的聚美商品id为: ', goods_id, 'type为: ', type)
-
-                return [goods_id, type]
-            else:
-                print('获取goods_id时出错, 请检查!')
-                return []
-
-        else:
+        jumei_url = re.compile(r'http://').sub(r'https://', jumei_url).replace(';', '')
+        try:
+            re.compile(r'https://h5.jumei.com/product/detail').findall(jumei_url)[0]
+        except IndexError:
             print('聚美优品商品url错误, 非正规的url, 请参照格式(https://h5.jumei.com/product/detail)开头的...')
             return []
 
+        if re.compile(r'https://h5.jumei.com/product/detail\?.*?item_id=(\w+)&{1,}.*?').findall(jumei_url) != []:
+            goods_id = re.compile(r'item_id=(\w+)&{1,}').findall(jumei_url)[0]
+            # print(goods_id)
+            try:
+                type = re.compile(r'type=(.*)').findall(jumei_url)[0]
+            except IndexError:
+                print('获取url的type时出错, 请检查!')
+                return []
+            print('------>>>| 得到的聚美商品id为: ', goods_id, 'type为: ', type)
+
+            return [goods_id, type]
+        else:
+            print('获取goods_id时出错, 请检查!')
+            return []
+
     def __del__(self):
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     jumei = JuMeiYouPinParse()

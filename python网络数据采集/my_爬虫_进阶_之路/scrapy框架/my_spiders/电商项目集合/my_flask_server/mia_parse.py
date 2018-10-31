@@ -15,7 +15,7 @@ import json
 from pprint import pprint
 from time import sleep
 import re
-import gc
+from gc import collect
 from scrapy import Selector
 from json import dumps
 
@@ -80,33 +80,22 @@ class MiaParse(Crawler):
             body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
             # print(body)
             try:
-                # title, sub_title
                 data['title'], data['sub_title'] = self.get_title_and_sub_title(body=body)
-
                 all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
-                if all_img_url == '':
-                    return self._data_error_init()
+                assert all_img_url != '', 'all_img_url为空值!'
 
                 p_info = self._get_p_info(body=body)
-                if p_info == []:
-                    print('获取到的tmp_p_info为空值, 请检查!')
-                    return self._data_error_init()
+                assert p_info != [], '获取到的tmp_p_info为空值, 请检查!'
                 data['p_info'] = p_info
                 # pprint(p_info)
 
                 # 获取每个商品的div_desc
                 div_desc = self.get_goods_div_desc(body=body)
-                if div_desc == '':
-                    print('获取到的div_desc为空值! 请检查')
-                    return self._data_error_init()
+                assert div_desc != '', '获取到的div_desc为空值! 请检查'
                 data['div_desc'] = div_desc
 
-                '''
-                获取每个规格的goods_id，跟规格名，以及img_url, 用于后面的处理
-                '''
                 sku_info = self.get_tmp_sku_info(body, goods_id, sign_direct_url, is_hk)
-                if sku_info == {}:
-                    return {}
+                assert sku_info != {}, 'sku_info为空dict'
 
                 '''
                 由于这个拿到的都是小图，分辨率相当低，所以采用获取每个goods_id的phone端地址来获取每个规格的高清规格图
@@ -670,7 +659,7 @@ class MiaParse(Crawler):
             return ''
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     mia = MiaParse()

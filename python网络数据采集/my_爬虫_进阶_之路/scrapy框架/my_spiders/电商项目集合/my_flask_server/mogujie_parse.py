@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : mogujie_parse.py
-@Time    : 2018/1/27 15:32
 @connect : superonesfazai@gmail.com
 '''
 
@@ -19,7 +18,7 @@ import re
 from pprint import pprint
 from decimal import Decimal
 from time import sleep
-import gc
+from gc import collect
 
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
@@ -44,7 +43,6 @@ class MoGuJieParse(Crawler):
     def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
@@ -127,80 +125,79 @@ class MoGuJieParse(Crawler):
         """
         if goods_id == '':
             return self._data_error_init()
-        else:
-            tmp_url = 'https://shop.mogujie.com/detail/' + str(goods_id)
-            print('------>>>| 原pc地址为: ', tmp_url)
 
-            data = {}
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
-            # print(body)
-            if body == '':
-                print('获取到的body为空str!')
-                return self._data_error_init()
+        tmp_url = 'https://shop.mogujie.com/detail/' + str(goods_id)
+        print('------>>>| 原pc地址为: ', tmp_url)
+        data = {}
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+        # print(body)
+        if body == '':
+            print('获取到的body为空str!')
+            return self._data_error_init()
 
-            try:
-                goods_info = re.compile(r'var detailInfo = (.*?);</script>').findall(body)[0]
-                # print(goods_info)
+        try:
+            goods_info = re.compile(r'var detailInfo = (.*?);</script>').findall(body)[0]
+            # print(goods_info)
 
-                item_info = re.compile(r'itemInfo:(.*?),priceRuleImg').findall(goods_info)[0]
-                # print(item_info)
+            item_info = re.compile(r'itemInfo:(.*?),priceRuleImg').findall(goods_info)[0]
+            # print(item_info)
 
-                sku_info = re.compile(r'skuInfo:(.*?),pinTuanInfo').findall(goods_info)[0]
-                # print(sku_info)
+            sku_info = re.compile(r'skuInfo:(.*?),pinTuanInfo').findall(goods_info)[0]
+            # print(sku_info)
 
-                shop_info = re.compile(r'shopInfo:(.*?),skuInfo').findall(goods_info)[0]
-                # print(shop_info)
+            shop_info = re.compile(r'shopInfo:(.*?),skuInfo').findall(goods_info)[0]
+            # print(shop_info)
 
-                item_info =  json_2_dict(json_str=item_info)
-                sku_info = json_2_dict(json_str=sku_info)
-                shop_info = json_2_dict(json_str=shop_info)
-                # pprint(item_info)
-                # pprint(sku_info)
-                # pprint(shop_info)
+            item_info =  json_2_dict(json_str=item_info)
+            sku_info = json_2_dict(json_str=sku_info)
+            shop_info = json_2_dict(json_str=shop_info)
+            # pprint(item_info)
+            # pprint(sku_info)
+            # pprint(shop_info)
 
-                data['title'] = self._get_title(item_info)
-                data['sub_title'] = ''
-                data['shop_name'] = self._get_shop_name(shop_info)
-                data['all_img_url'] = self._get_all_img_url(item_info=item_info)
-                data['p_info'], tmp_p_info_body = self._get_p_info(goods_id=goods_id)
-                data['div_desc'] = self._get_div_desc(tmp_p_info_body=tmp_p_info_body)
-                data['detail_name_list'] = self._get_detail_name_list(sku_info=sku_info)
+            data['title'] = self._get_title(item_info)
+            data['sub_title'] = ''
+            data['shop_name'] = self._get_shop_name(shop_info)
+            data['all_img_url'] = self._get_all_img_url(item_info=item_info)
+            data['p_info'], tmp_p_info_body = self._get_p_info(goods_id=goods_id)
+            data['div_desc'] = self._get_div_desc(tmp_p_info_body=tmp_p_info_body)
+            data['detail_name_list'] = self._get_detail_name_list(sku_info=sku_info)
 
-                '''
-                获取每个规格对应价格跟规格以及其库存
-                '''
-                price_info_list = self.get_price_info_list(sku_info=sku_info)
-                if price_info_list == '':
-                    raise Exception
-                else:
-                    # pprint(price_info_list)
-                    data['price_info_list'] = price_info_list
-
-                # 商品价格和淘宝价
-                try:
-                    tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
-                    price = Decimal(tmp_price_list[-1]).__round__(2)          # 商品价格
-                    taobao_price = Decimal(tmp_price_list[0]).__round__(2)    # 淘宝价
-                    # print('商品的最高价: ', price, ' 最低价: ', taobao_price)
-                except IndexError:
-                    print('获取price和taobao_price时出错! 请检查')
-                    raise Exception
-
-                data['price'] = price
-                data['taobao_price'] = taobao_price
-
-            except Exception as e:
-                print('遇到错误: ', e)
-                return self._data_error_init()
-
-            if data != {}:
-                # pprint(data)
-                self.result_data = data
-                return data
-
+            '''
+            获取每个规格对应价格跟规格以及其库存
+            '''
+            price_info_list = self.get_price_info_list(sku_info=sku_info)
+            if price_info_list == '':
+                raise Exception
             else:
-                print('data为空!')
-                return self._data_error_init()
+                # pprint(price_info_list)
+                data['price_info_list'] = price_info_list
+
+            # 商品价格和淘宝价
+            try:
+                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in data['price_info_list']])
+                price = Decimal(tmp_price_list[-1]).__round__(2)          # 商品价格
+                taobao_price = Decimal(tmp_price_list[0]).__round__(2)    # 淘宝价
+                # print('商品的最高价: ', price, ' 最低价: ', taobao_price)
+            except IndexError:
+                print('获取price和taobao_price时出错! 请检查')
+                raise Exception
+
+            data['price'] = price
+            data['taobao_price'] = taobao_price
+
+        except Exception as e:
+            print('遇到错误: ', e)
+            return self._data_error_init()
+
+        if data != {}:
+            # pprint(data)
+            self.result_data = data
+            return data
+
+        else:
+            print('data为空!')
+            return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -594,7 +591,7 @@ class MoGuJieParse(Crawler):
             return ''
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     mogujie = MoGuJieParse()

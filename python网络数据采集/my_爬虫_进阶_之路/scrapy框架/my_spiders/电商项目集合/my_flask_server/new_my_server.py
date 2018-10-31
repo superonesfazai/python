@@ -27,7 +27,6 @@ from flask import (
 from flask_login import LoginManager
 
 from taobao_parse import TaoBaoLoginAndParse
-# from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
 from jd_parse import JdParse
 from zhe_800_parse import Zhe800Parse

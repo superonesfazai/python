@@ -13,10 +13,8 @@
 
 from pprint import pprint
 from json import dumps
-from time import sleep
 import re
-import gc
-
+from gc import collect
 import asyncio
 from scrapy.selector import Selector
 from settings import (
@@ -70,8 +68,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
         '''
         goods_id = await self.get_goods_id_from_url(jumei_pintuan_url)
         if goods_id == []:
-            self.result_data = {}
-            return {}
+            return await self._data_error()
 
         '''
         原先采用requests被过滤无返回结果, 于是用AioHttp无奈速度过慢, 换用phantomjs
@@ -108,97 +105,78 @@ class JuMeiYouPinPinTuanParse(Crawler):
         if body == '' or tmp_body == '':
             self.msg = '获取到的body为空str!' + ' 出错地址: ' + goods_url
             self.lg.error(self.msg)
-            self.result_data = {}
-            return {}
+            return await self._data_error()
 
         data = await self.json_2_dict(json_str=body)
         if data == {}:
             self.msg = '出错地址: ' + goods_url
             self.lg.error(self.msg)
-            self.result_data = {}
-            return {}
+            return await self._data_error()
+
         data = await self.wash_data(data=data)
         data = data.get('data', {})
         # pprint(data)
-
         try:
-            data['title'] = data.get('share_info', [])[1].get('text', '')
-            data['title'] = re.compile(r'聚美').sub('', data['title'])
-            if len(data.get('buy_alone', {})) == 1:
-                data['sub_title'] = ''
-            else:
-                data['sub_title'] = data.get('buy_alone', {}).get('name', '')
-                data['sub_title'] = re.compile(r'聚美').sub('', data['sub_title'])
-            # print(data['title'])
-            if data['title'] == '':
-                self.lg.error('获取到的title为空值, 请检查!')
-                raise Exception
+            data['title'] = await self._get_title(data=data)
+            data['sub_title'] = await self._get_sub_title(data=data)
+            data['shop_name'] = await self._get_shop_name(data=data)
+            data['all_img_url'] = await self.get_all_img_url(data=data)
+            data['p_info'] = await self.get_p_info(body=tmp_body)
 
-            # shop_name
-            if data.get('shop_info') == []:
-                data['shop_name'] = ''
-            else:
-                data['shop_name'] = data.get('shop_info', {}).get('store_title', '')
-            # print(data['shop_name'])
-
-            # 获取所有示例图片
-            all_img_url = await self.get_all_img_url(data=data)
-            data['all_img_url'] = all_img_url
-
-            # 获取p_info
-            p_info = await self.get_p_info(body=tmp_body)
-            data['p_info'] = p_info
-
-            # 获取div_desc
             div_desc = await self.get_div_desc(body=tmp_body)
             div_desc = await AioHttp.wash_html(div_desc)
             # print(div_desc)
             data['div_desc'] = div_desc
 
             # 上下架时间(拼团列表数据接口里面有这里先不获取)
-
-            # 设置detail_name_list
-            detail_name_list = await self.get_detail_name_list(size_attr=data.get('buy_alone', {}).get('size_attr', []))
-            data['detail_name_list'] = detail_name_list
-
-            # 获取每个规格对应价格以及库存
+            data['detail_name_list'] = await self.get_detail_name_list(size_attr=data.get('buy_alone', {}).get('size_attr', []))
             true_sku_info = await self.get_true_sku_info(buy_alone_size=data.get('buy_alone', {}).get('size', []), size=data.get('size', []), group_single_price=data.get('group_single_price', ''))
             data['price_info_list'] = true_sku_info
-
-            # is_delete
-            product_status = data.get('product_status', '')
-            is_delete = await self.get_is_delete(product_status=product_status, true_sku_info=true_sku_info)
-            data['is_delete'] = is_delete
-
-            # all_sell_count
-            all_sell_count = data.get('buyer_number_text', '')
-            if all_sell_count != '':
-                all_sell_count = re.compile(r'(\d+\.?\d*)').findall(all_sell_count)[0]
-                is_W = re.compile(r'万').findall(all_sell_count)
-                if is_W != []:
-                    all_sell_count = str(int(float(all_sell_count) * 10000))
-            else: all_sell_count = '0'
-            data['all_sell_count'] = all_sell_count
-
+            data['is_delete'] = await self.get_is_delete(product_status=data.get('product_status', ''), true_sku_info=true_sku_info)
+            data['all_sell_count'] = await self._get_all_sell_count(data)
             data['goods_url'] = goods_url
-
         except Exception as e:
             self.msg = '遇到错误如下: ' + str(e) + ' 出错地址: ' + goods_url
-            self.lg.error(self.msg)
-            self.lg.exception(e)
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            self.lg.error(self.msg, exc_info=True)
+            return await self._data_error()
 
-        if data != {}:
-            # pprint(data)
-            self.result_data = data
-            return data
+        # pprint(data)
+        self.result_data = data
+        return data
 
+    async def _get_all_sell_count(self, data):
+        all_sell_count = data.get('buyer_number_text', '')
+        if all_sell_count != '':
+            all_sell_count = re.compile(r'(\d+\.?\d*)').findall(all_sell_count)[0]
+            is_W = re.compile(r'万').findall(all_sell_count)
+            if is_W != []:
+                all_sell_count = str(int(float(all_sell_count) * 10000))
         else:
-            self.msg = 'data为空!' + ' 出错地址: ' + goods_url
-            self.lg.error(self.msg)
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            all_sell_count = '0'
+
+        return all_sell_count
+
+    async def _get_shop_name(self, data):
+        shop_name = ''
+        if data.get('shop_info') != []:
+            shop_name = data.get('shop_info', {}).get('store_title', '')
+
+        return shop_name
+
+    async def _get_sub_title(self, data):
+        sub_title = ''
+        if len(data.get('buy_alone', {})) != 1:
+            sub_title = data.get('buy_alone', {}).get('name', '')
+            sub_title = re.compile(r'聚美').sub('', sub_title)
+
+        return sub_title
+
+    async def _get_title(self, data):
+        title = data.get('share_info', [])[1].get('text', '')
+        title = re.compile('聚美').sub('', title)
+        assert title != '', '获取到的title为空值, 请检查!'
+
+        return title
 
     async def deal_with_data(self, jumei_pintuan_url) -> dict:
         '''
@@ -211,7 +189,6 @@ class JuMeiYouPinPinTuanParse(Crawler):
             account = ''
             title = data['title']
             sub_title = data['sub_title']
-
             # 商品价格和淘宝价
             try:
                 tmp_price_list = sorted([round(float(item.get('pintuan_price', '')), 2) for item in data['price_info_list']])
@@ -220,8 +197,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
             except IndexError:
                 self.msg = '获取price or taobao_price时出错请检查!' + ' 出错地址: ' + data['goods_url']
                 self.lg.error(self.msg)
-                self.result_data = {}
-                return {}
+                return await self._data_error()
 
             detail_name_list = data['detail_name_list']
             price_info_list = data['price_info_list']
@@ -264,6 +240,11 @@ class JuMeiYouPinPinTuanParse(Crawler):
             except KeyError:
                 pass
             return {}
+
+    async def _data_error(self):
+        self.result_data = {}
+
+        return {}
 
     async def insert_into_jumeiyoupin_pintuan_table(self, data, pipeline, logger) -> bool:
         '''
@@ -624,7 +605,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
             del self.lg
             del self.msg
         except: pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     jumei_pintuan = JuMeiYouPinPinTuanParse()

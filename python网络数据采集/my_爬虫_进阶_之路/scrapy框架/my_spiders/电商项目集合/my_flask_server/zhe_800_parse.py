@@ -57,168 +57,153 @@ class Zhe800Parse(Crawler):
         :return: data   类型dict
         '''
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
-        else:
-            tmp_url = 'https://th5.m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
-            # print('------>>>| 得到的detail信息的地址为: ', tmp_url)
+            return self._data_error()
 
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
-            if body == '':
-                self.result_data = {}
-                return {}
-            else: data = [body]
+        tmp_url = 'https://th5.m.zhe800.com/gateway/app/detail/product?productId=' + str(goods_id)
+        # print('------>>>| 得到的detail信息的地址为: ', tmp_url)
+        body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+        if body == '':
+            return self._data_error()
 
-            if data != []:
-                data = json_2_dict(json_str=data[0])
-                if data == {}:
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
-                # pprint(data)
+        data = [body]
+        if data != []:
+            data = json_2_dict(json_str=data[0])
+            if data == {}:
+                return self._data_error()
 
-                # 处理base
-                base = data.get('/app/detail/product/base', '')
-                base = json_2_dict(json_str=base)
-                if base == {}:
-                    print("json.loads转换出错，得到base值可能为空，此处跳过")
-                    base = ''
+            # 处理base
+            base = data.get('/app/detail/product/base', '')
+            base = json_2_dict(json_str=base)
+            if base == {}:
+                print("json.loads转换出错，得到base值可能为空，此处跳过")
+                base = ''
 
-                # 处理profiles
-                profiles = data.get('/app/detail/product/profiles', '')
-                profiles = json_2_dict(json_str=profiles)
-                if profiles == {}:
-                    print("json.loads转换出错，得到profiles值可能为空，此处跳过")
-                    profiles = ''
+            # 处理profiles
+            profiles = data.get('/app/detail/product/profiles', '')
+            profiles = json_2_dict(json_str=profiles)
+            if profiles == {}:
+                print("json.loads转换出错，得到profiles值可能为空，此处跳过")
+                profiles = ''
 
-                # 处理score
-                score = data.get('/app/detail/product/score', '')
-                score = json_2_dict(json_str=score)
+            # 处理score
+            score = data.get('/app/detail/product/score', '')
+            score = json_2_dict(json_str=score)
+            try:
+                score.pop('contents')
+            except:
+                pass
+            if score == {}:
+                print("json.loads转换出错，得到score值可能为空，此处跳过")
+                score = ''
+
+            # 处理sku
+            sku = data.get('/app/detail/product/sku', '')
+            sku = json_2_dict(json_str=sku)
+            # pprint(sku)
+            if sku == {}:
+                print("json.loads转换出错，得到sku值可能为空，此处跳过")
+                sku = ''
+
+            data['/app/detail/product/base'] = base
+            data['/app/detail/product/profiles'] = profiles
+            data['/app/detail/product/score'] = score
+            data['/app/detail/product/sku'] = sku
+
+            # 得到手机版地址
+            try:
+                phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
+            except AttributeError:
+                print('获取手机版地址失败，此处跳过')
+                return self._data_error()
+
+            print('------>>>| 得到商品手机版地址为: ', phone_url)
+            # 得到并处理detail(即图文详情显示信息)
+            tmp_detail_url = 'https://th5.m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
+            detail_data_body = Requests.get_url_body(url=tmp_detail_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+            # print(detail_data_body)
+            if detail_data_body == '':
+                print('detail_data为[]!')
+                return self._data_error()
+            else:
+                detail_data = [detail_data_body]
+
+            if detail_data != []:
+                detail_data = json_2_dict(json_str=detail_data[0])
+                if detail_data == {}:
+                    print('json.loads(detail_data)时报错, 此处跳过')
+                    return self._data_error()
+
+                detail = detail_data.get('/app/detail/graph/detail', '')
+                detail = json_2_dict(json_str=detail)
                 try:
-                    score.pop('contents')
+                    detail.pop('small')
                 except:
                     pass
-                if score == {}:
-                    print("json.loads转换出错，得到score值可能为空，此处跳过")
-                    score = ''
+                if detail == {}:
+                    print("json.loads转换出错，得到detail值可能为空，此处跳过")
+                    detail = ''
+                # print(detail)
 
-                # 处理sku
-                sku = data.get('/app/detail/product/sku', '')
-                sku = json_2_dict(json_str=sku)
-                # pprint(sku)
-                if sku == {}:
-                    print("json.loads转换出错，得到sku值可能为空，此处跳过")
-                    sku = ''
+                # div_desc
+                tmp_div_desc = self._get_div_desc(detail=detail, goods_id=goods_id)
+                if tmp_div_desc == '':
+                    return self._data_error()
+                # print(tmp_div_desc)
+                data['/app/detail/graph/detail'] = tmp_div_desc
 
-                data['/app/detail/product/base'] = base
-                data['/app/detail/product/profiles'] = profiles
-                data['/app/detail/product/score'] = score
-                data['/app/detail/product/sku'] = sku
+                # shop_name
+                shop_name = self._get_shop_name(data=data)
+                if isinstance(shop_name, dict):
+                    if shop_name == {}:
+                        return self._data_error()
+                data['shop_name'] = shop_name
 
-                # 得到手机版地址
-                try:
-                    phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
-                except AttributeError:
-                    print('获取手机版地址失败，此处跳过')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
-
-                print('------>>>| 得到商品手机版地址为: ', phone_url)
-                # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-
-                # 得到并处理detail(即图文详情显示信息)
-                tmp_detail_url = 'https://th5.m.zhe800.com/gateway/app/detail/graph?productId=' + str(goods_id)
-                detail_data_body = Requests.get_url_body(url=tmp_detail_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
-                # print(detail_data_body)
-                if detail_data_body == '':
-                    print('detail_data为[]!')
-                    self.result_data = {}
-                    return {}
-                else: detail_data = [detail_data_body]
-
-                if detail_data != []:
-                    detail_data = json_2_dict(json_str=detail_data[0])
-                    if detail_data == {}:
-                        print('json.loads(detail_data)时报错, 此处跳过')
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                        return {}
-                    # pprint(detail_data)
-
-                    detail = detail_data.get('/app/detail/graph/detail', '')
-                    detail = json_2_dict(json_str=detail)
-                    try:
-                        detail.pop('small')
-                    except:
-                        pass
-                    if detail == {}:
-                        print("json.loads转换出错，得到detail值可能为空，此处跳过")
-                        detail = ''
-                    # print(detail)
-
-                    # div_desc
-                    tmp_div_desc = self._get_div_desc(detail=detail, goods_id=goods_id)
-                    if tmp_div_desc == '':
-                        self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                        return {}
-                    # print(tmp_div_desc)
-                    data['/app/detail/graph/detail'] = tmp_div_desc
-
-                    # shop_name
-                    shop_name = self._get_shop_name(data=data)
-                    if isinstance(shop_name, dict):
-                        if shop_name == {}:
-                            self.result_data = {}
-                            return {}
-                    data['shop_name'] = shop_name
-
-                    '''
-                    得到秒杀开始时间和结束时间
-                    '''
-                    schedule_and_stock_url = 'https://th5.m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
-                    schedule_and_stock_info_body = Requests.get_url_body(url=schedule_and_stock_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
-                    if schedule_and_stock_info_body == '':
-                        print('schedule_and_stock_info为空!')
-                        self.result_data = {}
-                        return {}
-                    else: schedule_and_stock_info = [schedule_and_stock_info_body]
-
-                    if schedule_and_stock_info != []:
-                        schedule_and_stock_info = json_2_dict(json_str=schedule_and_stock_info[0])
-                        if schedule_and_stock_info == {}:
-                            print('得到秒杀开始时间和结束时间时错误, 此处跳过')
-                            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                            return {}
-
-                        schedule = schedule_and_stock_info.get('/app/detail/status/schedule')
-                        if schedule is None:
-                            schedule = {}
-                        else:
-                            schedule = json_2_dict(json_str=schedule)
-
-                        stock = schedule_and_stock_info.get('/app/detail/status/stock')
-                        if stock is None:
-                            stock = {}
-                        else:
-                            stock = json_2_dict(json_str=stock)
-                    else:
-                        schedule = {}
-                        stock = {}
-                    data['schedule'] = schedule
-                    data['stock'] = stock
-                    data['parent_dir'] = _z8_get_parent_dir(goods_id)
-
-                    self.result_data = data
-                    # pprint(data)
-                    return data
-
+                '''
+                得到秒杀开始时间和结束时间
+                '''
+                schedule_and_stock_url = 'https://th5.m.zhe800.com/gateway/app/detail/status?productId=' + str(goods_id)
+                schedule_and_stock_info_body = Requests.get_url_body(url=schedule_and_stock_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+                if schedule_and_stock_info_body == '':
+                    print('schedule_and_stock_info为空!')
+                    return self._data_error()
                 else:
-                    print('detail_data为空!')
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
+                    schedule_and_stock_info = [schedule_and_stock_info_body]
+
+                if schedule_and_stock_info != []:
+                    schedule_and_stock_info = json_2_dict(json_str=schedule_and_stock_info[0])
+                    if schedule_and_stock_info == {}:
+                        print('得到秒杀开始时间和结束时间时错误, 此处跳过')
+                        return self._data_error()
+
+                    schedule = schedule_and_stock_info.get('/app/detail/status/schedule')
+                    if schedule is None:
+                        schedule = {}
+                    else:
+                        schedule = json_2_dict(json_str=schedule)
+
+                    stock = schedule_and_stock_info.get('/app/detail/status/stock')
+                    if stock is None:
+                        stock = {}
+                    else:
+                        stock = json_2_dict(json_str=stock)
+                else:
+                    schedule = {}
+                    stock = {}
+                data['schedule'] = schedule
+                data['stock'] = stock
+                data['parent_dir'] = _z8_get_parent_dir(goods_id)
+
+                self.result_data = data
+                # pprint(data)
+                return data
 
             else:
-                print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                print('detail_data为空!')
+                return self._data_error()
+
+        else:
+            print('data为空!')
+            return self._data_error()
 
     def deal_with_data(self):
         '''
@@ -325,6 +310,11 @@ class Zhe800Parse(Crawler):
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             self.result_data = {}
             return {}
+
+    def _data_error(self):
+        self.result_data = {}
+
+        return {}
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=11)

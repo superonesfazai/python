@@ -80,24 +80,6 @@ class JuanPiParse(Crawler):
             print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
 
             '''
-            1.原先使用requests来模拟(起初安全的运行了一个月)，但是后来发现光requests会not Found，记住使用前别翻墙
-            '''
-            # try:
-            #     response = requests.get(tmp_url, headers=self.headers, proxies=tmp_proxies, timeout=12)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-            #     main_body = response.content.decode('utf-8')
-            #     # print(main_body)
-            #     # main_body = re.compile(r'\n').sub('', main_body)
-            #     main_body = re.compile(r'\t').sub('', main_body)
-            #     main_body = re.compile(r'  ').sub('', main_body)
-            #     print(main_body)
-            #     data = re.compile(r'__PRELOADED_STATE__=(.*),window\.__SERVER_TIME__=').findall(main_body)  # 贪婪匹配匹配所有
-            #     print(data)
-            # except Exception:
-            #     print('requests.get()请求超时....')
-            #     print('data为空!')
-            #     return self._data_error_init()
-
-            '''
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
             # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块

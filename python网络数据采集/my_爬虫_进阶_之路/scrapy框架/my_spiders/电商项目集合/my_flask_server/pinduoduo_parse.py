@@ -70,77 +70,75 @@ class PinduoduoParse(Crawler):
         :return: data   类型dict
         '''
         if goods_id == '':
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
-        else:
-            tmp_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + str(goods_id)
-            print('------>>>| 得到的商品手机版地址为: ', tmp_url)
+            return self._data_error()
+
+        tmp_url = 'http://mobile.yangkeduo.com/goods.html?goods_id=' + str(goods_id)
+        print('------>>>| 得到的商品手机版地址为: ', tmp_url)
+        '''
+        1.采用requests，由于经常返回错误的body(即requests.get返回的为空的html), So pass
+        '''
+        # body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+        '''
+        2.采用phantomjs来获取
+        '''
+        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
+        if body == '':
+            print('body中re匹配到的data为空!')
+            return self._data_error()
+
+        data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
+        if data != []:
+            data = json_2_dict(json_str=data[0]).get('initDataObj', {})
+            if data == {}:
+                return self._data_error()
+            # pprint(data)
+
+            try:
+                data['goods'].pop('localGroups')
+                data['goods'].pop('mallService')
+                data.pop('reviews')             # 评价信息跟相关统计
+            except:
+                pass
+            # pprint(data)
 
             '''
-            1.采用requests，由于经常返回错误的body(即requests.get返回的为空的html), So pass
+            处理detailGallery转换成能被html显示页面信息
             '''
-            # body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+            detail_data = data.get('goods', {}).get('detailGallery', [])
+            tmp_div_desc = ''
+            if detail_data != []:
+                for index in range(0, len(detail_data)):
+                    if index == 0:      # 跳过拼多多的提示
+                        pass
+                    else:
+                        tmp = ''
+                        tmp_img_url = detail_data[index].get('url')
+                        tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_img_url)
+                        tmp_div_desc += tmp
 
-            '''
-            2.采用phantomjs来获取
-            '''
-            body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
-
-            if body == '':
-                print('body中re匹配到的data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-
-            data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
-            if data != []:
-                data = json_2_dict(json_str=data[0]).get('initDataObj', {})
-                if data == {}:
-                    self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                    return {}
-                # pprint(data)
-
-                try:
-                    data['goods'].pop('localGroups')
-                    data['goods'].pop('mallService')
-                    data.pop('reviews')             # 评价信息跟相关统计
-                except:
-                    pass
-                # pprint(data)
-
-                '''
-                处理detailGallery转换成能被html显示页面信息
-                '''
-                detail_data = data.get('goods', {}).get('detailGallery', [])
-                tmp_div_desc = ''
-                if detail_data != []:
-                    for index in range(0, len(detail_data)):
-                        if index == 0:      # 跳过拼多多的提示
-                            pass
-                        else:
-                            tmp = ''
-                            tmp_img_url = detail_data[index].get('url')
-                            tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_img_url)
-                            tmp_div_desc += tmp
-
-                    detail_data = '<div>' + tmp_div_desc + '</div>'
-
-                else:
-                    detail_data = ''
-                # print(detail_data)
-                try:
-                    data['goods'].pop('detailGallery')  # 删除图文介绍的无第二次用途的信息
-                except:
-                    pass
-                data['div_desc'] = detail_data
-
-                # pprint(data)
-                self.result_data = data
-                return data
+                detail_data = '<div>' + tmp_div_desc + '</div>'
 
             else:
-                print('data为空!')
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
+                detail_data = ''
+            # print(detail_data)
+            try:
+                data['goods'].pop('detailGallery')  # 删除图文介绍的无第二次用途的信息
+            except:
+                pass
+            data['div_desc'] = detail_data
+
+            # pprint(data)
+            self.result_data = data
+            return data
+
+        else:
+            print('data为空!')
+            return self._data_error()
+
+    def _data_error(self):
+        self.result_data = {}
+
+        return {}
 
     def deal_with_data(self):
         '''

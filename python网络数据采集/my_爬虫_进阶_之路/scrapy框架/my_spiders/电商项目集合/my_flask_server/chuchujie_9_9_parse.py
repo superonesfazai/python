@@ -36,7 +36,6 @@ class ChuChuJie_9_9_Parse(Crawler):
     def __init__(self):
         super(ChuChuJie_9_9_Parse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
-            
             is_use_driver=True,
             driver_executable_path=PHANTOMJS_DRIVER_PATH)
         self._set_headers()
@@ -45,7 +44,6 @@ class ChuChuJie_9_9_Parse(Crawler):
     def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            # 'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Connection': 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -68,70 +66,6 @@ class ChuChuJie_9_9_Parse(Crawler):
 
         print('------>>>| 对应的手机端地址为: ', 'https://m.chuchujie.com/details/detail.html?id=' + goods_id)
         '''
-        1.原先直接去手机端页面api post请求数据但是死活就返回请求参数错误，反复研究无果, 就先改为解析pc端的
-        '''
-        # tmp_url = 'https://api-product.chuchujie.com/api.php?method=product_detail'
-        # self.headers['Referer'] = 'https://m.chuchujie.com/details/detail.html?id=' + str(goods_id)
-        #
-        # # 设置代理ip
-        # ip_object = MyIpPools()
-        # self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        # self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-        #
-        # tmp_proxies = {
-        #     'http': self.proxy,
-        # }
-        # # print('------>>>| 正在使用代理ip: {} 进行爬取... |<<<------'.format(self.proxy))
-        #
-        # params_2 = {
-        #     "channel": "QD_appstore",
-        #     "package_name": "com.culiukeji.huanletao",
-        #     "client_version": "3.9.101",
-        #     "ageGroup": "AG_0to24",
-        #     "client_type": "h5",
-        #     "api_version": "v5",
-        #     "imei": "",
-        #     "method": "product_detail",
-        #     "gender": "1",      # 性别 0-女、1-男
-        #     "token": "",
-        #     "userId": "",
-        #     "product_id": int(goods_id),
-        # }
-        #
-        # params = {
-        #     'data': json.dumps(params_2),
-        # }
-        #
-        # try:
-        #     # response = requests.post(
-        #     #     url=tmp_url,
-        #     #     headers=self.headers,
-        #     #     data=json.dumps(params),
-        #     #     proxies=tmp_proxies,
-        #     #     timeout=13
-        #     # )
-        #     response = requests.get(
-        #         url=tmp_url,
-        #         headers=self.headers,
-        #         params=params,
-        #         proxies=tmp_proxies,
-        #         timeout=13,
-        #     )
-        #     last_url = re.compile(r'\+').sub('', response.url)  # 转换后得到正确的url请求地址
-        #     print(last_url)
-        #     print(tmp_url + '&data=%7B%22channel%22%3A%22QD_appstore%22%2C%22package_name%22%3A%22com.culiukeji.huanletao%22%2C%22client_version%22%3A%223.9.101%22%2C%22ageGroup%22%3A%22AG_0to24%22%2C%22client_type%22%3A%22h5%22%2C%22api_version%22%3A%22v5%22%2C%22imei%22%3A%22%22%2C%22method%22%3A%22product_detail%22%2C%22gender%22%3A%221%22%2C%22token%22%3A%22%22%2C%22userId%22%3A%22%22%2C%22product_id%22%3A10016793335%7D')
-        #     response = requests.get(last_url, headers=self.headers, proxies=tmp_proxies, timeout=13)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
-        #
-        #     data = response.content.decode('utf-8')
-        #     print(data)
-        #
-        # except Exception:
-        #     print('requests.post()请求超时....')
-        #     print('data为空!')
-        #     self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-        #     return {}
-
-        '''
         2. 改为解析pc端的商品页面数据
         '''
         tmp_url = 'http://wx.chuchujie.com/index.php?s=/WebProduct/product_detail/product_id/' + str(goods_id)
@@ -141,7 +75,6 @@ class ChuChuJie_9_9_Parse(Crawler):
         
         body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
         # print(body)
-
         if body == '':
             print('获取到的body为空str!')
             self.result_data = {}
@@ -149,22 +82,18 @@ class ChuChuJie_9_9_Parse(Crawler):
 
         data = {}
         try:
-            data['title'] = Selector(text=body).css('div.zy_info_rt h3::text').extract_first()
-            if data['title'] == '':
-                print('title为空!')
-                raise Exception
+            data['title'] = Selector(text=body).css('div.zy_info_rt h3::text').extract_first() or ''
+            assert data['title'] != '', 'title为空!'
 
             data['sub_title'] = ''
-            data['shop_name'] = Selector(text=body).css('div.other.ft14.clearfix label b::text').extract_first()
+            data['shop_name'] = Selector(text=body).css('div.other.ft14.clearfix label b::text').extract_first() or ''
             data['all_img_url'] = self._get_all_img_url(body=body)
             data['p_info'] = []     # 由于获取的是pc端的对应没有p_info
 
-            div_desc = Selector(text=body).css('div.s_two').extract_first()
-            if div_desc == '':
-                print('div_desc为空!请检查!')
-                raise Exception
-
+            div_desc = Selector(text=body).css('div.s_two').extract_first() or ''
+            assert div_desc != '', 'div_desc为空!请检查!'
             data['div_desc'] = div_desc
+
             detail_name_list = self._get_detail_name_list(body=body)
             data['detail_name_list'] = detail_name_list
 
@@ -181,9 +110,7 @@ class ChuChuJie_9_9_Parse(Crawler):
                 print('获取price失败,请检查!')
                 raise IndexError
 
-            if taobao_price == '' or price == '':
-                print('获取到的taobao_price或者price为空值出错, 请检查!')
-                raise Exception
+            assert taobao_price != '' or price != '', '获取到的taobao_price或者price为空值出错, 请检查!'
 
             taobao_price = Decimal(taobao_price).__round__(2)
             price = Decimal(price).__round__(2)
@@ -191,9 +118,6 @@ class ChuChuJie_9_9_Parse(Crawler):
             data['price'] = price
             data['taobao_price'] = taobao_price
 
-            '''
-            获取每个规格对应价格跟规格以及其库存
-            '''
             price_info_list = self.get_price_info_list(
                 detail_name_list,
                 body,
@@ -201,34 +125,16 @@ class ChuChuJie_9_9_Parse(Crawler):
                 taobao_price
             )
             # pprint(price_info_list)
-            if price_info_list == '':
-                raise Exception
-            else:
-                data['price_info_list'] = price_info_list
+            assert price_info_list != '', 'price_info_list为空值!'
+            data['price_info_list'] = price_info_list
+            data['is_delete'] = self._get_is_delete(body=body)
 
-            '''
-            是否卖光
-            '''
-            all_stock = int(Selector(text=body).css('dl.detail dd label em::text').extract_first())
-            if all_stock == 0:
-                is_delete = 1
-            else:
-                is_delete = 0
-            data['is_delete'] = is_delete
+            self.result_data = data
+            return data
 
         except Exception as e:
             print('遇到错误: ', e)
             self.result_data = {}
-            return {}
-
-        if data != {}:
-            # pprint(data)
-            self.result_data = data
-            return data
-
-        else:
-            print('data为空!')
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
 
     def deal_with_data(self) -> dict:
@@ -282,6 +188,14 @@ class ChuChuJie_9_9_Parse(Crawler):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _get_is_delete(self, body):
+        is_delete = 0
+        all_stock = int(Selector(text=body).css('dl.detail dd label em::text').extract_first())
+        if all_stock == 0:
+            is_delete = 1
+
+        return is_delete
 
     def _get_all_img_url(self, body):
         return [{
