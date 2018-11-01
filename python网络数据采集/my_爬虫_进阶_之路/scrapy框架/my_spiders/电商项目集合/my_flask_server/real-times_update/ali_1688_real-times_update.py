@@ -13,11 +13,8 @@ sys.path.append('..')
 from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
-from time import sleep
-from logging import (
-    INFO,
-    ERROR,)
+from gc import collect
+from time import time
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -26,130 +23,213 @@ from settings import (
 from sql_str_controller import al_select_str_6
 from multiplex_code import get_sku_info_trans_record
 
-from fzutils.time_utils import get_shanghai_time
-from fzutils.linux_utils import daemon_init
-from fzutils.cp_utils import (
-    _get_price_change_info,
-    get_shelf_time_and_delete_time,
-    format_price_info_list,)
-from fzutils.common_utils import json_2_dict
-from fzutils.log_utils import set_logger
-from fzutils.safe_utils import get_uuid1
+from fzutils.cp_utils import _get_price_change_info
+from fzutils.spider.async_always import *
 
-def run_forever():
-    while True:
-        my_lg = set_logger(
-            logger_name=get_uuid1(),
-            log_file_name=MY_SPIDER_LOGS_PATH + '/1688/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
-            console_log_level=INFO,
-            file_log_level=ERROR
-        )
-        #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+class ALUpdater(AsyncCrawler):
+    """1688常规商品数据更新"""
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self, 
+            *params, 
+            **kwargs,
+            log_print=True,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/1688/实时更新/')
+        self.tmp_sql_server = None
+        self.goods_index = 1
+        self.concurrency = 5        # 并发量
+
+    async def _get_db_old_data(self) -> (list, None):
+        '''
+        获取db需求更新的数据
+        :return:
+        '''
+        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        result = None
         try:
-            result = list(tmp_sql_server._select_table(sql_str=al_select_str_6))
+            result = list(self.tmp_sql_server._select_table(sql_str=al_select_str_6))
         except TypeError:
-            my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
-            result = None
-        if result is None:
+            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+
+        if result is not None:
+            self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            self.lg.info(str(result))
+            self.lg.info('--------------------------------------------------------')
+            self.lg.info('待更新个数: {0}'.format(len(result)))
+            self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+
+        return result
+
+    async def _get_new_db_conn(self, index) -> None:
+        '''
+        获取新db conn
+        :return:
+        '''
+        if index % 50 == 0:
+            self.lg.info('正在重置，并与数据库建立新连接中...')
+            self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+            self.lg.info('与数据库的新连接成功建立...')
+
+    async def _get_new_ali_obj(self, index) -> None:
+        if index % 6 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
+            try:
+                del self.ali_1688
+            except:
+                pass
+            collect()
+            self.ali_1688 = ALi1688LoginAndParse(logger=self.lg)
+
+    async def _get_one_data(self, ali_1688, goods_id):
+        return ali_1688.get_ali_1688_data(goods_id)
+
+    async def _update_one_goods_info(self, item, index) -> list:
+        '''
+        更新一个goods的信息
+        :param index: 索引值
+        :return: ['goods_id', bool:'成功与否']
+        '''
+        res = False
+        goods_id = item[0]
+        await self._get_new_ali_obj(index=index)
+        await self._get_new_db_conn(index=index)
+
+        if self.tmp_sql_server.is_connect_success:
+            self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
+            # data = ali_1688.get_ali_1688_data(goods_id)
+            data = await self._get_one_data(ali_1688=self.ali_1688, goods_id=goods_id)
+            if isinstance(data, int) is True:  # 单独处理返回tt为4041
+                self.goods_index += 1
+                return [goods_id, res]
+
+            if data.get('is_delete') == 1:
+                # 单独处理【原先插入】就是 下架状态的商品
+                data['goods_id'] = goods_id
+                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+                    tmp_data=data,
+                    is_delete=item[1],
+                    shelf_time=item[4],
+                    delete_time=item[5])
+                # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
+                self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+
+                await async_sleep(1.5)
+                self.goods_index += 1
+                res = True
+
+                return [goods_id, res]
+
+            data = self.ali_1688.deal_with_data()
+            if data != {}:
+                data['goods_id'] = goods_id
+                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+                    tmp_data=data,
+                    is_delete=item[1],
+                    shelf_time=item[4],
+                    delete_time=item[5])
+                # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
+
+                '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
+                # 业务逻辑
+                #   公司后台 modify_time > 转换时间，is_price_change=1, 然后对比pricechange里面的数据，要是一样就不提示平台员工改价格
+                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                    old_price=item[2],
+                    old_taobao_price=item[3],
+                    new_price=data['price'],
+                    new_taobao_price=data['taobao_price'])
+
+                try:
+                    old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=2)
+                except AttributeError:  # 处理已被格式化过的
+                    old_sku_info = item[6]
+                data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=format_price_info_list(data['sku_map'], site_id=2),
+                    is_price_change=item[7] if item[7] is not None else 0)
+
+                res = self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+                await async_sleep(.3)
+
+            else:  # 表示返回的data值为空值
+                pass
+
+        else:  # 表示返回的data值为空值
+            self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
             pass
-        else:
-            my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            my_lg.info(str(result))
-            my_lg.info('--------------------------------------------------------')
-            my_lg.info('待更新个数: {0}'.format(len(result)))
 
-            my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-            index = 1
-            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            ali_1688 = ALi1688LoginAndParse(logger=my_lg)
-            for item in result:  # 实时更新数据
-                if index % 6 == 0:
-                    ali_1688 = ALi1688LoginAndParse(logger=my_lg)
+        index += 1
+        self.goods_index = index
+        collect()
+        await async_sleep(2.)       # 避免被发现使用代理
 
-                if index % 50 == 0:
-                    my_lg.info('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    my_lg.info('与数据库的新连接成功建立...')
+        return [goods_id, res]
 
-                if tmp_sql_server.is_connect_success:
-                    my_lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(item[0], index))
-                    data = ali_1688.get_ali_1688_data(item[0])
-                    if isinstance(data, int) is True:     # 单独处理返回tt为4041
-                        continue
-                    else:
-                        pass
+    async def _update_db(self):
+        '''
+        常规数据实时更新
+        :return:
+        '''
+        while True:
+            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            result = await self._get_db_old_data()
+            if result is None:
+                pass
+            else:
+                self.goods_index = 1
+                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
+                self.ali_1688 = ALi1688LoginAndParse(logger=self.lg)
+                index = 1
+                while True:
+                    try:
+                        slice_params_list = tasks_params_list.__next__()
+                        # self.lg.info(str(slice_params_list))
+                    except AssertionError:  # 全部提取完毕, 正常退出
+                        break
 
-                    if data.get('is_delete') == 1:        # 单独处理【原先插入】就是 下架状态的商品
-                        data['goods_id'] = item[0]
-
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[1],
-                            shelf_time=item[4],
-                            delete_time=item[5]
-                        )
-                        # my_lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
-                        ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
-
-                        sleep(1.5)  # 避免服务器更新太频繁
+                    tasks = []
+                    for item in slice_params_list:
+                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
                         index += 1
-                        gc.collect()
-                        continue
 
-                    data = ali_1688.deal_with_data()
-                    if data != {}:
-                        data['goods_id'] = item[0]
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[1],
-                            shelf_time=item[4],
-                            delete_time=item[5])
-                        # my_lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
+                    s_time = time()
+                    try:
+                        success_jobs, fail_jobs = await wait(tasks)
+                        time_consume = time() - s_time
+                        self.lg.info('此次耗时: {}s'.format(round(float(time_consume), 3)))
+                        # all_res = [r.result() for r in success_jobs]
+                    except Exception:
+                        self.lg.error(msg='遇到错误:', exc_info=True)
 
-                        '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
-                        # 业务逻辑
-                        #   公司后台 modify_time > 转换时间，is_price_change=1, 然后对比pricechange里面的数据，要是一样就不提示平台员工改价格
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[2],
-                            old_taobao_price=item[3],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price'])
+                self.lg.info('全部数据更新完毕'.center(100, '#'))
+            if get_shanghai_time().hour == 0:  # 0点以后不更新
+                await async_sleep(60 * 60 * 5.5)
+            else:
+                await async_sleep(5.5)
+            try:
+                del self.ali_1688
+            except:
+                pass
+            collect()
 
-                        try:
-                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=2)
-                        except AttributeError:  # 处理已被格式化过的
-                            old_sku_info = item[6]
-                        data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
-                            old_sku_info=old_sku_info,
-                            new_sku_info=format_price_info_list(data['sku_map'], site_id=2),
-                            is_price_change=item[7] if item[7] is not None else 0
-                        )
-
-                        ali_1688.to_right_and_update_data(data, pipeline=tmp_sql_server)
-                        sleep(.3)       # 避免服务器更新太频繁
-                    else:  # 表示返回的data值为空值
-                        pass
-                else:  # 表示返回的data值为空值
-                    my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
-                    pass
-                index += 1
-                gc.collect()
-                sleep(2.2)
-            my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        if get_shanghai_time().hour == 0:   # 0点以后不更新
-            sleep(60*60*5.5)
-        else:
-            sleep(5)
+    def __del__(self):
         try:
-            del my_lg
+            del self.lg
         except:
             pass
         try:
-            del ali_1688
+            del self.loop
         except:
             pass
-        gc.collect()
+        collect()
+
+def _fck_run():
+    _ = ALUpdater()
+    loop = get_event_loop()
+    loop.run_until_complete(_._update_db())
+    try:
+        del loop
+    except:
+        pass
 
 def main():
     '''
@@ -160,10 +240,10 @@ def main():
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
-    run_forever()
+    _fck_run()
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:
         main()
     else:
-        run_forever()
+        _fck_run()

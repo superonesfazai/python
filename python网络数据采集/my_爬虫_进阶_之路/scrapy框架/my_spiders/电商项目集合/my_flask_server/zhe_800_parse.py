@@ -466,15 +466,12 @@ class Zhe800Parse(Crawler):
                 else:
                     pass
 
-                '''
-                处理有尺码的情况(将其加入到div_desc中)
-                '''
+                # 处理有尺码的情况(将其加入到div_desc中)
                 tmp_size_url = 'https://th5.m.zhe800.com/app/detail/product/size?productId=' + str(goods_id)
                 size_data_body = Requests.get_url_body(url=tmp_size_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
                 if size_data_body == '':
                     print('size_data为空!')
                     return ''
-
                 else:
                     size_data = [size_data_body]
 
@@ -698,28 +695,30 @@ class Zhe800Parse(Crawler):
                 print('------>>>| 得到的折800商品id为:', goods_id)
                 return goods_id
         else:
-            is_miao_sha_url = re.compile(r'https://miao.zhe800.com/products/.*?').findall(zhe_800_url)
-            if is_miao_sha_url != []:   # 先不处理这种链接的情况
-                if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url) != []:
-                    tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
-                    if tmp_zhe_800_url != '':
-                        goods_id = tmp_zhe_800_url
-                    else:
-                        zhe_800_url = re.compile(r';').sub('', zhe_800_url)
-                        goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
-                    print('------>>>| 得到的限时秒杀折800商品id为:', goods_id)
-                    print('由于这种商品开头的量少, 此处先不处理这种开头的')
-                    # return goods_id
-                    return ''
-                else:  # 处理从数据库中取出的数据
-                    zhe_800_url = re.compile(r';').sub('', zhe_800_url)
-                    goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
-                    print('------>>>| 得到的限时秒杀折800商品id为:', goods_id)
-                    print('由于这种商品开头的量少, 此处先不处理这种开头的')
-                    # return goods_id
-                    return ''
-            else:
+            try:
+                re.compile(r'miao.zhe800.com').findall(zhe_800_url)[0]
+            except IndexError:
                 print('折800商品url错误, 非正规的url, 请参照格式(https://shop.zhe800.com/products/)开头的...')
+                return ''
+
+            # 先不处理这种链接的情况
+            if re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url) != []:
+                tmp_zhe_800_url = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+                if tmp_zhe_800_url != '':
+                    goods_id = tmp_zhe_800_url
+                else:
+                    zhe_800_url = re.compile(r';').sub('', zhe_800_url)
+                    goods_id = re.compile(r'https://miao.zhe800.com/products/(.*?)\?.*?').findall(zhe_800_url)[0]
+                print('------>>>| 得到的限时秒杀折800商品id为:', goods_id)
+                print('由于这种商品开头的量少, 此处先不处理这种开头的')
+                # return goods_id
+                return ''
+            else:  # 处理从数据库中取出的数据
+                zhe_800_url = re.compile(r';').sub('', zhe_800_url)
+                goods_id = re.compile(r'https://miao.zhe800.com/products/(.*)').findall(zhe_800_url)[0]
+                print('------>>>| 得到的限时秒杀折800商品id为:', goods_id)
+                print('由于这种商品开头的量少, 此处先不处理这种开头的')
+                # return goods_id
                 return ''
 
     def __del__(self):

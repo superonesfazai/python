@@ -231,7 +231,9 @@ class ALi1688LoginAndParse(Crawler):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
+        res = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
+
+        return res
 
     def _get_detail_name_list(self, **kwargs):
         '''
