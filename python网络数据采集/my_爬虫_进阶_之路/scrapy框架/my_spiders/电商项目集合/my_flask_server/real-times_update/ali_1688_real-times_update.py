@@ -14,14 +14,16 @@ from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from gc import collect
-from time import time
 
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import al_select_str_6
-from multiplex_code import get_sku_info_trans_record
+from multiplex_code import (
+    get_sku_info_trans_record,
+    _get_new_db_conn,
+    _get_async_task_result,)
 
 from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
@@ -60,16 +62,6 @@ class ALUpdater(AsyncCrawler):
 
         return result
 
-    async def _get_new_db_conn(self, index) -> None:
-        '''
-        获取新db conn
-        :return:
-        '''
-        if index % 50 == 0:
-            self.lg.info('正在重置，并与数据库建立新连接中...')
-            self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-            self.lg.info('与数据库的新连接成功建立...')
-
     async def _get_new_ali_obj(self, index) -> None:
         if index % 6 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
             try:
@@ -91,8 +83,7 @@ class ALUpdater(AsyncCrawler):
         res = False
         goods_id = item[0]
         await self._get_new_ali_obj(index=index)
-        await self._get_new_db_conn(index=index)
-
+        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg)
         if self.tmp_sql_server.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
             # data = ali_1688.get_ali_1688_data(goods_id)
@@ -191,14 +182,7 @@ class ALUpdater(AsyncCrawler):
                         tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
                         index += 1
 
-                    s_time = time()
-                    try:
-                        success_jobs, fail_jobs = await wait(tasks)
-                        time_consume = time() - s_time
-                        self.lg.info('此次耗时: {}s'.format(round(float(time_consume), 3)))
-                        # all_res = [r.result() for r in success_jobs]
-                    except Exception:
-                        self.lg.error(msg='遇到错误:', exc_info=True)
+                    await _get_async_task_result(tasks=tasks, logger=self.lg)
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))
             if get_shanghai_time().hour == 0:  # 0点以后不更新

@@ -13,12 +13,16 @@
 
 from settings import IP_POOL_TYPE
 
-from fzutils.spider.fz_requests import MyRequests
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.time_utils import get_shanghai_time
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 
 from scrapy.selector import Selector
 import re
+from time import time
+from asyncio import wait
+from fzutils.spider.fz_requests import MyRequests
+from fzutils.internet_utils import get_random_pc_ua
+from fzutils.common_utils import _print
+from fzutils.time_utils import get_shanghai_time
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''
@@ -174,3 +178,47 @@ def _get_mogujie_pintuan_price_info_list(tmp_price_info_list) -> list:
         'img_url': item_4.get('img_url'),
         'rest_number': item_4.get('rest_number'),
     } for item_4 in tmp_price_info_list]
+
+async def _get_new_db_conn(db_obj, index, logger=None, remainder=20, db_conn_type=1):
+    '''
+    获取新db conn
+    :param db_obj: db实例化对象
+    :param index: 索引值
+    :param remainder: 余数
+    :param db_conn_type: db连接类型(1:SqlServerMyPageInfoSaveItemPipeline|2:SqlPool)
+    :return:
+    '''
+    if index % remainder == 0:
+        _print(msg='正在重置，并与数据库建立新连接中...', logger=logger)
+        if db_conn_type == 1:
+            db_obj = SqlServerMyPageInfoSaveItemPipeline()
+        elif db_conn_type == 2:
+            db_obj = SqlPools()
+        else:
+            raise ValueError('db_conn_type赋值异常!')
+        _print(msg='与数据库的新连接成功建立...', logger=logger)
+
+    else:
+        pass
+
+    return db_obj
+
+async def _get_async_task_result(tasks, logger=None) -> list:
+    '''
+    获取异步处理结果
+    :param tasks:
+    :param logger:
+    :return:
+    '''
+    s_time = time()
+    all_res = []
+    try:
+        success_jobs, fail_jobs = await wait(tasks)
+        time_consume = time() - s_time
+        msg = '此次耗时: {}s'.format(round(float(time_consume), 3))
+        _print(msg=msg, logger=logger)
+        all_res = [r.result() for r in success_jobs]
+    except Exception as e:
+        _print(msg='遇到错误:', exception=e, logger=logger, log_level=2)
+
+    return all_res

@@ -14,13 +14,14 @@ from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from gc import collect
-from time import time
-
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
 from sql_str_controller import tm_select_str_3
-from multiplex_code import get_sku_info_trans_record
+from multiplex_code import (
+    get_sku_info_trans_record,
+    _get_async_task_result,
+    _get_new_db_conn,)
 
 from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
@@ -67,17 +68,6 @@ class TMUpdater(AsyncCrawler):
             collect()
             self.tmall = TmallParse(logger=self.lg)
             
-    async def _get_new_db_conn(self, index) -> None:
-        '''
-        获取新db conn
-        :param index: 
-        :return: 
-        '''
-        if index % 20 == 0:  
-            self.lg.info('正在重置，并与数据库建立新连接中...')
-            self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-            self.lg.info('与数据库的新连接成功建立...')
-            
     async def _get_tmp_item(self, site_id, goods_id):
         tmp_item = []
         if site_id == 3:  # 从数据库中取出时，先转换为对应的类型
@@ -93,7 +83,7 @@ class TMUpdater(AsyncCrawler):
     
     async def _update_one_goods_info(self, item, index):
         '''
-        更新一个goods
+        更新单个goods
         :param item: 
         :param index: 
         :return: 
@@ -102,7 +92,7 @@ class TMUpdater(AsyncCrawler):
         site_id = item[0]
         goods_id = item[1]
         await self._get_new_tmall_obj(index=index)
-        await self._get_new_db_conn(index=index)
+        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg)
         if self.tmp_sql_server.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
             tmp_item = await self._get_tmp_item(site_id=site_id, goods_id=goods_id)
@@ -150,8 +140,7 @@ class TMUpdater(AsyncCrawler):
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
             await async_sleep(5)
-            pass
-        
+
         index += 1
         self.goods_index = index
         collect()
@@ -182,16 +171,10 @@ class TMUpdater(AsyncCrawler):
                         tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
                         index += 1
 
-                    s_time = time()
-                    try:
-                        success_jobs, fail_jobs = await wait(tasks)
-                        time_consume = time() - s_time
-                        self.lg.info('此次耗时: {}s'.format(round(float(time_consume), 3)))
-                        # all_res = [r.result() for r in success_jobs]
-                    except Exception:
-                        self.lg.error(msg='遇到错误:', exc_info=True)
+                    await _get_async_task_result(tasks=tasks, logger=self.lg)
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+
             if get_shanghai_time().hour == 0:  # 0点以后不更新
                 await async_sleep(60 * 60 * 5.5)
             else:
