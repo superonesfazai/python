@@ -10,14 +10,11 @@
 import sys
 sys.path.append('..')
 
-# from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
-from time import sleep
-from logging import INFO, ERROR
-from uuid import uuid4
+from gc import collect
+from time import time
 
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
@@ -25,126 +22,205 @@ from settings import TMALL_REAL_TIMES_SLEEP_TIME
 from sql_str_controller import tm_select_str_3
 from multiplex_code import get_sku_info_trans_record
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.cp_utils import (
-    _get_price_change_info,
-    get_shelf_time_and_delete_time,
-    format_price_info_list,
-)
-from fzutils.common_utils import json_2_dict
-from fzutils.safe_utils import get_uuid1
+from fzutils.cp_utils import _get_price_change_info
+from fzutils.spider.async_always import *
 
-def run_forever():
-    while True:
-        # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中
-        my_lg = set_logger(
-            logger_name=get_uuid1(),
-            log_file_name=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
-            console_log_level=INFO,
-            file_log_level=ERROR
-        )
+class TMUpdater(AsyncCrawler):
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            log_print=True,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/')
+        self.tmp_sql_server = None
+        self.goods_index = 1
+        self.concurrency = 5    # 并发量
 
-        #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+    async def _get_db_old_data(self) -> (list, None):
+        '''
+        获取db需求更新的数据
+        :return:
+        '''
+        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        result = None
         try:
-            result = list(tmp_sql_server._select_table(sql_str=tm_select_str_3))
+            result = list(self.tmp_sql_server._select_table(sql_str=tm_select_str_3))
         except TypeError:
-            my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
-            result = None
-        if result is None:
-            pass
-        else:
-            my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            my_lg.info(str(result))
-            my_lg.info('总计待更新个数: {0}'.format(len(result)))
-            my_lg.info('--------------------------------------------------------')
+            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
-            my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-            index = 1
-            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            tmall = TmallParse(logger=my_lg)
-            for item in result:  # 实时更新数据
-                if index % 5 == 0:
-                    try:del tmall
-                    except: pass
-                    tmall = TmallParse(logger=my_lg)
-                    gc.collect()
+        if result is not None:
+            self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            self.lg.info(str(result))
+            self.lg.info('总计待更新个数: {0}'.format(len(result)))
+            self.lg.info('--------------------------------------------------------')
+            self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 
-                if index % 10 == 0:    # 每10次重连一次，避免单次长连无响应报错
-                    my_lg.info('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    my_lg.info('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
-                    my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(item[1]), str(index)))
-                    tmp_item = []
-                    if item[0] == 3:        # 从数据库中取出时，先转换为对应的类型
-                        tmp_item.append(0)
-                    elif item[0] == 4:
-                        tmp_item.append(1)
-                    elif item[0] == 6:
-                        tmp_item.append(2)
-                    tmp_item.append(item[1])
-                    oo = tmall.get_goods_data(goods_id=tmp_item)
-                    oo_is_delete = oo.get('is_detele', 0)   # 避免下面解析data错误休眠
-                    if isinstance(oo, int):       # 单独处理return 4041
-                        index += 1
-                        sleep(TMALL_REAL_TIMES_SLEEP_TIME)
-                        continue
-
-                    data = tmall.deal_with_data()
-                    if data != {}:
-                        data['goods_id'] = item[1]
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[2],
-                            shelf_time=item[5],
-                            delete_time=item[6])
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[3],
-                            old_taobao_price=item[4],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price']
-                        )
-
-                        site_id = tmall._from_tmall_type_get_site_id(type=data['type'])
-                        try:
-                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[7]), site_id=site_id)
-                        except AttributeError:  # 处理已被格式化过的
-                            old_sku_info = item[7]
-                        data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
-                            old_sku_info=old_sku_info,
-                            new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
-                            is_price_change=item[8] if item[8] is not None else 0
-                        )
-
-                        tmall.to_right_and_update_data(data, pipeline=tmp_sql_server)
-                    else:  # 表示返回的data值为空值
-                        if oo_is_delete == 1:
-                            pass
-                        else:
-                            my_lg.info('------>>>| 休眠7s中...')
-                            sleep(7.)
-
-                else:  # 表示返回的data值为空值
-                    my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
-                    sleep(5)
-                    pass
-                index += 1
-                gc.collect()
-                sleep(TMALL_REAL_TIMES_SLEEP_TIME)
-
-            my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+        return result
+    
+    async def _get_new_tmall_obj(self, index) -> None:
+        if index % 5 == 0:
+            try:
+                del self.tmall
+            except:
+                pass
+            collect()
+            self.tmall = TmallParse(logger=self.lg)
             
-        if get_shanghai_time().hour == 0:   # 0点以后不更新
-            sleep(60*60*5.5)
-        else:
-            sleep(5)
-        gc.collect()
+    async def _get_new_db_conn(self, index) -> None:
+        '''
+        获取新db conn
+        :param index: 
+        :return: 
+        '''
+        if index % 20 == 0:  
+            self.lg.info('正在重置，并与数据库建立新连接中...')
+            self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+            self.lg.info('与数据库的新连接成功建立...')
+            
+    async def _get_tmp_item(self, site_id, goods_id):
+        tmp_item = []
+        if site_id == 3:  # 从数据库中取出时，先转换为对应的类型
+            tmp_item.append(0)
+        elif site_id == 4:
+            tmp_item.append(1)
+        elif site_id == 6:
+            tmp_item.append(2)
+
+        tmp_item.append(goods_id)
+        
+        return tmp_item
+    
+    async def _update_one_goods_info(self, item, index):
+        '''
+        更新一个goods
+        :param item: 
+        :param index: 
+        :return: 
+        '''
+        res = False
+        site_id = item[0]
+        goods_id = item[1]
+        await self._get_new_tmall_obj(index=index)
+        await self._get_new_db_conn(index=index)
+        if self.tmp_sql_server.is_connect_success:
+            self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
+            tmp_item = await self._get_tmp_item(site_id=site_id, goods_id=goods_id)
+            # self.lg.info(str(tmp_item))
+            oo = self.tmall.get_goods_data(goods_id=tmp_item)
+            oo_is_delete = oo.get('is_detele', 0)  # 避免下面解析data错误休眠
+            if isinstance(oo, int):  # 单独处理return 4041
+                self.goods_index += 1
+                await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+                return [goods_id, res]
+
+            data = self.tmall.deal_with_data()
+            if data != {}:
+                data['goods_id'] = goods_id
+                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+                    tmp_data=data,
+                    is_delete=item[2],
+                    shelf_time=item[5],
+                    delete_time=item[6])
+                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                    old_price=item[3],
+                    old_taobao_price=item[4],
+                    new_price=data['price'],
+                    new_taobao_price=data['taobao_price'])
+
+                site_id = self.tmall._from_tmall_type_get_site_id(type=data['type'])
+                try:
+                    old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[7]), site_id=site_id)
+                except AttributeError:  # 处理已被格式化过的
+                    old_sku_info = item[7]
+                data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
+                    is_price_change=item[8] if item[8] is not None else 0)
+
+                res = self.tmall.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+                
+            else:  # 表示返回的data值为空值
+                if oo_is_delete == 1:
+                    pass
+                else:
+                    self.lg.info('------>>>| 休眠7s中...')
+                    await async_sleep(7.)
+
+        else:  # 表示返回的data值为空值
+            self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
+            await async_sleep(5)
+            pass
+        
+        index += 1
+        self.goods_index = index
+        collect()
+        await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+        
+        return [goods_id, res]
+
+    async def _update_db(self):
+        while True:
+            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            result = await self._get_db_old_data()
+            if result is None:
+                pass
+            else:
+                self.goods_index = 1
+                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
+                self.tmall = TmallParse(logger=self.lg)
+                index = 1
+                while True:
+                    try:
+                        slice_params_list = tasks_params_list.__next__()
+                    except AssertionError:  # 全部提取完毕, 正常退出
+                        break
+                        
+                    tasks = []
+                    for item in slice_params_list:
+                        self.lg.info('创建 task goods_id: {}'.format(item[1]))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        index += 1
+
+                    s_time = time()
+                    try:
+                        success_jobs, fail_jobs = await wait(tasks)
+                        time_consume = time() - s_time
+                        self.lg.info('此次耗时: {}s'.format(round(float(time_consume), 3)))
+                        # all_res = [r.result() for r in success_jobs]
+                    except Exception:
+                        self.lg.error(msg='遇到错误:', exc_info=True)
+
+                self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            if get_shanghai_time().hour == 0:  # 0点以后不更新
+                await async_sleep(60 * 60 * 5.5)
+            else:
+                await async_sleep(5.5)
+            try:
+                del self.tmall
+            except:
+                pass
+            collect()
+
+    def __del__(self):
+        try:
+            del self.lg
+        except:
+            pass
+        try:
+            del self.loop
+        except:
+            pass
+        collect()
+
+def _fck_run():
+    _ = TMUpdater()
+    loop = get_event_loop()
+    loop.run_until_complete(_._update_db())
+    try:
+        del loop
+    except:
+        pass
 
 def main():
     '''
@@ -154,11 +230,10 @@ def main():
     print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
-    run_forever()
+    _fck_run()
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:
         main()
     else:
-        run_forever()
+        _fck_run()

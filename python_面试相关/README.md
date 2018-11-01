@@ -438,3 +438,5 @@ http://stackoverflow.com/questions/3394835/args-and-kwargs
 3. 当创建一个新实例时调用`__new__`,初始化一个实例时用`__init__`.
 
 [stackoverflow](http://stackoverflow.com/questions/674304/pythons-use-of-new-and-
+
+## 更详细的可见[https://github.com/taizilongxu/interview_python](https://github.com/taizilongxu/interview_python)

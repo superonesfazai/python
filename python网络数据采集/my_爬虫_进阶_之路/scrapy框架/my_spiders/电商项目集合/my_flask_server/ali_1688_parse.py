@@ -719,7 +719,6 @@ class ALi1688LoginAndParse(Crawler):
             del self.driver
             del self.lg
         except Exception:
-            self.lg.error("self.driver释放失败!")
             pass
         gc.collect()
 

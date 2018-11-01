@@ -97,7 +97,7 @@ class ALUpdater(AsyncCrawler):
             self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
             # data = ali_1688.get_ali_1688_data(goods_id)
             data = await self._get_one_data(ali_1688=self.ali_1688, goods_id=goods_id)
-            if isinstance(data, int) is True:  # 单独处理返回tt为4041
+            if isinstance(data, int):  # 单独处理返回tt为4041
                 self.goods_index += 1
                 return [goods_id, res]
 
@@ -223,6 +223,8 @@ class ALUpdater(AsyncCrawler):
         collect()
 
 def _fck_run():
+    # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'
+    # 解决方案: sudo touch /ghostdriver.log && sudo chmod 777 /ghostdriver.log
     _ = ALUpdater()
     loop = get_event_loop()
     loop.run_until_complete(_._update_db())
@@ -239,7 +241,6 @@ def main():
     print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     _fck_run()
 
 if __name__ == '__main__':

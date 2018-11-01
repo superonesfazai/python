@@ -362,7 +362,9 @@ class TmallParse(Crawler):
         else:
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-        pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
+        res = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
+
+        return res
 
     def old_tmall_goods_insert_into_new_table(self, data, pipeline):
         '''
