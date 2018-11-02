@@ -10,7 +10,6 @@
 sdk.cn 爬虫
 """
 
-from fzutils.spider.crawler import AsyncCrawler
 from fzutils.spider.async_always import *
 
 class SdkCnSipder(AsyncCrawler):

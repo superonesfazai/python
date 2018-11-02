@@ -39,7 +39,7 @@ class ALUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/1688/实时更新/')
         self.tmp_sql_server = None
         self.goods_index = 1
-        self.concurrency = 5        # 并发量
+        self.concurrency = 10        # 并发量
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -63,7 +63,7 @@ class ALUpdater(AsyncCrawler):
         return result
 
     async def _get_new_ali_obj(self, index) -> None:
-        if index % 6 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
+        if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
             try:
                 del self.ali_1688
             except:

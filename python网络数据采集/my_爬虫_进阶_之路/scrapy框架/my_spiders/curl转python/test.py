@@ -20,4 +20,3 @@ from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import *
 from fzutils.common_utils import get_random_int_number
 from fzutils.url_utils import unquote_plus
-

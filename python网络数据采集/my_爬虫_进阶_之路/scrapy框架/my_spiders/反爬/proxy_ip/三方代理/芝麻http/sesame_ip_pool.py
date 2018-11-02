@@ -126,13 +126,22 @@ class SesameIpPool(object):
             ('regions', ''),        # 全国混拨地区
         )
         url = 'http://webapi.http.zhimacangku.com/getip'
-        data = json_2_dict(await self._request(url=url, headers=await self._get_phone_headers(), params=params)).\
-            get('data', [])
+        ori = json_2_dict(await self._request(url=url, headers=await self._get_phone_headers(), params=params))
+        data = ori.get('data', [])
         # pprint(data)
         if data != []:
             self.ip_list = await self._delete_expire_time_ip(data=data)
             self.ip_list = list_remove_repeat_dict(target=self.ip_list, repeat_key='ip')
             self.redis_cli.set(name=self._k, value=dumps(self.ip_list))    # 先转换为json再存入
+
+        msg = ori.get('msg', '')
+        if '设置为白名单' in msg:
+            try:
+                _ip = re.compile('(\d+\.\d+\.\d+\.\d+)').findall(msg)[0]
+                await self._add_local_ip_to_white_list(local_ip=_ip)
+                print('已将{}设置为白名单!'.format(_ip))
+            except IndexError:
+                pass
 
         return data
 

@@ -46,7 +46,7 @@ class TBUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/')
         self.tmp_sql_server = None
         self.goods_index = 1
-        self.concurrency = 5  # 并发量
+        self.concurrency = 50  # 并发量
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -72,7 +72,7 @@ class TBUpdater(AsyncCrawler):
         return result
 
     async def _get_new_tb_obj(self, index) -> None:
-        if index % 5 == 0:
+        if index % 10 == 0:
             try:
                 del self.taobao
             except:
@@ -88,7 +88,7 @@ class TBUpdater(AsyncCrawler):
         res = False
         goods_id = item[0]
         await self._get_new_tb_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, db_conn_type=2)
+        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, db_conn_type=2, remainder=50)
         if self.tmp_sql_server.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
             oo = self.taobao.get_goods_data(goods_id=goods_id)
@@ -122,8 +122,8 @@ class TBUpdater(AsyncCrawler):
                 if oo_is_delete == 1:
                     pass
                 else:
-                    self.lg.info('------>>>| 休眠5s中...')
-                    await async_sleep(5)
+                    self.lg.info('------>>>| 休眠8s中...')
+                    await async_sleep(8)
 
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')

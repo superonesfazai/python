@@ -27,6 +27,7 @@ from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
 
 class TMUpdater(AsyncCrawler):
+    """tm 实时更新"""
     def __init__(self, *params, **kwargs):
         AsyncCrawler.__init__(
             self,
@@ -36,7 +37,7 @@ class TMUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/')
         self.tmp_sql_server = None
         self.goods_index = 1
-        self.concurrency = 5    # 并发量
+        self.concurrency = 50    # 并发量
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -60,7 +61,7 @@ class TMUpdater(AsyncCrawler):
         return result
     
     async def _get_new_tmall_obj(self, index) -> None:
-        if index % 5 == 0:
+        if index % 10 == 0:
             try:
                 del self.tmall
             except:
@@ -92,7 +93,7 @@ class TMUpdater(AsyncCrawler):
         site_id = item[0]
         goods_id = item[1]
         await self._get_new_tmall_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg)
+        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, remainder=50)
         if self.tmp_sql_server.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
             tmp_item = await self._get_tmp_item(site_id=site_id, goods_id=goods_id)
