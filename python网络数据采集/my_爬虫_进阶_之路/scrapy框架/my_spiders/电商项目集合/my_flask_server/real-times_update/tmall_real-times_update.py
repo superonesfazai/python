@@ -113,12 +113,6 @@ class TMUpdater(AsyncCrawler):
                     is_delete=item[2],
                     shelf_time=item[5],
                     delete_time=item[6])
-                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                    old_price=item[3],
-                    old_taobao_price=item[4],
-                    new_price=data['price'],
-                    new_taobao_price=data['taobao_price'])
-
                 site_id = self.tmall._from_tmall_type_get_site_id(type=data['type'])
                 try:
                     old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[7]), site_id=site_id)
@@ -128,6 +122,12 @@ class TMUpdater(AsyncCrawler):
                     old_sku_info=old_sku_info,
                     new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
                     is_price_change=item[8] if item[8] is not None else 0)
+                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                    old_price=item[3],
+                    old_taobao_price=item[4],
+                    new_price=data['price'],
+                    new_taobao_price=data['taobao_price'],
+                    is_price_change=data['_is_price_change'])
 
                 res = self.tmall.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
                 

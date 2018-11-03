@@ -222,7 +222,7 @@ class ALi1688LoginAndParse(Crawler):
         tmp = _get_right_model_data(data=data, site_id=2)
 
         params = self._get_db_update_params(item=tmp)
-        # 不改价格的sql语句
+        # 改价格的sql语句
         base_sql_str = al_update_str_2
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -512,15 +512,14 @@ class ALi1688LoginAndParse(Crawler):
             item['shop_name'],
             item['title'],
             item['link_name'],
-            # item['price'],
-            # item['taobao_price'],
+            item['price'],
+            item['taobao_price'],
             dumps(item['price_info'], ensure_ascii=False),
             dumps(item['detail_name_list'], ensure_ascii=False),
             dumps(item['price_info_list'], ensure_ascii=False),
             dumps(item['all_img_url'], ensure_ascii=False),
             item['div_desc'],
             dumps(item['p_info'], ensure_ascii=False),
-            # item['delete_time'],
             item['is_delete'],
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),

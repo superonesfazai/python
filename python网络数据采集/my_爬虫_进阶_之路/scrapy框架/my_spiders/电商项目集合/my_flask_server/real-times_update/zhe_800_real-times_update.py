@@ -69,12 +69,6 @@ def run_forever():
                             is_delete=item[1],
                             shelf_time=item[4],
                             delete_time=item[5])
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[2],
-                            old_taobao_price=item[3],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price']
-                        )
                         try:
                             old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=11)
                         except AttributeError:  # 处理已被格式化过的
@@ -83,6 +77,13 @@ def run_forever():
                             old_sku_info=old_sku_info,
                             new_sku_info=format_price_info_list(data['price_info_list'], site_id=11),
                             is_price_change=item[7] if item[7] is not None else 0
+                        )
+                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                            old_price=item[2],
+                            old_taobao_price=item[3],
+                            new_price=data['price'],
+                            new_taobao_price=data['taobao_price'],
+                            is_price_change=data['_is_price_change']
                         )
 
                         zhe_800.to_right_and_update_data(data, pipeline=tmp_sql_server)
@@ -93,10 +94,6 @@ def run_forever():
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                # try:
-                #     del tmall
-                # except:
-                #     pass
                 gc.collect()
                 sleep(1.5)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
@@ -104,7 +101,6 @@ def run_forever():
             sleep(60*60*5.5)
         else:
             sleep(5)
-        # del ali_1688
         gc.collect()
 
 def set_delete_time_from_orginal_time(my_shelf_and_down_time):

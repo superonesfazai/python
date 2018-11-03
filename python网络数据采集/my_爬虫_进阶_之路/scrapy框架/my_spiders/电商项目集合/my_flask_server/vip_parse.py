@@ -482,7 +482,6 @@ class VipParse(Crawler):
         '''
         tmp = _get_right_model_data(data=data, site_id=25)
         params = self._get_db_update_params(item=tmp)
-        # 不改价格的sql
         base_sql_str = vip_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -506,8 +505,8 @@ class VipParse(Crawler):
             item['title'],
             item['sub_title'],
             item['link_name'],
-            # item['price'],
-            # item['taobao_price'],
+            item['price'],
+            item['taobao_price'],
             dumps(item['price_info'], ensure_ascii=False),
             dumps(item['detail_name_list'], ensure_ascii=False),
             dumps(item['price_info_list'], ensure_ascii=False),

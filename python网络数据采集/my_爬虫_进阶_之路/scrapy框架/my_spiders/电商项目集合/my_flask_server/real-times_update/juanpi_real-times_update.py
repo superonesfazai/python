@@ -74,12 +74,6 @@ def run_forever():
                             delete_time=item[5])
                         print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
 
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[2],
-                            old_taobao_price=item[3],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price'])
-
                         try:
                             old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=12)
                         except AttributeError:  # 处理已被格式化过的
@@ -89,6 +83,12 @@ def run_forever():
                             new_sku_info=format_price_info_list(data['price_info_list'], site_id=12),
                             is_price_change=item[7] if item[7] is not None else 0
                         )
+                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                            old_price=item[2],
+                            old_taobao_price=item[3],
+                            new_price=data['price'],
+                            new_taobao_price=data['taobao_price'],
+                            is_price_change=data['_is_price_change'])
 
                         juanpi.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值

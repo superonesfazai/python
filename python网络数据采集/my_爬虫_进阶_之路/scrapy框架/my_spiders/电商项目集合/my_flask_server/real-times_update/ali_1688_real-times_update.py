@@ -119,23 +119,24 @@ class ALUpdater(AsyncCrawler):
                     delete_time=item[5])
                 # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
 
-                '''为了实现这个就必须保证price, taobao_price在第一次抓下来后一直不变，变得记录到_price_change_info字段中'''
-                # 业务逻辑
-                #   公司后台 modify_time > 转换时间，is_price_change=1, 然后对比pricechange里面的数据，要是一样就不提示平台员工改价格
-                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                    old_price=item[2],
-                    old_taobao_price=item[3],
-                    new_price=data['price'],
-                    new_taobao_price=data['taobao_price'])
-
                 try:
                     old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=2)
                 except AttributeError:  # 处理已被格式化过的
                     old_sku_info = item[6]
+                new_sku_info = format_price_info_list(data['sku_map'], site_id=2)
                 data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
                     old_sku_info=old_sku_info,
-                    new_sku_info=format_price_info_list(data['sku_map'], site_id=2),
+                    new_sku_info=new_sku_info,
                     is_price_change=item[7] if item[7] is not None else 0)
+
+                # 业务逻辑
+                # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
+                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                    old_price=item[2],
+                    old_taobao_price=item[3],
+                    new_price=data['price'],
+                    new_taobao_price=data['taobao_price'],
+                    is_price_change=data['_is_price_change'])
 
                 res = self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
                 await async_sleep(.3)

@@ -281,9 +281,6 @@ class TaoBaoLoginAndParse(Crawler):
             self.lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(goods_id), exc_info=True)
             return None
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
-        # 不改价格的sql
         base_sql_str = tb_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -443,8 +440,8 @@ class TaoBaoLoginAndParse(Crawler):
             item['title'],
             item['sub_title'],
             item['link_name'],
-            # item['price'],
-            # item['taobao_price'],
+            item['price'],
+            item['taobao_price'],
             dumps(item['price_info'], ensure_ascii=False),
             dumps(item['detail_name_list'], ensure_ascii=False),
             dumps(item['price_info_list'], ensure_ascii=False),

@@ -23,9 +23,6 @@ import gc
 from pprint import pprint
 from json import dumps
 from scrapy.selector import Selector
-from logging import (
-    INFO,
-    ERROR,)
 
 from sql_str_controller import (
     jd_update_str_1,
@@ -33,9 +30,12 @@ from sql_str_controller import (
     jd_insert_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
+from fzutils.spider.fz_requests import Requests
 
 class JdParse(Crawler):
     def __init__(self, logger=None):
@@ -60,6 +60,17 @@ class JdParse(Crawler):
             'Connection': 'keep-alive',
             'Host': 'jd.com;jd.hk',
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
+        }
+
+    def _get_phone_headers(self):
+        return {
+            'authority': 'item.m.jd.com',
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
         }
 
     def get_goods_data(self, goods_id):
@@ -94,7 +105,7 @@ class JdParse(Crawler):
             return self._data_error_init()
 
         comment_body = self._wash_url_body(body=comment_body)
-        # self.lg.info(str(comment_body))
+        self.lg.info(str(comment_body))
         comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
         if comment_body_1 != []:
             comment_data = comment_body_1[0]
@@ -166,6 +177,36 @@ class JdParse(Crawler):
         else:
             self.lg.error('获取到的data为空!'+self.error_record)
             return self._data_error_init()
+
+    def _get_goods_data(self, goods_id):
+        '''
+        新版api
+        :param goods_id:
+        :return:
+        '''
+        if goods_id == []:
+            self.lg.error('goods_id为空list')
+            return self._data_error_init()
+
+        if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
+            return self._data_error_init()
+
+        self.error_record = '出错goods_id:{0}'.format(goods_id[1])
+        params = (
+            ('wareId', str(goods_id[1])),
+        )
+        url = 'https://item.m.jd.com/ware/view.action'
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params)
+        # self.lg.info(body)
+        try:
+            _ = json_2_dict(re.compile('window\._itemOnly =\((.*?)\);').findall(body)[0])
+            # self.lg.info(str(_))
+            pprint(_)
+        except IndexError:
+            self.lg.error('re索引body时异常!')
+            self._data_error_init()
+
+
 
     def deal_with_data(self, goods_id):
         '''
@@ -709,8 +750,8 @@ class JdParse(Crawler):
             item['title'],
             item['sub_title'],
             item['link_name'],
-            # item['price'],
-            # item['taobao_price'],
+            item['price'],
+            item['taobao_price'],
             dumps(item['price_info'], ensure_ascii=False),
             dumps(item['detail_name_list'], ensure_ascii=False),
             dumps(item['price_info_list'], ensure_ascii=False),
@@ -851,4 +892,6 @@ if __name__ == '__main__':
         jd.get_goods_data(goods_id=goods_id)
         data = jd.deal_with_data(goods_id=goods_id)
         pprint(data)
-        
+
+
+        # data = jd._get_goods_data(goods_id=goods_id)

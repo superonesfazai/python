@@ -231,8 +231,6 @@ class PinduoduoParse(Crawler):
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=13)
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql语句
-        # sql_str = r'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, MyShelfAndDownTime=%s, delete_time=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s where GoodsID = %s'
         # 不改价格的sql语句
         base_sql_str = pd_update_str_1
         if tmp['delete_time'] == '':
@@ -339,8 +337,8 @@ class PinduoduoParse(Crawler):
             item['title'],
             item['sub_title'],
             item['link_name'],
-            # item['price'],
-            # item['taobao_price'],
+            item['price'],
+            item['taobao_price'],
             dumps(item['price_info'], ensure_ascii=False),
             dumps(item['detail_name_list'], ensure_ascii=False),
             dumps(item['price_info_list'], ensure_ascii=False),

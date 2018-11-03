@@ -95,12 +95,6 @@ def run_forever():
                         delete_time=item[6])
                     my_lg.info('上架时间: {0}, 下架时间: {1}'.format(data['shelf_time'], data['delete_time']))
 
-                    data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                        old_price=item[3],
-                        old_taobao_price=item[4],
-                        new_price=data['price'],
-                        new_taobao_price=data['taobao_price'])
-
                     site_id = jd._from_jd_type_get_site_id_value(jd_type=data['jd_type'])
                     try:
                         old_sku_info = format_price_info_list(
@@ -113,6 +107,13 @@ def run_forever():
                         new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
                         is_price_change=item[8] if item[8] is not None else 0
                     )
+
+                    data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                        old_price=item[3],
+                        old_taobao_price=item[4],
+                        new_price=data['price'],
+                        new_taobao_price=data['taobao_price'],
+                        is_price_change=data['_is_price_change'])
 
                     jd.to_right_and_update_data(data, pipeline=tmp_sql_server)
                 else:  # 表示返回的data值为空值
