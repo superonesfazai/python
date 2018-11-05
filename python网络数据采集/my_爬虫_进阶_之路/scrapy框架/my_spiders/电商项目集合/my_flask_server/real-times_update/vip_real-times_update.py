@@ -18,7 +18,10 @@ from time import sleep
 from settings import IS_BACKGROUND_RUNNING, VIP_SLEEP_TIME
 
 from sql_str_controller import vip_select_str_1
-from multiplex_code import get_sku_info_trans_record
+from multiplex_code import (
+    get_sku_info_trans_record,
+    _get_sku_price_trans_record,
+    _get_spec_trans_record,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -52,11 +55,6 @@ def run_forever():
             vip = VipParse()
             if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
                 print('正在重置，并与数据库建立新连接中...')
-                # try:
-                #     del tmp_sql_server
-                # except:
-                #     pass
-                # gc.collect()
                 tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
                 print('与数据库的新连接成功建立...')
 
@@ -66,7 +64,6 @@ def run_forever():
                 data = vip.deal_with_data()
                 if data != {}:
                     data['goods_id'] = item[0]
-
                     data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                         tmp_data=data,
                         is_delete=item[1],
@@ -75,10 +72,11 @@ def run_forever():
                     try:
                         old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=25)
                     except AttributeError:  # 处理已被格式化过的
-                        old_sku_info = item[6]
-                    data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                        old_sku_info = json_2_dict(item[6], default_res=[])
+                    new_sku_info = format_price_info_list(data['price_info_list'], site_id=25)
+                    data['_is_price_change'], data['sku_info_trans_time'] = _get_sku_price_trans_record(
                         old_sku_info=old_sku_info,
-                        new_sku_info=format_price_info_list(data['price_info_list'], site_id=25),
+                        new_sku_info=new_sku_info,
                         is_price_change=item[7] if item[7] is not None else 0
                     )
                     data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
@@ -88,6 +86,11 @@ def run_forever():
                         new_taobao_price=data['taobao_price'],
                         is_price_change=data['_is_price_change']
                     )
+                    # 监控纯规格变动
+                    data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+                        old_sku_info=old_sku_info,
+                        new_sku_info=new_sku_info,
+                        is_spec_change=item[8] if item[8] is not None else 0)
 
                     vip.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
                 else:  # 表示返回的data值为空值
@@ -96,10 +99,6 @@ def run_forever():
                 print('数据库连接失败，数据库可能关闭或者维护中')
                 pass
             index += 1
-            # try:
-            #     del vip
-            # except:
-            #     pass
             gc.collect()
             sleep(VIP_SLEEP_TIME)
         print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
@@ -107,7 +106,6 @@ def run_forever():
             sleep(60 * 60 * 5.5)
         else:
             sleep(30)
-        # del vip
         gc.collect()
 
 def main():

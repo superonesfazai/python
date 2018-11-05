@@ -231,7 +231,6 @@ class PinduoduoParse(Crawler):
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=13)
         params = self._get_db_update_params(item=tmp)
-        # 不改价格的sql语句
         base_sql_str = pd_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -352,6 +351,8 @@ class PinduoduoParse(Crawler):
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
 
             item['goods_id'],
         ]

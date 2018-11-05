@@ -21,7 +21,10 @@ from settings import (
     MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import jd_select_str_1
-from multiplex_code import get_sku_info_trans_record
+from multiplex_code import (
+    get_sku_info_trans_record,
+    _get_sku_price_trans_record,
+    _get_spec_trans_record,)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
@@ -101,10 +104,11 @@ def run_forever():
                             price_info_list=json_2_dict(item[7]),
                             site_id=site_id)
                     except AttributeError:  # 处理已被格式化过的
-                        old_sku_info = item[7]
-                    data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                        old_sku_info = json_2_dict(item[7], default_res=[])
+                    new_sku_info = format_price_info_list(data['price_info_list'], site_id=site_id)
+                    data['_is_price_change'], data['sku_info_trans_time'] = _get_sku_price_trans_record(
                         old_sku_info=old_sku_info,
-                        new_sku_info=format_price_info_list(data['price_info_list'], site_id=site_id),
+                        new_sku_info=new_sku_info,
                         is_price_change=item[8] if item[8] is not None else 0
                     )
 
@@ -114,6 +118,12 @@ def run_forever():
                         new_price=data['price'],
                         new_taobao_price=data['taobao_price'],
                         is_price_change=data['_is_price_change'])
+
+                    # 监控纯规格变动
+                    data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+                        old_sku_info=old_sku_info,
+                        new_sku_info=new_sku_info,
+                        is_spec_change=item[9] if item[9] is not None else 0)
 
                     jd.to_right_and_update_data(data, pipeline=tmp_sql_server)
                 else:  # 表示返回的data值为空值

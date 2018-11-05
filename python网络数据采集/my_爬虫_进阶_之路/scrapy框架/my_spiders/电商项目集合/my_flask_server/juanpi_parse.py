@@ -251,8 +251,6 @@ class JuanPiParse(Crawler):
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=12)
         params = self._get_db_update_params(item=tmp)
-        # pprint(params)
-        # 不改价格的sql语句
         base_sql_str = jp_update_str_2
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -568,13 +566,14 @@ class JuanPiParse(Crawler):
             dumps(item['all_img_url'], ensure_ascii=False),
             dumps(item['p_info'], ensure_ascii=False),
             item['div_desc'],
-            # item['delete_time'],
             item['is_delete'],
             dumps(item['schedule'], ensure_ascii=False),
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
             item['parent_dir'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
 
             item['goods_id'],
         ]

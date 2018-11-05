@@ -164,6 +164,83 @@ def get_sku_info_trans_record(old_sku_info, new_sku_info, is_price_change):
 
     return 0, sku_info_trans_time
 
+def _get_sku_price_trans_record(old_sku_info:list, new_sku_info:list, is_price_change):
+    '''
+    商品的纯价格变动需要记录的东西
+    :param old_sku_info:
+    :param new_sku_info:
+    :param is_price_change:
+    :return: is_price_change, sku_info_trans_time
+    '''
+    sku_info_trans_time = str(get_shanghai_time())
+    if is_price_change == 1:        # 避免再次更新更改未被后台同步的数据
+        return is_price_change, sku_info_trans_time
+
+    for item in old_sku_info:       # 只记录规格的价格变动
+        old_unique_id = item.get('unique_id', '')
+        old_detail_price = item.get('detail_price', '')
+        old_normal_price = item.get('normal_price', '')
+        for i in new_sku_info:
+            new_unique_id = i.get('unique_id', '')
+            new_detail_price = i.get('detail_price', '')
+            new_normal_price = i.get('normal_price', '')
+            if old_unique_id == new_unique_id:
+                try:
+                    if float(old_detail_price) != float(new_detail_price) or\
+                            float(old_normal_price) != float(new_normal_price):
+                        return 1, sku_info_trans_time
+                    else:
+                        pass
+                except ValueError:  # 处理float('')报错
+                    pass
+            else:
+                pass
+
+    # 处理为null的
+    is_price_change = is_price_change if is_price_change is not None else 0
+
+    return is_price_change, sku_info_trans_time
+
+def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change):
+    '''
+    商品的纯规格变动需要记录的东西
+    :param old_sku_info:
+    :param new_sku_info:
+    :param is_spec_change:
+    :return: is_spec_change, spec_trans_time
+    '''
+    spec_trans_time = str(get_shanghai_time())
+    if is_spec_change == 1:        # 避免再次更新更改未被后台同步的数据
+        return is_spec_change, spec_trans_time
+
+    # print(old_sku_info)
+    # print(new_sku_info)
+    for item in old_sku_info:       # 只记录规格的价格变动
+        old_unique_id = item.get('unique_id', '')
+        # print(old_unique_id)
+        old_rest_number = item.get('rest_number', 50)
+        for i in new_sku_info:
+            new_unique_id = i.get('unique_id', '')
+            new_rest_number = i.get('rest_number', 50)
+            if old_unique_id == new_unique_id:
+                if old_rest_number != new_rest_number:
+                    return 1, spec_trans_time
+                else:
+                    pass
+            else:
+                pass
+
+    old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
+    new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
+
+    if old_unique_id_list != new_unique_id_list:  # 规格变动的
+        return 1, spec_trans_time
+
+    # 处理为null的
+    is_spec_change = is_spec_change if is_spec_change is not None else 0
+
+    return is_spec_change, spec_trans_time
+
 def _get_mogujie_pintuan_price_info_list(tmp_price_info_list) -> list:
     '''
     得到蘑菇街拼团price_info_list

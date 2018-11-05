@@ -222,7 +222,6 @@ class ALi1688LoginAndParse(Crawler):
         tmp = _get_right_model_data(data=data, site_id=2)
 
         params = self._get_db_update_params(item=tmp)
-        # 改价格的sql语句
         base_sql_str = al_update_str_2
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -524,6 +523,8 @@ class ALi1688LoginAndParse(Crawler):
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
 
             item['goods_id'],
         ]

@@ -30,6 +30,8 @@ from settings import (
 from sql_str_controller import tb_select_str_3
 from multiplex_code import (
     get_sku_info_trans_record,
+    _get_sku_price_trans_record,
+    _get_spec_trans_record,
     _get_async_task_result,
     _get_new_db_conn,)
 
@@ -105,10 +107,11 @@ class TBUpdater(AsyncCrawler):
                 try:
                     old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=1)
                 except AttributeError:  # 处理已被格式化过的
-                    old_sku_info = item[6]
-                data['_is_price_change'], data['sku_info_trans_time'] = get_sku_info_trans_record(
+                    old_sku_info = json_2_dict(item[6], default_res=[])
+                new_sku_info = format_price_info_list(data['price_info_list'], site_id=1)
+                data['_is_price_change'], data['sku_info_trans_time'] = _get_sku_price_trans_record(
                     old_sku_info=old_sku_info,
-                    new_sku_info=format_price_info_list(data['price_info_list'], site_id=1),
+                    new_sku_info=new_sku_info,
                     is_price_change=item[7] if item[7] is not None else 0)
                 data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
                     old_price=item[2],
@@ -116,6 +119,11 @@ class TBUpdater(AsyncCrawler):
                     new_price=data['price'],
                     new_taobao_price=data['taobao_price'],
                     is_price_change=data['_is_price_change'])
+                # 监控纯规格变动
+                data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=new_sku_info,
+                    is_spec_change=item[8] if item[8] is not None else 0)
 
                 res = self.taobao.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
 

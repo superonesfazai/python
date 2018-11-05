@@ -281,6 +281,8 @@ class MiaParse(Crawler):
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
             item['parent_dir'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
 
             item['goods_id'],
         ]

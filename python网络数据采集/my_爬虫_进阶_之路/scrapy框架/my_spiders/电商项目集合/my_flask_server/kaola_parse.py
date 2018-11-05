@@ -221,7 +221,6 @@ class KaoLaParse(Crawler):
         :return:
         '''
         tmp = _get_right_model_data(data, site_id=29, logger=self.lg)
-
         params = self._get_db_update_params(item=tmp)
         base_sql_str = kl_update_str_1
         if tmp['delete_time'] == '':
@@ -260,6 +259,8 @@ class KaoLaParse(Crawler):
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
 
             item['goods_id'],
         ]

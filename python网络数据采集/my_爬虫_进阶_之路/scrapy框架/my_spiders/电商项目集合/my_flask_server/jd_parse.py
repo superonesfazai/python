@@ -764,6 +764,8 @@ class JdParse(Crawler):
             item['is_price_change'],
             dumps(item['price_change_info'], ensure_ascii=False),
             item['sku_info_trans_time'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
 
             item['goods_id'],
         ]
