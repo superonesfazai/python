@@ -22,8 +22,8 @@ from settings import (
 
 from sql_str_controller import jd_select_str_1
 from multiplex_code import (
-    get_sku_info_trans_record,
     _get_sku_price_trans_record,
+    _get_stock_trans_record,
     _get_spec_trans_record,)
 
 from fzutils.time_utils import get_shanghai_time
@@ -90,7 +90,6 @@ def run_forever():
                 data = jd.deal_with_data(goods_id=tmp_item)
                 if data != {}:
                     data['goods_id'] = item[1]
-
                     data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                         tmp_data=data,
                         is_delete=item[2],
@@ -99,17 +98,19 @@ def run_forever():
                     my_lg.info('上架时间: {0}, 下架时间: {1}'.format(data['shelf_time'], data['delete_time']))
 
                     site_id = jd._from_jd_type_get_site_id_value(jd_type=data['jd_type'])
+                    price_info_list = old_sku_info = json_2_dict(item[7], default_res=[])
                     try:
                         old_sku_info = format_price_info_list(
-                            price_info_list=json_2_dict(item[7]),
+                            price_info_list=price_info_list,
                             site_id=site_id)
                     except AttributeError:  # 处理已被格式化过的
-                        old_sku_info = json_2_dict(item[7], default_res=[])
+                        pass
                     new_sku_info = format_price_info_list(data['price_info_list'], site_id=site_id)
-                    data['_is_price_change'], data['sku_info_trans_time'] = _get_sku_price_trans_record(
+                    data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
                         old_sku_info=old_sku_info,
                         new_sku_info=new_sku_info,
-                        is_price_change=item[8] if item[8] is not None else 0
+                        is_price_change=item[8] if item[8] is not None else 0,
+                        db_price_change_info=json_2_dict(item[10], default_res=[])
                     )
 
                     data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
@@ -117,13 +118,23 @@ def run_forever():
                         old_taobao_price=item[4],
                         new_price=data['price'],
                         new_taobao_price=data['taobao_price'],
-                        is_price_change=data['_is_price_change'])
+                        is_price_change=data['_is_price_change'],
+                        price_change_info=price_change_info)
 
                     # 监控纯规格变动
                     data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
                         old_sku_info=old_sku_info,
                         new_sku_info=new_sku_info,
                         is_spec_change=item[9] if item[9] is not None else 0)
+
+                    # 监控纯库存变动
+                    data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+                        old_sku_info=old_sku_info,
+                        new_sku_info=new_sku_info,
+                        is_stock_change=item[11] if item[11] is not None else 0,
+                        db_stock_change_info=json_2_dict(item[12], default_res=[]))
+                    if data['is_stock_change'] == 1:
+                        my_lg.info('规格的库存变动!!')
 
                     jd.to_right_and_update_data(data, pipeline=tmp_sql_server)
                 else:  # 表示返回的data值为空值

@@ -261,6 +261,9 @@ class KaoLaParse(Crawler):
             item['sku_info_trans_time'],
             item['is_spec_change'],
             item['spec_trans_time'],
+            item['is_stock_change'],
+            item['stock_trans_time'],
+            dumps(item['stock_change_info'], ensure_ascii=False),
 
             item['goods_id'],
         ]

@@ -20,9 +20,9 @@ from settings import IS_BACKGROUND_RUNNING
 
 from sql_str_controller import z8_select_str_3
 from multiplex_code import (
-    get_sku_info_trans_record,
     _get_sku_price_trans_record,
-    _get_spec_trans_record,)
+    _get_spec_trans_record,
+    _get_stock_trans_record,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -72,28 +72,38 @@ def run_forever():
                             is_delete=item[1],
                             shelf_time=item[4],
                             delete_time=item[5])
+                        price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
                         try:
-                            old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=11)
+                            old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=11)
                         except AttributeError:  # 处理已被格式化过的
-                            old_sku_info = json_2_dict(item[6], default_res=[])
+                            pass
                         new_sku_info = format_price_info_list(data['price_info_list'], site_id=11)
-                        data['_is_price_change'], data['sku_info_trans_time'] = _get_sku_price_trans_record(
+                        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
                             old_sku_info=old_sku_info,
                             new_sku_info=new_sku_info,
-                            is_price_change=item[7] if item[7] is not None else 0
+                            is_price_change=item[7] if item[7] is not None else 0,
+                            db_price_change_info=json_2_dict(item[9], default_res=[])
                         )
                         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
                             old_price=item[2],
                             old_taobao_price=item[3],
                             new_price=data['price'],
                             new_taobao_price=data['taobao_price'],
-                            is_price_change=data['_is_price_change']
+                            is_price_change=data['_is_price_change'],
+                            price_change_info=price_change_info,
                         )
                         # 监控纯规格变动
                         data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
                             old_sku_info=old_sku_info,
                             new_sku_info=new_sku_info,
                             is_spec_change=item[8] if item[8] is not None else 0)
+
+                        # 监控纯库存变动
+                        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+                            old_sku_info=old_sku_info,
+                            new_sku_info=new_sku_info,
+                            is_stock_change=item[10] if item[10] is not None else 0,
+                            db_stock_change_info=json_2_dict(item[11], default_res=[]))
 
                         zhe_800.to_right_and_update_data(data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值

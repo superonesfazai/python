@@ -164,42 +164,69 @@ def get_sku_info_trans_record(old_sku_info, new_sku_info, is_price_change):
 
     return 0, sku_info_trans_time
 
-def _get_sku_price_trans_record(old_sku_info:list, new_sku_info:list, is_price_change):
+def _get_sku_price_trans_record(old_sku_info:list, new_sku_info:list, is_price_change, db_price_change_info):
     '''
     商品的纯价格变动需要记录的东西
     :param old_sku_info:
     :param new_sku_info:
     :param is_price_change:
-    :return: is_price_change, sku_info_trans_time
+    :param db_price_change_info: db中原先的price_change_info
+    :return: is_price_change, sku_info_trans_time, price_change_info:list
     '''
+    def oo(is_price_change):
+        """得到is_price_change, 跟price_change_info"""
+        _ = []  # 用于记录规格的价格变动的list
+        for item in old_sku_info:  # 只记录规格的价格变动
+            old_unique_id = item.get('unique_id', '')
+            old_detail_price = item.get('detail_price', '')
+            old_normal_price = item.get('normal_price', '')
+            for i in new_sku_info:
+                new_unique_id = i.get('unique_id', '')
+                new_detail_price = i.get('detail_price', '')
+                new_normal_price = i.get('normal_price', '')
+                if old_unique_id == new_unique_id:
+                    tmp = {}
+                    try:                # 单独判断
+                        if float(old_detail_price) != float(new_detail_price):
+                            is_price_change = 1
+                            tmp.update({
+                                'unique_id': old_unique_id,
+                                'spec_value': i.get('spec_value', ''),
+                                'detail_price': new_detail_price,
+                            })
+                        else:
+                            pass
+                    except ValueError:  # 处理float('')报错
+                        pass
+                    if tmp == {}:       # detail_price为空，或者价格不变就跳出
+                        continue
+
+                    tmp.update({
+                        'normal_price': new_normal_price,
+                    })
+                    _.append(tmp)
+
+                else:
+                    pass
+
+        return is_price_change, _
+
     sku_info_trans_time = str(get_shanghai_time())
     if is_price_change == 1:        # 避免再次更新更改未被后台同步的数据
-        return is_price_change, sku_info_trans_time
+        if isinstance(db_price_change_info, dict) \
+                or db_price_change_info is None \
+                or db_price_change_info == []:
+            _ = oo(is_price_change)[1]
+        else:
+            _ = db_price_change_info
 
-    for item in old_sku_info:       # 只记录规格的价格变动
-        old_unique_id = item.get('unique_id', '')
-        old_detail_price = item.get('detail_price', '')
-        old_normal_price = item.get('normal_price', '')
-        for i in new_sku_info:
-            new_unique_id = i.get('unique_id', '')
-            new_detail_price = i.get('detail_price', '')
-            new_normal_price = i.get('normal_price', '')
-            if old_unique_id == new_unique_id:
-                try:
-                    if float(old_detail_price) != float(new_detail_price) or\
-                            float(old_normal_price) != float(new_normal_price):
-                        return 1, sku_info_trans_time
-                    else:
-                        pass
-                except ValueError:  # 处理float('')报错
-                    pass
-            else:
-                pass
+        return is_price_change, sku_info_trans_time, _
 
     # 处理为null的
     is_price_change = is_price_change if is_price_change is not None else 0
+    is_price_change, _ = oo(is_price_change)
 
-    return is_price_change, sku_info_trans_time
+    return is_price_change, sku_info_trans_time, _
 
 def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change):
     '''
@@ -213,23 +240,6 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change)
     if is_spec_change == 1:        # 避免再次更新更改未被后台同步的数据
         return is_spec_change, spec_trans_time
 
-    # print(old_sku_info)
-    # print(new_sku_info)
-    for item in old_sku_info:       # 只记录规格的价格变动
-        old_unique_id = item.get('unique_id', '')
-        # print(old_unique_id)
-        old_rest_number = item.get('rest_number', 50)
-        for i in new_sku_info:
-            new_unique_id = i.get('unique_id', '')
-            new_rest_number = i.get('rest_number', 50)
-            if old_unique_id == new_unique_id:
-                if old_rest_number != new_rest_number:
-                    return 1, spec_trans_time
-                else:
-                    pass
-            else:
-                pass
-
     old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
     new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
 
@@ -240,6 +250,54 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change)
     is_spec_change = is_spec_change if is_spec_change is not None else 0
 
     return is_spec_change, spec_trans_time
+
+def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_change, db_stock_change_info):
+    '''
+    商品库存变化记录的东西
+    :param old_sku_info:
+    :param new_sku_info:
+    :param is_stock_change:
+    :param db_stock_change_info: db原先的stock_change_info
+    :return: is_stock_change, stock_trans_time, stock_change_info:list
+    '''
+    def oo(is_stock_change):
+        """得到is_stock_change, 跟stock_change_info"""
+        _ = []
+        for item in old_sku_info:  # 只记录规格的价格变动
+            old_unique_id = item.get('unique_id', '')
+            old_rest_number = item.get('rest_number', 50)
+            for i in new_sku_info:
+                new_unique_id = i.get('unique_id', '')
+                new_rest_number = i.get('rest_number', 50)
+                if old_unique_id == new_unique_id:
+                    if old_rest_number != new_rest_number:
+                        is_stock_change = 1
+                        _.append({
+                            'unique_id': old_unique_id,
+                            'spec_value': i.get('spec_value', ''),
+                            'rest_number': new_rest_number,
+                        })
+                    else:
+                        pass
+                else:
+                    pass
+
+        return is_stock_change, _
+
+    stock_trans_time = str(get_shanghai_time())
+    if is_stock_change == 1:    # 避免再次更新更改未被后台同步的数据
+        if db_stock_change_info is None \
+            or db_stock_change_info == []:
+            _ = oo(is_stock_change)[1]
+        else:
+            _ = db_stock_change_info
+
+        return is_stock_change, stock_trans_time, _
+
+    is_stock_change = is_stock_change if is_stock_change is not None else 0
+    is_stock_change, _ = oo(is_stock_change)
+
+    return is_stock_change, stock_trans_time, _
 
 def _get_mogujie_pintuan_price_info_list(tmp_price_info_list) -> list:
     '''

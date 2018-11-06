@@ -220,7 +220,6 @@ class ALi1688LoginAndParse(Crawler):
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=2)
-
         params = self._get_db_update_params(item=tmp)
         base_sql_str = al_update_str_2
         if tmp['delete_time'] == '':
@@ -525,6 +524,9 @@ class ALi1688LoginAndParse(Crawler):
             item['sku_info_trans_time'],
             item['is_spec_change'],
             item['spec_trans_time'],
+            item['is_stock_change'],
+            item['stock_trans_time'],
+            dumps(item['stock_change_info'], ensure_ascii=False),
 
             item['goods_id'],
         ]

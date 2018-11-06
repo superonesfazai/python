@@ -6,6 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
+# 文章可扩展抽取
 ARTICLE_ITEM_LIST = [
     {
         'obj_origin': 'mp.weixin.qq.com',

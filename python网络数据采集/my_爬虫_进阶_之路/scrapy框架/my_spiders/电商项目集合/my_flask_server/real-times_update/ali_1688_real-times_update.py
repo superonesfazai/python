@@ -21,9 +21,9 @@ from settings import (
 
 from sql_str_controller import al_select_str_6
 from multiplex_code import (
-    get_sku_info_trans_record,
     _get_sku_price_trans_record,
     _get_spec_trans_record,
+    _get_stock_trans_record,
     _get_new_db_conn,
     _get_async_task_result,)
 
@@ -124,15 +124,18 @@ class ALUpdater(AsyncCrawler):
                     delete_time=item[5])
                 # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
 
+                # 监控纯价格变动
+                price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
                 try:
-                    old_sku_info = format_price_info_list(price_info_list=json_2_dict(item[6]), site_id=2)
+                    old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=2)
                 except AttributeError:  # 处理已被格式化过的
-                    old_sku_info = json_2_dict(item[6], default_res=[])
+                    pass
                 new_sku_info = format_price_info_list(data['sku_map'], site_id=2)
-                data['_is_price_change'], data['sku_info_trans_time'] = _get_sku_price_trans_record(
+                data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
                     old_sku_info=old_sku_info,
                     new_sku_info=new_sku_info,
-                    is_price_change=item[7] if item[7] is not None else 0)
+                    is_price_change=item[7] if item[7] is not None else 0,
+                    db_price_change_info=json_2_dict(item[9], default_res=[]))
 
                 # 处理单规格的情况
                 # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
@@ -141,7 +144,10 @@ class ALUpdater(AsyncCrawler):
                     old_taobao_price=item[3],
                     new_price=data['price'],
                     new_taobao_price=data['taobao_price'],
-                    is_price_change=data['_is_price_change'])
+                    is_price_change=data['_is_price_change'],
+                    price_change_info=price_change_info)
+                if data['_is_price_change'] == 1:
+                    self.lg.info('价格变动!!')
                 # self.lg.info('_is_price_change: {}, sku_info_trans_time: {}'.format(data['_is_price_change'], data['sku_info_trans_time']))
 
                 # 监控纯规格变动
@@ -149,7 +155,19 @@ class ALUpdater(AsyncCrawler):
                     old_sku_info=old_sku_info,
                     new_sku_info=new_sku_info,
                     is_spec_change=item[8] if item[8] is not None else 0)
+                if data['is_spec_change'] == 1:
+                    self.lg.info('规格属性变动!!')
                 # self.lg.info('is_spec_change: {}, spec_trans_time: {}'.format(data['is_spec_change'], data['spec_trans_time']))
+
+                # 监控纯库存变动
+                data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=new_sku_info,
+                    is_stock_change=item[10] if item[10] is not None else 0,
+                    db_stock_change_info=json_2_dict(item[11], default_res=[]))
+                if data['is_stock_change'] == 1:
+                    self.lg.info('规格的库存变动!!')
+                # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))
 
                 res = self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
                 await async_sleep(.3)
