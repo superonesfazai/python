@@ -14,7 +14,7 @@
 """
 
 from gc import collect
-from items import ArticleItem
+from my_items import WellRecommendArticle
 from settings import (
     ARTICLE_ITEM_LIST,
     MY_SPIDER_LOGS_PATH,
@@ -32,8 +32,6 @@ class ArticleParser(AsyncCrawler):
             log_print=True,
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/')
-        self.article_url = None
-        self.article_html = None
         self.driver_path = PHANTOMJS_DRIVER_PATH
 
     async def _get_headers(self):
@@ -55,7 +53,8 @@ class ArticleParser(AsyncCrawler):
         driver = BaseDriver(
             executable_path=self.driver_path,
             ip_pool_type=self.ip_pool_type,
-            load_images=load_images)
+            load_images=load_images,
+            logger=self.lg)
         body = driver.get_url_body(url=url)
         # self.lg.info(body)
         try:
@@ -66,31 +65,43 @@ class ArticleParser(AsyncCrawler):
 
         return body
 
-    async def _get_article_html(self) -> str:
+    async def _get_wx_article_html(self, article_url) -> tuple:
+        '''
+        得到wx文章内容
+        :return: body, video_url
+        '''
+        body = Requests.get_url_body(url=article_url, headers=await self._get_headers())
+        # self.lg.info(body)
+        assert body != '', '获取到wx的body为空值!'
+
+        return await self._wash_wx_article_body(body=body)
+
+    async def _get_article_html(self, article_url, article_url_type) -> tuple:
         '''
         获取文章的html
-        :param first_time: 是否为第一次使用
         :return:
         '''
-        body = Requests.get_url_body(url=self.article_url, headers=await self._get_headers())
-        # self.lg.info(body)
-        if body == '':
-            self.lg.info('获取到的body为空值!')
-            return ''
+        video_url = ''
+        body = ''
+        try:
+            if article_url_type == 'wx':
+                return await self._get_wx_article_html(article_url=article_url)
+            else:
+                raise AssertionError('未实现的解析!')
+        except AssertionError:
+            self.lg.error('遇到错误:', exc_info=True)
+            return body, video_url
 
-        body = await self._wash_wx_article_body(body=body)
-
-        return body
-
-    async def _wash_wx_article_body(self, body) -> str:
+    async def _wash_wx_article_body(self, body) -> tuple:
         '''
         清洗wx文章
-        :return:
+        :return: body, video_url
         '''
         # 处理微信防盗链
         body = re.compile('<head>').sub('<head><meta name=\"referrer\" content=\"never\">', body)
         body = re.compile('data-src=').sub('src=', body)
 
+        video_url = ''
         # 单独处理含视频标签的
         try:
             # videos_url_list = re.compile('<div class=\"tvp_video\"><video.*?src=\"(.*?)\"></video><div class=\"tvp_shadow\">').findall(body)
@@ -110,13 +121,14 @@ class ArticleParser(AsyncCrawler):
                 raise IndexError('获取video_div时索引异常!')
             # (只处理第一个视频)
             body = re.compile('<iframe class=\"video_iframe\" .*?></iframe>').sub(video_div, body, count=1)
+            video_url = videos_url_list[0]
         except AssertionError:
             pass
         except Exception:
             self.lg.error('遇到错误: ', exc_info=True)
         # self.lg.info(body)
 
-        return body
+        return body, video_url
 
     async def _get_parse_obj(self) -> dict:
         '''
@@ -167,57 +179,95 @@ class ArticleParser(AsyncCrawler):
         :param article_url: 待抓取文章的url
         :return:
         '''
-        self.article_url = article_url
-        self.article_html = await self._get_article_html()
-        # self.lg.info(self.article_html)
+        try:
+            article_url_type = await self._judge_url_type(article_url=article_url)
+        except ValueError:      # article_url未知!
+            self.lg.error(exc_info=True)
+            return {}
+
+        article_html, video_url = await self._get_article_html(article_url=article_url, article_url_type=article_url_type)
+        # self.lg.info(article_html)
 
         parse_obj = await self._get_parse_obj()
         if parse_obj is None:
-            self.lg.info('未找到解析对象!')
+            self.lg.error('未找到解析对象!')
             return {}
 
         try:
-            title = await self._parse_field(parser=parse_obj['title'], target_obj=self.article_html)
+            title = await self._parse_field(parser=parse_obj['title'], target_obj=article_html)
             assert title != '', '获取到的title为空值!'
-            author = await self._parse_field(parser=parse_obj['author'], target_obj=self.article_html)
+            author = await self._parse_field(parser=parse_obj['author'], target_obj=article_html)
             assert author != '', '获取到的author为空值!'
-            content = await self._parse_field(parser=parse_obj['content'], target_obj=self.article_html)
+            head_url = await self._parse_field(parser=parse_obj['head_url'], target_obj=article_html)
+            content = await self._parse_field(parser=parse_obj['content'], target_obj=article_html)
             assert content != '', '获取到的content为空值!'
             content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 反盗链
-            self.lg.info(content)
-            create_time = await self._parse_field(parser=parse_obj['create_time'], target_obj=self.article_html)
+            # print(content)
+            create_time = await self._parse_field(parser=parse_obj['create_time'], target_obj=article_html)
             # assert create_time != '', '获取到的create_time为空值!'
 
-            comment_num = await self._parse_field(parser=parse_obj['comment_num'], target_obj=self.article_html)
-            fav_num = await self._parse_field(parser=parse_obj['fav_num'], target_obj=self.article_html)
-            praise_num = await self._parse_field(parser=parse_obj['praise_num'], target_obj=self.article_html)
-            tags_list = await self._parse_field(parser=parse_obj['tags_list'], target_obj=self.article_html)
+            comment_num = await self._parse_field(parser=parse_obj['comment_num'], target_obj=article_html)
+            fav_num = await self._parse_field(parser=parse_obj['fav_num'], target_obj=article_html)
+            praise_num = await self._parse_field(parser=parse_obj['praise_num'], target_obj=article_html)
+            tags_list = await self._parse_field(parser=parse_obj['tags_list'], target_obj=article_html)
+            site_id = await self._get_site_id(article_url_type=article_url_type)
 
         except (AssertionError, Exception):
             self.lg.error('遇到错误:', exc_info=True)
             return {}
 
-        _ = ArticleItem()
+        _ = WellRecommendArticle()
+        _['nick_name'] = author
+        _['head_url'] = head_url
+        _['profile'] = ''
+        _['share_id'] = get_uuid1()
         _['title'] = title
-        _['author'] = author
-        _['content'] = content
+        _['comment_content'] = ''
+        _['share_img_url_list'] = []
+        _['goods_id_list'] = []
+        _['div_body'] = content
+        _['gather_url'] = article_url       # wx 阅读原文跳出个验证
         _['create_time'] = create_time
-        _['comment_num'] = comment_num
-        _['fav_num'] = fav_num
-        _['praise_num'] = praise_num
-        _['tags_list'] = tags_list
+        _['site_id'] = site_id
+        _['goods_url_list'] = []
+        _['tags'] = tags_list
+        _['share_goods_base_info'] = []     # [{'goods_id': 'xxx', 'img_url': 'xxx'}, ...]
+        _['video_url'] = video_url
+        _['likes'] = praise_num
+        _['collects'] = fav_num
 
-        return _
+        return dict(_)
+
+    async def _get_site_id(self, article_url_type):
+        '''
+        获取文章的site_id
+        :return:
+        '''
+        if article_url_type == 'wx':
+            return 4
+
+        raise ValueError('未知的文章url!')
+
+    async def _judge_url_type(self, article_url):
+        '''
+        判断url类别
+        :return:
+        '''
+        if 'mp.weixin.qq.com' in article_url:
+            return 'wx'
+
+        raise ValueError('未知的文章url!')
 
     def __del__(self):
         collect()
-
 
 if __name__ == '__main__':
     _ = ArticleParser()
     loop = get_event_loop()
     # 存在链接过期的情况
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541219424&ver=1220&signature=G-L9gXPuIzywRFOsDZK-21JxkcVmmhK*Xb0VhZUU9xywrmNCy2nSdHBy6qOUXGce2jcXNE8hMO0yWAkR-GiDWGDz3Q5ZVvPD6cDAdyghdByamVSuiIJh9Ltwr8uiBKtQ&new=1'
-    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541219424&ver=1220&signature=2DSKqD9M-85xFzskcvdnO5LZuIe421tGzKyqVn2UqpJd57IkEgnCzhPwOOi1EHTNdNy0n5uElKPvDud524r-xJ2XNddxjy2ZMuy-PbvvACVJFYlwyViV3-BkxNfrnOeC&new=1'
+    # https://mp.weixin.qq.com/s?__biz=MzA4MjQxNjQzMA==&mid=2768396229&idx=1&sn=&scene=0#wechat_redirect
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541556001&ver=1229&signature=lj08AA2o0K2O3OkgPfQGWCVNwnImo0C--UfpaUBkWfPnGEsJoeib1oJeQ9BNqW8t41xSqeg-Pz1VQ7HFrKxCPNoYhfSN7RcalaBHBGfzXRFXgoN7xhaMh7983gSWrgPD&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541559601&ver=1229&signature=lj08AA2o0K2O3OkgPfQGWCVNwnImo0C--UfpaUBkWfMYB*2qWsNdP0Tgbfrh7LvMIgKSts77Y9jPIKpnuNJecXu-hXhUGMc9e9yGgPwKeuwT7J3g1wcLDgT2eSAS5qL6&new=1'
+    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541583001&ver=1230&signature=Gx4Xh*mqPnERyD1pcDJBad9mN6shC6vzh3VldnHU5a-cXE4paJA8*b3tbnt7-OyKiWCyA4LCyJWngSZK6gkn2sCADLrUt1OBY1AxggmYXCOUpyYh8E7iywNUEdTPrEVO&new=1'
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)

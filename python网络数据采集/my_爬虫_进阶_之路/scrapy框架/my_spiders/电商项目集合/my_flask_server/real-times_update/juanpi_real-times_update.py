@@ -13,129 +13,204 @@ sys.path.append('..')
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
-from time import sleep
-from settings import IS_BACKGROUND_RUNNING
+from gc import collect
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import jp_select_str_3
 from multiplex_code import (
     _get_sku_price_trans_record,
     _get_spec_trans_record,
-    _get_stock_trans_record)
+    _get_stock_trans_record,
+    _get_async_task_result,
+    _get_new_db_conn,)
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.cp_utils import (
-    _get_price_change_info,
-    get_shelf_time_and_delete_time,
-    format_price_info_list,
-)
-from fzutils.common_utils import json_2_dict
+from fzutils.cp_utils import _get_price_change_info
+from fzutils.spider.async_always import *
 
-def run_forever():
-    while True:
-        #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+class JPUpdater(AsyncCrawler):
+    """卷皮常规商品实时更新"""
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            log_print=True,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/卷皮/实时更新/')
+        self.tmp_sql_server = None
+        self.goods_index = 1
+        self.concurrency = 10        # 并发量
+
+    async def _get_db_old_data(self):
+        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        result = None
         try:
-            result = list(tmp_sql_server._select_table(sql_str=jp_select_str_3))
+            result = list(self.tmp_sql_server._select_table(sql_str=jp_select_str_3))
         except TypeError:
-            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
-            result = None
-        if result is None:
-            pass
-        else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
+            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-            index = 1
-            # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            juanpi = JuanPiParse()
-            for item in result:  # 实时更新数据
-                if index % 5 == 0:
-                    juanpi = JuanPiParse()
+        if result is not None:
+            self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            self.lg.info(str(result))
+            self.lg.info('--------------------------------------------------------')
+            self.lg.info('待更新个数: {0}'.format(len(result)))
+            self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
+        return result
 
-                if tmp_sql_server.is_connect_success:
-                    print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                    juanpi.get_goods_data(goods_id=item[0])
-                    data = juanpi.deal_with_data()
-                    if data != {}:
-                        data['goods_id'] = item[0]
-                        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                            tmp_data=data,
-                            is_delete=item[1],
-                            shelf_time=item[4],
-                            delete_time=item[5])
-                        print('上架时间:',data['shelf_time'], '下架时间:', data['delete_time'])
-                        price_info_list = json_2_dict(item[6], default_res=[])
-                        try:
-                            old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=12)
-                        except AttributeError:  # 处理已被格式化过的
-                            old_sku_info = price_info_list
-                        new_sku_info = format_price_info_list(data['price_info_list'], site_id=12)
-                        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-                            old_sku_info=old_sku_info,
-                            new_sku_info=new_sku_info,
-                            is_price_change=item[7] if item[7] is not None else 0,
-                            db_price_change_info=json_2_dict(item[9], default_res=[]),
-                        )
-                        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                            old_price=item[2],
-                            old_taobao_price=item[3],
-                            new_price=data['price'],
-                            new_taobao_price=data['taobao_price'],
-                            is_price_change=data['_is_price_change'],
-                            price_change_info=price_change_info)
+    async def _get_new_jp_obj(self, index) -> None:
+        if index % 10 == 0:
+            try:
+                del self.juanpi
+            except:
+                pass
+            collect()
+            self.juanpi = JuanPiParse()
 
-                        # 监控纯规格变动
-                        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-                            old_sku_info=old_sku_info,
-                            new_sku_info=new_sku_info,
-                            is_spec_change=item[8] if item[8] is not None else 0)
+    async def _update_one_goods_info(self, item, index):
+        '''
+        更新一个goods的信息
+        :param index: 索引值
+        :return: ['goods_id', bool:'成功与否']
+        '''
+        res = False
+        goods_id = item[0]
+        await self._get_new_jp_obj(index=index)
+        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg)
+        if self.tmp_sql_server.is_connect_success:
+            self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
+            self.juanpi.get_goods_data(goods_id=goods_id)
+            data = self.juanpi.deal_with_data()
+            if data != {}:
+                data['goods_id'] = goods_id
+                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+                    tmp_data=data,
+                    is_delete=item[1],
+                    shelf_time=item[4],
+                    delete_time=item[5])
+                # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
 
-                        # 监控纯库存变动
-                        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-                            old_sku_info=old_sku_info,
-                            new_sku_info=new_sku_info,
-                            is_stock_change=item[10] if item[10] is not None else 0,
-                            db_stock_change_info=json_2_dict(item[11], default_res=[]))
-
-                        juanpi.to_right_and_update_data(data, pipeline=tmp_sql_server)
-                    else:  # 表示返回的data值为空值
-                        pass
-                else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
+                # 监控纯价格变动
+                price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
+                try:
+                    old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=12)
+                except AttributeError:  # 处理已被格式化过的
                     pass
-                index += 1
-                gc.collect()
-                sleep(1.2)
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        if get_shanghai_time().hour == 0:   # 0点以后不更新
-            sleep(60*60*5.5)
+                new_sku_info = format_price_info_list(data['price_info_list'], site_id=12)
+                data['_is_price_change'], data[
+                    'sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=new_sku_info,
+                    is_price_change=item[7] if item[7] is not None else 0,
+                    db_price_change_info=json_2_dict(item[9], default_res=[]),)
+                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+                    old_price=item[2],
+                    old_taobao_price=item[3],
+                    new_price=data['price'],
+                    new_taobao_price=data['taobao_price'],
+                    is_price_change=data['_is_price_change'],
+                    price_change_info=price_change_info)
+                if data['_is_price_change'] == 1:
+                    self.lg.info('价格变动!!')
+
+                # 监控纯规格变动
+                data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=new_sku_info,
+                    is_spec_change=item[8] if item[8] is not None else 0)
+                if data['is_spec_change'] == 1:
+                    self.lg.info('规格属性变动!!')
+
+                # 监控纯库存变动
+                data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+                    old_sku_info=old_sku_info,
+                    new_sku_info=new_sku_info,
+                    is_stock_change=item[10] if item[10] is not None else 0,
+                    db_stock_change_info=json_2_dict(item[11], default_res=[]))
+                if data['is_stock_change'] == 1:
+                    self.lg.info('规格的库存变动!!')
+
+                res = self.juanpi.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+            else:  # 表示返回的data值为空值
+                pass
         else:
-            sleep(5)
-        gc.collect()
+            self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
+
+        index += 1
+        self.goods_index = index
+        collect()
+        await async_sleep(1.2)
+
+        return [goods_id, res]
+
+    async def _update_db(self):
+        while True:
+            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            result = await self._get_db_old_data()
+            if result is None:
+                pass
+            else:
+                self.goods_index = 1
+                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
+                self.juanpi = JuanPiParse()
+                index = 1
+                while True:
+                    try:
+                        slice_params_list = tasks_params_list.__next__()
+                        # self.lg.info(str(slice_params_list))
+                    except AssertionError:  # 全部提取完毕, 正常退出
+                        break
+
+                    tasks = []
+                    for item in slice_params_list:
+                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        index += 1
+
+                    await _get_async_task_result(tasks=tasks, logger=self.lg)
+
+                self.lg.info('全部数据更新完毕'.center(100, '#'))
+            if get_shanghai_time().hour == 0:  # 0点以后不更新
+                await async_sleep(60 * 60 * 5.5)
+            else:
+                await async_sleep(5.5)
+            try:
+                del self.juanpi
+            except:
+                pass
+            collect()
+
+    def __del__(self):
+        try:
+            del self.lg
+        except:
+            pass
+        try:
+            del self.loop
+        except:
+            pass
+        collect()
+
+def _fck_run():
+    # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'
+    # 解决方案: sudo touch /ghostdriver.log && sudo chmod 777 /ghostdriver.log
+    _ = JPUpdater()
+    loop = get_event_loop()
+    loop.run_until_complete(_._update_db())
+    try:
+        del loop
+    except:
+        pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    run_forever()
+    _fck_run()
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:
         main()
     else:
-        run_forever()
+        _fck_run()

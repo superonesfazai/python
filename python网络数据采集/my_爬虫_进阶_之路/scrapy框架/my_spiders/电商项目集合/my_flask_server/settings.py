@@ -266,6 +266,10 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'div#meta_content span a ::text',
         },
+        'head_url': {
+            'method': 're',
+            'selector': 'var ori_head_img_url = \"(.*?)\";',
+        },
         'create_time': {
             'method': 're',
             'selector': 'var publish_time = \"(.*?)\" ',
@@ -274,6 +278,7 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'div.rich_media_content',
         },
+
         'comment_num': None,
         'fav_num': None,
         'praise_num': None,

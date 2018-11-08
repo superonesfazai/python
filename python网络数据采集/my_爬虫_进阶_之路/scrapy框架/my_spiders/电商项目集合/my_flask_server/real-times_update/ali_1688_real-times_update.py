@@ -177,7 +177,6 @@ class ALUpdater(AsyncCrawler):
 
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
-            pass
 
         index += 1
         self.goods_index = index

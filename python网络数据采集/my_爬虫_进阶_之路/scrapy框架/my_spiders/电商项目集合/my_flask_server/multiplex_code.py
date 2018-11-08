@@ -271,12 +271,18 @@ def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_chang
                 new_rest_number = i.get('rest_number', 50)
                 if old_unique_id == new_unique_id:
                     if old_rest_number != new_rest_number:
-                        is_stock_change = 1
-                        _.append({
-                            'unique_id': old_unique_id,
-                            'spec_value': i.get('spec_value', ''),
-                            'rest_number': new_rest_number,
-                        })
+                        # 小于等于10个, 即时更新 or 变动比例在.2才记录
+                        if new_rest_number <= 10 \
+                                or abs(new_rest_number-old_rest_number)/old_rest_number > .2:
+                            is_stock_change = 1
+                            _.append({
+                                'unique_id': old_unique_id,
+                                'spec_value': i.get('spec_value', ''),
+                                'rest_number': new_rest_number,
+                            })
+                            break
+                        else:
+                            pass
                     else:
                         pass
                 else:

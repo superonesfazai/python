@@ -16,11 +16,10 @@ sys.path.append('..')
 import hashlib
 from base64 import b64encode
 from requests import get
+from pprint import pprint
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,
-    timestamp_to_regulartime,)
+from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import *
 
 class RequestClient(object):
     """ 接口签名client示例 """
@@ -70,13 +69,16 @@ class RequestClient(object):
         # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
         # goods_link = 'https://item.jd.com/5025518.html'
 
+        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541644207&ver=1231&signature=Zj**SRdp9bTZXBQxsAdjFWmm0kEqLY0awVyAZlwj1XHK-hxQ9P8*PNpoVNcebUJvDTBBGSmPqjNipozEYiRd-snrCDJjz-TgcWlVJhfHsNtkKi4A6Tb9kqAKWJSQzy84&new=1'
+
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
         params = {
             'access_key_id': self._access_key_id,
             'v': self._version,
-            't': now_timestamp,
-            'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte, pc地址或m地址都可, server会识别
+            't': now_timestamp,                                                         # 10位
+            # 'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte, pc地址或m地址都可, server会识别
+            'article_link': b64encode(s=article_link.encode('utf-8')).decode('utf-8'),
         }
 
         params.update({
@@ -87,9 +89,14 @@ class RequestClient(object):
 
         # rpc 远程过程调用
         # 淘宝天猫调这个
-        url = 'http://spider.taobao_tmall.k85u.com/api/goods'
+        # url = 'http://spider.taobao_tmall.k85u.com/api/goods'
         # 京东调这个
         # url = 'http://spider.other.k85u.com/api/goods'
+
+        # article
+        # url = 'http://127.0.0.1:5000/api/article'
+        # url = 'http://spider.other.k85u.com/api/article'
+        url = 'http://spider.taobao_tmall.k85u.com/api/article'
 
         with get(url, params=params) as response:
             res = response.text

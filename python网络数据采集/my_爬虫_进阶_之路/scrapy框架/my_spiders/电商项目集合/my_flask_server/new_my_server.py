@@ -34,42 +34,12 @@ from juanpi_parse import JuanPiParse
 from pinduoduo_parse import PinduoduoParse
 from vip_parse import VipParse
 
-from settings import (
-    ALi_SPIDER_TO_SHOW_PATH,
-    TAOBAO_SPIDER_TO_SHWO_PATH,
-    TMALL_SPIDER_TO_SHOW_PATH,
-    JD_SPIDER_TO_SHOW_PATH,
-    ZHE_800_SPIDER_TO_SHOW_PATH,
-    JUANPI_SPIDER_TO_SHOW_PATH,
-    PINDUODUO_SPIDER_TO_SHOW_PATH,
-    VIP_SPIDER_TO_SHOW_PATH,
-    KAOLA_SPIDER_2_SHOW_PATH,
-    YANXUAN_SPIDER_2_SHOW_PATH,
-    YOUPIN_SPIDER_2_SHOW_PATH,
-    MIA_SPIDER_2_SHOW_PATH,
-    ADMIN_NAME,
-    ADMIN_PASSWD,
-    SERVER_PORT,
-    MY_SPIDER_LOGS_PATH,
-    ERROR_HTML_CODE,
-    IS_BACKGROUND_RUNNING,
-    BASIC_APP_KEY,
-    TAOBAO_SLEEP_TIME,
-    SELECT_HTML_NAME,
-    key,
-)
-
+from settings import *
 from my_pipeline import (
-    SqlServerMyPageInfoSaveItemPipeline,
-)
+    SqlServerMyPageInfoSaveItemPipeline,)
 from my_signature import Signature
 # from apps.search import PostDocument
-from apps.admin import (
-    find_user_name,
-    del_user,
-    check_all_user,
-    init_passwd,
-    admin_add_new_user,)
+from apps.admin import *
 from apps.msg import (
     _success_data,
     _null_goods_link,
@@ -113,7 +83,6 @@ from apps.save import (
 
 from json import dumps
 import time
-from time import sleep
 import datetime
 import re
 from logging import (
@@ -128,7 +97,7 @@ try:
 except Exception as e:
     from gevent.pywsgi import WSGIServer
 
-import gc
+from gc import collect
 from sql_str_controller import (
     fz_al_insert_str,
     fz_tb_insert_str,
@@ -142,6 +111,9 @@ from sql_str_controller import (
     fz_yx_insert_str,
     fz_yp_insert_str,
     fz_mi_insert_str,)
+
+from article_spider import ArticleParser
+from asyncio import get_event_loop
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -599,7 +571,7 @@ def get_all_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  
+            collect()  
             msg = '阿里1688抓取数据成功!'
 
             return _success_data(data=wait_to_save_data, msg=msg)
@@ -683,7 +655,7 @@ def get_taobao_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  
+            collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -772,7 +744,7 @@ def get_tmall_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  
+            collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -865,7 +837,7 @@ def get_jd_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()  
+            collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -951,7 +923,7 @@ def get_zhe_800_data():
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 my_lg.info('获取到的goods_id为空!')
                 del zhe_800       # 每次都回收一下
-                gc.collect()
+                collect()
 
                 return _null_goods_id()
 
@@ -963,7 +935,7 @@ def get_zhe_800_data():
             if data == {} or tmp_result == {}:
                 my_lg.info('获取到的data为空!')
                 del zhe_800
-                gc.collect()
+                collect()
 
                 return _null_goods_data()
 
@@ -977,7 +949,7 @@ def get_zhe_800_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del zhe_800  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()  
+            collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1060,7 +1032,7 @@ def get_juanpi_data():
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 my_lg.info('获取到的goods_id为空!')
                 del juanpi       # 每次都回收一下
-                gc.collect()
+                collect()
 
                 return _null_goods_id()
 
@@ -1072,7 +1044,7 @@ def get_juanpi_data():
             if data == {} or tmp_result == {}:
                 my_lg.info('获取到的data为空!')
                 del juanpi
-                gc.collect()
+                collect()
 
                 return _null_goods_data()
 
@@ -1085,7 +1057,7 @@ def get_juanpi_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del juanpi  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()  
+            collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1167,7 +1139,7 @@ def get_pinduoduo_data():
             if goods_id == '':      # 如果得不到goods_id, 则return error
                 my_lg.info('获取到的goods_id为空!')
                 del pinduoduo       # 每次都回收一下
-                gc.collect()
+                collect()
 
                 return _null_goods_id()
 
@@ -1178,7 +1150,7 @@ def get_pinduoduo_data():
             if data == {} or tmp_result == {}:
                 my_lg.info('获取到的data为空!')
                 del pinduoduo
-                gc.collect()
+                collect()
 
                 return _null_goods_data()
 
@@ -1191,7 +1163,7 @@ def get_pinduoduo_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del pinduoduo  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()  
+            collect()  
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1275,7 +1247,7 @@ def get_vip_data():
                     del vip       # 每次都回收一下
                 except Exception:
                     pass
-                gc.collect()
+                collect()
                 return _null_goods_id()
 
             #####################################################
@@ -1288,7 +1260,7 @@ def get_vip_data():
                 try:
                     del vip
                 except: pass
-                gc.collect()
+                collect()
                 return _null_goods_data()
 
             wait_to_save_data = add_base_info_2_processed_data(
@@ -1300,7 +1272,7 @@ def get_vip_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del vip       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            gc.collect()        
+            collect()        
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1391,7 +1363,7 @@ def get_kaola_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的考拉页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1482,7 +1454,7 @@ def get_yanxuan_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的严选页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1573,7 +1545,7 @@ def get_youpin_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的有品页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1663,7 +1635,7 @@ def get_mia_data():
                 pass
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            gc.collect()
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的蜜芽页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1740,7 +1712,7 @@ def get_basic_data():
                 if goods_id == '':  # 如果得不到goods_id, 则return error
                     my_lg.info('获取到的goods_id为空!')
                     del basic_taobao  # 每次都回收一下
-                    gc.collect()
+                    collect()
 
                     return _null_goods_id()
 
@@ -1751,7 +1723,7 @@ def get_basic_data():
                 if tmp_result == {} or data == {}:
                     my_lg.info('获取到的data为空!')
                     del basic_taobao
-                    gc.collect()
+                    collect()
 
                     return _null_goods_data()
 
@@ -1776,7 +1748,7 @@ def get_basic_data():
                 my_lg.info('-------------------------------')
 
                 del basic_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                gc.collect()  
+                collect()  
 
                 return result_json.decode()
 
@@ -1787,7 +1759,7 @@ def get_basic_data():
                 if goods_id == []:  # 如果得不到goods_id, 则return error
                     my_lg.info('获取到的goods_id为空!')
                     del basic_tmall  # 每次都回收一下
-                    gc.collect()
+                    collect()
 
                     return _null_goods_id()
 
@@ -1803,7 +1775,7 @@ def get_basic_data():
                 if tmp_result == {}:
                     my_lg.info('获取到的data为空!')
                     del basic_tmall
-                    gc.collect()
+                    collect()
 
                     return _null_goods_data()
 
@@ -1811,7 +1783,7 @@ def get_basic_data():
                 if data == {}:
                     my_lg.info('获取到的data为空!')
                     del basic_tmall
-                    gc.collect()
+                    collect()
 
                     return _null_goods_data()
 
@@ -1836,7 +1808,7 @@ def get_basic_data():
                 my_lg.info('-------------------------------')
 
                 del basic_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                gc.collect()  
+                collect()  
                 return result_json.decode()
 
             elif _is_jd_url(wait_to_deal_with_url):
@@ -1846,7 +1818,7 @@ def get_basic_data():
                 if goods_id == []:  # 如果得不到goods_id, 则return error
                     my_lg.info('获取到的goods_id为空!')
                     del jd  # 每次都回收一下
-                    gc.collect()
+                    collect()
 
                     return _null_goods_id()
 
@@ -1862,7 +1834,7 @@ def get_basic_data():
                 if tmp_result == {}:
                     my_lg.info('获取到的data为空!')
                     del jd
-                    gc.collect()
+                    collect()
 
                     return _null_goods_data()
 
@@ -1870,7 +1842,7 @@ def get_basic_data():
                 if data == {}:
                     my_lg.info('获取到的data为空!')
                     del jd
-                    gc.collect()
+                    collect()
 
                     return _null_goods_data()
 
@@ -1895,7 +1867,7 @@ def get_basic_data():
                 my_lg.info('-------------------------------')
 
                 del jd  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                gc.collect()  
+                collect()  
                 return result_json.decode()
 
             else:
@@ -1973,6 +1945,57 @@ def get_goods_link(**kwargs):
 
     else:
         _ = request.form.get('goods_link', '')
+
+    return _
+
+######################################################
+'''
+/api/article
+'''
+@app.route('/api/article', methods=['GET'])
+@Sign.signature_required
+def _article():
+    '''
+    文章接口
+    :return: json
+    '''
+    _ = get_article_link(request=request)
+    article_url = b64decode(s=_.encode('utf-8')).decode('utf-8')     # _ 传来的起初是str, 先str->byte, 再b64decode解码
+    my_lg.info('获取到的article_url: {}'.format(str(article_url)))
+
+    _ = ArticleParser()
+    loop = get_event_loop()
+    article_res = {}
+    try:
+        article_res = loop.run_until_complete(_._parse_article(article_url=article_url))
+    except Exception:
+        my_lg.error(exc_info=True)
+    finally:
+        loop.close()
+        collect()
+    
+    if article_res == {}:
+        return _error_msg(msg='文章抓取失败!')
+
+    return _success_data(msg='文章抓取成功!', data=article_res)
+
+def get_article_link(**kwargs):
+    '''
+    从cli得到article_link
+    :param kwargs:
+    :return:
+    '''
+    request = kwargs.get('request')
+
+    _ = ''
+    if request.method == 'GET':
+        try:
+            _ = dict(request.args).get('article_link', '')[0]
+        except IndexError:
+            my_lg.error('获取article_link时IndexError!')
+
+    else:
+        _ = request.form.get('article_link', '')
 
     return _
 
@@ -2081,7 +2104,7 @@ def save_every_url_right_data(**kwargs):
     tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
     my_lg.info('存入完毕'.center(100, '*'))
     # del my_page_info_save_item_pipeline
-    gc.collect()
+    collect()
 
     return _insert_into_db_result(
         pipeline=my_page_info_save_item_pipeline,

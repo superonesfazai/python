@@ -64,3 +64,10 @@ where GETDATE()-CreateTime < 1
 order by ID desc;
 '''
 
+# 查询某个goods的信息变动
+sql_str_3 = '''
+use Gather;
+select top 10 GoodsID, SiteID, SKUInfo, PriceChangeInfo, IsPriceChange, sku_info_trans_time, is_spec_change, spec_trans_time, is_stock_change, stock_change_info
+from dbo.GoodsInfoAutoGet
+where GoodsID=''
+'''

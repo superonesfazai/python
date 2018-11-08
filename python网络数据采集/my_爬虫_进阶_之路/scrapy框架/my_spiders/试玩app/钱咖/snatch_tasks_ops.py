@@ -11,11 +11,14 @@
 """
 
 from gc import collect
+from requests import post
 
 from fzutils.spider.async_always import *
 
 with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
     twilio_pwd_info = json_2_dict(f.read())
+with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
+    sc_key_info = json_2_dict(f.read())
 
 class MoneyCaffeine(object):
     """钱咖"""
@@ -24,6 +27,7 @@ class MoneyCaffeine(object):
         self.sleep_time = 1.
         self.account_sid = twilio_pwd_info['account_sid']
         self.auth_token = twilio_pwd_info['auth_token']
+        self.sc_key = sc_key_info['sckey']
 
     async def _get_cookies(self):
         return {
@@ -82,7 +86,9 @@ class MoneyCaffeine(object):
             'ext4': '2ded7c7731b21ec6b057351da4369f5a'
         }
         url = 'https://qianka.com/s5/user.action'
-        data = json_2_dict(Requests.get_url_body(method='post', url=url, headers=headers, cookies=await self._get_cookies(), data=data))
+        body = Requests.get_url_body(method='post', url=url, headers=headers, cookies=await self._get_cookies(), data=data)
+        # print(body)
+        data = json_2_dict(body)
         # pprint(data)
 
         return data
@@ -101,6 +107,7 @@ class MoneyCaffeine(object):
 
         url = 'https://qianka.com/s4/lite.subtask.start'
         data = json_2_dict(Requests.get_url_body(url=url, headers=headers, params=params, cookies=await self._get_cookies()))
+        # pprint(data)
 
         return data
 
@@ -141,6 +148,34 @@ class MoneyCaffeine(object):
 
         return res
 
+    async def _send_msg_to_wx(self):
+        '''
+        发送内容给微信
+        :return:
+        '''
+        headers = {
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'User-Agent': get_random_pc_ua(),
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Accept': '*/*',
+            'Referer': 'http://sc.ftqq.com/?c=code',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Connection': 'keep-alive',
+        }
+        data = {
+            'text': '钱咖新任务!!',                     # title
+            'desp': get_uuid1(),    # content
+        }
+        url = 'http://sc.ftqq.com/{}.send'.format(self.sc_key)
+        with post(url=url, headers=headers, data=data) as resp:
+            send_res = json_2_dict(resp.text).get('errmsg', 'success')
+
+        if send_res == 'success':
+            return True
+        else:
+            return False
+
     async def do_tasking(self):
         '''
         doing task
@@ -154,9 +189,13 @@ class MoneyCaffeine(object):
         #     body=sms_body)
 
         # send sms by 联通
-        sms_res = await self.real_time_remind_by_china_unicom()
-        label = '+' if sms_res else '-'
-        print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
+        # sms_res = await self.real_time_remind_by_china_unicom()
+        # label = '+' if sms_res else '-'
+        # print('[{}] 短信发送{}'.format(label, '成功!' if sms_res else '失败!'))
+
+        # send msg to wx
+        sms_res = await self._send_msg_to_wx()
+        print('[{}] 推送到微信{}!'.format('+' if sms_res else '-', '成功' if sms_res else '失败'))
         while True:
             completed = input('已完成该任务请输入(y):')
             if completed == 'y':
