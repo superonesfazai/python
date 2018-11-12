@@ -20,7 +20,9 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)
 
-from sql_str_controller import jd_select_str_1
+from sql_str_controller import (
+    jd_select_str_1,
+    jd_update_str_2,)
 from multiplex_code import (
     _get_sku_price_trans_record,
     _get_stock_trans_record,
@@ -86,7 +88,14 @@ def run_forever():
                     tmp_item.append(2)
 
                 tmp_item.append(item[1])
-                jd.get_goods_data(goods_id=tmp_item)
+                data = jd.get_goods_data(goods_id=tmp_item)
+                if data.get('is_delete', 1) == 1:
+                    my_lg.info('该商品已下架...')
+                    tmp_sql_server._update_table_2(sql_str=jd_update_str_2, params=(tmp_item[1],), logger=my_lg)
+                    sleep(1)
+                    index += 1
+                    continue
+
                 data = jd.deal_with_data(goods_id=tmp_item)
                 if data != {}:
                     data['goods_id'] = item[1]

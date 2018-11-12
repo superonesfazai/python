@@ -69,7 +69,7 @@ class RequestClient(object):
         # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
         # goods_link = 'https://item.jd.com/5025518.html'
 
-        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541644207&ver=1231&signature=Zj**SRdp9bTZXBQxsAdjFWmm0kEqLY0awVyAZlwj1XHK-hxQ9P8*PNpoVNcebUJvDTBBGSmPqjNipozEYiRd-snrCDJjz-TgcWlVJhfHsNtkKi4A6Tb9kqAKWJSQzy84&new=1'
+        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541727002&ver=1233&signature=vJlLhwUTzzvdbscdn*wHIm*Ic2WPK*b73CpmDbZbq0WyRZZ-Nc9rLrQRNcAwMjGZJaSAaAs8*-*Jx*KuPjiHS0omOgP1-0dMcCJVlh70XbTejnEQmdmESvVN72aBWyIw&new=1'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
@@ -80,7 +80,6 @@ class RequestClient(object):
             # 'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte, pc地址或m地址都可, server会识别
             'article_link': b64encode(s=article_link.encode('utf-8')).decode('utf-8'),
         }
-
         params.update({
             'sign': self._sign(params)
         })
@@ -95,8 +94,7 @@ class RequestClient(object):
 
         # article
         # url = 'http://127.0.0.1:5000/api/article'
-        # url = 'http://spider.other.k85u.com/api/article'
-        url = 'http://spider.taobao_tmall.k85u.com/api/article'
+        url = 'http://spider.other.k85u.com/api/article'
 
         with get(url, params=params) as response:
             res = response.text

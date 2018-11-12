@@ -160,7 +160,7 @@ tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s
 tm_select_str_1 = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where (SiteID=3 or SiteID=4 or SiteID=6) order by ID desc'
 # old表转新表数据查询
 tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
-# 常规goods实时更新(下架的不更新)
+# 常规goods实时更新(下架的也更新)
 tm_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
 from dbo.GoodsInfoAutoGet 
@@ -200,6 +200,7 @@ jd_insert_str_2 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName,
 '''update'''
 # 常规goods更新
 jd_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, {0} {1} where GoodsID = %s'
+jd_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 
 """
 折800

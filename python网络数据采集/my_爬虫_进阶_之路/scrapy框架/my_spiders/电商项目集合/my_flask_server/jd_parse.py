@@ -9,6 +9,7 @@
 
 """
 可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀('miaosha'字段)，京东闪购, 京东大药房(在本地测试通过, 服务器data为空)
+无法抓取: 京东拼购
 """
 
 from settings import (
@@ -19,9 +20,10 @@ from settings import (
 
 import re
 from time import sleep
-import gc
+from gc import collect
 from pprint import pprint
 from json import dumps
+from random import randint
 from scrapy.selector import Selector
 
 from sql_str_controller import (
@@ -33,9 +35,13 @@ from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import (
     get_random_pc_ua,
     get_random_phone_ua,)
-from fzutils.common_utils import json_2_dict
+from fzutils.common_utils import (
+    json_2_dict,
+    delete_list_null_str,
+    wash_sensitive_info,)
 from fzutils.spider.crawler import Crawler
 from fzutils.spider.fz_requests import Requests
+from fzutils.safe_utils import get_uuid3
 
 class JdParse(Crawler):
     def __init__(self, logger=None):
@@ -45,27 +51,25 @@ class JdParse(Crawler):
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/jd/_/',
             
-            is_use_driver=True,
+            is_use_driver=False,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
-        self._set_headers()
         self.result_data = {}
 
-    def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'jd.com;jd.hk',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
+    def _get_pc_headers(self):
+        return {
+            'authority': 'item.jd.com',
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_pc_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
         }
 
     def _get_phone_headers(self):
         return {
             'authority': 'item.m.jd.com',
-            'cache-control': 'max-age=0',
             'upgrade-insecure-requests': '1',
             'user-agent': get_random_phone_ua(),
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -75,234 +79,439 @@ class JdParse(Crawler):
 
     def get_goods_data(self, goods_id):
         '''
-        模拟构造得到data的url
-        :param goods_id:
-        :return: data   类型dict
-        '''
-        if goods_id == []:
-            self.lg.error('goods_id为空list')
-            return self._data_error_init()
-
-        if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
-            return self._data_error_init()
-
-        self.error_record = '出错goods_id:{0}'.format(goods_id[1])
-
-        phone_url, tmp_url, comment_url = self._get_need_url(goods_id=goods_id)
-        self.lg.info('------>>>| 得到的移动端地址为: {0}'.format(phone_url))
-
-        # self.lg.info(str(tmp_url))
-        if goods_id[0] == 1:    # ** 注意: 先预加载让driver获取到sid **
-            # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-            self.driver.use_phantomjs_to_get_url_body(url='https://mitem.jd.hk/cart/cartNum.json')
-        elif goods_id[0] == 2:
-            # 研究分析发现京东全球购，大药房商品访问需要cookies中的sid值
-            self.driver.use_phantomjs_to_get_url_body(url='https://m.yiyaojd.com/cart/cartNum.json')
-
-        # 得到总销售量
-        comment_body = self.driver.use_phantomjs_to_get_url_body(url=comment_url)
-        if comment_body == '':  # 网络问题或者ip切换出错
-            return self._data_error_init()
-
-        comment_body = self._wash_url_body(body=comment_body)
-        self.lg.info(str(comment_body))
-        comment_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(comment_body)
-        if comment_body_1 != []:
-            comment_data = comment_body_1[0]
-            comment_data = json_2_dict(json_str=comment_data)
-            # pprint(comment_data)
-            all_sell_count = comment_data.get('wareDetailComment', {}).get('allCnt', '0')
-
-        else:
-            self.lg.error('获取到的comment的销售量data为空!'+self.error_record)
-            return self._data_error_init()
-
-        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
-        if body == '':
-            return self._data_error_init()
-
-        body = self._wash_url_body(body=body)
-        # self.lg.info(str(body))
-
-        body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
-
-        ## ** 起初是拿phantomjs来进行url请求的，本来想着用requests来优化，但是改动有点大，就先暂时不改动 **
-        # body_1 = Requests.get_url_body(url=tmp_url, headers=self.headers)
-        # if body_1 == '':
-        #     body_1 = []
-        # else:
-        # # self.lg.info(str(body_1[0]))
-
-        if body_1 != []:
-            data = body_1[0]
-            data = json_2_dict(json_str=data)
-            if data == {}:
-                self.lg.error(r'此处直接返回data为{}'+self.error_record)
-                return self._data_error_init()
-
-            # pprint(data)
-            wdis = data.get('wdis', '') # 图文描述
-            data = data.get('ware', {})
-            try:
-                data.pop('wdisHtml')
-                data.get('wi', {})['afterServiceList'] = []
-            except Exception:
-                pass
-
-            if data.get('wi') is not None:  # 处理'wi' 'code'
-                # 用于获取p_info
-                code = data.get('wi', {}).get('code', '')
-                # self.lg.info('wi,code的为: {}'.format(code))
-                if code != '':
-                    code = json_2_dict(json_str=code)
-                    try:
-                        data.get('wi', {})['code'] = code
-                    except Exception as e:  # 对应p_info解析错误的, 换方法解析
-                        self.lg.info('wi中的code对应json解析错误, 为:', e)
-                        code = data.get('wi', {}).get('wareQD', '')
-                        data.get('wi', {})['code'] = code
-            else:
-                data['wi'] = {'code': []}
-
-            data['wdis'] = wdis                         # 处理wdis
-            data['all_sell_count'] = all_sell_count     # 商品总销售量
-            if data != {}:
-                self.result_data = data
-                # pprint(data)
-                return data
-            else:
-                self.lg.error('获取到的data的key值ware为空!'+self.error_record)
-                return self._data_error_init()
-
-        else:
-            self.lg.error('获取到的data为空!'+self.error_record)
-            return self._data_error_init()
-
-    def _get_goods_data(self, goods_id):
-        '''
         新版api
         :param goods_id:
         :return:
         '''
-        if goods_id == []:
-            self.lg.error('goods_id为空list')
-            return self._data_error_init()
-
-        if isinstance(self._get_need_url(goods_id=goods_id), dict):     # 即返回{}
-            return self._data_error_init()
-
         self.error_record = '出错goods_id:{0}'.format(goods_id[1])
-        params = (
-            ('wareId', str(goods_id[1])),
-        )
-        url = 'https://item.m.jd.com/ware/view.action'
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params)
+        if goods_id == []:
+            self.lg.error('goods_id为空list' + self.error_record)
+            return self._data_error_init()
+
+        url = 'https://item.m.jd.com/product/{}.html'.format(goods_id[1])
+        # self.lg.info(url)
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers())
         # self.lg.info(body)
+        if '暂无定价' in body or '403 Forbidden' in body:      # 下架商品处理
+            self._data_error_init()
+            return {'is_delete': 1}
+
+        all_data, _1, _2 = {}, {}, {}
         try:
-            _ = json_2_dict(re.compile('window\._itemOnly =\((.*?)\);').findall(body)[0])
-            # self.lg.info(str(_))
-            pprint(_)
+            _1 = json_2_dict(re.compile('window\._itemOnly =\((.*?)\);').findall(body)[0])
+            # self.lg.info(str(_1))
+            # pprint(_1)
+            _2 = json_2_dict(re.compile('window\._itemInfo = \((.*?)\);').findall(body)[0])
+            # self.lg.info(str(_2))
+            # pprint(_2)
         except IndexError:
             self.lg.error('re索引body时异常!')
-            self._data_error_init()
+            return self._data_error_init()
 
+        try:
+            description_id = _1.get('item', {}).get('description', '')
+            assert description_id != '', 'description_id为空值!'
+        except AssertionError:
+            self.lg.error(exc_info=True)
+            return self._data_error_init()
 
+        base_price_info = self._get_base_price_info(_2=_2)
+        # pprint(base_price_info)
+        if base_price_info == {}:
+            return self._data_error_init()
 
-    def deal_with_data(self, goods_id):
+        '''p_info'''
+        # 取m站接口总是会出现无响应
+        # 改为解析取pc站html
+        p_info = self._get_pc_p_info(goods_id=goods_id[1])
+
+        # div_desc
+        _4 = self._get_div_desc_oir_data(goods_id=goods_id[1], description_id=description_id)
+        # self.lg.info(str(_4))
+        if _4 == '':
+            return self._data_error_init()
+
+        _5 = self._get_this_goods_all_goods_id_data(_1=_1)
+        if _5 == []:
+            return self._data_error_init()
+
+        all_sell_count = self._get_all_sell_count(goods_id=goods_id[1])
+        all_data.update({
+            '1': _1,
+            '2': _2,
+            '4': _4,        # div_desc
+            '5': _5,        # all_goods_id_list的data
+            'p_info': p_info,
+            'base_price_info': base_price_info,
+            'all_sell_count': all_sell_count,
+            'is_delete': 0,
+        })
+        self.result_data = all_data
+
+        return all_data
+
+    def deal_with_data(self, goods_id) -> dict:
         '''
-        处理result_data, 返回需要的信息
-        :return: 字典类型
+        处理数据
+        :param goods_id:
+        :return: {'is_delete': 1} 表示下架商品
         '''
         data = self.result_data
-        if data != {}:
+        # pprint(data)
+        if data == {}:
+            self.lg.info('待处理的data为空的dict' + self.error_record)
+            return {}
+
+        if data.get('is_delete', 1) == 1:
+            self.lg.info('**** 该商品{}已下架...'.format(goods_id[1]))
+            return {'is_delete': 1}
+
+        try:
+            title = self._get_title(data=data)
+            sub_title = self._get_sub_title(data=data)
             shop_name = self._get_shop_name(data=data)
             account = ''
-            title = data.get('wname', '')
-            sub_title = ''
+            all_img_url = self._get_all_img_url(data=data)
             detail_name_list = self._get_detail_name_list(data=data)
-
-            '''
-            要存储的每个标签对应规格的价格及其库存(京东无库存抓取, 只有对应规格商品是否可买)
-            '''
-            price_info_list = self.get_price_info_list(goods_id, detail_name_list, data)
-            # pprint(price_info_list)
-
-            # 获取is_delete, price, taobao_price
-            _ = self._get_price_and_taobao_price_and_is_delete(
-                detail_name_list=detail_name_list,
+            price_info_list = self._get_price_info_list(data=data)
+            if price_info_list == []:   # 避免手机有规格但是电脑没有规格的bug
+                detail_name_list = []
+            p_info = self._get_p_info(data=data)
+            div_desc = self._get_div_desc(data=data)
+            price, taobao_price = self._get_price_and_taobao_price(
                 price_info_list=price_info_list,
-                goods_id=goods_id)
-            if _ == [0, '', '']:    # 异常退出
-                return self._data_error_init()
-            else:
-                is_delete, price, taobao_price = _
-            # self.lg.info('最高价: {0}, 最低价: {1}'.format(price, taobao_price))
+                base_price_info=data.get('base_price_info', {}))
+            is_delete = self._get_is_delete(data=data)
+        except (AssertionError, Exception):
+            self.lg.error('遇到错误:', exc_info=True)
+            return self._data_error_init()
 
-            # 所有示例图片地址
-            '''
-            新增: 由于手机版获取到的jd示例图片数据有京东的水印，所以单独先通过pc端来获取图片，pc获取失败就用phone端的
-            '''
-            all_img_url = self.get_pc_no_watermark_picture(goods_id=goods_id)
-            if all_img_url == {}:   # 意外退出
-                return self._data_error_init()
+        jd_type = 7     # 不进行区分全部都为7, 即京东常规商品
+        all_sell_count = data.get('all_sell_count', '600')
+        res = {
+            'shop_name': shop_name,                     # 店铺名称
+            'account': account,                         # 掌柜
+            'title': title,                             # 商品名称
+            'sub_title': sub_title,                     # 子标题
+            'price': price,                             # 商品价格
+            'taobao_price': taobao_price,               # 淘宝价
+            # 'goods_stock': goods_stock,               # 商品库存
+            'detail_name_list': detail_name_list,       # 商品标签属性名称
+            # 'detail_value_list': detail_value_list,   # 商品标签属性对应的值
+            'price_info_list': price_info_list,         # 要存储的每个标签对应规格的价格及其库存(京东隐藏库存无法爬取，只能能买或不能买)
+            'all_img_url': all_img_url,                 # 所有示例图片地址
+            'p_info': p_info,                           # 详细信息标签名对应属性
+            # 'pc_div_url': pc_div_url,                 # pc端描述地址
+            'div_desc': div_desc,                       # div_desc
+            'is_delete': is_delete,                     # 是否下架判断
+            'jd_type': jd_type,                         # 京东类型，(京东常规商品为7,京东超市为8)
+            'all_sell_count': all_sell_count,           # 商品总销售量
+        }
+        # pprint(result)
+        # self.lg.info(str(result))
+        # wait_to_send_data = {
+        #     'reason': 'success',
+        #     'data': result,
+        #     'code': 1
+        # }
+        # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+        # self.lg.info(str(json_data))
+        collect()
 
-            if all_img_url == []:   # 获取pc端失败, 即获取phone示例图
-                if data.get('images') is not None:
-                    all_img_url = [{
-                        'img_url': item.get('bigpath')
-                    } for item in data.get('images')]
-                else:
-                    all_img_url = []
-            else:
-                pass
-            # pprint(all_img_url)
+        return res
 
-            p_info = self.get_p_info(data=data)
-            # pprint(p_info)      # 爬取是手机端的所以没有第一行的，就是手机端的规格
-            div_desc = self.get_right_div_desc(data=data)
-            # self.lg.info(str(div_desc))
-            jd_type = self._get_jd_type(is_jd_market=data.get('isJdMarket'), type=goods_id[0])
-            # self.lg.info('jd_type为: {0}'.format(jd_type))
+    def _get_base_price_info(self, _2):
+        '''
+        获取基础的价格信息
+        :param _2:
+        :return:
+        '''
+        # 获取该规格的base_price, 避免单规格获取不到价格
+        base_price_info = {}
+        try:
+            detail_price = _2.get('price', {}).get('p', '')
+            normal_price = _2.get('price', {}).get('m', '')
+            assert detail_price != '' or normal_price != '', 'detail_price或normal_price为空值!'
+            base_price_info.update({
+                'detail_price': detail_price,
+                'normal_price': normal_price,
+            })
+        except AssertionError:
+            self.lg.error('遇到错误: {}'.format(self.error_record), exc_info=True)
 
-            # 商品总销售量
-            all_sell_count = str(data.get('all_sell_count', '0'))
-            if is_delete == 1:
-                self.lg.info('**** 该商品已下架...')
+        return base_price_info
 
-            result = {
-                'shop_name': shop_name,                 # 店铺名称
-                'account': account,                     # 掌柜
-                'title': title,                         # 商品名称
-                'sub_title': sub_title,                 # 子标题
-                'price': price,                         # 商品价格
-                'taobao_price': taobao_price,           # 淘宝价
-                # 'goods_stock': goods_stock,             # 商品库存
-                'detail_name_list': detail_name_list,   # 商品标签属性名称
-                # 'detail_value_list': detail_value_list, # 商品标签属性对应的值
-                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存(京东隐藏库存无法爬取，只能能买或不能买)
-                'all_img_url': all_img_url,             # 所有示例图片地址
-                'p_info': p_info,                       # 详细信息标签名对应属性
-                # 'pc_div_url': pc_div_url,               # pc端描述地址
-                'div_desc': div_desc,                   # div_desc
-                'is_delete': is_delete,                 # 是否下架判断
-                'jd_type': jd_type,                     # 京东类型，(京东常规商品为7,京东超市为8)
-                'all_sell_count': all_sell_count,       # 商品总销售量
-            }
-            # pprint(result)
-            # self.lg.info(str(result))
-            # wait_to_send_data = {
-            #     'reason': 'success',
-            #     'data': result,
-            #     'code': 1
-            # }
-            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # self.lg.info(str(json_data))
-            gc.collect()
-            return result
+    def _get_all_sell_count(self, goods_id):
+        '''
+        得到总好评数
+        :return:
+        '''
+        params = (
+            ('sorttype', '5'),
+            ('sceneval', '2'),
+            ('sku', str(goods_id)),
+            ('page', '1'),
+            ('pagesize', '10'),
+            ('score', '0'),
+            ('callback', 'skuJDEvalA'),
+            # ('t', '0.31518758092351407'),
+        )
+        url = 'https://wq.jd.com/commodity/comment/getcommentlist'
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params)
+        # self.lg.info(str(body))
+        all_sell_count = str(randint(800, 2000))
+        try:
+            _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0], default_res={}).get('result', {})
+        except:
+            self.lg.error('获取all_sell_count失败!')
+            return all_sell_count
 
+        all_sell_count = str(_.get('productCommentSummary', {}).get('CommentCount', randint(800, 2000)))
+        # self.lg.info(all_sell_count)
+
+        return all_sell_count
+
+    def _get_this_goods_all_goods_id_data(self, _1) -> list:
+        '''
+        获取该商品所有的goods_id的data信息
+        :return:
+        '''
+        # 获取所有goods_id
+        self.lg.info('------>>>| 正在获取所有goods_id的data...')
+        all_goods_id_list = _1.get('item', {}).get('newColorSize', [])
+        # pprint(all_goods_id_list)
+        _5 = []
+        if all_goods_id_list == []:
+            self.lg.error('all_goods_id_list为空list!')
+            return _5
+
+        for item in all_goods_id_list:
+            tmp_goods_id = item.get('skuId', '')
+            self.lg.info('------>>>| {}...'.format(tmp_goods_id))
+            spec_value_list = []
+            for key, value in item.items():
+                try:
+                    if isinstance(int(key), int):
+                        spec_value_list.append(value)
+                except ValueError:
+                    pass
+            spec_value_list = delete_list_null_str(spec_value_list)
+            spec_value_list = [i.replace('|', '/') for i in spec_value_list]    # 避免原先的'|'影响
+            spec_value = '|'.join(spec_value_list)
+            _5.append({
+                'sku_id': tmp_goods_id,
+                'spec_value': spec_value,
+                'data': self._get_one_goods_id_sku_info(goods_id=tmp_goods_id),
+            })
+
+        return _5
+
+    def _get_price_info_list(self, data) -> list:
+        '''
+        获取每个规格的详细信息
+        :return:
+        '''
+        _ = data.get('5', [])
+        # pprint(_)
+        price_info_list = []
+        for item in _:
+            spec_value = item.get('spec_value', '')
+            # self.lg.info(spec_value)
+            image = item.get('data', {}).get('image', '')
+            img_url = 'https:' + image if image != '' else ''
+            rest_number = ''    # 默认为空值
+
+            # 能否被购买
+            # is_purchase = item.get('data', {}).get('stock', {}).get('IsPurchase', 'false')    # 这个判断不准确，取消
+            stock_state_name = item.get('data', {}).get('stock', {}).get('StockStateName', '采购中')
+            # self.lg.info(is_purchase)
+            # if stock_state_name != '现货' \
+            #         or not is_purchase:
+            if stock_state_name != '现货':
+                continue
+
+            detail_price = item.get('data', {}).get('price', {}).get('p', '')   # 当前价
+            normal_price = item.get('data', {}).get('price', {}).get('m', '')
+            if detail_price == '':
+                continue
+
+            price_info_list.append({
+                'unique_id': get_uuid3(spec_value),
+                'spec_value': spec_value,
+                'img_url': img_url,
+                'rest_number': rest_number,
+                'detail_price': detail_price,
+                'normal_price': normal_price,
+            })
+
+        return price_info_list
+
+    def _get_div_desc(self, data):
+        _ = data.get('4', '')
+        assert  _ != '', '获取到的div_desc为空值!'
+
+        return _
+
+    def _get_price_and_taobao_price(self, price_info_list, base_price_info):
+        '''
+        最高价和最低价处理  从已经获取到的规格对应价格中筛选最高价和最低价即可
+        '''
+        if price_info_list == []:
+            detail_price = base_price_info.get('detail_price', '')
+            price, taobao_price = detail_price, detail_price
         else:
-            self.lg.info('待处理的data为空的dict'+self.error_record)
-            return {}
+            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
+            assert tmp_price_list != [], '获取最高价最低价时错误!' + self.error_record
+
+            # self.lg.info(str(tmp_price_list))
+            price = tmp_price_list[-1]
+            taobao_price = tmp_price_list[0]
+
+        return price, taobao_price
+
+    def _get_is_delete(self, data):
+        is_delete = data.get('is_delete', 1)
+
+        return is_delete
+
+    def _get_p_info(self, data):
+        p_info = data.get('p_info', [])
+        assert p_info != [], 'p_info为空list!'
+
+        return p_info
+
+    def _get_all_img_url(self, data):
+        _ = data.get('1', {}).get('item', {}).get('image', [])
+        assert _ != [], 'all_img_url为空list!'
+        all_img_url = [{
+            'img_url': 'https://img10.360buyimg.com/n1/s450x450_' + item,
+        } for item in _]
+
+        return all_img_url
+
+    def _get_title(self, data) -> str:
+        title = data.get('1', {}).get('item', {}).get('skuName', '')
+        assert title != '', 'title为空值!'
+
+        return self._wash_sensitive_info(data=title)
+
+    def _get_sub_title(self, data) -> str:
+        '''
+        获取sub_title可为空
+        :param data:
+        :return:
+        '''
+        sub_title = data.get('2', {}).get('AdvertCount', {}).get('ad', '')
+        sub_title = re.compile('<a.*?</a>').sub('', sub_title)
+
+        return self._wash_sensitive_info(data=sub_title)
+
+    def _get_pc_p_info(self, goods_id) -> list:
+        '''
+        获取pc html的p_info
+        :param goods_id:
+        :return:
+        '''
+        url = 'https://item.jd.com/{}.html'.format(goods_id)
+        body = Requests.get_url_body(url=url, headers=self._get_pc_headers())
+        # self.lg.info(str(body))
+        li_list = Selector(text=body).css('div.p-parameter ul li ::text').extract() or []   # 尽可能多匹配
+        # pprint(li_list)
+        p_info = []
+        for item in li_list:
+            try:
+                _ = item.split('：')
+                before = _[0].replace('\xa0', '')
+                end = _[1].replace('\xa0', '')
+                assert before != '' and end.replace(' ', '') != ''
+                p_info.append({
+                    'p_name': before,
+                    'p_value': end,
+                })
+            except (IndexError, AssertionError):
+                # self.lg.error(exc_info=True)
+                pass
+
+        return p_info
+
+    def _get_p_info_ori_data(self, goods_id) -> dict:
+        '''
+        获取p_info数据源
+        :return:
+        '''
+        params = (
+            ('callback', 'commParamCallBackA'),
+            ('skuid', str(goods_id)),
+            # ('t', '0.11230835598015143'),
+        )
+        url = 'https://wq.jd.com/commodity/itembranch/getspecification'
+        headers = {
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': get_random_phone_ua(),
+            'accept': '*/*',
+            'authority': 'wq.jd.com',
+        }
+        # 有一些可能返回的是空的
+        body = Requests.get_url_body(url=url, headers=headers, params=params)
+        # self.lg.info(str(body))
+        _ = {}
+        try:
+            _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0]).get('data', {})
+        except (IndexError, Exception):
+            return _
+
+        return _
+
+    def _get_div_desc_oir_data(self, goods_id, description_id) -> str:
+        '''
+        获取div_desc数据源
+        :return:
+        '''
+        url = 'https://wqsitem.jd.com/detail/{}_d{}_normal.html'.format(goods_id, description_id)
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers())
+        # self.lg.info(str(body))
+        try:
+            _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0]).get('content', '')
+            # self.lg.info(str(_))
+            all = re.compile('background-image:url\((.*?)\)').findall(_)
+            if all == []:
+                all = re.compile('<img.*?src=\"(.*?)\".*?/>').findall(_)
+        except IndexError:
+            self.lg.error('获取div_desc时出错!')
+            return ''
+
+        # pprint(all)
+        if all == []:
+            self.lg.error('获取div_desc时出错!all为空list!')
+            return ''
+
+        tmp = ''
+        for item in all:
+            img_url = 'https:' + item if not item.startswith('http') else item
+            tmp += '<img src="{}" style="height:auto;width:100%;"/>'.format(img_url)
+
+        div_desc = '<div>' + tmp + '</div>'
+
+        return div_desc
+
+    def _wash_sensitive_info(self, data):
+        '''
+        清洗敏感信息
+        :return:
+        '''
+        replace_str_list = [
+            ('京东', '优秀网'),
+            ('JD', '优秀网')
+        ]
+        add_sensitive_str_list = [
+            'jd',
+        ]
+        return wash_sensitive_info(
+            data=data,
+            replace_str_list=replace_str_list,
+            add_sensitive_str_list=add_sensitive_str_list,
+        )
 
     def _data_error_init(self):
         '''
@@ -332,155 +541,15 @@ class JdParse(Crawler):
 
         return jd_type
 
-    def _get_price_and_taobao_price_and_is_delete(self, **kwargs):
-        '''
-        获取is_delete, price, taobao_price
-        :return: [0, '', ''] 表示异常退出 | [x, xx, xx] 表示成功
-        '''
-        detail_name_list = kwargs.get('detail_name_list', [])
-        price_info_list = kwargs.get('price_info_list', [])
-        goods_id = kwargs.get('goods_id', [])
-        # 是否下架判断
-        is_delete = 0
-
-        # 商品价格
-        '''
-        最高价和最低价处理  从已经获取到的规格对应价格中筛选最高价和最低价即可
-        '''
-        if detail_name_list == []:  # 说明没有规格，所有价格只能根据当前的goods_id来获取
-            if self.from_ware_id_get_price_info(ware_id=goods_id)[0] == '暂无报价':
-                is_delete = 1  # 说明已经下架
-                price, taobao_price = (0, 0,)
-            else:
-                try:
-                    # self.lg.info(str(self.from_ware_id_get_price_info(ware_id=goods_id)[0]))
-                    price = round(float(self.from_ware_id_get_price_info(ware_id=goods_id)[0]), 2)
-                    taobao_price = price
-                except TypeError:
-                    is_delete = 1  # 说明该商品暂无报价
-                    price, taobao_price = (0, 0,)
-        else:
-            try:
-                tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
-            except ValueError:
-                self.lg.error('tmp_price_list的ValueError，此处设置为跳过' + self.error_record)
-                return [0, '', '']
-
-            # self.lg.info(str(tmp_price_list))
-            if tmp_price_list != []:
-                price = tmp_price_list[-1]
-                taobao_price = tmp_price_list[0]
-            else:
-                self.lg.error('获取最高价最低价时错误' + self.error_record)
-                return [0, '', '']
-
-        return [is_delete, price, taobao_price]
-
-    def _get_need_url(self, goods_id):
-        '''
-        获取需求的url
-        :param goods_id:
-        :return:
-        '''
-        phone_url = ''
-        tmp_url = ''
-        comment_url = ''
-        if goods_id[0] == 0:  # 表示为京东常规商品
-            phone_url = 'https://item.m.jd.com/ware/view.action?wareId=' + str(goods_id[1])
-            # 用于得到常规信息
-            tmp_url = 'https://item.m.jd.com/ware/detail.json?wareId=' + str(goods_id[1])
-            comment_url = 'https://item.m.jd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
-
-        elif goods_id[0] == 1:  # 表示为京东全球购商品 (此处由于进口关税无法计算先不处理京东全球购)
-            phone_url = 'https://mitem.jd.hk/ware/view.action?wareId=' + str(goods_id[1])
-            tmp_url = 'https://mitem.jd.hk/ware/detail.json?wareId=' + str(goods_id[1])
-            comment_url = 'https://mitem.jd.hk/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
-
-            self.lg.info('此商品为京东全球购商品，由于进口关税无法计算，先不处理京东全球购')
-            return {}
-
-        elif goods_id[0] == 2:  # 表示京东大药房商品
-            phone_url = 'https://m.yiyaojd.com/ware/view.action?wareId=' + str(goods_id[1])
-            tmp_url = 'https://m.yiyaojd.com/ware/detail.json?wareId=' + str(goods_id[1])
-            comment_url = 'https://m.yiyaojd.com/ware/getDetailCommentList.json?wareId=' + str(goods_id[1])
-
-        return phone_url, tmp_url, comment_url
-
-    def from_ware_id_get_price_info(self, ware_id):
-        '''
-        得到价格信息，由于过滤了requests所以用phantomjs
-        '''
-        price_url = ''
-        if ware_id[0] == 0:    # 表示为京东常规商品
-            price_url = 'https://item.m.jd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
-
-        elif ware_id[0] == 1:  # 表示为京东全球购商品
-            price_url = 'https://mitem.jd.hk/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
-
-        elif ware_id[0] == 2:  # 表示京东大药房商品
-            price_url = 'https://m.yiyaojd.com/ware/getSpecInfo.json?wareId=' + str(ware_id[1])
-
-        # self.lg.info(str(price_url))
-        price_body = self.driver.use_phantomjs_to_get_url_body(url=price_url)
-
-        price_body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(price_body)
-        if price_body_1 != []:
-            price_data = json_2_dict(json_str=price_body_1[0])
-            try:
-                price_data.pop('defaultAddress')
-                price_data.pop('commonConfigJson')
-            except Exception: pass
-            try: price_data.pop('newYanBaoInfo')
-            except Exception: pass
-
-            # 处理newYanBaoInfo
-            new_yan_bao_info = price_data.get('newYanBaoInfo')
-            if new_yan_bao_info is not None:
-                new_yan_bao_info = json_2_dict(json_str=new_yan_bao_info)
-                price_data['newYanBaoInfo'] = new_yan_bao_info
-
-            # 处理allColorSet
-            all_color_set = price_data.get('allColorSet')
-            if all_color_set is not None:
-                all_color_set = json_2_dict(json_str=all_color_set)
-                price_data['allColorSet'] = all_color_set
-
-            # 处理allSpecSet
-            all_spec_set = price_data.get('allSpecSet')
-            if all_spec_set is not None:
-                all_spec_set = json_2_dict(json_str=all_spec_set)
-                price_data['allSpecSet'] = all_spec_set
-
-            # 处理allSizeSet
-            all_size_set = price_data.get('allSizeSet')
-            if all_size_set is not None:
-                all_size_set = json_2_dict(json_str=all_size_set)
-                price_data['allSizeSet'] = all_size_set
-
-            # pprint(price_data)
-            if price_data.get('wareMainImageUrl') is not None:
-                main_image_url = price_data.get('wareMainImageUrl')
-            else:
-                main_image_url = ''
-
-            return [
-                price_data.get('warePrice', ''),    # 价格
-                main_image_url,                     # 主图地址
-            ]
-
-        else:
-            # self.lg.error('获取到的price_data为空!')
-            return []
-
     def _get_shop_name(self, data):
         '''
         获取shop_name
         :param data:
         :return:
         '''
-        return data.get('shopInfo', {}).get('shop', {}).get('name', '') \
-            if data.get('shopInfo', {}).get('shop') is not None \
-            else ''
+        shop_name = data.get('_2', {}).get('stock', {}).get('self_D', {}).get('vender', '')
+
+        return self._wash_sensitive_info(data=shop_name)
 
     def _get_detail_name_list(self, data):
         '''
@@ -488,101 +557,63 @@ class JdParse(Crawler):
         :param data:
         :return:
         '''
+        # new
         detail_name_list = []
-        color_size_title = data.get('skuColorSize', {}).get('colorSizeTitle', {})
-        # pprint(data.get('skuColorSize', {}))
-        # pprint(color_size_title)
-        if color_size_title != {}:
-            for key, value in color_size_title.items():
-                img_here = 0
-                if key == 'colorName':
-                    if value is not None:
-                        if value != '':         # 不为空则说明有图
-                            img_here = 1
+        sale_prop = data.get('1', {}).get('item', {}).get('saleProp', {})
+        sale_prop_seq = data.get('1', {}).get('item', {}).get('salePropSeq', {})
+        # pprint(sale_prop)
+        for key, value in sale_prop.items():
+            img_here = 0
+            if value == '' \
+                    or sale_prop_seq.get(key, ['']) == ['']:
+                continue
 
-                detail_name_list.append({
-                    'spec_name': value,
-                    'img_here': img_here,
-                })
+            if value == '颜色':
+                img_here = 1
+
+            detail_name_list.append({
+                'spec_name': value,
+                'img_here': img_here,
+            })
 
         return detail_name_list
 
-    def get_price_info_list(self, *params):
+    def _get_one_goods_id_sku_info(self, goods_id) -> dict:
         '''
-        得到规范的price_info_list
-        :param *params:
+        获取一个规格的商品信息(包括价格，规格示例图)
         :return:
         '''
-        goods_id = params[0]
-        detail_name_list = params[1]
-        data = params[2]
-        # tmp_price_info_list = data.get('skuColorSize', {}).get('colorSize')
-        # pprint(tmp_price_info_list)
+        params = (
+            ('datatype', '1'),
+            ('callback', 'skuInfoCBA'),
+            ('cgi_source', 'mitem'),
+            ('sku', str(goods_id)),
+            # ('t', '0.5813500121860642'),
+        )
+        url = 'https://item.m.jd.com/item/mview2'
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params)
+        # print(body)
+        try:
+            _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0], default_res={})
+        except IndexError:
+            self.lg.error('获取goods_id: {}售价信息失败!返回空dict!')
+            return {}
 
-        price_info_list = []
-        if detail_name_list != []:  # 有规格
-            tmp_price_info_list = data.get('skuColorSize', {}).get('colorSize')
-            # pprint(tmp_price_info_list)
-            if tmp_price_info_list is not None:
-                for item in tmp_price_info_list:
-                    tmp = {}
-                    tmp_spec_value = []
-                    if item.get('color') != '*':
-                        tmp_spec_value.append(item.get('color'))
-
-                    if item.get('size') != '*':
-                        tmp_spec_value.append(item.get('size'))
-
-                    if item.get('spec') != '*':
-                        tmp_spec_value.append(item.get('spec'))
-
-                    tmp_spec_value = '|'.join(tmp_spec_value)  # 具体规格
-                    # self.lg.info(str(tmp_spec_value))
-
-                    sku_id = item.get('skuId')
-                    # 对每个sku_id就行一次请求，来获得对应sku_id的价格数据
-                    if goods_id[0] == 0:
-                        sku_id = [0, sku_id]
-                    elif goods_id[0] == 1:
-                        sku_id = [1, sku_id]
-                    elif goods_id[0] == 2:
-                        sku_id = [2, sku_id]
-                    ware_price_and_main_img_url_list = self.from_ware_id_get_price_info(ware_id=sku_id)
-
-                    tmp['spec_value'] = tmp_spec_value
-                    if ware_price_and_main_img_url_list != []:
-                        tmp['detail_price'] = ware_price_and_main_img_url_list[0]
-                        tmp['img'] = ware_price_and_main_img_url_list[1]
-                    else:
-                        tmp['detail_price'] = ''
-                        tmp['img'] = ''
-
-                    tmp['rest_number'] = ''
-                    if tmp.get('detail_price') is None:     # detail_price为None的跳过!
-                        continue
-
-                    price_info_list.append(tmp)
-                    # pprint(price_info_list)
-
-        return price_info_list
-
-    def get_right_div_desc(self, data):
-        '''
-        得到处理后的div_desc
-        :param data:
-        :return:
-        '''
-        wdis = ''
-        # 特殊处理script动态生成的
-        if data.get('popWareDetailWebViewMap') is not None:
-            if data.get('popWareDetailWebViewMap').get('cssContent') is not None:
-                wdis = data.get('popWareDetailWebViewMap', {}).get('cssContent', '')
-                wdis = self._wash_div_desc(wdis=wdis)
-
-        wdis = wdis + data.get('wdis', '')  # 如果获取到script就与wdis重组
-        div_desc = self._wash_div_desc(wdis=wdis)
-
-        return div_desc
+        # 清洗无用数据
+        try:
+            _['stock']['sr'] = []
+            _['stock']['ir'] = []
+            _['stock']['promiseYX'] = {}
+            _['stock']['area'] = {}
+            _['stock']['support'] = []
+            _['stock']['self_D'] = {}
+            _['addrInfo'] = {}
+            _['bankpromo'] = {}
+            _['item']['image'] = []
+        except:
+            pass
+        # pprint(_)
+        return _
 
     def _wash_div_desc(self, wdis):
         '''
@@ -603,40 +634,6 @@ class JdParse(Crawler):
         wdis = re.compile(r'<body>|</body>').sub('', wdis)
 
         return wdis
-
-    def get_p_info(self, data):
-        '''
-        得到p_info
-        :param data:
-        :return: list
-        '''
-        tmp_p_info = data.get('wi', {}).get('code')
-        # pprint(tmp_p_info)
-        p_info = []
-        if tmp_p_info is not None:
-            if isinstance(tmp_p_info, str):
-                p_info = [{'p_name': '规格和包装', 'p_value': tmp_p_info}]
-            elif isinstance(tmp_p_info, list):
-                for item in tmp_p_info:
-                    tmp = {}
-                    tmp['p_name'] = list(item.keys())[0]
-                    tmp_p_value = list(item.values())[0]
-                    tmp_p_value_2 = []
-                    if isinstance(tmp_p_value, list):
-                        for i in tmp_p_value:
-                            tmp_2 = {}
-                            tmp_2['name'] = list(i.keys())[0]
-                            tmp_2['value'] = list(i.values())[0]
-                            tmp_p_value_2.append(tmp_2)
-                        tmp['p_value'] = tmp_p_value_2
-                    else:
-                        tmp['p_value'] = tmp_p_value
-
-                    p_info.append(tmp)
-            else:
-                pass
-
-        return p_info
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -782,16 +779,6 @@ class JdParse(Crawler):
 
         return tuple(params)
 
-    def _wash_url_body(self, body):
-        '''
-        清洗body
-        :param body:
-        :return:
-        '''
-        body = re.compile('\n|\t|  ').sub('', body)
-
-        return body
-
     def _from_jd_type_get_site_id_value(self, jd_type):
         '''
         根据jd_type来获取对应的site_id的值
@@ -886,7 +873,7 @@ class JdParse(Crawler):
             del self.lg
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     jd = JdParse()
@@ -897,6 +884,3 @@ if __name__ == '__main__':
         jd.get_goods_data(goods_id=goods_id)
         data = jd.deal_with_data(goods_id=goods_id)
         pprint(data)
-
-
-        # data = jd._get_goods_data(goods_id=goods_id)

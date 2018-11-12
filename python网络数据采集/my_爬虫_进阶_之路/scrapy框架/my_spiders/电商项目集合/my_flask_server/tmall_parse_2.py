@@ -352,6 +352,7 @@ class TmallParse(Crawler):
             self.lg.error('获取到的site_id为False!出错!请检查!出错goods_id: {0}'.format(data.get('goods_id')))
             return None
         tmp = _get_right_model_data(data=data, site_id=site_id, logger=self.lg)
+        # pprint(tmp)
 
         params = self._get_db_update_params(item=tmp)
         base_sql_str = tm_update_str_1

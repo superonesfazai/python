@@ -1963,15 +1963,15 @@ def _article():
     article_url = b64decode(s=_.encode('utf-8')).decode('utf-8')     # _ 传来的起初是str, 先str->byte, 再b64decode解码
     my_lg.info('获取到的article_url: {}'.format(str(article_url)))
 
-    _ = ArticleParser()
+    _ = ArticleParser(logger=my_lg)
     loop = get_event_loop()
     article_res = {}
     try:
         article_res = loop.run_until_complete(_._parse_article(article_url=article_url))
     except Exception:
         my_lg.error(exc_info=True)
-    finally:
-        loop.close()
+    finally:      # flask中 不关闭loop, 否则服务无响应
+        # loop.close()
         collect()
     
     if article_res == {}:
@@ -2021,6 +2021,17 @@ def search():
         return send_file('templates/search.html')
     else:
         return ERROR_HTML_CODE
+
+######################################################
+# error page handler
+@app.errorhandler(404)
+def page_not_found(error):
+    '''
+    404页面
+    :param error:
+    :return:
+    '''
+    return send_file('templates/404.html'), 404
 
 ######################################################
 # 从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
@@ -2115,6 +2126,8 @@ def save_every_url_right_data(**kwargs):
 def just_fuck_run():
     my_lg.info('服务器已经启动...等待接入中...')
     my_lg.info('http://0.0.0.0:{0}'.format(str(SERVER_PORT), ))
+
+    # app.debug = True
 
     WSGIServer(listener=('0.0.0.0', SERVER_PORT), application=app).serve_forever()  # 采用高并发部署
 

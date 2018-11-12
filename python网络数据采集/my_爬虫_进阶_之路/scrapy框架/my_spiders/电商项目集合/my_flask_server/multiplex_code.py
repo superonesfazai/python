@@ -242,7 +242,6 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change)
 
     old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
     new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
-
     if old_unique_id_list != new_unique_id_list:  # 规格变动的
         return 1, spec_trans_time
 
