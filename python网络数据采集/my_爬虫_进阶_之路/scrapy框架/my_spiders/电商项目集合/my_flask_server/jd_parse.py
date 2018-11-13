@@ -19,7 +19,6 @@ from settings import (
     IP_POOL_TYPE,)
 
 import re
-from time import sleep
 from gc import collect
 from pprint import pprint
 from json import dumps
@@ -77,6 +76,18 @@ class JdParse(Crawler):
             'accept-language': 'zh-CN,zh;q=0.9',
         }
 
+    def _get_goods_is_delete(self, body) -> bool:
+        '''
+        根据body判断商品是否下架
+        :return:
+        '''
+        if '暂无定价' in body \
+                or '403 Forbidden' in body\
+                or '此商品暂时售完' in body:
+            return False
+
+        return True
+
     def get_goods_data(self, goods_id):
         '''
         新版api
@@ -92,9 +103,10 @@ class JdParse(Crawler):
         # self.lg.info(url)
         body = Requests.get_url_body(url=url, headers=self._get_phone_headers())
         # self.lg.info(body)
-        if '暂无定价' in body or '403 Forbidden' in body:      # 下架商品处理
-            self._data_error_init()
-            return {'is_delete': 1}
+
+        if not self._get_goods_is_delete(body=body):
+            self.result_data = {'is_delete': 1}
+            return self.result_data
 
         all_data, _1, _2 = {}, {}, {}
         try:
@@ -825,47 +837,6 @@ class JdParse(Crawler):
                 else:
                     self.lg.info('京东商品url错误, 非正规的url, 请参照格式(https://item.jd.com/)或者(https://item.jd.hk/)开头的...')
                     return []
-
-    def get_pc_no_watermark_picture(self, goods_id):
-        '''
-        获取pc端无水印示例图片
-        :param goods_id: eg: [0, '111111']
-        :return: {} 表示意外退出 | [] 表示获取pc无水印图片失败 | [{'img_url': 'xxxxx'}, ...] 表示success
-        '''
-        if goods_id == []:
-            return {}
-        elif goods_id[0] == 0:  # 京东常规商品，京东超市
-            tmp_pc_url = 'https://item.jd.com/' + str(goods_id[1]) + '.html'
-        elif goods_id[0] == 1:  # 京东全球购(税率无法计算忽略抓取)
-            tmp_pc_url = 'https://item.jd.hk/' + str(goods_id[1]) + '.html'
-        elif goods_id[0] == 2:  # 京东大药房
-            tmp_pc_url = 'https://item.yiyaojd.com/' + str(goods_id[1]) + '.html'
-        else:
-            return {}
-
-        # 常规requests被过滤重定向到jd主页, 直接用 自己写的phantomjs方法获取
-        tmp_pc_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_pc_url, css_selector='div#preview')  # 该css为示例图片
-        # self.lg.info(str(tmp_pc_body))
-        if tmp_pc_body == '':
-            self.lg.info('#### 获取无水印示例图片失败! 导致原因: tmp_pc_body为空str!')
-            all_img_url = []
-        else:
-            try:
-                all_img_url = list(Selector(text=tmp_pc_body).css('div#spec-list ul.lh li img ::attr("src")').extract())
-                # self.lg.info(str(all_img_url))
-                if all_img_url != []:
-                    all_img_url = ['https:' + item_img_url for item_img_url in all_img_url if re.compile(r'^http').findall(item_img_url) == []]
-                    all_img_url = [re.compile(r'/n5.*?jfs/').sub('/n1/jfs/', item_img_url) for item_img_url in all_img_url]
-                    all_img_url = [{
-                        'img_url': item_img_url,
-                    } for item_img_url in all_img_url]
-                else:
-                    all_img_url = []
-            except Exception as e:
-                self.lg.error('获取商品pc版无水印示例图片时出错: ', e)
-                all_img_url = []
-
-        return all_img_url
 
     def __del__(self):
         try:

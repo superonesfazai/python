@@ -30,6 +30,11 @@ from multiplex_code import (
 from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
 
+"""
+39.97那台无法更新已被封禁
+放本地更新
+"""
+
 class ALUpdater(AsyncCrawler):
     """1688常规商品数据更新"""
     def __init__(self, *params, **kwargs):
