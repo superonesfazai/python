@@ -69,7 +69,8 @@ class RequestClient(object):
         # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
         # goods_link = 'https://item.jd.com/5025518.html'
 
-        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541727002&ver=1233&signature=vJlLhwUTzzvdbscdn*wHIm*Ic2WPK*b73CpmDbZbq0WyRZZ-Nc9rLrQRNcAwMjGZJaSAaAs8*-*Jx*KuPjiHS0omOgP1-0dMcCJVlh70XbTejnEQmdmESvVN72aBWyIw&new=1'
+        # article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541727002&ver=1233&signature=vJlLhwUTzzvdbscdn*wHIm*Ic2WPK*b73CpmDbZbq0WyRZZ-Nc9rLrQRNcAwMjGZJaSAaAs8*-*Jx*KuPjiHS0omOgP1-0dMcCJVlh70XbTejnEQmdmESvVN72aBWyIw&new=1'
+        article_link = 'https://www.toutiao.com/a6623270159790375438/'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))

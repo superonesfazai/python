@@ -98,3 +98,4 @@ class WellRecommendArticle(Item):
     video_url = Field()             # article的视频url
     likes = Field()                 # 点赞数 int
     collects = Field()              # 收藏数 int
+    comment_num = Field()           # 评论数 int

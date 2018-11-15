@@ -27,7 +27,7 @@ CELERY_IMPORTS = (
 CELERYBEAT_SCHEDULE = {
     'add-every-30-seconds': {
          'task': 'demo.task_1.add',
-         'schedule': timedelta(seconds=3),       # 每 3 秒执行一次
+         'schedule': timedelta(seconds=3),        # 每 3 秒执行一次
          'args': (5, 8)                           # 任务函数参数
     },
     'multiply-at-some-time': {

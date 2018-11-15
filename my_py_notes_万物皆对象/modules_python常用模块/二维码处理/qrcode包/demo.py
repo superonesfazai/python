@@ -11,6 +11,7 @@
 open-code: https://github.com/lincolnloop/python-qrcode
 """
 
+'''生成二维码'''
 # 常规用法
 import qrcode
 
@@ -31,3 +32,6 @@ img.save('out.png')
 #
 # img = qr.make_image(fill_color="black", back_color="white")
 # img.save('out.png')
+
+'''识别二维码'''
+# qrcode无法识别二维码

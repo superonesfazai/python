@@ -161,8 +161,10 @@ class TMUpdater(AsyncCrawler):
                 if oo_is_delete == 1:
                     pass
                 else:
-                    self.lg.info('------>>>| 休眠7s中...')
-                    await async_sleep(7.)
+                    self.lg.info('------>>>| 阻塞休眠7s中...')
+                    # await async_sleep(7.)
+                    # 改为阻塞进程
+                    sleep(7.)
 
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')

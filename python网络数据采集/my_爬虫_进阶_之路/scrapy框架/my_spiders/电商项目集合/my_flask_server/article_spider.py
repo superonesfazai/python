@@ -21,6 +21,7 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,)
 
 from fzutils.spider.fz_driver import BaseDriver
+from ftfy import fix_text
 from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):
@@ -76,6 +77,34 @@ class ArticleParser(AsyncCrawler):
 
         return await self._wash_wx_article_body(body=body)
 
+    async def _get_tt_article_html(self, article_url) -> tuple:
+        '''
+        得到头条文章内容
+        :param article_url:
+        :return: body, video_url
+        '''
+        headers = await self._get_headers()
+        headers.update({
+            'authority': 'www.toutiao.com',
+            'referer': 'https://www.toutiao.com/',
+        })
+        body = Requests.get_url_body(url=article_url, headers=headers)
+        assert body != '', '获取到wx的body为空值!'
+
+        return body, ''
+
+    async def _wash_tt_article_content(self, content) -> str:
+        '''
+        清洗头条文章的content内容
+        :return: body, video_url
+        '''
+        content = fix_text(content)
+        # self.lg.info(content)
+        # 图片设置居中
+        content = re.compile(' inline=\"0\">').sub(' style=\"height:auto;width:100%;\">', content)
+
+        return content
+
     async def _get_article_html(self, article_url, article_url_type) -> tuple:
         '''
         获取文章的html
@@ -86,6 +115,8 @@ class ArticleParser(AsyncCrawler):
         try:
             if article_url_type == 'wx':
                 return await self._get_wx_article_html(article_url=article_url)
+            elif article_url_type == 'tt':
+                return await self._get_tt_article_html(article_url=article_url)
             else:
                 raise AssertionError('未实现的解析!')
         except AssertionError:
@@ -130,23 +161,32 @@ class ArticleParser(AsyncCrawler):
 
         return body, video_url
 
-    async def _get_parse_obj(self) -> dict:
+    async def _get_parse_obj(self, article_url_type) -> dict:
         '''
         获取到对应解析对象
         :return:
         '''
         parse_obj = None
         for item in ARTICLE_ITEM_LIST:
-            if item.get('obj_origin', '') == 'mp.weixin.qq.com':
-                parse_obj = item
+            if article_url_type == 'wx':
+                if item.get('obj_origin', '') == 'mp.weixin.qq.com':
+                    parse_obj = item
+                    break
+            elif article_url_type == 'tt':
+                if item.get('obj_origin', '') == 'www.toutiao.com':
+                    parse_obj = item
+                    break
+            else:
+                pass
 
         return parse_obj
 
-    async def _parse_field(self, parser: dict, target_obj: (str, dict)) -> str:
+    async def _parse_field(self, parser: dict, target_obj: (str, dict), re_is_first=True) -> (str, list):
         '''
         ** 根据类型解析字段
         :param parser: 解析对象 eg: {'method': 'css', 'selector': '.sss'}
         :param target_obj: 待处理的目标对象
+        :param re_is_first: bool 是否re只提取第一个
         :return:
         '''
         res = ''
@@ -155,7 +195,9 @@ class ArticleParser(AsyncCrawler):
             parser_selector = parser.get('selector')
             if parser_method == 're':
                 try:
-                    res = re.compile(parser_selector).findall(target_obj)[0]
+                    _ = re.compile(parser_selector).findall(target_obj)
+                    if re_is_first: res = _[0]
+                    else: res = _
                 except IndexError:
                     self.lg.error('遇到错误:', exc_info=True)
 
@@ -179,38 +221,41 @@ class ArticleParser(AsyncCrawler):
         :param article_url: 待抓取文章的url
         :return:
         '''
+        child_debug = await self.is_child_can_debug(article_url)
+        if not child_debug:
+            self.lg.error('article_url未匹配到对象 or debug未开启!')
+            return {}
+
         try:
             article_url_type = await self._judge_url_type(article_url=article_url)
         except ValueError:      # article_url未知!
             self.lg.error(exc_info=True)
             return {}
 
-        article_html, video_url = await self._get_article_html(article_url=article_url, article_url_type=article_url_type)
-        # self.lg.info(article_html)
-
-        parse_obj = await self._get_parse_obj()
+        parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
         if parse_obj is None:
             self.lg.error('未找到解析对象!')
             return {}
 
+        article_html, video_url = await self._get_article_html(
+            article_url=article_url,
+            article_url_type=article_url_type)
+        # self.lg.info(article_html)
         try:
             title = await self._parse_field(parser=parse_obj['title'], target_obj=article_html)
             assert title != '', '获取到的title为空值!'
             author = await self._parse_field(parser=parse_obj['author'], target_obj=article_html)
             assert author != '', '获取到的author为空值!'
-            head_url = await self._parse_field(parser=parse_obj['head_url'], target_obj=article_html)
-            content = await self._parse_field(parser=parse_obj['content'], target_obj=article_html)
-            assert content != '', '获取到的content为空值!'
-            content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 反盗链
-            # print(content)
-            create_time = await self._parse_field(parser=parse_obj['create_time'], target_obj=article_html)
-            # assert create_time != '', '获取到的create_time为空值!'
-
-            comment_num = await self._parse_field(parser=parse_obj['comment_num'], target_obj=article_html)
+            head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
+            content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html)
+            print(content)
+            create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
+            comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
             fav_num = await self._parse_field(parser=parse_obj['fav_num'], target_obj=article_html)
             praise_num = await self._parse_field(parser=parse_obj['praise_num'], target_obj=article_html)
-            tags_list = await self._parse_field(parser=parse_obj['tags_list'], target_obj=article_html)
+            tags_list = await self._get_tags_list(parse_obj=parse_obj, target_obj=article_html)
             site_id = await self._get_site_id(article_url_type=article_url_type)
+            profile = await self._parse_field(parser=parse_obj['profile'], target_obj=article_html)
 
         except (AssertionError, Exception):
             self.lg.error('遇到错误:', exc_info=True)
@@ -219,8 +264,8 @@ class ArticleParser(AsyncCrawler):
         _ = WellRecommendArticle()
         _['nick_name'] = author
         _['head_url'] = head_url
-        _['profile'] = ''
-        _['share_id'] = get_uuid1()
+        _['profile'] = profile
+        _['share_id'] = await self._get_share_id(article_url_type=article_url_type, article_url=article_url)
         _['title'] = title
         _['comment_content'] = ''
         _['share_img_url_list'] = []
@@ -235,8 +280,117 @@ class ArticleParser(AsyncCrawler):
         _['video_url'] = video_url
         _['likes'] = praise_num
         _['collects'] = fav_num
+        _['comment_num'] = comment_num
 
         return dict(_)
+
+    async def _get_head_url(self, parse_obj, target_obj) -> str:
+        '''
+        得到文章发布者的头像url
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        head_url = await self._parse_field(parser=parse_obj['head_url'], target_obj=target_obj)
+        if head_url != '' \
+                and not head_url.startswith('http'):
+            head_url = 'https:' + head_url
+        else:
+            pass
+
+        return head_url
+
+    async def _get_share_id(self, **kwargs) -> str:
+        '''
+        得到唯一的share_id
+        :return:
+        '''
+        article_url_type = kwargs.get('article_url_type', '')
+        article_url = kwargs.get('article_url', '')
+
+        if article_url_type == 'wx':
+            return get_uuid1()
+        elif article_url_type == 'tt':
+            try:
+                share_id = re.compile('www.toutiao.com/(\w+)/').findall(article_url)[0]
+            except IndexError:
+                raise IndexError('获取share_id时索引异常!')
+        else:
+            raise ValueError('article_url_type值异常!')
+
+        return share_id
+
+    async def _get_comment_num(self, parse_obj, target_obj) -> int:
+        '''
+        得到该文章评论数
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        comment_num = 0
+        try:
+            comment_num = int(await self._parse_field(parser=parse_obj['comment_num'], target_obj=target_obj))
+        except ValueError:      # 未提取到评论默认为0
+            pass
+
+        return comment_num
+
+    async def _get_tags_list(self, parse_obj, target_obj) -> list:
+        '''
+        获取文章的tags list
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        tags_list = await self._parse_field(parser=parse_obj['tags_list'], target_obj=target_obj, re_is_first=False)
+        if tags_list == '':
+            return []
+
+        if parse_obj.get('obj_origin', '') == 'www.toutiao.com':
+            tags_list = [{
+                'keyword': i,
+            } for i in tags_list]
+
+        return tags_list
+
+    async def _get_article_create_time(self, parse_obj, target_obj) -> str:
+        '''
+        文章创建时间点
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        create_time = await self._parse_field(parser=parse_obj['create_time'], target_obj=target_obj)
+        # assert create_time != '', '获取到的create_time为空值!'
+
+        return create_time
+
+    async def _get_article_content(self, parse_obj, target_obj) -> str:
+        '''
+        得到article content
+        :return:
+        '''
+        content = await self._parse_field(parser=parse_obj['content'], target_obj=target_obj)
+        assert content != '', '获取到的content为空值!'
+        if parse_obj.get('obj_origin', '') == 'www.toutiao.com':
+            # html乱码纠正
+            content = await self._wash_tt_article_content(content=content)
+
+        content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 反盗链
+
+        return content
+
+    async def is_child_can_debug(self, article_url) -> bool:
+        '''
+        判断是否是子对象, 以及是否debug是打开
+        :return:
+        '''
+        for item in ARTICLE_ITEM_LIST:
+            if item.get('obj_origin', '') in article_url:
+                if item.get('debug'):
+                    return True
+
+        return False
 
     async def _get_site_id(self, article_url_type):
         '''
@@ -245,6 +399,9 @@ class ArticleParser(AsyncCrawler):
         '''
         if article_url_type == 'wx':
             return 4
+
+        elif article_url_type == 'tt':
+            return 5
 
         raise ValueError('未知的文章url!')
 
@@ -256,6 +413,9 @@ class ArticleParser(AsyncCrawler):
         if 'mp.weixin.qq.com' in article_url:
             return 'wx'
 
+        if 'www.toutiao.com' in article_url:
+            return 'tt'
+
         raise ValueError('未知的文章url!')
 
     def __del__(self):
@@ -264,8 +424,19 @@ class ArticleParser(AsyncCrawler):
 if __name__ == '__main__':
     _ = ArticleParser()
     loop = get_event_loop()
+    # wx
     # 存在链接过期的情况
     # https://mp.weixin.qq.com/s?__biz=MzA4MjQxNjQzMA==&mid=2768396229&idx=1&sn=&scene=0#wechat_redirect
-    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541727002&ver=1233&signature=vJlLhwUTzzvdbscdn*wHIm*Ic2WPK*b73CpmDbZbq0WyRZZ-Nc9rLrQRNcAwMjGZJaSAaAs8*-*Jx*KuPjiHS0omOgP1-0dMcCJVlh70XbTejnEQmdmESvVN72aBWyIw&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
+
+    # 头条(视频切入到content中了)    [https://www.toutiao.com/]
+    # url = 'https://www.toutiao.com/a6623290873448759815/'
+    # url = 'https://www.toutiao.com/a6623125148088140291/'
+    # url = 'https://www.toutiao.com/a6623325882381500931/'     # 含视频
+    url = 'https://www.toutiao.com/a6623270159790375438/'
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
+
+
+
+

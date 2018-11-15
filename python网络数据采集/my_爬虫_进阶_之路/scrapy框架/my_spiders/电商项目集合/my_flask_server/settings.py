@@ -257,6 +257,7 @@ SINA_COOKIES = 'SINAGLOBAL=1779567549215.5193.1513216238889; un=jc09893445wei@16
 '''
 ARTICLE_ITEM_LIST = [
     {
+        'debug': True,
         'obj_origin': 'mp.weixin.qq.com',
         'title': {
             'method': 'css',
@@ -278,10 +279,45 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'div.rich_media_content',
         },
-
         'comment_num': None,
         'fav_num': None,
         'praise_num': None,
         'tags_list': None,
+        'profile': None,
+    },
+    {
+        'debug': True,
+        'obj_origin': 'www.toutiao.com',
+        'title': {
+            'method': 're',
+            'selector': 'title: \'(.*?)\',',
+        },
+        'author': {
+            'method': 're',
+            'selector': 'name: \'(.*?)\',avatar:',
+        },
+        'head_url': {
+            'method': 're',
+            'selector': 'avatar: \'(.*?)\',openUrl:',
+        },
+        'create_time': {
+            'method': 're',
+            'selector': 'time: \'(.*?)\'',
+        },
+        'content': {
+            'method': 're',
+            'selector': 'content: \'(.*?)\',groupId:',
+        },
+        'comment_num': {
+            'method': 're',
+            'selector': 'comments_count: (\d+),',
+        },
+        'tags_list': {
+            'method': 're',
+            'selector': '{\"name\":\"(.*?)\"}',
+        },
+        'fav_num': None,
+        'praise_num': None,
+        'profile': None,
     }
 ]
