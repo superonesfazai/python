@@ -7,29 +7,40 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import threading
-from time import sleep,ctime
+from threading import (
+    Thread,
+    enumerate,
+    current_thread,
+    active_count,)
+from time import sleep, ctime
 
 def sing():
     for i in range(3):
         print("正在唱歌...%d" % i)
         sleep(1)
 
+    return 'sing over!'
+
 def dance():
     for i in range(3):
         print("正在跳舞...%d" % i)
         sleep(1)
 
+    return 'dance over!'
+
 if __name__ == '__main__':
     print('---开始---:%s' % ctime())
-    t1 = threading.Thread(target=sing)
-    t2 = threading.Thread(target=dance)
+    t1 = Thread(target=sing)
+    t2 = Thread(target=dance)
     t1.start()
     t2.start()
     while True:
-        length = len(threading.enumerate())         # threading.enumerate() -> Return a list of all Thread objects currently alive.
+        # this method is the same to active_count().
+        length = len(enumerate())         # threading.enumerate() -> Return a list of all Thread objects currently alive.
         print('当前运⾏的线程数为： %d' % length)
         if length <= 1:
+            # print(t1.join())    # join()是阻塞调用
+            print(current_thread())     # 即只剩下主线程_MainThread
             break
         sleep(0.5)
 

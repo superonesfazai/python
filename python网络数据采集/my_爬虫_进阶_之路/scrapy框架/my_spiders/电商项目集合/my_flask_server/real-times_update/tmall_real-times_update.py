@@ -162,9 +162,9 @@ class TMUpdater(AsyncCrawler):
                     pass
                 else:
                     self.lg.info('------>>>| 阻塞休眠7s中...')
-                    # await async_sleep(7.)
-                    # 改为阻塞进程
-                    sleep(7.)
+                    await async_sleep(7.)
+                    # 改为阻塞进程, 机器会挂
+                    # sleep(7.)
 
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
@@ -200,7 +200,8 @@ class TMUpdater(AsyncCrawler):
                         tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
                         index += 1
 
-                    await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    res = await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    await self._except_sleep(res=res)
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
 
@@ -213,6 +214,27 @@ class TMUpdater(AsyncCrawler):
             except:
                 pass
             collect()
+
+    async def _except_sleep(self, res):
+        '''
+        异常休眠
+        :param res:
+        :return:
+        '''
+        count = 0
+        sleep_time = 20.
+        for item in res:
+            try:
+                if not item[1]:
+                    count += 1
+            except IndexError:
+                pass
+        self.lg.info('Fail count: {}个'.format(count))
+        if count >= int(self.concurrency/5):
+            self.lg.info('抓取异常!! 休眠{}s中...'.format(sleep_time))
+            await async_sleep(sleep_time)
+
+        return None
 
     def __del__(self):
         try:

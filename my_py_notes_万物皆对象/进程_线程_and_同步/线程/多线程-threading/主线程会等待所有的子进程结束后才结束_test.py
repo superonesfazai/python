@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+threading: 其实是 线程模块仿真Java线程模型的一个子集
+"""
+
 # 主线程会等待所有的⼦线程结束后才结束
 
 import threading

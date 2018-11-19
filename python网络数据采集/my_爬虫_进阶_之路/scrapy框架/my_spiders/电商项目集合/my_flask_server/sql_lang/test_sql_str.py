@@ -17,7 +17,7 @@ from fzutils.sql_utils import pretty_table
 
 _ = SqlServerMyPageInfoSaveItemPipeline()
 sql_str = '''
-select top 200 id, head_img_url
+select top 20 id, head_img_url
 from dbo.sina_weibo
 where sina_type = 'bilibili'
 '''

@@ -1970,10 +1970,8 @@ def _article():
         article_res = loop.run_until_complete(_._parse_article(article_url=article_url))
     except Exception:
         my_lg.error(exc_info=True)
-    finally:      # flask中 不关闭loop, 否则服务无响应
-        # loop.close()
-        collect()
-    
+
+    collect()
     if article_res == {}:
         return _error_msg(msg='文章抓取失败!')
 

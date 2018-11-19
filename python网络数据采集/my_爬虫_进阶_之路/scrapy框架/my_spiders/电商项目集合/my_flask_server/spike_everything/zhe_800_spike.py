@@ -7,7 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import json
 import re
 import time
 from pprint import pprint
@@ -31,13 +30,12 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import z8_select_str_5
 
-from fzutils.time_utils import (
-    timestamp_to_regulartime,
-)
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.common_utils import json_2_dict
+from fzutils.time_utils import *
 
 class Zhe800Spike(object):
     def __init__(self):
@@ -89,7 +87,6 @@ class Zhe800Spike(object):
                     continue
 
                 print('秒杀时间为: ', timestamp_to_regulartime(begin_times_timestamp))
-
                 if self.is_recent_time(timestamp=begin_times_timestamp):    # 说明秒杀日期合法
                     try:
                         data = [item_s.get('deal', {}) for item_s in data.get('data', {}).get('blocks', [])]
@@ -156,7 +153,7 @@ class Zhe800Spike(object):
 
             base_session_id += 2
 
-    def _get_one_session_id_data(self, base_session_id):
+    def _get_one_session_id_data(self, base_session_id) -> dict:
         '''
         得到一个session_id的data
         :param base_session_id:
@@ -166,31 +163,30 @@ class Zhe800Spike(object):
         for _page in range(1, 20):
             '''per_page为20固定，其他不返回数据'''
             tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page={1}&per_page=20'.format(
-                str(base_session_id), _page
+                str(base_session_id),
+                _page,
             )
-
             body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
             # print(body)
-
-            body_1 = re.compile(r'<pre.*?>(.*)</pre>').findall(body)
-            if body_1 != []:
-                data = body_1[0]
-                data = json.loads(data)
+            try:
+                data = json_2_dict(re.compile(r'<pre.*?>(.*)</pre>').findall(body)[0], default_res={})
                 # pprint(data)
+            except (IndexError, Exception):
+                sleep(.3)
+                continue
+            # print(type(data.get('data', {}).get('has_next')))
+            if data.get('msg', '') == '无效场次':
+                print('该session_id不存在，此处跳过')
+                break
 
-                # print(type(data.get('data', {}).get('has_next')))
-                if data.get('msg', '') == '无效场次':
-                    print('该session_id不存在，此处跳过')
-                    break
+            if not data.get('data', {}).get('has_next', True):
+                print('该session_id没有下页了!!')
+                break
+            else:
+                print('正在抓取该session_id的第 {0} 页...'.format(_page))
 
-                if not data.get('data', {}).get('has_next', True):
-                    print('该session_id没有下页了!!')
-                    break
-                else:
-                    print('正在抓取该session_id的第 {0} 页...'.format(_page))
-
-                for _i in data.get('data', {}).get('blocks', []):
-                    _data.append(_i)
+            for _i in data.get('data', {}).get('blocks', []):
+                _data.append(_i)
 
             sleep(.3)
 
@@ -221,18 +217,13 @@ class Zhe800Spike(object):
 
             # 折800商品地址
             tmp['zid'] = item.get('zid')
-            # 是否包邮
-            # tmp['is_baoyou'] = item.get('is_baoyou', 0)
             # 限时秒杀的库存信息
             tmp['stock_info'] = {
                 'activity_stock': item.get('activity_stock', 0),  # activity_stock为限时抢的剩余数量
                 'stock': item.get('stock', 0),  # stock为限时秒杀的总库存
             }
-            # 原始价格
             tmp['price'] = float(item.get('list_price'))
-            # 秒杀的价格, float类型
             tmp['taobao_price'] = float(item.get('price'))
-            # 子标题
             tmp['sub_title'] = item.get('description', '')
             miaosha_goods_list.append(tmp)
             # pprint(miaosha_goods_list)
@@ -314,7 +305,6 @@ def main():
     print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

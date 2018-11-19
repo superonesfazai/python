@@ -11,6 +11,7 @@
 
 已支持:
     1. 微信文章内容提取(https://weixin.sogou.com)
+    2. 今日头条文章内容提取(https://www.toutiao.com)
 """
 
 from gc import collect
@@ -242,20 +243,18 @@ class ArticleParser(AsyncCrawler):
             article_url_type=article_url_type)
         # self.lg.info(article_html)
         try:
-            title = await self._parse_field(parser=parse_obj['title'], target_obj=article_html)
-            assert title != '', '获取到的title为空值!'
-            author = await self._parse_field(parser=parse_obj['author'], target_obj=article_html)
-            assert author != '', '获取到的author为空值!'
+            title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html)
+            author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
             head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
             content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html)
-            print(content)
+            # print(content)
             create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
             comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
-            fav_num = await self._parse_field(parser=parse_obj['fav_num'], target_obj=article_html)
-            praise_num = await self._parse_field(parser=parse_obj['praise_num'], target_obj=article_html)
+            fav_num = await self._get_fav_num(parse_obj=parse_obj, target_obj=article_html)
+            praise_num = await self._get_praise_num(parse_obj=parse_obj, target_obj=article_html)
             tags_list = await self._get_tags_list(parse_obj=parse_obj, target_obj=article_html)
             site_id = await self._get_site_id(article_url_type=article_url_type)
-            profile = await self._parse_field(parser=parse_obj['profile'], target_obj=article_html)
+            profile = await self._get_profile(parse_obj=parse_obj, target_obj=article_html)
 
         except (AssertionError, Exception):
             self.lg.error('遇到错误:', exc_info=True)
@@ -283,6 +282,63 @@ class ArticleParser(AsyncCrawler):
         _['comment_num'] = comment_num
 
         return dict(_)
+
+    async def _get_praise_num(self, parse_obj, target_obj):
+        '''
+        点赞数
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        praise_num = await self._parse_field(parser=parse_obj['praise_num'], target_obj=target_obj)
+
+        return praise_num
+
+    async def _get_fav_num(self, parse_obj, target_obj):
+        '''
+        收藏数
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        fav_num = await self._parse_field(parser=parse_obj['fav_num'], target_obj=target_obj)
+
+        return fav_num
+
+    async def _get_profile(self, parse_obj, target_obj):
+        '''
+        推荐人简介或个性签名
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        profile = await self._parse_field(parser=parse_obj['profile'], target_obj=target_obj)
+
+        return profile
+
+    async def _get_author(self, parse_obj, target_obj):
+        '''
+        作者
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        author = await self._parse_field(parser=parse_obj['author'], target_obj=target_obj)
+        assert author != '', '获取到的author为空值!'
+
+        return author
+
+    async def _get_article_title(self, parse_obj, target_obj):
+        '''
+        文章title
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        '''
+        title = await self._parse_field(parser=parse_obj['title'], target_obj=target_obj)
+        assert title != '', '获取到的title为空值!'
+
+        return title
 
     async def _get_head_url(self, parse_obj, target_obj) -> str:
         '''
@@ -322,7 +378,7 @@ class ArticleParser(AsyncCrawler):
 
     async def _get_comment_num(self, parse_obj, target_obj) -> int:
         '''
-        得到该文章评论数
+        文章评论数
         :param parse_obj:
         :param target_obj:
         :return:
@@ -367,7 +423,7 @@ class ArticleParser(AsyncCrawler):
 
     async def _get_article_content(self, parse_obj, target_obj) -> str:
         '''
-        得到article content
+        article content
         :return:
         '''
         content = await self._parse_field(parser=parse_obj['content'], target_obj=target_obj)

@@ -64,7 +64,7 @@ class RequestClient(object):
         # tb
         # goods_link = 'https://item.taobao.com/item.htm?spm=a219r.lmn002.14.1.3b7e12d56SCJjf&id=575507061506&ns=1&abbucket=16'
         # tm
-        goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
+        # goods_link = 'https://detail.tmall.hk/hk/item.htm?spm=a1z10.5-b-s.w4011-16816054130.101.3e6227dfLIwIrR&id=555709593338&rn=2563b85d76e776e4dd26a13103df62bd&abbucket=6'
         # jd
         # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
         # goods_link = 'https://item.jd.com/5025518.html'
@@ -96,6 +96,7 @@ class RequestClient(object):
         # article
         # url = 'http://127.0.0.1:5000/api/article'
         url = 'http://spider.other.k85u.com/api/article'
+        # url = 'http://spider.taobao_tmall.k85u.com/api/article'
 
         with get(url, params=params) as response:
             res = response.text

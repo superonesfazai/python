@@ -13,6 +13,27 @@ Celery包含如下组件：
 python 基于AMQP的库，比较常用的有两个，pika 和 kombu。kombu 相对pika 是更高层面的抽象，pika 只支持AMQP 0.9.1协议，而kombu 抽象了中间的broker，可以支持多种broker（redis,zookeeper,mongodb等）。而且相对pika 提供了很多特性：重连策略，连接池，failover 策略等等。这些策略都是一些常用且比较重要的特性，如果用pika 的话需要自己去造轮子。
 kombo 更像是celery 的定制库，在celery中大量使用了kombu中的概念，kombu的更底层是调用的librabbitmq 库或py-amqp库来实现AMQP 0.9.1 ，在这个层面上，pika更接近py-amqp库。这里再提一嘴，open stack 项目在kombu的基础上又针对性的封装了一层，就是著名的oslo.messaging公共库了。
 
+## 单个worker默认并发量
+celery 中的一个 worker 其实是代表一个进程池，一个进程池是由一个父进程和多个子进程组成， 貌似父进程不干事，只用于分配 task ，子进程数默认是 CPU 核数
+
+默认情况下，多处理用于执行任务的并发执行，但您也可以使用Eventlet。可以使用--concurrency参数更改工作进程/线程 数，默认为计算机上可用的CPU数。
+
+```bash
+进程数（多处理/ prefork池）
+更多的池进程通常更好，但是有一个截止点，添加更多池进程会以负面方式影响性能。
+甚至有一些证据表明支持多个工作程序实例运行，可能比单个工作程序表现更好。
+例如，每个有10个池进程的3个工作者。
+您需要尝试找到最适合您的数字，因为这会因应用程序，工作负载，任务运行时间和其他因素而异。
+```
+
+### 解决方案
+```bash
+# 推荐第一种
+1. celery -A proj worker -P eventlet -c 1000
+or
+2. celery -A proj worker --concurrency 10
+```
+
 ## Celery序列化
 在客户端和消费者之间传输数据需要序列化和反序列化，Celery支持如下的序列化方案：
 
