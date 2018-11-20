@@ -101,6 +101,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                     if self.is_recent_time(miaosha_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
                         # break       # 跳出循环
@@ -120,18 +121,17 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                             # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                             print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                            pass
+                            sleep(.3)   # 避免死锁
 
                         else:
                             # 该event_time中现有的所有goods_id的list
                             miaosha_goods_all_goods_id = [item_1.get('iid', '') for item_1 in item_list]
-
                             if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                                 print('该商品已被下架限时秒杀活动，此处将其逻辑删除')
                                 # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                pass
+                                sleep(.3)
 
                             else:  # 未下架的
                                 for item_2 in item_list:
@@ -139,7 +139,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                         spider_url = item[3]
                                         mogujie_miaosha.get_goods_data(goods_id=spider_url)
                                         goods_data = mogujie_miaosha.deal_with_data()
-
                                         if goods_data == {}:    # 返回的data为空则跳过
                                             pass
                                         else:
@@ -152,6 +151,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                                 goods_data['price'] = price
                                             except:
                                                 print('设置price为原价时出错!请检查')
+                                                sleep(MOGUJIE_SLEEP_TIME)
                                                 continue
 
                                             goods_data['miaosha_time'] = {
@@ -164,7 +164,8 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                             # pprint(goods_data)
                                             # print(goods_data)
                                             mogujie_miaosha.update_mogujie_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                            sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
+
+                                        sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
                                     else:
                                         pass
 

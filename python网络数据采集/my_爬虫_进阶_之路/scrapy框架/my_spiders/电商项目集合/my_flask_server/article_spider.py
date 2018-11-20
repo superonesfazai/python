@@ -10,8 +10,9 @@
 文章资讯爬虫
 
 已支持:
-    1. 微信文章内容提取(https://weixin.sogou.com)
-    2. 今日头条文章内容提取(https://www.toutiao.com)
+    1. 微信文章内容爬取(https://weixin.sogou.com)
+    2. 今日头条文章内容爬取(https://www.toutiao.com)
+    3. 简书文章内容爬取(https://www.jianshu.com)
 """
 
 from gc import collect
@@ -19,7 +20,8 @@ from my_items import WellRecommendArticle
 from settings import (
     ARTICLE_ITEM_LIST,
     MY_SPIDER_LOGS_PATH,
-    PHANTOMJS_DRIVER_PATH,)
+    PHANTOMJS_DRIVER_PATH,
+    IP_POOL_TYPE,)
 
 from fzutils.spider.fz_driver import BaseDriver
 from ftfy import fix_text
@@ -33,7 +35,8 @@ class ArticleParser(AsyncCrawler):
             **kwargs,
             log_print=True,
             logger=logger,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/')
+            log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/',
+            ip_pool_type=IP_POOL_TYPE)
         self.driver_path = PHANTOMJS_DRIVER_PATH
 
     async def _get_headers(self):
@@ -45,6 +48,26 @@ class ArticleParser(AsyncCrawler):
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
+        }
+
+    async def _set_obj_origin(self) -> None:
+        '''
+        设置obj_origin_dict
+        :return:
+        '''
+        self.obj_origin_dict = {
+            'wx': {
+                'obj_origin': 'mp.weixin.qq.com',
+                'site_id': 4,
+            },
+            'tt': {
+                'obj_origin': 'www.toutiao.com',
+                'site_id': 5,
+            },
+            'js': {
+                'obj_origin': 'www.jianshu.com',
+                'site_id': 6,
+            },
         }
 
     async def _get_html_by_driver(self, url, load_images=False):
@@ -90,7 +113,25 @@ class ArticleParser(AsyncCrawler):
             'referer': 'https://www.toutiao.com/',
         })
         body = Requests.get_url_body(url=article_url, headers=headers)
+        # self.lg.info(str(body))
         assert body != '', '获取到wx的body为空值!'
+
+        return body, ''
+
+    async def _get_js_article_html(self, article_url) -> tuple:
+        '''
+        得到简书文章html
+        :param article_url:
+        :return:
+        '''
+        headers = await self._get_headers()
+        headers.update({
+            'authority': 'www.jianshu.com',
+            'referer': 'https://www.jianshu.com/',
+        })
+        body = Requests.get_url_body(url=article_url, headers=headers)
+        # self.lg.info(str(body))
+        assert body != '', '获取到的js的body为空值!'
 
         return body, ''
 
@@ -106,6 +147,25 @@ class ArticleParser(AsyncCrawler):
 
         return content
 
+    async def _wash_js_article_content(self, content) -> str:
+        '''
+        清洗简书文章的content内容
+        :param content:
+        :return:
+        '''
+        # 处理图片
+        content = re.compile(' data-original-src=').sub(' src=', content)
+        content = re.compile(' data-original-filesize=\".*?\"').sub(' style=\"height:auto;width:100%;\"', content)
+
+        # 附加上原生的style
+        with open('./tmp/jianshu_style.txt', 'r') as f:
+            _ = Requests._wash_html(f.read())
+            # self.lg.info(str(_))
+
+        content = _ + content
+
+        return content
+
     async def _get_article_html(self, article_url, article_url_type) -> tuple:
         '''
         获取文章的html
@@ -118,6 +178,8 @@ class ArticleParser(AsyncCrawler):
                 return await self._get_wx_article_html(article_url=article_url)
             elif article_url_type == 'tt':
                 return await self._get_tt_article_html(article_url=article_url)
+            elif article_url_type == 'js':
+                return await self._get_js_article_html(article_url=article_url)
             else:
                 raise AssertionError('未实现的解析!')
         except AssertionError:
@@ -170,11 +232,15 @@ class ArticleParser(AsyncCrawler):
         parse_obj = None
         for item in ARTICLE_ITEM_LIST:
             if article_url_type == 'wx':
-                if item.get('obj_origin', '') == 'mp.weixin.qq.com':
+                if item.get('obj_origin', '') == self.obj_origin_dict['wx'].get('obj_origin'):
                     parse_obj = item
                     break
             elif article_url_type == 'tt':
-                if item.get('obj_origin', '') == 'www.toutiao.com':
+                if item.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin'):
+                    parse_obj = item
+                    break
+            elif article_url_type == 'js':
+                if item.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin'):
                     parse_obj = item
                     break
             else:
@@ -222,6 +288,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url: 待抓取文章的url
         :return:
         '''
+        await self._set_obj_origin()    # 设置obj_origin_dict
         child_debug = await self.is_child_can_debug(article_url)
         if not child_debug:
             self.lg.error('article_url未匹配到对象 or debug未开启!')
@@ -247,7 +314,7 @@ class ArticleParser(AsyncCrawler):
             author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
             head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
             content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html)
-            # print(content)
+            print(content)
             create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
             comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
             fav_num = await self._get_fav_num(parse_obj=parse_obj, target_obj=article_html)
@@ -290,7 +357,13 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        praise_num = await self._parse_field(parser=parse_obj['praise_num'], target_obj=target_obj)
+        praise_num = 0
+        _ = await self._parse_field(parser=parse_obj['praise_num'], target_obj=target_obj)
+        # self.lg.info(str(_))
+        try:
+            praise_num = int(_)
+        except:
+            pass
 
         return praise_num
 
@@ -368,7 +441,12 @@ class ArticleParser(AsyncCrawler):
             return get_uuid1()
         elif article_url_type == 'tt':
             try:
-                share_id = re.compile('www.toutiao.com/(\w+)/').findall(article_url)[0]
+                share_id = re.compile('www\.toutiao\.com/(\w+)/').findall(article_url)[0]
+            except IndexError:
+                raise IndexError('获取share_id时索引异常!')
+        elif article_url_type == 'js':
+            try:
+                share_id = re.compile('www\.jianshu\.com/p/(\w+)').findall(article_url)[0]
             except IndexError:
                 raise IndexError('获取share_id时索引异常!')
         else:
@@ -384,8 +462,10 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         comment_num = 0
+        _ = await self._parse_field(parser=parse_obj['comment_num'], target_obj=target_obj)
+        # self.lg.info(str(_))
         try:
-            comment_num = int(await self._parse_field(parser=parse_obj['comment_num'], target_obj=target_obj))
+            comment_num = int(_)
         except ValueError:      # 未提取到评论默认为0
             pass
 
@@ -402,7 +482,8 @@ class ArticleParser(AsyncCrawler):
         if tags_list == '':
             return []
 
-        if parse_obj.get('obj_origin', '') == 'www.toutiao.com':
+        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin')\
+                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin'):
             tags_list = [{
                 'keyword': i,
             } for i in tags_list]
@@ -428,11 +509,14 @@ class ArticleParser(AsyncCrawler):
         '''
         content = await self._parse_field(parser=parse_obj['content'], target_obj=target_obj)
         assert content != '', '获取到的content为空值!'
-        if parse_obj.get('obj_origin', '') == 'www.toutiao.com':
+        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin'):
             # html乱码纠正
             content = await self._wash_tt_article_content(content=content)
 
-        content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 反盗链
+        if parse_obj.get('obj_origin') == self.obj_origin_dict['js'].get('obj_origin'):
+            content = await self._wash_js_article_content(content=content)
+
+        content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 防盗链
 
         return content
 
@@ -448,33 +532,39 @@ class ArticleParser(AsyncCrawler):
 
         return False
 
-    async def _get_site_id(self, article_url_type):
+    async def _get_site_id(self, article_url_type) -> int:
         '''
         获取文章的site_id
         :return:
         '''
         if article_url_type == 'wx':
-            return 4
+            return self.obj_origin_dict['wx'].get('site_id')
 
         elif article_url_type == 'tt':
-            return 5
+            return self.obj_origin_dict['tt'].get('site_id')
 
-        raise ValueError('未知的文章url!')
+        elif article_url_type == 'js':
+            return self.obj_origin_dict['js'].get('site_id')
 
-    async def _judge_url_type(self, article_url):
+        else:
+            raise ValueError('未知的文章url!')
+
+    async def _judge_url_type(self, article_url) -> str:
         '''
         判断url类别
         :return:
         '''
-        if 'mp.weixin.qq.com' in article_url:
-            return 'wx'
-
-        if 'www.toutiao.com' in article_url:
-            return 'tt'
+        for key, value in self.obj_origin_dict.items():
+            if value.get('obj_origin') in article_url:
+                return key
 
         raise ValueError('未知的文章url!')
 
     def __del__(self):
+        try:
+            del self.lg
+        except:
+            pass
         collect()
 
 if __name__ == '__main__':
@@ -489,10 +579,12 @@ if __name__ == '__main__':
     # url = 'https://www.toutiao.com/a6623290873448759815/'
     # url = 'https://www.toutiao.com/a6623125148088140291/'
     # url = 'https://www.toutiao.com/a6623325882381500931/'     # 含视频
-    url = 'https://www.toutiao.com/a6623270159790375438/'
+    # url = 'https://www.toutiao.com/a6623270159790375438/'
+
+    # 简书
+    # url = 'https://www.jianshu.com/p/ec1e9f6129bd'
+    # url = 'https://www.jianshu.com/p/a02313dd3875'
+    # url = 'https://www.jianshu.com/p/7160ad815557'
+    url = 'https://www.jianshu.com/p/1a60bdc3098b'
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
-
-
-
-

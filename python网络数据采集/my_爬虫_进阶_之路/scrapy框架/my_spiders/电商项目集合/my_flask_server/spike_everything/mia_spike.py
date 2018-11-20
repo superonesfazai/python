@@ -108,9 +108,9 @@ class MiaSpike(object):
 
         mia = MiaParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mia_select_str_4))]
+            _ = list(my_pipeline._select_table(sql_str=mia_select_str_4))
+            db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
 
             for item in item_list:
@@ -169,6 +169,7 @@ def just_fuck_run():
         mia_spike = MiaSpike()
         mia_spike.get_spike_hour_goods_info()
         gc.collect()
+        sleep(5)
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
 
 def main():

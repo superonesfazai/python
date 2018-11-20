@@ -121,6 +121,7 @@ class TaoBaoQiangGouRealTimesUpdate(object):
                 if await self.is_recent_time(miaosha_begin_time) == 0:
                     tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
                     self.my_lg.info('过期的goods_id为(%s)' % item[0] + ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+                    await asyncio.sleep(.3)
 
                 else:   # 返回1, 表示在待更新的区间内
                     self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))

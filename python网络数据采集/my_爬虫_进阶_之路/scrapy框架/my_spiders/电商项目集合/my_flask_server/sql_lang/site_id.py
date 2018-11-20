@@ -49,7 +49,6 @@ _32 = '蜜芽'
 """
 # 查询某个商品是否已录入
 sql_str = '''
-use Gather;
 select UserName, CreateTime, GoodsName, GoodsID, ConvertTime, MainGoodsID
 from dbo.GoodsInfoAutoGet 
 where GoodsID='';
@@ -57,7 +56,6 @@ where GoodsID='';
 
 # 查询最新入录的商品
 sql_str_2 = '''
-use Gather;
 select top 20 ID, UserName, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange
 from dbo.GoodsInfoAutoGet 
 where GETDATE()-CreateTime < 1
@@ -66,8 +64,23 @@ order by ID desc;
 
 # 查询某个goods的信息变动
 sql_str_3 = '''
-use Gather;
 select top 10 GoodsID, SiteID, SKUInfo, PriceChangeInfo, IsPriceChange, sku_info_trans_time, is_spec_change, spec_trans_time, is_stock_change, stock_change_info
 from dbo.GoodsInfoAutoGet
 where GoodsID=''
+'''
+
+# 知道PID。查询当前被死锁的表
+sql_str_4 = '''
+select request_session_id spid, OBJECT_NAME(resource_associated_entity_id) tablename
+from sys.dm_tran_locks 
+where resource_type='OBJECT'
+'''
+
+# 死锁解锁
+sql_str_5 = '''
+declare @spid  int 
+Set @spid = 57             --锁表进程
+declare @sql varchar(1000)
+set @sql='kill '+cast(@spid  as varchar)
+exec(@sql)
 '''

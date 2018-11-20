@@ -85,7 +85,6 @@ def run_forever():
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                         juanpi_pintuan.get_goods_data(goods_id=item[0])
                         data = juanpi_pintuan.deal_with_data()
-
                         if data != {}:
                             data['goods_id'] = item[0]
                             juanpi_pintuan.to_right_and_update_pintuan_data(data=data, pipeline=tmp_sql_server)
@@ -101,7 +100,7 @@ def run_forever():
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(5)
+            sleep(5 * 60)
         gc.collect()
 
 def main():

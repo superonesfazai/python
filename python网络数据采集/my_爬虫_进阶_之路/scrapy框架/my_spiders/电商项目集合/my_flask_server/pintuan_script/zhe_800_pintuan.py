@@ -93,7 +93,8 @@ class Zhe800Pintuan(object):
         zhe_800_pintuan = Zhe800PintuanParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=z8_select_str_1))]
+            _ = list(my_pipeline._select_table(sql_str=z8_select_str_1))
+            db_goods_id_list = [item[0] for item in _]
             for item in zid_list:
                 if item[0] in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')

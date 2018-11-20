@@ -134,7 +134,7 @@ MIA_SPIKE_SLEEP_TIME = 1.8
 '''
 蘑菇街相关
 '''
-MOGUJIE_SLEEP_TIME = 1.8        # 间歇sleep时间
+MOGUJIE_SLEEP_TIME = 2.        # 间歇sleep时间
 
 '''
 拼多多
@@ -319,5 +319,48 @@ ARTICLE_ITEM_LIST = [
         'fav_num': None,
         'praise_num': None,
         'profile': None,
+    },
+    {
+        'debug': True,
+        'obj_origin': 'www.jianshu.com',
+        'title': {
+            'method': 'css',
+            'selector': 'h1.title ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'div.author div.info span.name a ::text',
+        },
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.author a img ::attr("src")',               # 'https:' + xxx
+        },
+        'create_time': {
+            'method': 'css',
+            'selector': 'span.publish-time ::text',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.show-content',
+        },
+        'comment_num': {
+            'method': 're',
+            'selector': '\"comments_count\":(\d+),',
+        },
+        # 'tags_list': {
+        #     'method': 'css',
+        #     'selector': 'div.include-collection div.name ::text',       # extract()
+        # },
+        'tags_list': None,                                              # 可以获取即通过driver得到完整html, 此处不获取
+        'praise_num': {
+            'method': 're',
+            'selector': '\"likes_count\":(\d+),',
+        },
+        # 'profile': {
+        #     'method': 'css',
+        #     'selector': 'div.signature ::text',
+        # },
+        'profile': None,                                                # driver才可获取，此处不获取
+        'fav_num': None,
     }
 ]

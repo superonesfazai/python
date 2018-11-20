@@ -36,6 +36,7 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
+from fzutils.common_utils import json_2_dict
 
 '''
 实时更新卷皮秒杀信息(卷皮频繁地更新商品所在限时秒杀列表)
@@ -83,7 +84,6 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             juanpi_miaosha = JuanPiParse()
-
             for item in result:  # 实时更新数据
                 miaosha_begin_time = json.loads(item[1]).get('miaosha_begin_time')
                 miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time,'%Y-%m-%d %H:%M:%S')))[0:10])
@@ -98,6 +98,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                     if self.is_recent_time(miaosha_begin_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]), lock_timeout=2000)
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(miaosha_begin_time) == 2:
                         # break       # 跳出循环
@@ -105,21 +106,14 @@ class Juanpi_Miaosha_Real_Time_Update(object):
 
                     else:  # 返回1，表示在待更新区间内
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-
                         tmp_url = 'https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id={0}&page={1}'.format(
                             str(item[2]), str(item[3]),
                         )
                         # print('待爬取的tab_id, page地址为: ', tmp_url)
 
                         data = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
-                        if data == '':
-                            break
-
-                        try:
-                            data = json.loads(data)
-                            data = data.get('data', {})
-                            # print(data)
-                        except:
+                        data = json_2_dict(data, default_res={}).get('data', {})
+                        if data == {}:
                             break
 
                         if data.get('goodslist') == []:
@@ -146,7 +140,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                     '''
                                     tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                     print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
-                                    pass
+                                    sleep(.3)
 
                                 else:       # 未下架的
                                     for item_1 in miaosha_goods_list:
@@ -172,8 +166,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
                                                 goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item_1.get('miaosha_time'))
 
                                                 juanpi_miaosha.to_update_juanpi_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-
-                                                sleep(.3)   # 避免太快
+                                            sleep(.3)   # 避免太快
                                         else:
                                             pass
                     if index % 10 == 0:      # 每过几个初始化一次，既能加快速度，又能优化内存
@@ -191,8 +184,7 @@ class Juanpi_Miaosha_Real_Time_Update(object):
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
-            # sleep(5)
-            pass
+            sleep(5)
         gc.collect()
 
     def is_recent_time(self, timestamp):

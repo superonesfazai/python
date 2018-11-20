@@ -41,6 +41,7 @@ from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.common_utils import json_2_dict
 
 class Mia_Miaosha_Real_Time_Update(object):
     def __init__(self):
@@ -98,6 +99,7 @@ class Mia_Miaosha_Real_Time_Update(object):
                     if self.is_recent_time(miaosha_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
                         # break       # 跳出循环
@@ -109,20 +111,13 @@ class Mia_Miaosha_Real_Time_Update(object):
                         # print('------>>>| 爬取到的数据为: ', data)
 
                         tmp_url = 'https://m.mia.com/instant/seckill/seckillPromotionItem/' + str(item[2])
-
                         body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
                         # print(body)
-
                         if body == '' or body == '[]':
                             print('获取到的body为空值! 此处跳过')
 
                         else:
-                            try:
-                                tmp_data = json.loads(body)
-                            except:
-                                tmp_data = {}
-                                print('json.loads转换body时出错, 此处跳过!')
-
+                            tmp_data = json_2_dict(body, default_res={})
                             begin_time = tmp_data.get('p_info', {}).get('start_time', '')
                             end_time = tmp_data.get('p_info', {}).get('end_time', '')
                             begin_time = int(time.mktime(time.strptime(begin_time, '%Y/%m/%d %H:%M:%S')))     # 把str字符串类型转换为时间戳的形式
@@ -136,7 +131,7 @@ class Mia_Miaosha_Real_Time_Update(object):
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                pass
+                                sleep(.3)
 
                             else:   # 未下架的
                                 for item_2 in item_list:

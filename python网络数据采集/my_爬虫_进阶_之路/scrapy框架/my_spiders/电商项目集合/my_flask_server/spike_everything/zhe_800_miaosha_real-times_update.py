@@ -190,6 +190,7 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
                                             # self.my_lg.info(str(goods_data['stock_info']))
                                             # self.my_lg.info(str(goods_data['miaosha_time']))
                                             zhe_800_miaosha.to_update_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
+                                            sleep(.2)
                                     else:
                                         pass
 
@@ -263,8 +264,6 @@ class Zhe_800_Miaosha_Real_Time_Update(object):
 
             # 折800商品地址
             tmp['zid'] = item.get('zid')
-            # 是否包邮
-            # tmp['is_baoyou'] = item.get('is_baoyou', 0)
             # 限时秒杀的库存信息
             tmp['stock_info'] = {
                 'activity_stock': item.get('activity_stock', 0),  # activity_stock为限时抢的剩余数量

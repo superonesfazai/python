@@ -101,7 +101,8 @@ class MiaPintuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mia_select_str_1))]
+            _ = list(my_pipeline._select_table(sql_str=mia_select_str_1))
+            db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
 
             for item in goods_list:

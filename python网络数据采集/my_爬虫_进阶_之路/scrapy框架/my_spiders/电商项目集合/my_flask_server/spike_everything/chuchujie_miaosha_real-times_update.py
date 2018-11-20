@@ -38,6 +38,7 @@ from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
+from fzutils.common_utils import json_2_dict
 
 class ChuChuJieMiaosShaRealTimeUpdate(object):
     def __init__(self):
@@ -95,6 +96,7 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                     if self.is_recent_time(miaosha_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
                         # break       # 跳出循环
@@ -105,22 +107,13 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                         chuchujie_miaosha = ChuChuJie_9_9_Parse()
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                         data['goods_id'] = item[0]
-
                         body = self.get_one_page_goods_info(item[2], item[3])
-
                         if body == '{}':
                             # 可能是网络原因导致, 先跳过
                             pass
 
                         else:
-                            try:
-                                json_body = json.loads(body)
-                                # print(json_body)
-                            except:
-                                print('json.loads转换body时出错!请检查')
-                                json_body = {}
-                                pass
-
+                            json_body = json_2_dict(body, default_res={})
                             try:
                                 this_page_total_count = json_body.get('data', {}).get('groupList', [])[0].get('totalCount', 0)
                             except IndexError:
@@ -144,11 +137,10 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                pass
+                                sleep(.3)
 
                             else:
                                 # miaosha_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in item_list]
-
                                 """
                                 由于不会内部提前下架，所以在售卖时间内的全部进行相关更新
                                 """
@@ -166,7 +158,6 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
                                 #     if item_2.get('goods_id', '') == item[0]:
                                 chuchujie_miaosha.get_goods_data(goods_id=item[0])
                                 goods_data = chuchujie_miaosha.deal_with_data()
-
                                 if goods_data == {}:  # 返回的data为空则跳过
                                     pass
                                 else:
@@ -176,7 +167,7 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
 
                                     # print(goods_data)
                                     chuchujie_miaosha.update_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                    sleep(CHUCHUJIE_SLEEP_TIME)
+                                sleep(CHUCHUJIE_SLEEP_TIME)
 
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')

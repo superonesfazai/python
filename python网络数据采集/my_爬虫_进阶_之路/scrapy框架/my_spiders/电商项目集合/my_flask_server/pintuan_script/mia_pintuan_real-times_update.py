@@ -99,6 +99,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                     if self.is_recent_time(pintuan_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 删除成功!' % json.loads(item[1]).get('begin_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(pintuan_end_time) == 2:
                         # break       # 跳出循环
@@ -108,10 +109,8 @@ class Mia_Pintuan_Real_Time_Update(object):
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                         data['goods_id'] = item[0]
                         # print('------>>>| 爬取到的数据为: ', data)
-
                         tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(item[2]) + '/0/'
                         # print(tmp_url)
-
                         body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
 
                         if body == '':
@@ -127,7 +126,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                pass
+                                sleep(.3)
 
                             else:
                                 data_list = [{

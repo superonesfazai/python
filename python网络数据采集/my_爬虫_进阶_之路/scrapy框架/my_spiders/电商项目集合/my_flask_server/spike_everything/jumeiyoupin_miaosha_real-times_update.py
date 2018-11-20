@@ -194,6 +194,7 @@ class JMYPUpdater(AsyncCrawler):
             if is_recent_time_res == 0:
                 res = await self._delete_goods(goods_id)
                 self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 删除成功!'.format(goods_id, json.loads(miaosha_time).get('miaosha_end_time')))
+                await async_sleep(.3)
 
             elif is_recent_time_res == 2:
                 pass
@@ -210,7 +211,7 @@ class JMYPUpdater(AsyncCrawler):
                     res = await self._delete_goods(goods_id=goods_id)
                     self.lg.error('#### 该page对应得到的this_page_all_goods_list为空[]!')
                     self.lg.error('** 该商品已被下架限时秒杀活动, 此处将其删除, goods_id:{}'.format(goods_id))
-                    pass
+                    await async_sleep(.3)
 
                 else:
                     """

@@ -64,10 +64,8 @@ class Zhe800Spike(object):
             print('待抓取的session_id为: ', base_session_id)
             data = self._get_one_session_id_data(base_session_id=base_session_id)
             sleep(.3)
-
             if data.get('data', {}).get('blocks', []) == []:     # session_id不存在
                 pass
-
             else:                           # 否则session_id存在
                 try:
                     _ = str(data.get('data', {}).get('blocks', [])[0].get('deal', {}).get('begin_time', ''))[:10]
@@ -103,7 +101,8 @@ class Zhe800Spike(object):
                         zhe_800 = Zhe800Parse()
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         if my_pipeline.is_connect_success:
-                            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=z8_select_str_5))]
+                            _ = list(my_pipeline._select_table(sql_str=z8_select_str_5))
+                            db_goods_id_list = [item[0] for item in _]
                             for item in miaosha_goods_list:
                                 if item.get('zid', '') in db_goods_id_list:
                                     print('该goods_id已经存在于数据库中, 此处跳过')

@@ -126,7 +126,8 @@ class ChuChuJie_9_9_Spike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=cc_select_str_2))]
+            _ = list(my_pipeline._select_table(sql_str=cc_select_str_2))
+            db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
 
             # my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
@@ -135,13 +136,11 @@ class ChuChuJie_9_9_Spike(object):
                 if item.get('goods_id', '') in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
                     pass
-
                 else:
                     goods_id = item.get('goods_id', '')
                     tmp_url = 'https://m.chuchujie.com/details/detail.html?id=' + str(goods_id)
                     chuchujie.get_goods_data(goods_id=goods_id)
                     goods_data = chuchujie.deal_with_data()
-
                     if goods_data == {}:  # 返回的data为空则跳过
                         pass
 
@@ -164,9 +163,8 @@ class ChuChuJie_9_9_Spike(object):
                         gc.collect()
 
                         if tmp_body == '':  # 获取手机版的页面完整html失败
-                            sleep(.4)
+                            sleep(.5)
                             pass
-
                         else:
                             # p#activityTime span
                             _t = Selector(text=tmp_body).css('p#activityTime span::text').extract_first()
@@ -176,7 +174,6 @@ class ChuChuJie_9_9_Spike(object):
                                 print('获取到的_t为空值, 严重错误! 请检查!')
 
                             miaosha_end_time = self.get_miaosha_end_time(_t)
-
                             goods_data['goods_url'] = tmp_url
                             goods_data['goods_id'] = str(goods_id)
                             goods_data['sub_title'] = item.get('sub_title', '')

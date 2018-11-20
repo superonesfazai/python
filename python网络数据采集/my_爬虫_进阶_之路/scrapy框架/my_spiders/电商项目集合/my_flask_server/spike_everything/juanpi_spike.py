@@ -32,6 +32,7 @@ from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
+from fzutils.common_utils import json_2_dict
 
 class JuanPiSpike(object):
     def __init__(self):
@@ -62,15 +63,9 @@ class JuanPiSpike(object):
                     str(tab_id), str(index)
                 )
                 print('待抓取的限时秒杀地址为: ', tmp_url)
-
                 data = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
-                if data == '': break
-
-                try:
-                    data = json.loads(data)
-                    data = data.get('data', {})
-                    # print(data)
-                except:
+                data = json_2_dict(data, default_res={}).get('data', {})
+                if data == {}:
                     break
 
                 if data.get('goodslist') == []:
@@ -89,10 +84,11 @@ class JuanPiSpike(object):
                         juanpi = JuanPiParse()
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         if my_pipeline.is_connect_success:
-                            if my_pipeline._select_table(sql_str=jp_select_str_5) is None:
+                            _ = my_pipeline._select_table(sql_str=jp_select_str_5)
+                            if _ is None:
                                 db_goods_id_list = []
                             else:
-                                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=jp_select_str_5))]
+                                db_goods_id_list = [item[0] for item in list(_)]
 
                             for item in miaosha_goods_list:
                                 if item.get('goods_id', '') in db_goods_id_list:
@@ -120,7 +116,7 @@ class JuanPiSpike(object):
 
                                         # print(goods_data)
                                         juanpi.insert_into_juanpi_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                                        sleep(.4)   # 短暂sleep下避免出错跳出
+                                    sleep(.5)   # 短暂sleep下避免出错跳出
                             sleep(.65)
                         else:
                             pass

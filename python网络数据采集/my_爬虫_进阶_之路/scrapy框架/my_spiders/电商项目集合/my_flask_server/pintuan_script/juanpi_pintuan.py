@@ -131,7 +131,8 @@ class JuanPiPinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=jp_select_str_1))]
+            _ = list(my_pipeline._select_table(sql_str=jp_select_str_1))
+            db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
             for item in pintuan_goods_id_list:
                 if index % 5 == 0:

@@ -111,6 +111,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                     if self.is_recent_time(miaosha_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
                         pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
@@ -124,7 +125,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                             '''
                             tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
-                            pass
+                            sleep(.3)
 
                         else:       # 未下架的
                             for item_1 in all_miaosha_goods_list:
@@ -170,7 +171,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(3)
+            sleep(3 * 60)
         # del ali_1688
         gc.collect()
 

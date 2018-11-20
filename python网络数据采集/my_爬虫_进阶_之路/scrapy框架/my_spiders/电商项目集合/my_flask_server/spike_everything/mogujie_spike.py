@@ -87,38 +87,31 @@ class MoGuJieSpike(object):
         print(60 * '*')
 
         item_list = param[1]
-
         mogujie = MoGuJieMiaoShaParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=mg_select_str_4))]
+            _ = list(my_pipeline._select_table(sql_str=mg_select_str_4))
+            db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
-
             for item in item_list:
                 if item.get('iid', '') in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
                     pass
-
                 else:
                     goods_id = str(item.get('iid', ''))
                     tmp_url = item.get('link', '')
                     # print(tmp_url)
-
                     try:
                         object_id = re.compile('objectId=(\w+)').findall(tmp_url)[0]
                     except IndexError:      # 表示匹配到的地址不是秒杀商品的地址
                         print('+++++++ 这个url不是秒杀的url: ', tmp_url)
                         continue
                     tmp_url = 'https://shop.mogujie.com/rushdetail/{0}?objectId={1}&type=rush'.format(goods_id, object_id)
-
                     tmp_ = mogujie.get_goods_id_from_url(tmp_url)
                     mogujie.get_goods_data(goods_id=tmp_)
                     goods_data = mogujie.deal_with_data()
-
                     if goods_data == {}:  # 返回的data为空则跳过
                         pass
-
                     else:   # 否则就解析并且插入
                         goods_data['goods_url'] = tmp_url
                         goods_data['goods_id'] = str(goods_id)
@@ -130,6 +123,7 @@ class MoGuJieSpike(object):
                             goods_data['price'] = price
                         except:
                             print('设置price为原价时出错!请检查')
+                            sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
                             continue
 
                         goods_data['miaosha_time'] = {
@@ -138,7 +132,6 @@ class MoGuJieSpike(object):
                         }
                         goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                         goods_data['event_time'] = str(event_time)
-
                         # pprint(goods_data)
                         # print(goods_data)
                         mogujie.insert_into_mogujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)

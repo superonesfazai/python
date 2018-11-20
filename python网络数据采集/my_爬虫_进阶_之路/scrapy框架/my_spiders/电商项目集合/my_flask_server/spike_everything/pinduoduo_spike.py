@@ -74,10 +74,11 @@ class PinduoduoSpike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            if my_pipeline._select_table(sql_str=pd_select_str_3) is None:
+            _ = my_pipeline._select_table(sql_str=pd_select_str_3)
+            if _ is None:
                 db_goods_id_list = []
             else:
-                db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=pd_select_str_3))]
+                db_goods_id_list = [item[0] for item in list(_)]
 
             for item in all_miaosha_goods_list:
                 '''

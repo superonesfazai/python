@@ -105,6 +105,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                     if self.is_recent_time(pintuan_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 删除成功!' % json.loads(item[1]).get('begin_time'))
+                        sleep(.3)
 
                     elif self.is_recent_time(pintuan_end_time) == 2:
                         # break       # 跳出循环
@@ -141,7 +142,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                pass
+                                sleep(.3)
 
                             else:
                                 tmp_item_list = tmp_data.get('result', {}).get('wall', {}).get('docs', [])
@@ -212,11 +213,11 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                 index += 1
                 gc.collect()
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-            if get_shanghai_time().hour == 0:  # 0点以后不更新
-                sleep(60 * 60 * 5.5)
-            else:
-                sleep(5)
-            gc.collect()
+        if get_shanghai_time().hour == 0:  # 0点以后不更新
+            sleep(60 * 60 * 5.5)
+        else:
+            sleep(2 * 60)
+        gc.collect()
 
     def get_pintuan_end_time(self, begin_time, left_time):
         '''

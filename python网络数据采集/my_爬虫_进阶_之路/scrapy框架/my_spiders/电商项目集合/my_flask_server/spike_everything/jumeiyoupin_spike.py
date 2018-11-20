@@ -37,6 +37,7 @@ from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.common_utils import json_2_dict
 
 class JuMeiYouPinSpike(object):
     def __init__(self):
@@ -78,17 +79,8 @@ class JuMeiYouPinSpike(object):
         for page in range(1, 50):   # 1, 开始
             tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=formal&page_key=1521336720'.format(str(page))
             print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
-            # print(body)
-
-            try:
-                json_body = json.loads(body)
-                # print(json_body)
-            except:
-                print('json.loads转换body时出错!请检查')
-                json_body = {}
-                pass
-
+            json_body = json_2_dict(Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type), default_res={})
+            # print(json_body)
             this_page_item_list = json_body.get('item_list', [])
             if this_page_item_list == []:
                 print('@@@@@@ 所有接口数据抓取完毕 !')
@@ -105,17 +97,8 @@ class JuMeiYouPinSpike(object):
         for page in range(1, 50):   # 1, 开始
             tmp_url = 'https://h5.jumei.com/index/ajaxDealactList?card_id=4057&page={0}&platform=wap&type=pre&page_key=1521858480'.format(str(page))
             print('正在抓取的page为:', page, ', 接口地址为: ', tmp_url)
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
-            # print(body)
-
-            try:
-                json_body = json.loads(body)
-                # print(json_body)
-            except:
-                print('json.loads转换body时出错!请检查')
-                json_body = {}
-                pass
-
+            json_body = json_2_dict(Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type), default_res={})
+            # print(json_body)
             this_page_item_list = json_body.get('item_list', [])
             if this_page_item_list == []:
                 print('@@@@@@ 所有接口数据抓取完毕 !')
@@ -150,7 +133,8 @@ class JuMeiYouPinSpike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(my_pipeline._select_table(sql_str=jm_select_str_2))]
+            _ = list(my_pipeline._select_table(sql_str=jm_select_str_2))
+            db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
 
             for item in item_list:
@@ -164,7 +148,6 @@ class JuMeiYouPinSpike(object):
                     tmp_url = 'https://h5.jumei.com/product/detail?item_id={0}&type={1}'.format(goods_id, type)
                     jumei.get_goods_data(goods_id=[goods_id, type])
                     goods_data = jumei.deal_with_data()
-
                     if goods_data == {}:
                         pass
 

@@ -70,7 +70,6 @@ class TaoBaoQiangGou(object):
             'accept': '*/*',
             'referer': 'https://qiang.taobao.com/?spm=a21bo.2017.2003.1.5af911d94ZThxY',
             'authority': 'unszacs.m.taobao.com',
-            # 'cookie': 't=70c4fb481898a67a66d437321f7b5cdf; cna=nbRZExTgqWsCAXPCa6QA5B86; l=AkFBuFEM2rj4GbU8Mjl3KsFo0YZa/7Vg; thw=cn; uc3=nk2=rUtEoY7x%2Bk8Rxyx1ZtN%2FAg%3D%3D&id2=UUplY9Ft9xwldQ%3D%3D&vt3=F8dBz4D93q0asbvKBQU%3D&lg2=V32FPkk%2Fw0dUvg%3D%3D; lgc=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _cc_=UIHiLt3xSw%3D%3D; tg=0; enc=OFbfiyN19GGi1GicxsjVmrZoFzlt9plbuviK5OuthXYfocqTD%2BL079G%2BIt4OMg6ZrbV4veSg5SQEpzuMUgLe0w%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; miid=763730917900964122; v=0; cookie2=19ba7f16e8455277ab2bab67901019f4; _tb_token_=773be3e88ed35; mt=ci=-1_0; _m_h5_tk=47dc93ea103cf8a19be23189f1f01947_1525489441273; _m_h5_tk_enc=b798cc89a71cb396c359cc8a0d5eec53; uc1=cookie14=UoTeO8kAl7LI7Q%3D%3D; isg=BOTkUQppYrpizJZJHHROfuSVteTc-pJ4maPnR_4FOa9yqYVzJowOdwBvbAGxX0A_',
         }
 
     def _set_logger(self, logger):
