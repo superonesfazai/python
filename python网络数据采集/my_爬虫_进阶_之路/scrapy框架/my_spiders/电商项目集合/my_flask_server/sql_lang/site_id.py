@@ -84,3 +84,40 @@ declare @sql varchar(1000)
 set @sql='kill '+cast(@spid  as varchar)
 exec(@sql)
 '''
+
+# 秒杀取值(修改方案: 全按第一类来)(over)
+sql_str_6 = '''
+-- 秒杀取值
+-- 第一类
+-- price:normal_price, taobao_price:detail_price(就是秒杀价)
+select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
+from dbo.chuchujie_xianshimiaosha
+order by id DESC
+
+-- price:normal_price, taobao_price:detail_price(就是秒杀价)
+select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
+from dbo.juanpi_xianshimiaosha
+order by id DESC
+
+-- price:normal_price, taobao_price:detail_price(就是秒杀价)
+select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
+from dbo.mogujie_xianshimiaosha
+order by id DESC
+
+-- 第二类
+-- price:detail_price, taobao_price:秒杀价, if detail_price == price set detail_price = taobao_price
+select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
+from dbo.zhe_800_xianshimiaosha
+order by id DESC
+
+-- price:detail_price, taobao_price:秒杀价, if detail_price == price set detail_price = taobao_price
+select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
+from dbo.jumeiyoupin_xianshimiaosha
+order by id DESC
+
+-- 第三类
+-- price:秒杀价, taobao_price:秒杀价, 不对比, 直接设置 set detail_price = taobao_price
+select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
+from dbo.mia_xianshimiaosha
+order by id DESC
+'''

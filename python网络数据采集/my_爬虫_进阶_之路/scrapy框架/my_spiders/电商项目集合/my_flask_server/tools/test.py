@@ -10,10 +10,3 @@
 import sys
 sys.path.append('..')
 
-# from pymssql import *
-from _mssql import *
-
-try:
-    raise MSSQLDatabaseException
-except Exception as e:
-    print(type(e.number))

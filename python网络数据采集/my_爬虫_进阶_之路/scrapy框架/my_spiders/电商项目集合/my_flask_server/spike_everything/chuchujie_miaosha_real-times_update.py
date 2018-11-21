@@ -98,6 +98,8 @@ class CCUpdater(AsyncCrawler):
             collect()
             self.chuchujie_miaosha = ChuChuJie_9_9_Parse()
 
+        return
+
     async def _update_one_goods_info(self, item, index):
         '''
         更新单个

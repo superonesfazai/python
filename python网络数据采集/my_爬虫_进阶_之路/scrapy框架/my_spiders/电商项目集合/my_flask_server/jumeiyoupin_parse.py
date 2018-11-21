@@ -264,17 +264,37 @@ class JuMeiYouPinParse(Crawler):
             add_sensitive_str_list=add_sensitive_str_list,
         )
 
-    def insert_into_jumeiyoupin_xianshimiaosha_table(self, data, pipeline):
+    def _set_detail_price_to_miaosha_price(self, tmp):
+        '''
+        将detail_price设置为miaosha_price
+        :param tmp:
+        :return:
+        '''
+        # 将detail_price设置为秒杀价, 使其提前能购买
+        price = tmp['price']                # Decimal
+        taobao_price = tmp['taobao_price']  # Decimal
+        price_info_list = tmp['price_info_list']
+        for item in price_info_list:
+            if float(price) == float(item.get('detail_price')):
+                item['detail_price'] = str(float(taobao_price))
+        tmp['price_info_list'] = price_info_list
+
+        return tmp
+
+    def insert_into_jumeiyoupin_xianshimiaosha_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=26)  # 采集来源地(聚美优品10点上新的秒杀商品)
         except:
             print('此处抓到的可能是聚美优品券所以跳过')
-            return None
-        # print('------>>> | 待存储的数据信息为: |', tmp)
+            return False
+
+        tmp = self._set_detail_price_to_miaosha_price(tmp=tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        pipeline._insert_into_table(sql_str=jm_insert_str_1, params=params)
+        res = pipeline._insert_into_table(sql_str=jm_insert_str_1, params=params)
+
+        return res
 
     def update_jumeiyoupin_xianshimiaosha_table(self, data, pipeline) -> bool:
         try:
@@ -282,7 +302,8 @@ class JuMeiYouPinParse(Crawler):
         except:
             print('此处抓到的可能是聚美优品券所以跳过')
             return False
-        # print('------>>> | 待存储的数据信息为: |', tmp)
+
+        tmp = self._set_detail_price_to_miaosha_price(tmp=tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
