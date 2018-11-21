@@ -144,13 +144,9 @@ def just_fuck_run():
         print('一次大抓取即将开始'.center(30, '-'))
         zhe_800_pintuan = Zhe800Pintuan()
         zhe_800_pintuan._deal_with_data()
-        # try:
-        #     del zhe_800_pintuan
-        # except:
-        #     pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60*3)
+        sleep(60*5)
 
 def main():
     '''

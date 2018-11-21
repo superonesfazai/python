@@ -216,7 +216,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(2 * 60)
+            sleep(10 * 60)
         gc.collect()
 
     def get_pintuan_end_time(self, begin_time, left_time):

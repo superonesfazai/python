@@ -15,6 +15,7 @@ from settings import IP_POOL_TYPE
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 
+import asyncio
 from scrapy.selector import Selector
 import re
 from time import time
@@ -362,3 +363,20 @@ async def _get_async_task_result(tasks, logger=None) -> list:
         _print(msg='遇到错误:', exception=e, logger=logger, log_level=2)
 
     return all_res
+
+async def _print_db_old_data(logger, result) -> None:
+    '''
+    打印db的老数据
+    :param self:
+    :param select_sql_str:
+    :param delete_sql_str:
+    :return:
+    '''
+    if isinstance(result, list):
+        logger.info('------>>> 下面是数据库返回的所有符合条件的data <<<------')
+        logger.info(str(result))
+        logger.info('--------------------------------------------------- ')
+        logger.info('待更新个数: {0}'.format(len(result)))
+        logger.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+
+    return

@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : pinduoduo_miaosha_real-times_update.py
-@Time    : 2017/11/27 14:20
 @connect : superonesfazai@gmail.com
 '''
 
@@ -14,8 +13,6 @@ from pinduoduo_parse import PinduoduoParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
-from time import sleep
-import re
 import json
 from pprint import pprint
 import time
@@ -32,14 +29,8 @@ from sql_str_controller import (
     pd_select_str_2,
 )
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.async_always import *
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

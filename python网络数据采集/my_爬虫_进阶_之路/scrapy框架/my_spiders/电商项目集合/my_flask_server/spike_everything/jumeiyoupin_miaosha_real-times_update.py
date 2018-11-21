@@ -38,6 +38,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
+    _print_db_old_data,
 )
 
 from fzutils.spider.fz_phantomjs import BaseDriver
@@ -84,12 +85,7 @@ class JMYPUpdater(AsyncCrawler):
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
-        if result is not None:
-            self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            self.lg.info(str(result))
-            self.lg.info('--------------------------------------------------------')
-            self.lg.info('待更新个数: {0}'.format(len(result)))
-            self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+        await _print_db_old_data(logger=self.lg, result=result)
 
         return result
 
@@ -322,6 +318,10 @@ class JMYPUpdater(AsyncCrawler):
             pass
         try:
             del self.loop
+        except:
+            pass
+        try:
+            del self.jumeiyoupin_miaosha
         except:
             pass
         collect()

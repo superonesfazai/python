@@ -3,7 +3,6 @@
 '''
 @author = super_fazai
 @File    : taobao_qianggou_miaosha_real-times_update.py
-@Time    : 2018/5/15 10:09
 @connect : superonesfazai@gmail.com
 '''
 
@@ -13,7 +12,6 @@ sys.path.append('..')
 from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import gc
-from time import sleep
 from pprint import pprint
 from logging import ERROR, INFO
 import json
@@ -31,16 +29,7 @@ from sql_str_controller import (
 )
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,
-)
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.async_always import *
 
 class TaoBaoQiangGouRealTimesUpdate(object):
     '''NOTICE: 由于都是当天数据, 此处不更新上下架时间，就更新商品数据'''

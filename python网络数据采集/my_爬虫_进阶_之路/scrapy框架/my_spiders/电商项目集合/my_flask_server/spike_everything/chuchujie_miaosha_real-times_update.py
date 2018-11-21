@@ -17,8 +17,7 @@ sys.path.append('..')
 from chuchujie_9_9_parse import ChuChuJie_9_9_Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
-from time import sleep
+from gc import collect
 import json
 from pprint import pprint
 import time
@@ -26,28 +25,39 @@ import time
 from settings import (
     IS_BACKGROUND_RUNNING, 
     CHUCHUJIE_SLEEP_TIME,
-    IP_POOL_TYPE,)
+    IP_POOL_TYPE,
+    MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import (
     cc_delete_str_1,
     cc_select_str_1,
     cc_delete_str_2,
 )
+from multiplex_code import (
+    _get_async_task_result,
+    _get_new_db_conn,
+    _print_db_old_data,
+)
 
-from fzutils.time_utils import get_shanghai_time
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
+from fzutils.spider.async_always import *
 
-class ChuChuJieMiaosShaRealTimeUpdate(object):
-    def __init__(self):
-        self._set_headers()
+class CCUpdater(AsyncCrawler):
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            log_print=True,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/楚楚街/秒杀实时更新/',
+            ip_pool_type=IP_POOL_TYPE,
+        )
+        self.tmp_sql_server = None
+        self.concurrency = 8    # 并发量
+        self.goods_index = 1
         self.delete_sql_str = cc_delete_str_1
-        self.ip_pool_type = IP_POOL_TYPE
 
-    def _set_headers(self):
-        self.headers = {
+    async def _get_pc_headers(self):
+        return {
             'Accept': 'application/json,text/javascript,*/*;q=0.01',
             # 'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -56,133 +66,209 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
             'Host': 'api.chuchujie.com',
             'Referer': 'https://m.chuchujie.com/?module=99',
             'Cache-Control': 'max-age=0',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
+            'User-Agent': get_random_pc_ua(),
         }
 
-    def run_forever(self):
+    async def _get_db_old_data(self) -> (list, None):
+        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        result = None
+        try:
+            self.tmp_sql_server._delete_table(sql_str=cc_delete_str_2)
+            await async_sleep(1)
+            result = list(self.tmp_sql_server._select_table(sql_str=cc_select_str_1))
+        except TypeError:
+            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+
+        await _print_db_old_data(logger=self.lg, result=result)
+
+        return result
+
+    async def _get_miaosha_end_time(self, miaosha_time) -> int:
+        miaosha_end_time = json_2_dict(miaosha_time).get('miaosha_end_time')
+        miaosha_end_time = int(str(time.mktime(time.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
+
+        return miaosha_end_time
+
+    async def _get_new_cc_obj(self, index):
+        if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
+            try:
+                del self.chuchujie_miaosha
+            except:
+                pass
+            collect()
+            self.chuchujie_miaosha = ChuChuJie_9_9_Parse()
+
+    async def _update_one_goods_info(self, item, index):
         '''
-        实时更新数据
+        更新单个
+        :param item:
+        :param index:
         :return:
         '''
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        try:
-            tmp_sql_server._delete_table(sql_str=cc_delete_str_2)
-            result = list(tmp_sql_server._select_table(sql_str=cc_select_str_1))
-        except TypeError:
-            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
-            result = None
-        if result is None:
+        res = False
+        goods_id = item[0]
+        miaosha_time = item[1]
+        gender = item[2]
+        page = item[3]
+        miaosha_end_time = await self._get_miaosha_end_time(miaosha_time)
+        # self.lg.info(str(miaosha_end_time))
+        await self._get_new_cc_obj(index=index)
+        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, remainder=25)
+
+        if self.tmp_sql_server.is_connect_success:
+            is_recent_time = await self._is_recent_time(miaosha_end_time)
+            if is_recent_time == 0:
+                res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id,))
+                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 删除成功!'.format(goods_id, miaosha_end_time))
+                await async_sleep(.3)
+                index += 1
+                self.goods_index = index
+
+                return goods_id, res
+
+            elif is_recent_time == 2:
+                index += 1
+                self.goods_index = index
+
+                return goods_id, res
+
+            else:  # 返回1，表示在待更新区间内
+                # 释放内存, 在外面声明就会占用很大的, 所以此处优化内存的方法是声明后再删除释放
+                self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
+                body = await self._get_one_page_goods_info(gender, page)
+                if body == '':
+                    index += 1
+                    self.goods_index = index
+                    await async_sleep(.3)
+
+                    return goods_id, res
+
+                json_body = json_2_dict(body, default_res={})
+                try:
+                    this_page_total_count = json_body.get('data', {}).get('groupList', [])[0].get('totalCount', 0)
+                except IndexError:
+                    self.lg.error('获取this_page_total_count时出错, 请检查!')
+                    this_page_total_count = 0
+
+                item_list = await self._get_item_list(this_page_total_count=this_page_total_count, json_body=json_body)
+                if item_list == []:
+                    self.lg.info('#### 该gender, page对应得到的item_list为空[]!\n该商品已被下架限时秒杀活动，此处将其删除')
+                    res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                    self.lg.info('下架的goods_id为({}), 删除成功!'.format(goods_id))
+                    await async_sleep(.3)
+                    index += 1
+                    self.goods_index = index
+
+                    return goods_id, res
+
+                else:
+                    res = await self._one_update(goods_id=goods_id, item_list=item_list)
+
+        else:  # 表示返回的data值为空值
+            self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
+            pass
+
+        index += 1
+        self.goods_index = index
+        collect()
+        await async_sleep(CHUCHUJIE_SLEEP_TIME)
+
+        return goods_id, res
+
+    async def _update_db(self) -> None:
+        '''
+        秒杀数据更新
+        :return:
+        '''
+        while True:
+            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            result = await self._get_db_old_data()
+            if result is None:
+                pass
+            else:
+                self.goods_index = 1
+                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
+                self.chuchujie_miaosha = ChuChuJie_9_9_Parse()
+                index = 1
+                while True:
+                    try:
+                        slice_params_list = tasks_params_list.__next__()
+                        # self.lg.info(str(slice_params_list))
+                    except AssertionError:  # 全部提取完毕, 正常退出
+                        break
+
+                    tasks = []
+                    for item in slice_params_list:
+                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        index += 1
+
+                    await _get_async_task_result(tasks=tasks, logger=self.lg)
+
+                self.lg.info('全部数据更新完毕'.center(100, '#'))
+            if get_shanghai_time().hour == 0:  # 0点以后不更新
+                await async_sleep(60 * 60 * 5.5)
+            else:
+                await async_sleep(2.5 * 60)
+            try:
+                del self.chuchujie_miaosha
+            except:
+                pass
+            collect()
+
+    async def _get_item_list(self, **kwargs) -> list:
+        '''
+        获取对应gender, page的商品list
+        :return:
+        '''
+        this_page_total_count = kwargs.get('this_page_total_count')
+        json_body = kwargs.get('json_body')
+        tmp_goods_list = json_body.get('data', {}).get('groupList', [])[0].get('dataList', [])
+
+        item_list = [{
+            'goods_id': str(item_s.get('chuchuId', '')),
+            'sub_title': item_s.get('description', ''),
+        } for item_s in tmp_goods_list] if this_page_total_count != 0 else []
+
+        return item_list
+
+    async def _one_update(self, **kwargs):
+        '''
+        未下架的更新
+        :param kwargs:
+        :return:
+        '''
+        res = False
+        goods_id = kwargs.get('goods_id')
+        item_list = kwargs.get('item_list')
+
+        # miaosha_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in item_list]
+        # 由于不会内部提前下架，所以在售卖时间内的全部进行相关更新
+        # if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
+        #     self.lg.info('该商品已被下架限时秒杀活动，此处将其删除')
+        #     tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id))
+        #     self.lg.info('下架的goods_id为({}), 删除成功!'.format(goods_id))
+        #     pass
+        #
+        # else:  # 未下架的
+        # 不更新秒杀时间和sub_title, 只更新其他相关数据
+        # for item_2 in item_list:
+        #     if item_2.get('goods_id', '') == goods_id:
+        self.chuchujie_miaosha.get_goods_data(goods_id=goods_id)
+        goods_data = self.chuchujie_miaosha.deal_with_data()
+        if goods_data == {}:  # 返回的data为空则跳过
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
+            goods_data['goods_id'] = str(goods_id)
+            # goods_data['sub_title'] = item_2.get('sub_title', '')
+            # print(goods_data)
+            res = self.chuchujie_miaosha.update_chuchujie_xianshimiaosha_table(
+                data=goods_data,
+                pipeline=self.tmp_sql_server)
 
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-            index = 1
+        return res
 
-            for item in result:  # 实时更新数据
-                miaosha_end_time = json.loads(item[1]).get('miaosha_end_time')
-                miaosha_end_time = int(str(time.mktime(time.strptime(miaosha_end_time,'%Y-%m-%d %H:%M:%S')))[0:10])
-                # print(miaosha_end_time)
-
-                data = {}
-                if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
-                    if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                        print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
-                        sleep(.3)
-
-                    elif self.is_recent_time(miaosha_end_time) == 2:
-                        # break       # 跳出循环
-                        pass          # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
-
-                    else:   # 返回1，表示在待更新区间内
-                        # 释放内存, 在外面声明就会占用很大的, 所以此处优化内存的方法是声明后再删除释放
-                        chuchujie_miaosha = ChuChuJie_9_9_Parse()
-                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                        data['goods_id'] = item[0]
-                        body = self.get_one_page_goods_info(item[2], item[3])
-                        if body == '{}':
-                            # 可能是网络原因导致, 先跳过
-                            pass
-
-                        else:
-                            json_body = json_2_dict(body, default_res={})
-                            try:
-                                this_page_total_count = json_body.get('data', {}).get('groupList', [])[0].get('totalCount', 0)
-                            except IndexError:
-                                print('获取this_page_total_count时出错, 请检查!')
-                                this_page_total_count = 0
-
-                            # 获取对应gender, page的商品list
-                            if this_page_total_count == 0:
-                                item_list = []
-
-                            else:
-                                tmp_goods_list = json_body.get('data', {}).get('groupList', [])[0].get('dataList', [])
-
-                                item_list = [{
-                                    'goods_id': str(item_s.get('chuchuId', '')),
-                                    'sub_title': item_s.get('description', ''),
-                                } for item_s in tmp_goods_list]
-
-                            if item_list == []:
-                                print('#### 该gender, page对应得到的item_list为空[]!')
-                                print('该商品已被下架限时秒杀活动，此处将其删除')
-                                tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                sleep(.3)
-
-                            else:
-                                # miaosha_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in item_list]
-                                """
-                                由于不会内部提前下架，所以在售卖时间内的全部进行相关更新
-                                """
-                                # if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
-                                #     print('该商品已被下架限时秒杀活动，此处将其删除')
-                                #     tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                #     print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                #     pass
-                                #
-                                # else:  # 未下架的
-                                '''
-                                不更新秒杀时间和sub_title, 只更新其他相关数据
-                                '''
-                                # for item_2 in item_list:
-                                #     if item_2.get('goods_id', '') == item[0]:
-                                chuchujie_miaosha.get_goods_data(goods_id=item[0])
-                                goods_data = chuchujie_miaosha.deal_with_data()
-                                if goods_data == {}:  # 返回的data为空则跳过
-                                    pass
-                                else:
-                                    goods_data['goods_id'] = str(item[0])
-
-                                    # goods_data['sub_title'] = item_2.get('sub_title', '')
-
-                                    # print(goods_data)
-                                    chuchujie_miaosha.update_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
-                                sleep(CHUCHUJIE_SLEEP_TIME)
-
-                else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
-                    pass
-
-                index += 1
-                gc.collect()
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-        if get_shanghai_time().hour == 0:  # 0点以后不更新
-            sleep(60 * 60 * 5.5)
-        else:
-            sleep(5*60)
-        gc.collect()
-
-    def get_one_page_goods_info(self, *params):
+    async def _get_one_page_goods_info(self, *params) -> str:
         '''
         得到一个页面的html代码
         :param params: 待传入的参数
@@ -222,44 +308,51 @@ class ChuChuJieMiaosShaRealTimeUpdate(object):
         }
 
         body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=data, ip_pool_type=self.ip_pool_type)
-        if body == '':
-            body = '{}'
 
         return body
 
-    def is_recent_time(self, timestamp):
+    async def _is_recent_time(self, timestamp) -> int:
         '''
         判断是否在指定的日期差内
         :param timestamp: 时间戳
         :return: 0: 已过期恢复原价的 1: 待更新区间内的 2: 未来时间的
         '''
         time_1 = int(timestamp)
-        time_2 = int(time.time())  # 当前的时间戳
+        time_2 = datetime_to_timestamp(get_shanghai_time())  # 当前的时间戳
 
         diff_time = time_1 - time_2
-        if diff_time < -86400:  # (为了后台能同步下架)所以设置为 24个小时
+        # if diff_time < -86400:  # (为了后台能同步下架)所以设置为 24个小时
+        if diff_time < -100000:     # 设置大点避免还在卖的被下掉
             # if diff_time < 0:     # (原先的时间)结束时间 与当前时间差 <= 0
-            return 0  # 已过期恢复原价的
+            return 0                # 已过期恢复原价的
         elif diff_time > 0:
-            return 1  # 表示是昨天跟今天的也就是待更新的
-        else:  # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
+            return 1                # 表示是昨天跟今天的也就是待更新的
+        else:                       # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
             return 2
 
     def __del__(self):
-        gc.collect()
-
-def just_fuck_run():
-    while True:
-        print('一次大更新即将开始'.center(30, '-'))
-        tmp = ChuChuJieMiaosShaRealTimeUpdate()
-        tmp.run_forever()
         try:
-            del tmp
+            del self.lg
         except:
             pass
-        gc.collect()
-        print('一次大更新完毕'.center(30, '-'))
-        sleep(2*60)
+        try:
+            del self.loop
+        except:
+            pass
+        try:
+            del self.chuchujie_miaosha
+        except:
+            pass
+        collect()
+
+def _fck_run():
+    _ = CCUpdater()
+    loop = get_event_loop()
+    loop.run_until_complete(_._update_db())
+    try:
+        del loop
+    except:
+        pass
 
 def main():
     '''
@@ -267,13 +360,12 @@ def main():
     :return:
     '''
     print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
-    just_fuck_run()
+    _fck_run()
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:
         main()
     else:
-        just_fuck_run()
+        _fck_run()

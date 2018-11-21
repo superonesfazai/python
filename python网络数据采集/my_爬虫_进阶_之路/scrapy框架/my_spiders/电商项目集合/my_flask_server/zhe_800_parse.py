@@ -564,16 +564,18 @@ class Zhe800Parse(Crawler):
         params = self._get_db_insert_miaosha_params(item=tmp)
         pipeline._insert_into_table(sql_str=z8_insert_str_1, params=params)
 
-    def to_update_zhe_800_xianshimiaosha_table(self, data, pipeline):
+    def to_update_zhe_800_xianshimiaosha_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=14)
         except:
             print('此处抓到的可能是折800秒杀券所以跳过')
-            return None
+            return False
         print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        pipeline._update_table(sql_str=z8_update_str_2, params=params)
+        res = pipeline._update_table(sql_str=z8_update_str_2, params=params)
+
+        return res
 
     def _get_db_update_params(self, item):
         '''

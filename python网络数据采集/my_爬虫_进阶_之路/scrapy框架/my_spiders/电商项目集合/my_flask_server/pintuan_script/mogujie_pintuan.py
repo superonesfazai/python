@@ -299,6 +299,7 @@ def just_fuck_run():
         mogujie_pintuan.get_pintuan_goods_info()
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
+        sleep(5 * 60)
 
 def main():
     '''

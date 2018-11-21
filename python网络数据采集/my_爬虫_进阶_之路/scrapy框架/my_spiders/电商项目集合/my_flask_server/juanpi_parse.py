@@ -274,7 +274,9 @@ class JuanPiParse(Crawler):
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        pipeline._update_table(sql_str=jp_update_str_3, params=params)
+        res = pipeline._update_table(sql_str=jp_update_str_3, params=params)
+
+        return res
 
     def insert_into_juuanpi_pintuan_table(self, data, pipeline):
         try:

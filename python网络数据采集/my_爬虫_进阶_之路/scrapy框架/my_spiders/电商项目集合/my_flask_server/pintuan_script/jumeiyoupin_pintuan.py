@@ -40,6 +40,7 @@ from fzutils.linux_utils import (
     daemon_init,
     restart_program,
 )
+from fzutils.safe_utils import get_uuid1
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
 
@@ -78,6 +79,7 @@ class JuMeiYouPinPinTuan(object):
     def _set_logger(self, logger):
         if logger is None:
             self.my_lg = set_logger(
+                logger_name=get_uuid1(),
                 log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + str(get_shanghai_time())[0:10] + '.txt',
                 console_log_level=INFO,
                 file_log_level=ERROR
@@ -128,7 +130,8 @@ class JuMeiYouPinPinTuan(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            db_goods_id_list = [item[0] for item in list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))]
+            _ = list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))
+            db_goods_id_list = [item[0] for item in _]
             # self.my_lg.info(str(db_goods_id_list))
 
             index = 1
@@ -284,8 +287,8 @@ def just_fuck_run():
             loop.close()
         except: pass
         gc.collect()
+        sleep(10*60)
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        restart_program()       # 通过这个重启环境, 避免log重复打印
 
 def main():
     '''

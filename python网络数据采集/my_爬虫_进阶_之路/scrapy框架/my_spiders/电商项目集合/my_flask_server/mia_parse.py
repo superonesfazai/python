@@ -332,16 +332,19 @@ class MiaParse(Crawler):
         params = self._get_db_insert_miaosha_params(item=tmp)
         pipeline._insert_into_table(sql_str=mia_insert_str_1, params=params)
 
-    def update_mia_xianshimiaosha_table(self, data, pipeline):
+    def update_mia_xianshimiaosha_table(self, data, pipeline) -> (bool,):
         try:
             tmp = _get_right_model_data(data=data, site_id=20)
         except:
             print('此处抓到的可能是蜜芽秒杀券所以跳过')
-            return None
+            return False
+
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
-        pipeline._update_table(sql_str=mia_update_str_1, params=params)
+        res = pipeline._update_table(sql_str=mia_update_str_1, params=params)
+
+        return res
 
     def _get_db_insert_miaosha_params(self, item):
         params = (

@@ -82,7 +82,6 @@ class JuMeiYouPinRealTimesUpdate(object):
         else:
             self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
             self.my_lg.info(result)
-
             self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
 
@@ -162,7 +161,7 @@ class JuMeiYouPinRealTimesUpdate(object):
             if get_shanghai_time().hour == 0:  # 0点以后不更新
                 sleep(60 * 60 * 5.5)
             else:
-                sleep(5)
+                sleep(10*60)
             gc.collect()
 
         return None

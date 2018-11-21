@@ -229,19 +229,21 @@ class ChuChuJie_9_9_Parse(Crawler):
         sql_str = cc_insert_str_1
         pipeline._insert_into_table(sql_str=sql_str, params=params)
 
-    def update_chuchujie_xianshimiaosha_table(self, data, pipeline):
+    def update_chuchujie_xianshimiaosha_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=24)
         except:
             print('此处抓到的可能是楚楚街券所以跳过')
-            return None
+            return False
 
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
         sql_str = cc_update_str_1
-        pipeline._update_table(sql_str=sql_str, params=params)
+        res = pipeline._update_table(sql_str=sql_str, params=params)
+
+        return res
 
     def _get_db_insert_miaosha_params(self, item):
         params = (

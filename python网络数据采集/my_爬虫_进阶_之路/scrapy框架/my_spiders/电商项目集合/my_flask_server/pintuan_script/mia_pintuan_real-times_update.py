@@ -199,7 +199,7 @@ class Mia_Pintuan_Real_Time_Update(object):
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(5)
+            sleep(10 * 60)
         gc.collect()
 
     def is_recent_time(self, timestamp):
