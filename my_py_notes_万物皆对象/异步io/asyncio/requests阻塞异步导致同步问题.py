@@ -6,6 +6,12 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+类似问题:stackoverflow的解决方案
+https://stackoverflow.com/questions/22190403/how-could-i-use-requests-in-asyncio
+"""
+
+from gc import collect
 from fzutils.spider.async_always import *
 
 async def test():
@@ -19,12 +25,13 @@ async def test():
 
 async def task(item):
     print('task {} start...'.format(item))
-    body = await url_open()
+    body = await other_block_task()
     print('task {} over!! body: {}'.format(item, str(body)[:10]))
 
     return
 
-async def url_open(*params, **kwargs):
+async def other_block_task():
+    """其他阻塞任务"""
     loop = get_event_loop()
     headers = {
         'authority': 'www.jianshu.com',
@@ -38,8 +45,13 @@ async def url_open(*params, **kwargs):
         'if-none-match': 'W/"4a9fde17dc47fa1c6e44b8952c88ecba"',
     }
     url = 'https://www.jianshu.com/p/63623c430e2b'
-    # body = Requests.get_url_body(url, headers=headers)
+    # 即将会阻塞的函数, 开新的协程处理, 并异步等待直到返回结果
     body = await loop.run_in_executor(None, Requests.get_url_body, url, headers)
+    try:
+        del loop
+    except:
+        pass
+    collect()
 
     return body
 

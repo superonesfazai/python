@@ -13,8 +13,13 @@
     1. 微信文章内容爬取(https://weixin.sogou.com)
     2. 今日头条文章内容爬取(https://www.toutiao.com)
     3. 简书文章内容爬取(https://www.jianshu.com)
+待实现:
+    1. qq看点
+    2. 天天快报
 """
 
+from os import getcwd
+from os.path import abspath
 from gc import collect
 from my_items import WellRecommendArticle
 from settings import (
@@ -25,6 +30,7 @@ from settings import (
 
 from fzutils.spider.fz_driver import BaseDriver
 from ftfy import fix_text
+from requests import session
 from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):
@@ -158,9 +164,17 @@ class ArticleParser(AsyncCrawler):
         content = re.compile(' data-original-filesize=\".*?\"').sub(' style=\"height:auto;width:100%;\"', content)
 
         # 附加上原生的style
-        with open('./tmp/jianshu_style.txt', 'r') as f:
-            _ = Requests._wash_html(f.read())
-            # self.lg.info(str(_))
+        # 此法在server上getcwd()得到的是'/', os.path.abspath('.')得到的才是当前目录, 还是'/', 改用云存
+        # now_path = abspath('.') + '/tmp/jianshu_style.txt'
+        # print(now_path)
+        # with open(now_path, 'r') as f:
+        #     _ = Requests._wash_html(f.read())
+        #     self.lg.info(str(_))
+
+        jianshu_style_txt_url = 'http://pimkvjbu6.bkt.clouddn.com/jianshu_style.txt'
+        with session() as s:
+            _ = Requests._wash_html(s.get(url=jianshu_style_txt_url).content.decode('utf-8'))
+        assert _ != '', '云端jianshu_style_txt获取失败!'
 
         content = _ + content
 

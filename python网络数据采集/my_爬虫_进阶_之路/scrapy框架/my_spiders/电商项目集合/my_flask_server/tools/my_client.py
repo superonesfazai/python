@@ -95,8 +95,8 @@ class RequestClient(object):
         # url = 'http://spider.other.k85u.com/api/goods'
 
         # article
-        url = 'http://127.0.0.1:5000/api/article'
-        # url = 'http://spider.other.k85u.com/api/article'
+        # url = 'http://127.0.0.1:5000/api/article'
+        url = 'http://spider.other.k85u.com/api/article'
         # url = 'http://spider.taobao_tmall.k85u.com/api/article'
 
         with get(url, params=params) as response:

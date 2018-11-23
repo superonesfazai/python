@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : 查看某个ip是否为高匿名.py
+@File    : utils.py
 @connect : superonesfazai@gmail.com
 '''
 
@@ -42,19 +42,3 @@ def judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_proxy=True, t
                 now_ip = json_2_dict(response.text).get('origin', '')
 
             return now_ip
-
-# 蜻蜓代理
-# 11.103.53.132:48238
-# 183.51.117.93:65440
-# 104.248.152.182
-
-# 快代理
-# 61.138.33.20:808
-# 101.132.71.56:808 error
-# 117.158.65.216:50049 error
-# 117.158.152.100:58924 error
-# 111.74.234.57:808
-# ip_address = '111.74.234.57'
-# port = 808
-# res = judge_ip_is_anonymity(ip_address=ip_address, port=port, httpbin=True)
-# print(res)

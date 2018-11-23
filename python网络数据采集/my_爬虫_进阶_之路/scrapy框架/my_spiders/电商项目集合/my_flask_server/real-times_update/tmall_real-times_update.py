@@ -100,7 +100,17 @@ class TMUpdater(AsyncCrawler):
             self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
             tmp_item = await self._get_tmp_item(site_id=site_id, goods_id=goods_id)
             # self.lg.info(str(tmp_item))
+
+            # ** 阻塞方式运行
             oo = self.tmall.get_goods_data(goods_id=tmp_item)
+
+            # ** 非阻塞方式运行
+            # loop = get_event_loop()
+            # oo = await loop.run_in_executor(None, self.tmall.get_goods_data, tmp_item)
+            # try:
+            #     del loop
+            # except:
+            #     pass
             oo_is_delete = oo.get('is_detele', 0)  # 避免下面解析data错误休眠
             if isinstance(oo, int):  # 单独处理return 4041
                 self.goods_index += 1

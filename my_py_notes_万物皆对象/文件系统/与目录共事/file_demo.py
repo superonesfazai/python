@@ -32,6 +32,9 @@ print(os.name)  # posix
 # 获取当前工作目录，即当前Python脚本工作的目录路径。
 print(os.getcwd())  # /home/afa/myFiles/codeDoc/PythonDoc/python_cookbook_notes/文件系统/与目录共事
 
+# 获取当前目录最通用方法
+print(os.path.abspath('.'))
+
 # 获取指定目录下的所有文件和目录名，列表形式
 print(os.listdir(os.getcwd()))
 
