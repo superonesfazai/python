@@ -101,7 +101,7 @@ class JdParse(Crawler):
 
         url = 'https://item.m.jd.com/product/{}.html'.format(goods_id[1])
         # self.lg.info(url)
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers())
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), ip_pool_type=self.ip_pool_type)
         # self.lg.info(body)
 
         if not self._get_goods_is_delete(body=body):
@@ -269,7 +269,7 @@ class JdParse(Crawler):
             # ('t', '0.31518758092351407'),
         )
         url = 'https://wq.jd.com/commodity/comment/getcommentlist'
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params)
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params, ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         all_sell_count = str(randint(800, 2000))
         try:
@@ -425,7 +425,7 @@ class JdParse(Crawler):
         :return:
         '''
         url = 'https://item.jd.com/{}.html'.format(goods_id)
-        body = Requests.get_url_body(url=url, headers=self._get_pc_headers())
+        body = Requests.get_url_body(url=url, headers=self._get_pc_headers(), ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         li_list = Selector(text=body).css('div.p-parameter ul li ::text').extract() or []   # 尽可能多匹配
         # pprint(li_list)
@@ -465,7 +465,7 @@ class JdParse(Crawler):
             'authority': 'wq.jd.com',
         }
         # 有一些可能返回的是空的
-        body = Requests.get_url_body(url=url, headers=headers, params=params)
+        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         _ = {}
         try:
@@ -481,7 +481,7 @@ class JdParse(Crawler):
         :return:
         '''
         url = 'https://wqsitem.jd.com/detail/{}_d{}_normal.html'.format(goods_id, description_id)
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers())
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         try:
             _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0]).get('content', '')
@@ -603,7 +603,7 @@ class JdParse(Crawler):
             # ('t', '0.5813500121860642'),
         )
         url = 'https://item.m.jd.com/item/mview2'
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params)
+        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params, ip_pool_type=self.ip_pool_type)
         # print(body)
         try:
             _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0], default_res={})

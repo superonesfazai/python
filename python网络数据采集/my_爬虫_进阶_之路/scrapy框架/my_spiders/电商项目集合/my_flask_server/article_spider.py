@@ -101,7 +101,7 @@ class ArticleParser(AsyncCrawler):
         得到wx文章内容
         :return: body, video_url
         '''
-        body = Requests.get_url_body(url=article_url, headers=await self._get_headers())
+        body = Requests.get_url_body(url=article_url, headers=await self._get_headers(), ip_pool_type=self.ip_pool_type)
         # self.lg.info(body)
         assert body != '', '获取到wx的body为空值!'
 
@@ -118,7 +118,7 @@ class ArticleParser(AsyncCrawler):
             'authority': 'www.toutiao.com',
             'referer': 'https://www.toutiao.com/',
         })
-        body = Requests.get_url_body(url=article_url, headers=headers)
+        body = Requests.get_url_body(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         assert body != '', '获取到wx的body为空值!'
 
@@ -135,7 +135,7 @@ class ArticleParser(AsyncCrawler):
             'authority': 'www.jianshu.com',
             'referer': 'https://www.jianshu.com/',
         })
-        body = Requests.get_url_body(url=article_url, headers=headers)
+        body = Requests.get_url_body(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         assert body != '', '获取到的js的body为空值!'
 

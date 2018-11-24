@@ -41,15 +41,12 @@ def get_proxy_list():
     获取代理的接口
     :return:
     '''
-    global db_search_count, db_proxy_list
-
     res = []
     all = get_db_old_data()
     for item in all:
         ip = item[1]
         port = item[2]
         check_time = item[5]
-
         res.append({
             'ip': ip,
             'port': port,

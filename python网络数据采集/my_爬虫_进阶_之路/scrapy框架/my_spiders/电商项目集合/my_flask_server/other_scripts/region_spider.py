@@ -17,6 +17,7 @@ from scrapy.selector import Selector
 from asyncio import get_event_loop
 from json import dumps
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from settings import IP_POOL_TYPE
 
 from fzutils.spider.fz_requests import Requests
 from fzutils.internet_utils import get_random_pc_ua
@@ -26,6 +27,7 @@ class RegionSpider(object):
     def __init__(self):
         self.ame_list = None
         self.target_data = None   # 存储最终需求数据
+        self.ip_pool_type = IP_POOL_TYPE
 
     async def _get_headers(self):
         return {
@@ -43,7 +45,7 @@ class RegionSpider(object):
         得到全国最新区码(http://xzqh.mca.gov.cn/map)
         :return:
         '''
-        body = Requests.get_url_body(url='http://xzqh.mca.gov.cn/map', headers=await self._get_headers(), cookies=None)
+        body = Requests.get_url_body(url='http://xzqh.mca.gov.cn/map', headers=await self._get_headers(), cookies=None, ip_pool_type=self.ip_pool_type)
         # print(body)
         # http://www.mca.gov.cn/article/sj/tjbz/a/2018/201803131439.html
         data = json_2_dict(
@@ -132,7 +134,7 @@ class RegionSpider(object):
         headers = {
             'User-Agent': get_random_pc_ua(),
         }
-        body = Requests.get_url_body(url='https://division-data.alicdn.com/simple/addr_3_001.js', headers=headers)
+        body = Requests.get_url_body(url='https://division-data.alicdn.com/simple/addr_3_001.js', headers=headers, ip_pool_type=self.ip_pool_type)
         _ = json_2_dict(re.compile('var tdist=(.*);window\.goldlog&&').findall(body)[0])
         # pprint(_)
         new = []

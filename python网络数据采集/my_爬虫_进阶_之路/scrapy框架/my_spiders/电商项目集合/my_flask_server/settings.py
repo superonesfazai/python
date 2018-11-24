@@ -10,7 +10,8 @@
 from json import loads
 from fzutils.ip_pools import (
     fz_ip_pool,
-    ip_proxy_pool,)
+    ip_proxy_pool,
+    tri_ip_pool,)
 
 """
 驱动相关设置
@@ -27,7 +28,7 @@ PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/pha
 """
 ip_pool_type: 使用的ip_pool类型
 """
-IP_POOL_TYPE = ip_proxy_pool
+IP_POOL_TYPE = fz_ip_pool
 
 """
 db_info_json_path

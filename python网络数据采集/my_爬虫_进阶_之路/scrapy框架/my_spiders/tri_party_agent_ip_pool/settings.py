@@ -21,9 +21,9 @@ MIN_SCORE = 65
 CHECKED_PROXY_SLEEP_TIME = 2 * 60
 
 # ip_pool中的最小ip数量, 由于tri有时效
-# 蜻蜓代理测试实时的可设置为: 70个(比较友好并保证更新监控)
+# 蜻蜓代理测试实时的可设置为: 100个(比较友好并保证更新监控)
 # 蘑菇代理可设置: 500
-MIN_IP_POOl_NUM = 70
+MIN_IP_POOl_NUM = 100
 
 # server port
 SERVER_PORT = 8001
@@ -31,4 +31,6 @@ SERVER_PORT = 8001
 # 蜻蜓代理api_url
 horocn_info_path = '/Users/afa/myFiles/pwd/horocn_info.json'
 with open(horocn_info_path, 'r') as f:
-    HOROCN_API_URL = json_2_dict(f.read())['api_url']
+    _ = json_2_dict(f.read())
+    HOROCN_API_URL = _['api_url']
+    HOROCN_TOKEN = _['token']

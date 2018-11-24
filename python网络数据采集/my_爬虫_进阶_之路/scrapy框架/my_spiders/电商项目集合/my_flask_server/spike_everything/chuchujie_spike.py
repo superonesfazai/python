@@ -149,7 +149,7 @@ class ChuChuJie_9_9_Spike(object):
                         pass
 
                     else:   # 否则就解析并且插入
-                        my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
+                        my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
                         # 获取剩余时间
                         tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(

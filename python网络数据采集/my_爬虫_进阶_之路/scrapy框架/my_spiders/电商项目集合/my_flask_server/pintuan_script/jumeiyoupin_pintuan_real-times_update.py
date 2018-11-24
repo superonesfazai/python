@@ -45,6 +45,7 @@ class JuMeiYouPinRealTimesUpdate(object):
         self._set_logger()
         self.msg = ''
         self.api_all_goods_id = {}      # 预存储每个tab, index的item_list
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -117,7 +118,7 @@ class JuMeiYouPinRealTimesUpdate(object):
                         item_list = self.api_all_goods_id.get(_, [])    # 用于判断tab, index已在self.api_all_goods_id中
 
                         if item_list == []:
-                            driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
+                            driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
                             item_list = await jumeiyoupin_2.get_one_page_goods_list(driver=driver, tab=item[2], index=item[3])
                             try: del driver
                             except: pass

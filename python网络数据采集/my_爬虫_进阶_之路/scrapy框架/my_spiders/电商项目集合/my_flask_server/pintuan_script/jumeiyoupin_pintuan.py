@@ -62,6 +62,7 @@ class JuMeiYouPinPinTuan(object):
             '鞋类': 'coutuan_shose',
             '下期预告': 'coutuan_pre',
         }
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -94,7 +95,7 @@ class JuMeiYouPinPinTuan(object):
         '''
         s_time = time.time()
         goods_list = []
-        driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=IP_POOL_TYPE)
+        driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=self.ip_pool_type)
         for key in self.tab_dict:
             self.msg = '正在抓取的分类为: ' + key
             self.my_lg.info(self.msg)

@@ -17,7 +17,8 @@ from settings import (
     CHECKED_PROXY_SLEEP_TIME,
     MIN_IP_POOl_NUM,
     MIN_SCORE,
-    HOROCN_API_URL,)
+    HOROCN_API_URL,
+    HOROCN_TOKEN,)
 
 from requests import session
 from gc import collect
@@ -88,7 +89,9 @@ class ProxyChecker(AsyncCrawler):
                     'method': 're',
                     'selector': ':(\d+),',
                 },
-                'activity_time': None,  # ip存活时间, int 单位秒
+                'activity_time': None,                      # ip存活时间, int 单位秒
+                'add_white_list_url': None,                 # 增加白名单的url
+                'api_url_call_frequency_sleep_time': 4.5,   # 非并发api_url单次调用频率的休眠时间
             },
             {
                 'id': 1,
@@ -107,7 +110,9 @@ class ProxyChecker(AsyncCrawler):
                     'method': 'dict_path',
                     'selector': data.get('port', '') if isinstance(data, dict) else '',
                 },
-                'activity_time': 3 * 60,
+                'activity_time': 6 * 60,                    # 官方3分钟, 此处我设置为6
+                'add_white_list_url': 'https://proxy.horocn.com/api/ip/whitelist',
+                'api_url_call_frequency_sleep_time': 0,
             },
             {
                 'id': 2,
@@ -127,6 +132,8 @@ class ProxyChecker(AsyncCrawler):
                     'selector': data.get('port', '') if isinstance(data, dict) else '',
                 },
                 'activity_time': 5 * 60,
+                'add_white_list_url': None,
+                'api_url_call_frequency_sleep_time': 4.5,
             }
         ]
 
@@ -168,14 +175,22 @@ class ProxyChecker(AsyncCrawler):
         return None
 
     async def _fck_run(self) -> None:
+        '''
+        main
+        :return:
+        '''
         await self._welcome()
         self.local_ip = await self._get_local_ip()
         create_proxy_obj_table()
         # 每次启动先清空一次过期table
         print('Empty db old ip...')
         empty_db_proxy_data()
+        # 添加本机到白名单
+        await self._add_to_white_list()
         self.checked_proxy_list = await self._get_db_old_data()
         activity_time = await self._get_ip_activity_time()
+        # 非并发api_url单次调用频率的休眠时间
+        api_url_call_frequency_sleep_time = await self._get_api_url_call_frequency_sleep_time()
         while True:
             while len(self.checked_proxy_list) < self.MIN_IP_POOl_NUM:
                 print('--->>> Ip Pool num: {} 个'.format(len(self.checked_proxy_list)))
@@ -190,7 +205,7 @@ class ProxyChecker(AsyncCrawler):
                 # pprint(check_res)
                 await self._add_to_checked_proxy_list(check_res=check_res)
                 await self._insert_into_db()
-                await async_sleep(4.5)    # 避免调用频次过快
+                await async_sleep(api_url_call_frequency_sleep_time)    # 避免调用频次过快
 
             # 检验所有可用proxy
             if activity_time is None:
@@ -207,6 +222,50 @@ class ProxyChecker(AsyncCrawler):
                 await async_sleep(self.CHECKED_PROXY_SLEEP_TIME)
             else:   # activity_time不为空, 则实时监控
                 pass
+
+    async def _get_api_url_call_frequency_sleep_time(self) -> (int, float):
+        '''
+        得到api_url的单次调用频率
+        :return:
+        '''
+        rules_list = await self._get_rules_list()
+        for i in rules_list:
+            if i['id'] == self.tri_id:
+                api_url_call_frequency_sleep_time = i['api_url_call_frequency_sleep_time']
+
+                return api_url_call_frequency_sleep_time
+
+        raise NotImplementedError
+
+    async def _add_to_white_list(self) -> bool:
+        '''
+        添加本机ip到白名单
+        :return:
+        '''
+        add_white_list_url = None
+        rules_list = await self._get_rules_list()
+        for i in rules_list:
+            if i['id'] == self.tri_id:
+                add_white_list_url = i['add_white_list_url']
+
+        if add_white_list_url is None:
+            return False
+
+        with session() as s:
+            if self.tri_id == 1:
+                params = (
+                    ('token', HOROCN_TOKEN),
+                    ('ip', self.local_ip),
+                )
+                with s.put(url=add_white_list_url, params=params) as resp:
+                    res = json_2_dict(resp.text).get('msg', 'err')
+                    if res == 'ok' or '白名单记录已存在' in res:
+                        print('{} add to 白名单 success!'.format(self.local_ip))
+                        return True
+                    assert res != 'err', '添加ip白名单失败!'
+
+            else:
+                raise NotImplementedError
 
     async def _get_db_old_data(self) -> list:
         '''
@@ -360,41 +419,6 @@ class ProxyChecker(AsyncCrawler):
 
         return new
 
-    async def _parse_ori_proxy_list_data(self, **kwargs) -> list:
-        '''
-        解析原始proxy_list数据
-        :return:
-        '''
-        all = []
-        data = kwargs.get('data', {})
-        area = kwargs.get('area', '')
-        id = kwargs.get('id')
-
-        try:
-            this_rule = await self._dynamic_get_new_dict_rule(data=data, area=area, id=id)
-            proxy_list = await self._get_ori_proxy_list(parser=this_rule['proxy_list'], target_obj=data)
-        except Exception as e:
-            print(e)
-            return all
-
-        for item in proxy_list:
-            try:
-                this_rule = await self._dynamic_get_new_dict_rule(data=item, area=area, id=id)
-                ip = await self._get_ip(parser=this_rule['ip'], target_obj=item)
-                port = await self._get_port(parser=this_rule['port'], target_obj=item)
-            except Exception as e:
-                print(e)
-                continue
-            proxy_item = ProxyItem()
-            proxy_item['ip'] = ip
-            proxy_item['port'] = port
-            proxy_item['agency_agreement'] = 'https'
-            proxy_item['score'] = self.score
-            proxy_item['check_time'] = get_shanghai_time()
-            all.append(dict(proxy_item))
-
-        return all
-
     async def _dynamic_get_new_dict_rule(self, **kwargs) -> dict:
         '''
         动态刷新并获取新规则(其他的类似就行修改即可)
@@ -447,6 +471,41 @@ class ProxyChecker(AsyncCrawler):
                 # 对应提取规则
 
         all = await self._parse_ori_proxy_list_data(data=data, area=area, id=id)
+
+        return all
+
+    async def _parse_ori_proxy_list_data(self, **kwargs) -> list:
+        '''
+        解析原始proxy_list数据
+        :return:
+        '''
+        all = []
+        data = kwargs.get('data', {})
+        area = kwargs.get('area', '')
+        id = kwargs.get('id')
+
+        try:
+            this_rule = await self._dynamic_get_new_dict_rule(data=data, area=area, id=id)
+            proxy_list = await self._get_ori_proxy_list(parser=this_rule['proxy_list'], target_obj=data)
+        except Exception as e:
+            print(e)
+            return all
+
+        for item in proxy_list:
+            try:
+                this_rule = await self._dynamic_get_new_dict_rule(data=item, area=area, id=id)
+                ip = await self._get_ip(parser=this_rule['ip'], target_obj=item)
+                port = await self._get_port(parser=this_rule['port'], target_obj=item)
+            except Exception as e:
+                print(e)
+                continue
+            proxy_item = ProxyItem()
+            proxy_item['ip'] = ip
+            proxy_item['port'] = port
+            proxy_item['agency_agreement'] = 'https'
+            proxy_item['score'] = self.score
+            proxy_item['check_time'] = get_shanghai_time()
+            all.append(dict(proxy_item))
 
         return all
 
@@ -518,6 +577,7 @@ class ProxyChecker(AsyncCrawler):
         :return:
         '''
         async def _update_item() -> dict:
+            '''更新item'''
             nonlocal res
 
             item.update({

@@ -185,7 +185,6 @@ class ALi1688LoginAndParse(Crawler):
 
         return result
 
-
     def _handle_goods_is_delete(self, goods_id):
         '''
         处理商品无法查看或者下架的

@@ -43,6 +43,7 @@ class MoGuJiePinTuan(object):
     def __init__(self):
         self._set_headers()
         self._set_fcid_dict()
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -128,7 +129,7 @@ class MoGuJiePinTuan(object):
         '''
         方法二: 通过pc端来获取拼团商品列表
         '''
-        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
+        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
         for key in self.fcid_dict:
             print('正在抓取的分类为: ', key)
             for index in range(1, 100):
@@ -136,7 +137,7 @@ class MoGuJiePinTuan(object):
                     try: del self.my_phantomjs
                     except: pass
                     gc.collect()
-                    self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
+                    self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
                 fcid = self.fcid_dict[key]
                 tmp_url = 'http://list.mogujie.com/search?page={0}&fcid={1}&algoKey=pc_tuan_book_pop&cKey=pc-tuan'.format(

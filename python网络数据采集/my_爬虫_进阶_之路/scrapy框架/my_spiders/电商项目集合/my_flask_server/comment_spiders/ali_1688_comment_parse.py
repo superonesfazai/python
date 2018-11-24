@@ -332,7 +332,7 @@ class ALi1688CommentParse(Crawler):
                 ('__wing_navigate_options', dumps(__wing_navigate_options)),
                 ('_', str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(start_num=100, end_num=999))),
             )
-            body = Requests.get_url_body(url=url, headers=headers, params=params)
+            body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
             data = json_2_dict(body, encoding='ascii').get('data', {})
             # pprint(data)
             one = data.get('model', [])

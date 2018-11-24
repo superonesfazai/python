@@ -47,6 +47,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
         self._set_headers()
         self.delete_sql_str = mg_delete_str_1
+        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -82,7 +83,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
 
-            self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
+            self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
             for item in result:  # 实时更新数据
                 pintuan_end_time = json.loads(item[1]).get('end_time')
                 pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
@@ -94,7 +95,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                     try: del self.my_phantomjs
                     except:pass
                     gc.collect()
-                    self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
+                    self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
                     print('正在重置，并与数据库建立新连接中...')

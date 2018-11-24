@@ -39,7 +39,7 @@ class TMUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/')
         self.tmp_sql_server = None
         self.goods_index = 1
-        self.concurrency = 50    # 并发量
+        self.concurrency = 100    # 并发量
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -106,7 +106,9 @@ class TMUpdater(AsyncCrawler):
 
             # ** 非阻塞方式运行
             # loop = get_event_loop()
-            # oo = await loop.run_in_executor(None, self.tmall.get_goods_data, tmp_item)
+            # tmall = TmallParse(logger=self.lg)
+            # # oo = await loop.run_in_executor(None, self.tmall.get_goods_data, tmp_item)
+            # oo = await loop.run_in_executor(None, tmall.get_goods_data, tmp_item)
             # try:
             #     del loop
             # except:
@@ -118,6 +120,7 @@ class TMUpdater(AsyncCrawler):
                 return [goods_id, res]
 
             data = self.tmall.deal_with_data()
+            # data = tmall.deal_with_data()
             if data != {}:
                 data['goods_id'] = goods_id
                 data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
