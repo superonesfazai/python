@@ -26,7 +26,7 @@ from termcolor import colored
 from urllib.parse import unquote_plus
 from fzutils.spider.async_always import *
 from fzutils.sql_utils import BaseSqlite3Cli
-from fzutils.aio_utils import _parse_field
+from fzutils.spider.selector import async_parse_field
 
 import requests
 from requests.exceptions import ProxyError
@@ -516,7 +516,7 @@ class ProxyChecker(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        proxy_list = await _parse_field(parser=parser, target_obj=target_obj)
+        proxy_list = await async_parse_field(parser=parser, target_obj=target_obj)
         assert  proxy_list != [], 'proxy_list为空list!'
 
         return proxy_list
@@ -526,7 +526,7 @@ class ProxyChecker(AsyncCrawler):
         获取ip address
         :return:
         '''
-        ip = await _parse_field(parser=parser, target_obj=target_obj)
+        ip = await async_parse_field(parser=parser, target_obj=target_obj)
         assert ip != '', '获取到的ip为空值!'
 
         return ip
@@ -538,7 +538,7 @@ class ProxyChecker(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        port = await _parse_field(parser=parser, target_obj=target_obj)
+        port = await async_parse_field(parser=parser, target_obj=target_obj)
         assert port != '', '获取到的port为空值!'
 
         return port
