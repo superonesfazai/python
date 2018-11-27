@@ -258,8 +258,10 @@ SINA_COOKIES = 'SINAGLOBAL=1779567549215.5193.1513216238889; un=jc09893445wei@16
 '''
 ARTICLE_ITEM_LIST = [
     {
+        'short_name': 'wx',
         'debug': True,
         'obj_origin': 'mp.weixin.qq.com',
+        'article_id': None,
         'title': {
             'method': 'css',
             'selector': 'div#img-content h2 ::text',
@@ -287,8 +289,13 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
     },
     {
+        'short_name': 'tt',
         'debug': True,
         'obj_origin': 'www.toutiao.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'www\.toutiao\.com/(\w+)/',
+        },
         'title': {
             'method': 're',
             'selector': 'title: \'(.*?)\',',
@@ -322,8 +329,13 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
     },
     {
+        'short_name': 'js',
         'debug': True,
         'obj_origin': 'www.jianshu.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'www\.jianshu\.com/p/(\w+)',
+        },
         'title': {
             'method': 'css',
             'selector': 'h1.title ::text',
@@ -362,6 +374,46 @@ ARTICLE_ITEM_LIST = [
         #     'selector': 'div.signature ::text',
         # },
         'profile': None,                                                # driver才可获取，此处不获取
+        'fav_num': None,
+    },
+    {
+        'short_name': 'kd',
+        'debug': True,
+        'obj_origin': 'post.mp.qq.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'article_id=(\d+)',
+        },
+        'title': {
+            'method': 're',
+            'selector': 'data-article-title=\"(.*?)\"',
+        },
+        'author': {
+            'method': 're',
+            'selector': 'data-mp-name=\"(.*?)\"',
+        },
+        'head_url': {
+            'method': 're',
+            'selector': 'data-mp-icon=\"(.*?)\"',               # 'https:' + xxx
+        },
+        'create_time': {
+            'method': 'css',
+            'selector': 'div.rich_media_meta_list em:nth-child(1) ::text',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div#main-content',
+        },
+        'comment_num': None,
+        'tags_list': {
+            'method': 're',
+            'selector': 'data-tags=\"(.*?)\"',       # '军舰,海军,舰艇,扫雷舰,水雷,地雷'
+        },
+        'praise_num': None,
+        'profile': {
+            'method': 're',
+            'selector': 'data-mp-desc=\"(.*?)\"',
+        },                                                # driver才可获取，此处不获取
         'fav_num': None,
     }
 ]

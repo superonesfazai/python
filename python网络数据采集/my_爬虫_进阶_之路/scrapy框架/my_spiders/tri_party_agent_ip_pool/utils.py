@@ -42,4 +42,3 @@ def judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_proxy=True, t
                 now_ip = json_2_dict(response.text).get('origin', '')
 
             return now_ip
-

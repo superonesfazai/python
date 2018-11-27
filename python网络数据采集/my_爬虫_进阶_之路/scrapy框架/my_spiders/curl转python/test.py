@@ -27,5 +27,3 @@ from fzutils.common_utils import get_random_int_number
 from fzutils.url_utils import unquote_plus
 from fzutils.img_utils import save_img_through_url
 from fzutils.internet_utils import get_base_headers
-
-

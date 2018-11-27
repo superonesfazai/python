@@ -13,9 +13,9 @@
     1. 微信文章内容爬取(https://weixin.sogou.com)
     2. 今日头条文章内容爬取(https://www.toutiao.com)
     3. 简书文章内容爬取(https://www.jianshu.com)
+    4. qq看点文章内容爬取(根据QQ看点中文中分享出的地址)
 待实现:
-    1. qq看点
-    2. 天天快报
+    1. 天天快报
 """
 
 from os import getcwd
@@ -31,9 +31,11 @@ from settings import (
 from fzutils.spider.fz_driver import BaseDriver
 from ftfy import fix_text
 from requests import session
+from fzutils.spider.selector import async_parse_field
 from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):
+    """article spider"""
     def __init__(self, logger=None, *params, **kwargs):
         AsyncCrawler.__init__(
             self,
@@ -45,7 +47,8 @@ class ArticleParser(AsyncCrawler):
             ip_pool_type=IP_POOL_TYPE)
         self.driver_path = PHANTOMJS_DRIVER_PATH
 
-    async def _get_headers(self):
+    @staticmethod
+    async def _get_headers():
         return {
             'Connection': 'keep-alive',
             'Cache-Control': 'max-age=0',
@@ -74,6 +77,10 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.jianshu.com',
                 'site_id': 6,
             },
+            'kd': {
+                'obj_origin': 'post.mp.qq.com',
+                'site_id': 7,
+            }
         }
 
     async def _get_html_by_driver(self, url, load_images=False):
@@ -194,11 +201,29 @@ class ArticleParser(AsyncCrawler):
                 return await self._get_tt_article_html(article_url=article_url)
             elif article_url_type == 'js':
                 return await self._get_js_article_html(article_url=article_url)
+            elif article_url_type == 'kd':
+                return await self._get_kd_article_html(article_url=article_url)
             else:
                 raise AssertionError('未实现的解析!')
         except AssertionError:
             self.lg.error('遇到错误:', exc_info=True)
             return body, video_url
+
+    async def _get_kd_article_html(self, article_url):
+        '''
+        获取qq看点的html
+        :param article_url:
+        :return:
+        '''
+        headers = await self._get_headers()
+        headers.update({
+            'authority': 'post.mp.qq.com',
+        })
+        body = Requests.get_url_body(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type)
+        # self.lg.info(body)
+        assert body != '', '获取到的js的body为空值!'
+
+        return body, ''
 
     async def _wash_wx_article_body(self, body) -> tuple:
         '''
@@ -243,58 +268,13 @@ class ArticleParser(AsyncCrawler):
         获取到对应解析对象
         :return:
         '''
-        parse_obj = None
         for item in ARTICLE_ITEM_LIST:
-            if article_url_type == 'wx':
-                if item.get('obj_origin', '') == self.obj_origin_dict['wx'].get('obj_origin'):
+            if article_url_type == item.get('short_name', ''):
+                if item.get('obj_origin', '') == self.obj_origin_dict[article_url_type].get('obj_origin'):
                     parse_obj = item
-                    break
-            elif article_url_type == 'tt':
-                if item.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin'):
-                    parse_obj = item
-                    break
-            elif article_url_type == 'js':
-                if item.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin'):
-                    parse_obj = item
-                    break
-            else:
-                pass
+                    return parse_obj
 
-        return parse_obj
-
-    async def _parse_field(self, parser: dict, target_obj: (str, dict), re_is_first=True) -> (str, list):
-        '''
-        ** 根据类型解析字段
-        :param parser: 解析对象 eg: {'method': 'css', 'selector': '.sss'}
-        :param target_obj: 待处理的目标对象
-        :param re_is_first: bool 是否re只提取第一个
-        :return:
-        '''
-        res = ''
-        if parser is not None:
-            parser_method = parser.get('method', '')
-            parser_selector = parser.get('selector')
-            if parser_method == 're':
-                try:
-                    _ = re.compile(parser_selector).findall(target_obj)
-                    if re_is_first: res = _[0]
-                    else: res = _
-                except IndexError:
-                    self.lg.error('遇到错误:', exc_info=True)
-
-            elif parser_method == 'css':
-                res = Selector(text=target_obj).css(parser_selector).extract_first() or ''
-
-            elif parser_method == 'xpath':
-                res = Selector(text=target_obj).xpath(parser_selector).extract_first() or ''
-
-            elif parser_method == 'dict_path':
-                res = parser_selector
-
-            else:
-                raise ValueError('解析该字段的method值未知!')
-
-        return res
+        raise NotImplementedError('未找到解析对象!')
 
     async def _parse_article(self, article_url) -> dict:
         '''
@@ -310,13 +290,9 @@ class ArticleParser(AsyncCrawler):
 
         try:
             article_url_type = await self._judge_url_type(article_url=article_url)
-        except ValueError:      # article_url未知!
+            parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
+        except (ValueError, NotImplementedError):      # article_url未知!
             self.lg.error(exc_info=True)
-            return {}
-
-        parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
-        if parse_obj is None:
-            self.lg.error('未找到解析对象!')
             return {}
 
         article_html, video_url = await self._get_article_html(
@@ -327,7 +303,7 @@ class ArticleParser(AsyncCrawler):
             title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html)
             author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
             head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
-            content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html)
+            content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html, article_url=article_url)
             print(content)
             create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
             comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
@@ -372,7 +348,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         praise_num = 0
-        _ = await self._parse_field(parser=parse_obj['praise_num'], target_obj=target_obj)
+        _ = await async_parse_field(parser=parse_obj['praise_num'], target_obj=target_obj, logger=self.lg)
         # self.lg.info(str(_))
         try:
             praise_num = int(_)
@@ -388,7 +364,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        fav_num = await self._parse_field(parser=parse_obj['fav_num'], target_obj=target_obj)
+        fav_num = await async_parse_field(parser=parse_obj['fav_num'], target_obj=target_obj, logger=self.lg)
 
         return fav_num
 
@@ -399,7 +375,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        profile = await self._parse_field(parser=parse_obj['profile'], target_obj=target_obj)
+        profile = await async_parse_field(parser=parse_obj['profile'], target_obj=target_obj, logger=self.lg)
 
         return profile
 
@@ -410,7 +386,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        author = await self._parse_field(parser=parse_obj['author'], target_obj=target_obj)
+        author = await async_parse_field(parser=parse_obj['author'], target_obj=target_obj, logger=self.lg)
         assert author != '', '获取到的author为空值!'
 
         return author
@@ -422,7 +398,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        title = await self._parse_field(parser=parse_obj['title'], target_obj=target_obj)
+        title = await async_parse_field(parser=parse_obj['title'], target_obj=target_obj, logger=self.lg)
         assert title != '', '获取到的title为空值!'
 
         return title
@@ -434,7 +410,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        head_url = await self._parse_field(parser=parse_obj['head_url'], target_obj=target_obj)
+        head_url = await async_parse_field(parser=parse_obj['head_url'], target_obj=target_obj, logger=self.lg)
         if head_url != '' \
                 and not head_url.startswith('http'):
             head_url = 'https:' + head_url
@@ -453,20 +429,25 @@ class ArticleParser(AsyncCrawler):
 
         if article_url_type == 'wx':
             return get_uuid1()
-        elif article_url_type == 'tt':
-            try:
-                share_id = re.compile('www\.toutiao\.com/(\w+)/').findall(article_url)[0]
-            except IndexError:
-                raise IndexError('获取share_id时索引异常!')
-        elif article_url_type == 'js':
-            try:
-                share_id = re.compile('www\.jianshu\.com/p/(\w+)').findall(article_url)[0]
-            except IndexError:
-                raise IndexError('获取share_id时索引异常!')
-        else:
-            raise ValueError('article_url_type值异常!')
+
+        article_id_selector = await self._get_article_id_selector(article_url_type=article_url_type)
+        share_id = await async_parse_field(parser=article_id_selector, target_obj=article_url, logger=self.lg)
+        assert share_id != '', '获取到的share_id为空值!'
 
         return share_id
+
+    async def _get_article_id_selector(self, article_url_type) -> (dict, None):
+        '''
+        获取article_id的selector
+        :param self:
+        :param article_url_type:
+        :return:
+        '''
+        for item in ARTICLE_ITEM_LIST:
+            if article_url_type == item.get('short_name', ''):
+                return item['article_id']
+
+        raise NotImplementedError
 
     async def _get_comment_num(self, parse_obj, target_obj) -> int:
         '''
@@ -476,7 +457,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         comment_num = 0
-        _ = await self._parse_field(parser=parse_obj['comment_num'], target_obj=target_obj)
+        _ = await async_parse_field(parser=parse_obj['comment_num'], target_obj=target_obj, logger=self.lg)
         # self.lg.info(str(_))
         try:
             comment_num = int(_)
@@ -492,12 +473,21 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        tags_list = await self._parse_field(parser=parse_obj['tags_list'], target_obj=target_obj, re_is_first=False)
+        is_first = False
+        if parse_obj.get('short_name', '') == 'kd':
+            # 取第一个str
+            is_first = True
+
+        tags_list = await async_parse_field(parser=parse_obj['tags_list'], target_obj=target_obj, is_first=is_first, logger=self.lg)
         if tags_list == '':
             return []
 
+        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin'):
+            tags_list = tags_list.split(',')
+
         if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin')\
-                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin'):
+                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin')\
+                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin'):
             tags_list = [{
                 'keyword': i,
             } for i in tags_list]
@@ -511,26 +501,60 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        create_time = await self._parse_field(parser=parse_obj['create_time'], target_obj=target_obj)
+        create_time = await async_parse_field(parser=parse_obj['create_time'], target_obj=target_obj, logger=self.lg)
         # assert create_time != '', '获取到的create_time为空值!'
 
         return create_time
 
-    async def _get_article_content(self, parse_obj, target_obj) -> str:
+    async def _get_article_content(self, parse_obj, target_obj, article_url) -> str:
         '''
         article content
         :return:
         '''
-        content = await self._parse_field(parser=parse_obj['content'], target_obj=target_obj)
+        content = await async_parse_field(parser=parse_obj['content'], target_obj=target_obj, logger=self.lg)
+        # TODO 先不处理QQ看点的视频
+        # if content == '' \
+        #         and parse_obj.get('short_name', '') == 'kd':
+        #     # 单独处理QQ看点含视频的content
+        #     html = await self._get_html_by_driver(url=article_url, load_images=True)
+        #     print(html)
+
         assert content != '', '获取到的content为空值!'
-        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin'):
+        if parse_obj.get('short_name', '') == 'tt':
             # html乱码纠正
             content = await self._wash_tt_article_content(content=content)
 
-        if parse_obj.get('obj_origin') == self.obj_origin_dict['js'].get('obj_origin'):
+        if parse_obj.get('short_name', '') == 'js':
+            # 图片处理
             content = await self._wash_js_article_content(content=content)
 
+        if parse_obj.get('short_name', '') == 'kd':
+            # 图片处理
+            content = await self._wash_kd_article_content(content=content)
+
         content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 防盗链
+
+        return content
+
+    @staticmethod
+    async def _wash_kd_article_content(content) -> str:
+        '''
+        清洗QQ看点content
+        :param content:
+        :return:
+        '''
+        # 处理图片
+        content = re.compile('<svg .*?>.*?</svg>').sub('', content)
+        # 替换掉img 标签中src为svg的
+        _ = re.compile(' src=\"data:image/svg\+xml;.*?\" ')
+        # pprint(_.findall(content))
+        content = _.sub(' ', content)
+        content = re.compile(' data-src=').sub(' src=', content)
+        content = re.compile('data-lazy=\"\d+\"').sub('style=\"height:auto;width:100%;\"', content)
+
+        # 给与原装的css
+        content = '<link rel="stylesheet" href="//mp.gtimg.cn/themes/default/client/article/article.css?_bid=2321&v=2017082501">' + \
+            content
 
         return content
 
@@ -559,6 +583,9 @@ class ArticleParser(AsyncCrawler):
 
         elif article_url_type == 'js':
             return self.obj_origin_dict['js'].get('site_id')
+        
+        elif article_url_type == 'kd':
+            return self.obj_origin_dict['kd'].get('site_id')
 
         else:
             raise ValueError('未知的文章url!')
@@ -599,6 +626,11 @@ if __name__ == '__main__':
     # url = 'https://www.jianshu.com/p/ec1e9f6129bd'
     # url = 'https://www.jianshu.com/p/a02313dd3875'
     # url = 'https://www.jianshu.com/p/7160ad815557'
-    url = 'https://www.jianshu.com/p/1a60bdc3098b'
+    # url = 'https://www.jianshu.com/p/1a60bdc3098b'
+
+    # QQ看点
+    url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
+    # 含视频
+    # url = 'http://post.mp.qq.com/kan/video/201271541-2525bea9bc8295ah-x07913jkmml.html?_wv=2281701505&sig=50b27393b64a188ffe7f646092dbb04f&time=1542102407&iid=Mjc3Mzg2MDk1OQ==&sourcefrom=0'
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
