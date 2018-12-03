@@ -220,9 +220,6 @@ DEFAULT_USERNAME = '18698570079'
 """
 保存的对应cookies文件路径
 """
-# linux/mac环境的路径
-ALI_1688_COOKIES_FILE_PATH = './cookies/cookies_ali_1688.txt'
-TAOBAO_COOKIES_FILE_PATH = './cookies/cookies_taobao.txt'
 
 """
 spider_to_show.html页面path

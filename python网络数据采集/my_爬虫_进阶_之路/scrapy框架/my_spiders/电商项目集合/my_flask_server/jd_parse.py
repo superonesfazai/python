@@ -647,7 +647,7 @@ class JdParse(Crawler):
 
         return wdis
 
-    def to_right_and_update_data(self, data, pipeline):
+    def to_right_and_update_data(self, data, pipeline) -> bool:
         '''
         实时更新数据
         :param data:
@@ -746,7 +746,7 @@ class JdParse(Crawler):
 
         return tuple(params)
 
-    def get_db_update_params(self, item):
+    def get_db_update_params(self, item) -> tuple:
         '''
         得到db待更新参数
         :param item:
@@ -791,11 +791,11 @@ class JdParse(Crawler):
 
         return tuple(params)
 
-    def _from_jd_type_get_site_id_value(self, jd_type):
+    def _from_jd_type_get_site_id_value(self, jd_type) -> int:
         '''
         根据jd_type来获取对应的site_id的值
         :param jd_type:
-        :return: a int object
+        :return:
         '''
         # 采集的来源地
         if jd_type == 7:
@@ -811,7 +811,7 @@ class JdParse(Crawler):
 
         return site_id
 
-    def get_goods_id_from_url(self, jd_url):
+    def get_goods_id_from_url(self, jd_url) -> list:
         '''
         注意: 初始地址可以直接用这个[https://item.jd.com/xxxxx.html]因为jd会给你重定向到正确地址
         :param jd_url:

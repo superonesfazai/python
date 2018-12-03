@@ -483,8 +483,7 @@ class PinduoduoParse(Crawler):
 if __name__ == '__main__':
     pinduoduo = PinduoduoParse()
     while True:
-        pinduoduo_url = input('请输入待爬取的拼多多商品地址: ')
-        pinduoduo_url.strip('\n').strip(';')
+        pinduoduo_url = input('请输入待爬取的拼多多商品地址: ').strip('\n').strip(';')
         goods_id = pinduoduo.get_goods_id_from_url(pinduoduo_url)
         pinduoduo.get_goods_data(goods_id=goods_id)
         data = pinduoduo.deal_with_data()
