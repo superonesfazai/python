@@ -190,7 +190,8 @@ class TBUpdater(AsyncCrawler):
                         tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
                         index += 1
 
-                    all_res = await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    res = await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    await self._except_sleep(res=res)
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
             if get_shanghai_time().hour == 0:  # 0点以后不更新
@@ -198,6 +199,27 @@ class TBUpdater(AsyncCrawler):
             else:
                 await async_sleep(10)
             collect()
+
+    async def _except_sleep(self, res):
+        '''
+        异常休眠
+        :param res:
+        :return:
+        '''
+        count = 0
+        sleep_time = 40.
+        for item in res:
+            try:
+                if not item[1]:
+                    count += 1
+            except IndexError:
+                pass
+        self.lg.info('Fail count: {}个'.format(count))
+        if count >= int(self.concurrency/5):
+            self.lg.info('抓取异常!! 休眠{}s中...'.format(sleep_time))
+            await async_sleep(sleep_time)
+
+        return None
 
     def __del__(self):
         try:

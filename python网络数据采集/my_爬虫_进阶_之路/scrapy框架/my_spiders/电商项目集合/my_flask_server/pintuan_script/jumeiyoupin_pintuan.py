@@ -31,6 +31,8 @@ from settings import (
 import datetime
 from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 
+from multiplex_code import _get_new_db_conn
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -38,15 +40,14 @@ from fzutils.time_utils import (
 )
 from fzutils.linux_utils import (
     daemon_init,
-    restart_program,
-)
+    restart_program,)
 from fzutils.safe_utils import get_uuid1
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
-        self._set_headers()
+        self.headers = self._get_headers()
         self.msg = ''
         self._set_logger(logger)
         self.tab_dict = {
@@ -64,8 +65,9 @@ class JuMeiYouPinPinTuan(object):
         }
         self.ip_pool_type = IP_POOL_TYPE
 
-    def _set_headers(self):
-        self.headers = {
+    @staticmethod
+    def _get_headers():
+        return {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             # 'Accept-Encoding:': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -129,7 +131,6 @@ class JuMeiYouPinPinTuan(object):
         goods_list = await self.get_pintuan_goods_info()
 
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
         if my_pipeline.is_connect_success:
             _ = list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))
             db_goods_id_list = [item[0] for item in _]
@@ -137,9 +138,7 @@ class JuMeiYouPinPinTuan(object):
 
             index = 1
             for item in goods_list:
-                if index % 20 == 0:
-                    my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
+                my_pipeline = await _get_new_db_conn(db_obj=my_pipeline, index=index, logger=self.my_lg, remainder=20)
                 if item.get('goods_id', '') in db_goods_id_list:
                     self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
                     pass

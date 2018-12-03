@@ -235,7 +235,7 @@ class TMUpdater(AsyncCrawler):
         :return:
         '''
         count = 0
-        sleep_time = 20.
+        sleep_time = 40.
         for item in res:
             try:
                 if not item[1]:

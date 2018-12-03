@@ -40,11 +40,13 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
+from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MoGuJieSpike(object):
     def __init__(self):
         self._set_headers()
         self.ip_pool_type = IP_POOL_TYPE
+        self.db_goods_id_list = None
 
     def _set_headers(self):
         self.headers = {
@@ -62,16 +64,17 @@ class MoGuJieSpike(object):
         模拟构造得到data的url，得到近期所有的限时秒杀商品信息
         :return:
         '''
-        for item in self.get_today_hour_timestamp():
+        _ = self.get_today_hour_timestamp()
+        for item in _:
             self.traversal_hour_timestamp(item=item)
 
         # 明日的商品列表
-        tomorrow_hour_timestamp = [item + 1*86400 for item in self.get_today_hour_timestamp()]
+        tomorrow_hour_timestamp = [item + 1*86400 for item in _]
         for item in tomorrow_hour_timestamp:
             self.traversal_hour_timestamp(item=item)
 
         # 后天的商品列表
-        tomorrow_hour_timestamp = [item + 2*86400 for item in self.get_today_hour_timestamp()]
+        tomorrow_hour_timestamp = [item + 2*86400 for item in _]
         for item in tomorrow_hour_timestamp:
             self.traversal_hour_timestamp(item=item)
 
@@ -83,22 +86,21 @@ class MoGuJieSpike(object):
         '''
         print(60 * '*')
         event_time = param[0]
+        item_list = param[1]
         print('秒杀开始时间:', timestamp_to_regulartime(event_time), '\t', '对应时间戳为: ', event_time)
         print(60 * '*')
 
-        item_list = param[1]
         mogujie = MoGuJieMiaoShaParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
             _ = list(my_pipeline._select_table(sql_str=mg_select_str_4))
             db_goods_id_list = [item[0] for item in _]
-            # print(db_goods_id_list)
             for item in item_list:
-                if item.get('iid', '') in db_goods_id_list:
+                goods_id = str(item.get('iid', ''))
+                if goods_id in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
                     pass
                 else:
-                    goods_id = str(item.get('iid', ''))
                     tmp_url = item.get('link', '')
                     # print(tmp_url)
                     try:
@@ -130,12 +132,13 @@ class MoGuJieSpike(object):
                             'miaosha_begin_time': timestamp_to_regulartime(int(item.get('startTime', 0))),
                             'miaosha_end_time': timestamp_to_regulartime(int(item.get('endTime', 0))),
                         }
-                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = self.get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
+                        goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['miaosha_time'])
                         goods_data['event_time'] = str(event_time)
                         # pprint(goods_data)
                         # print(goods_data)
                         mogujie.insert_into_mogujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
-                        sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
+
+                    sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 
         else:
             print('数据库连接失败，此处跳过!')
@@ -157,7 +160,6 @@ class MoGuJieSpike(object):
         tmp_url = 'https://qiang.mogujie.com//jsonp/fastBuyListActionLet/1?eventTime={0}&bizKey=rush_main'.format(str(item))
         body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
         # print(body)
-
         if body == '':
             print('item为: ', item)
             print('获取到的body为空值! 此处跳过')
@@ -186,7 +188,8 @@ class MoGuJieSpike(object):
                 item_list = tmp_data.get('data', {}).get('list', [])
 
                 self.deal_with_data(event_time, item_list)
-                sleep(MOGUJIE_SLEEP_TIME)
+                print('休眠15s...')
+                sleep(15)
 
     def get_today_hour_timestamp(self):
         '''
@@ -201,20 +204,6 @@ class MoGuJieSpike(object):
             today_hour_timestamp_list.append(timestamp)
 
         return today_hour_timestamp_list
-
-    def get_miaosha_begin_time_and_miaosha_end_time(self, miaosha_time):
-        '''
-        返回秒杀开始和结束时间
-        :param miaosha_time:
-        :return: tuple  miaosha_begin_time, miaosha_end_time
-        '''
-        miaosha_begin_time = miaosha_time.get('miaosha_begin_time')
-        miaosha_end_time = miaosha_time.get('miaosha_end_time')
-        # 将字符串转换为datetime类型
-        miaosha_begin_time = datetime.datetime.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')
-        miaosha_end_time = datetime.datetime.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')
-
-        return miaosha_begin_time, miaosha_end_time
 
     def __del__(self):
         gc.collect()

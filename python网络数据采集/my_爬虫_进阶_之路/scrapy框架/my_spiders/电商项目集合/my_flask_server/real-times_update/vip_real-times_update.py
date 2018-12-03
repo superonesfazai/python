@@ -109,6 +109,10 @@ def run_forever():
                 print('数据库连接失败，数据库可能关闭或者维护中')
                 pass
             index += 1
+            try:
+                del vip
+            except:
+                pass
             gc.collect()
             sleep(VIP_SLEEP_TIME)
         print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
@@ -126,7 +130,6 @@ def main():
     print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
     daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     run_forever()
 
 if __name__ == '__main__':

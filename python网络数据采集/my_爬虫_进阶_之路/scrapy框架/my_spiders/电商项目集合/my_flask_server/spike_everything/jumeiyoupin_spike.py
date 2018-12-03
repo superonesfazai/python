@@ -182,7 +182,6 @@ class JuMeiYouPinSpike(object):
     def __del__(self):
         gc.collect()
 
-
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
@@ -190,7 +189,7 @@ def just_fuck_run():
         jumeiyoupin_spike.get_spike_hour_goods_info()
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60*2)
+        sleep(60*4)
 
 def main():
     '''

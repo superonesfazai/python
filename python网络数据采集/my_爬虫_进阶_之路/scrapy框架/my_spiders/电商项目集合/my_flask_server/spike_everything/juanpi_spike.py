@@ -50,6 +50,17 @@ class JuanPiSpike(object):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
+    def _get_db_goods_id_list(self) -> list:
+        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+
+        _ = my_pipeline._select_table(sql_str=jp_select_str_5)
+        if _ is None:
+            db_goods_id_list = []
+        else:
+            db_goods_id_list = [item[0] for item in list(_)]
+
+        return db_goods_id_list
+
     def get_spike_hour_goods_info(self):
         '''
         模拟构造得到data的url，得到近期所有的限时秒杀商品信息
@@ -57,11 +68,10 @@ class JuanPiSpike(object):
         '''
         tab_id_list = [11, 12, 13, 21, 22, 23, 31, 32, 33]      # notice
 
+        self.db_goods_id_list = self._get_db_goods_id_list()
         for tab_id in tab_id_list:
             for index in range(0, 50):
-                tmp_url = 'https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id={0}&page={1}'.format(
-                    str(tab_id), str(index)
-                )
+                tmp_url = 'https://m.juanpi.com/act/timebuy-xrgoodslist?tab_id={0}&page={1}'.format(str(tab_id), str(index))
                 print('待抓取的限时秒杀地址为: ', tmp_url)
                 data = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
                 data = json_2_dict(data, default_res={}).get('data', {})
@@ -84,14 +94,8 @@ class JuanPiSpike(object):
                         juanpi = JuanPiParse()
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         if my_pipeline.is_connect_success:
-                            _ = my_pipeline._select_table(sql_str=jp_select_str_5)
-                            if _ is None:
-                                db_goods_id_list = []
-                            else:
-                                db_goods_id_list = [item[0] for item in list(_)]
-
                             for item in miaosha_goods_list:
-                                if item.get('goods_id', '') in db_goods_id_list:
+                                if item.get('goods_id', '') in self.db_goods_id_list:
                                     print('该goods_id已经存在于数据库中, 此处跳过')
                                     pass
                                 else:

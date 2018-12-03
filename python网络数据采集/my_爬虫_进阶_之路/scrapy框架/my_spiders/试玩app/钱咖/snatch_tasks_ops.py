@@ -106,7 +106,21 @@ class MoneyCaffeine(object):
         )
 
         url = 'https://qianka.com/s4/lite.subtask.start'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=headers, params=params, cookies=await self._get_cookies()))
+        # 不阻塞
+        # loop = get_event_loop()
+        # body = ''
+        # try:
+        #     body = await loop.run_in_executor(None, Requests.get_url_body, url, True, headers, params, None, await self._get_cookies())
+        # except:
+        #     pass
+        # try:
+        #     del loop
+        # except:
+        #     pass
+        # collect()
+        # 阻塞
+        body = Requests.get_url_body(url=url, headers=headers, params=params, cookies=await self._get_cookies())
+        data = json_2_dict(body)
         # pprint(data)
 
         return data

@@ -99,7 +99,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                     if self.is_recent_time(pintuan_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 删除成功!' % json.loads(item[1]).get('begin_time'))
-                        sleep(.3)
+                        sleep(.4)
 
                     elif self.is_recent_time(pintuan_end_time) == 2:
                         # break       # 跳出循环
@@ -126,7 +126,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
                                 tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                sleep(.3)
+                                sleep(.4)
 
                             else:
                                 data_list = [{

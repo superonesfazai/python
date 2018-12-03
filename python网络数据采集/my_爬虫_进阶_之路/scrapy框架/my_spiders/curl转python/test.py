@@ -9,6 +9,7 @@
 import re
 from scrapy.selector import Selector
 from time import sleep
+from json import dumps
 from pprint import pprint
 
 from fzutils.spider.fz_requests import (
@@ -27,3 +28,8 @@ from fzutils.common_utils import get_random_int_number
 from fzutils.url_utils import unquote_plus
 from fzutils.img_utils import save_img_through_url
 from fzutils.internet_utils import get_base_headers
+from fzutils.safe_utils import get_uuid1
+
+
+
+

@@ -27,20 +27,19 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     IS_BACKGROUND_RUNNING,
     PHANTOMJS_DRIVER_PATH,
-    IP_POOL_TYPE,
-)
+    IP_POOL_TYPE,)
 
 from sql_str_controller import cc_select_str_2
 
 from fzutils.time_utils import (
     get_shanghai_time,
-    timestamp_to_regulartime,
-)
+    timestamp_to_regulartime,)
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.common_utils import json_2_dict
 
 class ChuChuJie_9_9_Spike(object):
     def __init__(self):
@@ -71,15 +70,7 @@ class ChuChuJie_9_9_Spike(object):
                 print('正在抓取的page为: ', page)
 
                 body = self.get_one_page_goods_info(gender, page)
-
-                try:
-                    json_body = json.loads(body)
-                    # print(json_body)
-                except:
-                    print('json.loads转换body时出错!请检查')
-                    json_body = {}
-                    pass
-
+                json_body = json_2_dict(body, default_res={})
                 try:
                     this_page_total_count = json_body.get('data', {}).get('groupList', [])[0].get('totalCount', 0)
                 except IndexError:
@@ -130,8 +121,6 @@ class ChuChuJie_9_9_Spike(object):
             db_goods_id_list = [item[0] for item in _]
             # print(db_goods_id_list)
 
-            # my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=IP_POOL_TYPE)
-            # index = 1
             for item in item_list:
                 if item.get('goods_id', '') in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
@@ -142,11 +131,11 @@ class ChuChuJie_9_9_Spike(object):
                     chuchujie.get_goods_data(goods_id=goods_id)
                     goods_data = chuchujie.deal_with_data()
                     if goods_data == {}:  # 返回的data为空则跳过
-                        pass
+                        sleep(.5)
 
                     elif goods_data.get('is_delete', 0) == 1:   # is_delete=1(即库存为0)则跳过
                         print('------>>>| 该商品库存为0，已被抢光!')
-                        pass
+                        sleep(.5)
 
                     else:   # 否则就解析并且插入
                         my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
@@ -154,8 +143,7 @@ class ChuChuJie_9_9_Spike(object):
                         # 获取剩余时间
                         tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(
                             url=tmp_url,
-                            css_selector='p#activityTime span'
-                        )
+                            css_selector='p#activityTime span')
                         # print(tmp_body)
 
                         try: del my_phantomjs
@@ -185,13 +173,9 @@ class ChuChuJie_9_9_Spike(object):
                             goods_data['gender'] = str(item.get('gender', '0'))
                             goods_data['page'] = item.get('page')
 
-                            # pprint(goods_data)
-                            # print(goods_data)
                             chuchujie.insert_into_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                             # sleep(CHUCHUJIE_SLEEP_TIME)  # 放慢速度   由于初始化用了phantomjs时间久，于是就不睡眠
-
                         # index += 1
-
         else:
             print('数据库连接失败，此处跳过!')
             pass

@@ -117,7 +117,7 @@ TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 21700             # 起始session_id
+BASE_SESSION_ID = 21870             # 起始session_id
 MAX_SESSION_ID = 26000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
@@ -415,5 +415,39 @@ ARTICLE_ITEM_LIST = [
             'selector': 'data-mp-desc=\"(.*?)\"',
         },                                                # driver才可获取，此处不获取
         'fav_num': None,
-    }
+    },
+    {
+        'short_name': 'kb',
+        'debug': True,
+        'obj_origin': 'kuaibao.qq.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'omgid=(\w+)',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\'title\': \'(.*?)\',',
+        },
+        'author': {
+            'method': 're',
+            'selector': '\'src\': \'(.*?)\'',
+        },
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.artinfo div.img-wrap img ::attr("src")',               # 'https:' + xxx
+        },
+        'create_time': {
+            'method': 'css',
+            'selector': 'div.artinfo span.time ::text',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.content-box',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]

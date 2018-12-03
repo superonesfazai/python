@@ -408,7 +408,10 @@ mg_select_str_3 = '''
 select goods_id, miaosha_time, event_time, goods_url 
 from dbo.mogujie_xianshimiaosha 
 where site_id=22 and is_delete = 0'''
-mg_select_str_4 = mg_select_str_3
+mg_select_str_4 = '''
+select goods_id, miaosha_time, event_time, goods_url 
+from dbo.mogujie_xianshimiaosha 
+where site_id=22'''
 '''insert'''
 # 秒杀插入
 mg_insert_str_1 = 'insert into dbo.mogujie_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, event_time, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

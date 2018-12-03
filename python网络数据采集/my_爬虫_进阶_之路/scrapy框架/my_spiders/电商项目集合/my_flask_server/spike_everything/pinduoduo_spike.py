@@ -58,6 +58,19 @@ class PinduoduoSpike(object):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
+    def _get_db_goods_id_list(self) -> list:
+        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        _ = my_pipeline._select_table(sql_str=pd_select_str_3)
+        assert _ is not None, 'db_goods_id_list为None!'
+        db_goods_id_list = [item[0] for item in list(_)]
+
+        try:
+            del my_pipeline
+        except:
+            pass
+
+        return db_goods_id_list
+
     def get_spike_hour_goods_info(self):
         '''
         模拟构造得到data的url，得到近期所有的限时秒杀商品信息
@@ -74,18 +87,13 @@ class PinduoduoSpike(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:
-            _ = my_pipeline._select_table(sql_str=pd_select_str_3)
-            if _ is None:
-                db_goods_id_list = []
-            else:
-                db_goods_id_list = [item[0] for item in list(_)]
-
+            self.db_goods_id_list = self._get_db_goods_id_list()
             for item in all_miaosha_goods_list:
                 '''
                 注意: 明日8点半抓取到的是页面加载中返回的是空值
                 '''
                 if item.get('goods_id') != 'None':    # 跳过goods_id为'None'
-                    if item.get('goods_id', '') in db_goods_id_list:
+                    if item.get('goods_id', '') in self.db_goods_id_list:
                         print('该goods_id已经存在于数据库中, 此处跳过')
                         pass
                     else:
@@ -110,7 +118,7 @@ class PinduoduoSpike(object):
                             goods_data['miaosha_time'] = item.get('miaosha_time')
                             goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
 
-                            if item.get('stock_info').get('activity_stock') <= 2:
+                            if item.get('stock_info', {}).get('activity_stock', 0) <= 2:
                                 # 实时秒杀库存小于等于2时就标记为 已售罄
                                 print('该秒杀商品已售罄...')
                                 goods_data['is_delete'] = 1
@@ -266,7 +274,7 @@ def just_fuck_run():
             pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60*3)
+        sleep(60*4)
 
 def main():
     '''

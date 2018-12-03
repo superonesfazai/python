@@ -39,6 +39,7 @@ from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.common_utils import json_2_dict
 
 class MiaSpike(object):
     def __init__(self):
@@ -56,28 +57,37 @@ class MiaSpike(object):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
+    def _get_db_goods_id_list(self) -> (list, None):
+        my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
+        try:
+            _ = list(my_pipeline._select_table(sql_str=mia_select_str_4))
+            db_goods_id_list = [item[0] for item in _]
+        except Exception:
+            return None
+
+        return db_goods_id_list
+
     def get_spike_hour_goods_info(self):
         '''
         模拟构造得到data的url，得到近期所有的限时秒杀商品信息
         :return:
         '''
         mia_base_number = MIA_BASE_NUMBER
+        self.db_goods_id_list = self._get_db_goods_id_list()
+        assert self.db_goods_id_list is not None, 'self.db_goods_id_list为空值!'
         while mia_base_number < MIA_MAX_NUMBER:
             tmp_url = 'https://m.mia.com/instant/seckill/seckillPromotionItem/' + str(mia_base_number)
-
             body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(body)
 
             if body == '' or body == '[]':
                 print('mia_base_number为: ', mia_base_number)
                 print('获取到的body为空值! 此处跳过')
+                mia_base_number += 1
+                continue
 
             else:
-                try:
-                    tmp_data = json.loads(body)
-                except:
-                    tmp_data = {}
-                    print('json.loads转换body时出错, 此处跳过!')
+                tmp_data = json_2_dict(body, default_res={})
                 tmp_hour = tmp_data.get('p_info', {}).get('start_time', '')[11:13]
                 if tmp_hour == '22':    # 过滤掉秒杀时间为22点的
                     print('--- 销售时间为22点，不抓取!')
@@ -91,8 +101,8 @@ class MiaSpike(object):
                     item_list = tmp_data.get('item_list', [])
 
                     self.deal_with_data(pid, begin_time, end_time, item_list)
+                    sleep(5)
 
-            sleep(.35)
             mia_base_number += 1
 
     def deal_with_data(self, *param):
@@ -109,15 +119,10 @@ class MiaSpike(object):
         mia = MiaParse()
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            _ = list(my_pipeline._select_table(sql_str=mia_select_str_4))
-            db_goods_id_list = [item[0] for item in _]
-            # print(db_goods_id_list)
-
             for item in item_list:
-                if item.get('item_id', '') in db_goods_id_list:
+                if item.get('item_id', '') in self.db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
                     pass
-
                 else:
                     goods_id = str(item.get('item_id', ''))
                     tmp_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
@@ -169,7 +174,7 @@ def just_fuck_run():
         mia_spike = MiaSpike()
         mia_spike.get_spike_hour_goods_info()
         gc.collect()
-        sleep(5)
+        sleep(1 * 60)
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
 
 def main():

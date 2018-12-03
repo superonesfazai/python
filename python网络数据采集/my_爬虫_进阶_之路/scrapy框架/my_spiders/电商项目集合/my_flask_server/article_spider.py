@@ -13,9 +13,10 @@
     1. 微信文章内容爬取(https://weixin.sogou.com)
     2. 今日头条文章内容爬取(https://www.toutiao.com)
     3. 简书文章内容爬取(https://www.jianshu.com)
-    4. qq看点文章内容爬取(根据QQ看点中文中分享出的地址)
+    4. qq看点文章内容爬取(根据QQ看点中分享出的地址)
+    5. 天天快报(根据天天快报分享出的地址)
 待实现:
-    1. 天天快报
+    1. 网易新闻
 """
 
 from os import getcwd
@@ -59,12 +60,23 @@ class ArticleParser(AsyncCrawler):
             'Accept-Language': 'zh-CN,zh;q=0.9',
         }
 
-    async def _set_obj_origin(self) -> None:
+    async def _get_phone_headers(self):
+        return {
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+        }
+
+    @staticmethod
+    async def _get_obj_origin() -> dict:
         '''
         设置obj_origin_dict
         :return:
         '''
-        self.obj_origin_dict = {
+        return {
             'wx': {
                 'obj_origin': 'mp.weixin.qq.com',
                 'site_id': 4,
@@ -80,7 +92,11 @@ class ArticleParser(AsyncCrawler):
             'kd': {
                 'obj_origin': 'post.mp.qq.com',
                 'site_id': 7,
-            }
+            },
+            'kb': {
+                'obj_origin': 'kuaibao.qq.com',
+                'site_id': 8,
+            },
         }
 
     async def _get_html_by_driver(self, url, load_images=False):
@@ -108,7 +124,7 @@ class ArticleParser(AsyncCrawler):
         得到wx文章内容
         :return: body, video_url
         '''
-        body = Requests.get_url_body(url=article_url, headers=await self._get_headers(), ip_pool_type=self.ip_pool_type)
+        body = await unblock_request(url=article_url, headers=await self._get_headers(), ip_pool_type=self.ip_pool_type, logger=self.lg)
         # self.lg.info(body)
         assert body != '', '获取到wx的body为空值!'
 
@@ -125,7 +141,7 @@ class ArticleParser(AsyncCrawler):
             'authority': 'www.toutiao.com',
             'referer': 'https://www.toutiao.com/',
         })
-        body = Requests.get_url_body(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type)
+        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
         # self.lg.info(str(body))
         assert body != '', '获取到wx的body为空值!'
 
@@ -142,13 +158,14 @@ class ArticleParser(AsyncCrawler):
             'authority': 'www.jianshu.com',
             'referer': 'https://www.jianshu.com/',
         })
-        body = Requests.get_url_body(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type)
+        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
         # self.lg.info(str(body))
         assert body != '', '获取到的js的body为空值!'
 
         return body, ''
 
-    async def _wash_tt_article_content(self, content) -> str:
+    @staticmethod
+    async def _wash_tt_article_content(content) -> str:
         '''
         清洗头条文章的content内容
         :return: body, video_url
@@ -160,7 +177,8 @@ class ArticleParser(AsyncCrawler):
 
         return content
 
-    async def _wash_js_article_content(self, content) -> str:
+    @staticmethod
+    async def _wash_js_article_content(content) -> str:
         '''
         清洗简书文章的content内容
         :param content:
@@ -203,6 +221,8 @@ class ArticleParser(AsyncCrawler):
                 return await self._get_js_article_html(article_url=article_url)
             elif article_url_type == 'kd':
                 return await self._get_kd_article_html(article_url=article_url)
+            elif article_url_type == 'kb':
+                return await self._get_kb_article_html(article_url=article_url)
             else:
                 raise AssertionError('未实现的解析!')
         except AssertionError:
@@ -219,11 +239,47 @@ class ArticleParser(AsyncCrawler):
         headers.update({
             'authority': 'post.mp.qq.com',
         })
-        body = Requests.get_url_body(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type)
+        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
         # self.lg.info(body)
-        assert body != '', '获取到的js的body为空值!'
+        assert body != '', '获取到的kd的body为空值!'
 
         return body, ''
+
+    async def _get_kb_article_html(self, article_url):
+        '''
+        获取天天快报的html
+        :param article_url:
+        :return:
+        '''
+        headers = await self._get_phone_headers()
+        headers.update({
+            'authority': 'kuaibao.qq.com',
+        })
+        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
+        # self.lg.info(body)
+        assert body != '', '获取到的kb的body为空值!'
+        '''
+        单独处理含视频的
+        '''
+        title_selector_obj = await self._get_kb_title_selector_obj()
+        if await async_parse_field(parser=title_selector_obj, target_obj=body, logger=self.lg) == '':
+            # 表示title获取到为空值, 可能是含视频的
+            # TODO 暂时先不获取天天快报含视频的
+            self.lg.info('此article_url可能含有视频')
+            # body = await self._get_html_by_driver(url=article_url, load_images=True)
+
+        return body, ''
+
+    async def _get_kb_title_selector_obj(self) -> dict:
+        '''
+        得到快报title selector
+        :return:
+        '''
+        for item in ARTICLE_ITEM_LIST:
+            if item.get('short_name', '') == 'kb':
+                return item['title']
+
+        raise AssertionError('获取kb 的title selector obj失败!')
 
     async def _wash_wx_article_body(self, body) -> tuple:
         '''
@@ -282,7 +338,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url: 待抓取文章的url
         :return:
         '''
-        await self._set_obj_origin()    # 设置obj_origin_dict
+        self.obj_origin_dict = await self._get_obj_origin()    # 设置obj_origin_dict
         child_debug = await self.is_child_can_debug(article_url)
         if not child_debug:
             self.lg.error('article_url未匹配到对象 or debug未开启!')
@@ -312,9 +368,8 @@ class ArticleParser(AsyncCrawler):
             tags_list = await self._get_tags_list(parse_obj=parse_obj, target_obj=article_html)
             site_id = await self._get_site_id(article_url_type=article_url_type)
             profile = await self._get_profile(parse_obj=parse_obj, target_obj=article_html)
-
         except (AssertionError, Exception):
-            self.lg.error('遇到错误:', exc_info=True)
+            self.lg.error('遇到错误:', exc_info=True, stack_info=False)
             return {}
 
         _ = WellRecommendArticle()
@@ -387,6 +442,12 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         author = await async_parse_field(parser=parse_obj['author'], target_obj=target_obj, logger=self.lg)
+        try:
+            assert author != '', '获取到的author为空值!'
+        except AssertionError:
+            if parse_obj['short_name'] == 'kb':
+                author = await self._get_kb_author_where_have_video(target_obj=target_obj)
+
         assert author != '', '获取到的author为空值!'
 
         return author
@@ -399,6 +460,12 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         title = await async_parse_field(parser=parse_obj['title'], target_obj=target_obj, logger=self.lg)
+        try:
+            assert title != '', '获取到的title为空值!'
+        except AssertionError:
+            if parse_obj['short_name'] == 'kb':
+                title = await self._get_kb_title_where_have_video(target_obj=target_obj)
+
         assert title != '', '获取到的title为空值!'
 
         return title
@@ -411,6 +478,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         head_url = await async_parse_field(parser=parse_obj['head_url'], target_obj=target_obj, logger=self.lg)
+        # 天天快报存在头像为''
         if head_url != '' \
                 and not head_url.startswith('http'):
             head_url = 'https:' + head_url
@@ -519,6 +587,12 @@ class ArticleParser(AsyncCrawler):
         #     html = await self._get_html_by_driver(url=article_url, load_images=True)
         #     print(html)
 
+        try:
+            assert content != '', '获取到的content为空值!'
+        except AssertionError:
+            if parse_obj.get('short_name', '') == 'kb':
+                content = await self._get_kb_content_where_have_video(target_obj=target_obj)
+
         assert content != '', '获取到的content为空值!'
         if parse_obj.get('short_name', '') == 'tt':
             # html乱码纠正
@@ -532,7 +606,62 @@ class ArticleParser(AsyncCrawler):
             # 图片处理
             content = await self._wash_kd_article_content(content=content)
 
+        if parse_obj.get('short_name', '') == 'kb':
+            # css 处理为原生的
+            content = await self._wash_kb_article_content(content=content)
+
         content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 防盗链
+
+        return content
+
+    async def _get_kb_title_where_have_video(self, **kwargs) -> str:
+        '''
+        获取kb(含有视频)的title
+        :return:
+        '''
+        target_obj = kwargs['target_obj']
+
+        # 得到含视频的title
+        _ = {
+            'method': 'css',
+            'selector': 'article.video-art div.video-title-container h1 ::text'
+        }
+        title = await async_parse_field(parser=_, target_obj=target_obj, logger=self.lg)
+        # self.lg.info(title)
+
+        return title
+
+    async def _get_kb_author_where_have_video(self, **kwargs) -> str:
+        '''
+        获取kb(含有视频)的author
+        :param kwargs:
+        :return:
+        '''
+        target_obj = kwargs['target_obj']
+
+        _ = {
+            'method': 'css',
+            'selector': 'article.media-art h1 ::text',
+        }
+        author = await async_parse_field(parser=_, target_obj=target_obj, logger=self.lg)
+        # self.lg.info(author)
+
+        return author
+
+    async def _get_kb_content_where_have_video(self, **kwargs) -> str:
+        '''
+        获取kb(含有视频)的content
+        :param kwargs:
+        :return:
+        '''
+        target_obj = kwargs['target_obj']
+
+        _ = {
+            'method': 'css',
+            'selector': 'txpdiv.txp_video_container video',
+        }
+        # phantomjs无法获取到原视频地址
+        content = await async_parse_field(parser=_, target_obj=target_obj, logger=self.lg)
 
         return content
 
@@ -551,6 +680,7 @@ class ArticleParser(AsyncCrawler):
         content = _.sub(' ', content)
         content = re.compile(' data-src=').sub(' src=', content)
         content = re.compile('data-lazy=\"\d+\"').sub('style=\"height:auto;width:100%;\"', content)
+        content = re.compile('<a class=\"jubao\"><i></i>举报内容</a>').sub('', content)
 
         # 给与原装的css
         content = '<link rel="stylesheet" href="//mp.gtimg.cn/themes/default/client/article/article.css?_bid=2321&v=2017082501">' + \
@@ -558,7 +688,21 @@ class ArticleParser(AsyncCrawler):
 
         return content
 
-    async def is_child_can_debug(self, article_url) -> bool:
+    @staticmethod
+    async def _wash_kb_article_content(content) -> str:
+        '''
+        清洗kb content
+        :param content:
+        :return:
+        '''
+        # 给与原生的css
+        content = r'<link href="//mat1.gtimg.com/www/cssn/newsapp/cyshare/cyshare_20181121.css" type="text/css" rel="stylesheet">' + \
+            content
+
+        return content
+
+    @staticmethod
+    async def is_child_can_debug(article_url) -> bool:
         '''
         判断是否是子对象, 以及是否debug是打开
         :return:
@@ -587,6 +731,9 @@ class ArticleParser(AsyncCrawler):
         elif article_url_type == 'kd':
             return self.obj_origin_dict['kd'].get('site_id')
 
+        elif article_url_type == 'kb':
+            return self.obj_origin_dict['kb'].get('site_id')
+
         else:
             raise ValueError('未知的文章url!')
 
@@ -604,6 +751,10 @@ class ArticleParser(AsyncCrawler):
     def __del__(self):
         try:
             del self.lg
+        except:
+            pass
+        try:
+            del self.loop
         except:
             pass
         collect()
@@ -629,8 +780,14 @@ if __name__ == '__main__':
     # url = 'https://www.jianshu.com/p/1a60bdc3098b'
 
     # QQ看点
-    url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
+    # url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
     # 含视频
     # url = 'http://post.mp.qq.com/kan/video/201271541-2525bea9bc8295ah-x07913jkmml.html?_wv=2281701505&sig=50b27393b64a188ffe7f646092dbb04f&time=1542102407&iid=Mjc3Mzg2MDk1OQ==&sourcefrom=0'
+
+    # 天天快报
+    url = 'https://kuaibao.qq.com/s/NEW2018120200710400?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
+    # url = 'https://kuaibao.qq.com/s/20181201A0VJE800?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
+    # 含视频(不处理)
+    # url = 'https://kuaibao.qq.com/s/20180906V1A30P00?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)

@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : 设置.py
+@File    : basic_server.py
 @connect : superonesfazai@gmail.com
 '''
 
@@ -21,7 +21,7 @@ from twisted.application.internet import StreamServerEndpointService
 
 application = Application("basic AMP server")
 
-endpoint = TCP4ServerEndpoint(reactor, 8750)
+endpoint = TCP4ServerEndpoint(reactor, 8751)
 factory = Factory()
 factory.protocol = AMP
 service = StreamServerEndpointService(endpoint, factory)

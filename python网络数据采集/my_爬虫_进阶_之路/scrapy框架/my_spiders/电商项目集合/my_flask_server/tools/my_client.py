@@ -71,7 +71,8 @@ class RequestClient(object):
 
         # article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541727002&ver=1233&signature=vJlLhwUTzzvdbscdn*wHIm*Ic2WPK*b73CpmDbZbq0WyRZZ-Nc9rLrQRNcAwMjGZJaSAaAs8*-*Jx*KuPjiHS0omOgP1-0dMcCJVlh70XbTejnEQmdmESvVN72aBWyIw&new=1'
         # article_link = 'https://www.toutiao.com/a6623270159790375438/'
-        article_link = 'https://www.jianshu.com/p/1a60bdc3098b'
+        # article_link = 'https://www.jianshu.com/p/1a60bdc3098b'
+        article_link = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))

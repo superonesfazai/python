@@ -5,18 +5,21 @@
 ### 1. 命令行方式直接启动
 mongodb默认的存储数据目录为/data/db(需要事先创建), 默认端口为27017, 也可修改为不同目录
 ```shell
-# 直接启动mongod，默认数据存储目在 /data/db
-python@ubuntu:~$ sudo mongod
+# 首先我们创建一个数据库存储目录 /data/db
+$ sudo mkdir -p /data/db
+
+# 直接启动mongod(sudo必须)，默认数据存储目在 /data/db
+$ sudo mongod
 
 # 启动mongod，并指定数据存储目录（目录必须存在，且有读写权限）
-python@ubuntu:~$ sudo mongod --dbpath=/xxxxx/xxxxx
+$ sudo mongod --dbpath=/xxxxx/xxxxx
 ```
 
 ### 2. 配置文件方式启动
 启动时加上-f参数, 并指向配置文件即可, 默认配置文件为/etc/mongod.cnf， 也可以自行编写配置文件并指定 
 ```shell
 # 启动mongod, 并按指定配置文件执行
-python@ubuntu:~$ sudo mongod -f /etc/mongodb.cnf
+$ sudo mongod -f /etc/mongodb.cnf
 ```
 
 ### 3. 守护进程方式启动
@@ -24,7 +27,7 @@ python@ubuntu:~$ sudo mongod -f /etc/mongodb.cnf
 
 MongoDB提供了一种后台程序方式启动的选择，只需要加上—fork参数即可。但是注意：如果用到了--fork参数，就必须启用--logpath参数来指定log文件，这是强制的。
 ```
-python@ubuntu:~$ sudo mongod --logpath=/data/db/mongodb.log --fork
+$ sudo mongod --logpath=/data/db/mongodb.log --fork
 
 about to fork child process, waiting until server is ready for connections.
 forked process: xxxxx
@@ -59,6 +62,7 @@ server should be down...
 # 启动mongod，并启用用户认证
 python@ubuntu:~$ sudo mongod --auth
 ```
+客户端
 ```
 # 启动mongo shell
 python@ubuntu:~$ mongo

@@ -101,7 +101,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                     if self.is_recent_time(miaosha_end_time) == 0:
                         tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
-                        sleep(.3)
+                        sleep(.5)
 
                     elif self.is_recent_time(miaosha_end_time) == 2:
                         # break       # 跳出循环
@@ -121,7 +121,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                             # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                             print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                            sleep(.3)   # 避免死锁
+                            sleep(.4)   # 避免死锁
 
                         else:
                             # 该event_time中现有的所有goods_id的list
@@ -131,7 +131,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                                 # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                sleep(.3)
+                                sleep(.4)
 
                             else:  # 未下架的
                                 for item_2 in item_list:
