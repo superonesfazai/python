@@ -112,8 +112,8 @@ class Z8Updater(AsyncCrawler):
         if self.tmp_sql_server.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_begin_time)
             if is_recent_time == 0:
-                self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id,))
-                self.lg.info('过期的goods_id为({0}), 限时秒杀开始时间为({1}), 删除成功!'.format(goods_id, json.loads(item[1]).get('miaosha_begin_time')))
+                res = await self._update_is_delete(goods_id=goods_id)
+                self.lg.info('过期的goods_id为({0}), 限时秒杀开始时间为({1}), 逻辑删除成功!'.format(goods_id, json.loads(item[1]).get('miaosha_begin_time')))
                 index += 1
                 self.goods_index = index
                 res = True

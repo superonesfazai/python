@@ -148,6 +148,8 @@ tb_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s,
 tb_update_str_2 = 'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_name=%s, account=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, month_sell_count=%s, is_delete=%s where goods_id=%s'
 # 常规goods下架标记
 tb_update_str_3 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
+# 秒杀逻辑删
+tb_update_str_4 = 'update dbo.tao_qianggou_xianshimiaosha set is_delete=1 where goods_id=%s'
 '''delete'''
 # 淘抢购下架删除
 tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
@@ -284,6 +286,8 @@ jp_update_str_3 = 'update dbo.juanpi_xianshimiaosha set modfiy_time = %s, shop_n
 jp_update_str_4 = 'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s, parent_dir=%s where goods_id = %s'
 # 拼团下架标记
 jp_update_str_5 = 'update dbo.juanpi_pintuan set is_delete=1 where goods_id = %s'
+# 秒杀下架标记
+jp_update_str_6 = 'update dbo.juanpi_xianshimiaosha set is_delete=1 where goods_id=%s'
 '''delete'''
 # 拼团下架清空
 jp_delete_str_1 = 'delete from dbo.juanpi_pintuan where miaosha_end_time < GETDATE()-2'
@@ -313,6 +317,8 @@ jm_update_str_1 = 'update dbo.jumeiyoupin_xianshimiaosha set modfiy_time = %s, s
 jm_update_str_2 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
 # 拼团更新2
 jm_update_str_3 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id=%s'
+# 秒杀下架标记
+jm_update_str_4 = 'update dbo.jumeiyoupin_xianshimiaosha set is_delete=1 where goods_id=%s'
 '''delete'''
 # 秒杀下架删除
 jm_delete_str_1 = 'delete from dbo.jumeiyoupin_xianshimiaosha where goods_id=%s'
@@ -332,6 +338,7 @@ cc_insert_str_1 = 'insert into dbo.chuchujie_xianshimiaosha(goods_id, goods_url,
 '''update'''
 # 秒杀更新
 cc_update_str_1 = 'update dbo.chuchujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s'
+cc_update_str_2 = 'update dbo.chuchujie_xianshimiaosha set is_delete=1 where goods_id=%s'
 '''delete'''
 # 秒杀下架删除
 cc_delete_str_1 = 'delete from dbo.chuchujie_xianshimiaosha where goods_id=%s'
@@ -386,6 +393,8 @@ mia_update_str_3 = 'update dbo.mia_pintuan set modfiy_time = %s, shop_name=%s, g
 mia_update_str_4 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, parent_dir=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, {0} {1} where GoodsID=%s'
 # 常规商品下架标记
 mia_update_str_5 = tb_update_str_3
+# 秒杀逻辑删
+mia_update_str_6 = 'update dbo.mia_xianshimiaosha set is_delete=1 where goods_id=%s'
 '''delete'''
 # 拼团过期标记
 mia_delete_str_1 = 'delete from dbo.mia_pintuan where goods_id=%s'
@@ -501,3 +510,12 @@ order by ID asc'''
 # 常规goods更新
 yp_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, {0} {1} where GoodsID = %s'
 yp_update_str_2 = tb_update_str_3
+
+
+"""
+工商信息
+"""
+'''select'''
+gs_select_str_1 = '''select unique_id from dbo.company_info where site_id=2'''
+'''insert'''
+gs_insert_str_1 = '''insert into dbo.company_info(province_id, city_id, unique_id, company_url, company_link, company_name, legal_person, phone, email_address, address, brief_introduction, business_range, founding_time, create_time, site_id, employees_num) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''

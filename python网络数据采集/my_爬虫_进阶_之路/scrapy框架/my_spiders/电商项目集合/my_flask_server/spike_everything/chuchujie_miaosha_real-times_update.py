@@ -32,6 +32,7 @@ from sql_str_controller import (
     cc_delete_str_1,
     cc_select_str_1,
     cc_delete_str_2,
+    cc_update_str_2,
 )
 from multiplex_code import (
     _get_async_task_result,
@@ -100,6 +101,16 @@ class CCUpdater(AsyncCrawler):
 
         return
 
+    async def _update_is_delete(self, goods_id) -> bool:
+        '''
+        逻辑删除
+        :param goods_id:
+        :return:
+        '''
+        res = self.tmp_sql_server._update_table(sql_str=cc_update_str_2, params=(goods_id,))
+
+        return res
+
     async def _update_one_goods_info(self, item, index):
         '''
         更新单个
@@ -120,8 +131,8 @@ class CCUpdater(AsyncCrawler):
         if self.tmp_sql_server.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_end_time)
             if is_recent_time == 0:
-                res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id,))
-                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 删除成功!'.format(goods_id, miaosha_end_time))
+                res = await self._update_is_delete(goods_id=goods_id)
+                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 逻辑删除成功!'.format(goods_id, miaosha_end_time))
                 await async_sleep(.3)
                 index += 1
                 self.goods_index = index
@@ -155,7 +166,7 @@ class CCUpdater(AsyncCrawler):
                 item_list = await self._get_item_list(this_page_total_count=this_page_total_count, json_body=json_body)
                 if item_list == []:
                     self.lg.info('#### 该gender, page对应得到的item_list为空[]!\n该商品已被下架限时秒杀活动，此处将其删除')
-                    res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                    res = await self._update_is_delete(goods_id=item[0])
                     self.lg.info('下架的goods_id为({}), 删除成功!'.format(goods_id))
                     await async_sleep(.3)
                     index += 1
@@ -251,7 +262,7 @@ class CCUpdater(AsyncCrawler):
         #     tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id))
         #     self.lg.info('下架的goods_id为({}), 删除成功!'.format(goods_id))
         #     pass
-        #
+
         # else:  # 未下架的
         # 不更新秒杀时间和sub_title, 只更新其他相关数据
         # for item_2 in item_list:

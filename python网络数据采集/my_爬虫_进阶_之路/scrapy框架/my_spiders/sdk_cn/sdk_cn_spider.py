@@ -10,11 +10,18 @@
 sdk.cn 爬虫
 """
 
+from gc import collect
+from fzutils.ip_pools import fz_ip_pool
 from fzutils.spider.async_always import *
 
 class SdkCnSipder(AsyncCrawler):
     def __init__(self, *params, **kwargs):
-        AsyncCrawler.__init__(self, *params, **kwargs)
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            ip_pool_type=fz_ip_pool,
+        )
         self.max_new_page_num = 50
 
     async def _get_phone_headers(self):
@@ -38,7 +45,11 @@ class SdkCnSipder(AsyncCrawler):
             ('page', str(page_num)),
         )
         url = 'https://sdk.cn/news/load-news'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=await self._get_phone_headers(), params=params, cookies=None)).get('html', '')
+        data = json_2_dict(await unblock_request(
+            url=url,
+            headers=await self._get_phone_headers(),
+            params=params,
+            ip_pool_type=self.ip_pool_type)).get('html', '')
         # pprint(data)
 
         return data
@@ -65,6 +76,13 @@ class SdkCnSipder(AsyncCrawler):
         news_list = await self._get_all_news()
         pprint(news_list)
         print('news 总个数:{}'.format(len(news_list)))
+
+    def __del__(self):
+        try:
+            del self.loop
+        except:
+            pass
+        collect()
 
 if __name__ == '__main__':
     _ = SdkCnSipder()

@@ -460,3 +460,24 @@ CREATE TABLE goods_id_and_keyword_middle_table(
   keyword_id INT,
   is_delete INT DEFAULT 0
 )
+
+-- 创建company_info表
+use Gather;
+create table company_info(
+	id int identity(1,1) primary key,
+	province_id varchar(30) not null,
+	city_id varchar(30),
+	unique_id nvarchar(200) not null unique,
+	company_url nvarchar(max),
+  company_link nvarchar(max),
+  company_name nvarchar(300),
+  legal_person nvarchar(50),
+  phone nvarchar(max),
+  email_address nvarchar(max),
+  address nvarchar(1000),
+  brief_introduction nvarchar(max),
+  business_range nvarchar(max),
+  founding_time datetime,
+	create_time datetime,
+	employees_num nvarchar(1000)
+);

@@ -58,7 +58,8 @@ from apps.url_judge import (
     _is_jd_url,
     _is_jd_url_plus,)
 from apps.al import (
-    get_one_1688_data,)
+    get_one_1688_data,
+    judge_begin_greater_than_1,)
 from apps.tb import (
     get_one_tb_data,
     _deal_with_tb_goods,)
@@ -569,6 +570,10 @@ def get_all_data():
 
             else:
                 pass
+
+            begin_greater_than_1 = judge_begin_greater_than_1(price_info=wait_to_save_data.get('price_info', []), logger=my_lg)
+            if begin_greater_than_1:
+                return _error_msg(msg='采集的1688商品的最小起批量, 不能大于1!!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()  

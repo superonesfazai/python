@@ -33,7 +33,8 @@ from settings import (
 from sql_str_controller import (
     jm_delete_str_1,
     jm_select_str_1,
-    jm_delete_str_2,)
+    jm_delete_str_2,
+    jm_update_str_4,)
 
 from multiplex_code import (
     _get_async_task_result,
@@ -127,13 +128,13 @@ class JMYPUpdater(AsyncCrawler):
             collect()
             self.jumeiyoupin_miaosha = JuMeiYouPinParse()
 
-    async def _delete_goods(self, goods_id):
+    async def _update_is_delete(self, goods_id):
         '''
-        删除过期商品
+        逻辑删
         :param goods_id:
         :return:
         '''
-        res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id,))
+        res = self.tmp_sql_server._update_table(sql_str=jm_update_str_4, params=(goods_id,))
 
         return res
 
@@ -188,8 +189,8 @@ class JMYPUpdater(AsyncCrawler):
         if self.tmp_sql_server.is_connect_success:
             is_recent_time_res = await self._is_recent_time(miaosha_end_time)
             if is_recent_time_res == 0:
-                res = await self._delete_goods(goods_id)
-                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 删除成功!'.format(goods_id, json.loads(miaosha_time).get('miaosha_end_time')))
+                res = await self._update_is_delete(goods_id)
+                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 逻辑删除成功!'.format(goods_id, json.loads(miaosha_time).get('miaosha_end_time')))
                 await async_sleep(.3)
 
             elif is_recent_time_res == 2:
@@ -204,9 +205,9 @@ class JMYPUpdater(AsyncCrawler):
                     return res
 
                 elif this_page_all_goods_list == []:
-                    res = await self._delete_goods(goods_id=goods_id)
+                    res = await self._update_is_delete(goods_id=goods_id)
                     self.lg.error('#### 该page对应得到的this_page_all_goods_list为空[]!')
-                    self.lg.error('** 该商品已被下架限时秒杀活动, 此处将其删除, goods_id:{}'.format(goods_id))
+                    self.lg.error('** 该商品已被下架限时秒杀活动, 此处将其逻辑删除, goods_id:{}'.format(goods_id))
                     await async_sleep(.3)
 
                 else:
@@ -217,10 +218,10 @@ class JMYPUpdater(AsyncCrawler):
                     #
                     # if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                     #     self.lg.info('该商品已被下架限时秒杀活动，此处将其删除')
-                    #     res = await self._delete_goods(goods_id=goods_id)
+                    #     res = await self._update_is_delete(goods_id=goods_id)
                     #     self.lg.info('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                     #     pass
-                    #
+
                     # else:  # 未下架的
                     tmp_r = self.jumeiyoupin_miaosha.get_goods_id_from_url(goods_url)
                     self.jumeiyoupin_miaosha.get_goods_data(goods_id=tmp_r)

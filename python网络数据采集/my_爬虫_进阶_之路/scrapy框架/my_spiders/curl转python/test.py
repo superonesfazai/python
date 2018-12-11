@@ -6,14 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import re
-from scrapy.selector import Selector
-from time import sleep
-from json import dumps
-from pprint import pprint
-
-from fzutils.spider.fz_requests import (
-    Requests,
+from fzutils.ip_pools import (
     fz_ip_pool,
     ip_proxy_pool,
     sesame_ip_pool,
@@ -21,15 +14,8 @@ from fzutils.spider.fz_requests import (
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.fz_driver import BaseDriver, CHROME
 from fzutils.spider.fz_phantomjs import CHROME_DRIVER_PATH
-from fzutils.internet_utils import *
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import *
-from fzutils.common_utils import get_random_int_number
 from fzutils.url_utils import unquote_plus
 from fzutils.img_utils import save_img_through_url
-from fzutils.internet_utils import get_base_headers
-from fzutils.safe_utils import get_uuid1
-
-
-
+from fzutils.spider.fz_driver import PHONE
+from fzutils.spider.async_always import *
 

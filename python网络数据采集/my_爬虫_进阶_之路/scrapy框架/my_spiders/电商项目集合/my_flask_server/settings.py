@@ -246,11 +246,6 @@ ERROR_HTML_CODE = '''
 '''
 
 '''
-cookies
-'''
-SINA_COOKIES = 'SINAGLOBAL=1779567549215.5193.1513216238889; un=jc09893445wei@163.com; wvr=6; _s_tentry=login.sina.com.cn; Apache=3819054165673.079.1517320350816; ULV=1517320352333:12:10:4:3819054165673.079.1517320350816:1517281650841; SSOLoginState=1517366105; UOR=www.vaikan.com,widget.weibo.com,blog.csdn.net; YF-V5-G0=c998e7c570da2f8537944063e27af755; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFnCUfIwQh3Usm8xNPAMySy5JpX5KMhUgL.FoqpSoBR1hBNeKM2dJLoIEQLxKML1K-L1h-LxK-LB.qLB-zLxKML1-zLB.eLxKqL1-eL1-ikSozReoqt; ALF=1549000397; SCF=AgK0RDOKrRIOKXzub_Q00Rdmdq_Mtnap4wCdEu4VKbiFXx2qc85MqiD2K4BTDt-BE_omFvqzJtoqNlXuEhr1qiQ.; SUB=_2A253dtsNDeThGeBP7VYZ-CrLyjuIHXVUAkvFrDV8PUNbmtANLWHWkW9NRVESwyfYtEROP7KKUqmnXOnIxmP81tQN; SUHB=0y0JQ5fsI56HNq; wb_cusLike_6164884717=N'
-
-'''
 文章资讯可扩展抽取
 '''
 ARTICLE_ITEM_LIST = [
@@ -448,3 +443,226 @@ ARTICLE_ITEM_LIST = [
         'fav_num': None,
     },
 ]
+
+'''
+企业商家信息可扩展
+'''
+COMPANY_ITEM_LIST = [
+    {
+        'short_name': 'ty',
+        'debug': True,
+        'obj_origin': 'www.tianyancha.com',
+        'province_city_info': {
+            'zhixia_city_name': {
+                'method': 'css',
+                'selector': 'div.item.-single ::text',
+            },
+            'zhixia_city_url': {                                                                 # 直辖市
+                'method': 'css',
+                'selector': 'div.item.-single ::attr("href")',
+            },
+            'province_name': {
+                'method': 'css',
+                'selector': 'a.link-hover-click.overflow-width ::text',
+            },
+            'province_url': {
+                'method': 'css',
+                # div.row a.link-hover-click.overflow-width
+                'selector': 'a.link-hover-click.overflow-width ::attr("href")',
+            },
+            'city_name': {
+                'method': 'css',
+                'selector': 'a.link-hover-click.item ::text',
+            },
+            'city_url': {
+                'method': 'css',
+                'selector': 'a.link-hover-click.item ::attr("href")',
+            },
+        },
+        'company_url': {
+            'method': 'css',
+            'selector': 'div.header a.name ::attr("href")',
+        },
+        'unique_id': {                                      # 企业唯一的id
+            'method': 're',
+            'selector': '/company/(\d+)',
+        },
+        'company_status': {
+            'method': 'css',
+            'selector': 'div.header div.tag ::text',      # 公司状态, 1: 暂无 or 存续
+        },
+        'company_link': {                               # 企业的官网地址
+            'method': 'css',
+            'selector': 'a.company-link ::attr("title")',
+        },
+        'company_name': {
+            'method': 'css',
+            'selector': 'h1.name ::text',
+        },
+        'legal_person': {
+            'method': 'css',
+            'selector': 'div.name a.link-click ::text',                    # 法人
+        },
+        'phone': {
+            'method': 'css',
+            'selector': 'div.detail div.in-block span.hidden ::text',      # ["0311-66572560","0311-66572558","0311-66572557"]
+        },
+        'email_address': {
+            'method': 'css',
+            'selector': 'div.detail div.in-block span ::text',              # index 7
+        },
+        'address': {
+            'method': 'css',
+            'selector': 'div#_container_baseInfo tr td[colspan=\"4\"] ::text', # index 0
+        },
+        'brief_introduction': {             # company简介
+            'method': 'css',
+            'selector': 'div.summary script#company_base_info_detail ::text',
+        },
+        'business_range': {                 # 经营范围
+            'method': 'css',
+            'selector': 'span.js-full-container.hidden ::text',                   # is_first=False, 取第一个
+        },
+        'founding_time': {                  # 成立时间
+            'method': 're',
+            'selector': '\"pubDate\":\"(.*?)\",',
+        },
+        'employees_num': None,
+    },
+    {
+        'short_name': 'hy',         # 中国黄页
+        'debug': True,
+        'obj_origin': 'm.huangye88.com',
+        'trade_type_info': {
+            'trade_type_name': {    # list
+                'method': 'css',
+                'selector': 'ul.qiyecont li a ::attr("title")',
+            },
+            'trade_type_url': {     # list
+                'method': 'css',
+                'selector': 'ul.qiyecont li a ::attr("href")',
+            },
+            'trade_type_province': {    # 分类的省份
+                'method': 'css',
+                'selector': 'a ::attr("href")',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '/qiye(\d+)/',
+        },
+        'company_status': None,     # 公司状态, 1: 在业 or 续存
+        'company_link': {           # 公司网站(最后一个)
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+        'company_info_detail_li': {    # 公司信息的li
+            'method': 'css',
+            'selector': 'ul.pro-list li',
+        },
+        'company_name': {           # 第一个
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+        'legal_person': {
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',                    # 法人
+        },
+        'phone': {
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+        'email_address': {
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+        'address': {
+            'method': 'css',
+            'selector': 'div.contact li a ::text',
+        },
+        'brief_introduction': {     # 用css筛选的不完整, 用re
+            'method': 're',
+            # 'selector': 'div.com-intro p.p1 ::text',
+            'selector': '<p class=\"p1\".*?>(.*?)</p>',
+        },
+        'business_range': {                 # 经营范围(hy:主营产品)
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+        'founding_time': {                  # 成立时间
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+        'employees_num': {                  # 员工人数
+            'method': 'css',
+            'selector': 'ul.pro-list li ::text',
+        },
+    },
+    {
+        'short_name': 'qcc',
+        'debug': True,
+        'obj_origin': 'www.qichacha.com',
+        'province_city_info': {
+            'zhixia_city_name': None,                       # 直辖市已在省份中
+            'zhixia_city_url': None,
+            'province_name': {
+                'method': 'css',
+                'selector': 'li.areatext-center a ::text',  # 原先是li.area.text-center a, 但是清洗后是li.areatext-center a
+            },
+            'province_url': {
+                'method': 'css',
+                'selector': 'li.areatext-center a ::attr("href")',
+            },
+            'city_name': None,                              # 无法单独根据城市筛选, 提示搜索太广泛
+            'city_url': None,
+        },
+        'company_url': {
+            'method': 'css',
+            'selector': 'section#searchlist a.list-group-item ::attr("href")',
+        },
+        'unique_id': {                                      # 企业唯一的id
+            'method': 're',
+            'selector': 'firm_(\w+)\.',
+        },
+        'company_status': {
+            'method': 'css',
+            'selector': 'section#searchlist span.clear span.label ::text',      # 公司状态, 1: 在业 or 续存
+        },
+        'company_link': None,
+        'company_name': {
+            'method': 'css',
+            'selector': 'div.company-name ::text',
+        },
+        'legal_person': {
+            'method': 'css',
+            'selector': 'a.oper ::text',                    # 法人
+        },
+        'phone': {
+            'method': 'css',
+            'selector': 'a.phone ::text',
+        },
+        'email_address': {
+            'method': 'css',
+            'selector': 'a.email ::text',
+        },
+        'address': {
+            'method': 'css',
+            'selector': 'div.address ::text',
+        },
+        'brief_introduction': None,
+        'business_range': {                 # 经营范围
+            'method': 'css',
+            'selector': 'div.basic-item div.basic-item-right ::text',
+        },
+        'founding_time': {                  # 成立时间
+            'method': 'css',
+            'selector': 'div.basic-item div.basic-item-right ::text',
+        },
+        'employees_num': None,
+    },
+]
+
+'''
+cookies
+'''
+SINA_COOKIES = 'SINAGLOBAL=1779567549215.5193.1513216238889; un=jc09893445wei@163.com; wvr=6; _s_tentry=login.sina.com.cn; Apache=3819054165673.079.1517320350816; ULV=1517320352333:12:10:4:3819054165673.079.1517320350816:1517281650841; SSOLoginState=1517366105; UOR=www.vaikan.com,widget.weibo.com,blog.csdn.net; YF-V5-G0=c998e7c570da2f8537944063e27af755; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFnCUfIwQh3Usm8xNPAMySy5JpX5KMhUgL.FoqpSoBR1hBNeKM2dJLoIEQLxKML1K-L1h-LxK-LB.qLB-zLxKML1-zLB.eLxKqL1-eL1-ikSozReoqt; ALF=1549000397; SCF=AgK0RDOKrRIOKXzub_Q00Rdmdq_Mtnap4wCdEu4VKbiFXx2qc85MqiD2K4BTDt-BE_omFvqzJtoqNlXuEhr1qiQ.; SUB=_2A253dtsNDeThGeBP7VYZ-CrLyjuIHXVUAkvFrDV8PUNbmtANLWHWkW9NRVESwyfYtEROP7KKUqmnXOnIxmP81tQN; SUHB=0y0JQ5fsI56HNq; wb_cusLike_6164884717=N'

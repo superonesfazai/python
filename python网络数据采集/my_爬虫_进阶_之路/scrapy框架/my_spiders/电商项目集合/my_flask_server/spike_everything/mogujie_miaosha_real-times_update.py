@@ -85,6 +85,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
             index = 1
 
             for item in result:  # 实时更新数据
+                goods_id = item[0]
                 miaosha_end_time = json.loads(item[1]).get('miaosha_end_time')
                 miaosha_end_time = int(str(time.mktime(time.strptime(miaosha_end_time,'%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_end_time)
@@ -99,7 +100,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
+                        tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(goods_id,))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
                         sleep(.5)
 
@@ -118,7 +119,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
 
                         elif item_list == []:
                             print('该商品已被下架限时秒杀活动，此处将其逻辑删除')
-                            # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                             print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                             sleep(.4)   # 避免死锁
@@ -128,7 +128,6 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                             miaosha_goods_all_goods_id = [item_1.get('iid', '') for item_1 in item_list]
                             if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                                 print('该商品已被下架限时秒杀活动，此处将其逻辑删除')
-                                # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                                 tmp_sql_server._update_table(sql_str=mg_update_str_1, params=(item[0],))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                 sleep(.4)

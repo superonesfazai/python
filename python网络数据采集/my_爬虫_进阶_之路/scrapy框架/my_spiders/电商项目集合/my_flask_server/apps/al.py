@@ -16,6 +16,7 @@ import sys
 import re
 from json import dumps
 import gc
+from pprint import pprint
 
 from .reuse import add_base_info_2_processed_data
 sys.path.append('..')
@@ -109,3 +110,22 @@ def get_one_1688_data(**kwargs):
     except: pass
 
     return wait_to_save_data
+
+def judge_begin_greater_than_1(price_info: list, logger) -> bool:
+    '''
+    判断起批量是否大于1, 大于1则返回True, <=1 返回False
+    :return:
+    '''
+    if price_info == []:
+        return False
+
+    try:
+        price_info.sort(key=lambda item: int(item.get('begin')))
+        # pprint(price_info)
+        if int(price_info[0]['begin']) > 1:
+            return True
+        else:
+            return False
+    except Exception:
+        logger.error('遇到错误:', exc_info=True)
+        return True

@@ -11,12 +11,17 @@ unsplash 图片网爬虫(https://unsplash.com/)
 """
 
 from gc import collect
-from fzutils.spider.crawler import AsyncCrawler
+from fzutils.ip_pools import fz_ip_pool
 from fzutils.spider.async_always import *
 
 class UnsplashSpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
-        AsyncCrawler.__init__(self, *params, **kwargs)
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            ip_pool_type=fz_ip_pool,
+        )
 
     async def _get_phone_headers(self):
         return {
@@ -41,7 +46,7 @@ class UnsplashSpider(AsyncCrawler):
             ('order_by', 'latest'),
         )
         url = 'https://unsplash.com/napi/photos'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=await self._get_phone_headers(), params=params), default_res=[])
+        data = json_2_dict(await unblock_request(url=url, headers=await self._get_phone_headers(), params=params), default_res=[])
         # print(data)
 
         return data
@@ -71,6 +76,10 @@ class UnsplashSpider(AsyncCrawler):
         print('总个数: {}'.format(len(latest_pics_list)))
 
     def __del__(self):
+        try:
+            del self.loop
+        except:
+            pass
         collect()
 
 if __name__ == '__main__':

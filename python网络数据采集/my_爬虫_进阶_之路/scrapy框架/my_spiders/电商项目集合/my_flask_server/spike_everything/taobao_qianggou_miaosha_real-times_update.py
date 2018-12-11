@@ -26,6 +26,7 @@ from settings import (
 from sql_str_controller import (
     tb_delete_str_1,
     tb_select_str_4,
+    tb_update_str_4,
 )
 
 from fzutils.log_utils import set_logger
@@ -108,7 +109,8 @@ class TaoBaoQiangGouRealTimesUpdate(object):
 
             if tmp_sql_server.is_connect_success:
                 if await self.is_recent_time(miaosha_begin_time) == 0:
-                    tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
+                    # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
+                    tmp_sql_server._update_table(sql_str=tb_update_str_4, params=(item[0],))
                     self.my_lg.info('过期的goods_id为(%s)' % item[0] + ', 限时秒杀开始时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_begin_time'))
                     await asyncio.sleep(.3)
 

@@ -11,11 +11,17 @@ qq音乐爬虫
 """
 
 from gc import collect
+from fzutils.ip_pools import fz_ip_pool
 from fzutils.spider.async_always import *
 
-class QQMusicSpider(object):
-    def __init__(self):
-        self.loop = get_event_loop()
+class QQMusicSpider(AsyncCrawler):
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            ip_pool_type=fz_ip_pool
+        )
         self._t = lambda x: str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(100, 999))
 
     async def _get_headers(self) -> dict:
@@ -59,7 +65,7 @@ class QQMusicSpider(object):
             ('_', self._t),
         )
         url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=await self._get_headers(), params=params)).get('data', {})
+        data = json_2_dict(await unblock_request(url=url, headers=await self._get_headers(), params=params)).get('data', {})
         pprint(data)
 
         return data
@@ -81,7 +87,7 @@ class QQMusicSpider(object):
             ('_', self._t),
         )
         url = 'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=await self._get_headers(), params=params)).get('data', {}).get('topList', [])
+        data = json_2_dict(await unblock_request(url=url, headers=await self._get_headers(), params=params)).get('data', {}).get('topList', [])
         # pprint(data)
 
         return data

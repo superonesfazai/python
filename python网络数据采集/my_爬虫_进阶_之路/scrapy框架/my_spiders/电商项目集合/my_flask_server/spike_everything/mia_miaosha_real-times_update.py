@@ -31,6 +31,7 @@ from sql_str_controller import (
     mia_delete_str_3,
     mia_select_str_3,
     mia_delete_str_4,
+    mia_update_str_6,
 )
 
 from multiplex_code import (
@@ -112,7 +113,7 @@ class MIUpdater(AsyncCrawler):
         if self.tmp_sql_server.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_end_time)
             if is_recent_time == 0:
-                res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id,))
+                res = self.tmp_sql_server._update_table_2(sql_str=mia_update_str_6, params=(goods_id,), logger=self.lg)
                 self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 删除成功!'.format(goods_id, json_2_dict(miaosha_time).get('miaosha_begin_time')))
                 await async_sleep(.5)
                 self.goods_index = index + 1
@@ -146,7 +147,7 @@ class MIUpdater(AsyncCrawler):
                 # self.lg.info(str(miaosha_goods_all_goods_id))
                 if goods_id not in miaosha_goods_all_goods_id:  # 内部已经下架的
                     self.lg.info('该商品已被下架限时秒杀活动，此处将其删除')
-                    res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id))
+                    res = self.tmp_sql_server._update_table_2(sql_str=mia_update_str_6, params=(goods_id,), logger=self.lg)
                     self.lg.info('下架的goods_id为({}), 删除成功!'.format(goods_id))
                     self.goods_index = index + 1
                     await async_sleep(.3)

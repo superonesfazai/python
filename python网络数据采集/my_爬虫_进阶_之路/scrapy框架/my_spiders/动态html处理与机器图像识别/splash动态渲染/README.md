@@ -1,6 +1,10 @@
 # splash
 splash是一个JavaScript渲染服务，是一个带有HTTP API的轻量级浏览器，同时它对接了Python中的Twisted和QT库。利用它，我们同样可以实现动态渲染页面的抓取。
 
+[doc](https://splash.readthedocs.io/en/stable/)
+
+[github](https://github.com/scrapinghub/splash)
+
 ## 功能介绍
 利用splash，我们可以实现如下功能：
 
@@ -718,3 +722,23 @@ print(response.text)
 如此一来，我们之前所说的Lua脚本均可以用此方式与Python进行对接，所有网页的动态渲染、模拟点击、表单提交、页面滑动、延时等待后的一些结果均可以自由控制，获取页面源码和截图也都不在话下。
 
 到现在为止，我们可以用Python和Splash实现JavaScript渲染的页面的抓取了。除了Selenium，本节所说的Splash同样可以做到非常强大的渲染功能，同时它也不需要浏览器即可渲染，使用非常方便。
+
+### splash动态设置设置代理
+lua中脚本设置代理和请求头
+```bash
+function main(splash, args)
+    -- 设置代理              
+    splash:on_request(function(request)
+        request:set_proxy{
+            host = "27.0.0.1",
+            port = 8000,
+        }
+        end)
+
+    -- 设置请求头
+    splash:set_user_agent("Mozilla/5.0")
+
+    splash:go("https://www.baidu.com/")
+    return splash:html()
+```
+

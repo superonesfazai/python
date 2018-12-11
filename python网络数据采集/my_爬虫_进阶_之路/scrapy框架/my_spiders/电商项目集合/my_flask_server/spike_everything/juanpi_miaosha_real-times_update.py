@@ -25,6 +25,7 @@ from sql_str_controller import (
     jp_delete_str_3,
     jp_select_str_4,
     jp_delete_str_4,
+    jp_update_str_6,
 )
 
 from multiplex_code import (
@@ -114,8 +115,8 @@ class JPUpdater(AsyncCrawler):
         if self.tmp_sql_server.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_begin_time)
             if is_recent_time == 0:
-                res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id), lock_timeout=2000)
-                self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 删除成功!'.format(goods_id, miaosha_begin_time))
+                res = self.tmp_sql_server._update_table(sql_str=jp_update_str_6, params=(goods_id,))
+                self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 逻辑删除成功!'.format(goods_id, miaosha_begin_time))
                 await async_sleep(.3)
                 index += 1
                 self.goods_index = index
@@ -159,8 +160,8 @@ class JPUpdater(AsyncCrawler):
                         self.lg.info('该商品[{}]未下架, 此处不进行更新跳过!!'.format(goods_id))
                     else:
                         # 表示该tab_id，page中没有了该goods_id
-                        res = self.tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(goods_id))
-                        self.lg.info('该商品[goods_id为({})]已被下架限时秒杀活动，此处将其删除'.format(goods_id))
+                        res = self.tmp_sql_server._update_table(sql_str=jp_update_str_6, params=(goods_id,))
+                        self.lg.info('该商品[goods_id为({})]已被下架限时秒杀活动，此处将其逻辑删除'.format(goods_id))
 
                     index += 1
                     self.goods_index = index
