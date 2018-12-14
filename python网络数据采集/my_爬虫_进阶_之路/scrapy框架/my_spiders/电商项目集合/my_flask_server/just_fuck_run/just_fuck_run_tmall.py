@@ -32,10 +32,6 @@ spike_file_name_list = [
     'taobao_qianggou_miaosha_real-times_update',
 ]
 
-real_file_name_list = [
-    'tmall_real-times_update',
-]
-
 logs_file_name_list = [
     'expired_logs_deal_with',
 ]
@@ -44,8 +40,14 @@ server_file_name_list = [
     'new_my_server',
 ]
 
+real_file_name_list = [
+    # server上不进行更新，放在本地更新
+    # 'tmall_real-times_update',
+]
+
 night_run_file_name_list = [    # 只在晚上run
-    'tmall_real-times_update',
+    # server上不进行更新，放在本地更新
+    # 'tmall_real-times_update',
 ]
 # real-times脚本晚上运行时间
 night_run_time = ['21', '22', '23', '00', '01', '02', '03', '04', '05', '06',]

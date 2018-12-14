@@ -70,6 +70,7 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
             tmp_sql_server._delete_table(sql_str=mg_delete_str_4)
+            sleep(5)
             result = list(tmp_sql_server._select_table(sql_str=mg_select_str_3))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')

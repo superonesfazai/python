@@ -20,6 +20,8 @@ from fzutils.ip_pools import (
 CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
 # phantomjs驱动
 PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
+# firefox
+FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 
 # 我自己服务器上的地址
 # CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
@@ -597,6 +599,74 @@ COMPANY_ITEM_LIST = [
             'method': 'css',
             'selector': 'ul.pro-list li ::text',
         },
+        'lng': None,
+        'lat': None,
+    },
+    {
+        'short_name': 'mt',
+        'debug': True,
+        'obj_origin': 'i.meituan.com',
+        'categroy_info': {
+            'ul_list': {
+                'method': 'css',
+                'selector': 'ul.box.table',
+            },
+            'ul_li': {
+                'method': 'css',
+                'selector': 'li',
+            },
+            'one_type_url': {
+                'method': 'css',
+                'selector': 'a.react ::attr(href)',
+            },
+            'one_type_name': {
+                'method': 'css',
+                'selector': 'a.react ::text',
+            },
+            'cid': {
+                'method': 're',
+                'selector': 'cid=(\d+)',
+            },
+            'cate_type': {
+                'method': 're',
+                'selector': 'cateType=(\w+)',
+            }
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '/poi/(\d+)',
+        },
+        'shop_url': {                       # mt 店铺的url
+            'method': 'css',
+            'selector': 'dl.list dd.poi-list-item a.react ::attr("href")',
+        },
+        'company_link': None,
+        'company_name': {
+            'method': 're',
+            'selector': '\"name\":\"(.*?)\",',
+        },
+        'legal_person': None,
+        'phone': {
+            'method': 're',
+            'selector': '\"phone\":\"(.*?)\",',
+        },
+        'email_address': None,
+        'address': {
+            'method': 're',
+            'selector': '\"addr\":\"(.*?)\",',
+        },
+        'brief_introduction': None,
+        'business_range': None,
+        'founding_time': None,
+        'employees_num': None,
+        'lng': {
+            'method': 're',
+            'selector': '\"lng\":(.*?),',
+        },
+        'lat': {
+            'method': 're',
+            'selector': '\"lat\":(.*?),',
+        },
     },
     {
         'short_name': 'qcc',
@@ -659,6 +729,8 @@ COMPANY_ITEM_LIST = [
             'selector': 'div.basic-item div.basic-item-right ::text',
         },
         'employees_num': None,
+        'lng': None,
+        'lat': None,
     },
 ]
 

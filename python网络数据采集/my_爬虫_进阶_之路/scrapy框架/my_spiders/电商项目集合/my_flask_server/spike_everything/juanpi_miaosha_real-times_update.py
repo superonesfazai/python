@@ -66,12 +66,12 @@ class JPUpdater(AsyncCrawler):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
-    async def _get_db_old_data(self):
+    async def _get_db_old_data(self) -> (None, list):
         self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
             self.tmp_sql_server._delete_table(sql_str=jp_delete_str_4, params=None)
-            await async_sleep(1)
+            await async_sleep(5)
             result = list(self.tmp_sql_server._select_table(sql_str=jp_select_str_4))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')

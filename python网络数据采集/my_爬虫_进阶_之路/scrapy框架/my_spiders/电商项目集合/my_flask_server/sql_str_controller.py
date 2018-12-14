@@ -511,11 +511,10 @@ order by ID asc'''
 yp_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, {0} {1} where GoodsID = %s'
 yp_update_str_2 = tb_update_str_3
 
-
 """
 工商信息
 """
 '''select'''
-gs_select_str_1 = '''select unique_id from dbo.company_info where site_id=2'''
+gs_select_str_1 = '''select unique_id from dbo.company_info where site_id=%s'''
 '''insert'''
-gs_insert_str_1 = '''insert into dbo.company_info(province_id, city_id, unique_id, company_url, company_link, company_name, legal_person, phone, email_address, address, brief_introduction, business_range, founding_time, create_time, site_id, employees_num) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+gs_insert_str_1 = '''insert into dbo.company_info(province_id, city_id, unique_id, company_url, company_link, company_name, legal_person, phone, email_address, address, brief_introduction, business_range, founding_time, create_time, site_id, employees_num, type_code, lng, lat) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''

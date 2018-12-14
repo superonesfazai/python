@@ -119,3 +119,6 @@ class CompanyItem(Item):
     create_time = Field()           # 记录创建时间点
     site_id = Field()               # 采集源
     employees_num = Field()         # 员工人数
+    type_code = Field()             # 公司 or 商品分类的code
+    lng = Field()                   # 经度
+    lat = Field()                   # 纬度

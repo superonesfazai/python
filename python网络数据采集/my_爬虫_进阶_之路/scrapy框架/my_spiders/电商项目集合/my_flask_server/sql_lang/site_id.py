@@ -121,3 +121,14 @@ select top 4 price, taobao_price, sku_Info, miaosha_begin_time, miaosha_end_time
 from dbo.mia_xianshimiaosha
 order by id DESC
 '''
+
+'''
+company
+'''
+sql_str_7 = '''
+select unique_id as ID, company_link as '官网地址', company_name as '公司 or 工厂 or 部门名', legal_person as '法人', phone as '电话', email_address as '邮件', address as '地址', brief_introduction as '简介', business_range as '经营范围', founding_time as '成立时间', employees_num as '员工数'
+-- select count(unique_id)
+from dbo.company_info 
+where site_id=2 
+and city_id in (select code from dbo.Region where c_name='上海市')
+'''

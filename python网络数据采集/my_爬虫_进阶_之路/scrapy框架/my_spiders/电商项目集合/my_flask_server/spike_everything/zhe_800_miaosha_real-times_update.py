@@ -57,7 +57,7 @@ class Z8Updater(AsyncCrawler):
         result = None
         try:
             self.tmp_sql_server._delete_table(sql_str=z8_delete_str_4, params=None)
-            await async_sleep(1)
+            await async_sleep(5)
             result = list(self.tmp_sql_server._select_table(sql_str=z8_select_str_4))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
@@ -87,7 +87,7 @@ class Z8Updater(AsyncCrawler):
         :param goods_id:
         :return:
         '''
-        delete_str = 'update dbo.zhe_800_xianshimiaosha set is_delete = 1 where goods_id=%s'
+        delete_str = 'update dbo.zhe_800_xianshimiaosha set is_delete=1 where goods_id=%s'
         res = self.tmp_sql_server._update_table(sql_str=delete_str, params=(goods_id,))
         await async_sleep(.3)
 
@@ -146,8 +146,7 @@ class Z8Updater(AsyncCrawler):
                 except AssertionError:  # 说明这个sessionid没有数据, 就删除对应这个sessionid的限时秒杀商品
                     self.lg.error(msg='遇到错误:', exc_info=True)
                     res = await self._update_is_delete(goods_id)
-                    self.lg.info(
-                        msg='该sessionid没有相关key为jsons的数据! 过期的goods_id为({0}), 限时秒杀开始时间为({1}), 删除成功!'.format(
+                    self.lg.info(msg='该sessionid没有相关key为jsons的数据! 过期的goods_id为({0}), 限时秒杀开始时间为({1}), 删除成功!'.format(
                             goods_id,
                             miaosha_begin_time))
                     index += 1
@@ -211,16 +210,19 @@ class Z8Updater(AsyncCrawler):
                 else:  # 否则就解析并且插入
                     goods_data['stock_info'] = item_1.get('stock_info')
                     goods_data['goods_id'] = str(item_1.get('zid'))
-                    # goods_data['username'] = '18698570079'
                     if item_1.get('stock_info').get('activity_stock') > 0:
+                        # self.lg.info(item_1.get('price'))
+                        # self.lg.info(item_1.get('taobao_price'))
                         goods_data['price'] = item_1.get('price')
                         goods_data['taobao_price'] = item_1.get('taobao_price')
                     else:
-                        pass
+                        self.lg.info('该商品参与活动的对应库存为0')
+                        await self._update_is_delete(goods_id=goods_id)
+                        break
+
                     goods_data['sub_title'] = item_1.get('sub_title')
                     goods_data['miaosha_time'] = item_1.get('miaosha_time')
-                    goods_data['miaosha_begin_time'], goods_data[
-                        'miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
+                    goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
                         miaosha_time=item_1.get('miaosha_time'))
 
                     if goods_data.get('is_delete', 0) == 1:

@@ -82,6 +82,7 @@ class JMYPUpdater(AsyncCrawler):
         result = None
         try:
             self.tmp_sql_server._delete_table(sql_str=jm_delete_str_2)
+            await async_sleep(5)
             result = list(self.tmp_sql_server._select_table(sql_str=jm_select_str_1))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')

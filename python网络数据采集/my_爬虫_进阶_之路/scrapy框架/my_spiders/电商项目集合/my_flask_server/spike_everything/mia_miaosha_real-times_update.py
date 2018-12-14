@@ -72,6 +72,7 @@ class MIUpdater(AsyncCrawler):
         result = None
         try:
             self.tmp_sql_server._delete_table(sql_str=mia_delete_str_4)
+            await async_sleep(5)
             result = list(self.tmp_sql_server._select_table(sql_str=mia_select_str_3))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
