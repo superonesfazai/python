@@ -167,7 +167,8 @@ tm_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
 from dbo.GoodsInfoAutoGet 
 where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null and IsDelete=0
-order by ModfiyTime asc'''
+order by ModfiyTime asc
+'''
 '''insert'''
 # 带MainGoodsID的插入
 tm_insert_str_1 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete, MainGoodsID) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

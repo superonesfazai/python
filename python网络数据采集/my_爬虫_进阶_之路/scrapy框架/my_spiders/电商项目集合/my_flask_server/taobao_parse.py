@@ -327,7 +327,14 @@ class TaoBaoLoginAndParse(Crawler):
         data = kwargs.get('data', {})
 
         # 商品价格
-        tmp_taobao_price = data['apiStack'][0].get('value', '').get('price').get('price').get('priceText', '')
+        tmp_price_info = data['apiStack'][0].get('value', {}).get('price', {})
+        # pprint(tmp_price_info)
+        if tmp_price_info.get('price', {}).get('priceTitle', '') != '定金':
+            tmp_taobao_price = tmp_price_info.get('price', {}).get('priceText', '')
+        else:
+            # 单独处理是定金的情况
+            tmp_taobao_price = tmp_price_info.get('subPrice', {}).get('priceText', '')
+
         tmp_taobao_price = tmp_taobao_price.split('-')  # 如果是区间的话，分割成两个，单个价格就是一个
         # self.lg.info(str(tmp_taobao_price))
         if len(tmp_taobao_price) == 1:
@@ -677,7 +684,13 @@ class TaoBaoLoginAndParse(Crawler):
                 spec_value = '|'.join(prop_path)  # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
                 # self.lg.info(prop_path)
 
-                detail_price = str(float(value['price']['priceText']))
+                oo = value.get('price', {})
+                kk = value.get('subPrice', {})
+                if oo.get('priceTitle', '') != '定金':
+                    detail_price = str(float(oo['priceText']))
+                else:
+                    # 处理短期活动预付定金, 取当前价
+                    detail_price = str(float(kk['priceText']))
                 rest_number = value['quantity']
                 # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
                 # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']

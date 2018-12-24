@@ -167,7 +167,10 @@ class JuMeiYouPinSpike(object):
 
                         # pprint(goods_data)
                         # print(goods_data)
-                        jumei.insert_into_jumeiyoupin_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                        res = jumei.insert_into_jumeiyoupin_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                        if res:
+                            db_goods_id_list.append(goods_id)
+
                         sleep(JUMEIYOUPIN_SLEEP_TIME)  # 放慢速度   由于初始化用了phantomjs时间久，于是就不睡眠
 
                     try: del jumei

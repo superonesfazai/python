@@ -194,8 +194,13 @@ class ProxyChecker(AsyncCrawler):
         while True:
             while len(self.checked_proxy_list) < self.MIN_IP_POOl_NUM:
                 print('--->>> Ip Pool num: {} 个'.format(len(self.checked_proxy_list)))
-                # 单次请求api获取数据
-                proxy_list = await self._get_proxy_list(id=self.tri_id)
+                try:
+                    # 单次请求api获取数据
+                    proxy_list = await self._get_proxy_list(id=self.tri_id)
+                except:
+                    await async_sleep(4)
+                    continue
+
                 # pprint(proxy_list)
                 if proxy_list == []:
                     await async_sleep(4)

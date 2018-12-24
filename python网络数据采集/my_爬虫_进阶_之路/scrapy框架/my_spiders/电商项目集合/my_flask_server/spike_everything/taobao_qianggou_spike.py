@@ -179,7 +179,10 @@ class TaoBaoQiangGou(object):
                             goods_data['page'] = tmp_item.get('page')
                             goods_data['spider_time'] = tmp_item.get('spider_time')
 
-                            tmall.insert_into_taoqianggou_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                            res = tmall.insert_into_taoqianggou_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                            if res:
+                                db_all_goods_id.append(tmp_item.get('goods_id', ''))
+
                             await asyncio.sleep(TMALL_REAL_TIMES_SLEEP_TIME)
 
                         else:

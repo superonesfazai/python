@@ -19,8 +19,8 @@ from scrapy.selector import Selector
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
-    IP_POOL_TYPE,)
-
+    IP_POOL_TYPE,
+)
 from sql_str_controller import (
     al_select_str_1,
     al_update_str_1,
@@ -29,9 +29,19 @@ from sql_str_controller import (
     al_insert_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,
+    str_cookies_2_dict,
+    _get_url_contain_params,)
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
+from fzutils.spider.fz_driver import (
+    PHONE,
+    CHROME,
+    PHANTOMJS,
+    FIREFOX,)
+from fzutils.spider.fz_requests import Requests
 
 class ALi1688LoginAndParse(Crawler):
     def __init__(self, logger=None):
@@ -42,7 +52,10 @@ class ALi1688LoginAndParse(Crawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/1688/_/',
 
             is_use_driver=True,
-            driver_executable_path=PHANTOMJS_DRIVER_PATH,)
+            driver_type=PHANTOMJS,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+            user_agent_type=PHONE,
+        )
         self._set_headers()
         self.result_data = {}
         self.is_activity_goods = False
@@ -57,15 +70,35 @@ class ALi1688LoginAndParse(Crawler):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
+    def _get_phone_headers(self):
+        return {
+            'authority': 'm.1688.com',
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+        }
+
     def get_ali_1688_data(self, goods_id):
         if goods_id == '':
             return self._data_error_init()
 
-        wait_to_deal_with_url = 'https://m.1688.com/offer/' + str(goods_id) + '.html'
+        wait_to_deal_with_url = 'https://m.1688.com/offer/{}.html'.format(goods_id)
         self.lg.info('------>>>| 待处理的阿里1688地址为: {0}'.format(wait_to_deal_with_url))
 
         self.error_base_record = '出错goods_id:{0}'.format(goods_id)
-        body = self.driver.use_phantomjs_to_get_url_body(url=wait_to_deal_with_url, css_selector='div.d-content')
+        # driver
+        body = self.driver.use_phantomjs_to_get_url_body(
+            url=wait_to_deal_with_url,)
+            # css_selector='div.d-content',)
+
+        # 改用requests
+        # body = Requests.get_url_body(
+        #     url=wait_to_deal_with_url,
+        #     headers=self._get_phone_headers(),
+        #     ip_pool_type=self.ip_pool_type,)
         # self.lg.info(str(body))
         if body == '':
             self.lg.error('获取到的body为空str!请检查!' + self.error_base_record)

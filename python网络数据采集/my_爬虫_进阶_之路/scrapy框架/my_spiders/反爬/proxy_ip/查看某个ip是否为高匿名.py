@@ -57,7 +57,7 @@ if __name__ == '__main__':
     # 117.158.65.216:50049 error
     # 117.158.152.100:58924 error
     # 111.74.234.57:808
-    ip_address = '110.53.152.12'
-    port = 80
+    ip_address = '183.134.215.29'
+    port = 41742
     res = judge_ip_is_anonymity(ip_address=ip_address, port=port, httpbin=True)
     print(res)

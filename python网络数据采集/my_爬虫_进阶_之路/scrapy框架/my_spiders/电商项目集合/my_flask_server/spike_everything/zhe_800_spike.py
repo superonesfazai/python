@@ -145,7 +145,10 @@ class Zhe800Spike(object):
                                 goods_data['session_id'] = str(base_session_id)
 
                                 # print(goods_data)
-                                zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                                res = zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                                if res:
+                                    db_goods_id_list.append(goods_id)
+
                                 sleep(ZHE_800_SPIKE_SLEEP_TIME)   # 放慢速度
 
                     sleep(4)

@@ -173,7 +173,10 @@ class ChuChuJie_9_9_Spike(object):
                             goods_data['gender'] = str(item.get('gender', '0'))
                             goods_data['page'] = item.get('page')
 
-                            chuchujie.insert_into_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                            res = chuchujie.insert_into_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                            if res:
+                                db_goods_id_list.append(goods_id)
+
                             # sleep(CHUCHUJIE_SLEEP_TIME)  # 放慢速度   由于初始化用了phantomjs时间久，于是就不睡眠
                         # index += 1
         else:

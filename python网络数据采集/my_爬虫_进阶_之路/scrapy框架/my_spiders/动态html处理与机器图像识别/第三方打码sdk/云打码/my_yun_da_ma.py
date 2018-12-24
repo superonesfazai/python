@@ -11,5 +11,7 @@ res = yundama_ocr_captcha(
     username=username,
     pwd=pwd,
     app_key=app_key,
-    img_path='./data/captcha.jpg')
+    # img_path='./data/captcha.jpg')
+    img_path='./data/mt_captcha.jpg')
+
 print('识别结果:{}'.format(res))

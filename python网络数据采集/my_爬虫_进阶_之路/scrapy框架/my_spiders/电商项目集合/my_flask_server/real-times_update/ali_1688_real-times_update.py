@@ -174,6 +174,12 @@ class ALUpdater(AsyncCrawler):
                     self.lg.info('规格的库存变动!!')
                 # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))
 
+                # 单独处理起批量>=1的
+                begin_greater_than_1 = await self.judge_begin_greater_than_1(price_info=data['price_info'], logger=self.lg)
+                if begin_greater_than_1:
+                    self.lg.info('该商品 起批量 大于1, 下架!!')
+                    data['is_delete'] = 1
+
                 res = self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
                 await async_sleep(.3)
 
@@ -189,6 +195,25 @@ class ALUpdater(AsyncCrawler):
         await async_sleep(2.)       # 避免被发现使用代理
 
         return [goods_id, res]
+
+    async def judge_begin_greater_than_1(self, price_info: list, logger) -> bool:
+        '''
+        判断起批量是否大于1, 大于1则返回True, <=1 返回False
+        :return:
+        '''
+        if price_info == []:
+            return False
+
+        try:
+            price_info.sort(key=lambda item: int(item.get('begin')))
+            # pprint(price_info)
+            if int(price_info[0]['begin']) > 1:
+                return True
+            else:
+                return False
+        except Exception:
+            logger.error('遇到错误:', exc_info=True)
+            return True
 
     async def _update_db(self):
         '''

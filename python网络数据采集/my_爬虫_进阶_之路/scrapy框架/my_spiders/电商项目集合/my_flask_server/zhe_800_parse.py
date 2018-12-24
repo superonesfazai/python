@@ -379,7 +379,14 @@ class Zhe800Parse(Crawler):
                 # 商品标签属性名称
                 detail_name_list = _get_detail_name_list(s_item)
 
-                tmp_spec_value_1 = [str(item.split('-')[1]) for item in s_item.get('propertyName').split(':')]  # ['红格', 'S']
+                oo = s_item.get('propertyName').split(':')
+                # pprint(oo)
+                tmp_spec_value_1 = []   # ['红格', 'S']
+                for i in oo:
+                    try:
+                        tmp_spec_value_1.append(str(i.split('-')[1]))
+                    except IndexError:  # 跳过['']的
+                        pass
                 tmp_spec_value_2 = '|'.join(tmp_spec_value_1)  # '红格|S'
                 # print(tmp_spec_value_2)
                 property_num = s_item.get('propertyNum', '')
@@ -396,7 +403,11 @@ class Zhe800Parse(Crawler):
                 else:  # 有规格的情况
                     is_spec = True
                     # 每个规格对应的库存量
-                    count = [item.get('count', 0) for item in stock_items if property_num == item.get('skuNum', '')][0]
+                    try:
+                        count = [item.get('count', 0) for item in stock_items if property_num == item.get('skuNum', '')][0]
+                    except IndexError:
+                        continue
+
                     price_info_list.append({
                         'spec_value': tmp_spec_value_2,
                         'detail_price': s_item.get('curPrice', '') if s_item.get('curPrice', '') != '' else s_item.get('orgPrice', ''),     # 促销价不为空

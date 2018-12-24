@@ -5,16 +5,14 @@ import socket
 import socks
 import requests
 
-url = 'http://api.ipify.org?format=json'
+url = 'https://httpbin.org/get'
+socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+socket.socket = socks.socksocket
 
 def get_url_body(url):
-    socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
-    socket.socket = socks.socksocket
-
     r = requests.get(url)
     body = r.text
     print(body)
-    print("[+] IP is: " + body.replace("\n", ""))
 
     return body
 

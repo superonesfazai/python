@@ -390,7 +390,7 @@ class TmallParse(Crawler):
 
         return result
 
-    def insert_into_taoqianggou_xianshimiaosha_table(self, data, pipeline):
+    def insert_into_taoqianggou_xianshimiaosha_table(self, data, pipeline) -> bool:
         '''
         将数据规范化插入淘抢购表
         :param data:
@@ -401,11 +401,13 @@ class TmallParse(Crawler):
             tmp = _get_right_model_data(data=data, site_id=28, logger=self.lg)   # 采集来源地(淘抢购)
         except:
             print('此处抓到的可能是淘宝秒杀券所以跳过')
-            return
+            return False
         self.lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
         params = self._get_db_insert_taoqianggou_miaosha_params(item=tmp)
-        pipeline._insert_into_table_2(sql_str=tm_insert_str_3, params=params, logger=self.lg)
+        res = pipeline._insert_into_table_2(sql_str=tm_insert_str_3, params=params, logger=self.lg)
+
+        return res
 
     async def _update_taoqianggou_xianshimiaosha_table(self, data, pipeline):
         '''

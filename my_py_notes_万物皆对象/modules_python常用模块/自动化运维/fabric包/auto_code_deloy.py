@@ -146,6 +146,9 @@ def get_connected_hosts():
 
     my_group = []
     for item in hosts_info:
+        if item.get('ip', '') == '176.122.147.85':
+            continue
+
         _ = group.Connection(
             host=item.get('ip'),
             user=item.get('user'),

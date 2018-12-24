@@ -12,12 +12,18 @@
 
 from gc import collect
 from json import dumps
+from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
-class NECIPSSpider(object):
+class NECIPSSpider(AsyncCrawler):
     """基于wx small program"""
-    def __init__(self):
-        self.loop = get_event_loop()
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            ip_pool_type=tri_ip_pool
+        )
         self.keyword = None
 
     async def _get_wx_headers(self):
@@ -31,7 +37,6 @@ class NECIPSSpider(object):
 
     async def _get_pc_headers(self):
         return {
-            'Origin': 'http://www.jsgsj.gov.cn:58888',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'User-Agent': get_random_pc_ua(),
@@ -62,7 +67,7 @@ class NECIPSSpider(object):
             'sourceType': 'W'
         }
         url = 'https://app.gsxt.gov.cn/gsxt/corp-query-app-search-1.html'
-        _ = json_2_dict(Requests.get_url_body(method='post', url=url, headers=await self._get_wx_headers(), data=data))
+        _ = json_2_dict(await unblock_request(method='post', url=url, headers=await self._get_wx_headers(), data=data, ip_pool_type=self.ip_pool_type))
         pprint(_)
 
         return _
@@ -85,7 +90,7 @@ class NECIPSSpider(object):
             'Referer': 'http://www.jsgsj.gov.cn:58888/province/jiangsu.jsp?typeName=&searchType=qyxx',      # 必带头, typeName请求一次
             'User-Agent': get_random_pc_ua(),
         }
-        name = json_2_dict(Requests.get_url_body(method='post', url=url, headers=headers, params=params, data=data)).get('bean', {}).get('name', '')
+        name = json_2_dict(await unblock_request(method='post', url=url, headers=headers, params=params, data=data, ip_pool_type=self.ip_pool_type)).get('bean', {}).get('name', '')
         # pprint(name)
 
         return name
@@ -115,9 +120,10 @@ class NECIPSSpider(object):
         url = 'http://www.jsgsj.gov.cn:58888/province/infoQueryServlet.json'
         headers = await self._get_pc_headers()
         headers.update({
+            'Origin': 'http://www.jsgsj.gov.cn:58888',
             'Referer': 'http://www.jsgsj.gov.cn:58888/province/jiangsu.jsp?typeName=&searchType=qyxx',  # 此处typeName也为空
         })
-        data = json_2_dict(Requests.get_url_body(method='post', url=url, headers=headers, params=params, cookies=None, data=data))
+        data = json_2_dict(await unblock_request(method='post', url=url, headers=headers, params=params, data=data, ip_pool_type=self.ip_pool_type))
         pprint(data)
 
         return data

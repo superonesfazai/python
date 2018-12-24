@@ -261,12 +261,14 @@ class JuanPiParse(Crawler):
 
         pipeline._update_table(sql_str=sql_str, params=params)
 
-    def insert_into_juanpi_xianshimiaosha_table(self, data, pipeline):
+    def insert_into_juanpi_xianshimiaosha_table(self, data, pipeline) -> bool:
         tmp = _get_right_model_data(data=data, site_id=15)
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        pipeline._insert_into_table(sql_str=jp_insert_str_1, params=params)
+        res = pipeline._insert_into_table(sql_str=jp_insert_str_1, params=params)
+
+        return res
 
     def to_update_juanpi_xianshimiaosha_table(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=15)

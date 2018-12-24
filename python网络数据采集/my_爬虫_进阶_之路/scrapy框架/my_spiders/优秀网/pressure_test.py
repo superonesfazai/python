@@ -7,7 +7,7 @@
 '''
 
 from gc import collect
-from fzutils.ip_pools import fz_ip_pool
+from fzutils.ip_pools import fz_ip_pool, tri_ip_pool
 from fzutils.spider.async_always import *
 
 class YXPT(AsyncCrawler):
@@ -17,7 +17,7 @@ class YXPT(AsyncCrawler):
             self,
             *params,
             **kwargs,
-            ip_pool_type=fz_ip_pool
+            ip_pool_type=tri_ip_pool
         )
         # 100个10s, 500个33s, 800个54s, 1500个100s
         self.concurrency = 500

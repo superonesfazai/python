@@ -133,17 +133,19 @@ class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):
 
         return {}
 
-    def insert_into_mogujie_xianshimiaosha_table(self, data, pipeline):
+    def insert_into_mogujie_xianshimiaosha_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=22)  # 采集来源地(蘑菇街秒杀商品)
         except:
             print('此处抓到的可能是蘑菇街券所以跳过')
-            return None
+            return False
         # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
-        pipeline._insert_into_table(sql_str=mg_insert_str_1, params=params)
+        res = pipeline._insert_into_table(sql_str=mg_insert_str_1, params=params)
+
+        return res
 
     def update_mogujie_xianshimiaosha_table(self, data, pipeline):
         try:

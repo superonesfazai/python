@@ -136,7 +136,9 @@ class MoGuJieSpike(object):
                         goods_data['event_time'] = str(event_time)
                         # pprint(goods_data)
                         # print(goods_data)
-                        mogujie.insert_into_mogujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                        res = mogujie.insert_into_mogujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                        if res:
+                            db_goods_id_list.append(goods_id)
 
                     sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 

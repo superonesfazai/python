@@ -37,6 +37,10 @@ from datetime import datetime
 import requests_html
 from pypinyin import lazy_pinyin
 from dateutil.parser import parse as date_util_parse
+from asyncio import TimeoutError as AsyncTimeoutError
+from asyncio import wait_for
+from PIL import Image
+
 from fzutils.ip_pools import (
     fz_ip_pool,
     tri_ip_pool,)
@@ -49,6 +53,9 @@ from fzutils.spider.fz_driver import (
     PHANTOMJS)
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.spider.fz_aiohttp import AioHttp
+from fzutils.spider.selenium_always import *
+from fzutils.spider.fz_driver import BaseDriver
+from fzutils.ocr_utils import yundama_ocr_captcha
 from fzutils.spider.async_always import *
 
 class CompanySpider(AsyncCrawler):
@@ -62,9 +69,9 @@ class CompanySpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/'
         )
         # 设置爬取对象
-        self.spider_name = 'mt'
+        self.spider_name = 'hy'
         # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
-        self.concurrency = 50
+        self.concurrency = 30
         self.sema = Semaphore(self.concurrency)
         assert 100 > self.concurrency, 'self.concurrency并发量不允许大于100!'
         self.sema = Semaphore(self.concurrency)
@@ -73,22 +80,29 @@ class CompanySpider(AsyncCrawler):
         # 设置企查查抓取截止页数
         self.qcc_max_page_num = 2000
         # hy抓取开始company_id (88402,)
-        self.hy_min_company_id = 1003315
+        self.hy_min_company_id = 1185571
         # 设置hy抓取截止company_id(20000000)(直接写20000000, 程序会卡死)
-        self.hy_max_company_id = 1100000
-        # 美团m最大限制页数
-        self.mt_max_page_num = 300
+        self.hy_max_company_id = 1240000
+        # mt最大限制页数(只抓取前50页, 后续无数据)
+        self.mt_max_page_num = 50
+        # mt robot ocr record shop_id
+        self.mt_ocr_record_shop_id = ''
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
         self._set_province_code_list_and_city_code_list()
         self.ty_cookies_dict = {}
         # ty robot
         self.ty_robot = False
+        # mt robot
+        self.mt_robot = False
         # 存储的sql_str
         self.insert_into_sql = gs_insert_str_1
         # driver path
         self.driver_path = PHANTOMJS_DRIVER_PATH
         # driver timeout
         self.driver_timeout = 20
+        # wx sc_key
+        with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
+            self.sc_key = json_2_dict(f.read())['sckey']
 
     def _set_province_code_list_and_city_code_list(self) -> None:
         '''
@@ -116,7 +130,7 @@ class CompanySpider(AsyncCrawler):
         '''
         self.lg.info('--->>> spider_name: {}'.format(self.spider_name))
         if short_name == 'ty':
-            # vip(1年360) 会员才能查看多页的企业信息内容, 而且vip每天只能查看5000家公司, 真抠-_-!, pass
+            # vip(1年360, tb 9.8) 会员才能查看多页的企业信息内容, 而且vip每天只能查看5000家公司, 真抠-_-!, pass
             await self._ty_spider()
 
         elif short_name == 'qcc':
@@ -124,7 +138,7 @@ class CompanySpider(AsyncCrawler):
 
         elif short_name == 'hy':
             await self._hy_spider()
-            
+
         elif short_name == 'mt':
             await self._mt_spider()
 
@@ -134,7 +148,7 @@ class CompanySpider(AsyncCrawler):
     async def _mt_spider(self):
         '''
         mtspider
-        :return: 
+        :return:
         '''
         self.db_mt_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=4)
         self.category_list = await self._get_category()
@@ -153,10 +167,11 @@ class CompanySpider(AsyncCrawler):
         :param kwargs:
         :return:
         '''
-        async def _get_tasks_params_list(cid, cate_type) -> list:
+        async def _get_tasks_params_list(cid, cate_type, one_type_name) -> list:
             '''获取tasks_params_list'''
             tasks_params_list = []
-            for page_num in range(1, self.mt_max_page_num + 1):
+            PAGE_RANGE = range(1, self.mt_max_page_num+1) if one_type_name != '全部' else range(1, 300+1)
+            for page_num in PAGE_RANGE:
                 tasks_params_list.append({
                     'cid': cid,
                     'cate_type': cate_type,
@@ -166,16 +181,16 @@ class CompanySpider(AsyncCrawler):
             return tasks_params_list
 
         for city_name in self.mt_city_name_list:
-            for item in self.category_list:
+            for cid_index, item in enumerate(self.category_list):
                 cid, cate_type = item['cid'], item['cate_type']
+                one_type_name = item['one_type_name']
                 if cid == '' or cate_type == '':
                     # 无值则跳过
                     continue
 
-                tasks_params_list = await _get_tasks_params_list(cid=cid, cate_type=cate_type)
+                tasks_params_list = await _get_tasks_params_list(cid=cid, cate_type=cate_type, one_type_name=one_type_name)
                 tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
 
-                all_res = []
                 while True:
                     try:
                         slice_params_list = tasks_params_list_obj.__next__()
@@ -183,14 +198,18 @@ class CompanySpider(AsyncCrawler):
                         break
 
                     tasks = []
+                    # cookies = await self._get_mt_cookies_dict()
+                    # if cookies == {}:
+                    #     continue
                     for k in slice_params_list:
                         page_num = k['page_num']
-                        self.lg.info('create task[where city_name:{}, page_num:{}]...'.format(city_name, page_num))
+                        self.lg.info('create task[where city_name:{}, page_num:{}, cid_index:{}]...'.format(city_name, page_num, cid_index))
                         tasks.append(self.loop.create_task(self._crawl_mt_someone_city_someone_type_one_page_info(
                             city_name=city_name,
                             page_num=page_num,
                             cid=k['cid'],
-                            cate_type=k['cate_type'],)))
+                            cate_type=k['cate_type'],
+                            cookies='')))
 
                     one_res = await async_wait_tasks_finished(tasks=tasks)
                     # 避免内存泄漏, 主动释放
@@ -200,7 +219,6 @@ class CompanySpider(AsyncCrawler):
                     for i in one_res:
                         for j in i:
                             # pprint(j)
-                            # all_res.append(j)
                             new_res.append(j)
 
                     self.lg.info('开始采集city_name:{}, cid:{}, 对应的商铺信息...'.format(city_name, cid))
@@ -213,6 +231,39 @@ class CompanySpider(AsyncCrawler):
 
         return None
 
+    async def _get_mt_cookies_dict(self, num_retries=6) -> dict:
+        '''
+        获取mt主页cookies
+        :return:
+        '''
+        cookies = {}
+        try:
+            driver = BaseDriver(
+                executable_path=self.driver_path,
+                logger=self.lg,
+                user_agent_type=PHONE,
+                ip_pool_type=self.ip_pool_type,)
+            cookies_str = driver.get_url_cookies_from_phantomjs_session(url='http://i.meituan.com')
+            cookies = str_cookies_2_dict(cookies_str)
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+        finally:
+            try:
+                del driver
+            except:
+                pass
+            collect()
+            if num_retries < 0:
+                pass
+            else:
+                if cookies == {}:
+                    self.lg.info('{} try...'.format(6-(num_retries-1)))
+                    return await self._get_mt_cookies_dict(num_retries=num_retries-1)
+                else:
+                    pass
+
+            return cookies
+
     async def _crawl_mt_someone_city_someone_type_one_page_info(self, **kwargs) -> list:
         '''
         抓取mt某城市的某个分类的单页信息
@@ -220,16 +271,17 @@ class CompanySpider(AsyncCrawler):
         '''
         async def _get_request_params() -> tuple:
             '''请求参数'''
+            nonlocal city_name
             return (
                 ('cid', str(cid)),      # cid 为-1, 表示没有筛选分类, 1:美食 4:购物 20383:时尚购 20252:健身, 可以从全部分类中获取
                 ('bid', '-1'),
                 ('sid', 'defaults'),
                 ('p', str(page_num)),
-                # ('ciid', ''),           # ciid是城市的对应id, 可以为空值
+                ('ciid', await self._get_mt_ciid(city_name=city_name)),           # ciid是城市的对应id, 可以为空值
                 ('bizType', 'area'),
                 ('csp', ''),
                 ('stid_b', '_b2'),
-                ('cateType', cate_type),
+                ('cateType', 'poi'),    # 都设置为poi, 没有deal
                 ('nocount', 'true'),
             )
 
@@ -265,19 +317,31 @@ class CompanySpider(AsyncCrawler):
         cid = kwargs['cid']
         cate_type = kwargs['cate_type']
         page_num = kwargs['page_num']
+        cookies = kwargs['cookies']
 
-        city_name:str = ''.join(lazy_pinyin(city_name))
+        city_name_pinyin:str = ''.join(lazy_pinyin(city_name))
         headers = await self._get_phone_headers()
+        referer = 'http://i.meituan.com/{}/all/?cid={}&p={}&cateType=poi&stid_b=3'.format(
+            city_name_pinyin,
+            cid,
+            page_num)
         headers.update({
             'Accept': 'text/html',
-            # 'Referer': 'http://i.meituan.com/shanghai/all/?stid_b=4',
+            'Referer': referer,
             'X-Requested-With': 'XMLHttpRequest',
             'Proxy-Connection': 'keep-alive',
         })
         params = await _get_request_params()
-        url = 'http://i.meituan.com/select/{}/page_{}.html'.format(city_name, page_num)
+        url = 'http://i.meituan.com/select/{}/page_{}.html'.format(city_name_pinyin, page_num)
+        # self.lg.info('分类的单页url:{}'.format(url))
+
         # 1. request
-        # body = await unblock_request(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
+        # body = await unblock_request(
+        #     url=url,
+        #     headers=headers,
+        #     params=params,
+        #     cookies=cookies,
+        #     ip_pool_type=self.ip_pool_type)
         # 处理跳转链接
         # dump_url = Selector(text=body).css('div.go-visit a.i-link ::attr("href")').extract_first() or ''
         # if dump_url != '':
@@ -308,31 +372,32 @@ class CompanySpider(AsyncCrawler):
         '''
         url = _get_url_contain_params(url, params)
         self.lg.info('分类的单页url:{}'.format(url))
-        # 不用点击的页面(即直接返回正确结果的)就当做异常抛出
-        body = await unblock_request_by_driver(
-            url=url,
-            type=PHANTOMJS,
-            executable_path=self.driver_path,
-            logger=self.lg,
-            headless=True,
-            user_agent_type=PHONE,
-            ip_pool_type=self.ip_pool_type,
-            timeout=self.driver_timeout + 5,    # 设置成25保证更高的业务成功率
-            exec_code=exec_code)
-        # self.lg.info(body)
-        # if 'deal-container' not in body:
-        #     self.lg.error('此次抓取未获取到需求信息! 出错url: {}'.format(url))
-        #     return []
+        with await self.sema:
+            # 不用点击的页面(即直接返回正确结果的)就当做异常抛出
+            body = await unblock_request_by_driver(
+                url=url,
+                type=PHANTOMJS,
+                executable_path=self.driver_path,
+                logger=self.lg,
+                headless=True,
+                user_agent_type=PHONE,
+                ip_pool_type=self.ip_pool_type,
+                timeout=self.driver_timeout + 5,    # 设置成25保证更高的业务成功率
+                exec_code=exec_code,)
+            # self.lg.info(body)
+            # if 'deal-container' not in body:
+            #     self.lg.error('此次抓取未获取到需求信息! 出错url: {}'.format(url))
+            #     return []
 
-        res = await _parse(body=body)
-        self.lg.info('[{}] city_name:{}, cid:{}, cate_type:{}, page_num:{}'.format(
-            '+' if res != [] else '-',
-            city_name,
-            cid,
-            cate_type,
-            page_num,))
+            res = await _parse(body=body)
+            self.lg.info('[{}] city_name:{}, cid:{}, cate_type:{}, page_num:{}'.format(
+                '+' if res != [] else '-',
+                city_name,
+                cid,
+                cate_type,
+                page_num,))
 
-        return res
+            return res
 
     async def unblock_request_by_requests_html(self, url, headers=None, params=None, cookies=None, js_code=None):
         '''
@@ -402,6 +467,11 @@ class CompanySpider(AsyncCrawler):
                 company_id = k['company_id']
                 company_url = k['company_url']
                 type_code = k['type_code']      # 分类的cid
+
+                if 'mt' + company_id in self.db_mt_unique_id_list:
+                    self.lg.info('该company_id[{}]已存在于db中...跳过'.format('mt' + company_id))
+                    continue
+
                 self.lg.info('create task[where city_name:{}, company_id:{}]...'.format(city_name, company_id))
                 tasks.append(self.loop.create_task(self._parse_one_company_info(
                     short_name='mt',
@@ -412,16 +482,151 @@ class CompanySpider(AsyncCrawler):
 
             one_res = await async_wait_tasks_finished(tasks=tasks)
 
+            fail_count = 0
             for i in one_res:
                 index += 1
                 if i != {}:
                     # pprint(i)
-                    await self._save_company_item(
+                    unique_id = i.get('unique_id', '')
+                    res = await self._save_company_item(
                         company_item=i,
                         index=index)
-                    pass
+                    self.mt_ocr_record_shop_id = unique_id
+                    if res:
+                        self.db_mt_unique_id_list.append(i['unique_id'])
+                    else:
+                        self.lg.info('该company_id[{}]已存在于db中...'.format(unique_id))
+                else:
+                    fail_count += 1
 
-            await async_sleep(2.)
+            await self._mt_crawl_exception_handler(
+                fail_count=fail_count,
+                one_res_len=len(one_res))
+            try:
+                await async_sleep(2.)
+            except:
+                pass
+
+    async def _mt_crawl_exception_handler(self, **kwargs):
+        '''
+        店铺信息抓取异常，认证处理
+        :return:
+        '''
+        fail_count: int = kwargs['fail_count']
+        one_res_len: int = kwargs['one_res_len']
+
+        if fail_count/one_res_len > 1/2:
+            try:
+                res = await async_send_msg_2_wx(sc_key=self.sc_key, title='美团认证提醒!', msg=get_uuid1())
+                # 超时则异常退出!
+                await wait_for(self._mt_robot_y(), timeout=10*60)
+            except (AsyncTimeoutError, Exception):
+                self.lg.error('遇到错误:', exc_info=True)
+            finally:
+                return None
+
+    async def _mt_robot_y(self):
+        while True:
+            a = input('请找个店铺地址进行mt的人工识别!(完成请输入y)')
+            if a in ('Y', 'y'):
+                self.mt_robot = False
+                break
+
+        # 打码接入
+        # print('--->>> 动态打码中...')
+        # print('初始化chrome...')
+        # chrome_options = webdriver.ChromeOptions()
+        # # chrome_options.add_argument('--user-agent={0}'.format(get_random_phone_ua()))
+        #
+        # driver = webdriver.Chrome(
+        #     executable_path=CHROME_DRIVER_PATH,
+        #     options=chrome_options
+        # )
+        # print('初始化完毕!')
+        # try:
+        #     driver.get('https://meishi.meituan.com/i/poi/{}'.format(self.mt_ocr_record_shop_id.replace('mt', '')))
+        #     html = driver.page_source
+        #     # print(html)
+        #     if '验证中心' in html:
+        #         # geckodriver 21.0 等待时间超过 5 秒，会提示 ConnectionResetError
+        #         sleep(1)
+        #         await self._get_mt_captcha_img(driver=driver)
+        #
+        #         res = await self._ocr_mt_captcha()
+        #         while True:
+        #             if '看不清' in res:
+        #                 print('看不清, 重新点击验证码...')
+        #                 driver.find_element_by_id('yodaNextImgCode').send_keys(Keys.ENTER)
+        #                 sleep(1)
+        #                 await self._get_mt_captcha_img(driver=driver)
+        #             else:
+        #                 break
+        #
+        #         print('输入中...')
+        #         driver.find_element_by_css_selector('input#yodaImgCodeInput').send_keys(res)
+        #
+        #         sleep(2)
+        #         # TODO 报错cannot read globalerror
+        #         driver.find_element_by_id('yodaImgCodeSure').send_keys(Keys.ENTER)
+        #     else:
+        #         pass
+        # except Exception as e:
+        #     print(e)
+        #
+        # sleep(2 * 60)
+        # try:
+        #     driver.quit()
+        # except:
+        #     pass
+        # collect()
+
+    async def _get_mt_captcha_img(self, driver) -> None:
+        '''
+        截取验证码
+        :return:
+        '''
+        driver.save_screenshot('tmp_mt.png')
+        captcha_css_selector = driver.find_element_by_css_selector('#yodaImgCode')
+        location = captcha_css_selector.location
+        size = captcha_css_selector.size
+        print('location: {}, size: {}'.format(location, size))
+
+        # 裁剪出验证码
+        img1 = Image.open('tmp_mt.png')
+        left = location['x']
+        upper = location['y']
+        right = left + size['width']
+        lower = upper + size['height']
+
+        box = (left, upper, right, lower)
+        print('box:{}'.format(box))
+
+        img2 = img1.crop(box)
+        img2.save('mt_captcha.png')
+
+        return
+
+    async def _ocr_mt_captcha(self) -> str:
+        '''
+        打码
+        :return:
+        '''
+        with open('/Users/afa/myFiles/pwd/yundama_pwd.json', 'r') as f:
+            yundama_info = json_2_dict(f.read())
+
+        username = yundama_info['username']
+        pwd = yundama_info['pwd']
+        app_key = yundama_info['app_key']
+        res = yundama_ocr_captcha(
+            username=username,
+            pwd=pwd,
+            app_key=app_key,
+            code_type=1004,  # 4位字符数字
+            img_path='./mt_captcha.png')
+
+        print('识别结果:{}'.format(res))
+
+        return res
 
     async def _get_mt_all_city_name_list(self) -> list:
         '''
@@ -432,7 +637,12 @@ class CompanySpider(AsyncCrawler):
         for i in ['北京', '上海', '天津', '重庆']:
             _.append(i)
 
-        return _
+        res = []
+        for i in _:
+            if i not in ['北京', '石家庄', '武汉']:
+                res.append(i)
+
+        return ['天津']
 
     async def _get_category(self, city_name='北京') -> list:
         '''
@@ -492,7 +702,7 @@ class CompanySpider(AsyncCrawler):
                 is_first=False,
                 logger=self.lg)
             type_list = []
-            for item in ul_list[1:]:  # 跳过热门
+            for item in ul_list[:]:  # 不跳过热门
                 li_list =  await async_parse_field(
                     parser=categroy_info_parser_obj['ul_li'],
                     target_obj=item,
@@ -608,6 +818,8 @@ class CompanySpider(AsyncCrawler):
                     company_url=company_url)))
 
             one_res = await async_wait_tasks_finished(tasks=tasks)
+            kill_process_by_name(process_name='phantomjs')
+
             for i in one_res:
                 index += 1
                 if i != {}:
@@ -644,7 +856,7 @@ class CompanySpider(AsyncCrawler):
         })
         with open('/Users/afa/myFiles/pwd/tianyancha_pwd.json', 'r') as f:
             ty_pwd_info = json_2_dict(f.read(), logger=self.lg)
-            
+
         data = dumps({
             'mobile': ty_pwd_info['username'],
             'cdpassword': ty_pwd_info['pwd'],
@@ -2196,6 +2408,36 @@ class CompanySpider(AsyncCrawler):
         }
 
     @staticmethod
+    async def _get_mt_ciid(city_name) -> str:
+        '''
+        获取美团城市代码(弃用)
+        :return:
+        '''
+        _ = {
+            '北京': 1,
+            '上海': 10,
+            '天津': 40,
+            '重庆': 45,
+            '石家庄': 76,
+            '保定': 84,
+            '张家口': 125,
+            '沈阳': 66,
+            '南京': 55,
+            '杭州': 50,
+            '金华': 188,
+            '青岛': 60,
+            '武汉': 57,
+            '广州': 20,
+            '深圳': 30,
+        }
+        ciid = ''
+        for key, value in _.items():
+            if city_name == key:
+                return str(value)
+
+        return ciid
+
+    @staticmethod
     async def _get_crawl_province_area() -> list:
         '''
         抓取的省份
@@ -2230,6 +2472,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         kill_process_by_name('phantomjs')
         kill_process_by_name('firefox')
-
-
-
