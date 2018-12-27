@@ -258,6 +258,31 @@ finally:
 安排协程的执行：将来包装它。任务是一个子类Future。
 ```
 
+### asyncio.wait(tasks) 与 async.gather(*task)的区别
+- gather更加high-level高层， gather除了多任务外，还可以对任务进行分组。优先使用gather
+- 两者都可以将多个任务封装成task注册到事件循环中，不同的是，前者可以接收一个task列表，后者可以接收多个task
+- 注意，两者返回值是不一样的
+    - asyncio.wait() 返回值是一个元组，(finished_task_set, pending_task_set)，即处于finish状态的task和处于pending状态的task的集合。task内封装了协程的运行状态，想要获取协程的结果，需要调用遍历并调用task的
+    - async.gather() 返回值是一个列表，存放了协程函数的返回值
+    
+### asyncio.as_completed(tasks)
+```python
+for url in range(20):
+        url = 'http://shop.projectsedu.com/goods/{}/'.format(url)
+        tasks.append(asyncio.ensure_future(get_url(url)))     # tasks中放入的是future
+    for task in asyncio.as_completed(tasks):    # 完成一个 print一个
+        result = await task
+        print(result)
+```
+
+## 协程通信
+### queue
+协程是单线程的，所以协程中完全可以使用全局变量实现queue来相互通信，但是如果想要 在queue中定义存放有限的最大数目。 我们需要使用 :
+```python
+from asyncio import Queue
+queue = Queue(maxsize=3)   # queue的put和get需要用await
+```
+
 ## 并发和多线程
 
 ## 传输

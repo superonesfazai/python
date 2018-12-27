@@ -132,3 +132,26 @@ from dbo.company_info
 where site_id=2 
 and city_id in (select code from dbo.Region where c_name='上海市')
 '''
+sql_str_8 = '''
+use Gather;
+select 
+-- a.province_id as '省份id', 
+-- a.city_id as '城市id', 
+a.company_name as '公司or部门名',
+a.legal_person as '法人',
+a.phone as '手机',
+a.email_address as '邮件',
+a.address as '地址',
+a.brief_introduction as '简介',
+a.business_range as '经营范围',
+a.employees_num as '员工人数',
+a.company_link as '公司or部门官网地址', 
+b.c_name as '城市名'
+-- select count(id)
+from dbo.company_info as a, dbo.Region as b
+-- from dbo.company_info
+where site_id=2 
+and (phone != '[]' or email_address != '[]')
+and a.city_id = b.code
+order by id desc;
+'''

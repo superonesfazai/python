@@ -603,6 +603,45 @@ COMPANY_ITEM_LIST = [
         'lat': None,
     },
     {
+        'short_name': 'al',         # 1688
+        'debug': True,
+        'obj_origin': 'm.1688.com',
+        'trade_type_info': {
+            'type_name_sub': {      # 第二类分类name type: list
+                'method': 'css',
+                'selector': 'ul.sub-cate-list li a ::attr("href")',
+            },
+            'type_name_third': {    # 第三类分类name type:list
+                'method': 'css',
+                'selector': 'div.third-cate-list a ::text',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '/company/(.*?)\.html',
+        },
+        'company_status': None,     # 公司状态, 1: 在业 or 续存
+        'company_link': None,       # 公司网站
+        'company_info_detail_li': { # 公司信息的li
+            'method': 'css',
+            'selector': 'ul.info-item li div',
+        },
+        'company_name': None,       # 在company_info_detail_li中
+        'legal_person': None,       # 在company_info_detail_li中
+        'phone': {                  # list
+            'method': 'css',
+            'selector': 'div.phone ::text',
+        },
+        'email_address': None,
+        'address': None,            # 在company_info_detail_li中
+        'brief_introduction': None, # al: 此处拿来存放主营产品
+        'business_range': None,     # 在company_info_detail_li中
+        'founding_time': None,      # 在company_info_detail_li中
+        'employees_num': None,
+        'lng': None,
+        'lat': None,
+    },
+    {
         'short_name': 'mt',
         'debug': True,
         'obj_origin': 'i.meituan.com',

@@ -17,6 +17,7 @@ from fzutils.spider.fz_phantomjs import CHROME_DRIVER_PATH
 from fzutils.url_utils import unquote_plus
 from fzutils.img_utils import save_img_through_url
 from fzutils.spider.fz_driver import PHONE
+from fzutils.common_utils import _print
 from fzutils.spider.async_always import *
 
 
