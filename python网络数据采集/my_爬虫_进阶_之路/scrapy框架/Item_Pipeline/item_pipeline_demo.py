@@ -11,12 +11,12 @@
 编写item pipline很简单, item pipeline组件是一个独立的python类
 其中process_item()方法必须实现
 """
-import something
 
 class SomethingPipeline(object):
     def __init__(self):
         # 可选实现，做参数初始化等
         # doing something
+        pass
 
     def process_item(self, item, spider):
         # item (Item 对象) – 被爬取的item
@@ -28,10 +28,12 @@ class SomethingPipeline(object):
     def open_spider(self, spider):
         # spider (Spider 对象) – 被开启的spider
         # 可选实现，当spider被开启时，这个方法被调用。
+        pass
 
     def close_spider(self, spider):
         # spider (Spider 对象) – 被关闭的spider
         # 可选实现，当spider被关闭时，这个方法被调用
+        pass
 
 '''
 * 启用一个Item Pipeline组件

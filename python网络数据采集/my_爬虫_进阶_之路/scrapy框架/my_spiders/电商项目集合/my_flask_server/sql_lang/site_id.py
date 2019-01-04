@@ -155,3 +155,34 @@ and (phone != '[]' or email_address != '[]')
 and a.city_id = b.code
 order by id desc;
 '''
+sql_str_9 = '''
+select 
+-- a.province_id as '省份id', 
+-- a.city_id as '城市id', 
+a.company_name as '供应商or厂商名称',
+a.legal_person as '法人',
+a.phone as '手机',
+-- a.email_address as '邮件',
+a.address as '地址',
+a.brief_introduction as '简介',
+a.business_range as '经营范围',
+a.founding_time as '成立时间',
+-- a.employees_num as '员工人数',
+-- a.company_link as '公司or部门官网地址', 
+b.c_name as '城市名'
+-- select count(id)
+from dbo.company_info as a, dbo.Region as b
+-- from dbo.company_info
+where site_id=5
+and phone != '[]'
+and a.city_id = b.code
+-- order by id desc;
+'''
+sql_str_10 = '''
+select unique_id as ID,  company_name as '供应商or厂商名称', legal_person as '法人', phone as '电话', address as '地址', brief_introduction as '简介', business_range as '经营范围', founding_time as '成立时间'
+-- select count(unique_id)
+from dbo.company_info 
+where site_id=5
+and phone != '[]'
+and city_id in (select code from dbo.Region where c_name='天津市')
+'''

@@ -13,6 +13,10 @@
 
 异步编程比传统的“顺序”编程更复杂, 在开发期间[启用调试模式](https://docs.python.org/3.6/library/asyncio-dev.html#asyncio-debug-mode)以检测常见问题。
 
+实际上，真正的asyncio比我们前几节中学到的要复杂得多，它还实现了零拷贝、公平调度、异常处理、任务状态管理等等使 Python 异步编程更完善的内容。
+
+[零拷贝](https://blog.csdn.net/cnweike/article/details/48166121)
+
 ## 基本事件循环
 [源码](https://github.com/python/cpython/tree/3.6/Lib/asyncio/events.py)
 
@@ -276,6 +280,12 @@ for url in range(20):
 ```
 
 ## 协程通信
+协程(Co-routine)，即是协作式的例程
+
+它是非抢占式的多任务子例程的概括，可以允许有多个入口点在例程中确定的位置来控制程序的暂停与恢复执行。
+
+例程是什么？编程语言定义的可被调用的代码段，为了完成某个特定功能而封装在一起的一系列指令。一般的编程语言都用称为函数或方法的代码结构来体现。
+
 ### queue
 协程是单线程的，所以协程中完全可以使用全局变量实现queue来相互通信，但是如果想要 在queue中定义存放有限的最大数目。 我们需要使用 :
 ```python

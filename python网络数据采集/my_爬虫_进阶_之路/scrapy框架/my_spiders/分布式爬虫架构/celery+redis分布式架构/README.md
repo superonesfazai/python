@@ -1,6 +1,7 @@
 # celery
 ## celery 架构
 ![](./images/111.png)
+
 Celery包含如下组件：
 
 - Producer：调用了Celery提供的API、函数或者装饰器而产生任务并交给任务队列处理的都是任务生产者。

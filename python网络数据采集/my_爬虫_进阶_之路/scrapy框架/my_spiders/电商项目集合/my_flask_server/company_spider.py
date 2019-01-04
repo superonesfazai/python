@@ -55,6 +55,7 @@ from fzutils.spider.fz_driver import (
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.selenium_always import *
+from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.ocr_utils import yundama_ocr_captcha
 from fzutils.spider.async_always import *
@@ -72,9 +73,9 @@ class CompanySpider(AsyncCrawler):
         # 设置爬取对象
         self.spider_name = 'al'
         # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
-        self.concurrency = 50
+        self.concurrency = 200
         self.sema = Semaphore(self.concurrency)
-        assert 100 > self.concurrency, 'self.concurrency并发量不允许大于100!'
+        assert 200 >= self.concurrency, 'self.concurrency并发量不允许大于100!'
         self.sema = Semaphore(self.concurrency)
         # 设置天眼查抓取截止页数(查询限制5000个) max 250页
         self.ty_max_page_num = 250
@@ -88,8 +89,8 @@ class CompanySpider(AsyncCrawler):
         self.al_min_index_cate_id = 0
         # 设置al父分类最大的index_cate_id
         self.al_max_index_cate_id = 16
-        # 设置al单个子分类抓取截止的最大page_num
-        self.al_max_page_num = 200
+        # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
+        self.al_max_page_num = 100
         # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_max_page_num = 50
         # mt robot ocr record shop_id
@@ -161,7 +162,9 @@ class CompanySpider(AsyncCrawler):
         :return:
         '''
         self.db_al_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=5)
-        self.al_category_list = await self._get_al_category()
+        # self.al_category_list = await self._get_al_category()
+        self.al_category_list = await self._get_al_category2()
+        # self.al_category_list = await self._get_al_category3()
         pprint(self.al_category_list)
         self.lg.info('al所有子分类总个数: {}'.format(len(self.al_category_list)))
         assert self.al_category_list != [], '获取到的self.al_category_list为空list!异常退出'
@@ -208,7 +211,65 @@ class CompanySpider(AsyncCrawler):
                     if j not in all_cate_type_name:
                         all_cate_type_name.append(j)
 
+        # 逆序
+        all_cate_type_name.reverse()
+
         return all_cate_type_name
+
+    async def _get_al_category2(self) -> list:
+        '''
+        从db拿keyword
+        :return:
+        '''
+        sql_str = '''select top 100000 keyword from dbo.goods_keywords'''
+        _ = []
+        self.lg.info('正在获取db中keyword for al_category_list...')
+        try:
+            _ = self.sql_server_cli._select_table(sql_str=sql_str, params=None)
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+
+        assert _ != [], '_为空list!'
+        self.lg.info('获取db的keyword成功!')
+
+        al_category_list = []
+        for i in _:
+            try:
+                al_category_list.append(i[0])
+            except:
+                return []
+
+        al_category_list.reverse()
+
+        return al_category_list
+
+    async def _get_al_category3(self) -> list:
+        '''
+        从jd总分类拿到keyword
+        :return:
+        '''
+        headers = await self._get_pc_headers()
+        headers.update({
+            'authority': 'www.jd.com',
+        })
+        url = 'https://www.jd.com/allSort.aspx'
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg)
+        li_selector = {
+            'method': 'css',
+            'selector': 'dl.clearfix dd a ::text',
+        }
+        li_list = await async_parse_field(
+            parser=li_selector,
+            target_obj=body,
+            is_first=False,
+            logger=self.lg)
+        li_list = list_duplicate_remove(li_list)
+
+        return li_list
 
     async def _get_al_one_cate_list(self, index_cate_id:int=0) -> list:
         '''
@@ -319,7 +380,7 @@ class CompanySpider(AsyncCrawler):
 
         self.lg.info('即将开始采集al shop info...')
         for cate_name_index, cate_name in enumerate(self.al_category_list):
-            self.lg.info('crawl cate_name: {}...'.format(cate_name))
+            self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
             tasks_params_list = await _get_tasks_params_list(cate_name=cate_name)
             tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
 
@@ -357,11 +418,20 @@ class CompanySpider(AsyncCrawler):
             '''获取tasks_params_list'''
             tasks_params_list = []
             for item in one_all_company_id_list:
-                tasks_params_list.append({
-                    'company_id': item['company_id'],
-                    'province_name': item['province_name'],
-                    'city_name': item['city_name'],
-                })
+                company_id = item['company_id']
+                if 'al' + company_id not in self.db_al_unique_id_list:
+                    tasks_params_list.append({
+                        'company_id': company_id,
+                        'province_name': item['province_name'],
+                        'city_name': item['city_name'],
+                    })
+                else:
+                    pass
+
+            # 去重
+            tasks_params_list = list_remove_repeat_dict_plus(
+                target=tasks_params_list,
+                repeat_key='company_id')
 
             return tasks_params_list
 
@@ -380,7 +450,7 @@ class CompanySpider(AsyncCrawler):
             for k in slice_params_list:
                 company_id = k['company_id']
                 if 'al' + company_id in self.db_al_unique_id_list:
-                    self.lg.info('company_id: {}已存在于db中!'.format(company_id))
+                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
                     continue
 
                 self.lg.info('create task[where company_id: {}]'.format(company_id))
@@ -398,7 +468,7 @@ class CompanySpider(AsyncCrawler):
                     unique_id = 'al' + i.get('unique_id', '')
                     if unique_id in self.db_al_unique_id_list:
                         # 已在db的不存储
-                        self.lg.info('该company_id:{}已存在于db中, 跳过!'.format(i.get('unique_id', '')))
+                        self.lg.info('company_id:{} in db, so pass!'.format(i.get('unique_id', '')))
                         continue
 
                     save_res = await self._save_company_item(
@@ -410,7 +480,8 @@ class CompanySpider(AsyncCrawler):
                             self.db_al_unique_id_list.append(unique_id)
                         else:
                             pass
-                    # pass
+                    else:
+                        pass
                 else:
                     pass
 
@@ -491,17 +562,29 @@ class CompanySpider(AsyncCrawler):
             self.lg.error('获取body时索引异常!' + error_record_msg)
             return []
 
-        member_id_list = [{
-            'company_id': i.get('memberId', ''),
-            'province_name': i.get('province', ''),
-            'city_name': i.get('city', ''),
-        } for i in _ if i.get('memberId') is not None]
-        # pprint(member_id_list)
-        # al company url: https://m.1688.com/winport/company/b2b-3221063020830e2.html
         self.lg.info('[{}] keyword:{}, page_num:{}'.format(
-            '+' if member_id_list != [] else '-',
+            '+' if _ != [] else '-',
             keyword,
             page_num))
+
+        member_id_list = []
+        for i in _:
+            if i.get('memberId') is not None:
+                member_id = i.get('memberId', '')
+                if 'al' + member_id not in self.db_al_unique_id_list:
+                    # 先去重避免重复建任务
+                    member_id_list.append({
+                        'company_id': member_id,
+                        'province_name': i.get('province', ''),
+                        'city_name': i.get('city', ''),
+                    })
+                else:
+                    self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
+
+        # list 内部dict去重
+        member_id_list = list_remove_repeat_dict_plus(target=member_id_list, repeat_key='company_id')
+        # pprint(member_id_list)
+        # al company url: https://m.1688.com/winport/company/b2b-3221063020830e2.html
 
         return member_id_list
 
@@ -2919,7 +3002,7 @@ class CompanySpider(AsyncCrawler):
     @staticmethod
     async def _get_mt_ciid(city_name) -> str:
         '''
-        获取美团城市代码(弃用)
+        获取mt城市代码(弃用)
         :return:
         '''
         _ = {

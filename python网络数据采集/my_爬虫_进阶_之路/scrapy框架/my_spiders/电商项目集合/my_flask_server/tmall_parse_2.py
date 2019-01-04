@@ -193,30 +193,9 @@ class TmallParse(Crawler):
             sub_title = data['item'].get('subtitle', '')
             sub_title = re.compile(r'\n').sub('', sub_title)
 
-            # 商品价格
-            # price = data['apiStack'][0]['value']['price']['extraPrices'][0]['priceText']
-            tmp_taobao_price = data['apiStack'][0].get('value', '').get('price').get('price').get('priceText', '')
-            tmp_taobao_price = tmp_taobao_price.split('-')  # 如果是区间的话，分割成两个，单个价格就是一个
-            # self.lg.info(str(tmp_taobao_price))
-            if len(tmp_taobao_price) == 1:
-                # 商品最高价
-                # price = Decimal(tmp_taobao_price[0]).__round__(2)     # json不能处理decimal所以后期存的时候再处理
-                price = tmp_taobao_price[0]
-                # 商品最低价
-                taobao_price = price
-                # self.lg.info(str(price))
-                # self.lg.info(str(taobao_price))
-            else:
-                # price = Decimal(tmp_taobao_price[1]).__round__(2)
-                # taobao_price = Decimal(tmp_taobao_price[0]).__round__(2)
-                price = tmp_taobao_price[1]
-                taobao_price = tmp_taobao_price[0]
-                # self.lg.info(str(price))
-                # self.lg.info(str(taobao_price))
-
+            price, taobao_price = taobao._get_price_and_taobao_price(data=data)
             # 商品库存
             goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
-
             # 商品标签属性名称,及其对应id值
             detail_name_list, detail_value_list = taobao._get_detail_name_and_value_list(data=data)
 
@@ -224,6 +203,11 @@ class TmallParse(Crawler):
             每个标签对应值的价格及其库存
             '''
             price_info_list = taobao._get_price_info_list(data=data, detail_value_list=detail_value_list)
+            # 多规格进行重新赋值
+            price, taobao_price = taobao._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
+                price_info_list=price_info_list,
+                price=price,
+                taobao_price=taobao_price)
 
             # 所有示例图片地址
             all_img_url = taobao._get_all_img_url(tmp_all_img_url=data['item']['images'])

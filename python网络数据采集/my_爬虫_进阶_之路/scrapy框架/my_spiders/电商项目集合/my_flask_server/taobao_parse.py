@@ -139,8 +139,7 @@ class TaoBaoLoginAndParse(Crawler):
         # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
         result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
             goods_id=goods_id,
-            result_data_apiStack_value=result_data_apiStack_value
-        )
+            result_data_apiStack_value=result_data_apiStack_value)
 
         # 处理mockData
         mock_data = result_data['mockData']
@@ -194,6 +193,12 @@ class TaoBaoLoginAndParse(Crawler):
                 return self._data_error_init()
 
             price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
+            # 多规格进行重新赋值
+            price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
+                price_info_list=price_info_list,
+                price=price,
+                taobao_price=taobao_price)
+
             all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
             # self.lg.info(str(all_img_url))
             p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))   # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
@@ -266,6 +271,28 @@ class TaoBaoLoginAndParse(Crawler):
             #     'is_delete': 1,
             # }
             return {}
+
+    def _get_new_price_and_taobao_price_when_price_info_list_not_null_list(self, price_info_list, price, taobao_price) -> tuple:
+        '''
+        当price_info_list不为空list时, 重新赋值price, taobao_price
+        :param price_info_list:
+        :param price:
+        :param taobao_price:
+        :return:
+        '''
+        if price_info_list != []:
+            # 重新赋值price, taobao_price 避免规格为0的价格也在最低最高价中
+            try:
+                tmp_price_info_list = sorted(
+                    iterable=price_info_list,
+                    key=lambda item: float(item.get('detail_price', '')),)
+                price = str(float(tmp_price_info_list[-1]['detail_price']))
+                taobao_price = str(float(tmp_price_info_list[0]['detail_price']))
+            except Exception:
+                # self.lg.error('遇到错误:', exc_info=True)
+                pass
+
+        return price, taobao_price
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -691,12 +718,21 @@ class TaoBaoLoginAndParse(Crawler):
                 else:
                     # 处理短期活动预付定金, 取当前价
                     detail_price = str(float(kk['priceText']))
-                rest_number = value['quantity']
+                try:
+                    rest_number = int(value['quantity'])
+                    # TODO 先不跳过, 避免下次出问题, 无法排查, taobao_price, price为什么可能不同
+                    # 处理，因为多规格进行后续判断了
+                    if rest_number <= 0:
+                        # 跳过库存为0的
+                        continue
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+
                 # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
                 # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
 
                 img_url = self._get_spec_value_one_img_url(pros=pros, prop_path_2=prop_path_2)
-
                 tmp = {
                     'spec_value': spec_value,
                     'normal_price': value.get('normal_price', ''),

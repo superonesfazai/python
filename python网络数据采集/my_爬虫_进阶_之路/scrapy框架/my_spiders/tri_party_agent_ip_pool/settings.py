@@ -23,7 +23,7 @@ CHECKED_PROXY_SLEEP_TIME = 2 * 60
 # ip_pool中的最小ip数量, 由于tri有时效
 # 蜻蜓代理测试实时的可设置为: 100个(比较友好并保证更新监控)
 # 蘑菇代理可设置: 500
-MIN_IP_POOl_NUM = 100
+MIN_IP_POOl_NUM = 150
 
 # server port
 SERVER_PORT = 8001

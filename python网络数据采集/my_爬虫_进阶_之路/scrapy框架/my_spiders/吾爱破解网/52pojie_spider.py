@@ -9,6 +9,7 @@
 from gc import collect
 from items import PostItem
 from time import time
+from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
 class _52PoJieSpider(AsyncCrawler):
@@ -18,6 +19,7 @@ class _52PoJieSpider(AsyncCrawler):
             self,
             *params,
             **kwargs,
+            ip_pool_type=tri_ip_pool,
         )
 
     async def _get_phone_headers(self):
@@ -75,7 +77,12 @@ class _52PoJieSpider(AsyncCrawler):
             ('mobile', '2'),
         )
         url = 'https://www.52pojie.cn/forum.php'
-        body = Requests.get_url_body(url=url, headers=await self._get_phone_headers(), params=params, cookies=None)
+        body = await unblock_request(
+            url=url,
+            headers=await self._get_phone_headers(),
+            params=params,
+            cookies=None,
+            ip_pool_type=self.ip_pool_type)
         # print(body)
         assert body != '', 'body为空'
 
