@@ -774,6 +774,29 @@ COMPANY_ITEM_LIST = [
 ]
 
 '''
+goods item
+'''
+
+from fzutils.spider.fz_driver import PHANTOMJS, PHONE
+
+GOODS_ITEM_LIST = [
+    {
+        'short_name': 'al',
+        'log_save_path': MY_SPIDER_LOGS_PATH + '/1688/_/',
+        'is_use_driver': True,
+        'driver_type': PHANTOMJS,
+        'driver_executable_path': PHANTOMJS_DRIVER_PATH,
+        'user_agent_type': PHONE,
+        'goods_id_info': {
+            'goods_id': {
+                'method': 're',
+                'selector': 'detail\.1688\.com\/offer\/(.*?).html',
+            }
+        }
+    }
+]
+
+'''
 cookies
 '''
 SINA_COOKIES = 'SINAGLOBAL=1779567549215.5193.1513216238889; un=jc09893445wei@163.com; wvr=6; _s_tentry=login.sina.com.cn; Apache=3819054165673.079.1517320350816; ULV=1517320352333:12:10:4:3819054165673.079.1517320350816:1517281650841; SSOLoginState=1517366105; UOR=www.vaikan.com,widget.weibo.com,blog.csdn.net; YF-V5-G0=c998e7c570da2f8537944063e27af755; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFnCUfIwQh3Usm8xNPAMySy5JpX5KMhUgL.FoqpSoBR1hBNeKM2dJLoIEQLxKML1K-L1h-LxK-LB.qLB-zLxKML1-zLB.eLxKqL1-eL1-ikSozReoqt; ALF=1549000397; SCF=AgK0RDOKrRIOKXzub_Q00Rdmdq_Mtnap4wCdEu4VKbiFXx2qc85MqiD2K4BTDt-BE_omFvqzJtoqNlXuEhr1qiQ.; SUB=_2A253dtsNDeThGeBP7VYZ-CrLyjuIHXVUAkvFrDV8PUNbmtANLWHWkW9NRVESwyfYtEROP7KKUqmnXOnIxmP81tQN; SUHB=0y0JQ5fsI56HNq; wb_cusLike_6164884717=N'

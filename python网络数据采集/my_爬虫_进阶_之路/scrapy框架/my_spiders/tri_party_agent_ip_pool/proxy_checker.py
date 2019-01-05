@@ -6,7 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from utils import judge_ip_is_anonymity
+from utils import async_judge_ip_is_anonymity
 from items import ProxyItem
 from db_controller import (
     create_proxy_obj_table,
@@ -607,23 +607,13 @@ class ProxyChecker(AsyncCrawler):
         port = item.get('port', '')
 
         # print('check {}:{}...'.format(ip, port))
-        loop = get_event_loop()
-        now_ip = self.local_ip
-        try:
-            # 返回ip地址
-            now_ip = await loop.run_in_executor(None, judge_ip_is_anonymity, ip, port, True, True, 10)
-        except ProxyError:
-            pass
-        except Exception as e:
-            # print('检验proxy可用性时报错:')
-            # print(e)
-            pass
-        finally:
-            try:
-                del loop
-            except:
-                pass
-            collect()
+        now_ip = await async_judge_ip_is_anonymity(
+            ip_address=ip,
+            port=port,
+            httpbin=True,
+            use_proxy=True,
+            timeout=10)
+        # print(now_ip)
 
         if self.local_ip != now_ip \
                 and ',' not in now_ip:
@@ -645,7 +635,7 @@ class ProxyChecker(AsyncCrawler):
             if (first_ip != '' and second_ip != '') and (first_ip == second_ip):
                 break
             try:
-                local_ip = judge_ip_is_anonymity(httpbin=False, use_proxy=False)
+                local_ip = await async_judge_ip_is_anonymity(httpbin=False, use_proxy=False)
                 first_ip = local_ip if first_ip == '' else first_ip
                 second_ip = local_ip if first_ip != '' else second_ip
             except ProxyError:

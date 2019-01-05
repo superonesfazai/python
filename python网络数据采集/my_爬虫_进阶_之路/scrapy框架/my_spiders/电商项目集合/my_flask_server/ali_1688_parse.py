@@ -33,7 +33,8 @@ from fzutils.internet_utils import (
     get_random_pc_ua,
     get_random_phone_ua,
     str_cookies_2_dict,
-    _get_url_contain_params,)
+    _get_url_contain_params,
+    html_entities_2_standard_html,)
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
 from fzutils.spider.fz_driver import (
@@ -56,19 +57,8 @@ class ALi1688LoginAndParse(Crawler):
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
             user_agent_type=PHONE,
         )
-        self._set_headers()
         self.result_data = {}
         self.is_activity_goods = False
-
-    def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': '1688.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
 
     def _get_phone_headers(self):
         return {
@@ -90,7 +80,7 @@ class ALi1688LoginAndParse(Crawler):
 
         self.error_base_record = '出错goods_id:{0}'.format(goods_id)
         # driver
-        body = self.driver.use_phantomjs_to_get_url_body(
+        body = self.driver.get_url_body(
             url=wait_to_deal_with_url,)
             # css_selector='div.d-content',)
 
@@ -123,13 +113,14 @@ class ALi1688LoginAndParse(Crawler):
             # self.lg.info(str(body))
             body = json_2_dict(json_str=body)
             # pprint(body)
-
             if body.get('discountPriceRanges') is not None:
                 self.result_data = self._wash_discountPriceRanges(body=body)
                 self.is_activity_goods = True
+
                 return self.result_data
             else:
                 self.lg.error('data为空!' + self.error_base_record)
+
                 return self._data_error_init()
 
         body = r'{"beginAmount"' + body
@@ -138,9 +129,11 @@ class ALi1688LoginAndParse(Crawler):
         # pprint(body)
         if body.get('discountPriceRanges') is not None:
             self.result_data = self._wash_discountPriceRanges(body=body)
+
             return self.result_data
         else:
             self.lg.error('data为空!' + self.error_base_record)
+
             return self._data_error_init()
 
     def deal_with_data(self):
@@ -224,23 +217,26 @@ class ALi1688LoginAndParse(Crawler):
         :return:
         '''
         try:
-            tmp_my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-            is_in_db = tmp_my_pipeline._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
+            sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            is_in_db = sql_cli._select_table(sql_str=al_select_str_1, params=(str(goods_id),))
             # self.lg.info(str(is_in_db))
         except Exception:
             self.lg.error('数据库连接失败!' + self.error_base_record, exc_info=True)
             return self._data_error_init()
 
         self.result_data = {}
-        if is_in_db != []:  # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-            tmp_my_pipeline._update_table_2(sql_str=al_update_str_1, params=(goods_id), logger=self.lg)
+        # 初始化下架商品的属性
+        tmp_data_s = self.init_pull_off_shelves_goods()
+        if is_in_db != []:
+            # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
+            sql_cli._update_table_2(sql_str=al_update_str_1, params=(goods_id), logger=self.lg)
             self.lg.info('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
-            tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
-            tmp_data_s['before'] = True  # 用来判断原先该goods是否在db中
+            # 用来判断原先该goods是否在db中
+            tmp_data_s['before'] = True
 
-        else:  # 表示该goods_id没存在于db中
+        else:
+            # 表示该goods_id没存在于db中
             self.lg.info('@@@ 该商品已下架[但未存在于db中], ** 此处将其插入到db中...')
-            tmp_data_s = self.init_pull_off_shelves_goods()  # 初始化下架商品的属性
             tmp_data_s['before'] = False
 
         return tmp_data_s
@@ -684,21 +680,8 @@ class ALi1688LoginAndParse(Crawler):
             # self.lg.info(str(detail_info_url))
         else:
             pass
-        # data_tfs_url_response = requests.get(detail_info_url, headers=self.headers)
-        # data_tfs_url_body = data_tfs_url_response.content.decode('gbk')
 
-        data_tfs_url_body = self.driver.use_phantomjs_to_get_url_body(url=detail_info_url)
-
-        # '''
-        # 改用requests
-        # '''
-        # body = MyRequests.get_url_body(url=detail_info_url, headers=self.headers)
-        # self.lg.info(str(body))
-        # if  body == '':
-        #     detail_info = ''
-        #
-        # data_tfs_url_body = body
-
+        data_tfs_url_body = self.driver.get_url_body(url=detail_info_url)
         is_offer_details = re.compile(r'offer_details').findall(data_tfs_url_body)
         detail_info = ''
 
@@ -729,10 +712,8 @@ class ALi1688LoginAndParse(Crawler):
         :param detail_info:
         :return:
         '''
-        detail_info = re.compile(r'&lt;').sub('<', detail_info)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
-        detail_info = re.compile(r'&gt;').sub('>', detail_info)
-        detail_info = re.compile(r'&amp;').sub('&', detail_info)
-        detail_info = re.compile(r'&nbsp;').sub(' ', detail_info)
+        # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+        detail_info = html_entities_2_standard_html(html_body=detail_info)
 
         return detail_info
 
@@ -764,6 +745,3 @@ if __name__ == '__main__':
         ali_1688.get_ali_1688_data(goods_id=goods_id)
         data = ali_1688.deal_with_data()
         pprint(data)
-
-
-

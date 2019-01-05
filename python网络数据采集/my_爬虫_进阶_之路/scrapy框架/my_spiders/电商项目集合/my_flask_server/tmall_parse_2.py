@@ -81,98 +81,90 @@ class TmallParse(Crawler):
 
         self.headers.update({'Referer': tmp_url})
         last_url = self._get_last_url(goods_id=goods_id)
-        body = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, ip_pool_type=self.ip_pool_type)
-        if body == '':
-            self.lg.error('出错goods_id: {0}'.format((goods_id)))
-            self.result_data = {}
-            return {}
+        body = Requests.get_url_body(
+            url=last_url,
+            headers=self.headers,
+            params=None,
+            timeout=14,
+            ip_pool_type=self.ip_pool_type)
 
         try:
             assert body != '', '获取到的body为空值, 此处跳过! 出错type %s: , goods_id: %s' % (str(type), goods_id)
-            data = re.compile('mtopjsonp3\((.*)\)').findall(body)[0]  # 贪婪匹配匹配所有
+            data = json_2_dict(
+                json_str=re.compile('mtopjsonp3\((.*)\)').findall(body)[0],
+                default_res={},
+                logger=self.lg)
+            assert data != {}, 'data为空dict, 出错type: {}, goods_id: {}'.format(str(type), str(goods_id))
+            # pprint(data)
         except (AssertionError, IndexError) as e:
-            self.lg.exception(e)
+            self.lg.error('遇到错误:', exc_info=True)
             self.result_data = {}
             return {}
 
-        if data != '':
-            data = json_2_dict(json_str=data, logger=self.lg)
-            if data == {}:
-                self.lg.error('出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-            # pprint(data)
+        if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
+                and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+            '''
+            ## 表示该商品已经下架, 原地址被重定向到新页面
+            '''
+            self.lg.info('@@@@@@ 该商品已经下架...')
+            _ = SqlServerMyPageInfoSaveItemPipeline()
+            if _.is_connect_success:
+                _._update_table_2(sql_str=tm_update_str_3, params=(goods_id,), logger=self.lg)
+                try:
+                    del _
+                except:
+                    pass
+            tmp_data_s = self.init_pull_off_shelves_goods(type)
+            self.result_data = {}
+            return tmp_data_s
 
-            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
-                    and data.get('data', {}).get('seller', {}).get('evaluates') is None:
-                '''
-                ## 表示该商品已经下架, 原地址被重定向到新页面
-                '''
-                self.lg.info('@@@@@@ 该商品已经下架...')
-                _ = SqlServerMyPageInfoSaveItemPipeline()
-                if _.is_connect_success:
-                    _._update_table_2(sql_str=tm_update_str_3, params=(goods_id,), logger=self.lg)
-                    try:
-                        del _
-                    except:
-                        pass
-                tmp_data_s = self.init_pull_off_shelves_goods(type)
-                self.result_data = {}
-                return tmp_data_s
-
-            # 处理商品被转移或者下架导致页面不存在的商品
-            if data.get('data', {}).get('seller', {}).get('evaluates') is None:
-                self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-
-            data['data']['rate'] = ''  # 这是宝贝评价
-            data['data']['resource'] = ''  # 买家询问别人
-            data['data']['vertical'] = ''  # 也是问和回答
-            data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
-            result_data = data['data']
-
-            # 处理result_data['apiStack'][0]['value']
-            # self.lg.info(result_data.get('apiStack', [])[0].get('value', ''))
-            result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
-
-            # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
-            result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
-                goods_id=goods_id,
-                result_data_apiStack_value=result_data_apiStack_value
-            )
-
-            # 处理mockData
-            mock_data = result_data['mockData']
-            mock_data = json_2_dict(json_str=mock_data, logger=self.lg)
-            if mock_data == {}:
-                self.lg.error('出错type: {0}, goods_id: {1}'.format(type, goods_id))
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-            mock_data['feature'] = ''
-            # pprint(mock_data)
-            result_data['mockData'] = mock_data
-
-            # self.lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
-            if result_data.get('apiStack', [])[0].get('value', '') == '':
-                self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错type: %s, goods_id: %s" % (str(type), goods_id))
-                result_data['trade'] = {}
-                self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-                return {}
-            else:
-                result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
-                # pprint(result_data['trade'])
-
-            result_data['type'] = type
-            result_data['goods_id'] = goods_id
-            self.result_data = result_data
-            # pprint(self.result_data)
-            return result_data
-
-        else:
-            self.lg.error('data为空! 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
+        # 处理商品被转移或者下架导致页面不存在的商品
+        if data.get('data', {}).get('seller', {}).get('evaluates') is None:
+            self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
             self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
             return {}
+
+        data['data']['rate'] = ''  # 这是宝贝评价
+        data['data']['resource'] = ''  # 买家询问别人
+        data['data']['vertical'] = ''  # 也是问和回答
+        data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
+        result_data = data['data']
+
+        # 处理result_data['apiStack'][0]['value']
+        # self.lg.info(result_data.get('apiStack', [])[0].get('value', ''))
+        result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
+
+        # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
+        result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
+            goods_id=goods_id,
+            result_data_apiStack_value=result_data_apiStack_value)
+
+        # 处理mockData
+        mock_data = result_data['mockData']
+        mock_data = json_2_dict(json_str=mock_data, logger=self.lg)
+        if mock_data == {}:
+            self.lg.error('出错type: {0}, goods_id: {1}'.format(type, goods_id))
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            return {}
+        mock_data['feature'] = ''
+        # pprint(mock_data)
+        result_data['mockData'] = mock_data
+
+        # self.lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
+        if result_data.get('apiStack', [])[0].get('value', '') == '':
+            self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错type: %s, goods_id: %s" % (str(type), goods_id))
+            result_data['trade'] = {}
+            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
+            return {}
+        else:
+            result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
+            # pprint(result_data['trade'])
+
+        result_data['type'] = type
+        result_data['goods_id'] = goods_id
+        self.result_data = result_data
+        # pprint(self.result_data)
+        return result_data
 
     def deal_with_data(self):
         '''

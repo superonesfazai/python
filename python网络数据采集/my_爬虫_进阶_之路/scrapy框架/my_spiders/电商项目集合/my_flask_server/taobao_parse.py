@@ -83,28 +83,28 @@ class TaoBaoLoginAndParse(Crawler):
         :param goods_id:
         :return: data   类型dict
         '''
-        self.msg = '------>>>| 对应的手机端地址为: ' + 'https://h5.m.taobao.com/awp/core/detail.htm?id=' + str(goods_id)
+        self.msg = '------>>>| 对应的手机端地址为: https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(goods_id)
         self.lg.info(self.msg)
 
         # 获取主接口的body
         last_url = self._get_last_url(goods_id=goods_id)
-        data = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, high_conceal=True, ip_pool_type=self.ip_pool_type)
-        if data == '':
-            self.lg.error('出错goods_id: {0}'.format((goods_id)))
-            return self._data_error_init()
+        body = Requests.get_url_body(
+            url=last_url,
+            headers=self.headers,
+            params=None, timeout=14,
+            ip_pool_type=self.ip_pool_type)
 
         try:
-            data = re.compile(r'mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
+            data = json_2_dict(
+                json_str=re.compile(r'mtopjsonp1\((.*)\)').findall(body)[0],
+                default_res={},
+                logger=self.lg)
             # self.lg.info(str(data))
-        except IndexError:
-            self.lg.error('data为空! 出错goods_id: {0}'.format(goods_id))
+            assert data != {}, '获取到的data为空dict!'
+            # pprint(data)
+        except (IndexError, AssertionError):
+            self.lg.error('data为空! 出错goods_id: {0}'.format(goods_id), exc_info=True)
             return self._data_error_init()
-
-        data = json_2_dict(json_str=data, logger=self.lg)
-        if data == {}:
-            self.lg.error('出错goods_id: {0}'.format(str(goods_id)))
-            return self._data_error_init()
-        # pprint(data)
 
         if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
                 and data.get('data', {}).get('seller', {}).get('evaluates') is None:
@@ -119,11 +119,13 @@ class TaoBaoLoginAndParse(Crawler):
                 except: pass
             tmp_data_s = self.init_pull_off_shelves_goods()
             self.result_data = {}
+
             return tmp_data_s
 
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data').get('seller', {}).get('evaluates') is None:
             self.lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
+
             return self._data_error_init()
 
         data['data']['rate'] = ''           # 这是宝贝评价

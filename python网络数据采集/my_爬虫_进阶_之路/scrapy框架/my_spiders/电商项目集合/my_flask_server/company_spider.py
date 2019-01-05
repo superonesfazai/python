@@ -163,8 +163,9 @@ class CompanySpider(AsyncCrawler):
         '''
         self.db_al_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=5)
         # self.al_category_list = await self._get_al_category()
-        self.al_category_list = await self._get_al_category2()
+        # self.al_category_list = await self._get_al_category2()
         # self.al_category_list = await self._get_al_category3()
+        self.al_category_list = await self._get_al_category4()
         pprint(self.al_category_list)
         self.lg.info('al所有子分类总个数: {}'.format(len(self.al_category_list)))
         assert self.al_category_list != [], '获取到的self.al_category_list为空list!异常退出'
@@ -241,7 +242,7 @@ class CompanySpider(AsyncCrawler):
 
         al_category_list.reverse()
 
-        return al_category_list
+        return al_category_list[2413:]
 
     async def _get_al_category3(self) -> list:
         '''
@@ -270,6 +271,46 @@ class CompanySpider(AsyncCrawler):
         li_list = list_duplicate_remove(li_list)
 
         return li_list
+
+    async def _get_al_category4(self):
+        '''
+        得到所有汉字
+        :return:
+        '''
+
+        async def _get_one_page(page_num):
+            '''获取一页'''
+            url = 'https://www.qqxiuzi.cn/zh/hanzi/daquan-{}.htm'.format(page_num)
+            body = await unblock_request(
+                url=url,
+                headers=await self._get_pc_headers(),
+                encoding='gbk',
+                ip_pool_type=self.ip_pool_type)
+            # self.lg.info(body)
+
+            one = []
+            try:
+                one = (Selector(text=body).css('tr:nth-child(2) td p ::text').extract_first() or '') \
+                    .split(' ')
+            except Exception:
+                pass
+            self.lg.info('[{}] page_num: {}, chinese_char_num: {}'.format('+' if one != [] else '-', page_num, len(one)))
+
+            return one
+
+        self.lg.info('正在获取所有中文汉字...')
+        all = []
+        for page_num in range(1, 5):
+            one = await _get_one_page(page_num=page_num)
+            for i in one:
+                if i not in all:
+                    all.append(i)
+
+        all = delete_list_null_str(all)
+        # self.lg.info(all)
+        self.lg.info('总汉字个数: {}'.format(len(all)))
+
+        return all
 
     async def _get_al_one_cate_list(self, index_cate_id:int=0) -> list:
         '''
@@ -406,7 +447,8 @@ class CompanySpider(AsyncCrawler):
                     one_all_company_id_list=one_all_company_id_list)
 
             # break
-            await async_sleep(5)
+            await async_sleep(3.5)
+            collect()
 
     async def _crawl_al_one_type_all_company_info(self, one_all_company_id_list):
         '''
