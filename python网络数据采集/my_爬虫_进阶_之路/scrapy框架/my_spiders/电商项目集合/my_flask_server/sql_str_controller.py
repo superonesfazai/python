@@ -89,9 +89,9 @@ al_select_str_3 = 'select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPr
 al_select_str_4 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
 # goods_id是否已存在于db
 al_select_str_5 = al_select_str_1
-# 常规goods待更新数据获取
+# 常规goods待更新数据获取(用asc, 使未被更新的优先更新)
 al_select_str_6 = '''
-select top 500 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select top 1200 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
 from dbo.GoodsInfoAutoGet 
 where SiteID=2 and MainGoodsID is not null and IsDelete=0 
 order by ModfiyTime asc

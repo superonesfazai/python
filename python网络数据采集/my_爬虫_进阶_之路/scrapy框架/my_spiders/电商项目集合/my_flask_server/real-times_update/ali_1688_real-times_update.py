@@ -220,6 +220,8 @@ class ALUpdater(AsyncCrawler):
         常规数据实时更新
         :return:
         '''
+        # 记录已更新的goods_id, 这样导致只进行一次更新, 下次更新必须重启脚本
+        # record_updated_goods_id_list = []
         while True:
             self.lg = await self._get_new_logger(logger_name=get_uuid1())
             result = await self._get_db_old_data()
@@ -239,11 +241,20 @@ class ALUpdater(AsyncCrawler):
 
                     tasks = []
                     for item in slice_params_list:
-                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
+                        goods_id = item[0]
+                        # if goods_id not in record_updated_goods_id_list:
+                        #     record_updated_goods_id_list.append(goods_id)
+                        # else:
+                        #     self.lg.info('该goods_id[{}]前面loop已检测更新! 跳过!'.format(goods_id))
+                        #     continue
+
+                        self.lg.info('创建 task goods_id: {}'.format(goods_id))
                         tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
                         index += 1
-
-                    await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    if tasks != []:
+                        await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    else:
+                        pass
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))
             if get_shanghai_time().hour == 0:  # 0点以后不更新

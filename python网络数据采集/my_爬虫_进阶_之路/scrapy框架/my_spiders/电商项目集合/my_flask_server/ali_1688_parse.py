@@ -9,7 +9,7 @@
 
 from pprint import pprint
 import re
-import gc
+from gc import collect
 from time import sleep
 from decimal import Decimal
 from json import dumps
@@ -42,6 +42,7 @@ from fzutils.spider.fz_driver import (
     CHROME,
     PHANTOMJS,
     FIREFOX,)
+from fzutils.spider.selector import parse_field
 from fzutils.spider.fz_requests import Requests
 
 class ALi1688LoginAndParse(Crawler):
@@ -82,6 +83,7 @@ class ALi1688LoginAndParse(Crawler):
         # driver
         body = self.driver.get_url_body(
             url=wait_to_deal_with_url,)
+            # 注释掉避免driver盲目等待
             # css_selector='div.d-content',)
 
         # 改用requests
@@ -102,12 +104,21 @@ class ALi1688LoginAndParse(Crawler):
         try:
             body = re.compile(r'{"beginAmount"(.*?)</script></div></div>').findall(body)[0]
         except IndexError:
-            self.lg.info('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
             try:
+                # self.lg.info(tmp_body)
                 body = re.compile(r'{"activityId"(.*?)</script></div></div>').findall(tmp_body)[0]
+                self.lg.info('解析ing..., 该商品正在参与火拼, 此处为火拼价, 为短期活动价格!')
             except IndexError:
-                self.lg.error('这个商品对应活动属性未知, 此处不解析, 设置为跳过!' + self.error_base_record)
-                return self._data_error_init()
+                try:
+                    # 新版处理
+                    _ = self._get_new_data(body=tmp_body, goods_id=goods_id)
+                    self.lg.info('正在处理1688新版页面...')
+                    return _
+
+                except (IndexError, AssertionError, Exception):
+                    self.lg.error('遇到错误:', exc_info=True)
+                    self.lg.error('这个商品对应活动属性未知, 此处不解析, 设置为跳过!' + self.error_base_record)
+                    return self._data_error_init()
 
             body = r'{"activityId"' + body
             # self.lg.info(str(body))
@@ -135,6 +146,154 @@ class ALi1688LoginAndParse(Crawler):
             self.lg.error('data为空!' + self.error_base_record)
 
             return self._data_error_init()
+
+    def _get_new_data(self, body, goods_id) -> dict:
+        '''
+        获取新版页面的需求信息
+        :param body:
+        :return:
+        '''
+        def add_data2_2_data1(data1, data2) -> dict:
+            '''增加data2 2 data1'''
+            for key, value in data2.items():
+                if key == 'showPriceRanges':
+                    assert value != [], 'showPriceRanges不等于空list!'
+                    tmp_value = []
+                    for i in value:
+                        begin = i.get('range', '').replace('&ge;', '-').split('-')
+                        assert begin != '', 'begin为空值!'
+                        try:
+                            if begin[0] != '':
+                                begin = begin[0]
+                            else:
+                                begin = begin[1]
+                        except IndexError:
+                            begin = begin[1]
+                        tmp_value.append({
+                            'begin': begin,
+                            'convertPrice': i.get('convertPrice', ''),
+                            'price': i.get('price', ''),
+                        })
+                    data1.update({
+                        'discountPriceRanges': tmp_value,
+                    })
+
+                elif key == 'displayPrice':
+                    data1.update({
+                        'ltPromotionPriceDisplay': value,
+                    })
+
+                else:
+                    data1.update({
+                        key: value,
+                    })
+
+            return data1
+
+        def add_goods_name(data1) -> dict:
+            # goods_name
+            goods_name = data1.get('offerSubject', '')
+            assert goods_name != '', 'goods_name为空值!'
+            data1.update({
+                'subject': goods_name,
+            })
+
+            return data1
+
+        def add_company_name(data1) -> dict:
+            # 增加company_name
+            data1.update({
+                'companyName': data1.get('sellerLoginId', ''),
+            })
+
+            return data1
+
+        def add_all_img_list(data1) -> dict:
+            # 增加示例图
+            all_img_list_selector = {
+                'method': 'css',
+                'selector': 'div#J_Detail_ImageSlides div.swipe-pane img ::attr("swipe-lazy-src")',
+            }
+            all_img_list = parse_field(parser=all_img_list_selector, target_obj=body, logger=self.lg, is_first=False)
+            assert all_img_list != [], 'all_img_list不为空list!'
+            all_img_list = [{
+                'originalImageURI': i
+            } for i in all_img_list]
+            data1.update({
+                'imageList': all_img_list
+            })
+
+            return data1
+
+        def add_div_desc(data1) -> dict:
+            # 增加div_desc
+            div_desc_selector = {
+                'method': 're',
+                'selector': '\"detailUrl\": \"(.*?)\"}<',
+            }
+            div_desc_url = parse_field(parser=div_desc_selector, target_obj=body, logger=self.lg)
+            # self.lg.info(div_desc_url)
+            assert div_desc_url != '', 'div_desc_url为空值!'
+            data1.update({
+                'detailUrl': div_desc_url
+            })
+
+            return data1
+
+        def add_p_info(data1) -> dict:
+            # 增加p_info
+            p_info_selector = {
+                'method': 'css',
+                'selector': 'span.detail-attribute-item ::text',
+            }
+            p_info = parse_field(parser=p_info_selector, target_obj=body, logger=self.lg, is_first=False)
+            assert p_info != [], 'p_info不为空list!'
+            p_info = [{
+                'name': i.split(':')[0],
+                'unit': None,
+                'value': i.split(':')[1]
+            } for i in p_info]
+            data1.update({
+                'productFeatureList': p_info,
+            })
+
+            return data1
+
+        if '该商品无法查看或已下架' in body:
+            self._handle_goods_is_delete(goods_id=goods_id)
+            return self._data_error_init()
+
+        # TODO 新版处理 eg: goods_id: 44609651914
+        body_1 = re.compile('class=\"module-wap-detail-common-footer\"><script type=\"component-data/json\" data-module-hidden-data-area=\"Y\">(.*)</script><div class=\"takla')\
+            .findall(body)[0]
+        body_2 = re.compile('id=\"widget-wap-detail-common-price\"><script type=\"component/json\" data-module-hidden-data-area=\"Y\">(.*?)</script>')\
+            .findall(body)[0]
+        # self.lg.info(body_1)
+        # self.lg.info(body_2)
+
+        data1 = json_2_dict(json_str=body_1, logger=self.lg, default_res={})
+        data2 = json_2_dict(json_str=body_2, logger=self.lg, default_res={})
+        if data1 == {} \
+                or data2 == {}:
+            self.lg.info('data1 or data2为空dict!异常退出!')
+            return self._data_error_init()
+
+        data1 = add_data2_2_data1(data1=data1, data2=data2)
+        data1 = add_goods_name(data1)
+        data1 = add_company_name(data1)
+        data1 = add_all_img_list(data1)
+        # 增加是否是限时优惠
+        data1.update({
+            'isLimitedTimePromotion': 'false',
+        })
+        data1 = add_div_desc(data1)
+        data1 = add_p_info(data1)
+
+        data = data1
+        # pprint(data)
+        self.result_data = data
+
+        return data
 
     def deal_with_data(self):
         '''
@@ -304,13 +463,17 @@ class ALi1688LoginAndParse(Crawler):
             price_info.append(tmp)
         else:  # 常规商品处理
             if data.get('isLimitedTimePromotion', 'true') == 'false':  # isLimitedTimePromotion 限时优惠, 'true'表示限时优惠价, 'flase'表示非限时优惠
-                price_info = data.get('discountPriceRanges')
+                price_info = data.get('discountPriceRanges', [])
                 for item in price_info:
                     try:
                         item.pop('convertPrice')
                     except KeyError:
                         pass
                         # self.lg.info(str(price_info))
+                    if re.compile('-').findall(item.get('price')) != []:
+                        # goods_id: 548393536706, 处理类似[{'begin': '2', 'price': '2.39-4.38'}]
+                        item['price'] = item.get('price', '').split('-')[0]
+
             else:  # 限时优惠
                 tmp = {
                     'begin': data.get('beginAmount', ''),
@@ -331,6 +494,7 @@ class ALi1688LoginAndParse(Crawler):
         data = kwargs.get('data', {})
         price_info = kwargs.get('price_info', [])
         detail_name_list = kwargs.get('detail_name_list', [])
+        # pprint(price_info)
 
         tmp_sku_map = data.get('skuMap')
         # pprint(tmp_sku_map)
@@ -718,16 +882,15 @@ class ALi1688LoginAndParse(Crawler):
         return detail_info
 
     def get_goods_id_from_url(self, ali_1688_url):
-        is_ali_1688_url = re.compile(r'https://detail.1688.com/offer/.*?').findall(ali_1688_url)
-        if is_ali_1688_url != []:
-            ali_1688_url = re.compile(r'https://detail.1688.com/offer/(.*?).html.*?').findall(ali_1688_url)[0]
-            self.lg.info('------>>>| 得到的阿里1688商品id为:{0}'.format(ali_1688_url))
-
-            return ali_1688_url
-        else:
+        goods_id = ''
+        try:
+            goods_id = re.compile(r'https://detail.1688.com/offer/(.*?).html.*?').findall(ali_1688_url)[0]
+            self.lg.info('------>>>| 得到的阿里1688商品id为:{0}'.format(goods_id))
+        except IndexError:
             self.lg.info('阿里1688商品url错误, 非正规的url, 请参照格式(https://detail.1688.com/offer/)开头的...')
+            pass
 
-            return ''
+        return goods_id
 
     def __del__(self):
         try:
@@ -735,7 +898,7 @@ class ALi1688LoginAndParse(Crawler):
             del self.lg
         except Exception:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     ali_1688 = ALi1688LoginAndParse()
