@@ -16,14 +16,24 @@ from settings import IP_POOL_TYPE
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 
 import asyncio
+from asyncio import new_event_loop
+from json import dumps
 from scrapy.selector import Selector
 import re
 from time import time
 from asyncio import wait
 from fzutils.spider.fz_requests import MyRequests
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.common_utils import _print
+from fzutils.data.list_utils import list_remove_repeat_dict_plus
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    tuple_or_list_params_2_dict_params,
+    get_random_phone_ua,)
+from fzutils.common_utils import (
+    _print,
+    json_2_dict,)
+from fzutils.cp_utils import get_taobao_sign_and_body
 from fzutils.time_utils import get_shanghai_time
+from fzutils.spider.async_always import unblock_get_taobao_sign_and_body
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''
@@ -377,3 +387,120 @@ async def _print_db_old_data(logger, result) -> None:
         logger.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 
     return
+
+def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
+    '''
+    获取某个子分类的单页的company_id_list
+    :param keyword:
+    :return: [{'company_id': xxx, 'province_name': xxx, 'city_name':xxx}, ...]
+    '''
+    def _get_phone_headers() -> dict:
+        return {
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+        }
+
+    def _get_params() -> tuple:
+        return (
+            ('jsv', '2.4.11'),
+            ('appKey', '12574478'),
+            ('api', 'mtop.1688.offerService.getOffers'),
+            ('v', '1.0'),
+            ('type', 'jsonp'),
+            ('dataType', 'jsonp'),
+            ('callback', 'mtopjsonp3'),
+            # ('t', '1545810411923'),
+            # ('sign', 'a39f6182845e02c9159e36fd4dc8f108'),
+        )
+
+    def _get_request_data() -> str:
+        return dumps({
+            'appName': 'wap',
+            'beginPage': page_num,
+            'keywords': keyword,
+            'pageSize': 20,
+            # 'spm': 'a26g8.7710019.0.0'
+        })
+
+    headers = _get_phone_headers()
+    headers.update({
+        # 'referer': 'https://m.1688.com/offer_search/-CBDCC1CFBACFBDF0.html?spm=a26g8.7710019.0.0',
+        'authority': 'h5api.m.1688.com',
+    })
+    params = _get_params()
+    data = _get_request_data()
+    params = tuple_or_list_params_2_dict_params(params)
+    base_url = 'https://h5api.m.1688.com/h5/mtop.1688.offerservice.getoffers/1.0/'
+
+    loop = new_event_loop()
+    res1 = loop.run_until_complete(get_taobao_sign_and_body(
+        base_url=base_url,
+        headers=headers,
+        params=params,
+        data=data,
+        timeout=timeout,
+        ip_pool_type=ip_pool_type,
+        logger=logger))
+    _m_h5_tk = res1[0]
+    error_record_msg = '出错keyword:{}, page_num:{}'.format(keyword, page_num)
+    if _m_h5_tk == '':
+        logger.error('获取到的_m_h5_tk为空str!' + error_record_msg)
+        logger.info('[{}] keyword:{}, page_num:{}'.format('-', keyword, page_num))
+
+        return []
+
+    res2 = loop.run_until_complete(get_taobao_sign_and_body(
+        base_url=base_url,
+        headers=headers,
+        params=params,
+        data=data,
+        _m_h5_tk=_m_h5_tk,
+        session=res1[1],
+        ip_pool_type=ip_pool_type,
+        logger=logger,
+        timeout=timeout))
+    try:
+        body = res2[2]
+        # self.lg.info(body)
+        _ = json_2_dict(
+            json_str=re.compile('\((.*)\)').findall(body)[0],
+            default_res={}).get('data', {}).get('offers', [])
+        # pprint(_)
+    except IndexError:
+        logger.error('获取body时索引异常!' + error_record_msg)
+        return []
+
+    logger.info('[{}] keyword:{}, page_num:{}'.format('+' if _ != [] else '-', keyword, page_num))
+
+    member_id_list = []
+    for i in _:
+        if i.get('memberId') is not None:
+            member_id = i.get('memberId', '')
+            # if 'al' + member_id not in db_al_unique_id_list:
+            #     # 先去重避免重复建任务
+            #     member_id_list.append({
+            #         'company_id': member_id,
+            #         'province_name': i.get('province', ''),
+            #         'city_name': i.get('city', ''),
+            #     })
+            # else:
+            #     # self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
+            #     pass
+
+            # 外部进行去重
+            member_id_list.append({
+                'company_id': member_id,
+                'province_name': i.get('province', ''),
+                'city_name': i.get('city', ''),
+            })
+
+    # list 内部dict去重
+    member_id_list = list_remove_repeat_dict_plus(target=member_id_list, repeat_key='company_id')
+    # pprint(member_id_list)
+    # al company url: https://m.1688.com/winport/company/b2b-3221063020830e2.html
+
+    return member_id_list
+

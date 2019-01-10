@@ -31,7 +31,11 @@ from sql_str_controller import (
     gs_insert_str_1,
     gs_select_str_1,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from multiplex_code import _get_new_db_conn
+from multiplex_code import (
+    _get_new_db_conn,)
+from celery_tasks import (
+    _get_al_one_type_company_id_list_task,
+)
 
 from requests import session
 from datetime import datetime
@@ -55,9 +59,11 @@ from fzutils.spider.fz_driver import (
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.selenium_always import *
+from fzutils.data.excel_utils import read_info_from_excel_file
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.ocr_utils import yundama_ocr_captcha
+from fzutils.celery_utils import _get_celery_async_results
 from fzutils.spider.async_always import *
 
 class CompanySpider(AsyncCrawler):
@@ -165,7 +171,9 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category()
         # self.al_category_list = await self._get_al_category2()
         # self.al_category_list = await self._get_al_category3()
-        self.al_category_list = await self._get_al_category4()
+        # self.al_category_list = await self._get_al_category4()
+        # self.al_category_list = await self._get_al_category5()
+        self.al_category_list = await self._get_al_category6()
         pprint(self.al_category_list)
         self.lg.info('al所有子分类总个数: {}'.format(len(self.al_category_list)))
         assert self.al_category_list != [], '获取到的self.al_category_list为空list!异常退出'
@@ -277,7 +285,6 @@ class CompanySpider(AsyncCrawler):
         得到所有汉字
         :return:
         '''
-
         async def _get_one_page(page_num):
             '''获取一页'''
             url = 'https://www.qqxiuzi.cn/zh/hanzi/daquan-{}.htm'.format(page_num)
@@ -310,7 +317,89 @@ class CompanySpider(AsyncCrawler):
         # self.lg.info(all)
         self.lg.info('总汉字个数: {}'.format(len(all)))
 
-        return all
+        return all[10712:]
+
+    async def _get_al_category5(self) -> list:
+        '''
+        tb 总分类
+        :return: ['鞋子', ...]
+        '''
+        async def oo(target_list, all_sort_list) -> list:
+            for i in target_list:
+                name = i.get('name', '')
+                if name not in all_sort_list:
+                    all_sort_list.append(name)
+
+            return all_sort_list
+
+        headers = await self._get_pc_headers()
+        headers.update({
+            'Referer': 'https://www.taobao.com/',
+        })
+        params = (
+            ('ids', '222887,222890,222889,222886,222906,222898,222907,222885,222895,222878,222908,222879,222893,222896,222918,222917,222888,222902,222880,222913,222910,222882,222883,222921,222899,222905,222881,222911,222894,222920,222914,222877,222919,222915,222922,222884,222912,222892,222900,222923,222909,222897,222891,222903,222901,222904,222916,222924'),
+            ('callback', 'tbh_service_cat'),
+        )
+        url = 'https://tce.alicdn.com/api/data.htm'
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg)
+        all_sort_list = []
+        try:
+            data = json_2_dict(
+                json_str=re.compile('\((.*)\)').findall(body)[0],
+                default_res={},
+                logger=self.lg)
+            assert data != {}, 'data为空dict!'
+            # pprint(data)
+
+            for value in data.values():
+                head = value.get('value', {}).get('head', [])
+                _list = value.get('value', {}).get('list', [])
+                all_sort_list = await oo(target_list=head, all_sort_list=all_sort_list)
+                all_sort_list = await oo(target_list=_list, all_sort_list=all_sort_list)
+
+        except AssertionError:
+            self.lg.error('遇到错误:', exc_info=True)
+            return []
+
+        return all_sort_list
+
+    async def _get_al_category6(self) -> list:
+        '''
+        读取最新的淘热搜excel的top 20W关键字
+        :return:
+        '''
+        excel_file_path = '/Users/afa/Desktop/01月03日TOP20万词表无线.xlsx'
+        self.lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
+
+        try:
+            excel_result = read_info_from_excel_file(excel_file_path=excel_file_path)
+            self.lg.info('读取excel success!\n开始处理excel数据...')
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return []
+
+        all_key_list = []
+        for index, item in enumerate(excel_result):
+            keyword = item.get('关键词', None)
+            if not keyword:
+                continue
+
+            if keyword not in all_key_list:
+                self.lg.info('{}, add {}'.format(index, keyword))
+                all_key_list.append(keyword)
+
+        try:
+            del excel_result
+        except:
+            pass
+        collect()
+
+        return all_key_list[3600:]
 
     async def _get_al_one_cate_list(self, index_cate_id:int=0) -> list:
         '''
@@ -408,16 +497,40 @@ class CompanySpider(AsyncCrawler):
         async def _get_one_all_company_id_list(one_res) -> list:
             '''获取该子分类截止页面的所有company_id_list'''
             one_all_company_id_list = []
+            tmp_id_list = []
             for i in one_res:
-                for j in i:
-                    if i not in one_all_company_id_list:
-                        one_all_company_id_list.append({
-                            'company_id': j['company_id'],
-                            'province_name': j['province_name'],
-                            'city_name': j['city_name'],
-                        })
+                try:
+                    for j in i:
+                        company_id = j.get('company_id', '')
+                        if 'al' + company_id not in self.db_al_unique_id_list:
+                            if company_id not in tmp_id_list:
+                                one_all_company_id_list.append({
+                                    'company_id': company_id,
+                                    'province_name': j['province_name'],
+                                    'city_name': j['city_name'],
+                                })
+                                tmp_id_list.append(company_id)
+                except TypeError:
+                    return []
 
             return one_all_company_id_list
+
+        async def _create_one_celery_task(**kwargs):
+            ip_pool_type = kwargs['ip_pool_type']
+            keyword = kwargs['keyword']
+            page_num = kwargs['page_num']
+
+            async_obj = _get_al_one_type_company_id_list_task.apply_async(
+                args=[
+                    ip_pool_type,
+                    keyword,
+                    page_num,
+                ],
+                expires=3 * 60,
+                retry=False,
+            )
+
+            return async_obj
 
         self.lg.info('即将开始采集al shop info...')
         for cate_name_index, cate_name in enumerate(self.al_category_list):
@@ -436,18 +549,35 @@ class CompanySpider(AsyncCrawler):
                     keyword = k['keyword']
                     page_num = k['page_num']
                     self.lg.info('create task[where keyword: {}, page_num: {}]...'.format(keyword, page_num))
-                    tasks.append(self.loop.create_task(self._get_al_one_type_company_id_list(
-                        keyword=keyword,
-                        page_num=page_num,)))
+                    # tasks.append(self.loop.create_task(self._get_al_one_type_company_id_list(
+                    #     keyword=keyword,
+                    #     page_num=page_num,)))
 
-                one_res = await async_wait_tasks_finished(tasks=tasks)
+                    try:
+                        async_obj = await _create_one_celery_task(
+                            ip_pool_type=self.ip_pool_type,
+                            # logger=self.lg,
+                            keyword=keyword,
+                            page_num=page_num,
+                        )
+                        tasks.append(async_obj)
+                    except:
+                        continue
+
+                # asyncio
+                # one_res = await async_wait_tasks_finished(tasks=tasks)
+
+                # celery
+                one_res = await _get_celery_async_results(tasks=tasks)
+                # pprint(one_res)
                 one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
+
                 self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
                 await self._crawl_al_one_type_all_company_info(
                     one_all_company_id_list=one_all_company_id_list)
 
             # break
-            await async_sleep(3.5)
+            # await async_sleep(1.5)
             collect()
 
     async def _crawl_al_one_type_all_company_info(self, one_all_company_id_list):
@@ -527,7 +657,7 @@ class CompanySpider(AsyncCrawler):
                 else:
                     pass
 
-            await async_sleep(3.)
+            # await async_sleep(3.)
 
     async def _get_al_one_type_company_id_list(self, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
         '''
@@ -604,24 +734,29 @@ class CompanySpider(AsyncCrawler):
             self.lg.error('获取body时索引异常!' + error_record_msg)
             return []
 
-        self.lg.info('[{}] keyword:{}, page_num:{}'.format(
-            '+' if _ != [] else '-',
-            keyword,
-            page_num))
+        self.lg.info('[{}] keyword:{}, page_num:{}'.format('+' if _ != [] else '-', keyword, page_num))
 
         member_id_list = []
         for i in _:
             if i.get('memberId') is not None:
                 member_id = i.get('memberId', '')
-                if 'al' + member_id not in self.db_al_unique_id_list:
-                    # 先去重避免重复建任务
-                    member_id_list.append({
-                        'company_id': member_id,
-                        'province_name': i.get('province', ''),
-                        'city_name': i.get('city', ''),
-                    })
-                else:
-                    self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
+                # if 'al' + member_id not in self.db_al_unique_id_list:
+                #     # 先去重避免重复建任务
+                #     member_id_list.append({
+                #         'company_id': member_id,
+                #         'province_name': i.get('province', ''),
+                #         'city_name': i.get('city', ''),
+                #     })
+                # else:
+                #     # self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
+                #     pass
+
+                # 放在外部去重
+                member_id_list.append({
+                    'company_id': member_id,
+                    'province_name': i.get('province', ''),
+                    'city_name': i.get('city', ''),
+                })
 
         # list 内部dict去重
         member_id_list = list_remove_repeat_dict_plus(target=member_id_list, repeat_key='company_id')
@@ -2429,6 +2564,12 @@ class CompanySpider(AsyncCrawler):
                 parser_obj=parser_obj,
                 target_obj=target_obj,
                 label_name='经营地址',)
+            if address == '':
+                # 无经营地址则取联系地址的字段
+                address = await self._get_al_li_text_by_label_name(
+                    parser_obj=parser_obj,
+                    target_obj=target_obj,
+                    label_name='联系地址',)
 
         else:
             address = await async_parse_field(
@@ -2526,6 +2667,11 @@ class CompanySpider(AsyncCrawler):
                 parser_obj=parser_obj,
                 target_obj=target_obj,
                 label_name='经营范围',)
+            # 不这样设置, 导致存储时company_name为legal_name, 并且legal_name为空
+            # if business_range == '':
+            #     # 设置个默认值
+            #     business_range = '无'
+
         else:
             is_first = True
             if parser_obj['short_name'] == 'qcc':
@@ -2547,7 +2693,7 @@ class CompanySpider(AsyncCrawler):
             pass
 
         if parser_obj['short_name'] == 'mt':
-            # 可为空, 因为读其名知其意
+            # mt可为空, 因为读其名知其意
             pass
         else:
             assert business_range != '', 'business_range为空值!'

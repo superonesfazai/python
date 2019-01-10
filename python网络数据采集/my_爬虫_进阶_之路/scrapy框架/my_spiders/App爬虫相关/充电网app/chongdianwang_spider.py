@@ -57,6 +57,61 @@ async def _get_someplace_one_page_info(latitude:float, longitude:float, page_num
     data = json_2_dict(json_str=body, default_res={}).get('data', [])
     # print(data)
     # TODO 地址, 经纬度是加密的
+    # 逆向后(search:codeBitList)得知其为Tea.decryptByDefaultKey(arrayOfByte)解码
+    '''
+    import com.mdroid.xxtea.Tea;
+    
+    public class f
+      extends w<String>
+    {
+      private String a(String paramString)
+      {
+        byte[] arrayOfByte = Base64.decode(paramString, 0);
+        if ((arrayOfByte == null) || (arrayOfByte.length == 0)) {}
+        do
+        {
+          return paramString;
+          arrayOfByte = Tea.decryptByDefaultKey(arrayOfByte);
+        } while ((arrayOfByte == null) || (arrayOfByte.length == 0));
+        return new String(arrayOfByte);
+      }
+      
+      public String a(a parama)
+        throws IOException
+      {
+        if (parama.f() == b.i)
+        {
+          parama.j();
+          parama = null;
+        }
+        String str;
+        do
+        {
+          return parama;
+          str = parama.h();
+          parama = str;
+        } while (TextUtils.isEmpty(str));
+        try
+        {
+          parama = a(str);
+          return parama;
+        }
+        catch (Exception parama) {}
+        return str;
+      }
+      
+      public void a(c paramc, String paramString)
+        throws IOException
+      {
+        if (paramString == null)
+        {
+          paramc.f();
+          return;
+        }
+        paramc.b(paramString);
+      }
+    }
+    '''
     pprint(data)
     for item in data:
         print(item['address'])
