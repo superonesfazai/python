@@ -13,7 +13,7 @@ curl命令 转成原生的python requests代码
 from fzutils.curl_utils import curl_cmd_2_py_code
 
 curl_cmd = r'''
-curl 'https://tce.alicdn.com/api/data.htm?ids=222887%2C222890%2C222889%2C222886%2C222906%2C222898%2C222907%2C222885%2C222895%2C222878%2C222908%2C222879%2C222893%2C222896%2C222918%2C222917%2C222888%2C222902%2C222880%2C222913%2C222910%2C222882%2C222883%2C222921%2C222899%2C222905%2C222881%2C222911%2C222894%2C222920%2C222914%2C222877%2C222919%2C222915%2C222922%2C222884%2C222912%2C222892%2C222900%2C222923%2C222909%2C222897%2C222891%2C222903%2C222901%2C222904%2C222916%2C222924&callback=tbh_service_cat' -H 'Referer: https://www.taobao.com/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36' --compressed
+curl 'http://www.youdict.com/ciku/id_0_0_0_0_0.html' -H 'Proxy-Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'Referer: http://www.youdict.com/ciku/id_0_0_0_0_2238.html' -H 'Accept-Encoding: gzip, deflate' -H 'Accept-Language: zh-CN,zh;q=0.9' -H 'Cookie: UM_distinctid=1683ab54d82470-0818269b0526ee-10326653-1fa400-1683ab54d835d9; CNZZDATA1254976343=1507356200-1547171394-null%7C1547171394; Hm_lvt_88704587328aa1eb2cae7909f17b3601=1547173187; Hm_lpvt_88704587328aa1eb2cae7909f17b3601=1547173266' --compressed
 '''
 res = curl_cmd_2_py_code(curl_cmd)
 print(res)

@@ -44,7 +44,9 @@ from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,)
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
@@ -392,11 +394,13 @@ class TaoBaoLoginAndParse(Crawler):
         data = kwargs.get('data', {})
         goods_id = kwargs.get('goods_id')
 
+        # pprint(data)
         # 手机端描述地址
         if data.get('item').get('taobaoDescUrl') is not None:
             phone_div_url = 'https:' + data['item']['taobaoDescUrl']
         else:
             phone_div_url = ''
+        # self.lg.info(phone_div_url)
 
         # pc端描述地址
         if data.get('item').get('taobaoPcDescUrl') is not None:
@@ -996,7 +1000,7 @@ class TaoBaoLoginAndParse(Crawler):
         根据pc描述的url模拟请求获取描述的div
         :return: str
         '''
-        t = str(time.time().__round__()) + str(randint(100, 999))  # time.time().__round__() 表示保留到个位
+        t = str(time.time().__round__()) + str(randint(100, 999))
 
         params_data_1 = {
             'id': goods_id,
@@ -1019,25 +1023,32 @@ class TaoBaoLoginAndParse(Crawler):
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.lg.info(last_url)
 
-        data = Requests.get_url_body(url=last_url, headers=self.headers, params=None, timeout=14, num_retries=3, high_conceal=True, ip_pool_type=self.ip_pool_type)
+        data = Requests.get_url_body(
+            url=last_url,
+            headers=self.headers,
+            params=None,
+            timeout=14,
+            num_retries=3,
+            ip_pool_type=self.ip_pool_type)
+        # self.lg.info(data)
         if data == '':
             self.lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
             return ''
 
         try:
-            data = re.compile('mtopjsonp1\((.*)\)').findall(data)[0]  # 贪婪匹配匹配所有
+            data = json_2_dict(
+                json_str=re.compile('mtopjsonp1\((.*)\)').findall(data)[0],
+                default_res={},
+                logger=self.lg)
             # self.lg.info(str(data))
-        except IndexError as e:
-            self.lg.error('获取data时, IndexError出错! 出错goods_id: {0}'.format(goods_id))
-            self.lg.exception(e)
-            return ''
-
-        try:
-            data = json.loads(data)
             # pprint(data)
-        except JSONDecodeError:
-            self.lg.error('json转换data时出错, 请检查!')
-            data = {}
+            assert data != {}, '获取div_desc的data为空dict!'
+        except Exception:
+            self.lg.error('出错goods_id: {0}'.format(goods_id), exc_info=True)
+            # 尝试使用第2版接口获取!
+            div = self.get_div_from_pc_div_url2(goods_id=goods_id)
+
+            return div
 
         div = data.get('data', {}).get('pcDescContent', '')
         # self.lg.info(str(div))
@@ -1045,6 +1056,84 @@ class TaoBaoLoginAndParse(Crawler):
         # self.lg.info(div)
 
         return div
+
+    def get_div_from_pc_div_url2(self, goods_id):
+        '''
+        2版获取div_desc
+        :param goods_id:
+        :return:
+        '''
+        self.lg.info('正在尝试通过2版获取div_desc...')
+        t = str(time.time().__round__()) + str(randint(100, 999))
+
+        headers = self._get_phone_headers()
+        headers.update({
+            'authority': 'h5api.m.taobao.com',
+            # 'referer': 'https://h5.m.taobao.com/app/detail/desc.html?_isH5Des=true',
+        })
+        params = (
+            ('jsv', '2.4.11'),
+            ('appKey', '12574478'),
+            ('t', t),
+            # ('sign', '91f4d710bcd11690dd0c28b482c4dbbb'),
+            ('api', 'mtop.taobao.detail.getdesc'),
+            ('v', '6.0'),
+            ('type', 'jsonp'),
+            ('dataType', 'jsonp'),
+            ('timeout', '20000'),
+            ('callback', 'mtopjsonp1'),
+            ('data', dumps({
+                'id': goods_id,
+                'type': '0',
+            })),
+        )
+        url = 'https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type)
+        # self.lg.info(body)
+        try:
+            data = json_2_dict(
+                json_str=re.compile('\((.*)\)').findall(body)[0],
+                default_res={},
+                logger=self.lg)
+            # pprint(data)
+            assert data != {}, '获取div_desc的data为空dict!'
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return ''
+
+        div_list = data.get('data', {}).get('wdescContent', {}).get('pages', [])
+        # self.lg.info(str(div_list))
+        div_desc = ''
+        for item in div_list:
+            try:
+                _ = re.compile('<img.*?>(.*?)</img>').findall(item)[0]
+                img_url = 'https:' + _ if re.compile('http').findall(_) == [] else _
+            except IndexError:
+                continue
+
+            tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(img_url)
+            div_desc += tmp
+
+        if div_desc != '':
+            div_desc = '<div>' + div_desc + '</div>'
+
+        div_desc = self.deal_with_div(div_desc)
+        # self.lg.info(div_desc)
+
+        return div_desc
+
+    @staticmethod
+    def _get_phone_headers():
+        return {
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': get_random_phone_ua(),
+            'accept': '*/*',
+        }
 
     def deal_with_div(self, div):
         body = div

@@ -17,7 +17,7 @@ from fzutils.celery_utils import *
 """
 分布式任务启动: 
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
-2. celery multi start w1 w2 w3 -A celery_tasks -P eventlet -c 300 (多开)
+2. celery multi start w1 w2 w3 -A celery_tasks -P eventlet -c 300 (多开效果更快)
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555

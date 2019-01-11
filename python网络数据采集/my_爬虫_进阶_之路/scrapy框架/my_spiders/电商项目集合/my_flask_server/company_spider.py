@@ -174,6 +174,8 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         self.al_category_list = await self._get_al_category6()
+        # self.al_category_list = await self._get_al_category7()
+
         pprint(self.al_category_list)
         self.lg.info('al所有子分类总个数: {}'.format(len(self.al_category_list)))
         assert self.al_category_list != [], '获取到的self.al_category_list为空list!异常退出'
@@ -399,7 +401,53 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[3600:]
+        return all_key_list[6000:]
+
+    async def _get_al_category7(self) -> list:
+        '''
+        获取常用英文单词
+        :return:
+        '''
+        async def _get_and_parse(page_num) -> list:
+            '''获取并且解析'''
+            url = 'http://www.youdict.com/ciku/id_0_0_0_0_{}.html'.format(page_num)
+            # 使用proxy, 无数据
+            body = await unblock_request(url=url, headers=headers, cookies=None, use_proxy=False)
+
+            li_selector = {
+                'method': 'css',
+                'selector': 'h3 a ::text',
+            }
+            word = await async_parse_field(
+                parser=li_selector,
+                target_obj=body,
+                is_first=False,
+                logger=self.lg)
+            self.lg.info('[{}] page_num: {}'.format('+' if word != [] else '-', page_num))
+
+            return word
+
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+            # 'Referer': 'http://www.youdict.com/ciku/id_0_0_0_0_2238.html',
+        })
+        tasks = []
+        all = []
+        for page_num in range(0, 2239):
+            self.lg.info('create task[where page_num is {}]...'.format(page_num))
+            tasks.append(self.loop.create_task(_get_and_parse(page_num=page_num)))
+
+        all_res = await async_wait_tasks_finished(tasks=tasks)
+        for i in all_res:
+            for j in i:
+                if j not in all:
+                    all.append(j)
+        pprint(all)
+        self.lg.info('all len: {}'.format(len(all)))
+        collect()
+
+        return all
 
     async def _get_al_one_cate_list(self, index_cate_id:int=0) -> list:
         '''
