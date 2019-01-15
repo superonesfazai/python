@@ -15,6 +15,7 @@
     3. 美团
     4. al 1688
 待实现
+    1. 58(手机号为短期(内部电话转接), 跳过)
 """
 
 from gc import collect
@@ -79,9 +80,9 @@ class CompanySpider(AsyncCrawler):
         # 设置爬取对象
         self.spider_name = 'al'
         # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
-        self.concurrency = 200
+        self.concurrency = 300
         self.sema = Semaphore(self.concurrency)
-        assert 200 >= self.concurrency, 'self.concurrency并发量不允许大于100!'
+        assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
         self.sema = Semaphore(self.concurrency)
         # 设置天眼查抓取截止页数(查询限制5000个) max 250页
         self.ty_max_page_num = 250
@@ -173,6 +174,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category3()
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
+        # 读取最新的热搜goods词
         self.al_category_list = await self._get_al_category6()
         # self.al_category_list = await self._get_al_category7()
 
@@ -401,7 +403,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[6000:]
+        return all_key_list[20000:]
 
     async def _get_al_category7(self) -> list:
         '''
@@ -581,11 +583,21 @@ class CompanySpider(AsyncCrawler):
             return async_obj
 
         self.lg.info('即将开始采集al shop info...')
+        new_concurrency = 300
+        new_tasks_params_list = []
         for cate_name_index, cate_name in enumerate(self.al_category_list):
             self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
             tasks_params_list = await _get_tasks_params_list(cate_name=cate_name)
-            tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
 
+            # 新建任务个数在达标后才启动
+            for l in tasks_params_list:
+                new_tasks_params_list.append(l)
+            if len(new_tasks_params_list) < new_concurrency:
+                continue
+            else:
+                self.lg.info('建立base task len: {}个 达标!'.format(len(new_tasks_params_list)))
+
+            tasks_params_list_obj = TasksParamsListObj(tasks_params_list=new_tasks_params_list, step=self.concurrency)
             while True:
                 try:
                     slice_params_list = tasks_params_list_obj.__next__()
@@ -623,6 +635,9 @@ class CompanySpider(AsyncCrawler):
                 self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
                 await self._crawl_al_one_type_all_company_info(
                     one_all_company_id_list=one_all_company_id_list)
+
+            # 重置
+            new_tasks_params_list = []
 
             # break
             # await async_sleep(1.5)

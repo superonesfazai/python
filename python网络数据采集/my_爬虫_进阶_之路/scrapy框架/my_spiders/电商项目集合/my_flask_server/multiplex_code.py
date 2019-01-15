@@ -490,6 +490,11 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
             #     # self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
             #     pass
 
+            if len(i.get('province_name', '')) > 8 \
+                or len(i.get('city_name', '')) > 10:
+                # 获取省份or城市名异常的跳过!
+                continue
+
             # 外部进行去重
             member_id_list.append({
                 'company_id': member_id,

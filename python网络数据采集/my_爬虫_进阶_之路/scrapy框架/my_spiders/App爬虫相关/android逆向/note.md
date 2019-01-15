@@ -20,6 +20,11 @@ $ cd /usr/local/bin && chmod +x apktool && chmod +x apktool.jar
 ```
 6. Try running apktool via cli
 
+# jadx
+持续更新, 比jd_gui更完美的dex2jar的工具
+
+[github](https://github.com/skylot/jadx)
+
 # jd_gui
 jd_gui主要是为了方便查看 dex2jar 转换的jar文件结构和部分代码(未混淆)
 

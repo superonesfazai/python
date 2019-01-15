@@ -254,3 +254,26 @@ def store_page_info(url, info):
 古老的异步名言告诉我们，“要靠每个任务来负责维护整个世界”，意思是说，在某个任务要执行的时候，这个世界可能看起来已经变化了，因此任务端要肩负起保证这个世界是他应有的样子的责任。例如，如果你有一个任务需要对一个搜索引擎进行重新索引，并且这个重新索引的过程需要最多5分钟来执行，那么必须由任务端来负责这个事情，而不是调用端。
 
 假设以下的场景，你有一片文章，并且有一个任务是自动添加缩略语的扩写：
+
+## 优化相关
+
+#### 问题1
+遇到类似redis错误：Client id=18543 addr=127.0.0.1:53904 fd=220 name= age=5 idle=0 flags=N db=0 sub=591453 psub=0 multi=-1 qbuf=0 qbuf-free=32768 obl=0 oll=3142 omem=51504706 events=rw cmd=subscribe scheduled to be closed ASAP for overcoming of output buffer limits.
+
+导致原因:
+Redis的输出缓冲机制导致的
+
+Redis为了解决输出缓冲区消息大量堆积的隐患，设置了一些保护机制，主要采用两种限制措施：
+
+- 大小限制，当某一客户端缓冲区超过设定值后直接关闭连接；
+- 持续性限制，当某一客户端缓冲区持续一段时间占用过大空间时关闭连接。
+
+```bash
+# 修改redis.conf配置文件(vi /usr/local/etc/redis.conf)
+# client-output-buffer-limit pubsub 32mb 8mb 60
+# 修改为下面这个直接解决(将hard limit和soft limit同时置0，关闭该限制)
+client-output-buffer-limit pubsub 0 0 0 
+
+# 最后通过下面命令重启redis_server(后续启动都指定修改后的配置文件来启动)
+$ redis-server /usr/local/etc/redis.conf
+```

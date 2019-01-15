@@ -48,3 +48,8 @@ flushdb
 ```
 flushall  
 ```
+
+#### 10. 查看所有配置信息
+```bash
+config get *
+```
