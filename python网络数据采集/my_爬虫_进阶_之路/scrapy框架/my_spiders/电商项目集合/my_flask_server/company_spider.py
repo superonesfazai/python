@@ -403,7 +403,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[20000:]
+        return all_key_list[23056:]
 
     async def _get_al_category7(self) -> list:
         '''

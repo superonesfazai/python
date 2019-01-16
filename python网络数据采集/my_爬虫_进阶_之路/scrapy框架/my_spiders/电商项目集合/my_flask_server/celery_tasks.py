@@ -21,7 +21,7 @@ $ redis-server /usr/local/etc/redis.conf
 
 分布式任务启动: 
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log (多开效果更快)
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log (多开效果更快)
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
