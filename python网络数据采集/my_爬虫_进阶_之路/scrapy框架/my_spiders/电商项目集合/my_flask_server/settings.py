@@ -642,6 +642,72 @@ COMPANY_ITEM_LIST = [
         'lat': None,
     },
     {
+        'short_name': '114',
+        'debug': True,
+        'orj_origin': 'www.114pifa.com',
+        'trade_type_info': {
+            'type_url_sub': {       # 第二类分类url: list
+                'method': 'css',
+                'selector': 'div.detail a ::attr("href")',
+            },
+            'type_name_sub': {      # 第二类分类name type: list
+                'method': 'css',
+                'selector': 'div.detail a ::text',
+            },
+            'type_url_third': {     # 第三类分类url: list
+                'method': 'css',
+                'selector': 'ul.classifyList li a ::attr("href")',
+            },
+            'type_name_third': {    # 第三类分类name type:list
+                'method': 'css',
+                'selector': 'ul.classifyList li a ::text',
+            },
+            'type_url_number': {    # url中number筛选, eg: /c-17.html
+                'method': 're',
+                'selector': 'c-(\d+)',
+            },
+            'one_type_url_list': {  # 一个子分类的厂家url
+                'method': 'css',
+                'selector': 'div.f12.c6.unit a ::attr("href")',
+            },
+            'one_type_url_list_item': {  # 一个子分类的厂家介绍url的list 的item
+                'method': 're',
+                'selector': '\/c\/(\w+)',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '\/ca\/(\w+)',
+        },
+        'company_status': None,     # 公司状态, 1: 在业 or 续存
+        'company_link': None,       # 公司网站
+        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
+            'method': 'css',
+            'selector': 'div.control li',
+        },
+        'company_info_detail_li_2': { # 公司信息的li (联系我们部分)
+            'method': 'css',
+            'selector': 'div.contact-way1 p.text-in11 small',
+        },
+        'company_name': {
+            'method': 'css',
+            'selector': 'div.com-name ::text'
+        },
+        'legal_person': None,       # 在company_info_detail_li_1中
+        'phone': None,              # 在company_info_detail_li_2中
+        'email_address': None,
+        'address': None,            # 在company_info_detail_li_2中
+        'brief_introduction': {     # 简介
+            'method': 'css',
+            'selector': 'div.info-word1 ::text',
+        },
+        'business_range': None,     # 在company_info_detail_li_1中
+        'founding_time': None,      # 在company_info_detail_li_1中
+        'employees_num': None,      # 在company_info_detail_li_1中
+        'lng': None,
+        'lat': None,
+    },
+    {
         'short_name': 'mt',
         'debug': True,
         'obj_origin': 'i.meituan.com',

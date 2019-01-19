@@ -14,8 +14,9 @@
     2. 中国黄页
     3. 美团
     4. al 1688
+    5. 114批发网
 待实现
-    1. 58(手机号为短期(内部电话转接), 跳过)
+    1. 58(pc/m/wx站手机号为短期(内部电话转接))
 """
 
 from gc import collect
@@ -36,7 +37,7 @@ from multiplex_code import (
     _get_new_db_conn,)
 from celery_tasks import (
     _get_al_one_type_company_id_list_task,
-)
+    _get_114_one_type_company_id_list_task,)
 
 from requests import session
 from datetime import datetime
@@ -78,7 +79,7 @@ class CompanySpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/'
         )
         # 设置爬取对象
-        self.spider_name = 'al'
+        self.spider_name = '114'
         # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
         self.concurrency = 300
         self.sema = Semaphore(self.concurrency)
@@ -98,6 +99,10 @@ class CompanySpider(AsyncCrawler):
         self.al_max_index_cate_id = 16
         # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
         self.al_max_page_num = 100
+        # 设置114单个子分类抓取截止最大page_num
+        self.a114_max_page_num = 50
+        # 设置114单页面最大重试次数
+        self.a114_max_num_retries = 15
         # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_max_page_num = 50
         # mt robot ocr record shop_id
@@ -160,8 +165,513 @@ class CompanySpider(AsyncCrawler):
         elif short_name == 'al':
             await self._al_spider()
 
+        elif short_name == '114':
+            await self._a114_spider()
+
         else:
             raise NotImplemented
+
+    async def _a114_spider(self):
+        '''
+        114批发市场spider(pc)
+        :return:
+        '''
+        self.db_114_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=6)
+        # 测试发现这个cate_num是有规律的 1-10000
+        # self.a114_category_list = await self._get_114_category()
+        self.a114_category_list = list(range(1, 10000 + 1))[281:]
+
+        pprint(self.a114_category_list)
+        self.lg.info('114所有子分类总个数: {}'.format(len(self.a114_category_list)))
+        assert self.a114_category_list != [], '获取到的self.a114_category_list为空list!异常退出'
+
+        await self._crawl_114_company_info()
+
+    async def _get_114_category(self) -> list:
+        '''
+        得到114的所有子分类信息
+        :return:
+        '''
+        async def _get_home_page() -> list:
+            '''
+            得到主页的大分类
+            :return: ['c-1.html', ...]
+            '''
+            url = 'http://www.114pifa.com/'
+            body = await unblock_request_by_driver(
+                url=url,
+                executable_path=PHANTOMJS_DRIVER_PATH,
+                ip_pool_type=self.ip_pool_type,
+                logger=self.lg,
+                timeout=20,)
+            assert body != '', '_get_home_page中的body为空值!'
+
+            type_url_sub_list = await async_parse_field(
+                parser=parser_obj['trade_type_info']['type_url_sub'],
+                target_obj=body,
+                is_first=False,
+                logger=self.lg)
+
+            res = []
+            for item in type_url_sub_list:
+                try:
+                    cate_number = int(await async_parse_field(
+                        parser=parser_obj['trade_type_info']['type_url_number'],
+                        target_obj=item,
+                        logger=self.lg))
+                    if cate_number not in res:
+                        res.append(cate_number)
+                except ValueError:
+                    continue
+
+            res.sort()
+
+            return res
+
+        parser_obj = await self._get_parser_obj(short_name='114')
+        try:
+            home_categroy_list = await _get_home_page()
+            pprint(home_categroy_list)
+            await async_sleep(.5)
+            self.lg.info('home_categroy_list len: {}个!'.format(len(home_categroy_list)))
+            all_sub_categroy = await self._crawl_114_sub_categroy(home_categroy_list=home_categroy_list)
+        except AssertionError:
+            self.lg.error('遇到错误:', exc_info=True)
+            return []
+
+        return all_sub_categroy
+
+    async def _crawl_114_sub_categroy(self, home_categroy_list) -> list:
+        '''
+        采集114的各大分类的对应的子分类
+        :return: [1, 3, ...]
+        '''
+        async def _get_tasks_params_list() -> list:
+            '''获取tasks_params_list'''
+            tasks_params_list = []
+
+            for item in home_categroy_list:
+                try:
+                    if item not in tasks_params_list:
+                        tasks_params_list.append({
+                            'category_number': str(item),
+                        })
+                except AssertionError:
+                    continue
+
+            return tasks_params_list
+
+        async def _get_all_cate_number(all) -> list:
+            '''获取去所有cate_number'''
+            res = []
+            # pprint(all)
+            for cate_url in all:
+                if isinstance(cate_url, str):
+                    try:
+                        _ = await async_parse_field(
+                            parser=parser_obj['trade_type_info']['type_url_number'],
+                            target_obj=cate_url,
+                            logger=self.lg)
+                        cate_num = int(_)
+                    except ValueError:
+                        continue
+                elif isinstance(cate_url, int):
+                    cate_num = cate_url
+
+                else:
+                    continue
+
+                res.append(cate_num)
+
+            res.sort()
+
+            return res
+
+        self.lg.info('start crawl 各个home_categroy_list的item的子分类...')
+        parser_obj = await self._get_parser_obj(short_name='114')
+        tasks_params_list = await _get_tasks_params_list()
+        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+
+        # 不保留原先的因为其搜索页面为空, 即搜索不到company_info信息
+        all = home_categroy_list
+        # all = []
+        while True:
+            try:
+                slice_params_list = tasks_params_list_obj.__next__()
+            except AssertionError:
+                break
+
+            tasks = []
+            for k in slice_params_list:
+                category_number = k['category_number']
+                self.lg.info('create task[where category_number: {}]...'.format(category_number))
+                tasks.append(self.loop.create_task(self._get_114_one_page_third_category_list(
+                    parser_obj=parser_obj['trade_type_info'],
+                    category_number=category_number,)))
+
+                # 用于测试
+                # break
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+            # kill_process_by_name(process_name='phantomjs')
+
+            for i in one_res:
+                for j in i:
+                    if j not in all:
+                        all.append(j)
+
+        self.lg.info('crawl 各个home_categroy_list的item的子分类 over !')
+        res = await _get_all_cate_number(all=all)
+
+        return res
+
+    async def _get_114_one_page_third_category_list(self, **kwargs) -> list:
+        '''
+        获取114单页大分类页面中的所有子分类
+        :return:
+        '''
+        parser_obj = kwargs['parser_obj']
+        category_number = kwargs['category_number']
+
+        headers = await self._get_pc_headers()
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+        })
+        url = 'http://www.114pifa.com/c-{}.html'.format(category_number)
+        # driver并发直接提示请求过于频繁
+        # body = await unblock_request_by_driver(
+        #     url=url,
+        #     type=PHANTOMJS,
+        #     executable_path=PHANTOMJS_DRIVER_PATH,
+        #     logger=self.lg,
+        #     ip_pool_type=self.ip_pool_type,
+        #     timeout=20)
+
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            cookies=None,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.a114_max_num_retries,
+            encoding='gbk',)
+
+        if re.compile(r'<title>错误: 不能获取请求的 URL</title>').findall(body) != []\
+                or re.compile(r'<title>403 Forbidden</title>').findall(body) != []:
+            # 单独处理此种请求, 以提高业务成功率
+            body = await unblock_request(
+                url=url,
+                headers=headers,
+                cookies=None,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=int(self.a114_max_num_retries/2),
+                encoding='gbk',)
+
+        # self.lg.info(body)
+        if body == '':
+            self.lg.error('url: {} 获取到的body为空值!'.format(url))
+            return []
+
+        type_url_sub_list = await async_parse_field(
+            parser=parser_obj['type_url_third'],
+            target_obj=body,
+            is_first=False,
+            logger=self.lg)
+        # pprint(type_url_sub_list)
+        # if type_url_sub_list == []:
+        #     self.lg.info(body)
+
+        self.lg.info('[{}] category_number: {}'.format('+' if type_url_sub_list != [] else '-', category_number))
+
+        return type_url_sub_list
+
+    async def _crawl_114_company_info(self):
+        '''
+        采集114所有company信息
+        :return:
+        '''
+        async def _get_tasks_params_list(cate_num) -> list:
+            '''获取tasks_params_list'''
+            tasks_params_list = []
+
+            for page_num in range(2, self.a114_max_page_num + 1):
+                tasks_params_list.append({
+                    'cate_num': cate_num,
+                    'page_num': str(page_num),
+                })
+
+            # 单独插入第一个
+            tasks_params_list.insert(0, {
+                'cate_num': cate_num,
+                'page_num': '',
+            })
+
+            return tasks_params_list
+
+        async def _get_one_all_company_id_list(one_res) -> list:
+            '''获取待采集的company_id list'''
+            one_all_company_id_list = []
+            tmp_id_list = []
+            for i in one_res:
+                try:
+                    for j in i:
+                        company_id = j.get('company_id', '')
+                        if '114' + company_id not in self.db_114_unique_id_list:
+                            if company_id not in tmp_id_list:
+                                one_all_company_id_list.append({
+                                    'company_id': company_id,
+                                })
+                                tmp_id_list.append(company_id)
+                except TypeError:
+                    return []
+
+            return one_all_company_id_list
+
+        async def _create_one_celery_task(**kwargs):
+            ip_pool_type = kwargs['ip_pool_type']
+            num_retries = kwargs['num_retries']
+            parser_obj = kwargs['parser_obj']
+            cate_num = kwargs['cate_num']
+            page_num = kwargs['page_num']
+
+            async_obj = _get_114_one_type_company_id_list_task.apply_async(
+                args=[
+                    ip_pool_type,
+                    num_retries,
+                    parser_obj,
+                    cate_num,
+                    page_num,
+                ],
+                expires=5 * 60,
+                retry=False,)
+
+            return async_obj
+
+        self.lg.info('即将开始采集114 shop info...')
+        parser_obj = await self._get_parser_obj(short_name='114')
+
+        # 测试(发现很多cate_num都是无效无数据的, 只有部分有数据, eg: 1048有数据)
+        # self.a114_category_list = ['1048']
+        UN_CRAWL_CATE_NUM_LIST = list(range(1, 57)) + [64, 65, 100, 200, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 275, 276, 277, 400, 500, 600, 900, 1000,]
+        new_concurrency = 300
+        new_tasks_params_list = []
+        for cate_num_index, cate_num in enumerate(self.a114_category_list):
+            try:
+                if int(cate_num) in UN_CRAWL_CATE_NUM_LIST:
+                    # 跳过一些无数据的cate_num
+                    continue
+            except:
+                pass
+
+            self.lg.info('crawl cate_num: {}, cate_num_index: {} ...'.format(cate_num, cate_num_index))
+            tasks_params_list = await _get_tasks_params_list(cate_num=cate_num)
+            try:
+                new_tasks_params_list = await self._get_new_tasks_params_list_from_tasks_params_list(
+                    tasks_params_list=tasks_params_list,
+                    new_concurrency=new_concurrency,
+                    new_tasks_params_list=new_tasks_params_list)
+            except AssertionError:
+                continue
+
+            tasks_params_list_obj = TasksParamsListObj(tasks_params_list=new_tasks_params_list, step=self.concurrency)
+            while True:
+                try:
+                    slice_params_list = tasks_params_list_obj.__next__()
+                except AssertionError:
+                    break
+
+                tasks = []
+                for k in slice_params_list:
+                    cate_num = k['cate_num']
+                    page_num = k['page_num']
+                    self.lg.info('create task[where cate_num: {}, page_num: {}]...'.format(cate_num, page_num))
+                    # tasks.append(self.loop.create_task(self._get_114_one_type_company_id_list(
+                    #     parser_obj=parser_obj['trade_type_info'],
+                    #     cate_num=cate_num,
+                    #     page_num=page_num,)))
+
+                    try:
+                        async_obj = await _create_one_celery_task(
+                            ip_pool_type=self.ip_pool_type,
+                            num_retries=self.a114_max_num_retries,
+                            parser_obj=parser_obj['trade_type_info'],
+                            cate_num=cate_num,
+                            page_num=page_num,)
+                        tasks.append(async_obj)
+                    except:
+                        continue
+
+                # asyncio
+                # one_res = await async_wait_tasks_finished(tasks=tasks)
+
+                # celery
+                one_res = await _get_celery_async_results(tasks=tasks)
+                # pprint(one_res)
+                one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
+
+                self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
+                await self._crawl_114_one_type_all_company_info(
+                    one_all_company_id_list=one_all_company_id_list)
+
+            # 重置
+            new_tasks_params_list = []
+            collect()
+
+        return None
+
+    async def _get_new_tasks_params_list_from_tasks_params_list(self, tasks_params_list, new_tasks_params_list, new_concurrency) -> list:
+        '''
+        从tasks_params_list中获取新的new_tasks_params_list(# 新建任务个数在达标后才启动)
+        :return:
+        '''
+        for l in tasks_params_list:
+            new_tasks_params_list.append(l)
+
+        if len(new_tasks_params_list) < new_concurrency:
+            raise AssertionError('未达标跳过!')
+
+        else:
+            self.lg.info('建立base task len: {}个 达标!'.format(len(new_tasks_params_list)))
+
+        return new_tasks_params_list
+
+    async def _get_114_one_type_company_id_list(self, **kwargs) -> list:
+        '''
+        获取114单个子分类的单个页面所有的公司简介的url(m站, pc站无列表显示)
+        :param kwargs:
+        :return: [{'company_id': 'xxx'}, ...]
+        '''
+        parser_obj = kwargs['parser_obj']
+        cate_num = kwargs['cate_num']       # int
+        page_num = kwargs['page_num']       # str '' | '2', ...
+
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+            'Cache-Control': 'max-age=0',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        # 第一页是c-xx.html, 后续都是c-xx-yy
+        url = 'http://m.114pifa.com/c-{}{}{}'.format(
+            cate_num,
+            '' if page_num == '' else '-{}'.format(page_num),
+            '.html' if page_num == '' else '')
+        # self.lg.info(url)
+
+        # TODO 测试发现大量cate_num的单页都为空值! 属于正常情况!
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.a114_max_num_retries,
+            encoding='gbk')
+        # self.lg.info(body)
+
+        brief_url_list = await async_parse_field(
+            parser=parser_obj['one_type_url_list'],
+            target_obj=body,
+            is_first=False,
+            logger=self.lg)
+        # pprint(brief_url_list)
+
+        company_id_list = []
+        for item in brief_url_list:
+            try:
+                company_id = await async_parse_field(
+                    parser=parser_obj['one_type_url_list_item'],
+                    target_obj=item,
+                    logger=self.lg)
+                assert company_id != '', 'company_id不为空值!'
+            except AssertionError:
+                continue
+            company_id_list.append({
+                'company_id': company_id,
+            })
+
+        company_id_list = list_remove_repeat_dict_plus(target=company_id_list, repeat_key='company_id')
+        self.lg.info('[{}] url: {}'.format('+' if company_id_list != [] else '-', url))
+
+        return company_id_list
+
+    async def _crawl_114_one_type_all_company_info(self, one_all_company_id_list):
+        '''
+        抓取114单个分类的所有company_info
+        :param one_all_company_id_list: [{'company_id': xxx}, ...]
+        :return:
+        '''
+        async def _get_tasks_params_list(one_all_company_id_list) -> list:
+            '''获取tasks_params_list'''
+            tasks_params_list = []
+            for item in one_all_company_id_list:
+                company_id = item['company_id']
+                if '114' + company_id not in self.db_114_unique_id_list:
+                    tasks_params_list.append({
+                        'company_id': company_id,
+                        'province_name': '',
+                        'city_name': '',
+                    })
+                else:
+                    pass
+
+            # 去重
+            tasks_params_list = list_remove_repeat_dict_plus(
+                target=tasks_params_list,
+                repeat_key='company_id')
+
+            return tasks_params_list
+
+        self.lg.info('即将开始采集 114 company info...')
+        # 对应company_id 采集该分类截止页面的所有company info
+        tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
+        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+
+        index = 0
+        while True:
+            try:
+                slice_params_list = tasks_params_list_obj.__next__()
+            except AssertionError:
+                break
+
+            tasks = []
+            for k in slice_params_list:
+                company_id = k['company_id']
+                if '114' + company_id in self.db_114_unique_id_list:
+                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
+                    continue
+
+                self.lg.info('create task[where company_id: {}]'.format(company_id))
+                tasks.append(self.loop.create_task(self._parse_one_company_info(
+                    short_name='114',
+                    company_id=company_id,
+                    province_name=k['province_name'],
+                    city_name=k['city_name'],
+                    company_url='http://www.114pifa.com/ca/{}'.format(company_id))))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+            # 存储
+            for i in one_res:
+                index += 1
+                if i != {}:
+                    unique_id = '114' + i.get('unique_id', '')
+                    if unique_id in self.db_114_unique_id_list:
+                        # 已在db的不存储
+                        self.lg.info('company_id:{} in db, so pass!'.format(i.get('unique_id', '')))
+                        continue
+
+                    save_res = await self._save_company_item(
+                        company_item=i,
+                        index=index,)
+                    if save_res:
+                        # 成功插入的记录
+                        if unique_id not in self.db_114_unique_id_list:
+                            self.db_114_unique_id_list.append(unique_id)
+                        else:
+                            pass
+                    else:
+                        pass
+                else:
+                    pass
+
+        return None
 
     async def _al_spider(self):
         '''
@@ -190,7 +700,7 @@ class CompanySpider(AsyncCrawler):
         :return:
         '''
         async def _get_tasks_params_list() -> list:
-            '''获取taks_params_list'''
+            '''获取tasks_params_list'''
             tasks_params_list = []
             for index_cate_id in range(self.al_min_index_cate_id, self.al_max_index_cate_id + 1):
                 tasks_params_list.append({
@@ -403,7 +913,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[23056:]
+        return all_key_list[34741:]
 
     async def _get_al_category7(self) -> list:
         '''
@@ -588,14 +1098,13 @@ class CompanySpider(AsyncCrawler):
         for cate_name_index, cate_name in enumerate(self.al_category_list):
             self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
             tasks_params_list = await _get_tasks_params_list(cate_name=cate_name)
-
-            # 新建任务个数在达标后才启动
-            for l in tasks_params_list:
-                new_tasks_params_list.append(l)
-            if len(new_tasks_params_list) < new_concurrency:
+            try:
+                new_tasks_params_list = await self._get_new_tasks_params_list_from_tasks_params_list(
+                    tasks_params_list=tasks_params_list,
+                    new_concurrency=new_concurrency,
+                    new_tasks_params_list=new_tasks_params_list)
+            except AssertionError:
                 continue
-            else:
-                self.lg.info('建立base task len: {}个 达标!'.format(len(new_tasks_params_list)))
 
             tasks_params_list_obj = TasksParamsListObj(tasks_params_list=new_tasks_params_list, step=self.concurrency)
             while True:
@@ -2257,10 +2766,12 @@ class CompanySpider(AsyncCrawler):
         company_item['type_code'] = type_code
         # pprint(company_item)
 
-        self.lg.info('[{}] task[where province_name:{}, city_name:{}, company_url:{}]'.format(
+        self.lg.info('[{}] task[where province_name:{}, city_name:{}, province_id:{}, city_id:{}, company_url:{}]'.format(
             '+',
             province_name,
             city_name,
+            province_id,
+            city_id,
             company_url,))
 
         return dict(company_item)
@@ -2326,6 +2837,8 @@ class CompanySpider(AsyncCrawler):
             site_id = 4
         elif short_name == 'al':
             site_id = 5
+        elif short_name == '114':
+            site_id = 6
         else:
             raise NotImplemented('site_id没有实现!')
 
@@ -2425,6 +2938,14 @@ class CompanySpider(AsyncCrawler):
                 parser_obj=parser_obj,
                 target_obj=target_obj,
                 label_name='员工人数')
+
+        elif parser_obj['short_name'] == '114':
+            employees_num = await self._get_114_li_text_by_label_name(
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='员工人数',
+                parser_obj_dict_name='company_info_detail_li_1',)
+
         else:
             employees_num = await async_parse_field(
                 parser=parser_obj['employees_num'],
@@ -2457,6 +2978,15 @@ class CompanySpider(AsyncCrawler):
                 parser=parser_obj['company_name'],
                 target_obj=target_obj,
                 logger=self.lg)
+
+        if parser_obj['short_name'] == '114':
+            if company_name !='':
+                if len(company_name) <= 3:
+                    # 人名字默认设置为无
+                    company_name = '无'
+
+        # if company_name == '':
+        #     self.lg.info(target_obj)
 
         assert company_name != '', 'company_name为空值!'
 
@@ -2504,6 +3034,13 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 label_name='法人代表',)
 
+        elif parser_obj['short_name'] == '114':
+            legal_person = await self._get_114_li_text_by_label_name(
+                parser_obj_dict_name='company_info_detail_li_1',
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='法定代表人',)
+
         else:
             legal_person = await async_parse_field(
                 parser=parser_obj['legal_person'],
@@ -2528,11 +3065,26 @@ class CompanySpider(AsyncCrawler):
         if parser_obj['short_name'] == 'al':
             is_first = False
 
+        _phone1, _phone2 = '', ''
         if parser_obj['short_name'] == 'hy':
             phone = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
                 target_obj=target_obj,
                 label_name='公司电话',)
+
+        elif parser_obj['short_name'] == '114':
+            phone = '无'
+            _phone1 = await self._get_114_li_text_by_label_name(
+                parser_obj_dict_name='company_info_detail_li_2',
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='手机',)
+            _phone2 = await self._get_114_li_text_by_label_name(
+                parser_obj_dict_name='company_info_detail_li_2',
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='电话',)
+
         else:
             phone = await async_parse_field(
                 parser=parser_obj['phone'],
@@ -2561,13 +3113,33 @@ class CompanySpider(AsyncCrawler):
                 'phone': i,
             } for i in phone]
 
+        elif parser_obj['short_name'] == '114':
+            phone_list = []
+            if _phone1 != '':
+                phone_list.append({
+                    'phone': _phone1,
+                })
+            if _phone2 != '':
+                phone_list.append({
+                    'phone': _phone2,
+                })
+            # self.lg.info('phone1:{}, phone2:{}'.format(_phone1, _phone2))
+
         else:
             phone_list = [{
                 'phone': phone,
             }]
 
         # 去重
-        phone_list = list_remove_repeat_dict(target=phone_list, repeat_key='phone')
+        phone_list = list_remove_repeat_dict_plus(target=phone_list, repeat_key='phone')
+        # pprint(phone_list)
+        if phone_list != []:
+            if phone_list == [{'phone': ''}]:
+                # 处理114的异常情况
+                phone_list = []
+
+        if parser_obj['short_name'] == '114':
+            assert phone_list != [], 'phone_list不能为空list!'
 
         return phone_list
 
@@ -2633,6 +3205,13 @@ class CompanySpider(AsyncCrawler):
                     parser_obj=parser_obj,
                     target_obj=target_obj,
                     label_name='联系地址',)
+
+        elif parser_obj['short_name'] == '114':
+            address = await self._get_114_li_text_by_label_name(
+                parser_obj_dict_name='company_info_detail_li_2',
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='地址',)
 
         else:
             address = await async_parse_field(
@@ -2735,6 +3314,13 @@ class CompanySpider(AsyncCrawler):
             #     # 设置个默认值
             #     business_range = '无'
 
+        elif parser_obj['short_name'] == '114':
+            business_range = await self._get_114_li_text_by_label_name(
+                parser_obj_dict_name='company_info_detail_li_1',
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='服务领域',)
+
         else:
             is_first = True
             if parser_obj['short_name'] == 'qcc':
@@ -2755,7 +3341,8 @@ class CompanySpider(AsyncCrawler):
         else:
             pass
 
-        if parser_obj['short_name'] == 'mt':
+        if parser_obj['short_name'] == 'mt' \
+                or parser_obj['short_name'] == '114':
             # mt可为空, 因为读其名知其意
             pass
         else:
@@ -2799,6 +3386,21 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 label_name='成立日期',)
 
+        elif parser_obj['short_name'] == '114':
+            # eg: 1995年11月06日
+            founding_time = await self._get_114_li_text_by_label_name(
+                parser_obj_dict_name='company_info_detail_li_1',
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='成立时间',)
+            if founding_time == '':
+                # eg: 2001
+                founding_time = await self._get_114_li_text_by_label_name(
+                    parser_obj_dict_name='company_info_detail_li_1',
+                    parser_obj=parser_obj,
+                    target_obj=target_obj,
+                    label_name='公司成立年',)
+
         else:
             is_first = True
             if parser_obj['short_name'] == 'qcc':
@@ -2831,7 +3433,8 @@ class CompanySpider(AsyncCrawler):
         elif parser_obj['short_name'] == 'mt':
             founding_time = datetime(1900, 1, 1)
 
-        elif parser_obj['short_name'] == 'al':
+        elif parser_obj['short_name'] == 'al'\
+                or parser_obj['short_name'] == '114':
             try:
                 # 2017年03月24日
                 founding_time = re.compile('年|月').sub('-', founding_time)
@@ -2868,6 +3471,9 @@ class CompanySpider(AsyncCrawler):
         if parser_obj['short_name'] == 'al':
             unique_id = 'al' + unique_id
 
+        if parser_obj['short_name'] == '114':
+            unique_id = '114' + unique_id
+
         return unique_id
 
     async def _get_province_id(self, parser_obj, target_obj, province_name, city_name):
@@ -2875,6 +3481,7 @@ class CompanySpider(AsyncCrawler):
         获取对应的省份code
         :return:
         '''
+        local_place = ''
         if parser_obj['short_name'] == 'hy':
             local_place = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -2886,6 +3493,14 @@ class CompanySpider(AsyncCrawler):
             except IndexError:
                 raise IndexError('获取hy的province_name时索引异常! local_place: {}'.format(local_place))
 
+        if parser_obj['short_name'] == '114':
+            local_place = await self._get_114_li_text_by_label_name(
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='地址',
+                parser_obj_dict_name='company_info_detail_li_2',)
+            assert local_place != '', 'local_place不能为空值!否则无法定位省份信息!'
+
         for item in self.province_and_city_code_list:
             c_name = item[0]
             code = item[1]
@@ -2894,6 +3509,25 @@ class CompanySpider(AsyncCrawler):
                 if city_name in c_name:
                     # 单独处理mt的, 因为province_name传过来为空值!
                     return parent_code
+            elif parser_obj['short_name'] == '114':
+                # 处理114的, 因为province_name, city_name传过来都是空值!
+                if parent_code == '':
+                    # 说明是省份or直辖市
+                    if c_name in local_place:
+                        return code
+                    else:
+                        pass
+                else:
+                    # 否则就是 市级别
+                    if re.compile('000$').findall(parent_code) != []:
+                        # 说明是市,县级别
+                        if c_name in local_place:
+                            return parent_code
+                        else:
+                            pass
+                    else:
+                        # 说明其为县区级别, 不进行对比操作!!
+                        pass
             else:
                 if province_name in c_name:
                     return code
@@ -2906,6 +3540,7 @@ class CompanySpider(AsyncCrawler):
         :param city_name:
         :return: '' or not ''
         '''
+        local_place = ''
         if parser_obj['short_name'] == 'hy':
             local_place = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -2921,14 +3556,99 @@ class CompanySpider(AsyncCrawler):
             except IndexError:
                 raise IndexError('获取hy的city_name时索引异常! local_place: {}'.format(local_place))
 
+        if parser_obj['short_name'] == '114':
+            local_place = await self._get_114_li_text_by_label_name(
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='地址',
+                parser_obj_dict_name='company_info_detail_li_2',)
+            assert local_place != '', 'local_place不能为空值!否则无法定位省份信息!'
+
         for item in self.province_and_city_code_list:
             c_name = item[0]
             code = item[1]
-            if city_name in c_name:
-                return code
+            parent_code = item[2]
 
-        # 可以为空, 企查查的为空
-        # raise AssertionError('未知的city_name:{}, db中未找到!'.format(city_name))
+            if parser_obj['short_name'] == '114':
+                # 处理114的, 因为province_name, city_name传过来都是空值!
+                if parent_code == '':
+                    # 说明是省份or直辖市
+                    if re.compile('市').findall(c_name) != '':
+                        # 只匹配四个直辖市, 匹配不到就跳过
+                        if c_name in local_place:
+                            return code
+                        else:
+                            pass
+                    else:
+                        pass
+                else:
+                    # 否则就是 市级别
+                    if re.compile('000$').findall(parent_code) != []:
+                        # 说明是市,县级别
+                        if c_name in local_place:
+                            return code
+                        else:
+                            pass
+                    else:
+                        # 说明其为县区级别, 不进行对比操作!!
+                        pass
+            else:
+                if city_name in c_name:
+                    return code
+
+        if parser_obj['short_name'] == '114':
+            raise AssertionError('未知的city_name:{}, db中未找到!'.format(city_name))
+
+        else:
+            # 可以为空, 企查查的为空
+            pass
+
+        return ''
+
+    async def _get_114_li_text_by_label_name(self, parser_obj_dict_name:str, parser_obj, target_obj, label_name):
+        '''
+        根据label_name获取对应的值
+        :param parser_obj_dict_name: 解析对象的名字, eg: company_info_detail_li_1, company_info_detail_li_2
+        :param parser_obj:
+        :param target_obj:
+        :param label_name:
+        :return:
+        '''
+        company_info_detail_li = await async_parse_field(
+            parser=parser_obj[parser_obj_dict_name],
+            target_obj=target_obj,
+            logger=self.lg,
+            is_first=False)
+        company_info_detail_li = list_duplicate_remove(company_info_detail_li)
+        for item in company_info_detail_li:
+            item = item.replace(' ', '')
+            # self.lg.info(item)
+            # 旨在兼容company_info_detail_li_1 or company_info_detail_li_2
+            label = (Selector(text=item).css('span ::text').extract_first() or '') \
+                .replace(':', '').replace(' ', '').replace('：', '')
+
+            if re.compile('<li>').findall(item) != []:
+                # company_info_detail_li_1中是li
+                css_selector = 'li'
+            elif re.compile('<small>').findall(item) != []:
+                # company_info_detail_li_2是small
+                css_selector = 'small'
+            else:
+                raise ValueError('在获取label_name:{}时, 未找到相应标签无法进行正常解析!'.format(label_name))
+
+            # 无值就取''
+            _text = ''
+            try:
+                _text = await self._wash_data(
+                    data=(Selector(text=item).css('{} ::text'.format(css_selector)).extract() or ['', ''])[1]\
+                        .replace(' ', ''))
+            except IndexError:
+                pass
+
+            # self.lg.info('label: {}'.format(label))
+            # self.lg.info('_text: {}'.format(_text))
+            if label == label_name:
+                return _text
 
         return ''
 
@@ -3010,12 +3730,41 @@ class CompanySpider(AsyncCrawler):
                 type_code=type_code)
 
         elif short_name == 'al':
-            return await self.__get_al_company_page_html(company_id=company_id)
+            return await self._get_al_company_page_html(company_id=company_id)
+
+        elif short_name == '114':
+            return await self._get_114_company_page_html(company_id=company_id)
 
         else:
             raise NotImplemented
 
-    async def __get_al_company_page_html(self, company_id) -> str:
+    async def _get_114_company_page_html(self, company_id) -> str:
+        '''
+        获取114单页company info
+        :param company_id:
+        :return:
+        '''
+        headers = await self._get_pc_headers()
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+            # 'Referer': 'http://www.114pifa.com/c-3181.html',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        url = 'http://www.114pifa.com/ca/{}'.format(company_id)
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            cookies=None,
+            ip_pool_type=self.ip_pool_type,
+            encoding='gbk',
+            num_retries=self.a114_max_num_retries,
+            logger=self.lg)
+        if body == '':
+            self.lg.error('company body为空值! shop_url: {}'.format(url))
+
+        return body
+
+    async def _get_al_company_page_html(self, company_id) -> str:
         '''
         获取al单页店铺info
         :param company_id:

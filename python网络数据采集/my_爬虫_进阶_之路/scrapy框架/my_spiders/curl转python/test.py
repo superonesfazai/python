@@ -6,6 +6,9 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from __future__ import unicode_literals
+
+from ftfy import fix_text
 from fzutils.ip_pools import (
     fz_ip_pool,
     ip_proxy_pool,

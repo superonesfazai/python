@@ -22,7 +22,7 @@ from scrapy.selector import Selector
 import re
 from time import time
 from asyncio import wait
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import MyRequests, Requests
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.internet_utils import (
     get_random_pc_ua,
@@ -33,6 +33,7 @@ from fzutils.common_utils import (
     json_2_dict,)
 from fzutils.cp_utils import get_taobao_sign_and_body
 from fzutils.time_utils import get_shanghai_time
+from fzutils.spider.selector import parse_field
 from fzutils.spider.async_always import unblock_get_taobao_sign_and_body
 
 def _z8_get_parent_dir(goods_id) -> str:
@@ -388,21 +389,21 @@ async def _print_db_old_data(logger, result) -> None:
 
     return
 
+def _get_phone_headers() -> dict:
+    return {
+        'upgrade-insecure-requests': '1',
+        'user-agent': get_random_phone_ua(),
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'zh-CN,zh;q=0.9',
+    }
+
 def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
     '''
     获取某个子分类的单页的company_id_list
     :param keyword:
     :return: [{'company_id': xxx, 'province_name': xxx, 'city_name':xxx}, ...]
     '''
-    def _get_phone_headers() -> dict:
-        return {
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-
     def _get_params() -> tuple:
         return (
             ('jsv', '2.4.11'),
@@ -509,3 +510,66 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
 
     return member_id_list
 
+def _get_114_one_type_company_id_list(ip_pool_type,
+                                      num_retries,
+                                      parser_obj,
+                                      cate_num,
+                                      page_num,
+                                      logger=None,) -> list:
+    '''
+    获取114单个子分类的单个页面所有的公司简介的url(m站, pc站无列表显示)
+    :param ip_pool_type:
+    :param num_retries:
+    :param parser_obj:
+    :param cate_num: int
+    :param page_num: str '' | '2', ...
+    :param logger:
+    :return: [{'company_id': 'xxx'}, ...]
+    '''
+    headers = _get_phone_headers()
+    headers.update({
+        'Proxy-Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    })
+    # 第一页是c-xx.html, 后续都是c-xx-yy
+    url = 'http://m.114pifa.com/c-{}{}{}'.format(
+        cate_num,
+        '' if page_num == '' else '-{}'.format(page_num),
+        '.html' if page_num == '' else '')
+    # self.lg.info(url)
+
+    # TODO 测试发现大量cate_num的单页都为空值! 属于正常情况!
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,
+        encoding='gbk')
+    # logger.info(body)
+
+    brief_url_list = parse_field(
+        parser=parser_obj['one_type_url_list'],
+        target_obj=body,
+        is_first=False,
+        logger=logger)
+    # pprint(brief_url_list)
+
+    company_id_list = []
+    for item in brief_url_list:
+        try:
+            company_id = parse_field(
+                parser=parser_obj['one_type_url_list_item'],
+                target_obj=item,
+                logger=logger)
+            assert company_id != '', 'company_id不为空值!'
+        except AssertionError:
+            continue
+        company_id_list.append({
+            'company_id': company_id,
+        })
+
+    company_id_list = list_remove_repeat_dict_plus(target=company_id_list, repeat_key='company_id')
+    logger.info('[{}] url: {}'.format('+' if company_id_list != [] else '-', url))
+
+    return company_id_list

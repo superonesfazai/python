@@ -11,7 +11,10 @@ from celery.utils.log import get_task_logger
 from asyncio import (
     new_event_loop,
     get_event_loop,)
-from multiplex_code import _get_al_one_type_company_id_list
+from multiplex_code import (
+    _get_al_one_type_company_id_list,
+    _get_114_one_type_company_id_list,
+)
 from fzutils.celery_utils import *
 
 """
@@ -21,7 +24,7 @@ $ redis-server /usr/local/etc/redis.conf
 
 分布式任务启动: 
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log (多开效果更快)
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log (多开效果更快)
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
@@ -78,6 +81,19 @@ def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
         page_num=page_num,
         timeout=timeout
     )
+    collect()
+
+    return res
+
+@app.task(name=tasks_name + '._get_114_one_type_company_id_list_task', bind=True)
+def _get_114_one_type_company_id_list_task(self, ip_pool_type, num_retries, parser_obj, cate_num, page_num):
+    res = _get_114_one_type_company_id_list(
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,
+        cate_num=cate_num,
+        page_num=page_num,
+        parser_obj=parser_obj,
+        logger=lg,)
     collect()
 
     return res
