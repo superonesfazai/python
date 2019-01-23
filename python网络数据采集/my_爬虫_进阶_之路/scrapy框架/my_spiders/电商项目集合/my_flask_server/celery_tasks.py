@@ -8,14 +8,22 @@
 
 from gc import collect
 from celery.utils.log import get_task_logger
+from asyncio import wait_for, Future
+from functools import partial
+from threading import (
+    Thread,
+    current_thread,)
 from asyncio import (
     new_event_loop,
-    get_event_loop,)
+    get_event_loop,
+    set_event_loop,)
 from multiplex_code import (
     _get_al_one_type_company_id_list,
-    _get_114_one_type_company_id_list,
-)
+    _get_114_one_type_company_id_list,)
+from company_spider import CompanySpider
+from fzutils.internet_utils import get_random_pc_ua
 from fzutils.celery_utils import *
+from fzutils.spider.fz_requests import Requests
 
 """
 redis:
@@ -79,8 +87,7 @@ def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
         logger=lg,
         keyword=keyword,
         page_num=page_num,
-        timeout=timeout
-    )
+        timeout=timeout)
     collect()
 
     return res
@@ -97,3 +104,99 @@ def _get_114_one_type_company_id_list_task(self, ip_pool_type, num_retries, pars
     collect()
 
     return res
+
+class TaskObj(Thread):
+    '''
+    重写爬虫线程
+    '''
+    def __init__(self, func, args=(), default_res=None):
+        super(TaskObj, self).__init__()
+        self.func = func
+        self.args = args
+        # Thread默认结果
+        self.default_res = default_res
+        self.res = default_res
+
+    def run(self):
+        self.res = self.func(*self.args)
+
+    def _get_result(self):
+        try:
+            Thread.join(self)  # 等待线程执行完毕
+            return self.res
+        except Exception:
+            lg.error('线程遇到错误:', exc_info=True)
+            return self.default_res
+
+@app.task(name=tasks_name + '._parse_one_company_info_task', bind=True)
+def _parse_one_company_info_task(self, short_name, company_url='', province_name='', city_name='', company_id='', type_code=''):
+    def oo():
+        try:
+            # 设置当前事件循环为新的事件循环, 避免报错
+            set_event_loop(new_event_loop())
+            loop = new_event_loop()
+            company_spider = CompanySpider()
+            res = loop.run_until_complete(company_spider._parse_one_company_info(
+                short_name=short_name,
+                company_url=company_url,
+                province_name=province_name,
+                city_name=city_name,
+                company_id=company_id,
+                type_code=type_code,))
+        except Exception:
+            lg.error('遇到错误:', exc_info=True)
+            return {}
+
+        try:
+            del company_spider
+        except:
+            pass
+        collect()
+
+        return res
+
+    # TODO celery与asyncio的结合使用将在celery5.0(官方未开发)以后实现, 现在celery4.2.1会出现异常!
+    thread1 = TaskObj(oo, args=(), default_res={})
+    thread1.start()
+    lg.info('thread {} is running...'.format(current_thread().name))
+
+    return thread1._get_result()
+
+def _get_pc_headers() -> dict:
+    return {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': get_random_pc_ua(),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+
+@app.task(name=tasks_name + '._get_114_company_page_html_task', bind=True)
+def _get_114_company_page_html_task(self, company_id, ip_pool_type, num_retries) -> tuple:
+    '''
+    获取114单个页面的page_html
+    :param self:
+    :param company_id:
+    :return: (company_id, body)
+    '''
+    headers = _get_pc_headers()
+    headers.update({
+        'Proxy-Connection': 'keep-alive',
+        # 'Referer': 'http://www.114pifa.com/c-3181.html',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    })
+    url = 'http://www.114pifa.com/ca/{}'.format(company_id)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        ip_pool_type=ip_pool_type,
+        encoding='gbk',
+        num_retries=num_retries,)
+    if body == '':
+        lg.error('company body为空值! shop_url: {}'.format(url))
+
+    lg.info('[{}] 114 company_id: {}'.format('+' if body != '' else '-', company_id))
+
+    return company_id, body

@@ -9,15 +9,21 @@
 from requests import session
 from requests_toolbelt import MultipartEncoder
 from fzutils.spider.fz_requests import Requests
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,)
+from fzutils.common_utils import get_random_int_number
 
 cookies = {
     'yd_cookie': '2369844f-fc3f-42742d88d5deabc0ec65d866d61526e32347',
 }
+_t = str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(100, 999))
 data = MultipartEncoder(
     fields={
         'PageIndex': '1',
         'PageSize': '20',
-        'TimesTamp': '1547813627151',
+        # 'TimesTamp': '1547813627151',
+        'TimesTamp': _t,
         'UserId': '259146',
         'sign': '42531e765ce3055f25f369db3505db8f'
     }

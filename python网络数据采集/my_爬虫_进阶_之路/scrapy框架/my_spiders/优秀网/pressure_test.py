@@ -7,7 +7,8 @@
 '''
 
 from gc import collect
-from fzutils.ip_pools import fz_ip_pool, tri_ip_pool
+from fzutils.ip_pools import tri_ip_pool
+from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.async_always import *
 
 class YXPT(AsyncCrawler):
@@ -17,8 +18,7 @@ class YXPT(AsyncCrawler):
             self,
             *params,
             **kwargs,
-            ip_pool_type=tri_ip_pool
-        )
+            ip_pool_type=tri_ip_pool,)
         # 100个10s, 500个33s, 800个54s, 1500个100s
         self.concurrency = 500
         # 单次请求超时
@@ -45,7 +45,7 @@ class YXPT(AsyncCrawler):
         main page all test
         :return:
         '''
-        RANGE = range(10000)
+        RANGE = range(1000)
         tasks_params_list_obj = TasksParamsListObj(tasks_params_list=RANGE, step=self.concurrency)
         all = []
         success_count = 0
@@ -83,6 +83,12 @@ class YXPT(AsyncCrawler):
                 headers=await self._get_phone_headers(),
                 timeout=self.request_timeout,
                 ip_pool_type=self.ip_pool_type)
+            # body = await AioHttp.aio_get_url_body(
+            #     url=url,
+            #     headers=await self._get_phone_headers(),
+            #     timeout=self.request_timeout,
+            #     ip_pool_type=self.ip_pool_type,
+            #     verify_ssl=False,)
             # print(body)
             if '优秀网' in body:
                 res = True

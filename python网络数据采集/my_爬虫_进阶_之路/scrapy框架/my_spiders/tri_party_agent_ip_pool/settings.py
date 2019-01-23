@@ -25,7 +25,7 @@ CHECKED_PROXY_SLEEP_TIME = 2 * 60
 # 蘑菇代理可设置: 500
 MIN_IP_POOl_NUM = 150
 
-# server port
+# server port(默认:8001)
 SERVER_PORT = 8001
 
 # 蜻蜓代理api_url

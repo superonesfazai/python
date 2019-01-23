@@ -6,10 +6,21 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from scrapy.selector import Selector
 from fzutils.common_utils import json_2_dict
 from fzutils.internet_utils import get_random_phone_ua
 from fzutils.aio_utils import unblock_request
+from fzutils.spider.selector import async_parse_field
+
+async def _get_phone_headers():
+    return {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': get_random_phone_ua(),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
 
 async def async_judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_proxy=True, timeout=10):
     '''
@@ -27,30 +38,28 @@ async def async_judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_p
             'https': ip_address + ':' + str(port),
         }
 
-    def _get_headers():
-        return {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': get_random_phone_ua(),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-        }
-
     url = 'https://www.whatismybrowser.com/' if not httpbin else 'https://www.httpbin.org/get'
-    headers = _get_headers()
+    headers = await _get_phone_headers()
+    proxies = _get_proxies() if use_proxy else {}
     body = await unblock_request(
         url=url,
         headers=headers,
         use_proxy=use_proxy,
-        proxies=_get_proxies() if use_proxy else {},
+        proxies=proxies,
         timeout=timeout,
         verify=False,)
     # print(body)
 
     if not httpbin:
-        now_ip = Selector(text=body).css('div#ip-address:nth-child(2) .detected-column a:nth-child(1) ::text').extract_first() or ''
+        now_ip_selector = {
+            'method': 'css',
+            'selector': 'div#ip-address:nth-child(2) .detected-column a:nth-child(1) ::text',
+        }
+        now_ip = await async_parse_field(
+            parser=now_ip_selector,
+            target_obj=body,
+            is_first=True,)
+
     else:
         now_ip = json_2_dict(body).get('origin', '')
 

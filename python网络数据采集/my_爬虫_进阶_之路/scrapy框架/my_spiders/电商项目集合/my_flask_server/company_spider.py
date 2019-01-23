@@ -35,9 +35,30 @@ from sql_str_controller import (
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from multiplex_code import (
     _get_new_db_conn,)
-from celery_tasks import (
-    _get_al_one_type_company_id_list_task,
-    _get_114_one_type_company_id_list_task,)
+
+# 避免celery_tasks导入此包时报错!
+try:
+    from celery_tasks import _get_al_one_type_company_id_list_task
+except ImportError:
+    pass
+try:
+    from celery_tasks import _get_114_one_type_company_id_list_task
+except ImportError:
+    pass
+try:
+    from celery_tasks import _parse_one_company_info_task
+except ImportError:
+    pass
+try:
+    from celery_tasks import _get_114_company_page_html_task
+except ImportError:
+    pass
+
+# from celery_tasks import (
+#     _get_al_one_type_company_id_list_task,
+#     _get_114_one_type_company_id_list_task,
+#     _parse_one_company_info_task,
+#     _get_114_company_page_html_task,)
 
 from requests import session
 from datetime import datetime
@@ -84,7 +105,6 @@ class CompanySpider(AsyncCrawler):
         self.concurrency = 300
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
-        self.sema = Semaphore(self.concurrency)
         # 设置天眼查抓取截止页数(查询限制5000个) max 250页
         self.ty_max_page_num = 250
         # 设置企查查抓取截止页数
@@ -179,7 +199,7 @@ class CompanySpider(AsyncCrawler):
         self.db_114_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=6)
         # 测试发现这个cate_num是有规律的 1-10000
         # self.a114_category_list = await self._get_114_category()
-        self.a114_category_list = list(range(1, 10000 + 1))[281:]
+        self.a114_category_list = list(range(1, 10000 + 1))[1604:]
 
         pprint(self.a114_category_list)
         self.lg.info('114所有子分类总个数: {}'.format(len(self.a114_category_list)))
@@ -450,7 +470,7 @@ class CompanySpider(AsyncCrawler):
         parser_obj = await self._get_parser_obj(short_name='114')
 
         # 测试(发现很多cate_num都是无效无数据的, 只有部分有数据, eg: 1048有数据)
-        # self.a114_category_list = ['1048']
+        # self.a114_category_list = ['1048', '1049', '1050', '1051', '1052', '1053']
         UN_CRAWL_CATE_NUM_LIST = list(range(1, 57)) + [64, 65, 100, 200, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 275, 276, 277, 400, 500, 600, 900, 1000,]
         new_concurrency = 300
         new_tasks_params_list = []
@@ -619,6 +639,106 @@ class CompanySpider(AsyncCrawler):
 
             return tasks_params_list
 
+        async def _get_one_res(slice_params_list,) -> list:
+            tasks = []
+            for k in slice_params_list:
+                company_id = k['company_id']
+                if '114' + company_id in self.db_114_unique_id_list:
+                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
+                    continue
+
+                self.lg.info('create task[where company_id: {}]'.format(company_id))
+                company_url = 'http://www.114pifa.com/ca/{}'.format(company_id)
+                tasks.append(self.loop.create_task(self._parse_one_company_info(
+                    short_name='114',
+                    company_id=company_id,
+                    province_name=k['province_name'],
+                    city_name=k['city_name'],
+                    company_url=company_url)))
+
+                # try:
+                #     async_obj = await self._create_one_celery_task_where_is_parse_one_company_info_task(
+                #         short_name='114',
+                #         company_id=company_id,
+                #         province_name=k['province_name'],
+                #         city_name=k['city_name'],
+                #         company_url=company_url,
+                #         type_code='',)
+                #     tasks.append(async_obj)
+                # except:
+                #     continue
+
+            # asyncio
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+            # celery
+            # one_res = await _get_celery_async_results(tasks=tasks)
+
+            return one_res
+
+        async def _get_one_res_by_celery(slice_params_list) -> list:
+            '''
+            通过celery
+            :param slice_params_list:
+            :return:
+            '''
+            async def _create_one_celery_task(**kwargs):
+                company_id = kwargs['company_id']
+
+                async_obj = _get_114_company_page_html_task.apply_async(
+                    args=[
+                        company_id,
+                        self.ip_pool_type,
+                        self.a114_max_num_retries,
+                    ],
+                    expires=5*60,
+                    retry=False,)
+
+                return async_obj
+
+            # 获取company_id对应的company_html
+            tasks = []
+            for k in slice_params_list:
+                company_id = k['company_id']
+                if '114' + company_id in self.db_114_unique_id_list:
+                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
+                    continue
+
+                self.lg.info('create task[where status: get 114 company_html, company_id: {}]'.format(company_id))
+                try:
+                    async_obj = await _create_one_celery_task(company_id=company_id,)
+                    tasks.append(async_obj)
+                except:
+                    continue
+            # celery
+            one_res = await _get_celery_async_results(tasks=tasks)
+
+            # parse company_info
+            tasks = []
+            for k in one_res:
+                # k:(company_id, company_html)
+                try:
+                    company_id = k[0]
+                    company_html = k[1]
+                    if not isinstance(company_html, str):
+                        continue
+
+                    self.lg.info('create task[where status: parse_114_company_html, company_id: {}]'.format(company_id))
+                    company_url = 'http://www.114pifa.com/ca/{}'.format(company_id)
+                    tasks.append(self.loop.create_task(self._parse_one_company_info(
+                        short_name='114',
+                        company_id=company_id,
+                        province_name='',
+                        city_name='',
+                        company_url=company_url,
+                        company_html=company_html,)))
+                except (TypeError, IndexError):
+                    continue
+
+            self.lg.info('parse 114 company_html ing...')
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+
+            return one_res
+
         self.lg.info('即将开始采集 114 company info...')
         # 对应company_id 采集该分类截止页面的所有company info
         tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
@@ -631,22 +751,13 @@ class CompanySpider(AsyncCrawler):
             except AssertionError:
                 break
 
-            tasks = []
-            for k in slice_params_list:
-                company_id = k['company_id']
-                if '114' + company_id in self.db_114_unique_id_list:
-                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
-                    continue
+            # asyncio
+            # one_res = await _get_one_res(
+            #     slice_params_list=slice_params_list,)
+            # celery
+            one_res = await _get_one_res_by_celery(
+                slice_params_list=slice_params_list,)
 
-                self.lg.info('create task[where company_id: {}]'.format(company_id))
-                tasks.append(self.loop.create_task(self._parse_one_company_info(
-                    short_name='114',
-                    company_id=company_id,
-                    province_name=k['province_name'],
-                    city_name=k['city_name'],
-                    company_url='http://www.114pifa.com/ca/{}'.format(company_id))))
-
-            one_res = await async_wait_tasks_finished(tasks=tasks)
             # 存储
             for i in one_res:
                 index += 1
@@ -672,6 +783,33 @@ class CompanySpider(AsyncCrawler):
                     pass
 
         return None
+
+    async def _create_one_celery_task_where_is_parse_one_company_info_task(self, **kwargs):
+        '''
+        创建一个parse_one_company_info_task的celery 任务
+        :param kwargs:
+        :return:
+        '''
+        short_name = kwargs['short_name']
+        company_id = kwargs['company_id']
+        province_name = kwargs['province_name']
+        city_name = kwargs['city_name']
+        company_url = kwargs['company_url']
+        type_code = kwargs['type_code']
+
+        async_obj = _parse_one_company_info_task.apply_async(
+            args=[
+                short_name,
+                company_url,
+                province_name,
+                city_name,
+                company_id,
+                type_code,
+            ],
+            expires=5 * 60,
+            retry=False,)
+
+        return async_obj
 
     async def _al_spider(self):
         '''
@@ -913,7 +1051,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[34741:]
+        return all_key_list[52450:]
 
     async def _get_al_category7(self) -> list:
         '''
@@ -2705,22 +2843,27 @@ class CompanySpider(AsyncCrawler):
         解析单页的信息
         :return: {} or {xxx}
         '''
-        province_name = kwargs.get('province_name', '')
-        company_url = kwargs.get('company_url', '')
         short_name = kwargs['short_name']
+        company_url = kwargs.get('company_url', '')
+        province_name = kwargs.get('province_name', '')
         city_name = kwargs.get('city_name', '')
         company_id = kwargs.get('company_id', '')
         type_code = kwargs.get('type_code', '')
+        company_html = kwargs.get('company_html', None)
 
-        company_html = await self._get_someone_company_page_html(
-            short_name=short_name,
-            company_url=company_url,
-            company_id=company_id,
-            city_name=city_name,
-            type_code=type_code)
-        # self.lg.info(str(company_html))
-        if company_html == '':
-            return {}
+        if company_html is None:
+            # 未传入company_html
+            company_html = await self._get_someone_company_page_html(
+                short_name=short_name,
+                company_url=company_url,
+                company_id=company_id,
+                city_name=city_name,
+                type_code=type_code)
+            # self.lg.info(str(company_html))
+            if company_html == '':
+                return {}
+        else:
+            pass
 
         parser_obj = await self._get_parser_obj(short_name=short_name)
         try:

@@ -3,54 +3,65 @@
 '''
 @author = super_fazai
 @File    : tasks.py
-@Time    : 2018/5/19 15:05
 @connect : superonesfazai@gmail.com
 '''
 
-from celery import Celery
-from celery.utils.log import get_task_logger
+"""
+分布式启动:
+celery -A tasks worker -P eventlet -c 300 -l info 
+
+查看所有已注册的task
+celery -A {xxx} inspect registered
+"""
+
 import celery
+from celery.utils.log import get_task_logger
+from fzutils.celery_utils import init_celery_app
+from fzutils.spider.async_always import *
 
-def init_celery_app():
-    '''
-    初始化一个celery对象
-    :return:
-    '''
-    app = Celery(
-        'tasks',        # 创建一个celery实例, 名叫'task'
-        broker='redis://127.0.0.1:6379',  # 指定消息中间件，用redis
-        backend='redis://127.0.0.1:6379/0'  # 指定存储用redis
-    )
+CELERY_TASK_BASE_NAME = 'tasks'
+app = init_celery_app(
+    name=CELERY_TASK_BASE_NAME,     # name必须指定, 否则会收到其他同名的celery task
+)
+# 最佳实践是在模块的顶层，为你的所有任务创建一个共用的logger
+logger = get_task_logger(__name__)
 
-    app.conf.update(
-        CELERY_TIMEZONE='Asia/Shanghai',    # 指定时区, 默认是'UTC'
-        # CELERY_ENABLE_UTC=True,
-        CELERY_ACKS_LATE=True,
-        CELERY_ACCEPT_CONTENT=['pickle', 'json'],
-        CELERY_TASK_SERIALIZER='json',
-        CELERY_RESULT_SERIALIZER='json',
-        CELERYD_FORCE_EXECV=True,
-        CELERYD_MAX_TASKS_PER_CHILD=500,
-        BROKER_HEARTBEAT=0,
-    )
-
-    return app
-
-app = init_celery_app()
-
-# 创建一个被@app.task装饰的函数add, 即创建一个可被celery调度的任务
-@app.task
+@app.task(name=CELERY_TASK_BASE_NAME + '.add', bind=True)
 def add(x, y):
+    '''创建一个可被celery调度的任务'''
     return x + y
 
 '''绑定任务'''
 # 一个任务被绑定: 意味着这个任务的第一个参数是celery app实例(即self)和python中的绑定方法一样：
 # 绑定任务用于尝试重新执行任务(使用app.Task.retry()), 绑定了任务就可以访问当前请求的任务信息 和 任何你添加到指定任务基类中的方法。
-logger = get_task_logger(__name__)  # 最佳实践是在模块的顶层，为你的所有任务创建一个共用的logger。
-
-@app.task(bind=True)
+@app.task(name=CELERY_TASK_BASE_NAME+'.add_2', bind=True)
 def add_2(self, x, y):
     logger.info(self.request.id)
+
+@app.task(name=CELERY_TASK_BASE_NAME + '.test_async', bind=True)
+def test_async(self):
+    '''
+    原生异步测试
+    :return:
+    '''
+    def _get_args():
+        return []
+
+    async def aa():
+        logger.info('*' * 10)
+        await async_sleep(2)
+
+        return True
+
+    logger.info('*' * 100)
+    logger.info(self.request.id)
+    logger.info(str(self.request.headers))
+
+    loop = new_event_loop()
+    args = _get_args()
+    res = loop.run_until_complete(aa)
+
+    return res
 
 '''任务继承'''
 # task装饰器的"base"关键字参数用于指定任务的基类：
