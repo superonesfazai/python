@@ -79,7 +79,6 @@ $ sudo ln -s /Applications/MacVim.app/Contents/bin/mvim /usr/local/bin/mvim
 $ mvim
 ```
 
-
 ## 安装FileZilla
 https://filezilla-project.org/download.php?type=client
 

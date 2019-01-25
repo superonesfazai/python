@@ -446,25 +446,56 @@ class CompanySpider(AsyncCrawler):
 
             return one_all_company_id_list
 
-        async def _create_one_celery_task(**kwargs):
-            ip_pool_type = kwargs['ip_pool_type']
-            num_retries = kwargs['num_retries']
-            parser_obj = kwargs['parser_obj']
-            cate_num = kwargs['cate_num']
-            page_num = kwargs['page_num']
+        async def _get_one_res(slice_params_list) -> list:
+            '''获取one_res'''
+            async def _create_one_celery_task(**kwargs):
+                ip_pool_type = kwargs['ip_pool_type']
+                num_retries = kwargs['num_retries']
+                parser_obj = kwargs['parser_obj']
+                cate_num = kwargs['cate_num']
+                page_num = kwargs['page_num']
 
-            async_obj = _get_114_one_type_company_id_list_task.apply_async(
-                args=[
-                    ip_pool_type,
-                    num_retries,
-                    parser_obj,
-                    cate_num,
-                    page_num,
-                ],
-                expires=5 * 60,
-                retry=False,)
+                async_obj = _get_114_one_type_company_id_list_task.apply_async(
+                    args=[
+                        ip_pool_type,
+                        num_retries,
+                        parser_obj,
+                        cate_num,
+                        page_num,
+                    ],
+                    expires=5 * 60,
+                    retry=False, )
 
-            return async_obj
+                return async_obj
+
+            tasks = []
+            for k in slice_params_list:
+                cate_num = k['cate_num']
+                page_num = k['page_num']
+                self.lg.info('create task[where cate_num: {}, page_num: {}]...'.format(cate_num, page_num))
+                # tasks.append(self.loop.create_task(self._get_114_one_type_company_id_list(
+                #     parser_obj=parser_obj['trade_type_info'],
+                #     cate_num=cate_num,
+                #     page_num=page_num,)))
+
+                try:
+                    async_obj = await _create_one_celery_task(
+                        ip_pool_type=self.ip_pool_type,
+                        num_retries=self.a114_max_num_retries,
+                        parser_obj=parser_obj['trade_type_info'],
+                        cate_num=cate_num,
+                        page_num=page_num,)
+                    tasks.append(async_obj)
+                except:
+                    continue
+
+            # asyncio
+            # one_res = await async_wait_tasks_finished(tasks=tasks)
+            # celery
+            one_res = await _get_celery_async_results(tasks=tasks)
+            # pprint(one_res)
+
+            return one_res
 
         self.lg.info('即将开始采集114 shop info...')
         parser_obj = await self._get_parser_obj(short_name='114')
@@ -499,33 +530,7 @@ class CompanySpider(AsyncCrawler):
                 except AssertionError:
                     break
 
-                tasks = []
-                for k in slice_params_list:
-                    cate_num = k['cate_num']
-                    page_num = k['page_num']
-                    self.lg.info('create task[where cate_num: {}, page_num: {}]...'.format(cate_num, page_num))
-                    # tasks.append(self.loop.create_task(self._get_114_one_type_company_id_list(
-                    #     parser_obj=parser_obj['trade_type_info'],
-                    #     cate_num=cate_num,
-                    #     page_num=page_num,)))
-
-                    try:
-                        async_obj = await _create_one_celery_task(
-                            ip_pool_type=self.ip_pool_type,
-                            num_retries=self.a114_max_num_retries,
-                            parser_obj=parser_obj['trade_type_info'],
-                            cate_num=cate_num,
-                            page_num=page_num,)
-                        tasks.append(async_obj)
-                    except:
-                        continue
-
-                # asyncio
-                # one_res = await async_wait_tasks_finished(tasks=tasks)
-
-                # celery
-                one_res = await _get_celery_async_results(tasks=tasks)
-                # pprint(one_res)
+                one_res = await _get_one_res(slice_params_list=slice_params_list)
                 one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
 
                 self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
@@ -759,28 +764,11 @@ class CompanySpider(AsyncCrawler):
                 slice_params_list=slice_params_list,)
 
             # 存储
-            for i in one_res:
-                index += 1
-                if i != {}:
-                    unique_id = '114' + i.get('unique_id', '')
-                    if unique_id in self.db_114_unique_id_list:
-                        # 已在db的不存储
-                        self.lg.info('company_id:{} in db, so pass!'.format(i.get('unique_id', '')))
-                        continue
-
-                    save_res = await self._save_company_item(
-                        company_item=i,
-                        index=index,)
-                    if save_res:
-                        # 成功插入的记录
-                        if unique_id not in self.db_114_unique_id_list:
-                            self.db_114_unique_id_list.append(unique_id)
-                        else:
-                            pass
-                    else:
-                        pass
-                else:
-                    pass
+            index, self.db_114_unique_id_list = await self._save_company_one_res(
+                one_res=one_res,
+                short_name='114',
+                db_unique_id_list=self.db_114_unique_id_list,
+                index=index,)
 
         return None
 
@@ -1213,22 +1201,51 @@ class CompanySpider(AsyncCrawler):
 
             return one_all_company_id_list
 
-        async def _create_one_celery_task(**kwargs):
-            ip_pool_type = kwargs['ip_pool_type']
-            keyword = kwargs['keyword']
-            page_num = kwargs['page_num']
+        async def _get_one_res(slice_params_list) -> list:
+            '''获取one_res'''
+            async def _create_one_celery_task(**kwargs):
+                ip_pool_type = kwargs['ip_pool_type']
+                keyword = kwargs['keyword']
+                page_num = kwargs['page_num']
 
-            async_obj = _get_al_one_type_company_id_list_task.apply_async(
-                args=[
-                    ip_pool_type,
-                    keyword,
-                    page_num,
-                ],
-                expires=3 * 60,
-                retry=False,
-            )
+                async_obj = _get_al_one_type_company_id_list_task.apply_async(
+                    args=[
+                        ip_pool_type,
+                        keyword,
+                        page_num,
+                    ],
+                    expires=3 * 60,
+                    retry=False,
+                )
 
-            return async_obj
+                return async_obj
+
+            tasks = []
+            for k in slice_params_list:
+                keyword = k['keyword']
+                page_num = k['page_num']
+                self.lg.info('create task[where keyword: {}, page_num: {}]...'.format(keyword, page_num))
+                # tasks.append(self.loop.create_task(self._get_al_one_type_company_id_list(
+                #     keyword=keyword,
+                #     page_num=page_num,)))
+
+                try:
+                    async_obj = await _create_one_celery_task(
+                        ip_pool_type=self.ip_pool_type,
+                        # logger=self.lg,
+                        keyword=keyword,
+                        page_num=page_num,
+                    )
+                    tasks.append(async_obj)
+                except:
+                    continue
+
+            # asyncio
+            # one_res = await async_wait_tasks_finished(tasks=tasks)
+            # celery
+            one_res = await _get_celery_async_results(tasks=tasks)
+
+            return one_res
 
         self.lg.info('即将开始采集al shop info...')
         new_concurrency = 300
@@ -1251,31 +1268,7 @@ class CompanySpider(AsyncCrawler):
                 except AssertionError:
                     break
 
-                tasks = []
-                for k in slice_params_list:
-                    keyword = k['keyword']
-                    page_num = k['page_num']
-                    self.lg.info('create task[where keyword: {}, page_num: {}]...'.format(keyword, page_num))
-                    # tasks.append(self.loop.create_task(self._get_al_one_type_company_id_list(
-                    #     keyword=keyword,
-                    #     page_num=page_num,)))
-
-                    try:
-                        async_obj = await _create_one_celery_task(
-                            ip_pool_type=self.ip_pool_type,
-                            # logger=self.lg,
-                            keyword=keyword,
-                            page_num=page_num,
-                        )
-                        tasks.append(async_obj)
-                    except:
-                        continue
-
-                # asyncio
-                # one_res = await async_wait_tasks_finished(tasks=tasks)
-
-                # celery
-                one_res = await _get_celery_async_results(tasks=tasks)
+                one_res = await _get_one_res(slice_params_list=slice_params_list)
                 # pprint(one_res)
                 one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
 
@@ -1317,6 +1310,28 @@ class CompanySpider(AsyncCrawler):
 
             return tasks_params_list
 
+        async def _get_one_res(slice_params_list) -> list:
+            '''获取one_res'''
+            tasks = []
+            for k in slice_params_list:
+                company_id = k['company_id']
+                if 'al' + company_id in self.db_al_unique_id_list:
+                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
+                    continue
+
+                self.lg.info('create task[where company_id: {}]'.format(company_id))
+                company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
+                tasks.append(self.loop.create_task(self._parse_one_company_info(
+                    short_name='al',
+                    company_id=company_id,
+                    province_name=k['province_name'],
+                    city_name=k['city_name'],
+                    company_url=company_url)))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+
+            return one_res
+
         # 对应company_id 采集该分类截止页面的所有company info
         tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
         tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
@@ -1328,46 +1343,52 @@ class CompanySpider(AsyncCrawler):
             except AssertionError:
                 break
 
-            tasks = []
-            for k in slice_params_list:
-                company_id = k['company_id']
-                if 'al' + company_id in self.db_al_unique_id_list:
-                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
+            # asyncio
+            one_res = await _get_one_res(slice_params_list=slice_params_list)
+
+            # 存储
+            index, self.db_al_unique_id_list = await self._save_company_one_res(
+                one_res=one_res,
+                short_name='al',
+                db_unique_id_list=self.db_al_unique_id_list,
+                index=index,)
+
+            # await async_sleep(3.)
+
+        return None
+
+    async def _save_company_one_res(self, one_res:list, short_name, db_unique_id_list:list, index:int):
+        '''
+        存储company的one_res
+        :param short_name: eg: 'al', '114'
+        :param db_unique_id: eg: self.db_al_unique_id_list
+        :param index:
+        :return: (index, db_unique_id)
+        '''
+        for i in one_res:
+            index += 1
+            if i != {}:
+                unique_id = short_name + i.get('unique_id', '')
+                if unique_id in db_unique_id_list:
+                    # 已在db的不存储
+                    self.lg.info('company_id:{} in db, so pass!'.format(i.get('unique_id', '')))
                     continue
 
-                self.lg.info('create task[where company_id: {}]'.format(company_id))
-                tasks.append(self.loop.create_task(self._parse_one_company_info(
-                    short_name='al',
-                    company_id=company_id,
-                    province_name=k['province_name'],
-                    city_name=k['city_name'],
-                    company_url='https://m.1688.com/winport/company/{}.html'.format(company_id))))
-
-            one_res = await async_wait_tasks_finished(tasks=tasks)
-            for i in one_res:
-                index += 1
-                if i != {}:
-                    unique_id = 'al' + i.get('unique_id', '')
-                    if unique_id in self.db_al_unique_id_list:
-                        # 已在db的不存储
-                        self.lg.info('company_id:{} in db, so pass!'.format(i.get('unique_id', '')))
-                        continue
-
-                    save_res = await self._save_company_item(
-                        company_item=i,
-                        index=index,)
-                    if save_res:
-                        # 成功插入的记录
-                        if unique_id not in self.db_al_unique_id_list:
-                            self.db_al_unique_id_list.append(unique_id)
-                        else:
-                            pass
+                save_res = await self._save_company_item(
+                    company_item=i,
+                    index=index,)
+                if save_res:
+                    # 成功插入的记录
+                    if unique_id not in db_unique_id_list:
+                        db_unique_id_list.append(unique_id)
                     else:
                         pass
                 else:
                     pass
+            else:
+                pass
 
-            # await async_sleep(3.)
+        return index, db_unique_id_list
 
     async def _get_al_one_type_company_id_list(self, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
         '''
@@ -3502,7 +3523,11 @@ class CompanySpider(AsyncCrawler):
             ('&lt;', '<'),
             ('&gt;', '>')
         ]
-        add_sensitive_str_list = ['\u3000', '\xa0', '&nbsp;']
+        add_sensitive_str_list = [
+            '\u3000',
+            '\xa0',
+            '&nbsp;'
+        ]
 
         return wash_sensitive_info(
             data=data,

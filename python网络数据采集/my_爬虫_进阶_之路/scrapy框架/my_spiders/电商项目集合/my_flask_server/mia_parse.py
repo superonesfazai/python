@@ -28,11 +28,17 @@ from sql_str_controller import (
 from multiplex_code import _mia_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import (
     json_2_dict,
-    wash_sensitive_info,)
+    wash_sensitive_info,
+    get_random_int_number,)
+from fzutils.time_utils import (
+    datetime_to_timestamp,
+    get_shanghai_time,)
 from fzutils.spider.crawler import Crawler
 
 class MiaParse(Crawler):
@@ -80,56 +86,34 @@ class MiaParse(Crawler):
             body, sign_direct_url, is_hk = self.get_jump_to_url_and_is_hk(body=body)
             # print(body)
             try:
+                self.main_info_dict = self._get_goods_main_info_dict(goods_id=goods_id)
                 data['title'], data['sub_title'] = self.get_title_and_sub_title(body=body)
-                all_img_url = self.get_all_img_url(goods_id=goods_id, is_hk=is_hk)
-                assert all_img_url != '', 'all_img_url为空值!'
+                # print(data['title'], data['sub_title'])
+                all_img_url = self.get_all_img_url()
+                # pprint(all_img_url)
 
-                p_info = self._get_p_info(body=body)
-                assert p_info != [], '获取到的tmp_p_info为空值, 请检查!'
+                p_info = self._get_p_info()
                 data['p_info'] = p_info
                 # pprint(p_info)
 
                 # 获取每个商品的div_desc
-                div_desc = self.get_goods_div_desc(body=body)
+                div_desc = self.get_goods_div_desc()
+                # print(div_desc)
                 assert div_desc != '', '获取到的div_desc为空值! 请检查'
                 data['div_desc'] = div_desc
 
                 sku_info = self.get_tmp_sku_info(body, goods_id, sign_direct_url, is_hk)
-                assert sku_info != {}, 'sku_info为空dict'
-
-                '''
-                由于这个拿到的都是小图，分辨率相当低，所以采用获取每个goods_id的phone端地址来获取每个规格的高清规格图
-                '''
-                # # print(Selector(text=body).css('dd.color_list li').extract())
-                # for item in Selector(text=body).css('dd.color_list li').extract():
-                #     # print(item)
-                #     try:
-                #         # 该颜色的商品的goods_id
-                #         color_goods_id = Selector(text=item).css('a::attr("href")').extract_first()
-                #         # 该颜色的名字
-                #         color_name = Selector(text=item).css('a::attr("title")').extract_first()
-                #         # 该颜色的img_url
-                #         color_goods_img_url = Selector(text=item).css('img::attr("src")').extract_first()
-                #
-                #         color_goods_id = re.compile('(\d+)').findall(color_goods_id)[0]
-                #     except IndexError:      # 表示该li为这个tmp_url的地址 (单独处理goods_id)
-                #         color_goods_id = goods_id
-                #         color_name = Selector(text=item).css('a::attr("title")').extract_first()
-                #         color_goods_img_url = Selector(text=item).css('img::attr("src")').extract_first()
-                #     print(color_goods_id, ' ', color_name, ' ', color_goods_img_url)
+                assert sku_info != [], 'sku_info为空list'
 
                 '''
                 获取每个规格对应价格跟规格以及其库存
                 '''
-                if self.get_true_sku_info(sku_info=sku_info) == {}:     # 表示出错退出
-                    return self._data_error_init()
-                else:                                                   # 成功获取
-                    true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info)
-                    data['price_info_list'] = true_sku_info
+                true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info)
+                data['price_info_list'] = true_sku_info
                 # pprint(true_sku_info)
 
                 # 设置detail_name_list
-                data['detail_name_list'] = self.get_detail_name_list(i_s=i_s, true_sku_info=true_sku_info)
+                data['detail_name_list'] = self.get_detail_name_list(true_sku_info=true_sku_info)
                 # print(detail_name_list)
 
                 '''单独处理all_img_url为[]的情况'''
@@ -149,7 +133,7 @@ class MiaParse(Crawler):
                 data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'])
 
             except Exception as e:
-                print('遇到错误如下: ', e)
+                print('遇到错误如下:', e)
                 return self._data_error_init()
 
             if data != {}:
@@ -160,6 +144,49 @@ class MiaParse(Crawler):
             else:
                 print('data为空!')
                 return self._data_error_init()
+
+    def _get_goods_main_info_dict(self, goods_id) -> dict:
+        '''
+        获取新版的goods的主信息
+        :param goods_id:
+        :return:
+        '''
+        headers = self._get_phone_headers()
+        _t = str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(100, 999))
+        params = (
+            ('_', _t),
+            ('callback', 'ms_success_jsonpCallback'),
+        )
+        url = 'https://p.mia.com/item/info/{}'.format(goods_id)
+        err_msg = '获取新版goods main info时出错!'
+        try:
+            body = Requests.get_url_body(
+                url=url,
+                headers=headers,
+                params=params,
+                cookies=None,
+                ip_pool_type=self.ip_pool_type)
+            # print(body)
+            data = json_2_dict(
+                json_str=re.compile('\((.*)\)').findall(body)[0],
+                default_res={})
+            # pprint(data)
+            assert data != {}, err_msg
+        except IndexError:
+            raise AssertionError(err_msg)
+
+        return data
+
+    @staticmethod
+    def _get_phone_headers():
+        return {
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'User-Agent': get_random_phone_ua(),
+            'Accept': '*/*',
+            # 'Referer': 'https://m.mia.com/item-2946764.html',
+            'Connection': 'keep-alive',
+        }
 
     def deal_with_data(self):
         '''
@@ -299,24 +326,21 @@ class MiaParse(Crawler):
 
         return tuple(params)
 
-    def _get_p_info(self, **kwargs):
-        body = kwargs.get('body', '')
-
-        tmp_p_info = Selector(text=body).css('div.showblock div p').extract_first()
-        if tmp_p_info == '':
-            return []
-        else:
-            tmp_p_info = re.compile('<p>|</p>').sub('', tmp_p_info)
-            tmp_p_info = re.compile(r'<!--思源品牌，隐藏品牌-->').sub('', tmp_p_info)
-            p_info = [{
-                'p_name': item.split('：')[0],
-                'p_value': item.split('：')[1]
-            } for item in tmp_p_info.split('<br>') if item != '']
+    def _get_p_info(self, **kwargs) -> list:
+        ori_p_dict = self.main_info_dict.get('property_list', {})
+        p_info = []
+        for key, value in ori_p_dict.items():
+            p_info.append({
+                'p_name': key,
+                'p_value': value,
+            })
+        assert p_info != [], '获取到的tmp_p_info为空值, 请检查!'
 
         return p_info
 
     def _data_error_init(self):
         self.result_data = {}
+        self.main_info_dict = {}
 
         return {}
 
@@ -459,25 +483,16 @@ class MiaParse(Crawler):
         :param body:
         :return: title, sub_title
         '''
-        # title
-        # var google_tag_params =
-        base_info = re.compile(r'var google_tag_params = (.*?);// ]]></script>').findall(body)[0]
-        base_info = re.compile(r'//BFD商品页参数开始').sub('', base_info)
-        # print(base_info)
-        title = re.compile(r'bfd_name : "(.*?)"').findall(base_info)[0]
+        # pprint(self.main_info_dict)
+        try:
+            title = re.compile('bfd_name: \"(.*?)\",').findall(body)[0]
+        except IndexError:
+            title = self.main_info_dict.get('brand_name', '') + self.main_info_dict.get('name', '')
+
+        assert title != '', 'title不为空值!'
         # print(title)
 
-        # 子标题
-        try:
-            sub_title = Selector(text=body).css('div.titleout div::text').extract_first()
-
-            if sub_title is None:
-                sub_title = Selector(text=body).css('div.descInfo::text').extract_first()
-
-                if sub_title is None:
-                    sub_title = ''
-        except:
-            sub_title = ''
+        sub_title = self.main_info_dict.get('name_added', '')
         # print(sub_title)
 
         return (self._wash_sensitive_info(title), self._wash_sensitive_info(sub_title))
@@ -492,50 +507,45 @@ class MiaParse(Crawler):
             data=target,
             replace_str_list=replace_str_list)
 
-    def get_all_img_url(self, goods_id, is_hk):
+    def get_all_img_url(self) -> list:
         '''
         得到all_img_url
-        :param goods_id:
-        :param is_hk:
         :return:
         '''
-        if is_hk is True:  # 全球购
-            tmp_url_2 = 'https://www.miyabaobei.hk/item-' + str(goods_id) + '.html'
-        else:
-            tmp_url_2 = 'https://www.mia.com/item-' + str(goods_id) + '.html'
-
-        tmp_body_2 = Requests.get_url_body(url=tmp_url_2, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
-        # print(Selector(text=tmp_body_2).css('div.small').extract())
-
-        if tmp_body_2 == '':
-            print('请求tmp_body_2为空值, 此处先跳过!')
-            return ''
-
-        all_img_url = []
-        for item in Selector(text=tmp_body_2).css('div.small img').extract():
-            # print(item)
-            tmp_img_url = Selector(text=item).css('img::attr("src")').extract_first()
-            all_img_url.append({'img_url': tmp_img_url})
+        _ = self.main_info_dict.get('top_pictures', [])
+        assert _ != [], 'top_pictures为空list!'
+        all_img_url = [{
+            'img_url': item.get('local_url', '')
+        } for item in _]
+        assert all_img_url != [], 'all_img_url为空list!'
 
         return all_img_url
 
-    def get_goods_div_desc(self, body):
+    def get_goods_div_desc(self):
         '''
         得到对应商品的div_desc
         :param body:
         :return: str or ''
         '''
-        # 获取div_desc
-        div_desc = Selector(text=body).css('div.showblock div.xq').extract_first()
+        div_desc_img_list = self.main_info_dict.get('foot_pictures', [])
+        assert div_desc_img_list != [], 'div_desc_img_list为空list'
+        # r'<img src="{}" style="height:auto;width:100%;"/>'.format(item)
+        div_desc = ''
+        if len(div_desc_img_list) == 2:
+            # 表示无div_desc, 为其默认的官方图
+            return '<div></div>'
 
-        div_desc = re.compile('<!--香港仓特定下展图开始-->|<!--香港仓特定下展图结束-->').sub('', div_desc)
-        div_desc = re.compile(r' src=".*?"').sub(' ', div_desc)
-        div_desc = re.compile(r'data-src="').sub('src=\"', div_desc)
-        # print(div_desc)
+        for item in div_desc_img_list[:-2]: # 最后两张图不取
+            img_url = item.get('local_url', '')
+            if img_url != '':
+                div_desc += r'<img src="{}" style="height:auto;width:100%;"/>'.format(img_url)
+
+        if div_desc != '':
+            div_desc = '<div>' + div_desc + '</div>'
 
         return div_desc
 
-    def get_detail_name_list(self, i_s, true_sku_info):
+    def get_detail_name_list(self, true_sku_info):
         '''
         得到detail_name_list
         :param i_s:
@@ -543,7 +553,6 @@ class MiaParse(Crawler):
         :return:
         '''
         # pprint(true_sku_info)
-        # pprint(i_s)
         img_here = 0
         try:
             if true_sku_info[0].get('img_url', '') != '':
@@ -552,13 +561,31 @@ class MiaParse(Crawler):
             pass
 
         detail_name_list = [{'spec_name': '可选', 'img_here': img_here}]
-        if len(i_s) == 1 or len(i_s) == 0:
-            pass
-        else:
-            detail_name_list.append({
-                'spec_name': '规格',
-                'img_here': 0,
-            })
+        try:
+            spec_value = true_sku_info[0].get('spec_value', '')
+            # print(spec_value)
+            count = spec_value.count('|')    # 无: 值为-1
+            # print(count)
+            if count == 0:
+                pass
+            elif count == 1:
+                detail_name_list.append({
+                    'spec_name': '规格',
+                    'img_here': 0,
+                })
+            elif count == 2:
+                detail_name_list.append({
+                    'spec_name': '规格',
+                    'img_here': 0,
+                })
+                detail_name_list.append({
+                    'spec_name': '套餐',
+                    'img_here': 0,
+                })
+            else:
+                raise AssertionError('detail_name_list未知规格属性!')
+        except IndexError:
+            return []
 
         return detail_name_list
 
@@ -576,20 +603,85 @@ class MiaParse(Crawler):
         # 颜色规格等
         # var sku_list_info =
         # pc版没有sku_list_info，只在phone的html界面中才有这个
-        tmp_sku_info = re.compile('var sku_list_info = (.*?);sku_list_info = ').findall(body)[0]
-        # print(tmp_sku_info)
+        # tmp_sku_info = re.compile('var sku_list_info = (.*?);sku_list_info = ').findall(body)[0]
+        # # print(tmp_sku_info)
+        #
+        # try:
+        #     # 看起来像json但是实际不是就可以这样进行替换，再进行json转换
+        #     tmp_sku_info = str(tmp_sku_info).strip("'<>() ").replace('\'', '\"')
+        #
+        #     tmp_sku_info = json_2_dict(
+        #         json_str=tmp_sku_info,
+        #         default_res={})
+        #     assert tmp_sku_info != {}, 'tmp_sku_info不为空dict!'
+        #     # print(tmp_sku_info)   # None
+        # except Exception as e:
+        #     print(e)
+        #     return self._data_error_init()
 
-        try:
-            # 看起来像json但是实际不是就可以这样进行替换，再进行json转换
-            tmp_sku_info = str(tmp_sku_info).strip("'<>() ").replace('\'', '\"')
+        # tmp_sku_info = [{'goods_id': item.get('id'), 'color_name': item.get('code_color')} for item in tmp_sku_info.values()]
+        # pprint(tmp_sku_info)
 
-            tmp_sku_info = json.loads(tmp_sku_info)
-            # print(tmp_sku_info)
-        except Exception as e:
-            print('json.loads遇到错误如下: ', e)
-            return self._data_error_init()
+        # pprint(self.main_info_dict)
+        skus = self.main_info_dict.get('sale_property', {}).get('skus', [])
+        com = self._get_com()
+        # pprint(skus)
+        assert skus != [], 'skus不为空list!'
 
-        tmp_sku_info = [{'goods_id': item.get('id'), 'color_name': item.get('code_color')} for item in tmp_sku_info.values()]
+        tmp_sku_info = []
+        # 先处理skus中的多规格
+        for item in skus:
+            spec_value = ''
+            for key, value in item.items():
+                try:
+                    int(key)
+                    if spec_value == '':
+                        spec_value += value
+                    else:
+                        spec_value += '|{}'.format(value)
+                except Exception as e:
+                    # print(e)
+                    continue
+
+            # 无com
+            tmp_sku_info.append({
+                'goods_id': str(item.get('item_id', '')),
+                'color_name': spec_value,
+            })
+        # pprint(tmp_sku_info)
+
+        # 再处理com中的多规格
+        # pprint(com)
+        if com != []:
+            # 存储已有的规格
+            tmp_spec_value_list = []
+            tmp_sku_info2 = []
+            for item in tmp_sku_info:
+                for item2 in com:
+                    # tmp_sku_info中的子元素, 即每次重置
+                    spec_value = item.get('color_name', '')
+
+                    item_amount = str(item2.get('item_amount', ''))
+                    item_unit = str(item2.get('item_unit', ''))
+                    item2_goods_id = str(item2.get('spu_id', ''))
+                    # eg: 2罐
+                    item2_spec_value = item_amount + item_unit
+                    # print(item2_spec_value)
+                    if item2_spec_value not in tmp_spec_value_list:
+                        spec_value += '|{}'.format(item_amount + item_unit)
+                        # print(spec_value)
+
+                        tmp_sku_info2.append({
+                            'goods_id': item2_goods_id,
+                            'color_name': spec_value,
+                        })
+                        tmp_spec_value_list.append(item2_spec_value)
+                    else:
+                        break
+
+            tmp_sku_info = tmp_sku_info2
+        else:
+            pass
         # pprint(tmp_sku_info)
 
         sku_info = []
@@ -599,9 +691,12 @@ class MiaParse(Crawler):
             else:
                 tmp_url = 'https://www.mia.com/item-' + item.get('goods_id') + '.html'
 
-            tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+            tmp_body = Requests.get_url_body(
+                url=tmp_url,
+                headers=self.headers,
+                had_referer=True,
+                ip_pool_type=self.ip_pool_type)
             # print(tmp_body)
-
             if sign_direct_url != '':
                 # 下面由于html不规范获取不到img_url，所以采用正则
                 # img_url = Selector(text=body).css('div.big.rel img::attr("src")').extract_first()
@@ -616,9 +711,26 @@ class MiaParse(Crawler):
                 'img_url': img_url,
             })
             sleep(.1)
-            # pprint(sku_info)
+        # pprint(sku_info)
 
         return sku_info
+
+    def _get_com(self) -> list:
+        '''
+        第三类规格获取
+        :return:
+        '''
+        com = self.main_info_dict.get('com', [])
+        if isinstance(com, dict):
+            # 由于com可能为{}
+            if com == {}:
+                com = []
+            else:
+                raise AssertionError('未知异常, 请检查!')
+        else:
+            pass
+
+        return com
 
     def get_true_sku_info(self, sku_info):
         '''
@@ -626,18 +738,26 @@ class MiaParse(Crawler):
         :param sku_info:
         :return: {} 空字典表示出错 | (true_sku_info, i_s)
         '''
-        goods_id_str = '-'.join([item.get('goods_id') for item in sku_info])
+        skus = self.main_info_dict.get('sale_property', {}).get('skus', [])
+        assert skus != [], 'skus不为空list!'
+        # pprint(skus)
+
+        goods_id_str = '-'.join([item.get('goods_id', '') for item in sku_info])
+
         # print(goods_id_str)
-        tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
+        tmp_url = 'https://p.mia.com/item/list/{}'.format(goods_id_str)
         # print(tmp_url)
 
-        tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+        tmp_body = Requests.get_url_body(
+            url=tmp_url,
+            headers=self.headers,
+            had_referer=True,
+            ip_pool_type=self.ip_pool_type)
         # print(tmp_body)
 
-        tmp_data = json_2_dict(json_str=tmp_body).get('data', [])
+        tmp_data = json_2_dict(json_str=tmp_body, default_res={}).get('data', [])
+        assert tmp_data != [], 'tmp_data不为空list!'
         # pprint(tmp_data)
-        if tmp_data == []:
-            return self._data_error_init()
 
         true_sku_info = []
         i_s = {}
@@ -648,10 +768,8 @@ class MiaParse(Crawler):
                     # print(i_s)
                     for item_3 in i_s.keys():
                         tmp = {}
-                        if item_3 == 'SINGLE':
-                            spec_value = item_1.get('color_name')
-                        else:
-                            spec_value = item_1.get('color_name') + '|' + item_3
+                        spec_value = item_1.get('color_name', '')
+
                         normal_price = str(item_2.get('mp'))
                         detail_price = str(item_2.get('sp'))
                         img_url = item_1.get('img_url')

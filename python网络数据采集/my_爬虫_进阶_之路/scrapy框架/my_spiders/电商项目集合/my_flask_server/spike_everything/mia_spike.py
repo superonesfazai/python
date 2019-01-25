@@ -79,7 +79,6 @@ class MiaSpike(object):
             tmp_url = 'https://m.mia.com/instant/seckill/seckillPromotionItem/' + str(mia_base_number)
             body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
             # print(body)
-
             if body == '' or body == '[]':
                 print('mia_base_number为: ', mia_base_number)
                 print('获取到的body为空值! 此处跳过')
@@ -129,7 +128,6 @@ class MiaSpike(object):
 
                     mia.get_goods_data(goods_id=str(goods_id))
                     goods_data = mia.deal_with_data()
-
                     if goods_data == {}:  # 返回的data为空则跳过
                         pass
 
