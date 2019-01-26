@@ -58,33 +58,36 @@ class MiaPintuan(object):
             tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(index) + '/0/'
             print('正在抓取: ', tmp_url)
 
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, high_conceal=True, ip_pool_type=self.ip_pool_type)
-            # print(body)
+            try:
+                body = Requests.get_url_body(
+                    url=tmp_url,
+                    headers=self.headers,
+                    had_referer=True,
+                    ip_pool_type=self.ip_pool_type)
+                # print(body)
+                assert body != '', 'body为空值!'
+            except AssertionError:
+                continue
 
-            if body == '':
-                print('获取到的body为空值! 此处跳过')
+            try:
+                tmp_data = json_2_dict(json_str=body, default_res={})
+                assert tmp_data != {}, 'tmp_data不为空dict!'
+                assert tmp_data.get('data_list', []) != [], '得到的data_list为[], 此处跳过!'
+            except AssertionError as e:
+                print(e)
+                break
 
-            else:
-                tmp_data = json_2_dict(json_str=body)
-                if tmp_data == {}:
-                    print('json.loads转换body时出错, 此处跳过!')
+            # print(tmp_data)
+            data_list = [{
+                'goods_id': item.get('sku', ''),
+                'sub_title': item.get('intro', ''),
+                'pid': index,
+            } for item in tmp_data.get('data_list', [])]
+            # pprint(data_list)
 
-                if tmp_data.get('data_list', []) == []:
-                    print('得到的data_list为[], 此处跳过!')
-                    break
-
-                else:
-                    # print(tmp_data)
-                    data_list = [{
-                        'goods_id': item.get('sku', ''),
-                        'sub_title': item.get('intro', ''),
-                        'pid': index,
-                    } for item in tmp_data.get('data_list', [])]
-                    # pprint(data_list)
-
-                    for item in data_list:
-                        goods_list.append(item)
-                    sleep(.5)
+            for item in data_list:
+                goods_list.append(item)
+            sleep(.5)
 
         pprint(goods_list)
         self.deal_with_data(goods_list=goods_list)

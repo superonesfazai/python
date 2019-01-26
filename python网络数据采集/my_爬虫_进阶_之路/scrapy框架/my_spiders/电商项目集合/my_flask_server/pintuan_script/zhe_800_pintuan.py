@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+# TODO 折800拼团放在本地跑, 服务器上代理缘故404!
+
 import json
 from pprint import pprint
 import gc
@@ -27,6 +29,7 @@ from sql_str_controller import z8_select_str_1
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
+from fzutils.common_utils import json_2_dict
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class Zhe800Pintuan(object):
@@ -55,15 +58,15 @@ class Zhe800Pintuan(object):
             tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(str(page))
             print('正在抓取的页面地址为: ', tmp_url)
 
-            tmp_body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
-            if tmp_body == '':
-                tmp_body = '{}'
-            try:
-                tmp_data = json.loads(tmp_body)
-                tmp_data = tmp_data.get('objects', [])
-            except:
-                print('json.loads转换tmp_data时出错!')
-                tmp_data = []
+            tmp_body = Requests.get_url_body(
+                url=tmp_url,
+                headers=self.headers,
+                high_conceal=True,
+                ip_pool_type=self.ip_pool_type)
+
+            tmp_data = json_2_dict(
+                json_str=tmp_body,
+                default_res={}).get('objects', [])
             # print(tmp_data)
 
             if tmp_data == []:
@@ -113,9 +116,7 @@ class Zhe800Pintuan(object):
                         goods_data['spider_url'] = tmp_url
                         goods_data['username'] = '18698570079'
                         goods_data['page'] = str(item[1])
-                        goods_data['pintuan_begin_time'], goods_data[
-                            'pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
-                            miaosha_time=goods_data.get('schedule', [])[0])
+                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
 
                         # print(goods_data)
                         _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)

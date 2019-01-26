@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+# TODO 蘑菇街官方已下架拼团板块, 本爬虫不再维护!
+
 import sys
 sys.path.append('..')
 

@@ -37,6 +37,7 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
+from fzutils.common_utils import json_2_dict
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class JuanPiPinTuan(object):
@@ -67,20 +68,18 @@ class JuanPiPinTuan(object):
             )
             print('正在抓取的页面地址为: ', tmp_url)
 
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
-            if body == '': body = '{}'
             try:
-                tmp_data = json.loads(body)
-                tmp_data = tmp_data.get('data', {}).get('goods', [])
-            except:
-                print('json.loads转换tmp_data时出错!')
-                tmp_data = []
-
-            # print(tmp_data)
-            sleep(.5)
-
-            if tmp_data == []:
-                print('该tmp_url得到的goods为空list, 此处跳过!')
+                body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+                assert body != '', 'body为空值!'
+                tmp_data = json_2_dict(
+                    json_str=body,
+                    default_res={}).get('data', {}).get('goods', [])
+                # print(tmp_data)
+                assert tmp_data != [], '该tmp_url得到的goods为空list, 此处跳过!'
+                sleep(.5)
+            except AssertionError as e:
+                print(e)
+                sleep(.5)
                 break
 
             tmp_pintuan_goods_id_list = [{

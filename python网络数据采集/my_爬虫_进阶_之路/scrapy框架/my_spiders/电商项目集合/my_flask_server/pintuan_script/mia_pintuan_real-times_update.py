@@ -111,84 +111,84 @@ class Mia_Pintuan_Real_Time_Update(object):
                         # print('------>>>| 爬取到的数据为: ', data)
                         tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(item[2]) + '/0/'
                         # print(tmp_url)
-                        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
 
-                        if body == '':
-                            print('获取到的body为空值! 此处跳过')
+                        try:
+                            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+                            assert body != '', 'body不为空值!'
+                            tmp_data = json_2_dict(json_str=body)
+                            assert tmp_data != {}, 'tmp_data不为空dict!'
+                        except AssertionError as e:
+                            print(e)
+                            continue
+
+                        if tmp_data.get('data_list', []) == []:
+                            print('得到的data_list为[]!')
+                            print('该商品已被下架限时秒杀活动，此处将其删除')
+                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                            print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
+                            sleep(.4)
 
                         else:
-                            tmp_data = json_2_dict(json_str=body)
-                            if tmp_data == {}:
-                                print('json.loads转换body时出错, 此处跳过!')
+                            data_list = [{
+                                'goods_id': item_2.get('sku', ''),
+                                'sub_title': item_2.get('intro', ''),
+                            } for item_2 in tmp_data.get('data_list', [])]
+                            # pprint(data_list)
 
-                            if tmp_data.get('data_list', []) == []:
-                                print('得到的data_list为[]!')
-                                print('该商品已被下架限时秒杀活动，此处将其删除')
-                                tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                sleep(.4)
+                            pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in data_list]
+                            # print(pintuan_goods_all_goods_id)
 
-                            else:
-                                data_list = [{
-                                    'goods_id': item_2.get('sku', ''),
-                                    'sub_title': item_2.get('intro', ''),
-                                } for item_2 in tmp_data.get('data_list', [])]
-                                # pprint(data_list)
+                            '''
+                            蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
+                            '''
+                            if item[0] not in pintuan_goods_all_goods_id:  # 内部已经下架的
+                                # print('该商品已被下架限时秒杀活动，此处将其删除')
+                                # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                                # print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
+                                # pass
 
-                                pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in data_list]
-                                # print(pintuan_goods_all_goods_id)
+                                # 一律更新
+                                mia_pintuan.get_goods_data(goods_id=item[0])
+                                goods_data = mia_pintuan.deal_with_data()
 
-                                '''
-                                蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
-                                '''
-                                if item[0] not in pintuan_goods_all_goods_id:  # 内部已经下架的
-                                    # print('该商品已被下架限时秒杀活动，此处将其删除')
-                                    # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                    # print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                    # pass
-
-                                    # 一律更新
-                                    mia_pintuan.get_goods_data(goods_id=item[0])
-                                    goods_data = mia_pintuan.deal_with_data()
-
-                                    if goods_data == {}:  # 返回的data为空则跳过
-                                        pass
+                                if goods_data == {}:  # 返回的data为空则跳过
+                                    pass
+                                else:
+                                    goods_data['goods_id'] = str(item[0])
+                                    if goods_data['pintuan_time'] == {}:  # 当没有拼团时间时，就表示已下架拼团(未让其正常更新进数据库, 我把拼团开始结束时间都设置为当前时间)
+                                        now_time = get_shanghai_time()
+                                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
                                     else:
-                                        goods_data['goods_id'] = str(item[0])
-                                        if goods_data['pintuan_time'] == {}:  # 当没有拼团时间时，就表示已下架拼团(未让其正常更新进数据库, 我把拼团开始结束时间都设置为当前时间)
-                                            now_time = get_shanghai_time()
-                                            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
-                                        else:
-                                            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
+                                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
 
-                                        # pprint(goods_data)
-                                        # print(goods_data)
-                                        mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=tmp_sql_server)
-                                        sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
+                                    # pprint(goods_data)
+                                    # print(goods_data)
+                                    mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=tmp_sql_server)
+                                    sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
 
-                                else:       # 未下架的
-                                    for item_2 in data_list:
-                                        if item_2.get('goods_id', '') == item[0]:
-                                            mia_pintuan.get_goods_data(goods_id=item[0])
-                                            goods_data = mia_pintuan.deal_with_data()
+                            else:       # 未下架的
+                                for item_2 in data_list:
+                                    if item_2.get('goods_id', '') == item[0]:
+                                        mia_pintuan.get_goods_data(goods_id=item[0])
+                                        goods_data = mia_pintuan.deal_with_data()
 
-                                            if goods_data == {}:  # 返回的data为空则跳过
-                                                pass
-                                            else:
-                                                goods_data['goods_id'] = str(item[0])
-                                                goods_data['sub_title'] = item_2.get('sub_title', '')
-                                                if goods_data['pintuan_time'] == {}:    # 当没有拼团时间时，就表示已下架拼团
-                                                    now_time = get_shanghai_time()
-                                                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
-                                                else:
-                                                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
-
-                                                # pprint(goods_data)
-                                                # print(goods_data)
-                                                mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=tmp_sql_server)
-                                                sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
-                                        else:
+                                        if goods_data == {}:  # 返回的data为空则跳过
                                             pass
+                                        else:
+                                            goods_data['goods_id'] = str(item[0])
+                                            goods_data['sub_title'] = item_2.get('sub_title', '')
+                                            if goods_data['pintuan_time'] == {}:    # 当没有拼团时间时，就表示已下架拼团
+                                                now_time = get_shanghai_time()
+                                                goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
+                                            else:
+                                                goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
+
+                                            # pprint(goods_data)
+                                            # print(goods_data)
+                                            mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=tmp_sql_server)
+                                            sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
+                                    else:
+                                        pass
 
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')

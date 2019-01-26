@@ -3,9 +3,11 @@
 '''
 @author = super_fazai
 @File    : mogujie_pintuan_real-times_update.py
-@Time    : 2018/2/5 19:01
+@Time    : 2018/2/3 19:01
 @connect : superonesfazai@gmail.com
 '''
+
+# TODO 蘑菇街官方已下架拼团板块, 本爬虫不再维护!
 
 import sys
 sys.path.append('..')
