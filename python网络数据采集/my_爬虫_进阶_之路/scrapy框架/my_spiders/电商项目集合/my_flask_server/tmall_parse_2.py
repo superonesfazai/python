@@ -109,7 +109,7 @@ class TmallParse(Crawler):
             self.lg.info('@@@@@@ 该商品已经下架...')
             _ = SqlServerMyPageInfoSaveItemPipeline()
             if _.is_connect_success:
-                _._update_table_2(sql_str=tm_update_str_3, params=(goods_id,), logger=self.lg)
+                _._update_table_2(sql_str=tm_update_str_3, params=(str(get_shanghai_time()), goods_id,), logger=self.lg)
                 try:
                     del _
                 except:

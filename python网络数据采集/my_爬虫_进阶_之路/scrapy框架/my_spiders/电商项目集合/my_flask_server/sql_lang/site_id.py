@@ -186,3 +186,18 @@ where site_id=5
 and phone != '[]'
 and city_id in (select code from dbo.Region where c_name='天津市')
 '''
+
+"""
+查看某site_id常规商品的更新状况
+"""
+sql_str_11 = '''
+select count(ID)
+-- select top 100 GoodsID, shelf_time, IsDelete, ModfiyTime
+from dbo.GoodsInfoAutoGet
+where MainGoodsID is not null 
+-- and IsDelete=0
+-- and (SiteID=3 or SiteID=4 or SiteID=6)
+and GETDATE()-ModfiyTime > 0.5
+and SiteID=2
+-- order by shelf_time asc
+'''

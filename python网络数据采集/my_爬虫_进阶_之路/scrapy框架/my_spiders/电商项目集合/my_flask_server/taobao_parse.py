@@ -75,8 +75,6 @@ class TaoBaoLoginAndParse(Crawler):
             'accept-language': 'zh-CN,zh;q=0.9',
             'user-agent': get_random_pc_ua(),
             'accept': '*/*',
-            # 'referer': 'https://h5.m.taobao.com/awp/core/detail.htm?id=560666972076',
-            # 'authority': 'h5api.m.taobao.com',
         }
 
     def get_goods_data(self, goods_id):
@@ -93,12 +91,13 @@ class TaoBaoLoginAndParse(Crawler):
         body = Requests.get_url_body(
             url=last_url,
             headers=self.headers,
-            params=None, timeout=14,
+            params=None,
+            timeout=14,
             ip_pool_type=self.ip_pool_type)
 
         try:
             data = json_2_dict(
-                json_str=re.compile(r'mtopjsonp1\((.*)\)').findall(body)[0],
+                json_str=re.compile(r'\((.*)\)').findall(body)[0],
                 default_res={},
                 logger=self.lg)
             # self.lg.info(str(data))
@@ -116,7 +115,7 @@ class TaoBaoLoginAndParse(Crawler):
             self.lg.info('@@@@@@ 该商品已经下架...')
             _ = SqlServerMyPageInfoSaveItemPipeline()
             if _.is_connect_success:
-                _._update_table_2(sql_str=tb_update_str_3, params=(goods_id,), logger=self.lg)
+                _._update_table_2(sql_str=tb_update_str_3, params=(str(get_shanghai_time()), goods_id,), logger=self.lg)
                 try: del _
                 except: pass
             tmp_data_s = self.init_pull_off_shelves_goods()
@@ -271,9 +270,6 @@ class TaoBaoLoginAndParse(Crawler):
             return result
         else:
             self.lg.info('待处理的data为空的dict, 该商品可能已经转移或者下架')
-            # return {
-            #     'is_delete': 1,
-            # }
             return {}
 
     def _get_new_price_and_taobao_price_when_price_info_list_not_null_list(self, price_info_list, price, taobao_price) -> tuple:

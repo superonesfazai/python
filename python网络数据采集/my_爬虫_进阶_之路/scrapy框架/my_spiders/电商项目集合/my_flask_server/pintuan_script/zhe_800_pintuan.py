@@ -11,7 +11,7 @@
 
 import json
 from pprint import pprint
-import gc
+from gc import collect
 from time import sleep
 
 import sys
@@ -101,31 +101,31 @@ class Zhe800Pintuan(object):
             for item in zid_list:
                 if item[0] in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
+                    continue
+
+                tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(item[0])
+                goods_id = zhe_800_pintuan.get_goods_id_from_url(tmp_url)
+
+                zhe_800_pintuan.get_goods_data(goods_id=goods_id)
+                goods_data = zhe_800_pintuan.deal_with_data()
+
+                if goods_data == {}:  # 返回的data为空则跳过
                     pass
-                else:
-                    tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(item[0])
-                    goods_id = zhe_800_pintuan.get_goods_id_from_url(tmp_url)
+                else:  # 否则就解析并且插入
+                    goods_data['goods_id'] = str(item[0])
+                    goods_data['spider_url'] = tmp_url
+                    goods_data['username'] = '18698570079'
+                    goods_data['page'] = str(item[1])
+                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
 
-                    zhe_800_pintuan.get_goods_data(goods_id=goods_id)
-                    goods_data = zhe_800_pintuan.deal_with_data()
+                    # print(goods_data)
+                    _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                    if _r:  # 插入就更新
+                        db_goods_id_list.append(item[0])
+                        db_goods_id_list = list(set(db_goods_id_list))
 
-                    if goods_data == {}:  # 返回的data为空则跳过
-                        pass
-                    else:  # 否则就解析并且插入
-                        goods_data['goods_id'] = str(item[0])
-                        goods_data['spider_url'] = tmp_url
-                        goods_data['username'] = '18698570079'
-                        goods_data['page'] = str(item[1])
-                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
-
-                        # print(goods_data)
-                        _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                        if _r:  # 插入就更新
-                            db_goods_id_list.append(item[0])
-                            db_goods_id_list = list(set(db_goods_id_list))
-
-                    sleep(ZHE_800_PINTUAN_SLEEP_TIME)
-                    gc.collect()
+                sleep(ZHE_800_PINTUAN_SLEEP_TIME)
+                collect()
 
         else:
             pass
@@ -133,19 +133,19 @@ class Zhe800Pintuan(object):
             del zhe_800_pintuan
         except:
             pass
-        gc.collect()
+        collect()
 
         return None
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         zhe_800_pintuan = Zhe800Pintuan()
         zhe_800_pintuan._deal_with_data()
-        gc.collect()
+        collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(60*5)
 

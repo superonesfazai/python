@@ -42,6 +42,7 @@ from fzutils.spider.fz_driver import (
     CHROME,
     PHANTOMJS,
     FIREFOX,)
+from fzutils.time_utils import get_shanghai_time
 from fzutils.spider.selector import parse_field
 from fzutils.spider.fz_requests import Requests
 
@@ -388,7 +389,7 @@ class ALi1688LoginAndParse(Crawler):
         tmp_data_s = self.init_pull_off_shelves_goods()
         if is_in_db != []:
             # 表示该goods_id以前已被插入到db中, 于是只需要更改其is_delete的状态即可
-            sql_cli._update_table_2(sql_str=al_update_str_1, params=(goods_id), logger=self.lg)
+            sql_cli._update_table_2(sql_str=al_update_str_1, params=(str(get_shanghai_time()), goods_id,), logger=self.lg)
             self.lg.info('@@@ 该商品goods_id原先存在于db中, 此处将其is_delete=1')
             # 用来判断原先该goods是否在db中
             tmp_data_s['before'] = True

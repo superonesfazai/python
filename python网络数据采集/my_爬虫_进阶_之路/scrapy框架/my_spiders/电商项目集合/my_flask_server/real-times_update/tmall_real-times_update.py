@@ -23,7 +23,8 @@ from multiplex_code import (
     _get_new_db_conn,
     _get_sku_price_trans_record,
     _get_spec_trans_record,
-    _get_stock_trans_record,)
+    _get_stock_trans_record,
+    _print_db_old_data,)
 
 from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
@@ -39,7 +40,7 @@ class TMUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/')
         self.tmp_sql_server = None
         self.goods_index = 1
-        self.concurrency = 100    # 并发量
+        self.concurrency = 50    # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -53,12 +54,7 @@ class TMUpdater(AsyncCrawler):
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
-        if result is not None:
-            self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            self.lg.info(str(result))
-            self.lg.info('总计待更新个数: {0}'.format(len(result)))
-            self.lg.info('--------------------------------------------------------')
-            self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+        await _print_db_old_data(logger=self.lg, result=result)
 
         return result
     
@@ -175,13 +171,13 @@ class TMUpdater(AsyncCrawler):
                     pass
                 else:
                     self.lg.info('------>>>| 阻塞休眠7s中...')
-                    await async_sleep(7.)
+                    await async_sleep(delay=7., loop=self.loop)
                     # 改为阻塞进程, 机器会挂
                     # sleep(7.)
 
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
-            await async_sleep(5)
+            await async_sleep(delay=5, loop=self.loop)
 
         index += 1
         self.goods_index = index
@@ -235,17 +231,24 @@ class TMUpdater(AsyncCrawler):
         :return:
         '''
         count = 0
-        sleep_time = 40.
+        all_count_fail_sleep_time = 100.
+        sleep_time = 60.
         for item in res:
             try:
                 if not item[1]:
                     count += 1
             except IndexError:
                 pass
-        self.lg.info('Fail count: {}个'.format(count))
-        if count >= int(self.concurrency/5):
-            self.lg.info('抓取异常!! 休眠{}s中...'.format(sleep_time))
-            await async_sleep(sleep_time)
+        self.lg.info('Fail count: {}个, 并发量: {}个'.format(count, self.concurrency))
+        if count/self.concurrency >= .9:
+            # 全失败的休眠方式
+            self.lg.info('抓取异常!! 休眠{}s中...'.format(all_count_fail_sleep_time))
+            await async_sleep(all_count_fail_sleep_time)
+
+        else:
+            if count >= int(self.concurrency/5):
+                self.lg.info('抓取异常!! 休眠{}s中...'.format(sleep_time))
+                await async_sleep(sleep_time)
 
         return None
 
