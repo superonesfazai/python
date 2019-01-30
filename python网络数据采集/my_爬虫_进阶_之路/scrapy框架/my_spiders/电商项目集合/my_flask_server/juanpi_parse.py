@@ -280,12 +280,12 @@ class JuanPiParse(Crawler):
 
         return res
 
-    def insert_into_juuanpi_pintuan_table(self, data, pipeline):
+    def insert_into_juanpi_pintuan_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=18)
         except:
             print('此处抓到的可能是卷皮拼团券所以跳过')
-            return None
+            return False
 
         print('------>>> | 待存储的数据信息为: |', tmp.get('goods_id'))
 

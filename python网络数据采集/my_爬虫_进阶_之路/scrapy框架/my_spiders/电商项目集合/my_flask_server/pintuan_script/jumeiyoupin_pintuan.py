@@ -164,7 +164,10 @@ class JuMeiYouPinPinTuan(object):
 
                         # pprint(goods_data)
                         # print(goods_data)
-                        await jumeiyoupin.insert_into_jumeiyoupin_pintuan_table(data=goods_data, pipeline=my_pipeline, logger=self.my_lg)
+                        _r = await jumeiyoupin.insert_into_jumeiyoupin_pintuan_table(data=goods_data, pipeline=my_pipeline, logger=self.my_lg)
+                        if _r:
+                            if goods_id not in db_goods_id_list:
+                                db_goods_id_list.append(goods_id)
 
                     e_time = time.time()
                     if e_time - s_time > JUMEIYOUPIN_SLEEP_TIME:    # 使其更智能点

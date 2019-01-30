@@ -378,8 +378,8 @@ class TmallParse(Crawler):
         except:
             print('此处抓到的可能是淘宝秒杀券所以跳过')
             return False
-        self.lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
 
+        self.lg.info('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
         params = self._get_db_insert_taoqianggou_miaosha_params(item=tmp)
         res = pipeline._insert_into_table_2(sql_str=tm_insert_str_3, params=params, logger=self.lg)
 

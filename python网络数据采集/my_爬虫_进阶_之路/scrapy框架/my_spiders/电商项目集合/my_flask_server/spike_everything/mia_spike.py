@@ -153,7 +153,8 @@ class MiaSpike(object):
                         # print(goods_data)
                         res = mia.insert_into_mia_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                         if res:
-                            self.db_goods_id_list.append(goods_id)
+                            if goods_id not in self.db_goods_id_list:
+                                self.db_goods_id_list.append(goods_id)
 
                         sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
         else:

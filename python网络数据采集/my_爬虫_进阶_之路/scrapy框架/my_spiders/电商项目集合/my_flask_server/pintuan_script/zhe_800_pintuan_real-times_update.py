@@ -13,7 +13,8 @@ sys.path.append('..')
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
+# import gc
+from gc import collect
 from time import sleep
 import re
 from settings import (
@@ -23,7 +24,8 @@ from settings import (
 from sql_str_controller import (
     z8_delete_str_1,
     z8_select_str_2,
-    z8_delete_str_2,)
+    z8_delete_str_2,
+    z8_update_str_4,)
 
 from fzutils.time_utils import get_shanghai_time
 from fzutils.linux_utils import daemon_init
@@ -48,6 +50,7 @@ def run_forever():
             print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
             index = 1
             for item in result:  # 实时更新数据
+                goods_id = item[0]
                 # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
                 zhe_800_pintuan = Zhe800PintuanParse()
                 if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
@@ -61,12 +64,14 @@ def run_forever():
                     print('休眠{}s中...'.format(sleep_time))
 
                 if tmp_sql_server.is_connect_success:
-                    tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=item[0])
+                    tmp_tmp = zhe_800_pintuan.get_goods_data(goods_id=goods_id)
                     # 不用这个了因为会影响到正常情况的商品
                     try:        # 单独处理商品页面不存在的情况
                         if isinstance(tmp_tmp, str) and re.compile(r'^ze').findall(tmp_tmp) != []:
-                            print('@@ 该商品的页面已经不存在!此处将其删除!')
-                            tmp_sql_server._delete_table(sql_str=z8_delete_str_2, params=(item[0],))
+                            print('@@ 该商品的页面已经不存在!此处将其逻辑删除!')
+                            tmp_sql_server._update_table(
+                                sql_str=z8_update_str_4,
+                                params=(str(get_shanghai_time()), goods_id),)
                             sleep(ZHE_800_PINTUAN_SLEEP_TIME)
                             continue
                         else:
@@ -76,13 +81,15 @@ def run_forever():
 
                     data = zhe_800_pintuan.deal_with_data()
                     if data != {}:
-                        data['goods_id'] = item[0]
+                        data['goods_id'] = goods_id
 
                         if item[1] == 1:
-                            tmp_sql_server._delete_table(sql_str=z8_delete_str_2, params=(item[0],))
-                            print('该goods_id[{0}]已过期，删除成功!'.format(item[0]))
+                            tmp_sql_server._update_table(
+                                sql_str=z8_update_str_4,
+                                params=(str(get_shanghai_time()), goods_id),)
+                            print('该goods_id[{0}]已过期，逻辑删除成功!'.format(goods_id))
                         else:
-                            print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
+                            print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
                             zhe_800_pintuan.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
                     else:  # 表示返回的data值为空值
                         pass
@@ -95,14 +102,14 @@ def run_forever():
                     del zhe_800_pintuan
                 except:
                     pass
-                gc.collect()
+                collect()
                 sleep(ZHE_800_PINTUAN_SLEEP_TIME)
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
             sleep(10 * 60)
-        gc.collect()
+        collect()
 
 def main():
     '''

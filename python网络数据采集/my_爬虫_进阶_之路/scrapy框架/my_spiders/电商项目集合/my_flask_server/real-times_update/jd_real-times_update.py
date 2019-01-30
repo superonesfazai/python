@@ -96,7 +96,10 @@ class JDUpdater(AsyncCrawler):
             data = self.jd.get_goods_data(goods_id=tmp_item)
             if data.get('is_delete', 1) == 1:
                 self.lg.info('该商品已下架...')
-                self.tmp_sql_server._update_table_2(sql_str=jd_update_str_2, params=(tmp_item[1],), logger=self.lg)
+                self.tmp_sql_server._update_table_2(
+                    sql_str=jd_update_str_2,
+                    params=(str(get_shanghai_time()), tmp_item[1],),
+                    logger=self.lg)
                 await async_sleep(1.2)
                 index += 1
                 self.goods_index = index

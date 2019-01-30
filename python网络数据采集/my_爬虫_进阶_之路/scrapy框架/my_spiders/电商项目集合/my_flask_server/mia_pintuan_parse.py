@@ -209,15 +209,14 @@ class MiaPintuanParse(MiaParse, Crawler):
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
 
-    def insert_into_mia_pintuan_table(self, data, pipeline):
+    def insert_into_mia_pintuan_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=21)  # 采集来源地(蜜芽拼团商品)
         except:
             print('此处抓到的可能是蜜芽拼团券所以跳过')
-            return None
-        # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+            return False
 
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
         params = self._get_db_insert_pintuan_params(item=tmp)
         _r = pipeline._insert_into_table(sql_str=mia_insert_str_2, params=params)
 

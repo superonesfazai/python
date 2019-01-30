@@ -589,7 +589,6 @@ class Zhe800Parse(Crawler):
 
         tmp = self._set_detail_price_to_miaosha_price(tmp=tmp)
         print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
-
         params = self._get_db_insert_miaosha_params(item=tmp)
         res = pipeline._insert_into_table(sql_str=z8_insert_str_1, params=params)
 

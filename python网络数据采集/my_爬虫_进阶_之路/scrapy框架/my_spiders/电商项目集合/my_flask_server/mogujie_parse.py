@@ -294,15 +294,14 @@ class MoGuJieParse(Crawler):
 
         return {}
 
-    def insert_into_mogujie_pintuan_table(self, data, pipeline):
+    def insert_into_mogujie_pintuan_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=23)
         except:
             print('此处抓到的可能是蜜芽拼团券所以跳过')
-            return None
-        # print('------>>> | 待存储的数据信息为: |', tmp)
-        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
+            return False
 
+        print('------>>>| 待存储的数据信息为: |', tmp.get('goods_id'))
         params = self._get_db_insert_pintuan_params(item=tmp)
         _r = pipeline._insert_into_table(sql_str=mg_insert_str_2, params=params)
 

@@ -168,7 +168,7 @@ tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 tm_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
 from dbo.GoodsInfoAutoGet 
-where (SiteID=3 or SiteID=4 or SiteID=6) and MainGoodsID is not null 
+where MainGoodsID is not null and (SiteID=3 or SiteID=4 or SiteID=6)
 order by ModfiyTime asc
 '''
 '''insert'''
@@ -192,9 +192,11 @@ jd
 '''select'''
 # 常规goods实时更新数据获取
 jd_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info 
+select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info 
 from dbo.GoodsInfoAutoGet 
-where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) and MainGoodsID is not null
+where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) 
+and MainGoodsID is not null
+order by ModfiyTime asc
 '''
 '''insert'''
 # 带MainGoodsID的插入
@@ -205,7 +207,7 @@ jd_insert_str_2 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName,
 '''update'''
 # 常规goods更新
 jd_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, {0} {1} where GoodsID = %s'
-jd_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
+jd_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s'
 
 """
 折800
@@ -217,8 +219,8 @@ z8_select_str_1 = 'select goods_id, is_delete from dbo.zhe_800_pintuan where sit
 z8_select_str_2 = '''
 select goods_id, is_delete 
 from dbo.zhe_800_pintuan 
-where site_id=17 and GETDATE()-modfiy_time>1
-order by id asc'''
+where site_id=17 and GETDATE()-modfiy_time>0.5
+order by modfiy_time asc'''
 # 常规goods实时更新
 z8_select_str_3 = '''
 select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
@@ -243,6 +245,8 @@ z8_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s,
 z8_update_str_2 = 'update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, schedule=%s, stock_info=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, parent_dir=%s where goods_id = %s'
 # 拼团更新
 z8_update_str_3 = 'update dbo.zhe_800_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, all_sell_count=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s, parent_dir=%s where goods_id = %s'
+# 拼团下架标记
+z8_update_str_4 = 'update dbo.zhe_800_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
 '''delete'''
 # 拼团过期数据清空
 z8_delete_str_1 = 'delete from dbo.zhe_800_pintuan where miaosha_end_time < GETDATE()-2'

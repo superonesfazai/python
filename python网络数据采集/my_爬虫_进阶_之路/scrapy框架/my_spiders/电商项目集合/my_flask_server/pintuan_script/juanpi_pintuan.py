@@ -110,14 +110,13 @@ class JuanPiPinTuan(object):
                 juanpi_pintuan=juanpi_pintuan,
                 goods_id=item.get('goods_id', ''),
                 all_sell_count=item.get('all_sell_count', ''),
-                page=item.get('page', 0)
-            )
+                page=item.get('page', 0))
 
             if goods_data == {}:  # 返回的data为空则跳过
                 pass
             else:
                 # print(goods_data)
-                _r = juanpi_pintuan.insert_into_juuanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                _r = juanpi_pintuan.insert_into_juanpi_pintuan_table(data=goods_data, pipeline=my_pipeline)
                 if _r:  # 更新
                     db_goods_id_list.append(item.get('goods_id', ''))
                     db_goods_id_list = list(set(db_goods_id_list))

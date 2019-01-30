@@ -391,16 +391,18 @@ class Zhe800PintuanParse(Crawler):
 
         return {}
 
-    def insert_into_zhe_800_pintuan_table(self, data, pipeline):
+    def insert_into_zhe_800_pintuan_table(self, data, pipeline) -> bool:
         try:
             tmp = _get_right_model_data(data=data, site_id=17)  # 采集来源地(折800拼团商品)
         except:
             print('此处抓到的可能是折800拼团券所以跳过')
-            return None
-        print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
+            return False
 
+        print('------>>>| 待存储的数据信息为: {0}'.format(data.get('goods_id')))
         params = self._get_db_insert_pintuan_params(item=tmp)
-        pipeline._insert_into_table(sql_str=z8_insert_str_2, params=params)
+        res = pipeline._insert_into_table(sql_str=z8_insert_str_2, params=params)
+
+        return res
 
     def to_right_and_update_data(self, data, pipeline):
         try:

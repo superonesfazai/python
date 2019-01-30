@@ -259,7 +259,6 @@ class JuMeiYouPinPinTuanParse(Crawler):
         except:
             self.lg.error('此处抓到的可能是聚美优品拼团券所以跳过')
             return False
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         self.msg = '------>>>| 待存储的数据信息为: |' + str(tmp.get('goods_id'))
         logger.info(self.msg)
 

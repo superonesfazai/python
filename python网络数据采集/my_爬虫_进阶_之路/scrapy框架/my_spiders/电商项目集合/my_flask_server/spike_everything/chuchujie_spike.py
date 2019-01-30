@@ -175,7 +175,8 @@ class ChuChuJie_9_9_Spike(object):
 
                             res = chuchujie.insert_into_chuchujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                             if res:
-                                db_goods_id_list.append(goods_id)
+                                if goods_id not in db_goods_id_list:
+                                    db_goods_id_list.append(goods_id)
 
                             # sleep(CHUCHUJIE_SLEEP_TIME)  # 放慢速度   由于初始化用了phantomjs时间久，于是就不睡眠
                         # index += 1

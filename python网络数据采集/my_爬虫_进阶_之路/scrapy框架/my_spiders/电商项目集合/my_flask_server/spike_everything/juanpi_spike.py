@@ -121,7 +121,8 @@ class JuanPiSpike(object):
                                         # print(goods_data)
                                         res = juanpi.insert_into_juanpi_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                                         if res:
-                                            self.db_goods_id_list.append(item.get('goods_id'))
+                                            if item.get('goods_id', '') not in self.db_goods_id_list:
+                                                self.db_goods_id_list.append(item.get('goods_id', ''))
 
                                     sleep(.5)   # 短暂sleep下避免出错跳出
                             sleep(.65)

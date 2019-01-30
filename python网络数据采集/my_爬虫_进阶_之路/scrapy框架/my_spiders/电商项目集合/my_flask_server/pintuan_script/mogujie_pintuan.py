@@ -239,8 +239,8 @@ class MoGuJiePinTuan(object):
                         # print(goods_data)
                         _r = mogujie.insert_into_mogujie_pintuan_table(data=goods_data, pipeline=my_pipeline)
                         if _r:  # 更新
-                            db_goods_id_list.append(goods_id)
-                            db_goods_id_list = list(set(db_goods_id_list))
+                            if goods_id not in db_goods_id_list:
+                                db_goods_id_list.append(goods_id)
 
                         sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 

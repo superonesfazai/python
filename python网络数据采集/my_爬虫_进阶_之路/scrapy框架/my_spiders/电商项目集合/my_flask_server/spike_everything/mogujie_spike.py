@@ -138,7 +138,8 @@ class MoGuJieSpike(object):
                         # print(goods_data)
                         res = mogujie.insert_into_mogujie_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
                         if res:
-                            db_goods_id_list.append(goods_id)
+                            if goods_id not in db_goods_id_list:
+                                db_goods_id_list.append(goods_id)
 
                     sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 

@@ -9,13 +9,12 @@
 
 # TODO 折800拼团放在本地跑, 服务器上代理缘故404!
 
-import json
+import sys
+sys.path.append('..')
+
 from pprint import pprint
 from gc import collect
 from time import sleep
-
-import sys
-sys.path.append('..')
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -99,11 +98,12 @@ class Zhe800Pintuan(object):
             _ = list(my_pipeline._select_table(sql_str=z8_select_str_1))
             db_goods_id_list = [item[0] for item in _]
             for item in zid_list:
-                if item[0] in db_goods_id_list:
+                item_goods_id = item[0]
+                if item_goods_id in db_goods_id_list:
                     print('该goods_id已经存在于数据库中, 此处跳过')
                     continue
 
-                tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(item[0])
+                tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(item_goods_id)
                 goods_id = zhe_800_pintuan.get_goods_id_from_url(tmp_url)
 
                 zhe_800_pintuan.get_goods_data(goods_id=goods_id)
@@ -112,7 +112,7 @@ class Zhe800Pintuan(object):
                 if goods_data == {}:  # 返回的data为空则跳过
                     pass
                 else:  # 否则就解析并且插入
-                    goods_data['goods_id'] = str(item[0])
+                    goods_data['goods_id'] = str(item_goods_id)
                     goods_data['spider_url'] = tmp_url
                     goods_data['username'] = '18698570079'
                     goods_data['page'] = str(item[1])
@@ -120,8 +120,9 @@ class Zhe800Pintuan(object):
 
                     # print(goods_data)
                     _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
-                    if _r:  # 插入就更新
-                        db_goods_id_list.append(item[0])
+                    if _r:
+                        # 插入就更新
+                        db_goods_id_list.append(item_goods_id)
                         db_goods_id_list = list(set(db_goods_id_list))
 
                 sleep(ZHE_800_PINTUAN_SLEEP_TIME)
