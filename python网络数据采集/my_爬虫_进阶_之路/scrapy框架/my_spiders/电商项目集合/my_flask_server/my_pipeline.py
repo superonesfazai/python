@@ -144,40 +144,6 @@ class SqlServerMyPageInfoSaveItemPipeline(BaseSqlServer):
                 pass
             return False
 
-    async def select_jumeiyoupin_pintuan_all_goods_id(self, logger):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('select goods_id, miaosha_time, tab, page, goods_url from dbo.jumeiyoupin_pintuan where site_id=27')
-            # self.conn.commit()
-
-            result = list(cs.fetchall())
-            # print(result)
-            cs.close()
-            return result
-        except Exception as e:
-            logger.exception(e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-            return None
-
-    async def delete_jumeiyoupin_pintuan_expired_goods_id(self, goods_id, logger):
-        cs = self.conn.cursor()
-        try:
-            cs.execute('delete from dbo.jumeiyoupin_pintuan where goods_id=%s', (goods_id))
-            self.conn.commit()
-
-            cs.close()
-            return True
-        except Exception as e:
-            logger.error('--------------------| 删除对应goods_id记录时报错如下：')
-            logger.exception(e)
-            try:
-                cs.close()
-            except Exception:
-                pass
-
     def insert_into_sina_weibo_table(self, item):
         cs = self.conn.cursor()
         try:

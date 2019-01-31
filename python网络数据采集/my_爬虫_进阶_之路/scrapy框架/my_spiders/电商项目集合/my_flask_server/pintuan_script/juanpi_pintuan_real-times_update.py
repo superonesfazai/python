@@ -24,6 +24,7 @@ from sql_str_controller import (
     jp_delete_str_1,
     jp_delete_str_2,
     jp_update_str_5,
+    jp_update_str_7,
 )
 
 from fzutils.time_utils import (
@@ -79,8 +80,8 @@ def run_forever():
                     # print(pintuan_end_time)
 
                     if item[2] == 1 or pintuan_end_time < int(datetime_to_timestamp(get_shanghai_time())):
-                        tmp_sql_server._delete_table(sql_str=jp_delete_str_2, params=(item[0],))
-                        print('该goods_id[{0}]已过期或者售完，删除成功!'.format(item[0]))
+                        tmp_sql_server._update_table(sql_str=jp_update_str_7, params=(str(get_shanghai_time()), item[0]))
+                        print('该goods_id[{0}]已过期或者售完，逻辑删除成功!'.format(item[0]))
                     else:
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                         juanpi_pintuan.get_goods_data(goods_id=item[0])

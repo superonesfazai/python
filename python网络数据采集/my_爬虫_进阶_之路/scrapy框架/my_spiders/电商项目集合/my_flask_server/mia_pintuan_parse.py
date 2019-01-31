@@ -22,17 +22,21 @@ from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import (
-    mia_update_str_2,
     mia_insert_str_2,
     mia_update_str_3,
+    mia_update_str_7,
 )
 from multiplex_code import _mia_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import timestamp_to_regulartime
+from fzutils.time_utils import (
+    timestamp_to_regulartime,
+    get_shanghai_time,)
 from fzutils.spider.crawler import Crawler
 
 class MiaPintuanParse(MiaParse, Crawler):
@@ -52,6 +56,17 @@ class MiaPintuanParse(MiaParse, Crawler):
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
 
+    def _get_phone_headers(self):
+        return {
+            'Connection': 'keep-alive',
+            'Cache-Control': 'max-age=0',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': get_random_phone_ua(),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        }
+
     def get_goods_data(self, goods_id:str) -> dict:
         '''
         模拟构造得到data
@@ -63,22 +78,27 @@ class MiaPintuanParse(MiaParse, Crawler):
 
         data = {}
         # 常规商品手机地址
-        goods_url = 'https://m.mia.com/item-' + str(goods_id) + '.html'
+        goods_url = 'https://m.mia.com/item-{}.html'.format(goods_id)
         # 常规商品pc地址
-        # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
+        # goods_url = 'https://www.mia.com/item-{}.html'.format(goods_id)
         print('------>>>| 待抓取的地址为: ', goods_url)
 
-        body = Requests.get_url_body(url=goods_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=goods_url,
+            headers=self._get_phone_headers(),
+            # had_referer=True,
+            ip_pool_type=self.ip_pool_type)
         # print(body)
         if body == '':
+            print('获取到的body为空值!跳过!')
             return self._data_error_init()
 
-        is_mia_mian_page = Selector(text=body).css('div.item-center::text').extract_first()
+        is_mia_mian_page = Selector(text=body).css('div.item-center ::text').extract_first() or ''
         # print(is_mia_mian_page)
         if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
             print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
             tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-            tmp_pipeline._update_table(sql_str=mia_update_str_2, params=(goods_id,))
+            tmp_pipeline._update_table(sql_str=mia_update_str_7, params=(str(get_shanghai_time()), goods_id))
             print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
             gc.collect()
             return self._data_error_init()
@@ -112,7 +132,7 @@ class MiaPintuanParse(MiaParse, Crawler):
             '''
             获取每个规格对应价格跟规格以及其库存
             '''
-            true_sku_info, i_s, pintuan_time, all_sell_count = self.get_true_sku_info(sku_info=sku_info)
+            true_sku_info, i_s, pintuan_time, all_sell_count = self.get_true_sku_info(sku_info=sku_info, goods_id=goods_id)
             # pprint(true_sku_info)
             data['price_info_list'] = true_sku_info
             data['pintuan_time'] = pintuan_time
@@ -287,12 +307,23 @@ class MiaPintuanParse(MiaParse, Crawler):
 
         return params
 
-    def get_true_sku_info(self, sku_info):
+    def get_true_sku_info(self, sku_info, goods_id):
         '''
         获取每个规格对应价格跟规格以及其库存
         :param sku_info:
         :return: {} 空字典表示出错 | (true_sku_info, i_s)
         '''
+        def _pintuan_error(goods_id) -> tuple:
+            '''
+            获取拼团属性异常则逻辑下架!
+            :param goods_id:
+            :return:
+            '''
+            print('@@ 获取拼团属性失败!\n@@ 并且将该商品从拼团商品中逻辑下架!')
+            self._update_pintuan_goods_is_delete(goods_id=goods_id)
+
+            return ([], {}, {}, '0')
+
         goods_id_str = '-'.join([item.get('goods_id', '') for item in sku_info])
         # print(goods_id_str)
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
@@ -310,14 +341,18 @@ class MiaPintuanParse(MiaParse, Crawler):
         assert tmp_data != [], 'tmp_data不为空list'
 
         true_sku_info = []
+        pintuan_time = {}
         i_s = {}
-        pintuan_time = {}  # 初始化
         all_sell_count = '0'
         for item_1 in sku_info:
             for item_2 in tmp_data:
-                if item_1.get('goods_id') == str(item_2.get('id', '')):
+                if item_1.get('goods_id', '') == str(item_2.get('id', '')):
                     i_s = item_2.get('i_s', {})
                     # print(i_s)
+                    if i_s == {}:
+                        # 无拼团属性的商品逻辑下架  eg: https://www.mia.com/item-2736567.html 无货!!
+                        return _pintuan_error(goods_id=goods_id)
+
                     for item_3 in i_s.keys():
                         tmp = {}
                         spec_value = item_1.get('color_name', '')
@@ -325,7 +360,8 @@ class MiaPintuanParse(MiaParse, Crawler):
                         detail_price = str(item_2.get('sp'))
                         try:
                             if item_2.get('g_l', []) == []:
-                                break       # 表示如果该规格的拼团价为[], 则跳出这层循环
+                                # 表示如果该规格的拼团价为[], 则跳出这层循环
+                                return _pintuan_error(goods_id=goods_id)
 
                             pintuan_price = str(item_2.get('g_l', [])[0].get('gp', ''))
                             # print(pintuan_price)
@@ -355,7 +391,7 @@ class MiaPintuanParse(MiaParse, Crawler):
                         img_url = item_1.get('img_url')
                         rest_number = i_s.get(item_3)
                         if rest_number == 0:
-                            pass
+                            continue
                         else:
                             tmp['spec_value'] = spec_value
                             tmp['pintuan_price'] = pintuan_price
@@ -365,7 +401,31 @@ class MiaPintuanParse(MiaParse, Crawler):
                             tmp['rest_number'] = rest_number
                             true_sku_info.append(tmp)
 
+        # pprint(true_sku_info)
+
         return (true_sku_info, i_s, pintuan_time, all_sell_count)
+
+    def _update_pintuan_goods_is_delete(self, goods_id):
+        '''
+        拼团商品逻辑下架标记
+        :return:
+        '''
+        res = False
+        try:
+            sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            res = sql_cli._update_table(
+                sql_str=mia_update_str_7,
+                params=(str(get_shanghai_time()), goods_id))
+            try:
+                del sql_cli
+            except:
+                pass
+        except Exception as e:
+            print(e)
+        finally:
+            pass
+
+        return res
 
     def change_to_number_str_time(self, str):
         '''
@@ -394,7 +454,7 @@ class MiaPintuanParse(MiaParse, Crawler):
         new_str = str.split(' ')
         new_str[0] = month
 
-        return  ' '.join(new_str)
+        return ' '.join(new_str)
 
     def __del__(self):
         gc.collect()

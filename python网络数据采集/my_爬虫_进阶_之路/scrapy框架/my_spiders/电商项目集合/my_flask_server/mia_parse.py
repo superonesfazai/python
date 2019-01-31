@@ -108,7 +108,7 @@ class MiaParse(Crawler):
                 '''
                 获取每个规格对应价格跟规格以及其库存
                 '''
-                true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info)
+                true_sku_info, i_s = self.get_true_sku_info(sku_info=sku_info, goods_id=goods_id)
                 data['price_info_list'] = true_sku_info
                 # pprint(true_sku_info)
 
@@ -732,7 +732,7 @@ class MiaParse(Crawler):
 
         return com
 
-    def get_true_sku_info(self, sku_info):
+    def get_true_sku_info(self, sku_info, goods_id):
         '''
         获取每个规格对应价格跟规格以及其库存
         :param sku_info:
@@ -741,7 +741,6 @@ class MiaParse(Crawler):
         skus = self.main_info_dict.get('sale_property', {}).get('skus', [])
         assert skus != [], 'skus不为空list!'
         # pprint(skus)
-
         goods_id_str = '-'.join([item.get('goods_id', '') for item in sku_info])
 
         # print(goods_id_str)

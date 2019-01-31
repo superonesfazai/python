@@ -28,9 +28,9 @@ from settings import (
     IP_POOL_TYPE,)
 
 from sql_str_controller import (
-    mia_delete_str_1,
     mia_delete_str_2,
     mia_select_str_2,
+    mia_update_str_7,
 )
 
 from fzutils.time_utils import (
@@ -46,7 +46,6 @@ from fzutils.common_utils import json_2_dict
 class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = mia_delete_str_1
         self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
@@ -97,8 +96,8 @@ class Mia_Pintuan_Real_Time_Update(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(pintuan_end_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                        print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 删除成功!' % json.loads(item[1]).get('begin_time'))
+                        tmp_sql_server._update_table(sql_str=mia_update_str_7, params=(str(get_shanghai_time()), item[0],))
+                        print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 逻辑删除成功!' % json.loads(item[1]).get('begin_time'))
                         sleep(.4)
 
                     elif self.is_recent_time(pintuan_end_time) == 2:
@@ -124,7 +123,7 @@ class Mia_Pintuan_Real_Time_Update(object):
                         if tmp_data.get('data_list', []) == []:
                             print('得到的data_list为[]!')
                             print('该商品已被下架限时秒杀活动，此处将其删除')
-                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                            tmp_sql_server._update_table(sql_str=mia_update_str_7, params=(str(get_shanghai_time()), item[0],))
                             print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                             sleep(.4)
 
@@ -142,11 +141,6 @@ class Mia_Pintuan_Real_Time_Update(object):
                             蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
                             '''
                             if item[0] not in pintuan_goods_all_goods_id:  # 内部已经下架的
-                                # print('该商品已被下架限时秒杀活动，此处将其删除')
-                                # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                # print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                # pass
-
                                 # 一律更新
                                 mia_pintuan.get_goods_data(goods_id=item[0])
                                 goods_data = mia_pintuan.deal_with_data()

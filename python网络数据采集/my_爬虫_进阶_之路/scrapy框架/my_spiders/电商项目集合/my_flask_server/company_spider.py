@@ -199,7 +199,7 @@ class CompanySpider(AsyncCrawler):
         self.db_114_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=6)
         # 测试发现这个cate_num是有规律的 1-10000
         # self.a114_category_list = await self._get_114_category()
-        self.a114_category_list = list(range(1, 10000 + 1))[1604:]
+        self.a114_category_list = list(range(1, 15000+1))[58:]
 
         pprint(self.a114_category_list)
         self.lg.info('114所有子分类总个数: {}'.format(len(self.a114_category_list)))
@@ -1039,7 +1039,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[52450:]
+        return all_key_list[78450:]
 
     async def _get_al_category7(self) -> list:
         '''

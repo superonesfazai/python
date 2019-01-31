@@ -29,9 +29,9 @@ from settings import (
 )
 
 from sql_str_controller import (
-    mg_delete_str_1,
     mg_select_str_2,
     mg_delete_str_2,
+    mg_update_str_5,
 )
 from multiplex_code import _get_mogujie_pintuan_price_info_list
 
@@ -48,7 +48,6 @@ from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 class MoGuJiePinTuanRealTimesUpdate(object):
     def __init__(self):
         self._set_headers()
-        self.delete_sql_str = mg_delete_str_1
         self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
@@ -106,8 +105,8 @@ class MoGuJiePinTuanRealTimesUpdate(object):
 
                 if tmp_sql_server.is_connect_success:
                     if self.is_recent_time(pintuan_end_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                        print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 删除成功!' % json.loads(item[1]).get('begin_time'))
+                        tmp_sql_server._update_table(sql_str=mg_update_str_5, params=(str(get_shanghai_time()), item[0]))
+                        print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 逻辑删除成功!' % json.loads(item[1]).get('begin_time'))
                         sleep(.3)
 
                     elif self.is_recent_time(pintuan_end_time) == 2:
@@ -143,7 +142,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                             if tmp_data.get('result', {}).get('wall', {}).get('docs', []) == []:
                                 print('得到的docs为[]!')
                                 print('该商品已被下架限时秒杀活动，此处将其删除')
-                                tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                                tmp_sql_server._update_table(sql_str=mg_update_str_5, params=(str(get_shanghai_time()), item[0]))
                                 print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                                 sleep(.3)
 
@@ -169,10 +168,6 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                 内部已经下架的(内部下架的其实并未真实下架，还在卖的，所以我就更新其商品信息数据，不更新上下架时间)
                                 '''
                                 if item[0] not in pintuan_goods_all_goods_id:
-                                    # print('该商品已被下架限时秒杀活动，此处将其删除')
-                                    # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
-                                    # print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
-                                    # pass
                                     mogujie_pintuan.get_goods_data(goods_id=item[0])
                                     goods_data = mogujie_pintuan.deal_with_data()
 

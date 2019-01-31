@@ -33,6 +33,10 @@ from jumeiyoupin_pintuan_parse import JuMeiYouPinPinTuanParse
 
 from multiplex_code import _get_new_db_conn
 
+from sql_str_controller import (
+    jm_select_str_3,
+)
+
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -132,7 +136,8 @@ class JuMeiYouPinPinTuan(object):
 
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            _ = list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))
+            # _ = list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))
+            _ = list(my_pipeline._select_table(sql_str=jm_select_str_3, logger=self.my_lg))
             db_goods_id_list = [item[0] for item in _]
             # self.my_lg.info(str(db_goods_id_list))
 

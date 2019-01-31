@@ -295,6 +295,7 @@ jp_update_str_4 = 'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, g
 jp_update_str_5 = 'update dbo.juanpi_pintuan set is_delete=1 where goods_id = %s'
 # 秒杀下架标记
 jp_update_str_6 = 'update dbo.juanpi_xianshimiaosha set is_delete=1 where goods_id=%s'
+jp_update_str_7 = 'update dbo.juanpi_pintuan set is_delete=1, modfiy_time=%s  where goods_id = %s'
 '''delete'''
 # 拼团下架清空
 jp_delete_str_1 = 'delete from dbo.juanpi_pintuan where miaosha_end_time < GETDATE()-2'
@@ -312,6 +313,7 @@ jp_delete_str_4 = 'delete from dbo.juanpi_xianshimiaosha where miaosha_end_time 
 # 秒杀实时更新
 jm_select_str_1 = 'select goods_id, miaosha_time, page, goods_url from dbo.jumeiyoupin_xianshimiaosha where site_id=26'
 jm_select_str_2 = jm_select_str_1
+jm_select_str_3 = 'select goods_id, miaosha_time, tab, page, goods_url from dbo.jumeiyoupin_pintuan where site_id=27'
 '''insert'''
 # 秒杀插入
 jm_insert_str_1 = 'insert into dbo.jumeiyoupin_xianshimiaosha(goods_id, goods_url, create_time, modfiy_time, shop_name, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, miaosha_time, miaosha_begin_time, miaosha_end_time, page, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
@@ -326,11 +328,16 @@ jm_update_str_2 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=
 jm_update_str_3 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id=%s'
 # 秒杀下架标记
 jm_update_str_4 = 'update dbo.jumeiyoupin_xianshimiaosha set is_delete=1 where goods_id=%s'
+# 拼团下架标记
+jm_update_str_5 = 'update dbo.jumeiyoupin_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
+# 拼团下架标记
 '''delete'''
 # 秒杀下架删除
 jm_delete_str_1 = 'delete from dbo.jumeiyoupin_xianshimiaosha where goods_id=%s'
 # 秒杀过期清空
 jm_delete_str_2 = 'delete from dbo.jumeiyoupin_xianshimiaosha where miaosha_end_time < GETDATE()-2'
+# 拼团过期清空
+jm_delete_str_3 = 'delete from dbo.jumeiyoupin_pintuan where miaosha_end_time < GETDATE()-2'
 
 """
 楚楚街
@@ -374,7 +381,12 @@ kl_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 '''select'''
 # db拼团goods查询
 mia_select_str_1 = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
-mia_select_str_2 = mia_select_str_1
+mia_select_str_2 = '''
+select goods_id, miaosha_time, pid 
+from dbo.mia_pintuan 
+where site_id=21
+order by modfiy_time asc
+'''
 # 秒杀实时更新
 mia_select_str_3 = 'select goods_id, miaosha_time, pid from dbo.mia_xianshimiaosha where site_id=20'
 mia_select_str_4 = mia_select_str_3
@@ -402,6 +414,7 @@ mia_update_str_4 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s
 mia_update_str_5 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 # 秒杀逻辑删
 mia_update_str_6 = 'update dbo.mia_xianshimiaosha set is_delete=1 where goods_id=%s'
+mia_update_str_7 = 'update dbo.mia_pintuan set is_delete=1, modfiy_time=%s where goods_id = %s'
 '''delete'''
 # 拼团过期标记
 mia_delete_str_1 = 'delete from dbo.mia_pintuan where goods_id=%s'
@@ -442,6 +455,8 @@ mg_update_str_2 = 'update dbo.mogujie_xianshimiaosha set modfiy_time = %s, shop_
 mg_update_str_3 = 'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, miaosha_time=%s, miaosha_begin_time=%s, miaosha_end_time=%s, all_sell_count=%s where goods_id = %s'
 # 拼团更新2
 mg_update_str_4 = 'update dbo.mogujie_pintuan set modfiy_time = %s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s'
+# 拼团下架标记
+mg_update_str_5 = 'update dbo.mogujie_pintuan set is_delete=1, modfiy_time = %s where goods_id=%s'
 '''delete'''
 # 拼团下架标记
 mg_delete_str_1 = 'delete from dbo.mogujie_pintuan where goods_id=%s'

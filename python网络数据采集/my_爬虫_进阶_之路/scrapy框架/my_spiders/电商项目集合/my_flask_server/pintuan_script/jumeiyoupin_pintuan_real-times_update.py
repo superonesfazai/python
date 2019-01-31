@@ -15,7 +15,6 @@ from jumeiyoupin_pintuan import JuMeiYouPinPinTuan
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
-from time import sleep
 import json
 from pprint import pprint
 import time
@@ -27,6 +26,12 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     IP_POOL_TYPE,)
 import asyncio
+from asyncio import sleep as async_sleep
+from sql_str_controller import (
+    jm_select_str_3,
+    jm_delete_str_3,
+    jm_update_str_5,
+)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -74,7 +79,9 @@ class JuMeiYouPinRealTimesUpdate(object):
         '''
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            result = await tmp_sql_server.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg)
+            tmp_sql_server._delete_table(sql_str=jm_delete_str_3,)
+            await async_sleep(5)
+            result = tmp_sql_server._select_table(sql_str=jm_select_str_3, logger=self.my_lg)
         except TypeError:
             self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
@@ -101,7 +108,8 @@ class JuMeiYouPinRealTimesUpdate(object):
                 if tmp_sql_server.is_connect_success:
                     time_number = await self.is_recent_time(pintuan_end_time)
                     if time_number == 0:
-                        await tmp_sql_server.delete_jumeiyoupin_pintuan_expired_goods_id(goods_id=item[0], logger=self.my_lg)
+                        await tmp_sql_server._update_table_3(sql_str=jm_update_str_5, params=(str(get_shanghai_time()), item[0]), logger=self.my_lg)
+                        await async_sleep(.5)
                         self.msg = '过期的goods_id为(%s)' % item[0] + ', 拼团结束时间为(%s), 删除成功!' % str(json.loads(item[1]).get('begin_time'))
                         self.my_lg.info(self.msg)
 
@@ -158,11 +166,11 @@ class JuMeiYouPinRealTimesUpdate(object):
 
                 index += 1
                 gc.collect()
-            self.my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            self.my_lg.info('全部数据更新完毕'.center(100, '#'))
             if get_shanghai_time().hour == 0:  # 0点以后不更新
-                sleep(60 * 60 * 5.5)
+                await async_sleep(60 * 60 * 5.5)
             else:
-                sleep(10*60)
+                await async_sleep(10*60)
             gc.collect()
 
         return None
@@ -210,11 +218,6 @@ class JuMeiYouPinRealTimesUpdate(object):
         :param kwargs:
         :return:
         '''
-        # self.my_lg.info('该商品已被下架拼团活动，此处将其删除')
-        # await tmp_sql_server.delete_jumeiyoupin_pintuan_expired_goods_id(goods_id=item[0], logger=self.my_lg)
-        # self.msg = '下架的goods_id为(%s)' % str(item[0]) + ', 删除成功! 地址为: ' + item[4]
-        # self.my_lg.info(self.msg)
-        # pass
         jumeiyoupin_pintuan = kwargs.get('jumeiyoupin_pintuan')
         jumei_pintuan_url = kwargs.get('jumei_pintuan_url')
         goods_id = kwargs.get('goods_id')
@@ -237,7 +240,7 @@ class JuMeiYouPinRealTimesUpdate(object):
             if e_time - s_time > JUMEIYOUPIN_SLEEP_TIME:  # 使其更智能点
                 pass
             else:
-                await asyncio.sleep(JUMEIYOUPIN_SLEEP_TIME - (e_time - s_time))
+                await async_sleep(JUMEIYOUPIN_SLEEP_TIME - (e_time - s_time))
 
         return True
 
