@@ -728,36 +728,42 @@ COMPANY_ITEM_LIST = [
                 'method': 'css',
                 'selector': 'li.item a.item-text ::text',
             },
+            'one_type_url_list': {  # 一个子分类的厂家url
+                'method': 'css',
+                'selector': 'div.pro-img a ::attr("href")',
+            },
         },
         'unique_id': {
             'method': 're',
-            'selector': '\/ca\/(\w+)',
+            'selector': '\/company-(\w+)\/',
         },
-        'company_status': None,     # 公司状态, 1: 在业 or 续存
-        'company_link': None,       # 公司网站
+        'company_status': None,     # ''
+        'company_link': None,       # ''
         'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
             'method': 'css',
-            'selector': 'div.control li',
+            'selector': 'div.gropone div.dtl-item table.tb-dtl tr',
         },
         'company_info_detail_li_2': { # 公司信息的li (联系我们部分)
             'method': 'css',
-            'selector': 'div.contact-way1 p.text-in11 small',
+            'selector': 'div.gropone div.dtl-item table.tb-dtl tr',
         },
         'company_name': {
             'method': 'css',
-            'selector': 'div.com-name ::text'
+            'selector': 'h1.h a#comName ::text'
         },
-        'legal_person': None,       # 在company_info_detail_li_1中
-        'phone': None,              # 在company_info_detail_li_2中
+        'legal_person': None,       # ''
+        'phone': None,              # 在company_info_detail_li_2中(th:手机 and 电话两个字段的值)
         'email_address': None,
-        'address': None,            # 在company_info_detail_li_2中
+        'address': None,            # 在company_info_detail_li_2中(th:地址)
         'brief_introduction': {     # 简介
-            'method': 'css',
-            'selector': 'div.info-word1 ::text',
+            # 'method': 'css',
+            # 'selector': 'div.co-des ::text',  # 获取信息不完整
+            'method': 're',
+            'selector': '<div class=\"co-des js-comDescript\".*?>(.*?)<\/div>',
         },
-        'business_range': None,     # 在company_info_detail_li_1中
-        'founding_time': None,      # 在company_info_detail_li_1中
-        'employees_num': None,      # 在company_info_detail_li_1中
+        'business_range': None,     # 在company_info_detail_li_1中(th:主营产品)
+        'founding_time': None,      # 赋默认值
+        'employees_num': None,      # 在company_info_detail_li_1中(th:员工人数)
         'lng': None,
         'lat': None,
     },

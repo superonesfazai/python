@@ -33,7 +33,7 @@ def long_invest_principal_add_interest(principal, interest, day, every_month_add
 invest_year = 30
 principal = 10000
 interest = 0.096        # 年化收益
-print('--->>> 例如: 1W的本金, 每月定投6000, 保证年华收益10%')
+print('--->>> 例如: 1W的本金, 每月定投6000, 保证年华收益{}%'.format(interest * 100))
 for i in range(1, invest_year + 1):
     day = 365 * 1 * i
     every_month_add_money = 6000
@@ -41,8 +41,7 @@ for i in range(1, invest_year + 1):
         principal=principal,
         interest=interest,
         day=day,
-        every_month_add_money=every_month_add_money
-    )
+        every_month_add_money=every_month_add_money,)
     print('> 假如存{0}年'.format(i))
     print('钱躺银行: {0}'.format(principal + day/30 * every_month_add_money))
     print('不躺银行: {0}\n'.format(money))
