@@ -49,7 +49,6 @@ class JuanPiParse(Crawler):
     def __init__(self):
         super(JuanPiParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
-            
             is_use_driver=True,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
@@ -59,7 +58,6 @@ class JuanPiParse(Crawler):
     def _set_headers(self):
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
@@ -83,12 +81,12 @@ class JuanPiParse(Crawler):
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
             # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
-            body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)    # 该css为手机端标题块
+            body = self.driver.get_url_body(url=tmp_url)    # 该css为手机端标题块
             # print(body)
             if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:    # 页面为空处理
                 _ = SqlServerMyPageInfoSaveItemPipeline()
                 if _.is_connect_success:
-                    _._update_table(sql_str=jp_update_str_1, params=(goods_id, ))
+                    _._update_table(sql_str=jp_update_str_1, params=(goods_id,))
                     try: del _
                     except: pass
                     print('@@@ 逻辑删除该商品[{0}] is_delete = 1'.format(goods_id))

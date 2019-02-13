@@ -708,6 +708,60 @@ COMPANY_ITEM_LIST = [
         'lat': None,
     },
     {
+        'short_name': 'ic',
+        'debug': True,
+        'orj_origin': 'cn.made-in-china.com',
+        'trade_type_info': {
+            'type_url_sub': {       # 第二类分类url: list
+                'method': 'css',
+                'selector': 'li.item a.item-text ::attr("href")',
+            },
+            'type_name_sub': {      # 第二类分类name type: list
+                'method': 'css',
+                'selector': 'li.item a.item-text ::text',
+            },
+            'type_url_third': {     # 第三类分类url: list
+                'method': 'css',
+                'selector': 'li.item a.item-text ::attr("href")',
+            },
+            'type_name_third': {    # 第三类分类name type:list
+                'method': 'css',
+                'selector': 'li.item a.item-text ::text',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '\/ca\/(\w+)',
+        },
+        'company_status': None,     # 公司状态, 1: 在业 or 续存
+        'company_link': None,       # 公司网站
+        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
+            'method': 'css',
+            'selector': 'div.control li',
+        },
+        'company_info_detail_li_2': { # 公司信息的li (联系我们部分)
+            'method': 'css',
+            'selector': 'div.contact-way1 p.text-in11 small',
+        },
+        'company_name': {
+            'method': 'css',
+            'selector': 'div.com-name ::text'
+        },
+        'legal_person': None,       # 在company_info_detail_li_1中
+        'phone': None,              # 在company_info_detail_li_2中
+        'email_address': None,
+        'address': None,            # 在company_info_detail_li_2中
+        'brief_introduction': {     # 简介
+            'method': 'css',
+            'selector': 'div.info-word1 ::text',
+        },
+        'business_range': None,     # 在company_info_detail_li_1中
+        'founding_time': None,      # 在company_info_detail_li_1中
+        'employees_num': None,      # 在company_info_detail_li_1中
+        'lng': None,
+        'lat': None,
+    },
+    {
         'short_name': 'mt',
         'debug': True,
         'obj_origin': 'i.meituan.com',

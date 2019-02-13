@@ -1,10 +1,10 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : company_spider.py
 @connect : superonesfazai@gmail.com
-'''
+"""
 
 """
 企业商家信息爬虫
@@ -16,7 +16,8 @@
     4. al 1688
     5. 114批发网
 待实现
-    1. 58(pc/m/wx站手机号为短期(内部电话转接))
+    1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
+    2. 中国制造网(https://cn.made-in-china.com)
 """
 
 from gc import collect
@@ -100,7 +101,7 @@ class CompanySpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/'
         )
         # 设置爬取对象
-        self.spider_name = '114'
+        self.spider_name = 'ic'
         # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
         self.concurrency = 300
         self.sema = Semaphore(self.concurrency)
@@ -145,11 +146,11 @@ class CompanySpider(AsyncCrawler):
             self.sc_key = json_2_dict(f.read())['sckey']
 
     def _set_province_code_list_and_city_code_list(self) -> None:
-        '''
+        """
         获取province, city的code
         :return:
-        '''
-        sql_str = '''select c_name, code, parent_code from dbo.Region'''
+        """
+        sql_str = """select c_name, code, parent_code from dbo.Region"""
         self.province_and_city_code_list = []
         self.lg.info('正在获取province_and_city_code_list...')
         try:
@@ -164,10 +165,11 @@ class CompanySpider(AsyncCrawler):
         await self._company_spider(short_name=self.spider_name)
 
     async def _company_spider(self, short_name:str) -> None:
-        '''
+        """
         公司 or 商家信息爬虫
+        :param short_name:
         :return:
-        '''
+        """
         self.lg.info('--->>> spider_name: {}'.format(self.spider_name))
         if short_name == 'ty':
             # vip(1年360, tb 9.8) 会员才能查看多页的企业信息内容, 而且vip每天只能查看5000家公司, 真抠-_-!, pass
@@ -188,14 +190,133 @@ class CompanySpider(AsyncCrawler):
         elif short_name == '114':
             await self._a114_spider()
 
+        elif short_name == 'ic':
+            await self._ic_spider()
+
         else:
             raise NotImplemented
 
+    async def _ic_spider(self):
+        """
+        中国制造网spider(m站)
+        :return:
+        """
+        self.db_ic_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=7)
+        self.ic_category_list = await self._get_ic_category()
+
+        pprint(self.ic_category_list)
+        self.lg.info('ic所有子分类总个数: {}'.format(len(self.ic_category_list)))
+        assert self.ic_category_list != [], '获取到的self.ic_category_list为空list!异常退出'
+
+        await self._crawl_ic_company_info()
+
+    async def _get_ic_category(self) -> list:
+        """
+        获取ic所有子分类
+        :return:
+        """
+        async def _get_ic_one_cate_info_list(cate_name, cate_url, type_name_parser, type_url_parser) -> list:
+            """获取ic m站单个页面分类的cate info"""
+            async def _get_ic_m_cate_url_list(cate_url_list) -> list:
+                """给ic的cate url加上父域名"""
+                return ['https://3g.made-in-china.com' + item for item in cate_url_list]
+
+            # TODO 测试发现: 其子分类下面的页面并非根据页码增长, 故采集m站的分类, 其是有规律的
+            body = await unblock_request(
+                url=cate_url,
+                headers=await self._get_phone_headers(),
+                ip_pool_type=self.ip_pool_type,
+                logger=self.lg,)
+            m_child_cate_name_list = await async_parse_field(
+                parser=type_name_parser,
+                target_obj=body,
+                is_first=False,
+                logger=self.lg)
+            m_child_cate_url_list = await async_parse_field(
+                parser=type_url_parser,
+                target_obj=body,
+                is_first=False,
+                logger=self.lg)
+            m_child_cate_url_list = await _get_ic_m_cate_url_list(m_child_cate_url_list)
+            child_cate_info_list = list(zip(m_child_cate_name_list, m_child_cate_url_list))
+            # pprint(child_cate_info_list)
+            self.lg.info('[{}] cate_name: {}'.format('+' if child_cate_info_list != [] else '-', cate_name))
+
+            return child_cate_info_list
+
+        async def _get_tasks_params_list(cate_info_list) -> list:
+            """获取sub的子分类的任务参数"""
+            tasks_params_list = []
+            for i in cate_info_list:
+                tasks_params_list.append({
+                    'cate_name': i[0],
+                    'cate_url': i[1],
+                })
+
+            return tasks_params_list
+
+        async def _get_one_res(slice_params_list, parser_obj):
+            tasks = []
+            for k in slice_params_list:
+                cate_name = k['cate_name']
+                cate_url = k['cate_url']
+                self.lg.info('create task[where cate_name: {}, cate_url: {}]'.format(cate_name, cate_url))
+                tasks.append(self.loop.create_task(_get_ic_one_cate_info_list(
+                    cate_name=cate_name,
+                    cate_url=cate_url,
+                    type_name_parser=parser_obj['trade_type_info']['type_name_third'],
+                    type_url_parser=parser_obj['trade_type_info']['type_url_third'],
+                )))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+            # pprint(one_res)
+
+            return one_res
+
+        parser_obj = await self._get_parser_obj(short_name='ic')
+        # 获取父分类
+        self.lg.info('getting sub cate info...')
+        all_sub_cate_info_list = await _get_ic_one_cate_info_list(
+            cate_name='sub',
+            cate_url='https://3g.made-in-china.com/catalog/',
+            type_name_parser=parser_obj['trade_type_info']['type_name_sub'],
+            type_url_parser=parser_obj['trade_type_info']['type_url_sub'],)
+        self.lg.info('获取sub cate num: {}'.format(len(all_sub_cate_info_list)))
+
+        # 获取父分类的子分类
+        tasks_params_list = await _get_tasks_params_list(cate_info_list=all_sub_cate_info_list)
+        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+        all_third_cate_info_list = []
+        while True:
+            try:
+                slice_params_list = tasks_params_list_obj.__next__()
+            except AssertionError:
+                break
+
+            one_res = await _get_one_res(slice_params_list=slice_params_list, parser_obj=parser_obj)
+            for i in one_res:
+                for j in i:
+                    all_third_cate_info_list.append(j)
+        # pprint(all_third_cate_info_list)
+        self.lg.info('获取到的父分类的子分类总个数: {}'.format(len(all_third_cate_info_list)))
+
+        # 获取子分类的子分类
+        all_ic_child_cate_info_list = all_third_cate_info_list
+
+        return all_ic_child_cate_info_list
+
+    async def _crawl_ic_company_info(self):
+        """
+        采集ic所有company信息
+        :return:
+        """
+        return
+
     async def _a114_spider(self):
-        '''
+        """
         114批发市场spider(pc)
         :return:
-        '''
+        """
         self.db_114_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=6)
         # 测试发现这个cate_num是有规律的 1-10000
         # self.a114_category_list = await self._get_114_category()
@@ -208,15 +329,15 @@ class CompanySpider(AsyncCrawler):
         await self._crawl_114_company_info()
 
     async def _get_114_category(self) -> list:
-        '''
+        """
         得到114的所有子分类信息
         :return:
-        '''
+        """
         async def _get_home_page() -> list:
-            '''
+            """
             得到主页的大分类
             :return: ['c-1.html', ...]
-            '''
+            """
             url = 'http://www.114pifa.com/'
             body = await unblock_request_by_driver(
                 url=url,
@@ -262,12 +383,12 @@ class CompanySpider(AsyncCrawler):
         return all_sub_categroy
 
     async def _crawl_114_sub_categroy(self, home_categroy_list) -> list:
-        '''
+        """
         采集114的各大分类的对应的子分类
         :return: [1, 3, ...]
-        '''
+        """
         async def _get_tasks_params_list() -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
 
             for item in home_categroy_list:
@@ -282,7 +403,7 @@ class CompanySpider(AsyncCrawler):
             return tasks_params_list
 
         async def _get_all_cate_number(all) -> list:
-            '''获取去所有cate_number'''
+            """获取去所有cate_number"""
             res = []
             # pprint(all)
             for cate_url in all:
@@ -346,10 +467,10 @@ class CompanySpider(AsyncCrawler):
         return res
 
     async def _get_114_one_page_third_category_list(self, **kwargs) -> list:
-        '''
+        """
         获取114单页大分类页面中的所有子分类
         :return:
-        '''
+        """
         parser_obj = kwargs['parser_obj']
         category_number = kwargs['category_number']
 
@@ -405,12 +526,12 @@ class CompanySpider(AsyncCrawler):
         return type_url_sub_list
 
     async def _crawl_114_company_info(self):
-        '''
+        """
         采集114所有company信息
         :return:
-        '''
+        """
         async def _get_tasks_params_list(cate_num) -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
 
             for page_num in range(2, self.a114_max_page_num + 1):
@@ -428,7 +549,7 @@ class CompanySpider(AsyncCrawler):
             return tasks_params_list
 
         async def _get_one_all_company_id_list(one_res) -> list:
-            '''获取待采集的company_id list'''
+            """获取待采集的company_id list"""
             one_all_company_id_list = []
             tmp_id_list = []
             for i in one_res:
@@ -447,7 +568,7 @@ class CompanySpider(AsyncCrawler):
             return one_all_company_id_list
 
         async def _get_one_res(slice_params_list) -> list:
-            '''获取one_res'''
+            """获取one_res"""
             async def _create_one_celery_task(**kwargs):
                 ip_pool_type = kwargs['ip_pool_type']
                 num_retries = kwargs['num_retries']
@@ -544,10 +665,10 @@ class CompanySpider(AsyncCrawler):
         return None
 
     async def _get_new_tasks_params_list_from_tasks_params_list(self, tasks_params_list, new_tasks_params_list, new_concurrency) -> list:
-        '''
+        """
         从tasks_params_list中获取新的new_tasks_params_list(# 新建任务个数在达标后才启动)
         :return:
-        '''
+        """
         for l in tasks_params_list:
             new_tasks_params_list.append(l)
 
@@ -560,11 +681,11 @@ class CompanySpider(AsyncCrawler):
         return new_tasks_params_list
 
     async def _get_114_one_type_company_id_list(self, **kwargs) -> list:
-        '''
+        """
         获取114单个子分类的单个页面所有的公司简介的url(m站, pc站无列表显示)
         :param kwargs:
         :return: [{'company_id': 'xxx'}, ...]
-        '''
+        """
         parser_obj = kwargs['parser_obj']
         cate_num = kwargs['cate_num']       # int
         page_num = kwargs['page_num']       # str '' | '2', ...
@@ -618,13 +739,13 @@ class CompanySpider(AsyncCrawler):
         return company_id_list
 
     async def _crawl_114_one_type_all_company_info(self, one_all_company_id_list):
-        '''
+        """
         抓取114单个分类的所有company_info
         :param one_all_company_id_list: [{'company_id': xxx}, ...]
         :return:
-        '''
+        """
         async def _get_tasks_params_list(one_all_company_id_list) -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
             for item in one_all_company_id_list:
                 company_id = item['company_id']
@@ -681,11 +802,11 @@ class CompanySpider(AsyncCrawler):
             return one_res
 
         async def _get_one_res_by_celery(slice_params_list) -> list:
-            '''
+            """
             通过celery
             :param slice_params_list:
             :return:
-            '''
+            """
             async def _create_one_celery_task(**kwargs):
                 company_id = kwargs['company_id']
 
@@ -773,11 +894,11 @@ class CompanySpider(AsyncCrawler):
         return None
 
     async def _create_one_celery_task_where_is_parse_one_company_info_task(self, **kwargs):
-        '''
+        """
         创建一个parse_one_company_info_task的celery 任务
         :param kwargs:
         :return:
-        '''
+        """
         short_name = kwargs['short_name']
         company_id = kwargs['company_id']
         province_name = kwargs['province_name']
@@ -800,10 +921,10 @@ class CompanySpider(AsyncCrawler):
         return async_obj
 
     async def _al_spider(self):
-        '''
+        """
         1688商家spider
         :return:
-        '''
+        """
         self.db_al_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=5)
         # self.al_category_list = await self._get_al_category()
         # self.al_category_list = await self._get_al_category2()
@@ -821,12 +942,12 @@ class CompanySpider(AsyncCrawler):
         await self._crawl_al_company_info()
 
     async def _get_al_category(self) -> list:
-        '''
+        """
         分类信息
         :return:
-        '''
+        """
         async def _get_tasks_params_list() -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
             for index_cate_id in range(self.al_min_index_cate_id, self.al_max_index_cate_id + 1):
                 tasks_params_list.append({
@@ -866,10 +987,10 @@ class CompanySpider(AsyncCrawler):
         return all_cate_type_name
 
     async def _get_al_category2(self) -> list:
-        '''
+        """
         从db拿keyword
         :return:
-        '''
+        """
         sql_str = '''select top 100000 keyword from dbo.goods_keywords'''
         _ = []
         self.lg.info('正在获取db中keyword for al_category_list...')
@@ -893,10 +1014,10 @@ class CompanySpider(AsyncCrawler):
         return al_category_list[2413:]
 
     async def _get_al_category3(self) -> list:
-        '''
+        """
         从jd总分类拿到keyword
         :return:
-        '''
+        """
         headers = await self._get_pc_headers()
         headers.update({
             'authority': 'www.jd.com',
@@ -921,12 +1042,12 @@ class CompanySpider(AsyncCrawler):
         return li_list
 
     async def _get_al_category4(self):
-        '''
+        """
         得到所有汉字
         :return:
-        '''
+        """
         async def _get_one_page(page_num):
-            '''获取一页'''
+            """获取一页"""
             url = 'https://www.qqxiuzi.cn/zh/hanzi/daquan-{}.htm'.format(page_num)
             body = await unblock_request(
                 url=url,
@@ -960,10 +1081,10 @@ class CompanySpider(AsyncCrawler):
         return all[10712:]
 
     async def _get_al_category5(self) -> list:
-        '''
+        """
         tb 总分类
         :return: ['鞋子', ...]
-        '''
+        """
         async def oo(target_list, all_sort_list) -> list:
             for i in target_list:
                 name = i.get('name', '')
@@ -1009,10 +1130,10 @@ class CompanySpider(AsyncCrawler):
         return all_sort_list
 
     async def _get_al_category6(self) -> list:
-        '''
+        """
         读取最新的淘热搜excel的top 20W关键字
         :return:
-        '''
+        """
         excel_file_path = '/Users/afa/Desktop/01月03日TOP20万词表无线.xlsx'
         self.lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
 
@@ -1042,12 +1163,12 @@ class CompanySpider(AsyncCrawler):
         return all_key_list[78450:]
 
     async def _get_al_category7(self) -> list:
-        '''
+        """
         获取常用英文单词
         :return:
-        '''
+        """
         async def _get_and_parse(page_num) -> list:
-            '''获取并且解析'''
+            """获取并且解析"""
             url = 'http://www.youdict.com/ciku/id_0_0_0_0_{}.html'.format(page_num)
             # 使用proxy, 无数据
             body = await unblock_request(url=url, headers=headers, cookies=None, use_proxy=False)
@@ -1088,13 +1209,13 @@ class CompanySpider(AsyncCrawler):
         return all
 
     async def _get_al_one_cate_list(self, index_cate_id:int=0) -> list:
-        '''
+        """
         得到1688某个父分类中所有子分类的cate_list
         :param index_cate_id: 0-16 父分类id
         :return: ['毛鞋子', ...]
-        '''
+        """
         async def _get_one_body(sub_cate_id='') -> str:
-            '''获取一个cate的body'''
+            """获取一个cate的body"""
             # 总分类: https://m.1688.com/page/cateList.html
             headers = await self._get_phone_headers()
             headers.update({
@@ -1116,7 +1237,7 @@ class CompanySpider(AsyncCrawler):
             return body
 
         async def _get_sub_cate_id_list() -> list:
-            '''获取第二类子分类id list'''
+            """获取第二类子分类id list"""
             tmp_sub_cate_id_list = await async_parse_field(
                 parser=parser_obj['trade_type_info']['type_name_sub'],
                 target_obj=body1,
@@ -1165,12 +1286,12 @@ class CompanySpider(AsyncCrawler):
         return all_cate_name_list
 
     async def _crawl_al_company_info(self):
-        '''
+        """
         采集所有商铺信息
         :return:
-        '''
+        """
         async def _get_tasks_params_list(cate_name) -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
             for page_num in range(1, self.al_max_page_num + 1):
                 tasks_params_list.append({
@@ -1181,7 +1302,7 @@ class CompanySpider(AsyncCrawler):
             return tasks_params_list
 
         async def _get_one_all_company_id_list(one_res) -> list:
-            '''获取该子分类截止页面的所有company_id_list'''
+            """获取该子分类截止页面的所有company_id_list"""
             one_all_company_id_list = []
             tmp_id_list = []
             for i in one_res:
@@ -1202,7 +1323,7 @@ class CompanySpider(AsyncCrawler):
             return one_all_company_id_list
 
         async def _get_one_res(slice_params_list) -> list:
-            '''获取one_res'''
+            """获取one_res"""
             async def _create_one_celery_task(**kwargs):
                 ip_pool_type = kwargs['ip_pool_type']
                 keyword = kwargs['keyword']
@@ -1284,13 +1405,13 @@ class CompanySpider(AsyncCrawler):
             collect()
 
     async def _crawl_al_one_type_all_company_info(self, one_all_company_id_list):
-        '''
+        """
         抓取al单个分类的所有company info
         :param one_all_company_id_list:
         :return:
-        '''
+        """
         async def _get_tasks_params_list(one_all_company_id_list) -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
             for item in one_all_company_id_list:
                 company_id = item['company_id']
@@ -1311,7 +1432,7 @@ class CompanySpider(AsyncCrawler):
             return tasks_params_list
 
         async def _get_one_res(slice_params_list) -> list:
-            '''获取one_res'''
+            """获取one_res"""
             tasks = []
             for k in slice_params_list:
                 company_id = k['company_id']
@@ -1358,13 +1479,13 @@ class CompanySpider(AsyncCrawler):
         return None
 
     async def _save_company_one_res(self, one_res:list, short_name, db_unique_id_list:list, index:int):
-        '''
+        """
         存储company的one_res
         :param short_name: eg: 'al', '114'
         :param db_unique_id: eg: self.db_al_unique_id_list
         :param index:
         :return: (index, db_unique_id)
-        '''
+        """
         for i in one_res:
             index += 1
             if i != {}:
@@ -1391,11 +1512,11 @@ class CompanySpider(AsyncCrawler):
         return index, db_unique_id_list
 
     async def _get_al_one_type_company_id_list(self, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
-        '''
+        """
         获取某个子分类的单页的company_id_list
         :param keyword:
         :return: [{'company_id': xxx, 'province_name': xxx, 'city_name':xxx}, ...]
-        '''
+        """
         async def _get_params() -> tuple:
             return (
                 ('jsv', '2.4.11'),
@@ -1497,10 +1618,10 @@ class CompanySpider(AsyncCrawler):
         return member_id_list
 
     async def _mt_spider(self):
-        '''
+        """
         mtspider
         :return:
-        '''
+        """
         self.db_mt_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=4)
         self.category_list = await self._get_category()
         pprint(self.category_list)
@@ -1513,13 +1634,13 @@ class CompanySpider(AsyncCrawler):
         await self._crawl_mt_company_info()
 
     async def _crawl_mt_company_info(self, **kwargs) -> None:
-        '''
+        """
         抓取mt公司信息
         :param kwargs:
         :return:
-        '''
+        """
         async def _get_tasks_params_list(cid, cate_type, one_type_name) -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
             PAGE_RANGE = range(1, self.mt_max_page_num+1) if one_type_name != '全部' else range(1, 300+1)
             for page_num in PAGE_RANGE:
@@ -1583,10 +1704,10 @@ class CompanySpider(AsyncCrawler):
         return None
 
     async def _get_mt_cookies_dict(self, num_retries=6) -> dict:
-        '''
+        """
         获取mt主页cookies
         :return:
-        '''
+        """
         cookies = {}
         try:
             driver = BaseDriver(
@@ -1616,12 +1737,12 @@ class CompanySpider(AsyncCrawler):
             return cookies
 
     async def _crawl_mt_someone_city_someone_type_one_page_info(self, **kwargs) -> list:
-        '''
+        """
         抓取mt某城市的某个分类的单页信息
         :return:
-        '''
+        """
         async def _get_request_params() -> tuple:
-            '''请求参数'''
+            """请求参数"""
             nonlocal city_name
             return (
                 ('cid', str(cid)),      # cid 为-1, 表示没有筛选分类, 1:美食 4:购物 20383:时尚购 20252:健身, 可以从全部分类中获取
@@ -1637,7 +1758,7 @@ class CompanySpider(AsyncCrawler):
             )
 
         async def _parse(body) -> list:
-            '''解析'''
+            """解析"""
             parser_obj = await self._get_parser_obj(short_name='mt')
             shop_url_list = await async_parse_field(
                 parser=parser_obj['shop_url'],
@@ -1701,7 +1822,7 @@ class CompanySpider(AsyncCrawler):
         #     self.lg.info(body)
 
         # 2. requests_html
-        # js_code = '''
+        # js_code = """
         # <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.1.min.js"></script>
         # <script type="text/javascript">
         # //获取当前点击的对象
@@ -1711,16 +1832,16 @@ class CompanySpider(AsyncCrawler):
         #         }
         #     );
         # </script>
-        # '''
+        # """
         # body = await self.unblock_request_by_requests_html(url=url, headers=headers, params=params, js_code=js_code)
         # self.lg.info(body)
 
         # 3. selenium
-        exec_code = '''
+        exec_code = """
         sleep(1)
         self.driver.find_element_by_class_name('i-link').click()
         sleep(4)
-        '''
+        """
         url = _get_url_contain_params(url, params)
         self.lg.info('分类的单页url:{}'.format(url))
         with await self.sema:
@@ -1751,10 +1872,10 @@ class CompanySpider(AsyncCrawler):
             return res
 
     async def unblock_request_by_requests_html(self, url, headers=None, params=None, cookies=None, js_code=None):
-        '''
+        """
         基于requests_html(>= python3.6)的异步非阻塞请求
         :return:
-        '''
+        """
         class PreparedRequest(object):
             def __init__(self, url, headers):
                 self.url = url
@@ -1777,12 +1898,12 @@ class CompanySpider(AsyncCrawler):
             return resp.text
 
     async def _crawl_mt_someone_city_some_cid_all_shop_info(self, **kwargs) -> None:
-        '''
+        """
         采集mt某个城市的某个cid的全部商铺信息
         :return:
-        '''
+        """
         async def _get_tasks_params_list():
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             nonlocal shop_info_list, city_name
 
             tasks_params_list = []
@@ -1859,10 +1980,10 @@ class CompanySpider(AsyncCrawler):
                 pass
 
     async def _mt_crawl_exception_handler(self, **kwargs):
-        '''
+        """
         店铺信息抓取异常，认证处理
         :return:
-        '''
+        """
         fail_count: int = kwargs['fail_count']
         one_res_len: int = kwargs['one_res_len']
 
@@ -1932,10 +2053,10 @@ class CompanySpider(AsyncCrawler):
                 break
 
     async def _get_mt_captcha_img(self, driver) -> None:
-        '''
+        """
         截取验证码
         :return:
-        '''
+        """
         driver.save_screenshot('tmp_mt.png')
         captcha_css_selector = driver.find_element_by_css_selector('#yodaImgCode')
         location = captcha_css_selector.location
@@ -1958,10 +2079,10 @@ class CompanySpider(AsyncCrawler):
         return
 
     async def _ocr_mt_captcha(self) -> str:
-        '''
+        """
         打码
         :return:
-        '''
+        """
         with open('/Users/afa/myFiles/pwd/yundama_pwd.json', 'r') as f:
             yundama_info = json_2_dict(f.read())
 
@@ -1980,10 +2101,10 @@ class CompanySpider(AsyncCrawler):
         return res
 
     async def _get_mt_all_city_name_list(self) -> list:
-        '''
+        """
         得到mt已覆盖的城市名(只返回待抓取的城市名)
         :return:
-        '''
+        """
         _ = await self._get_crawl_city_area()
         for i in ['北京', '上海', '天津', '重庆']:
             _.append(i)
@@ -1996,12 +2117,12 @@ class CompanySpider(AsyncCrawler):
         return ['天津']
 
     async def _get_category(self, city_name='北京') -> list:
-        '''
+        """
         获取某城市的所有分类信息(once)
         :return:
-        '''
+        """
         async def _parse(body) -> list:
-            '''解析'''
+            """解析"""
             async def _get_one_type_url(i) -> str:
                 nonlocal categroy_info_parser_obj
 
@@ -2103,18 +2224,18 @@ class CompanySpider(AsyncCrawler):
         return type_list
 
     async def _hy_spider(self):
-        '''
+        """
         黄页spider(采用穷举采集的方式)
         :return:
-        '''
+        """
         self.db_hy_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=2)
         await self._crawl_hy_company_info()
 
     async def _get_db_unique_id_list_by_site_id(self, site_id:int) -> list:
-        '''
+        """
         获取db中的unique id list
         :return:
-        '''
+        """
         self.lg.info('正在获取db中的site_id:{} 的unique_id...'.format(site_id))
         try:
             res = self.sql_server_cli._select_table(sql_str=gs_select_str_1, params=(site_id,), logger=self.lg)
@@ -2131,12 +2252,12 @@ class CompanySpider(AsyncCrawler):
         return oo
 
     async def _crawl_hy_company_info(self, **kwargs):
-        '''
+        """
         抓取黄页的公司信息
         :return:
-        '''
+        """
         async def _get_tasks_params_list() -> list:
-            '''得到tasks params list'''
+            """得到tasks params list"""
             tasks_params_list = []
             for company_id in range(self.hy_min_company_id, self.hy_max_company_id):
                 if 'hy{}'.format(company_id) not in self.db_hy_unique_id_list:
@@ -2197,10 +2318,10 @@ class CompanySpider(AsyncCrawler):
             await async_sleep(2.)
 
     async def _ty_spider(self) -> None:
-        '''
+        """
         天眼查企业信息爬虫
         :return:
-        '''
+        """
         if self.ty_cookies_dict == {}:
             await self._ty_login()
 
@@ -2209,10 +2330,10 @@ class CompanySpider(AsyncCrawler):
         await self._crawl_ty_company_info(province_and_city_info=province_and_city_info)
 
     async def _ty_login(self) -> dict:
-        '''
+        """
         天眼模拟登陆
         :return: 登陆后的cookies
-        '''
+        """
         headers = await self._get_pc_headers()
         headers.update({
             'Origin': 'https://www.tianyancha.com',
@@ -2246,14 +2367,14 @@ class CompanySpider(AsyncCrawler):
                 return cookies
 
     async def _get_ty_province_and_city_info(self) -> list:
-        '''
+        """
         得到天眼查省份, 城市信息
         :return:
-        '''
+        """
         async def _parse_info(body) -> list:
-            '''页面解析'''
+            """页面解析"""
             async def _get_zhixia_city_info() -> list:
-                '''获取直辖市信息'''
+                """获取直辖市信息"""
                 nonlocal province_city_info_selector, body
 
                 # 获取直辖市
@@ -2287,7 +2408,7 @@ class CompanySpider(AsyncCrawler):
                 return province_and_city_info
 
             async def _get_other_province_info(province_and_city_info) -> list:
-                '''获取其他省份的信息'''
+                """获取其他省份的信息"""
                 nonlocal province_city_info_selector, body
 
                 row = Selector(text=body).css('div.row').extract() or []
@@ -2328,7 +2449,7 @@ class CompanySpider(AsyncCrawler):
             return province_and_city_info
 
         async def _delete_uncrawl_area() -> list:
-            '''删除不抓取的地区'''
+            """删除不抓取的地区"""
             nonlocal province_and_city_info
 
             crawl_province_area = await self._get_crawl_province_area()
@@ -2367,23 +2488,23 @@ class CompanySpider(AsyncCrawler):
         return province_and_city_info
 
     async def _qcc_spider(self) -> None:
-        '''
+        """
         企查查企业信息爬虫
         :return:
-        '''
+        """
         province_and_city_info = await self._get_qcc_province_and_city_info()
         pprint(province_and_city_info)
         await self._crawl_qcc_company_info(province_and_city_info=province_and_city_info)
 
     async def _get_qcc_province_and_city_info(self) -> list:
-        '''
+        """
         获取企查查省份信息
         :return:
-        '''
+        """
         async def _parse_info() -> list:
-            '''页面解析'''
+            """页面解析"""
             async def _get_area_info() -> list:
-                '''得到区域信息'''
+                """得到区域信息"""
                 nonlocal body
 
                 try:
@@ -2420,7 +2541,7 @@ class CompanySpider(AsyncCrawler):
             return province_and_city_info
 
         async def _delete_uncrawl_area() -> list:
-            '''删除不抓取的地区'''
+            """删除不抓取的地区"""
             nonlocal province_and_city_info
 
             crawl_province_area = await self._get_crawl_province_area()
@@ -2446,13 +2567,13 @@ class CompanySpider(AsyncCrawler):
         return province_and_city_info
 
     async def _crawl_ty_company_info(self, **kwargs):
-        '''
+        """
         在天眼查中抓取待采集的目标
         :param kwargs:
         :return:
-        '''
+        """
         async def _get_tasks_params_list(item) -> list:
-            '''获取tasks_params_list'''
+            """获取tasks_params_list"""
             tasks_params_list = []
             for page_num in range(1, self.ty_max_page_num):
                 tasks_params_list.append({
@@ -2524,12 +2645,12 @@ class CompanySpider(AsyncCrawler):
             })
 
     async def _ty_crawl_exception_handler(self, **kwargs) -> None:
-        '''
+        """
         ty抓取异常的处理
         :return:
-        '''
-        fail_count:int = kwargs['fail_count']
-        one_res_len:int = kwargs['one_res_len']
+        """
+        fail_count = kwargs['fail_count']
+        one_res_len = kwargs['one_res_len']
         sleep_time = 30
 
         if self.ty_robot:
@@ -2557,10 +2678,11 @@ class CompanySpider(AsyncCrawler):
         return None
 
     async def _crawl_qcc_company_info(self, **kwargs):
-        '''
+        """
         在企查查中抓取待采集的目标
+        :param kwargs:
         :return:
-        '''
+        """
         province_and_city_info = kwargs['province_and_city_info']
         all = []
         for item in province_and_city_info:
@@ -2611,11 +2733,11 @@ class CompanySpider(AsyncCrawler):
             })
 
     async def _crawl_one_page_from_ty_area_search(self, **kwargs) -> list:
-        '''
+        """
         抓取ty单页信息
         :param kwargs:
         :return:
-        '''
+        """
         province_name = kwargs['province_name']
         city_name = kwargs['city_name']
         city_url = kwargs['city_url']
@@ -2655,11 +2777,11 @@ class CompanySpider(AsyncCrawler):
         return _new
 
     async def _get_ty_city_info_list(self, province_and_city_info) -> list:
-        '''
+        """
         获取ty的待抓取的city_list(只抓取city)
         :param province_and_city_info:
         :return: [{'city_name': 'xxx', 'province_name': 'xxx', 'city_url': 'xxx'}, ...]
-        '''
+        """
         _ = []
         for item in province_and_city_info:
             city_items = item['city_items']
@@ -2681,10 +2803,11 @@ class CompanySpider(AsyncCrawler):
         return _
 
     async def _crawl_one_page_from_qcc_area_search(self, **kwargs) -> list:
-        '''
+        """
         抓取企查查单页信息
+        :param kwargs:
         :return: [] or [{'company_url': 'xxxx',}, ...]
-        '''
+        """
         province_name = kwargs['province_name']
         province_url = kwargs['province_url']
         page_num = kwargs['page_num']
@@ -2711,11 +2834,11 @@ class CompanySpider(AsyncCrawler):
         return _new
 
     async def _get_company_status_is_right_new_company_url_list(self, **kwargs) -> tuple:
-        '''
+        """
         筛选出经营状态正常的company_url(公司状态异常的处理)
         :param body: 待解析的body
         :return: (_:未处理前的, _new:处理后的)
-        '''
+        """
         short_name = kwargs['short_name']
         body = kwargs['body']
         province_name = kwargs.get('province_name', '')
@@ -2749,12 +2872,12 @@ class CompanySpider(AsyncCrawler):
         return _, _new
 
     async def _parse_company_url_and_company_status(self, parser_obj, target_obj) -> list:
-        '''
+        """
         从搜索页中解析company_url和company_status
         :param parser_obj: 解析对象
         :param target_obj: 待解析目标
         :return:
-        '''
+        """
         try:
             company_url = await async_parse_field(
                 parser=parser_obj['company_url'],
@@ -2777,10 +2900,10 @@ class CompanySpider(AsyncCrawler):
         } for i in _]
 
     async def _block_crawl_company_info(self, **kwargs) -> list:
-        '''
+        """
         根据company_url 分块抓取(eg: 企查查, 天眼查)的所有页面详情
         :return:
-        '''
+        """
         short_name = kwargs['short_name']
         # 身份 or city company_url_list
         this_province_company_url_list = kwargs['this_province_company_url_list']
@@ -2836,11 +2959,11 @@ class CompanySpider(AsyncCrawler):
         return all_res
 
     async def _get_block_crawl_company_tasks_params_list(self, **kwargs) -> list:
-        '''
+        """
         得到分块抓取多公司信息的tasks_params_list
         :param short_name:
         :return:
-        '''
+        """
         short_name = kwargs['short_name']
         this_province_company_url_list = kwargs['this_province_company_url_list']
 
@@ -2860,10 +2983,10 @@ class CompanySpider(AsyncCrawler):
         return tasks_params_list
 
     async def _parse_one_company_info(self, **kwargs) -> dict:
-        '''
+        """
         解析单页的信息
         :return: {} or {xxx}
-        '''
+        """
         short_name = kwargs['short_name']
         company_url = kwargs.get('company_url', '')
         province_name = kwargs.get('province_name', '')
@@ -2941,12 +3064,12 @@ class CompanySpider(AsyncCrawler):
         return dict(company_item)
 
     async def _get_lng(self, parser_obj, target_obj) -> float:
-        '''
+        """
         获取经度信息
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'mt':
             lng = await async_parse_field(
                 parser=parser_obj['lng'],
@@ -2958,12 +3081,12 @@ class CompanySpider(AsyncCrawler):
         return float(lng)
 
     async def _get_lat(self, parser_obj, target_obj) -> float:
-        '''
+        """
         获取纬度信息
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'mt':
             lat = await async_parse_field(
                 parser=parser_obj['lat'],
@@ -2975,22 +3098,22 @@ class CompanySpider(AsyncCrawler):
         return float(lat)
 
     async def _get_type_code(self, parser_obj, type_code) -> str:
-        '''
+        """
         得到分类的code
         :param type_code:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'mt':
             return 'mt' + type_code
         else:
             return ''
 
     async def _get_site_id(self, short_name) -> int:
-        '''
+        """
         获取采集源site_id
         :param short_name:
         :return:
-        '''
+        """
         if short_name == 'qcc':
             site_id = 3
         elif short_name == 'ty':
@@ -3009,13 +3132,13 @@ class CompanySpider(AsyncCrawler):
         return site_id
 
     async def _save_company_item(self, company_item, index) -> bool:
-        '''
+        """
         异步存储company_item
         :param company_item:
         :return:
-        '''
+        """
         async def _get_args() -> list:
-            '''获取args'''
+            """获取args"""
             return [
                 self.insert_into_sql,
                 await _get_insert_params(),
@@ -3091,12 +3214,12 @@ class CompanySpider(AsyncCrawler):
         return res
 
     async def _get_employees_num(self, parser_obj, target_obj) -> str:
-        '''
+        """
         公司人数
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             employees_num = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3119,12 +3242,12 @@ class CompanySpider(AsyncCrawler):
         return employees_num
 
     async def _get_company_name(self, parser_obj, target_obj) -> str:
-        '''
+        """
         得到企业名称
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             company_name = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3157,12 +3280,12 @@ class CompanySpider(AsyncCrawler):
         return company_name
 
     async def _get_company_link(self, parser_obj, target_obj) -> str:
-        '''
+        """
         得到企业官网地址
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             company_link = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3180,12 +3303,12 @@ class CompanySpider(AsyncCrawler):
         return company_link
 
     async def _get_legal_person(self, parser_obj, target_obj) -> str:
-        '''
+        """
         获取法人
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             legal_person = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3219,12 +3342,12 @@ class CompanySpider(AsyncCrawler):
         return legal_person
 
     async def _get_phone(self, parser_obj, target_obj) -> list:
-        '''
+        """
         获取phone
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         is_first = True
         if parser_obj['short_name'] == 'al':
             is_first = False
@@ -3308,10 +3431,10 @@ class CompanySpider(AsyncCrawler):
         return phone_list
 
     async def _get_email_address(self, parser_obj, target_obj) -> list:
-        '''
+        """
         获取email
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             email_address = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3347,12 +3470,12 @@ class CompanySpider(AsyncCrawler):
             }]
 
     async def _get_address(self, parser_obj, target_obj) -> str:
-        '''
+        """
         获取address
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         is_first = True
         if parser_obj['short_name'] == 'ty'\
                 or parser_obj['short_name'] == 'hy':
@@ -3416,12 +3539,12 @@ class CompanySpider(AsyncCrawler):
         return address
 
     async def _get_brief_introduction(self, parser_obj, target_obj) -> str:
-        '''
+        """
         获取company简介
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'al':
             brief_introduction = await self._get_al_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3445,12 +3568,12 @@ class CompanySpider(AsyncCrawler):
         return await self._wash_data(brief_introduction)
 
     async def _get_business_range(self, parser_obj, target_obj):
-        '''
+        """
         获取business_range
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             business_range = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3515,10 +3638,11 @@ class CompanySpider(AsyncCrawler):
         return await self._wash_data(business_range)
 
     async def _wash_data(self, data):
-        '''
+        """
         清洗data
+        :param data:
         :return:
-        '''
+        """
         replace_str_list = [
             ('&lt;', '<'),
             ('&gt;', '>')
@@ -3535,12 +3659,12 @@ class CompanySpider(AsyncCrawler):
             add_sensitive_str_list=add_sensitive_str_list)
 
     async def _get_founding_time(self, parser_obj, target_obj):
-        '''
+        """
         获取company成立时间
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         if parser_obj['short_name'] == 'hy':
             founding_time = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -3621,12 +3745,12 @@ class CompanySpider(AsyncCrawler):
         return founding_time
 
     async def _get_company_unique_id(self, parser_obj, target_obj):
-        '''
+        """
         获取company 唯一的id
         :param parser_obj:
         :param target_obj:
         :return:
-        '''
+        """
         unique_id = await async_parse_field(parser=parser_obj['unique_id'], target_obj=target_obj, logger=self.lg)
         assert unique_id != '', 'unique_id为空值!'
 
@@ -3645,10 +3769,10 @@ class CompanySpider(AsyncCrawler):
         return unique_id
 
     async def _get_province_id(self, parser_obj, target_obj, province_name, city_name):
-        '''
+        """
         获取对应的省份code
         :return:
-        '''
+        """
         local_place = ''
         if parser_obj['short_name'] == 'hy':
             local_place = await self._get_hy_li_text_by_label_name(
@@ -3703,11 +3827,11 @@ class CompanySpider(AsyncCrawler):
         raise AssertionError('未知的province_name:{}, db中未找到!'.format(province_name))
 
     async def _get_city_id(self, parser_obj, target_obj, city_name) -> str:
-        '''
+        """
         获取对应的city的code
         :param city_name:
         :return: '' or not ''
-        '''
+        """
         local_place = ''
         if parser_obj['short_name'] == 'hy':
             local_place = await self._get_hy_li_text_by_label_name(
@@ -3774,14 +3898,14 @@ class CompanySpider(AsyncCrawler):
         return ''
 
     async def _get_114_li_text_by_label_name(self, parser_obj_dict_name:str, parser_obj, target_obj, label_name):
-        '''
+        """
         根据label_name获取对应的值
         :param parser_obj_dict_name: 解析对象的名字, eg: company_info_detail_li_1, company_info_detail_li_2
         :param parser_obj:
         :param target_obj:
         :param label_name:
         :return:
-        '''
+        """
         company_info_detail_li = await async_parse_field(
             parser=parser_obj[parser_obj_dict_name],
             target_obj=target_obj,
@@ -3821,13 +3945,13 @@ class CompanySpider(AsyncCrawler):
         return ''
 
     async def _get_al_li_text_by_label_name(self, parser_obj, target_obj, label_name):
-        '''
+        """
         根据label_name获取对应的值
         :param parser_obj:
         :param target_obj:
         :param label_name:
         :return:
-        '''
+        """
         company_info_detail_li = await async_parse_field(
             parser=parser_obj['company_info_detail_li'],
             target_obj=target_obj,
@@ -3848,11 +3972,11 @@ class CompanySpider(AsyncCrawler):
         return ''
 
     async def _get_hy_li_text_by_label_name(self, parser_obj, target_obj, label_name):
-        '''
+        """
         根据label_name 获取其对应的值
         :param label_name:
         :return:
-        '''
+        """
         company_info_detail_li = await async_parse_field(
             parser=parser_obj['company_info_detail_li'],
             target_obj=target_obj,
@@ -3872,10 +3996,10 @@ class CompanySpider(AsyncCrawler):
         return ''
 
     async def _get_someone_company_page_html(self, **kwargs) -> str:
-        '''
+        """
         对应获取某个公司的html
         :return:
-        '''
+        """
         short_name = kwargs['short_name']
         company_url = kwargs['company_url']
         company_id = kwargs['company_id']
@@ -3907,11 +4031,11 @@ class CompanySpider(AsyncCrawler):
             raise NotImplemented
 
     async def _get_114_company_page_html(self, company_id) -> str:
-        '''
+        """
         获取114单页company info
         :param company_id:
         :return:
-        '''
+        """
         headers = await self._get_pc_headers()
         headers.update({
             'Proxy-Connection': 'keep-alive',
@@ -3933,11 +4057,11 @@ class CompanySpider(AsyncCrawler):
         return body
 
     async def _get_al_company_page_html(self, company_id) -> str:
-        '''
+        """
         获取al单页店铺info
         :param company_id:
         :return:
-        '''
+        """
         headers = await self._get_phone_headers()
         headers.update({
             'authority': 'm.1688.com',
@@ -3956,11 +4080,11 @@ class CompanySpider(AsyncCrawler):
         return body
 
     async def _get_mt_company_page_html(self, company_id, city_name, type_code) -> str:
-        '''
+        """
         获取mt单页店铺信息
         :param company_url:
         :return:
-        '''
+        """
         headers = await self._get_phone_headers()
         city_name_pinyin = ''.join(lazy_pinyin(city_name))
         random_page_num = get_random_int_number(1, 100)
@@ -3982,11 +4106,11 @@ class CompanySpider(AsyncCrawler):
         return body
 
     async def _get_hy_company_page_html(self, company_id) -> str:
-        '''
+        """
         获取hy某个company的html
         :param company_id:
         :return:
-        '''
+        """
         detail_url = 'http://m.huangye88.com/gongsi/{}/detail.html'.format(company_id)
         contact_url = 'http://m.huangye88.com/gongsi/{}/contact.html'.format(company_id)
         headers = await self._get_phone_headers()
@@ -4028,11 +4152,11 @@ class CompanySpider(AsyncCrawler):
             return body
 
     async def _get_ty_company_page_html(self, company_url) -> str:
-        '''
+        """
         获取天眼查某个company的html
         :param company_url:
         :return:
-        '''
+        """
         headers = await self._get_pc_headers()
         body = await unblock_request(url=company_url, headers=headers, cookies=self.ty_cookies_dict, ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
@@ -4046,11 +4170,11 @@ class CompanySpider(AsyncCrawler):
         return body
 
     async def _get_qcc_company_page_html(self, company_url) -> str:
-        '''
+        """
         获取到企查查某个company的html
         :param company_url:
         :return:
-        '''
+        """
         headers = await self._get_phone_headers()
         headers.update({
             'authority': 'm.qichacha.com',
@@ -4063,12 +4187,12 @@ class CompanySpider(AsyncCrawler):
         return body
 
     async def _parse_one_area_info(self, province_city_info_selector, item, province_name_is_first=True, province_url_is_first=True) -> dict:
-        '''
+        """
         解析一个地域信息
         :return:
-        '''
+        """
         async def _get_province_name():
-            '''省份'''
+            """省份"""
             province_name = await async_parse_field(
                 parser=province_city_info_selector['province_name'],
                 target_obj=item,
@@ -4079,7 +4203,7 @@ class CompanySpider(AsyncCrawler):
             return province_name
 
         async def _get_province_url():
-            '''省份url'''
+            """省份url"""
             province_url = await async_parse_field(
                 parser=province_city_info_selector['province_url'],
                 target_obj=item,
@@ -4090,7 +4214,7 @@ class CompanySpider(AsyncCrawler):
             return province_url
 
         async def _get_city_name_list() -> list:
-            '''省份下面的市'''
+            """省份下面的市"""
             if province_city_info_selector['city_name'] is None:
                 return []
 
@@ -4104,7 +4228,7 @@ class CompanySpider(AsyncCrawler):
             return city_name_list
 
         async def _get_city_url_list() -> list:
-            '''省份下面市的url'''
+            """省份下面市的url"""
             if province_city_info_selector['city_url'] is None:
                 return []
 
@@ -4134,11 +4258,11 @@ class CompanySpider(AsyncCrawler):
 
     @staticmethod
     async def _get_parser_obj(short_name) -> dict:
-        '''
+        """
         得到解析对象
         :param short_name:
         :return:
-        '''
+        """
         parser_obj = None
         for item in COMPANY_ITEM_LIST:
             if item['short_name'] == short_name:
@@ -4169,10 +4293,10 @@ class CompanySpider(AsyncCrawler):
 
     @staticmethod
     async def _get_mt_ciid(city_name) -> str:
-        '''
+        """
         获取mt城市代码(弃用)
         :return:
-        '''
+        """
         _ = {
             '北京': 1,
             '上海': 10,
@@ -4199,18 +4323,18 @@ class CompanySpider(AsyncCrawler):
 
     @staticmethod
     async def _get_crawl_province_area() -> list:
-        '''
+        """
         抓取的省份
         :return:
-        '''
+        """
         return ['北京', '天津', '上海', '重庆', '河北', '辽宁', '江苏', '浙江', '山东', '湖北', '广东']
 
     @staticmethod
     async def _get_crawl_city_area() -> list:
-        '''
+        """
         抓取的城市
         :return:
-        '''
+        """
         return ['石家庄', '保定', '张家口', '沈阳', '南京', '杭州', '金华', '青岛', '武汉', '广州', '深圳']
 
     def __del__(self):

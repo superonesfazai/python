@@ -17,16 +17,13 @@ import json
 import re
 from pprint import pprint
 from json import dumps
-import asyncio
-from time import sleep
-import gc
+from gc import collect
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     CHROME_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
-from json import JSONDecodeError
 from urllib.parse import urlencode
 
 from sql_str_controller import (
@@ -411,7 +408,7 @@ class TaoBaoLoginAndParse(Crawler):
                 return ''
 
             # self.driver.quit()
-            gc.collect()
+            collect()
         else:
             pc_div_url = ''
             div_desc = ''
@@ -1184,8 +1181,9 @@ class TaoBaoLoginAndParse(Crawler):
         try:
             del self.msg
             del self.lg
-        except: pass
-        gc.collect()
+        except:
+            pass
+        collect()
 
 if __name__ == '__main__':
     login_taobao = TaoBaoLoginAndParse()

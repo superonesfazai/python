@@ -12,8 +12,7 @@ import json
 import re
 from pprint import pprint
 from json import dumps
-from time import sleep
-import gc
+from gc import collect
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -70,8 +69,7 @@ class TmallParse(Crawler):
         :return: data 类型dict
         '''
         if goods_id == []:
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
 
         type = goods_id[0]  # 天猫类型
         # self.lg.info(str(type))
@@ -98,8 +96,7 @@ class TmallParse(Crawler):
             # pprint(data)
         except (AssertionError, IndexError) as e:
             self.lg.error('遇到错误:', exc_info=True)
-            self.result_data = {}
-            return {}
+            return self._data_error_init()
 
         if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
                 and data.get('data', {}).get('seller', {}).get('evaluates') is None:
@@ -121,8 +118,7 @@ class TmallParse(Crawler):
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data', {}).get('seller', {}).get('evaluates') is None:
             self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
 
         data['data']['rate'] = ''  # 这是宝贝评价
         data['data']['resource'] = ''  # 买家询问别人
@@ -144,8 +140,8 @@ class TmallParse(Crawler):
         mock_data = json_2_dict(json_str=mock_data, logger=self.lg)
         if mock_data == {}:
             self.lg.error('出错type: {0}, goods_id: {1}'.format(type, goods_id))
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
+
         mock_data['feature'] = ''
         # pprint(mock_data)
         result_data['mockData'] = mock_data
@@ -154,8 +150,7 @@ class TmallParse(Crawler):
         if result_data.get('apiStack', [])[0].get('value', '') == '':
             self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错type: %s, goods_id: %s" % (str(type), goods_id))
             result_data['trade'] = {}
-            self.result_data = {}  # 重置下，避免存入时影响下面爬取的赋值
-            return {}
+            return self._data_error_init()
         else:
             result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
             # pprint(result_data['trade'])
@@ -218,12 +213,13 @@ class TmallParse(Crawler):
             div_desc
             '''
             # 手机端描述地址
+            phone_div_url = ''
             if data.get('item', {}).get('taobaoDescUrl') is not None:
                 phone_div_url = 'https:' + data['item']['taobaoDescUrl']
-            else:
-                phone_div_url = ''
 
             # pc端描述地址
+            pc_div_url = ''
+            div_desc = ''
             if data.get('item', {}).get('taobaoPcDescUrl') is not None:
                 pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
                 # self.lg.info(phone_div_url)
@@ -233,14 +229,10 @@ class TmallParse(Crawler):
                 # self.lg.info(div_desc)
                 if div_desc == '':
                     self.lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
-                    self.result_data = {}
-                    return {}
+                    return self._data_error_init()
 
                 # self.driver.quit()
-                gc.collect()
-            else:
-                pc_div_url = ''
-                div_desc = ''
+                collect()
 
             '''
             后期处理
@@ -306,7 +298,8 @@ class TmallParse(Crawler):
             # }
             # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
             # print(json_data)
-            gc.collect()
+            collect()
+
             return result
 
         else:
@@ -315,6 +308,15 @@ class TmallParse(Crawler):
             #     'is_delete': 1,
             # }
             return {}
+
+    def _data_error_init(self):
+        '''
+        数据获取错误初始化
+        :return:
+        '''
+        self.result_data = {}
+
+        return {}
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -732,6 +734,7 @@ class TmallParse(Crawler):
                 goods_id = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
             self.lg.info('------>>>| 得到的天猫商品id为:%s' % goods_id)
             return [0, goods_id]
+
         else:
             is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(tmall_url)
             if is_tmall_supermarket != []:      # 天猫超市
@@ -743,6 +746,7 @@ class TmallParse(Crawler):
                     goods_id = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)').findall(tmall_url)[0]
                 self.lg.info('------>>>| 得到的天猫商品id为:%s' % goods_id)
                 return [1, goods_id]
+
             else:
                 is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)      # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
                 if is_tmall_hk != []:           # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
@@ -765,7 +769,7 @@ class TmallParse(Crawler):
             del self.msg
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     tmall = TmallParse()
@@ -779,7 +783,7 @@ if __name__ == '__main__':
             result = tmall.deal_with_data()
             pprint(result)
             # print(result)
-            gc.collect()
+            collect()
         else:
             print('获取到的天猫商品地址无法解析，地址错误')
 

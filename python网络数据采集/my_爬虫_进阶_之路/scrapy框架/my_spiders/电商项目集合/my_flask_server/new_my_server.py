@@ -154,8 +154,7 @@ my_lg = set_logger(
     logger_name=get_uuid1(),
     log_file_name=MY_SPIDER_LOGS_PATH + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
     console_log_level=INFO,
-    file_log_level=INFO
-)
+    file_log_level=INFO,)
 
 Sign = Signature(logger=my_lg)
 
@@ -163,39 +162,35 @@ Sign = Signature(logger=my_lg)
 save_data_null_msg = 'saveData为空! <br/><br/>可能是抓取后, 重复点存入数据按钮导致!<br/><br/>** 请按正常流程操作:<br/>先抓取，后存入，才有相应抓取后存储信息的展示!<br/><br/>^_^!!!  感谢使用!!!'
 
 ######################################################
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if request.form.get('username') is not None and request.form.get('passwd') is not None:
-            username = str(request.form.get('username', ''))
-            passwd = str(request.form.get('passwd', ''))
-            my_lg.info(str(username) + ' : ' + str(passwd))
-        else:
-            username, passwd = ('', '',)
+        username = request.form.get('username', '')
+        passwd = request.form.get('passwd', '')
+        super_name = request.form.get('superUser', '')
+        super_passwd = request.form.get('superPass', '')
+        my_lg.info('{}: {}'.format(username, passwd))
+        # my_lg.info('super_name:{0} super_passwd:{1}'.format(super_name, super_passwd)
 
-        if request.form.get('superUser', '') != '' and request.form.get('superPass', '') != '':
-            super_name = str(request.form.get('superUser', ''))
-            super_passwd = str(request.form.get('superPass', ''))
-            # my_lg.info('super_name:{0} super_passwd:{1}'.format(super_name, super_passwd)
-        else:
-            super_name, super_passwd = ('', '',)
-
-        if super_name == ADMIN_NAME and super_passwd == ADMIN_PASSWD:   # 先判断是否为admin，如果是转向管理员管理界面
+        if super_name == ADMIN_NAME and super_passwd == ADMIN_PASSWD:
+            # 先判断是否为admin，如果是转向管理员管理界面
             my_lg.info('超级管理员密码匹配正确')
-            response = make_response(redirect('admin'))    # 重定向到新的页面
+            # 重定向到新的页面
+            response = make_response(redirect('admin'))
 
             # 加密
             has_super_name = encrypt(key, super_name)
             has_super_passwd = encrypt(key, super_passwd)
 
             outdate = datetime.datetime.today() + datetime.timedelta(days=1)
-
-            response.set_cookie('super_name', value=has_super_name, max_age=60 * 60 * 5, expires=outdate)  # 延长过期时间(1天)
+            # 延长过期时间(1天)
+            response.set_cookie('super_name', value=has_super_name, max_age=60 * 60 * 5, expires=outdate)
             response.set_cookie('super_passwd', value=has_super_passwd, max_age=60 * 60 * 5, expires=outdate)
+
             return response
 
-        else:                   # 否则为普通用户，进入选择页面
+        else:
+            # 普通用户
             tmp_user = SqlServerMyPageInfoSaveItemPipeline()
             sql_str = 'select username from dbo.ali_spider_employee_table where username = %s and passwd = %s'
             is_have_user = tmp_user._select_table(sql_str=sql_str, params=(username, passwd,))
@@ -208,19 +203,20 @@ def login():
                     has_passwd = encrypt(key, passwd)
 
                     outdate = datetime.datetime.today() + datetime.timedelta(days=1)
-
                     response.set_cookie('username', value=has_username, max_age=60*60*5, expires=outdate)    # 延长过期时间(1天)
                     response.set_cookie('passwd', value=has_passwd, max_age=60*60*5, expires=outdate)
-                    # session['islogin'] = '1'      # 设置session的话会有访问的时间限制,故我不设置
+                    # session['islogin'] = '1'        # 设置session的话会有访问的时间限制, 故我不设置
                     # session.permanent = True        # 切记：前面虽然设置了延时时间，但是只有通过这句话才能让其生效
                     #                                 # 注意先设置session的permanent为真
                     # # 设置session的过期时间为1天(只有设置下面两句话才会生效, 第二句要在请求中才能使用)
                     # app.permanent_session_lifetime = datetime.timedelta(seconds=12*60*60)
 
                     return response
+
             else:
                 # session['islogin'] = '0'
                 my_lg.info('登录失败!请重新登录')
+
                 return redirect('/')
 
     else:
@@ -2046,14 +2042,15 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
     '''
     global tmp_wait_to_save_data_list
 
-    type = kwargs.get('type')  # 三方商品类型
-    wait_to_save_data_url_list = kwargs.get('wait_to_save_data_url_list')  # client发来的待存储的url_list
+    # 三方商品类型
+    type = kwargs.get('type')
+    # client发来的待存储的url_list
+    wait_to_save_data_url_list = kwargs.get('wait_to_save_data_url_list')
 
     tmp_wait_to_save_data_goods_id_list = get_who_wait_to_save_data_goods_id_list(
         type=type,
         wait_to_save_data_url_list=wait_to_save_data_url_list,
-        my_lg=my_lg
-    )
+        my_lg=my_lg,)
 
     wait_to_save_data_goods_id_list = list(set(tmp_wait_to_save_data_goods_id_list))  # 待保存的goods_id的list
     my_lg.info('获取到的待存取的goods_id的list为: {0}'.format(str(wait_to_save_data_goods_id_list)))
