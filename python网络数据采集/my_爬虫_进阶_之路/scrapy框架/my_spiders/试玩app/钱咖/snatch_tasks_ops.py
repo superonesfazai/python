@@ -13,6 +13,7 @@
 from gc import collect
 from requests import post
 
+from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
 with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
@@ -20,14 +21,95 @@ with open('/Users/afa/myFiles/pwd/twilio_pwd.json', 'r') as f:
 with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
     sc_key_info = json_2_dict(f.read())
 
-class MoneyCaffeine(object):
+class MoneyCaffeine(AsyncCrawler):
     """钱咖"""
-    def __init__(self):
-        self.loop = get_event_loop()
+    def __init__(self, *params, **kwargs):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            ip_pool_type=tri_ip_pool,)
         self.sleep_time = 1.
         self.account_sid = twilio_pwd_info['account_sid']
         self.auth_token = twilio_pwd_info['auth_token']
         self.sc_key = sc_key_info['sckey']
+
+    async def _fck_run(self):
+        '''
+        main
+        :return:
+        '''
+        index = 1
+        while True:
+            now_time = get_shanghai_time()
+            if now_time.hour > 0 and now_time.hour < 6:
+                print('{}不在工作范围...'.format(str(now_time)))
+                sleep(60)
+                continue
+
+            try:
+                tasks_list = await self._get_tasks_list()
+                # pprint(tasks_list)
+                assert tasks_list != {}, 'tasks_list为空dict!此处跳过!'
+                now_tasks = [i for i in tasks_list.get('now_tasks', []) if i.get('qty', 0) != 0]
+                # pprint(now_tasks)
+                print('--->>> 发现任务个数: {}'.format(len(now_tasks)))
+                tmp = await self._action()
+                # pprint(tmp)
+
+                tasks = []
+                for item in now_tasks:
+                    task_id = item.get('id', '')
+                    quality = item.get('qty', 0)
+                    print('创建task: {}'.format(task_id))
+                    tasks.append(self.loop.create_task(self._snatch_task(task_id=task_id, quality=quality)))
+
+                try:
+                    success_jobs, fail_jobs = await wait(tasks)
+                except ValueError as e:
+                    # assert e.args[0]
+                    sleep(self.sleep_time)
+                    continue
+
+                print('success_num: {}, fail_num: {}'.format(len(success_jobs), len(fail_jobs)))
+                # all_res为空则休眠
+                all_res = []
+                for r in success_jobs:
+                    one = r.result().get('payload', {})
+                    if one != {}:
+                        all_res.append(one)
+                pprint(all_res)
+                assert all_res != [], 'all_res为空list!'
+
+                for item in all_res:
+                    message = item.get('message', '')
+                    if '进行中' in message or '已抢到' in message:
+                        print('抢到一个任务, 请抓紧完成!'.center(120, '@'))
+                        try:
+                            with async_timeout(timeout=60*4):
+                                await self.do_tasking()
+                        except (AsyncTimeoutError, Exception) as e:
+                            print(e)
+                        finally:
+                            break
+                    else:
+                        pass
+
+            except (AssertionError,) as e:
+                print(e)
+                ss = 4.5
+                print('休眠{}s中...'.format(ss))
+                sleep(ss)
+            except KeyboardInterrupt:
+                break
+            finally:
+                # await async_sleep(10)
+                print('休眠{}s中...'.format(self.sleep_time))
+                sleep(self.sleep_time)
+                print('第 {} 次扫描结束...'.format(index).center(60, '-'))
+                index += 1
+
+        print('KeyboardInterrupt暂停!')
 
     async def _get_cookies(self):
         return {
@@ -56,7 +138,13 @@ class MoneyCaffeine(object):
         headers = await self._get_base_headers()
         headers.update({'Referer': 'https://qianka.com/v4/tasks/lite'})
         url = 'https://qianka.com/s4/lite.subtask.list'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=headers, cookies=await self._get_cookies())).get('payload', {})
+        data = json_2_dict(
+            json_str=Requests.get_url_body(
+                url=url,
+                headers=headers,
+                cookies=await self._get_cookies(),
+                ip_pool_type=self.ip_pool_type,)
+            ).get('payload', {})
         # pprint(data)
         if data == {}:
             return {}
@@ -86,7 +174,13 @@ class MoneyCaffeine(object):
             'ext4': '2ded7c7731b21ec6b057351da4369f5a'
         }
         url = 'https://qianka.com/s5/user.action'
-        body = Requests.get_url_body(method='post', url=url, headers=headers, cookies=await self._get_cookies(), data=data)
+        body = Requests.get_url_body(
+            method='post',
+            url=url,
+            headers=headers,
+            cookies=await self._get_cookies(),
+            data=data,
+            ip_pool_type=self.ip_pool_type,)
         # print(body)
         data = json_2_dict(body)
         # pprint(data)
@@ -106,20 +200,13 @@ class MoneyCaffeine(object):
         )
 
         url = 'https://qianka.com/s4/lite.subtask.start'
-        # 不阻塞
-        # loop = get_event_loop()
-        # body = ''
-        # try:
-        #     body = await loop.run_in_executor(None, Requests.get_url_body, url, True, headers, params, None, await self._get_cookies())
-        # except:
-        #     pass
-        # try:
-        #     del loop
-        # except:
-        #     pass
-        # collect()
         # 阻塞
-        body = Requests.get_url_body(url=url, headers=headers, params=params, cookies=await self._get_cookies())
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=await self._get_cookies(),
+            ip_pool_type=self.ip_pool_type,)
         data = json_2_dict(body)
         # pprint(data)
 
@@ -151,7 +238,12 @@ class MoneyCaffeine(object):
         )
         # resultCode 0000 表示发送成功
         url = 'https://uac.10010.com/portal/Service/SendMSG'
-        body = Requests.get_url_body(url=url, headers=headers, params=params, cookies=None)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=None,
+            ip_pool_type=self.ip_pool_type,)
         try:
             body = re.compile('\((.*)\)').findall(body)[0]
             res_code = json_2_dict(body).get('resultCode', '0')
@@ -216,82 +308,6 @@ class MoneyCaffeine(object):
                 break
 
         return
-
-    async def _fck_run(self):
-        '''
-        main
-        :return:
-        '''
-        index = 1
-        while True:
-            now_time = get_shanghai_time()
-            if now_time.hour > 0 and now_time.hour < 6:
-                print('{}不在工作范围...'.format(str(now_time)))
-                sleep(60)
-                continue
-
-            try:
-                tasks_list = await self._get_tasks_list()
-                # pprint(tasks_list)
-                assert tasks_list != {}, 'tasks_list为空dict!此处跳过!'
-                now_tasks = [i for i in tasks_list.get('now_tasks', []) if i.get('qty', 0) != 0]
-                # pprint(now_tasks)
-                print('--->>> 发现任务个数: {}'.format(len(now_tasks)))
-                tmp = await self._action()
-                # pprint(tmp)
-
-                _ = []
-                for item in now_tasks:
-                    task_id = item.get('id', '')
-                    quality = item.get('qty', 0)
-                    print('创建task: {}'.format(task_id))
-                    _.append(self.loop.create_task(self._snatch_task(task_id=task_id, quality=quality)))
-
-                try:
-                    success_jobs, fail_jobs = await wait(_)
-                except ValueError as e:
-                    # assert e.args[0]
-                    sleep(self.sleep_time)
-                    continue
-
-                print('success_num: {}, fail_num: {}'.format(len(success_jobs), len(fail_jobs)))
-                # all_res为空则休眠
-                all_res = []
-                for r in success_jobs:
-                    one = r.result().get('payload', {})
-                    if one != {}:
-                        all_res.append(one)
-                pprint(all_res)
-                assert all_res != [], 'all_res为空list!'
-
-                for item in all_res:
-                    message = item.get('message', '')
-                    if '进行中' in message or '已抢到' in message:
-                        print('抢到一个任务, 请抓紧完成!'.center(120, '@'))
-                        try:
-                            with async_timeout(timeout=60*4):
-                                await self.do_tasking()
-                        except (AsyncTimeoutError, Exception) as e:
-                            print(e)
-                        finally:
-                            break
-                    else:
-                        pass
-            except (AssertionError,) as e:
-                print(e)
-                ss = 4.5
-                print('休眠{}s中...'.format(ss))
-                sleep(ss)
-            except KeyboardInterrupt:
-                break
-            finally:
-                # await async_sleep(10)
-                print('休眠{}s中...'.format(self.sleep_time))
-                sleep(self.sleep_time)
-                print('第 {} 次扫描结束...'.format(index).center(60, '-'))
-                index += 1
-
-        print('KeyboardInterrupt暂停!')
 
     def __del__(self):
         try:

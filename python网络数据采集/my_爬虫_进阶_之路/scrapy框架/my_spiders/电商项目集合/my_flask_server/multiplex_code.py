@@ -246,16 +246,22 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change)
     :return: is_spec_change, spec_trans_time
     '''
     spec_trans_time = str(get_shanghai_time())
-    if is_spec_change == 1:        # 避免再次更新更改未被后台同步的数据
+    # 处理null的
+    is_spec_change = is_spec_change if isinstance(is_spec_change, int) else 0
+
+    if is_spec_change == 1:
+        # 避免再次更新更改未被后台同步的数据
         return is_spec_change, spec_trans_time
 
-    old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
-    new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
-    if old_unique_id_list != new_unique_id_list:  # 规格变动的
+    try:
+        old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
+        new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
+    except Exception:
         return 1, spec_trans_time
 
-    # 处理为null的
-    is_spec_change = is_spec_change if is_spec_change is not None else 0
+    if old_unique_id_list != new_unique_id_list:
+        # 规格变动
+        return 1, spec_trans_time
 
     return is_spec_change, spec_trans_time
 

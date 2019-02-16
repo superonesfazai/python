@@ -29,8 +29,8 @@ spike_file_name_list = [
     # 'pinduoduo_miaosha_real-times_update',
     'mia_spike',
     'mia_miaosha_real-times_update',
-    'mogujie_spike',
-    'mogujie_miaosha_real-times_update',
+    # 'mogujie_spike',                          # 不维护
+    # 'mogujie_miaosha_real-times_update',
     'chuchujie_spike',
     'chuchujie_miaosha_real-times_update',
     'jumeiyoupin_spike',
@@ -44,8 +44,8 @@ pintuan_file_name_list = [
     'juanpi_pintuan_real-times_update',
     'mia_pintuan',
     'mia_pintuan_real-times_update',
-    'mogujie_pintuan',
-    'mogujie_pintuan_real-times_update',
+    # 'mogujie_pintuan',                        # 不维护
+    # 'mogujie_pintuan_real-times_update',
     'jumeiyoupin_pintuan',
     'jumeiyoupin_pintuan_real-times_update',
 ]

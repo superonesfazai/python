@@ -15,9 +15,9 @@
     3. 美团
     4. al 1688
     5. 114批发网
+    6. 中国制造网(https://cn.made-in-china.com)
 待实现
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
-    2. 中国制造网(https://cn.made-in-china.com)
 """
 
 from gc import collect
@@ -27,8 +27,7 @@ from settings import (
     COMPANY_ITEM_LIST,
     PHANTOMJS_DRIVER_PATH,
     CHROME_DRIVER_PATH,
-    FIREFOX_DRIVER_PATH,
-)
+    FIREFOX_DRIVER_PATH,)
 from my_items import CompanyItem
 from sql_str_controller import (
     gs_insert_str_1,
