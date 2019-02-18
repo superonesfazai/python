@@ -72,7 +72,6 @@ from PIL import Image
 from fzutils.ip_pools import (
     fz_ip_pool,
     tri_ip_pool,)
-from fzutils.data.list_utils import list_remove_repeat_dict
 from fzutils.spider.selector import async_parse_field
 from fzutils.spider.fz_driver import (
     PHONE,
@@ -83,11 +82,16 @@ from fzutils.internet_utils import _get_url_contain_params
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.selenium_always import *
 from fzutils.data.excel_utils import read_info_from_excel_file
-from fzutils.data.list_utils import list_remove_repeat_dict_plus
+from fzutils.data.list_utils import (
+    list_remove_repeat_dict,
+    list_remove_repeat_dict_plus,)
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.ocr_utils import yundama_ocr_captcha
 from fzutils.celery_utils import _get_celery_async_results
 from fzutils.spider.async_always import *
+
+# uvloop替换asyncio默认事件循环
+set_event_loop_policy(EventLoopPolicy())
 
 class CompanySpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
@@ -97,8 +101,7 @@ class CompanySpider(AsyncCrawler):
             **kwargs,
             ip_pool_type=tri_ip_pool,
             log_print=True,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/'
-        )
+            log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
         # 设置爬取对象
         self.spider_name = 'ic'
         # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
@@ -124,7 +127,7 @@ class CompanySpider(AsyncCrawler):
         # 设置114单页面最大重试次数
         self.a114_max_num_retries = 15
         # 设置ic单个子页面抓取截止最大page_num
-        self.ic_max_page_num = 150
+        self.ic_max_page_num = 200
         # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_max_page_num = 50
         # mt robot ocr record shop_id
@@ -164,6 +167,7 @@ class CompanySpider(AsyncCrawler):
 
     async def _fck_run(self) -> None:
         await self._company_spider(short_name=self.spider_name)
+        self.lg.info('全部抓取完毕!!')
 
     async def _company_spider(self, short_name:str) -> None:
         """
@@ -1372,7 +1376,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[78450:]
+        return all_key_list[150000:]
 
     async def _get_al_category7(self) -> list:
         """

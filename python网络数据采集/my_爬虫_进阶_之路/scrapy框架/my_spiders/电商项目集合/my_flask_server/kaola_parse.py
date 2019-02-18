@@ -23,7 +23,10 @@ from settings import (
 
 from sql_str_controller import (
     kl_update_str_1,
+    kl_update_str_3,
 )
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_exceptions import GoodsShelvesException
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import Requests
@@ -138,6 +141,20 @@ class KaoLaParse(Crawler):
                 price_info_list = data['price_info_list']
             )
             data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
+
+        except GoodsShelvesException:
+            self.lg.info('该商品已下架, 此处将其逻辑下架!')
+            try:
+                sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+                sql_cli._update_table_2(sql_str=kl_update_str_3, params=(str(get_shanghai_time()), goods_id), logger=self.lg)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+            finally:
+                try:
+                    del sql_cli
+                except:
+                    pass
+                return self._get_data_error_init()
 
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
@@ -441,17 +458,38 @@ class KaoLaParse(Crawler):
         :param data:
         :return:
         '''
-        # pprint(data)
-        price_info_list = []
-        if len(data) == 1:  # 没有规格的处理
-            tax_amount = data[0].get('skuTaxInfoPc', {}).get('taxAmount')               # 税费
-            current_price = data[0].get('skuPrice', {}).get('currentPrice', 999999)     # 当前价格, 999999表示出错了
-            market_price = data[0].get('skuPrice', {}).get('marketPrice', 999999)      # 市场价
+        def _get_tax_amount(target):
+            """获取tax_amount"""
+            try:
+                sku_tax_info_pc = target.get('skuTaxInfoPc', None)
+                assert sku_tax_info_pc is not None, 'sku_tax_info_pc为None, 获取的税费为空值! 该商品已下架!'
+                # 税费
+                tax_amount = target.get('skuTaxInfoPc', {}).get('taxAmount')
+            except AssertionError:
+                # 商品下架异常!
+                raise GoodsShelvesException
+
+            return tax_amount
+
+        def _get_detail_price_and_normal_price(target, tax_amount) -> tuple:
+            """获取相应参数"""
+            current_price = target.get('skuPrice', {}).get('currentPrice', 999999)  # 当前价格, 999999表示出错了
+            market_price = target.get('skuPrice', {}).get('marketPrice', 999999)    # 市场价
             if current_price == 999999 or market_price == 999999:
                 raise ValueError('获取到的current_price或market_price错误!请检查!')
 
             detail_price = str(current_price + tax_amount) if tax_amount is not None else str(current_price)
             normal_price = str(market_price + tax_amount) if tax_amount is not None else str(market_price)
+
+            return detail_price, normal_price
+
+        # pprint(data)
+        price_info_list = []
+        if len(data) == 1:  # 没有规格的处理
+            tax_amount = _get_tax_amount(target=data[0])
+            detail_price, normal_price = _get_detail_price_and_normal_price(
+                target=data[0],
+                tax_amount=tax_amount,)
             price_info_list.append({
                 'spec_value': '',
                 'detail_price': detail_price,
@@ -460,6 +498,7 @@ class KaoLaParse(Crawler):
                 'account_limit_buy_count': 5,
                 'rest_number': data[0].get('skuStore', {}).get('currentStore', 0)
             })
+
         else:
             for item in data:
                 sku_property_list = item.get('skuInfo', {}).get('skuPropertyList', [])
@@ -470,14 +509,10 @@ class KaoLaParse(Crawler):
                     if tmp_img_url != '':
                         img_url = tmp_img_url
 
-                tax_amount = item.get('skuTaxInfoPc', {}).get('taxAmount')              # 税费
-                current_price = item.get('skuPrice', {}).get('currentPrice', 999999)    # 当前价格, 999999 raise error
-                market_price = item.get('skuPrice', {}).get('marketPrice', 999999)      # 市场价
-                if current_price == 999999 or market_price == 999999:
-                    raise ValueError('获取到的current_price或market_price错误!请检查!')
-
-                detail_price = str(current_price + tax_amount) if tax_amount is not None else str(current_price)
-                normal_price = str(market_price + tax_amount) if tax_amount is not None else str(market_price)
+                tax_amount = _get_tax_amount(target=item)
+                detail_price, normal_price = _get_detail_price_and_normal_price(
+                    target=item,
+                    tax_amount=tax_amount, )
                 # 每个账户限购数量
                 # account_limit_buy_count = item.get('skuLimitBuyInfo', {}).get('accountLimitBuyCount', 5)  # 出现0，就采用下面默认值的方式
                 account_limit_buy_count = 5  # 默认为5
