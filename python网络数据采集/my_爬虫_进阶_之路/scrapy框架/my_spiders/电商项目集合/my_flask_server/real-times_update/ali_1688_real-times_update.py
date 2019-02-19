@@ -136,7 +136,8 @@ class ALUpdater(AsyncCrawler):
                     old_sku_info=old_sku_info,
                     new_sku_info=new_sku_info,
                     is_price_change=item[7] if item[7] is not None else 0,
-                    db_price_change_info=json_2_dict(item[9], default_res=[]))
+                    db_price_change_info=json_2_dict(item[9], default_res=[]),
+                    old_price_trans_time=item[12],)
 
                 # 处理单规格的情况
                 # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
@@ -155,7 +156,8 @@ class ALUpdater(AsyncCrawler):
                 data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
                     old_sku_info=old_sku_info,
                     new_sku_info=new_sku_info,
-                    is_spec_change=item[8] if item[8] is not None else 0)
+                    is_spec_change=item[8] if item[8] is not None else 0,
+                    old_spec_trans_time=item[13],)
                 if data['is_spec_change'] == 1:
                     self.lg.info('规格属性变动!!')
                 # self.lg.info('is_spec_change: {}, spec_trans_time: {}'.format(data['is_spec_change'], data['spec_trans_time']))
@@ -165,7 +167,8 @@ class ALUpdater(AsyncCrawler):
                     old_sku_info=old_sku_info,
                     new_sku_info=new_sku_info,
                     is_stock_change=item[10] if item[10] is not None else 0,
-                    db_stock_change_info=json_2_dict(item[11], default_res=[]))
+                    db_stock_change_info=json_2_dict(item[11], default_res=[]),
+                    old_stock_trans_time=item[14],)
                 if data['is_stock_change'] == 1:
                     self.lg.info('规格的库存变动!!')
                 # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))

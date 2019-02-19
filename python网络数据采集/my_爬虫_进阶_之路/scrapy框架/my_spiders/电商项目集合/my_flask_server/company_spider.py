@@ -1376,7 +1376,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[150000:]
+        return all_key_list[157500:]
 
     async def _get_al_category7(self) -> list:
         """

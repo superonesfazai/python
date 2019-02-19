@@ -91,7 +91,7 @@ al_select_str_4 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 al_select_str_5 = al_select_str_1
 # 常规goods待更新数据获取(用asc, 使未被更新的优先更新)
 al_select_str_6 = '''
-select top 1200 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select top 1200 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=2 and MainGoodsID is not null and IsDelete=0
 order by ModfiyTime asc
@@ -120,7 +120,7 @@ tb_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 # 常规goods实时更新
 # and IsDelete=0 下架的也进行监控, 测试发现: 只是部分会无数据, 总体IsDelete=1的也可以的
 tb_select_str_3 = '''
-select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
 where SiteID=1 and MainGoodsID is not null
 order by ModfiyTime asc'''
@@ -166,7 +166,7 @@ tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 # 常规goods实时更新(下架的也更新)
 # and IsDelete=0 下架的也进行监控, 测试发现: 只是部分会无数据, 总体IsDelete=1的也可以的
 tm_select_str_3 = '''
-select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
 where MainGoodsID is not null and (SiteID=3 or SiteID=4 or SiteID=6)
 order by ModfiyTime asc
@@ -192,7 +192,7 @@ jd
 '''select'''
 # 常规goods实时更新数据获取
 jd_select_str_1 = '''
-select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info 
+select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where (SiteID=7 or SiteID=8 or SiteID=9 or SiteID=10) 
 and MainGoodsID is not null
@@ -223,7 +223,7 @@ where site_id=17 and GETDATE()-modfiy_time>0.5
 order by modfiy_time asc'''
 # 常规goods实时更新
 z8_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=11 and MainGoodsID is not null'''
 # 秒杀实时更新
@@ -266,7 +266,7 @@ jp_select_str_1 = 'select goods_id, schedule, is_delete from dbo.juanpi_pintuan 
 jp_select_str_2 = jp_select_str_1
 # 常规goods实时更新数据获取
 jp_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=12 and MainGoodsID is not null'''
 # 秒杀实时更新
@@ -365,7 +365,7 @@ cc_delete_str_2 = 'delete from dbo.chuchujie_xianshimiaosha where miaosha_end_ti
 '''select'''
 # 常规goods实时更新数据获取
 kl_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=29 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
 order by ID asc'''
@@ -393,7 +393,7 @@ mia_select_str_3 = 'select goods_id, miaosha_time, pid from dbo.mia_xianshimiaos
 mia_select_str_4 = mia_select_str_3
 # 常规goods实时更新
 mia_select_str_5 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=32 and GETDATE()-ModfiyTime>0.2 and MainGoodsID is not null
 order by ModfiyTime asc'''
@@ -474,7 +474,7 @@ mg_delete_str_4 = 'delete from dbo.mogujie_xianshimiaosha where miaosha_end_time
 '''select'''
 # 常规goods实时更新
 pd_select_str_1 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info 
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
 where SiteID=13 and MainGoodsID is not null'''
 # 秒杀实时更新
@@ -497,7 +497,7 @@ pd_delete_str_1 = 'delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s'
 """
 '''select'''
 vip_select_str_1 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
 where SiteID=25'''
 '''update'''
@@ -509,7 +509,7 @@ vip_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s
 '''select'''
 # 常规goods实时更新
 yx_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=30 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
 order by ID asc'''
@@ -525,7 +525,7 @@ yx_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 '''select'''
 # 常规goods实时更新
 yp_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info 
+select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
 where SiteID=31 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
 order by ID asc'''
