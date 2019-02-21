@@ -27,6 +27,7 @@ from sql_str_controller import (
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import GoodsShelvesException
+from multiplex_code import _handle_goods_shelves_in_auto_goods_table
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_requests import Requests
@@ -143,18 +144,8 @@ class KaoLaParse(Crawler):
             data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
 
         except GoodsShelvesException:
-            self.lg.info('该商品已下架, 此处将其逻辑下架!')
-            try:
-                sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-                sql_cli._update_table_2(sql_str=kl_update_str_3, params=(str(get_shanghai_time()), goods_id), logger=self.lg)
-            except Exception:
-                self.lg.error('遇到错误:', exc_info=True)
-            finally:
-                try:
-                    del sql_cli
-                except:
-                    pass
-                return self._get_data_error_init()
+            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
+            return self._get_data_error_init()
 
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)

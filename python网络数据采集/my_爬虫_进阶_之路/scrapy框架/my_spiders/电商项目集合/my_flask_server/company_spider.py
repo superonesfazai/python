@@ -1350,7 +1350,7 @@ class CompanySpider(AsyncCrawler):
         读取最新的淘热搜excel的top 20W关键字
         :return:
         """
-        excel_file_path = '/Users/afa/Desktop/01月03日TOP20万词表无线.xlsx'
+        excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
         self.lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
 
         try:
@@ -1376,7 +1376,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[157500:]
+        return all_key_list[0:]
 
     async def _get_al_category7(self) -> list:
         """
@@ -4706,3 +4706,9 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         kill_process_by_name('phantomjs')
         kill_process_by_name('firefox')
+    finally:
+        try:
+            loop.close()
+            del loop
+        except:
+            pass

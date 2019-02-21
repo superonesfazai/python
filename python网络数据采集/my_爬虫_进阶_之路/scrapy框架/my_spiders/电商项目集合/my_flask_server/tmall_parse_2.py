@@ -29,6 +29,7 @@ from sql_str_controller import (
     tm_insert_str_3,
     tm_update_str_2,
     tm_update_str_3,)
+from multiplex_code import _handle_goods_shelves_in_auto_goods_table
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
@@ -104,13 +105,7 @@ class TmallParse(Crawler):
             ## 表示该商品已经下架, 原地址被重定向到新页面
             '''
             self.lg.info('@@@@@@ 该商品已经下架...')
-            _ = SqlServerMyPageInfoSaveItemPipeline()
-            if _.is_connect_success:
-                _._update_table_2(sql_str=tm_update_str_3, params=(str(get_shanghai_time()), goods_id,), logger=self.lg)
-                try:
-                    del _
-                except:
-                    pass
+            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
             tmp_data_s = self.init_pull_off_shelves_goods(type)
             self.result_data = {}
             return tmp_data_s

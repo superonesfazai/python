@@ -201,3 +201,25 @@ and GETDATE()-ModfiyTime > 0.5
 and SiteID=2
 -- order by shelf_time asc
 '''
+
+"""
+同步数据
+"""
+sql_str_12 = '''
+-- update dbo.GoodsInfoAutoGet 
+-- set is_spec_change = 1,
+-- spec_trans_time = GETDATE()
+-- where MainGoodsID is not NUll and IsDelete=0
+
+-- update dbo.GoodsInfoAutoGet 
+-- set IsPriceChange = 1,
+-- PriceChangeInfo=SKUInfo,
+-- sku_info_trans_time = GETDATE()
+-- where MainGoodsID is not NUll and IsDelete=0
+
+-- update dbo.GoodsInfoAutoGet 
+-- set is_stock_change = 1,
+-- stock_change_info=SKUInfo,
+-- stock_trans_time = GETDATE()
+-- where MainGoodsID is not NUll and IsDelete=0
+'''

@@ -223,9 +223,12 @@ where site_id=17 and GETDATE()-modfiy_time>0.5
 order by modfiy_time asc'''
 # 常规goods实时更新
 z8_select_str_3 = '''
-select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
+select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
-where SiteID=11 and MainGoodsID is not null'''
+where SiteID=11 
+and MainGoodsID is not null
+order by ModfiyTime asc
+'''
 # 秒杀实时更新
 z8_select_str_4 = '''
 select goods_id, miaosha_time, session_id 
@@ -247,6 +250,8 @@ z8_update_str_2 = 'update dbo.zhe_800_xianshimiaosha set modfiy_time = %s, shop_
 z8_update_str_3 = 'update dbo.zhe_800_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, all_sell_count=%s, property_info=%s, detail_info=%s, schedule=%s, is_delete=%s, parent_dir=%s where goods_id = %s'
 # 拼团下架标记
 z8_update_str_4 = 'update dbo.zhe_800_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
+z8_update_str_5 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s'
+
 '''delete'''
 # 拼团过期数据清空
 z8_delete_str_1 = 'delete from dbo.zhe_800_pintuan where miaosha_end_time < GETDATE()-2'

@@ -100,16 +100,14 @@ class Z8Updater(AsyncCrawler):
                     new_sku_info=new_sku_info,
                     is_price_change=item[7] if item[7] is not None else 0,
                     db_price_change_info=json_2_dict(item[9], default_res=[]),
-                    old_price_trans_time=item[12],
-                )
+                    old_price_trans_time=item[12],)
                 data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
                     old_price=item[2],
                     old_taobao_price=item[3],
                     new_price=data['price'],
                     new_taobao_price=data['taobao_price'],
                     is_price_change=data['_is_price_change'],
-                    price_change_info=price_change_info,
-                )
+                    price_change_info=price_change_info,)
                 if data['_is_price_change'] == 1:
                     self.lg.info('价格变动!!')
 

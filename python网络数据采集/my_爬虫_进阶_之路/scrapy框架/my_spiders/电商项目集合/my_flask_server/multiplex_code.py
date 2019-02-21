@@ -32,7 +32,10 @@ from fzutils.common_utils import (
     _print,
     json_2_dict,)
 from fzutils.cp_utils import get_taobao_sign_and_body
-from fzutils.time_utils import get_shanghai_time
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,
+    timestamp_to_regulartime,)
 from fzutils.spider.selector import parse_field
 from fzutils.spider.async_always import unblock_get_taobao_sign_and_body
 
@@ -206,10 +209,10 @@ def _get_sku_price_trans_record(old_sku_info:list, new_sku_info:list, is_price_c
                                 'detail_price': new_detail_price,
                             })
                         else:
-                            break
+                            pass
                     except ValueError:
                         # 处理float('')报错
-                        break
+                        pass
                     if tmp == {}:
                         # detail_price为空 or 价格不变就跳出
                         continue
@@ -224,23 +227,72 @@ def _get_sku_price_trans_record(old_sku_info:list, new_sku_info:list, is_price_c
 
         return is_price_change, new_price_change_info_list
 
-    sku_info_trans_time = str(get_shanghai_time())
+    def _incremental_update(db_price_change_info, new_price_change_info, new_is_price_change) -> list:
+        """
+        增量更新
+        :param db_price_change_info:
+        :param new_price_change_info: 新变动信息
+        :param new_is_price_change: 0 or 1
+        :return:
+        """
+        def kk(target) -> dict:
+            """格式化"""
+            return {
+                'unique_id': target.get('unique_id', ''),
+                'spec_value': target.get('spec_value', ''),
+                'detail_price': target.get('detail_price', ''),
+                'normal_price': target.get('normal_price', ''),
+            }
+
+        res = []
+        if new_is_price_change == 1:
+            db_unique_id_list = list(set([item.get('unique_id', '') for item in db_price_change_info]))
+            new_unique_id_list = list(set([item.get('unique_id', '') for item in new_price_change_info]))
+            tmp_unique_id_list = list(set(db_unique_id_list + new_unique_id_list))
+
+            for unique_id in tmp_unique_id_list:
+                if unique_id in new_unique_id_list:
+                    try:
+                        _i = _get_one_item_by_unique_id(unique_id=unique_id, target_list=new_price_change_info)
+                        res.append(kk(_i))
+                        continue
+                    except ValueError:
+                        pass
+
+                if unique_id in db_unique_id_list:
+                    try:
+                        _i = _get_one_item_by_unique_id(unique_id=unique_id, target_list=db_price_change_info)
+                        res.append(kk(_i))
+                        continue
+                    except ValueError:
+                        pass
+
+        else:
+            res = db_price_change_info
+
+        return res
+
+    now_time = str(get_shanghai_time())
     is_price_change = is_price_change if isinstance(is_price_change, int) else 0    # 处理为null的
-    old_price_trans_time = str(old_price_trans_time) if old_price_trans_time is not None else sku_info_trans_time
+    # 处理原生sql getdate()函数带来的转换异常!
+    old_price_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_price_trans_time)))
+    old_price_trans_time = str(old_price_trans_time) if old_price_trans_time is not None else now_time
     if is_price_change == 1:
         # 避免再次更新更改未被后台同步的数据
+        new_is_price_change, new_price_change_info = oo(is_price_change=is_price_change)
         if isinstance(db_price_change_info, dict) \
                 or db_price_change_info is None \
                 or db_price_change_info == []:
-            _ = oo(is_price_change)[1]
+            _ = new_price_change_info
         else:
-            # 未被同步保持原数据
-            _ = db_price_change_info
+            # 修复bug: 当cp 后台未同步时, 保持增量更新新变动的信息
+            _ = _incremental_update(db_price_change_info, new_price_change_info, new_is_price_change)
+            old_price_trans_time = now_time if new_is_price_change == 1 else old_price_trans_time
 
         return is_price_change, old_price_trans_time, _
 
     is_price_change, _ = oo(is_price_change)
-    new_price_trans_time = sku_info_trans_time if is_price_change == 1 else old_price_trans_time
+    new_price_trans_time = now_time if is_price_change == 1 else old_price_trans_time
 
     return is_price_change, new_price_trans_time, _
 
@@ -252,9 +304,11 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change,
     :param is_spec_change:
     :return:
     """
-    spec_trans_time = str(get_shanghai_time())
+    now_time = str(get_shanghai_time())
     is_spec_change = is_spec_change if isinstance(is_spec_change, int) else 0
-    old_spec_trans_time = str(old_spec_trans_time) if old_spec_trans_time is not None else spec_trans_time
+    # 处理原生sql getdate()函数带来的转换异常!
+    old_spec_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_spec_trans_time)))
+    old_spec_trans_time = str(old_spec_trans_time) if old_spec_trans_time is not None else now_time
     if is_spec_change == 1:
         # 避免再次更新更改未被后台同步的数据
         return is_spec_change, old_spec_trans_time
@@ -263,11 +317,11 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change,
         old_unique_id_list = sorted([item.get('unique_id', '') for item in old_sku_info])
         new_unique_id_list = sorted([item.get('unique_id', '') for item in new_sku_info])
     except Exception:
-        return 1, spec_trans_time
+        return 1, now_time
 
     if old_unique_id_list != new_unique_id_list:
         # 规格变动
-        return 1, spec_trans_time
+        return 1, now_time
 
     return is_spec_change, old_spec_trans_time
 
@@ -310,23 +364,85 @@ def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_chang
 
         return is_stock_change, _
 
-    stock_trans_time = str(get_shanghai_time())
-    old_stock_trans_time = str(old_stock_trans_time) if old_stock_trans_time is not None else stock_trans_time
+    def _incremental_update(db_stock_change_info, new_stock_change_info, new_is_stock_change) -> list:
+        """
+        增量更新
+        :param db_price_change_info:
+        :param new_price_change_info: 新变动信息
+        :param new_is_price_change: 0 or 1
+        :return:
+        """
+        def kk(target) -> dict:
+            """格式化"""
+            return {
+                'unique_id': target.get('unique_id', ''),
+                'spec_value': target.get('spec_value', ''),
+                'rest_number': target.get('rest_number', 50),
+            }
+
+        res = []
+        if new_is_stock_change == 1:
+            db_unique_id_list = list(set([item.get('unique_id', '') for item in db_stock_change_info]))
+            new_unique_id_list = list(set([item.get('unique_id', '') for item in new_stock_change_info]))
+            tmp_unique_id_list = list(set(db_unique_id_list + new_unique_id_list))
+
+            for unique_id in tmp_unique_id_list:
+                if unique_id in new_unique_id_list:
+                    try:
+                        _i = _get_one_item_by_unique_id(unique_id=unique_id, target_list=new_stock_change_info)
+                        res.append(kk(_i))
+                        continue
+                    except ValueError:
+                        pass
+
+                if unique_id in db_unique_id_list:
+                    try:
+                        _i = _get_one_item_by_unique_id(unique_id=unique_id, target_list=db_stock_change_info)
+                        res.append(kk(_i))
+                        continue
+                    except ValueError:
+                        pass
+
+        else:
+            res = db_stock_change_info
+
+        return res
+
+    now_time = str(get_shanghai_time())
+    # 处理原生sql getdate()函数带来的转换异常!
+    old_stock_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_stock_trans_time)))
+    old_stock_trans_time = str(old_stock_trans_time) if old_stock_trans_time is not None else now_time
     if is_stock_change == 1:
         # 避免再次更新更改未被后台同步的数据
+        new_is_stock_change, new_stock_change_info = oo(is_stock_change=is_stock_change)
         if db_stock_change_info is None \
             or db_stock_change_info == []:
-            _ = oo(is_stock_change)[1]
+            _ = new_stock_change_info
         else:
-            _ = db_stock_change_info
+            # 修复bug: 当cp 后台未同步时, 保持增量更新新变动的信息
+            _ = _incremental_update(db_stock_change_info, new_stock_change_info, new_is_stock_change)
+            old_stock_trans_time = now_time if new_is_stock_change == 1 else old_stock_trans_time
 
         return is_stock_change, old_stock_trans_time, _
 
     is_stock_change = is_stock_change if is_stock_change is not None else 0
     is_stock_change, _ = oo(is_stock_change)
-    new_stock_trans_time = stock_trans_time if is_stock_change == 1 else old_stock_trans_time
+    new_stock_trans_time = now_time if is_stock_change == 1 else old_stock_trans_time
 
     return is_stock_change, new_stock_trans_time, _
+
+def _get_one_item_by_unique_id(unique_id, target_list) -> dict:
+    """
+    返回变动信息中对应unique_id的item
+    :param unique_id:
+    :param target_list:
+    :return:
+    """
+    for item in target_list:
+        if item.get('unique_id', '') == unique_id:
+            return item
+
+    raise ValueError('未发现对应unique_id的item!')
 
 def _get_mogujie_pintuan_price_info_list(tmp_price_info_list) -> list:
     '''
@@ -478,6 +594,15 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
         ip_pool_type=ip_pool_type,
         logger=logger,
         timeout=timeout))
+    # 显式关闭事件循环: 避免 OSError too many files open错误!
+    try:
+        loop.close()
+        try:
+            del loop
+        except:
+            pass
+    except:
+        pass
     try:
         body = res2[2]
         # self.lg.info(body)
@@ -588,3 +713,33 @@ def _get_114_one_type_company_id_list(ip_pool_type,
     logger.info('[{}] url: {}'.format('+' if company_id_list != [] else '-', url))
 
     return company_id_list
+
+def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_str=None) -> bool:
+    """
+    商品逻辑下架(GoodsInfoAutoGet表 or 其他表)
+    :param goods_id:
+    :param logger:
+    :param update_sql_str: 常规表 or 拼团表 or 秒杀表的sql_str
+    :return:
+    """
+    res = False
+    _print(msg='@@@ goods_id: {}已下架, 进行逻辑删除!'.format(goods_id), logger=logger)
+    sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s' \
+        if update_sql_str is None \
+        else update_sql_str
+    now_time = str(get_shanghai_time())
+    try:
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        if logger is None:
+            res = sql_cli._update_table(sql_str=sql_str, params=(now_time, goods_id))
+        else:
+            res = sql_cli._update_table_2(sql_str=sql_str, params=(now_time, goods_id), logger=logger)
+
+        try:
+            del sql_cli
+        except:
+            pass
+    except Exception as e:
+        _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+
+    return res

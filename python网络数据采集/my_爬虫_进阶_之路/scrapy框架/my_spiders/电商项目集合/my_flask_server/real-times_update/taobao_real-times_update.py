@@ -105,6 +105,12 @@ class TBUpdater(AsyncCrawler):
                 except AttributeError:  # 处理已被格式化过的
                     pass
                 new_sku_info = format_price_info_list(data['price_info_list'], site_id=1)
+                # if len(new_sku_info) <= 6:
+                #     self.lg.info('old_sku_info:')
+                #     pprint(old_sku_info)
+                #     self.lg.info('new_sku_info:')
+                #     pprint(new_sku_info)
+
                 data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
                     old_sku_info=old_sku_info,
                     new_sku_info=new_sku_info,

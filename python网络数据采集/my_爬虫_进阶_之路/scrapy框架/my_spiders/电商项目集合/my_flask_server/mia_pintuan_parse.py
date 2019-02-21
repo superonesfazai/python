@@ -26,7 +26,9 @@ from sql_str_controller import (
     mia_update_str_3,
     mia_update_str_7,
 )
-from multiplex_code import _mia_get_parent_dir
+from multiplex_code import (
+    _mia_get_parent_dir,
+    _handle_goods_shelves_in_auto_goods_table,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import (
@@ -97,9 +99,7 @@ class MiaPintuanParse(MiaParse, Crawler):
         # print(is_mia_mian_page)
         if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
             print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
-            tmp_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-            tmp_pipeline._update_table(sql_str=mia_update_str_7, params=(str(get_shanghai_time()), goods_id))
-            print('| +++ 该商品状态已被逻辑is_delete = 1 +++ |')
+            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, update_sql_str=mia_update_str_7)
             gc.collect()
             return self._data_error_init()
 

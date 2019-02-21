@@ -35,6 +35,7 @@ from sql_str_controller import (
     tb_update_str_3,)
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from multiplex_code import _handle_goods_shelves_in_auto_goods_table
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
@@ -110,11 +111,7 @@ class TaoBaoLoginAndParse(Crawler):
             ## 表示该商品已经下架, 原地址被重定向到新页面
             '''
             self.lg.info('@@@@@@ 该商品已经下架...')
-            _ = SqlServerMyPageInfoSaveItemPipeline()
-            if _.is_connect_success:
-                _._update_table_2(sql_str=tb_update_str_3, params=(str(get_shanghai_time()), goods_id,), logger=self.lg)
-                try: del _
-                except: pass
+            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
             tmp_data_s = self.init_pull_off_shelves_goods()
             self.result_data = {}
 

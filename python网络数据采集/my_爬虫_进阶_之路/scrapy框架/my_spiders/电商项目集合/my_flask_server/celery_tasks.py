@@ -32,7 +32,8 @@ $ redis-server /usr/local/etc/redis.conf
 
 分布式任务启动: 
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 w20 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log (多开效果更快)
+(多开效果更快)
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 w20 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
@@ -132,10 +133,10 @@ class TaskObj(Thread):
 def _parse_one_company_info_task(self, short_name, company_url='', province_name='', city_name='', company_id='', type_code=''):
     def oo():
         try:
+            company_spider = CompanySpider()
             # 设置当前事件循环为新的事件循环, 避免报错
             set_event_loop(new_event_loop())
             loop = new_event_loop()
-            company_spider = CompanySpider()
             res = loop.run_until_complete(company_spider._parse_one_company_info(
                 short_name=short_name,
                 company_url=company_url,
@@ -145,8 +146,12 @@ def _parse_one_company_info_task(self, short_name, company_url='', province_name
                 type_code=type_code,))
         except Exception:
             lg.error('遇到错误:', exc_info=True)
-            return {}
+            res = {}
 
+        try:
+            loop.close()
+        except:
+            pass
         try:
             del company_spider
         except:
