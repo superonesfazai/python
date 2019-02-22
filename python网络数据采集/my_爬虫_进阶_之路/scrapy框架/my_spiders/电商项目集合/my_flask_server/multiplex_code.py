@@ -459,7 +459,7 @@ def _get_mogujie_pintuan_price_info_list(tmp_price_info_list) -> list:
         'rest_number': item_4.get('rest_number'),
     } for item_4 in tmp_price_info_list]
 
-async def _get_new_db_conn(db_obj, index, logger=None, remainder=20, db_conn_type=1):
+def _block_get_new_db_conn(db_obj, index, logger=None, remainder=20, db_conn_type=1):
     '''
     获取新db conn
     :param db_obj: db实例化对象
@@ -483,6 +483,17 @@ async def _get_new_db_conn(db_obj, index, logger=None, remainder=20, db_conn_typ
 
     return db_obj
 
+async def _get_new_db_conn(*params, **kwargs):
+    '''
+    异步获取新db conn
+    :param db_obj: db实例化对象
+    :param index: 索引值
+    :param remainder: 余数
+    :param db_conn_type: db连接类型(1:SqlServerMyPageInfoSaveItemPipeline|2:SqlPool)
+    :return:
+    '''
+    return _block_get_new_db_conn(*params, **kwargs)
+
 async def _get_async_task_result(tasks, logger=None) -> list:
     '''
     获取异步处理结果
@@ -503,22 +514,31 @@ async def _get_async_task_result(tasks, logger=None) -> list:
 
     return all_res
 
-async def _print_db_old_data(logger, result) -> None:
+def _block_print_db_old_data(result, logger=None,) -> None:
+    """
+    打印db老数据
+    :param logger:
+    :param result:
+    :return:
+    """
+    if isinstance(result, list):
+        _print(msg='------>>> 下面是数据库返回的所有符合条件的data <<<------', logger=logger)
+        _print(msg=str(result), logger=logger)
+        _print(msg='--------------------------------------------------- ', logger=logger)
+        _print(msg='待更新个数: {0}'.format(len(result)), logger=logger)
+        _print(msg='即将开始实时更新数据, 请耐心等待...'.center(100, '#'), logger=logger)
+
+    return
+
+async def _print_db_old_data(*params, **kwargs) -> None:
     '''
-    打印db的老数据
+    异步打印db的老数据
     :param self:
     :param select_sql_str:
     :param delete_sql_str:
     :return:
     '''
-    if isinstance(result, list):
-        logger.info('------>>> 下面是数据库返回的所有符合条件的data <<<------')
-        logger.info(str(result))
-        logger.info('--------------------------------------------------- ')
-        logger.info('待更新个数: {0}'.format(len(result)))
-        logger.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-
-    return
+    return _block_print_db_old_data(*params, **kwargs)
 
 def _get_phone_headers() -> dict:
     return {
@@ -714,12 +734,13 @@ def _get_114_one_type_company_id_list(ip_pool_type,
 
     return company_id_list
 
-def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_str=None) -> bool:
+def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_str=None, sql_cli=None) -> bool:
     """
     商品逻辑下架(GoodsInfoAutoGet表 or 其他表)
     :param goods_id:
     :param logger:
     :param update_sql_str: 常规表 or 拼团表 or 秒杀表的sql_str
+    :param sql_cli: db连接对象
     :return:
     """
     res = False
@@ -729,7 +750,7 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
         else update_sql_str
     now_time = str(get_shanghai_time())
     try:
-        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
         if logger is None:
             res = sql_cli._update_table(sql_str=sql_str, params=(now_time, goods_id))
         else:

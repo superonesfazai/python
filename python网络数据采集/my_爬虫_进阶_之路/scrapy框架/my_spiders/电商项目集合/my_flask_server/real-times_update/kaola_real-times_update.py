@@ -29,7 +29,10 @@ from sql_str_controller import (
 from multiplex_code import (
     _get_sku_price_trans_record,
     _get_spec_trans_record,
-    _get_stock_trans_record,)
+    _get_stock_trans_record,
+    _block_print_db_old_data,
+    _block_get_new_db_conn,
+    _handle_goods_shelves_in_auto_goods_table,)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -51,27 +54,22 @@ def run_forever():
             console_log_level=INFO,
             file_log_level=ERROR
         )
-
         #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            result = list(tmp_sql_server._select_table(sql_str=kl_select_str_1))
+            result = list(sql_cli._select_table(sql_str=kl_select_str_1))
         except TypeError:
             my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            my_lg.info(str(result))
-            my_lg.info('--------------------------------------------------------')
-            my_lg.info('总计待更新个数: {0}'.format(len(result)))
-
-            my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            _block_print_db_old_data(result=result, logger=my_lg)
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             kaola = KaoLaParse(logger=my_lg)
             for item in result:  # 实时更新数据
+                goods_id = item[1]
                 if index % 5 == 0:
                     try:
                         del kaola
@@ -80,17 +78,13 @@ def run_forever():
                     kaola = KaoLaParse(logger=my_lg)
                     gc.collect()
 
-                if index % 10 == 0:  # 每10次重连一次，避免单次长连无响应报错
-                    my_lg.info('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    my_lg.info('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
-                    my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(item[1]), str(index)))
-                    data = kaola._get_goods_data(goods_id=item[1])
+                sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, logger=my_lg, remainder=10,)
+                if sql_cli.is_connect_success:
+                    my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
+                    data = kaola._get_goods_data(goods_id=goods_id)
 
                     if data.get('is_delete') == 1:  # 单独处理下架商品
-                        data['goods_id'] = item[1]
+                        data['goods_id'] = goods_id
                         data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[2],
@@ -99,7 +93,7 @@ def run_forever():
 
                         # my_lg.info('------>>>| 爬取到的数据为: %s' % str(data))
                         try:
-                            kaola.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                            kaola.to_right_and_update_data(data, pipeline=sql_cli)
                         except Exception:
                             my_lg.error(exc_info=True)
 
@@ -110,7 +104,7 @@ def run_forever():
 
                     data = kaola._deal_with_data()
                     if data != {}:
-                        data['goods_id'] = item[1]
+                        data['goods_id'] = goods_id
                         data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                             tmp_data=data,
                             is_delete=item[2],
@@ -118,8 +112,11 @@ def run_forever():
                             delete_time=item[6])
 
                         if data.get('is_delete') == 1:
-                            my_lg.info('@@@ 该商品已下架...')
-                            tmp_sql_server._update_table_2(sql_str=kl_update_str_2, params=(item[1],), logger=my_lg)
+                            _handle_goods_shelves_in_auto_goods_table(
+                                goods_id=goods_id,
+                                logger=my_lg,
+                                sql_cli=sql_cli,
+                            )
                             sleep(TMALL_REAL_TIMES_SLEEP_TIME)
                             continue
 
@@ -158,7 +155,7 @@ def run_forever():
                             db_stock_change_info=json_2_dict(item[12], default_res=[]),
                             old_stock_trans_time=item[15])
 
-                        kaola.to_right_and_update_data(data, pipeline=tmp_sql_server)
+                        kaola.to_right_and_update_data(data, pipeline=sql_cli)
                     else:  # 表示返回的data值为空值
                         my_lg.info('------>>>| 休眠8s中...')
                         sleep(8)

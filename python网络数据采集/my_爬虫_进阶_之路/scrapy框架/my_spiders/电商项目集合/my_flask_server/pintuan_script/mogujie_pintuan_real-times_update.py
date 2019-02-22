@@ -33,7 +33,11 @@ from sql_str_controller import (
     mg_delete_str_2,
     mg_update_str_5,
 )
-from multiplex_code import _get_mogujie_pintuan_price_info_list
+from multiplex_code import (
+    _get_mogujie_pintuan_price_info_list,
+    _block_print_db_old_data,
+    _block_get_new_db_conn,
+    _handle_goods_shelves_in_auto_goods_table,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -67,25 +71,21 @@ class MoGuJiePinTuanRealTimesUpdate(object):
         实时更新数据
         :return:
         '''
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            tmp_sql_server._delete_table(sql_str=mg_delete_str_2)
-            result = list(tmp_sql_server._select_table(sql_str=mg_select_str_2))
+            sql_cli._delete_table(sql_str=mg_delete_str_2)
+            result = list(sql_cli._select_table(sql_str=mg_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
-
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            _block_print_db_old_data(result=result)
             index = 1
-
             self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
             for item in result:  # 实时更新数据
+                goods_id = item[0]
                 pintuan_end_time = json.loads(item[1]).get('end_time')
                 pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_end_time)
@@ -98,15 +98,15 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                     gc.collect()
                     self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
-                if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
+                sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50)
+                if sql_cli.is_connect_success:
                     if self.is_recent_time(pintuan_end_time) == 0:
-                        tmp_sql_server._update_table(sql_str=mg_update_str_5, params=(str(get_shanghai_time()), item[0]))
-                        print('过期的goods_id为(%s)' % item[0], ', 拼团开始时间为(%s), 逻辑删除成功!' % json.loads(item[1]).get('begin_time'))
+                        _handle_goods_shelves_in_auto_goods_table(
+                            goods_id=goods_id,
+                            update_sql_str=mg_update_str_5,
+                            sql_cli=sql_cli,
+                        )
+                        print('过期的goods_id为(%s)' % goods_id, ', 拼团开始时间为(%s), 逻辑删除成功!' % json.loads(item[1]).get('begin_time'))
                         sleep(.3)
 
                     elif self.is_recent_time(pintuan_end_time) == 2:
@@ -114,8 +114,8 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                         pass  # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                     else:  # 返回1，表示在待更新区间内
-                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                        data['goods_id'] = item[0]
+                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
+                        data['goods_id'] = goods_id
 
                         tmp_url = 'http://list.mogujie.com/search?page={0}&fcid={1}&algoKey=pc_tuan_book_pop&cKey=pc-tuan'.format(
                             item[3], item[2]
@@ -141,9 +141,10 @@ class MoGuJiePinTuanRealTimesUpdate(object):
 
                             if tmp_data.get('result', {}).get('wall', {}).get('docs', []) == []:
                                 print('得到的docs为[]!')
-                                print('该商品已被下架限时秒杀活动，此处将其删除')
-                                tmp_sql_server._update_table(sql_str=mg_update_str_5, params=(str(get_shanghai_time()), item[0]))
-                                print('下架的goods_id为(%s)' % item[0], ', 删除成功!')
+                                _handle_goods_shelves_in_auto_goods_table(
+                                    goods_id=goods_id,
+                                    update_sql_str=mg_update_str_5,
+                                    sql_cli=sql_cli,)
                                 sleep(.3)
 
                             else:
@@ -167,8 +168,8 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                 '''
                                 内部已经下架的(内部下架的其实并未真实下架，还在卖的，所以我就更新其商品信息数据，不更新上下架时间)
                                 '''
-                                if item[0] not in pintuan_goods_all_goods_id:
-                                    mogujie_pintuan.get_goods_data(goods_id=item[0])
+                                if goods_id not in pintuan_goods_all_goods_id:
+                                    mogujie_pintuan.get_goods_data(goods_id=goods_id)
                                     goods_data = mogujie_pintuan.deal_with_data()
 
                                     if goods_data == {}:
@@ -176,30 +177,30 @@ class MoGuJiePinTuanRealTimesUpdate(object):
                                     else:
                                         # 规范化
                                         print('+++ 内部下架，其实还在售卖的商品更新')
-                                        goods_data['goods_id'] = item[0]
+                                        goods_data['goods_id'] = goods_id
                                         goods_data['price_info_list'] = _get_mogujie_pintuan_price_info_list(goods_data['price_info_list'])
 
                                         # pprint(goods_data)
-                                        mogujie_pintuan.update_mogujie_pintuan_table_2(data=goods_data, pipeline=tmp_sql_server)
+                                        mogujie_pintuan.update_mogujie_pintuan_table_2(data=goods_data, pipeline=sql_cli)
                                         sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 
                                 else:   # 未下架的
                                     for item_2 in item_list:
-                                        if item_2.get('goods_id', '') == item[0]:
-                                            mogujie_pintuan.get_goods_data(goods_id=item[0])
+                                        if item_2.get('goods_id', '') == goods_id:
+                                            mogujie_pintuan.get_goods_data(goods_id=goods_id)
                                             goods_data = mogujie_pintuan.deal_with_data()
 
                                             if goods_data == {}: pass
                                             else:
                                                 # 规范化
-                                                goods_data['goods_id'] = item[0]
+                                                goods_data['goods_id'] = goods_id
                                                 goods_data['price_info_list'] = _get_mogujie_pintuan_price_info_list(goods_data['price_info_list'])
                                                 goods_data['pintuan_time'] = item_2.get('pintuan_time', {})
                                                 goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
                                                 goods_data['all_sell_count'] = item_2.get('all_sell_count', '')
 
                                                 # pprint(goods_data)
-                                                mogujie_pintuan.update_mogujie_pintuan_table(data=goods_data, pipeline=tmp_sql_server)
+                                                mogujie_pintuan.update_mogujie_pintuan_table(data=goods_data, pipeline=sql_cli)
                                                 sleep(MOGUJIE_SLEEP_TIME)  # 放慢速度
 
                                         else: pass

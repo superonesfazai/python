@@ -28,6 +28,9 @@ from settings import (
     MOGUJIE_SLEEP_TIME,
     IP_POOL_TYPE,)
 from decimal import Decimal
+from multiplex_code import (
+    _block_print_db_old_data,
+)
 
 from sql_str_controller import (
     mg_delete_str_3,
@@ -78,13 +81,8 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
-
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            _block_print_db_old_data(result=result)
             index = 1
-
             for item in result:  # 实时更新数据
                 goods_id = item[0]
                 miaosha_end_time = json.loads(item[1]).get('miaosha_end_time')

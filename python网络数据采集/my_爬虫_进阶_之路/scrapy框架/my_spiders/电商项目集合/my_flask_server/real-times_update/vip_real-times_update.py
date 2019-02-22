@@ -21,7 +21,9 @@ from sql_str_controller import vip_select_str_1
 from multiplex_code import (
     _get_sku_price_trans_record,
     _get_spec_trans_record,
-    _get_stock_trans_record,)
+    _get_stock_trans_record,
+    _block_get_new_db_conn,
+    _block_print_db_old_data,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -37,28 +39,20 @@ from fzutils.common_utils import json_2_dict
 def run_forever():
     while True:
         #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            result = list(tmp_sql_server._select_table(sql_str=vip_select_str_1))
+            result = list(sql_cli._select_table(sql_str=vip_select_str_1))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             continue
 
-        print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-        print(result)
-        print('--------------------------------------------------------')
-
-        print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+        _block_print_db_old_data(result=result)
         index = 1
         for item in result:  # 实时更新数据
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             vip = VipParse()
-            if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                print('正在重置，并与数据库建立新连接中...')
-                tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                print('与数据库的新连接成功建立...')
-
-            if tmp_sql_server.is_connect_success:
+            sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50)
+            if sql_cli.is_connect_success:
                 print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
                 vip.get_goods_data(goods_id=[0, item[0]])
                 data = vip.deal_with_data()
@@ -105,7 +99,7 @@ def run_forever():
                         db_stock_change_info=json_2_dict(item[11], default_res=[]),
                         old_stock_trans_time=item[14],)
 
-                    vip.to_right_and_update_data(data=data, pipeline=tmp_sql_server)
+                    vip.to_right_and_update_data(data=data, pipeline=sql_cli)
                 else:  # 表示返回的data值为空值
                     pass
             else:  # 表示返回的data值为空值

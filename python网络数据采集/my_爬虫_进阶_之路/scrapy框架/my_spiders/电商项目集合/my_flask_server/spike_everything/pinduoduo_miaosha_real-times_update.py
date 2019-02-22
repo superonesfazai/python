@@ -22,7 +22,13 @@ from settings import (
     PINDUODUO_MIAOSHA_SPIDER_HOUR_LIST,
     IP_POOL_TYPE,)
 
-from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
+from settings import (
+    PHANTOMJS_DRIVER_PATH, 
+    PINDUODUO_SLEEP_TIME,)
+from multiplex_code import (
+    _block_print_db_old_data,
+    _block_get_new_db_conn,
+)
 
 from sql_str_controller import (
     pd_delete_str_1,
@@ -63,20 +69,16 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         :return:
         '''
         #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            result = list(tmp_sql_server._select_table(sql_str=pd_select_str_2))
+            result = list(sql_cli._select_table(sql_str=pd_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
-
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            _block_print_db_old_data(result=result)
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             pinduoduo_miaosha = PinduoduoParse()
@@ -93,14 +95,10 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                 miaosha_end_time = int(str(time.mktime(time.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_end_time)
 
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
+                sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50)
+                if sql_cli.is_connect_success:
                     if self.is_recent_time(miaosha_end_time) == 0:
-                        tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                        sql_cli._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                         print('过期的goods_id为(%s)' % item[0], ', 限时秒杀结束时间为(%s), 删除成功!' % json.loads(item[1]).get('miaosha_end_time'))
                         sleep(.3)
 
@@ -114,7 +112,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                             '''
                             表示其中没有了该goods_id
                             '''
-                            tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
+                            sql_cli._delete_table(sql_str=self.delete_sql_str, params=(item[0]))
                             print('该商品[goods_id为(%s)]已被下架限时秒杀活动，此处将其删除' % item[0])
                             sleep(.3)
 
@@ -147,7 +145,7 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
                                             goods_data['is_delete'] = 1
 
                                         # print(goods_data)
-                                        pinduoduo_miaosha.to_update_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
+                                        pinduoduo_miaosha.to_update_pinduoduo_xianshimiaosha_table(data=goods_data, pipeline=sql_cli)
                                     sleep(PINDUODUO_SLEEP_TIME)
                                 else:
                                     pass

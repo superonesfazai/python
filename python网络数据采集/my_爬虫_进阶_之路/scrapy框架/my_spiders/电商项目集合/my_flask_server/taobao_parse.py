@@ -110,7 +110,6 @@ class TaoBaoLoginAndParse(Crawler):
             '''
             ## 表示该商品已经下架, 原地址被重定向到新页面
             '''
-            self.lg.info('@@@@@@ 该商品已经下架...')
             _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
             tmp_data_s = self.init_pull_off_shelves_goods()
             self.result_data = {}

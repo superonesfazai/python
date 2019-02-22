@@ -28,7 +28,6 @@ from multiplex_code import (
     _z8_get_parent_dir,
     _handle_goods_shelves_in_auto_goods_table,)
 from my_exceptions import GoodsShelvesException
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import get_random_pc_ua
@@ -75,11 +74,9 @@ class Zhe800Parse(Crawler):
             return self._data_error()
 
         # 处理base
-        base = data.get('/app/detail/product/base', '')
-        base = json_2_dict(json_str=base, default_res={})
-        if base == {}:
-            print("json.loads转换出错，得到base值可能为空，此处跳过")
-            base = ''
+        base = json_2_dict(
+            json_str=data.get('/app/detail/product/base', ''),
+            default_res={})
 
         # 处理profiles
         profiles = data.get('/app/detail/product/profiles', '')
@@ -89,32 +86,28 @@ class Zhe800Parse(Crawler):
             profiles = ''
 
         # 处理score
-        score = data.get('/app/detail/product/score', '')
-        score = json_2_dict(json_str=score)
+        score = json_2_dict(
+            json_str=data.get('/app/detail/product/score', ''),
+            default_res={})
         try:
             score.pop('contents')
         except:
             pass
-        if score == {}:
-            print("json.loads转换出错，得到score值可能为空，此处跳过")
-            score = ''
 
         # 处理sku
-        sku = data.get('/app/detail/product/sku', '')
-        sku = json_2_dict(json_str=sku)
+        sku = json_2_dict(
+            json_str=data.get('/app/detail/product/sku', ''),
+            default_res={})
         # pprint(sku)
-        if sku == {}:
-            print("json.loads转换出错，得到sku值可能为空，此处跳过")
-            sku = ''
 
         data['/app/detail/product/base'] = base
         data['/app/detail/product/profiles'] = profiles
         data['/app/detail/product/score'] = score
         data['/app/detail/product/sku'] = sku
+        # pprint(base)
 
-        # 得到手机版地址
         try:
-            # pprint(base)
+            # 得到手机版地址
             phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
         except AttributeError:
             print('获取手机版地址失败，此处跳过')
@@ -137,15 +130,13 @@ class Zhe800Parse(Crawler):
             print('json.loads(detail_data)时报错, 此处跳过')
             return self._data_error()
 
-        detail = detail_data.get('/app/detail/graph/detail', '')
-        detail = json_2_dict(json_str=detail)
+        detail = json_2_dict(
+            json_str=detail_data.get('/app/detail/graph/detail', ''),
+            default_res={})
         try:
             detail.pop('small')
         except:
             pass
-        if detail == {}:
-            print("json.loads转换出错，得到detail值可能为空，此处跳过")
-            detail = ''
         # print(detail)
 
         # div_desc
@@ -194,6 +185,7 @@ class Zhe800Parse(Crawler):
 
         self.result_data = data
         # pprint(data)
+
         return data
 
     def deal_with_data(self):
@@ -204,72 +196,48 @@ class Zhe800Parse(Crawler):
         data = self.result_data
         goods_id = data.get('goods_id', '')
         if data != {}:
-            shop_name = data.get('shop_name', '')
-            account = ''
-            title = data.get('/app/detail/product/base', {}).get('title', '')
-            sub_title = ''
-
-            # 要存储的每个标签对应规格的价格及其库存
             try:
+                shop_name = data.get('shop_name', '')
+                account = ''
+                title = data.get('/app/detail/product/base', {}).get('title', '')
+                sub_title = ''
+
+                # 要存储的每个标签对应规格的价格及其库存
                 tmp_price_info_list = data.get('/app/detail/product/sku', {}).get('items')
-            except AttributeError as e:     # 表示获取失败
-                print('AttributeError属性报错，为: ', e)
-                print("data.get('/app/detail/product/sku', {}).get('items')获取失败, 此处跳过")
-                return self._data_error()
+                # pprint(tmp_price_info_list)
 
-            # pprint(tmp_price_info_list)
-            try:
                 cache = self._get_detail_name_list_and_price_info_list_and_price_and_taobao_price(
                     data=data,
                     tmp_price_info_list=tmp_price_info_list)
-                all_img_url = self._get_all_img_url(tmp_all_img_url=data.get('/app/detail/product/base', {}).get('images', []))
+                all_img_url = self._get_all_img_url(
+                    tmp_all_img_url=data.get('/app/detail/product/base', {}).get('images', []))
+
+                detail_name_list = cache[0]
+                price_info_list = cache[1]
+                price = cache[2]
+                taobao_price = cache[3]
+                # print('最高价为: ', price)
+                # print('最低价为: ', taobao_price)
+                # print(detail_name_list)
+                # pprint(price_info_list)
+
+                p_info = self._get_p_info(data=data)
+                # pprint(p_info)
+                # div_desc
+                div_desc = data.get('/app/detail/graph/detail', '')
+                is_delete = self._get_is_delete(price_info_list=price_info_list)
+                schedule, is_delete = self._get_schedule(data=data, is_delete=is_delete)
+                # pprint(schedule)
+                parent_dir = data.get('parent_dir', '')
+
             except GoodsShelvesException:
                 _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id,)
                 return self._data_error()
 
-            detail_name_list = cache[0]
-            price_info_list = cache[1]
-            price = cache[2]
-            taobao_price = cache[3]
-            # print('最高价为: ', price)
-            # print('最低价为: ', taobao_price)
-            # print(detail_name_list)
-            # pprint(price_info_list)
+            except (AttributeError, Exception) as e:
+                print('遇到错误:', e)
 
-            try:
-                p_info = self._get_p_info(data=data)
-            except AttributeError as e:
-                print('AttributeError属性报错，为: ', e)
-                print("data.get('/app/detail/product/profiles', {}).get('profiles')获取失败, 此处跳过")
                 return self._data_error()
-
-            # pprint(p_info)
-
-            # div_desc
-            div_desc = data.get('/app/detail/graph/detail', '')
-
-            # 用于判断商品是否已经下架
-            is_delete = 0
-            if price_info_list != []:
-                stock_num = 0
-                for _i in price_info_list:
-                    stock_num += _i.get('rest_number', 0)
-                if stock_num == 0:
-                    is_delete = 1
-
-            schedule = data.get('schedule')
-            # pprint(schedule)
-            if schedule is None:
-                is_delete = 1       # 没有活动时间就表示已经下架
-                schedule = []
-            else:   # 开始的和未开始的都是能拿到时间的，所以没问题，嘿嘿-_-!!
-                schedule = [{
-                    'begin_time': schedule.get('beginTime', ''),
-                    'end_time': schedule.get('endTime', '')
-                }]
-            # pprint(schedule)
-
-            parent_dir = data.get('parent_dir', '')
 
             result = {
                 'shop_name': shop_name,                     # 店铺名称
@@ -305,6 +273,43 @@ class Zhe800Parse(Crawler):
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             self.result_data = {}
             return {}
+
+    def _get_is_delete(self, price_info_list) -> int:
+        """
+        获取is_delete
+        :param price_info_list:
+        :return:
+        """
+        is_delete = 0
+        if price_info_list != []:
+            stock_num = 0
+            for _i in price_info_list:
+                stock_num += _i.get('rest_number', 0)
+
+            if stock_num == 0:
+                is_delete = 1
+
+        return is_delete
+
+    def _get_schedule(self, data, is_delete) -> tuple:
+        """
+        获取schedule
+        :param data:
+        :param is_delete:
+        :return:
+        """
+        schedule = data.get('schedule')
+        # pprint(schedule)
+        if schedule is None:
+            is_delete = 1  # 没有活动时间就表示已经下架
+            schedule = []
+        else:  # 开始的和未开始的都是能拿到时间的，所以没问题，嘿嘿-_-!!
+            schedule = [{
+                'begin_time': schedule.get('beginTime', ''),
+                'end_time': schedule.get('endTime', '')
+            }]
+
+        return schedule, is_delete
 
     def _data_error(self):
         self.result_data = {}

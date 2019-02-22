@@ -300,6 +300,7 @@ jp_update_str_4 = 'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, g
 jp_update_str_5 = 'update dbo.juanpi_pintuan set is_delete=1 where goods_id = %s'
 # 秒杀下架标记
 jp_update_str_6 = 'update dbo.juanpi_xianshimiaosha set is_delete=1 where goods_id=%s'
+# 拼团下架标记
 jp_update_str_7 = 'update dbo.juanpi_pintuan set is_delete=1, modfiy_time=%s  where goods_id = %s'
 '''delete'''
 # 拼团下架清空

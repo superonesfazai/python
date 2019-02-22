@@ -30,17 +30,17 @@ from asyncio import sleep as async_sleep
 from sql_str_controller import (
     jm_select_str_3,
     jm_delete_str_3,
-    jm_update_str_5,
-)
+    jm_update_str_5,)
+from multiplex_code import (
+    _print_db_old_data,
+    _get_new_db_conn,)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
-    get_shanghai_time,
-)
+    get_shanghai_time,)
 from fzutils.linux_utils import (
     daemon_init,
-    restart_program,
-)
+    restart_program,)
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
 
@@ -66,7 +66,7 @@ class JuMeiYouPinRealTimesUpdate(object):
         }
 
     def _set_logger(self):
-        self.my_lg = set_logger(
+        self.lg = set_logger(
             log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
@@ -77,50 +77,46 @@ class JuMeiYouPinRealTimesUpdate(object):
         实时更新数据
         :return:
         '''
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            tmp_sql_server._delete_table(sql_str=jm_delete_str_3,)
+            sql_cli._delete_table(sql_str=jm_delete_str_3,)
             await async_sleep(5)
-            result = tmp_sql_server._select_table(sql_str=jm_select_str_3, logger=self.my_lg)
+            result = sql_cli._select_table(sql_str=jm_select_str_3, logger=self.lg)
         except TypeError:
-            self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            self.my_lg.info(result)
-            self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            await _print_db_old_data(result=result, logger=self.lg)
             index = 1
-
             for item in result:
                 pintuan_end_time = json.loads(item[1]).get('end_time')
                 pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                 # print(miaosha_end_time)
 
                 data = {}
-
-                if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    self.my_lg.info('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
+                sql_cli = await _get_new_db_conn(
+                    db_obj=sql_cli, 
+                    index=index, 
+                    logger=self.lg, 
+                    remainder=50)
+                if sql_cli.is_connect_success:
                     time_number = await self.is_recent_time(pintuan_end_time)
                     if time_number == 0:
-                        await tmp_sql_server._update_table_3(sql_str=jm_update_str_5, params=(str(get_shanghai_time()), item[0]), logger=self.my_lg)
+                        await sql_cli._update_table_3(sql_str=jm_update_str_5, params=(str(get_shanghai_time()), item[0]), logger=self.lg)
                         await async_sleep(.5)
                         self.msg = '过期的goods_id为(%s)' % item[0] + ', 拼团结束时间为(%s), 删除成功!' % str(json.loads(item[1]).get('begin_time'))
-                        self.my_lg.info(self.msg)
+                        self.lg.info(self.msg)
 
                     elif time_number == 2:
                         pass  # 此处应该是pass,而不是break，因为数据库传回的goods_id不都是按照顺序的
 
                     else:  # 返回1，表示在待更新区间内
                         self.msg = '------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index))
-                        self.my_lg.info(self.msg)
+                        self.lg.info(self.msg)
                         data['goods_id'] = item[0]
-                        jumeiyoupin_2 = JuMeiYouPinPinTuan(logger=self.my_lg)
+                        jumeiyoupin_2 = JuMeiYouPinPinTuan(logger=self.lg)
 
                         _ = item[2] + '-' + str(item[3])    # 格式: 'coutuan_baby-1'
                         item_list = self.api_all_goods_id.get(_, [])    # 用于判断tab, index已在self.api_all_goods_id中
@@ -132,7 +128,7 @@ class JuMeiYouPinRealTimesUpdate(object):
                             except: pass
 
                         if item_list == []:
-                            self.my_lg.info('获取到的body为空str, 网络原因, 此处先跳过!')
+                            self.lg.info('获取到的body为空str, 网络原因, 此处先跳过!')
                             pass
                         else:
                             if self.api_all_goods_id.get(_) is None:
@@ -140,14 +136,14 @@ class JuMeiYouPinRealTimesUpdate(object):
 
                             pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in item_list]
 
-                            jumeiyoupin_pintuan = JuMeiYouPinPinTuanParse(logger=self.my_lg)
+                            jumeiyoupin_pintuan = JuMeiYouPinPinTuanParse(logger=self.lg)
                             # 内部已经下架的(测试发现官方不会提前下架活动商品)
                             if item[0] not in pintuan_goods_all_goods_id:
                                 await self.update_data_2(
                                     jumeiyoupin_pintuan=jumeiyoupin_pintuan,
                                     jumei_pintuan_url=item[4],
                                     goods_id=item[0],
-                                    pipeline=tmp_sql_server
+                                    pipeline=sql_cli
                                 )
 
                             else:   # 未内部下架
@@ -157,16 +153,16 @@ class JuMeiYouPinRealTimesUpdate(object):
                                     jumei_pintuan_url=item[4],
                                     goods_id=item[0],
                                     item_list=item_list,
-                                    pipeline=tmp_sql_server
+                                    pipeline=sql_cli
                                 )
 
                 else:
-                    self.my_lg.error('数据库连接失败，此处跳过!')
+                    self.lg.error('数据库连接失败，此处跳过!')
                     pass
 
                 index += 1
                 gc.collect()
-            self.my_lg.info('全部数据更新完毕'.center(100, '#'))
+            self.lg.info('全部数据更新完毕'.center(100, '#'))
             if get_shanghai_time().hour == 0:  # 0点以后不更新
                 await async_sleep(60 * 60 * 5.5)
             else:
@@ -200,7 +196,7 @@ class JuMeiYouPinRealTimesUpdate(object):
 
                     # pprint(goods_data)
                     # print(goods_data)
-                    await jumeiyoupin_pintuan.update_jumeiyoupin_pintuan_table(data=goods_data, pipeline=pipeline, logger=self.my_lg)
+                    await jumeiyoupin_pintuan.update_jumeiyoupin_pintuan_table(data=goods_data, pipeline=pipeline, logger=self.lg)
                 e_time = time.time()
                 if e_time - s_time > JUMEIYOUPIN_SLEEP_TIME:  # 使其更智能点
                     pass
@@ -226,7 +222,7 @@ class JuMeiYouPinRealTimesUpdate(object):
         if goods_data == {}:
             pass
         else:  # 规范化
-            self.my_lg.info('+++ 内部下架，其实还在售卖的商品更新 +++')
+            self.lg.info('+++ 内部下架，其实还在售卖的商品更新 +++')
             goods_data['goods_id'] = goods_id
             s_time = time.time()
             if goods_data == {}:
@@ -235,7 +231,7 @@ class JuMeiYouPinRealTimesUpdate(object):
                 goods_data['goods_id'] = goods_id
                 # pprint(goods_data)
                 # print(goods_data)
-                await jumeiyoupin_pintuan.update_jumeiyoupin_pintuan_table_2(data=goods_data, pipeline=pipeline, logger=self.my_lg)
+                await jumeiyoupin_pintuan.update_jumeiyoupin_pintuan_table_2(data=goods_data, pipeline=pipeline, logger=self.lg)
             e_time = time.time()
             if e_time - s_time > JUMEIYOUPIN_SLEEP_TIME:  # 使其更智能点
                 pass
@@ -266,7 +262,7 @@ class JuMeiYouPinRealTimesUpdate(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
             del self.api_all_goods_id
         except:

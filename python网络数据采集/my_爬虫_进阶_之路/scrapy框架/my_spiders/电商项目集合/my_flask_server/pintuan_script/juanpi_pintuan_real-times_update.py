@@ -23,9 +23,11 @@ from sql_str_controller import (
     jp_select_str_2,
     jp_delete_str_1,
     jp_delete_str_2,
-    jp_update_str_5,
-    jp_update_str_7,
-)
+    jp_update_str_7,)
+from multiplex_code import (
+    _block_get_new_db_conn,
+    _handle_goods_shelves_in_auto_goods_table,
+    _block_print_db_old_data,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -36,25 +38,22 @@ from fzutils.linux_utils import daemon_init
 def run_forever():
     while True:
         #### 实时更新数据
-        tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         try:
-            tmp_sql_server._delete_table(sql_str=jp_delete_str_1)
-            result = list(tmp_sql_server._select_table(sql_str=jp_select_str_2))
+            sql_cli._delete_table(sql_str=jp_delete_str_1)
+            result = list(sql_cli._select_table(sql_str=jp_select_str_2))
         except TypeError:
             print('TypeError错误, 原因数据库连接失败...(可能维护中)')
             result = None
         if result is None:
             pass
         else:
-            print('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            print(result)
-            print('--------------------------------------------------------')
-
-            print('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            _block_print_db_old_data(result=result)
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
             juanpi_pintuan = JuanPiParse()
             for item in result:  # 实时更新数据
+                goods_id = item[0]
                 if index % 6 == 0:
                     try:
                         del juanpi_pintuan
@@ -63,34 +62,36 @@ def run_forever():
                     gc.collect()
                     juanpi_pintuan = JuanPiParse()
 
-                if index % 50 == 0:    # 每50次重连一次，避免单次长连无响应报错
-                    print('正在重置，并与数据库建立新连接中...')
-                    tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-                    print('与数据库的新连接成功建立...')
-
-                if tmp_sql_server.is_connect_success:
+                sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50)
+                if sql_cli.is_connect_success:
                     try:
                         pintuan_end_time = json.loads(item[1])[0].get('end_time')
                     except IndexError:
-                        print('获取pintuan_end_time时索引异常!出错goods_id:{0}'.format(item[0]))
-                        print('此处将其标记为is_delete=1')
-                        tmp_sql_server._update_table(sql_str=jp_update_str_5, params=(item[0],))
+                        print('获取pintuan_end_time时索引异常!出错goods_id:{0}'.format(goods_id))
+                        _handle_goods_shelves_in_auto_goods_table(
+                            goods_id=goods_id,
+                            sql_cli=sql_cli,
+                            update_sql_str=jp_update_str_7,)
                         continue
                     pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
                     # print(pintuan_end_time)
 
                     if item[2] == 1 or pintuan_end_time < int(datetime_to_timestamp(get_shanghai_time())):
-                        tmp_sql_server._update_table(sql_str=jp_update_str_7, params=(str(get_shanghai_time()), item[0]))
-                        print('该goods_id[{0}]已过期或者售完，逻辑删除成功!'.format(item[0]))
+                        _handle_goods_shelves_in_auto_goods_table(
+                            goods_id=goods_id,
+                            sql_cli=sql_cli,
+                            update_sql_str=jp_update_str_7,)
+                        print('该goods_id[{0}]已过期或者售完，逻辑删除成功!'.format(goods_id))
                     else:
-                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (item[0], index))
-                        juanpi_pintuan.get_goods_data(goods_id=item[0])
+                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
+                        juanpi_pintuan.get_goods_data(goods_id=goods_id)
                         data = juanpi_pintuan.deal_with_data()
-                        if data != {}:
-                            data['goods_id'] = item[0]
-                            juanpi_pintuan.to_right_and_update_pintuan_data(data=data, pipeline=tmp_sql_server)
-                        else:  # 表示返回的data值为空值
-                                pass
+                        if data == {}:
+                            continue
+
+                        data['goods_id'] = goods_id
+                        juanpi_pintuan.to_right_and_update_pintuan_data(data=data, pipeline=sql_cli)
+
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass

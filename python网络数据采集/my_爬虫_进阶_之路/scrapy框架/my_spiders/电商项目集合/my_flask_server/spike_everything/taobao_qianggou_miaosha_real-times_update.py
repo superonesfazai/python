@@ -28,6 +28,9 @@ from sql_str_controller import (
     tb_select_str_4,
     tb_update_str_4,
 )
+from multiplex_code import (
+    _block_print_db_old_data,
+)
 
 from fzutils.log_utils import set_logger
 from fzutils.spider.async_always import *
