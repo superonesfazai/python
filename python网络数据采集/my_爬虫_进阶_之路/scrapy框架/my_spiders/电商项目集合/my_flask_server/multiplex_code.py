@@ -15,7 +15,6 @@ from settings import IP_POOL_TYPE
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
 
-import asyncio
 from asyncio import new_event_loop
 from json import dumps
 from scrapy.selector import Selector
@@ -37,7 +36,6 @@ from fzutils.time_utils import (
     datetime_to_timestamp,
     timestamp_to_regulartime,)
 from fzutils.spider.selector import parse_field
-from fzutils.spider.async_always import unblock_get_taobao_sign_and_body
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''

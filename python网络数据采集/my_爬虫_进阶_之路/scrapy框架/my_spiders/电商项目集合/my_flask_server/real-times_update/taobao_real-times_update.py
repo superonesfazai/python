@@ -126,6 +126,7 @@ class TBUpdater(AsyncCrawler):
                     price_change_info=price_change_info)
                 if data['_is_price_change'] == 1:
                     self.lg.info('价格变动!!')
+                    # pprint(data['_price_change_info'])
 
                 # 监控纯规格变动
                 data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(

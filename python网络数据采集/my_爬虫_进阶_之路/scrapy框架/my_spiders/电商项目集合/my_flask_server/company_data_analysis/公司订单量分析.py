@@ -64,7 +64,7 @@ def plot_one_month_everydaya_sell_count(year, month):
     font = FontProperties(fname='/Library/Fonts/Songti.ttc', size=15)
 
     # 显示标题
-    plt.title('浙江甄优智能科技有限公司-{0}年{1}月所有订单折线图'.format(year, month), fontproperties=font, fontsize=18)
+    plt.title('xxx公司-{0}年{1}月所有订单折线图'.format(year, month), fontproperties=font, fontsize=18)
     plt.ylabel('订单数', fontproperties=font)
     plt.xlabel('日', fontproperties=font)
 
@@ -94,7 +94,7 @@ def plot_every_month_everyday_sell_count_in_one_table(year):
     font = FontProperties(fname='/Library/Fonts/Songti.ttc', size=10)
 
     # 显示标题
-    plt.title('浙江甄优智能科技有限公司-{0}年12个月每天订单折线图'.format(year,), fontproperties=font, fontsize=18)
+    plt.title('xxx公司-{0}年12个月每天订单折线图'.format(year,), fontproperties=font, fontsize=18)
     plt.ylabel('订单数', fontproperties=font)
     plt.xlabel('日', fontproperties=font)
 
@@ -147,7 +147,7 @@ def plot_one_year_every_month_sell_count(year):
     font = FontProperties(fname='/Library/Fonts/Songti.ttc', size=15)
 
     # 显示标题
-    plt.title('浙江甄优智能科技有限公司-{0}年所有订单折线图'.format(year,), fontproperties=font, fontsize=18)
+    plt.title('xxx公司-{0}年所有订单折线图'.format(year,), fontproperties=font, fontsize=18)
     plt.ylabel('订单数', fontproperties=font)
     plt.xlabel('月', fontproperties=font)
 

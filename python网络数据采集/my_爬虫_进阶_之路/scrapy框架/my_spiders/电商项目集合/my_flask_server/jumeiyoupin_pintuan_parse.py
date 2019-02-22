@@ -603,7 +603,8 @@ class JuMeiYouPinPinTuanParse(Crawler):
             del self.driver
             del self.lg
             del self.msg
-        except: pass
+        except:
+            pass
         collect()
 
 if __name__ == '__main__':

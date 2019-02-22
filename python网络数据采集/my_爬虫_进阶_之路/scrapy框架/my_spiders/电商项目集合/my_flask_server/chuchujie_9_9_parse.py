@@ -61,8 +61,7 @@ class ChuChuJie_9_9_Parse(Crawler):
         :return: data 类型dict
         '''
         if goods_id == '':
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         print('------>>>| 对应的手机端地址为: ', 'https://m.chuchujie.com/details/detail.html?id=' + goods_id)
         '''
@@ -77,8 +76,7 @@ class ChuChuJie_9_9_Parse(Crawler):
         # print(body)
         if body == '':
             print('获取到的body为空str!')
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         data = {}
         try:
@@ -134,8 +132,7 @@ class ChuChuJie_9_9_Parse(Crawler):
 
         except Exception as e:
             print('遇到错误: ', e)
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
     def deal_with_data(self) -> dict:
         '''
@@ -187,7 +184,12 @@ class ChuChuJie_9_9_Parse(Crawler):
 
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
-            return {}
+            return self._data_error()
+
+    def _data_error(self) -> dict:
+        self.result_data = {}
+
+        return {}
 
     def _get_is_delete(self, body):
         is_delete = 0

@@ -269,7 +269,11 @@ class JdParse(Crawler):
             # ('t', '0.31518758092351407'),
         )
         url = 'https://wq.jd.com/commodity/comment/getcommentlist'
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=url,
+            headers=self._get_phone_headers(),
+            params=params,
+            ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         all_sell_count = str(randint(800, 2000))
         try:

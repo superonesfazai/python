@@ -10,7 +10,6 @@
 import sys
 sys.path.append('..')
 
-# from tmall_parse import TmallParse
 from tmall_parse_2 import TmallParse
 from taobao_parse import TaoBaoLoginAndParse
 from my_items import CommentItem
@@ -52,19 +51,25 @@ class TmallCommentParse(Crawler):
         self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
 
     def _get_comment_data(self, type:int, goods_id):
+        """
+        获取对应goods_id的评论数据
+        :param type:
+        :param goods_id:
+        :return:
+        """
         if goods_id == '' or type == '':
             self.result_data = {}
             return {}
-        self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
 
+        self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
         '''先获取到sellerId'''
         try:
             seller_id = self._get_seller_id(type=type, goods_id=goods_id)
         except AssertionError or IndexError as e:
             self.lg.error('出错goods_id: %s' % goods_id)
             self.lg.error(e.args[0])
-            self.result_data = {}
             self.random_sku_info_list = []
+            self.result_data = {}
             return {}
 
         """再获取price_info_list"""
@@ -74,9 +79,12 @@ class TmallCommentParse(Crawler):
         except Exception as e:
             self.lg.error('出错goods_id: %s' % str(goods_id))
             self.lg.exception(e)
-            self.result_data = {}
             self.random_sku_info_list = []
+            self.result_data = {}
             return {}
+
+        # TODO 老数据接口得附上登录cookies才可请求成功! 且具有时效性! 下次改版 可尝试下方地址(新版地址)来抓包comment接口数据
+        # https://m.intl.taobao.com/detail/detail.html?id=36428173407#modal=comment
 
         _tmp_comment_list = []
         for current_page in range(1, 4):
@@ -319,7 +327,7 @@ class TmallCommentParse(Crawler):
 if __name__ == '__main__':
     tmall = TmallCommentParse()
     while True:
-        _type = input('请输入要爬取的商品type(以英文分号结束): ')
+        _type = input('请输入要爬取的商品type(以英文分号结束: 0常规|1超市|2天猫国际): ')
         _type = _type.strip('\n').strip(';')
         goods_id = input('请输入要爬取的商品goods_id(以英文分号结束): ')
         goods_id = goods_id.strip('\n').strip(';')
