@@ -21,7 +21,11 @@ from multiplex_code import (
     _get_al_one_type_company_id_list,
     _get_114_one_type_company_id_list,)
 from company_spider import CompanySpider
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_random_phone_ua,)
+from fzutils.common_utils import json_2_dict
+from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.celery_utils import *
 from fzutils.spider.fz_requests import Requests
 
@@ -48,6 +52,15 @@ lg = get_task_logger(tasks_name)
 
 @app.task(name=tasks_name + '._get_al_one_type_company_id_list_task', bind=True)
 def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, timeout=15):
+    """
+    获取al 某关键字的单页company_info
+    :param self:
+    :param ip_pool_type:
+    :param keyword:
+    :param page_num:
+    :param timeout:
+    :return:
+    """
     # def _get_args():
     #     return [
     #         db_al_unique_id_list,
@@ -178,6 +191,15 @@ def _get_pc_headers() -> dict:
         'Accept-Language': 'zh-CN,zh;q=0.9',
     }
 
+def _get_phone_headers() -> dict:
+    return {
+        'upgrade-insecure-requests': '1',
+        'user-agent': get_random_phone_ua(),
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'zh-CN,zh;q=0.9',
+    }
+
 @app.task(name=tasks_name + '._get_114_company_page_html_task', bind=True)
 def _get_114_company_page_html_task(self, company_id, ip_pool_type, num_retries) -> tuple:
     '''
@@ -205,3 +227,60 @@ def _get_114_company_page_html_task(self, company_id, ip_pool_type, num_retries)
     lg.info('[{}] 114 company_id: {}'.format('+' if body != '' else '-', company_id))
 
     return company_id, body
+
+@app.task(name=tasks_name + '._get_yw_one_type_company_id_list_task', bind=True)
+def _get_yw_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, timeout=15):
+    """
+    获取yw某关键字的单页company_info(m 站)
+    :param self:
+    :param ip_pool_type:
+    :param keyword:
+    :param page_num:
+    :param timeout:
+    :return:
+    """
+    headers = _get_phone_headers()
+    headers.update({
+        # 'x-csrf-token': 'v8N2st76hSgzPPYQ-1DYgqOh',
+        # 'Referer': 'http://wap.yiwugo.com/search?q=%E5%8E%8B%E7%BC%A9%E6%9C%BA',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Connection': 'keep-alive',
+    })
+    params = (
+        ('q', str(keyword)),
+        ('cpage', str(page_num)),
+        ('pageSize', '28'),
+        ('st', '0'),
+        ('m', ''),
+        ('f', ''),
+        ('s', ''),
+    )
+    s_url = 'http://wap.yiwugo.com/api/search/s.htm'
+    body = Requests.get_url_body(
+        url=s_url,
+        headers=headers,
+        params=params,
+        ip_pool_type=ip_pool_type,
+        num_retries=6,
+        timeout=timeout,)
+    # lg.info(body)
+    data = json_2_dict(
+        json_str=body,
+        default_res={},
+        logger=lg).get('prslist', [])
+    # lg.info(str(data))
+    company_info_list = [{
+        'company_id': item.get('shopUrlId', ''),
+        'company_name': item.get('shopName', ''),
+    } for item in data]
+    company_info_list = list_remove_repeat_dict_plus(target=company_info_list, repeat_key='company_id')
+    # lg.info(str(company_info_list))
+
+    lg.info('[{}] keyword: {}, page_num: {}'.format(
+        '+' if company_info_list != [] else '-',
+        keyword,
+        page_num,))
+
+    return company_info_list
+
+

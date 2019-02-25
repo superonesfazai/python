@@ -104,7 +104,8 @@ def run_forever():
                     pass
                 collect()
                 sleep(ZHE_800_PINTUAN_SLEEP_TIME)
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            print('全部数据更新完毕'.center(100, '#'))
+
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:

@@ -273,7 +273,10 @@ def _get_sku_price_trans_record(old_sku_info:list, new_sku_info:list, is_price_c
     now_time = str(get_shanghai_time())
     is_price_change = is_price_change if isinstance(is_price_change, int) else 0    # 处理为null的
     # 处理原生sql getdate()函数带来的转换异常!
-    old_price_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_price_trans_time)))
+    try:
+        old_price_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_price_trans_time)))
+    except AttributeError:
+        pass
     old_price_trans_time = str(old_price_trans_time) if old_price_trans_time is not None else now_time
     if is_price_change == 1:
         # 避免再次更新更改未被后台同步的数据
@@ -305,7 +308,10 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change,
     now_time = str(get_shanghai_time())
     is_spec_change = is_spec_change if isinstance(is_spec_change, int) else 0
     # 处理原生sql getdate()函数带来的转换异常!
-    old_spec_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_spec_trans_time)))
+    try:
+        old_spec_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_spec_trans_time)))
+    except AttributeError:
+        pass
     old_spec_trans_time = str(old_spec_trans_time) if old_spec_trans_time is not None else now_time
     if is_spec_change == 1:
         # 避免再次更新更改未被后台同步的数据
@@ -408,7 +414,10 @@ def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_chang
 
     now_time = str(get_shanghai_time())
     # 处理原生sql getdate()函数带来的转换异常!
-    old_stock_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_stock_trans_time)))
+    try:
+        old_stock_trans_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_stock_trans_time)))
+    except AttributeError:
+        pass
     old_stock_trans_time = str(old_stock_trans_time) if old_stock_trans_time is not None else now_time
     if is_stock_change == 1:
         # 避免再次更新更改未被后台同步的数据

@@ -93,29 +93,35 @@ class TMUpdater(AsyncCrawler):
         await self._get_new_tmall_obj(index=index)
         self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, remainder=50)
         if self.tmp_sql_server.is_connect_success:
-            self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
+            self.lg.info('------>>>| 正在更新的goods_id为({}) | --------->>>@ 索引值为({})'.format(goods_id, index))
             tmp_item = await self._get_tmp_item(site_id=site_id, goods_id=goods_id)
             # self.lg.info(str(tmp_item))
 
             # ** 阻塞方式运行
             oo = self.tmall.get_goods_data(goods_id=tmp_item)
-
             # ** 非阻塞方式运行
             # loop = get_event_loop()
             # tmall = TmallParse(logger=self.lg)
             # # oo = await loop.run_in_executor(None, self.tmall.get_goods_data, tmp_item)
             # oo = await loop.run_in_executor(None, tmall.get_goods_data, tmp_item)
             # try:
-            #     del loop
+            #     loop.close()
+            #     try:
+            #         del loop
+            #     except:
+            #         pass
             # except:
             #     pass
+
             oo_is_delete = oo.get('is_detele', 0)  # 避免下面解析data错误休眠
             if isinstance(oo, int):  # 单独处理return 4041
                 self.goods_index += 1
                 await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
                 return [goods_id, res]
 
+            # 阻塞方式
             data = self.tmall.deal_with_data()
+            # 非阻塞方式
             # data = tmall.deal_with_data()
             if data != {}:
                 data['goods_id'] = goods_id
@@ -236,7 +242,7 @@ class TMUpdater(AsyncCrawler):
         '''
         count = 0
         all_count_fail_sleep_time = 100.
-        sleep_time = 60.
+        sleep_time = 50.
         for item in res:
             try:
                 if not item[1]:

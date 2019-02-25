@@ -768,6 +768,59 @@ COMPANY_ITEM_LIST = [
         'lat': None,
     },
     {
+        'short_name': 'yw',
+        'debug': True,
+        'orj_origin': 'www.yiwugo.com',
+        'trade_type_info': {
+            'type_url_sub': {       # 第二类分类的cate id: list
+                'method': 'css',
+                'selector': 'div#categoryBarHook ul.category-bar li ::attr("data-uppertype")',
+            },
+            'type_name_sub': {      # 第二类分类name type: list
+                'method': 'css',
+                'selector': 'div#categoryBarHook ul.category-bar li ::text',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '\/hu\/(\w+)',
+        },
+        'company_status': None,     # ''
+        'company_link': None,       # ''
+        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
+            'method': 'css',
+            'selector': 'ul.shop_introduce li',
+        },
+        'company_name': {
+            'method': 'css',
+            'selector': 'li.temp-company-v span.blod ::text'
+        },
+        'legal_person': None,       # ''
+        'phone': None,              # yw不在此处取值!从phone1 手机 phone2座机中取值!
+        'phone1': {
+            'method': 'css',
+            'selector': 'ul.shop_introduce li.ico-shop-02 ::text',
+        },
+        'phone2': {
+            'method': 'css',
+            'selector': 'ul.shop_introduce li.ico-shop-03 ::text',
+        },
+        'email_address': {
+            'method': 'css',
+            'selector': 'ul.shop_introduce li.ico-shop-04 ::text',
+        },
+        'address': None,            # 在company_info_detail_li_1中(span.c999:商铺地址：)
+        'brief_introduction': {     # 简介
+            'method': 'css',
+            'selector': 'div.mt15 p.c999 span#shop-int ::text',
+        },
+        'business_range': None,     # 在company_info_detail_li_1中(span.c999:主营商品：)
+        'founding_time': None,      # 赋默认值
+        'employees_num': None,      # ''
+        'lng': None,
+        'lat': None,
+    },
+    {
         'short_name': 'mt',
         'debug': True,
         'obj_origin': 'i.meituan.com',

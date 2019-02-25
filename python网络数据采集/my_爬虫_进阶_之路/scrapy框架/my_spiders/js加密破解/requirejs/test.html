@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="r.js"></script>
+    <script type="text/javascript">
+        <!-- 简单调用: 注意require中的依赖是一个数组, 即使只有一个依赖, 你也必须使用数组来定义), require API的第二个参数是callback, 一个function, 是用来处理加载完毕后的逻辑 -->
+        <!--
+         require(["a"], function () {
+             alert("load finished")
+         });
+        -->
+        <!-- 加载文件 -->
+        <!-- 之前的例子中加载模块都是本地js，但是大部分情况下网页需要加载的JS可能来自本地服务器、其他网站或CDN，这样就不能通过这种方式来加载了，我们以加载一个jquery库为例： -->
+        require.config({
+            paths : {
+                "jquery" : ["http://libs.baidu.com/jquery/2.0.3/jquery"]
+            }
+        });
+        require(["jquery","a"],function($){
+            $(function(){
+                alert("load finished");
+            })
+        })
+    </script>
+</head>
+<body>
+
+</body>
+</html>

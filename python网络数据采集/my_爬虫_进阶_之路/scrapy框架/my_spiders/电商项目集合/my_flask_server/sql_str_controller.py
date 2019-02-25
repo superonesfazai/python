@@ -217,7 +217,7 @@ jd_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s whe
 z8_select_str_1 = 'select goods_id, is_delete from dbo.zhe_800_pintuan where site_id=17'
 # 拼团更新待更新数据查询
 z8_select_str_2 = '''
-select goods_id, is_delete 
+select top 1000 goods_id, is_delete 
 from dbo.zhe_800_pintuan 
 where site_id=17 and GETDATE()-modfiy_time>0.5
 order by modfiy_time asc'''

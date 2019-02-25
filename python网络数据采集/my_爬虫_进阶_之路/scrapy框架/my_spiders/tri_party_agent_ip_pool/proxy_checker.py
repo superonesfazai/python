@@ -615,8 +615,16 @@ class ProxyChecker(AsyncCrawler):
             timeout=10)
         # print(now_ip)
 
-        if self.local_ip != now_ip \
-                and ',' not in now_ip:
+        # TODO 下面是老版的httpbin.org判断
+        # if self.local_ip != now_ip \
+        #         and ',' not in now_ip:
+        #     # print(now_ip)
+        #     res = True
+
+        # 新版判断, 新版不用代理请求httpbin返回格式: '原ip, 原ip'
+        local_ip_str = '{}, {}'.format(self.local_ip, self.local_ip)
+        if local_ip_str != now_ip \
+                and self.local_ip not in now_ip:
             # print(now_ip)
             res = True
 
