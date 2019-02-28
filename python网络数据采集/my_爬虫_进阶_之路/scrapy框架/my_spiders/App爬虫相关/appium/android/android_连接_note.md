@@ -7,13 +7,52 @@
 adb devices -l
 ```
 
+adb未安装解决方案:
+```bash
+$ vi ~/.zshrc
+
+# 添加下方
+export ANDROID_HOME=/Users/afa/Library/Android/sdk
+export PATH=${PATH}:${ANDROID_HOME}/tools
+export PATH=${PATH}:${ANDROID_HOME}/platform-tools
+
+$ source ~/.zshrc
+```
+mac adb找不到设备
+```bash
+# 1. 检查是否是usb线问题
+# 2. 设置-> 存储-> usb计算机连接 -> 内置光盘
+```
+
+检查appium android环境是否完整
+```bash
+$ appium-doctor --android
+
+# 报错: WARN AppiumDoctor  ✖ JAVA_HOME is NOT set!
+$ vi ~/.zshrc
+# 增加
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+$ source ~/.zshrc
+
+# 报错: WARN AppiumDoctor  ✖ bundletool.jar cannot be found
+android studio -> 属性 -> android sdk -> sdk tools -> 下载ndk
+```
+
+连接页面报错
+```bash
+# [Logcat] Logcat terminated with code 0, signal null
+# [UiAutomator] UiAutomator exited unexpectedly with code 0, signal null
+# 出现上述报错原因是 android studio中没安装或者更新相应真机版本的sdk, 安装并更新即可解决 eg: android 8.1 安装android api 27
+```
+
 如果出现类似如下结果，这就说明PC已经正确连接手机。
 ```angular2html
 List of devices attached
 2da42ac0 device usb:336592896X product:leo model:MI_NOTE_Pro device:leo
 ```
 
-model是设备的名称，就是后文需要用到的deviceName变量。我使用的是小米Note顶配版，所以此处名称为MI_NOTE_Pro。
+model是设备的名称，就是后文需要用到的deviceName变量。我使用的是小米Note，所以此处名称为MI_NOTE_Pro。
 
 接下来用Appium内置的驱动器打开App，点击Appium中的Start New Session按钮
 

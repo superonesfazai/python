@@ -79,6 +79,7 @@ def run_forever():
 
                     data = zhe_800_pintuan.deal_with_data()
                     if data != {}:
+                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
                         data['goods_id'] = goods_id
 
                         if item[1] == 1:
@@ -89,7 +90,6 @@ def run_forever():
                                 sql_cli=sql_cli,
                             )
                         else:
-                            print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
                             zhe_800_pintuan.to_right_and_update_data(data=data, pipeline=sql_cli)
                     else:  # 表示返回的data值为空值
                         pass
@@ -117,10 +117,9 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     run_forever()
 
 if __name__ == '__main__':

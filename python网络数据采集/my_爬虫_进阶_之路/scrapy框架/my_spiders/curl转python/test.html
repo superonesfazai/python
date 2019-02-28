@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script type="text/javascript" src="./js/r.js"></script>
+    <script type="text/javascript">
+        // 调用模块
+        require(["./js/hook.js"], function(){
+             alert("load finished");
+         });
+    </script>
 </head>
 <body>
-##      <script src="./js/r.js" type="text/javascript"></script>
-    <script src="./js/r.js" data-main="hook"></script>
 </body>
 </html>
 

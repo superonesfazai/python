@@ -16,10 +16,12 @@
     4. al 1688
     5. 114批发网
     6. 中国制造网(https://cn.made-in-china.com)
-    7. 义乌购[义乌国际商贸城](http://www.yiwugo.com)(对方服务器并发性能不佳, 脚本可循环跑以提高采集效率!)
+    7. 义乌购[义乌国际商贸城](http://www.yiwugo.com)
 
 待实现:
-    1. 广州南国小商品城(http://www.nanguo.cn/)
+    1. 货牛牛(eg: 广州: http://www.huoniuniu.com/ | 杭州: http://hz.huoniuniu.com/ | ...)
+    2. 品库(https://www.ppkoo.com/)
+    3. 广州南国小商品城(http://www.nanguo.cn/)
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -91,53 +93,32 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        # 设置爬取对象
-        self.spider_name = 'yw'
-        # 并发量, ty(推荐: 5)高并发被秒封-_-! 慢慢抓
-        self.concurrency = 300
+        self.spider_name = 'yw'                                                 # 设置爬取对象
+        self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
-        # 设置天眼查抓取截止页数(查询限制5000个) max 250页
-        self.ty_max_page_num = 250
-        # 设置企查查抓取截止页数
-        self.qcc_max_page_num = 2000
-        # hy抓取开始company_id (1-88402, 1187459-, 2865539-, 2871053-)
-        self.hy_min_company_id = 2896700
-        # 设置hy抓取截止company_id(20000000)(直接写20000000, 程序会卡死)
-        self.hy_max_company_id = 2972941
-        # 设置al父分类最小的index_cate_id
-        self.al_min_index_cate_id = 0
-        # 设置al父分类最大的index_cate_id
-        self.al_max_index_cate_id = 16
-        # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
-        self.al_max_page_num = 100
-        # 设置114单个子分类抓取截止最大page_num
-        self.a114_max_page_num = 50
-        # 设置114单页面最大重试次数
-        self.a114_max_num_retries = 15
-        # 设置ic单个子页面抓取截止最大page_num
-        self.ic_max_page_num = 200
-        # 设置yw单页面最大重试次数
-        self.yw_max_num_retries = 10
-        # 设置yw单个子分类抓取截止的最大page_num
-        self.yw_max_page_num = 100
-        # mt最大限制页数(只抓取前50页, 后续无数据)
-        self.mt_max_page_num = 50
-        # mt robot ocr record shop_id
-        self.mt_ocr_record_shop_id = ''
+        self.ty_max_page_num = 250                                              # 设置天眼查抓取截止页数(查询限制5000个) max 250页
+        self.qcc_max_page_num = 2000                                            # 设置企查查抓取截止页数
+        self.hy_min_company_id = 2896700                                        # hy抓取开始company_id (1-88402, 1187459-, 2865539-, 2871053-)
+        self.hy_max_company_id = 2972941                                        # 设置hy抓取截止company_id(20000000)(直接写20000000, 程序会卡死)
+        self.al_min_index_cate_id = 0                                           # 设置al父分类最小的index_cate_id
+        self.al_max_index_cate_id = 16                                          # 设置al父分类最大的index_cate_id
+        self.al_max_page_num = 100                                              # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
+        self.a114_max_page_num = 50                                             # 设置114单个子分类抓取截止最大page_num
+        self.a114_max_num_retries = 15                                          # 设置114单页面最大重试次数
+        self.ic_max_page_num = 200                                              # 设置ic单个子页面抓取截止最大page_num
+        self.yw_max_num_retries = 10                                            # 设置yw单页面最大重试次数
+        self.yw_max_page_num = 100                                              # 设置yw单个子分类抓取截止的最大page_num
+        self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
+        self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
         self._set_province_code_list_and_city_code_list()
         self.ty_cookies_dict = {}
-        # ty robot
-        self.ty_robot = False
-        # mt robot
-        self.mt_robot = False
-        # 存储的sql_str
-        self.insert_into_sql = gs_insert_str_1
-        # driver path
-        self.driver_path = PHANTOMJS_DRIVER_PATH
-        # driver timeout
-        self.driver_timeout = 20
+        self.ty_robot = False                                                   # ty robot
+        self.mt_robot = False                                                   # mt robot
+        self.insert_into_sql = gs_insert_str_1                                  # 存储的sql_str
+        self.driver_path = PHANTOMJS_DRIVER_PATH                                # driver path
+        self.driver_timeout = 20                                                # driver timeout
         # wx sc_key
         with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
             self.sc_key = json_2_dict(f.read())['sckey']
@@ -511,7 +492,10 @@ class CompanySpider(AsyncCrawler):
 
         # 对应company_id 采集该分类截止页面的所有company info
         tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
-        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+        # now_step = self.concurrency
+        # when driver get html
+        now_step = 20
+        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=now_step)
 
         index = 0
         while True:
@@ -522,6 +506,8 @@ class CompanySpider(AsyncCrawler):
 
             # asyncio
             one_res = await _get_one_res(slice_params_list=slice_params_list)
+            kill_process_by_name('phantomjs')
+            kill_process_by_name('firefox')
 
             # 存储
             index, self.db_yw_unique_id_list = await self._save_company_one_res(
@@ -1709,7 +1695,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[6630:]
+        return all_key_list[7800:]
 
     async def _get_al_category7(self) -> list:
         """
@@ -4784,15 +4770,30 @@ class CompanySpider(AsyncCrawler):
         :param company_id:
         :return:
         """
-        headers = await self._get_pc_headers()
         url = 'http://www.yiwugo.com/hu/{}.html'.format(company_id)
-        body = await unblock_request(
+        # 成功率低
+        # headers = await self._get_pc_headers()
+        # headers.update({
+        #     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        # })
+        # body = await unblock_request(
+        #     url=url,
+        #     headers=headers,
+        #     ip_pool_type=self.ip_pool_type,
+        #     logger=self.lg,
+        #     num_retries=6,)
+
+        body = await unblock_request_by_driver(
             url=url,
-            headers=headers,
-            ip_pool_type=self.ip_pool_type,
+            type=PHANTOMJS,
+            executable_path=self.driver_path,
             logger=self.lg,
-            num_retries=6,)
+            ip_pool_type=self.ip_pool_type,
+            timeout=20,
+        )
         # self.lg.info(body)
+
+
         if body == '':
             self.lg.error('company body为空值! shop_url: {}'.format(url))
 
