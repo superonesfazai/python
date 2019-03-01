@@ -191,9 +191,12 @@ class ALi1688LoginAndParse(Crawler):
 
             return data1
 
-        def add_goods_name(data1) -> dict:
+        def add_goods_name(data1, body) -> dict:
             # goods_name
-            goods_name = data1.get('offerSubject', '')
+            # goods_name = data1.get('offerSubject', '')
+
+            # self.lg.info(body)
+            goods_name = re.compile('name=\"offerSubject\" value=\"(.*?)\">').findall(body)[0]
             assert goods_name != '', 'goods_name为空值!'
             data1.update({
                 'subject': goods_name,
@@ -265,7 +268,8 @@ class ALi1688LoginAndParse(Crawler):
             return self._data_error_init()
 
         # TODO 新版处理 eg: goods_id: 44609651914
-        body_1 = re.compile('class=\"module-wap-detail-common-footer\"><script type=\"component-data/json\" data-module-hidden-data-area=\"Y\">(.*)</script><div class=\"takla')\
+        # self.lg.info(body)
+        body_1 = re.compile('class=\"module-wap-detail-common-footer\">.*<script type=\"component-data/json\" data-module-hidden-data-area=\"Y\">(.*)</script><div class=\"takla')\
             .findall(body)[0]
         body_2 = re.compile('id=\"widget-wap-detail-common-price\"><script type=\"component/json\" data-module-hidden-data-area=\"Y\">(.*?)</script>')\
             .findall(body)[0]
@@ -280,7 +284,7 @@ class ALi1688LoginAndParse(Crawler):
             return self._data_error_init()
 
         data1 = add_data2_2_data1(data1=data1, data2=data2)
-        data1 = add_goods_name(data1)
+        data1 = add_goods_name(data1, body)
         data1 = add_company_name(data1)
         data1 = add_all_img_list(data1)
         # 增加是否是限时优惠

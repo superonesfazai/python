@@ -186,11 +186,30 @@ where site_id=5
 and phone != '[]'
 and city_id in (select code from dbo.Region where c_name='天津市')
 '''
+# 义乌购
+sql_str_11 = '''
+select
+a.unique_id as 'id',
+a.company_name as '商铺 or 批发商名称',
+a.phone as '手机',
+a.email_address as '邮件',
+a.brief_introduction as '简介',
+a.business_range as '经营范围',
+a.address as '地址',
+b.c_name as '城市名'
+-- select count(id)
+from dbo.company_info as a, dbo.Region as b
+-- from dbo.company_info
+where site_id=8
+and (phone != '[]' or email_address != '[]')
+and a.city_id = b.code
+-- order by id desc;
+'''
 
 """
 查看某site_id常规商品的更新状况
 """
-sql_str_11 = '''
+sql_str_12 = '''
 select count(ID)
 -- select top 100 GoodsID, shelf_time, IsDelete, ModfiyTime
 from dbo.GoodsInfoAutoGet
@@ -205,7 +224,7 @@ and SiteID=2
 """
 同步数据
 """
-sql_str_12 = '''
+sql_str_13 = '''
 -- update dbo.GoodsInfoAutoGet 
 -- set is_spec_change = 1,
 -- spec_trans_time = GETDATE()
