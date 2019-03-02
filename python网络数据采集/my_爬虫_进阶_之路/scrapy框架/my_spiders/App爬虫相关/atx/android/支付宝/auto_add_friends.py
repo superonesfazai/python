@@ -8,6 +8,10 @@
 
 """
 支付宝批量加好友
+
+启动方式:
+1. python3 -m weditor 
+2. python3 -m uiautomator2 init 
 """
 
 from gc import collect
@@ -17,7 +21,10 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import uiautomator2 as u2
+from uiautomator2.session import UiObject
 from uiautomator2.exceptions import UiObjectNotFoundError
+from fzutils.common_utils import _print
+from fzutils.spider.app_utils import u2_page_back
 from fzutils.spider.async_always import *
 
 class ALiPay(AsyncCrawler):
@@ -71,14 +78,15 @@ class ALiPay(AsyncCrawler):
                 self.phone_list.append(line.replace('\n', ''))
         pprint(self.phone_list)
         self.phone_list = self.phone_list[150:]
-        print('total phone num: {}'.format(self.phone_list))
+        print('total phone num: {}'.format(len(self.phone_list)))
 
     async def _fck_run(self):
         # TODO 先退出登录
         print('开始运行...')
         login_res = await self._login()
-        await self._enter_add_friends_page()
-        await self._start_add_friends()
+
+        await self._batch_add_friends()
+        # await self._ant_forest_steal_energy()
 
         print('运行完毕!')
 
@@ -117,6 +125,114 @@ class ALiPay(AsyncCrawler):
 
         return True
 
+    async def _ant_forest_steal_energy(self):
+        """
+        蚂蚁森林偷能量
+        :return:
+        """
+        # 点蚂蚁森林
+        self.d(resourceId="com.alipay.android.phone.openplatform:id/app_icon", className="android.widget.ImageView", instance=9).click()
+        print('等待蚂蚁森林页面启动...')
+        await async_sleep(15)
+
+        # 向下滑动
+        while True:
+            try:
+                self.d.swipe(0., 0.7, 0., 0.2)
+                assert self.d(description=u"查看更多好友").exists() is not True
+            except AssertionError:
+                break
+        print('已下滑至底部!')
+
+        # 查看更多好友
+        self.d(description=u"查看更多好友").click()
+        print('获取好友页面中...')
+        await async_sleep(6)
+
+        # 下滑好友页面到底部
+        while True:
+            try:
+                self.d.swipe(0., 0.7, 0., 0.2)
+                assert self.d(resourceId="J_rank_list_more", description=u"没有更多了", className="android.view.View").exists() is not True
+            except AssertionError:
+                break
+        print('已下滑至底部!')
+
+        li_ele_list = self.d(className="android.view.View").child()
+        pprint(li_ele_list)
+
+        friends_ele_list = []
+        for ele in li_ele_list:
+            ele_info = ele.info
+            # print(ele_info)
+            content_description = ele_info.get('contentDescription', '')
+            # print(content_description)
+            if content_description != '' \
+                    and '方波' not in content_description \
+                    and '获得了' not in content_description \
+                    and 'g' not in content_description \
+                    and '阿发' not in content_description \
+                    and '邀请' not in content_description:
+                try:
+                    # 处理content_description为eg: '6的'
+                    int(content_description)
+                    continue
+                except ValueError:
+                    print(content_description)
+                    friends_ele_list.append({
+                        'content_description': content_description,
+                        'ele': ele,
+                    })
+
+        print('@@@@@@ 下面是好友列表:')
+        pprint(friends_ele_list)
+
+        # descriptionMatches中为re
+        # d(descriptionMatches='收集能量\d+克', className="android.widget.Button").count
+
+    async def async_get_ele_info(self, ele:UiObject, logger=None) -> tuple:
+        """
+        异步获取ele 的info
+        :param ele:
+        :return: (ele, ele_info)
+        """
+        async def _get_args() -> list:
+            '''获取args'''
+            return [
+                ele,
+            ]
+
+        def _get_ele_info(ele) -> dict:
+            return ele.info
+
+        loop = get_event_loop()
+        args = await _get_args()
+        ele_info = {}
+        try:
+            ele_info = await loop.run_in_executor(None, _get_ele_info, *args)
+            # print('*' * 50)
+            # print(ele_info)
+        except Exception as e:
+            _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
+        finally:
+            # loop.close()
+            try:
+                del loop
+            except:
+                pass
+            collect()
+            _print(msg='[{}] ele: {}'.format('+' if ele_info != {} else '-', ele))
+
+            return ele, ele_info
+
+    async def _batch_add_friends(self):
+        """
+        批量添加好友
+        :return:
+        """
+        await self._enter_add_friends_page()
+        await self._start_add_friends()
+
     async def _enter_add_friends_page(self):
         """
         进入加好友页面
@@ -154,7 +270,6 @@ class ALiPay(AsyncCrawler):
                 self.d(resourceId="com.alipay.mobile.ui:id/social_search_normal_input").clear_text()
                 # 输入手机号
                 self.d(resourceId="com.alipay.mobile.ui:id/social_search_normal_input").send_keys(phone_num)
-
                 # 点击搜索
                 self.d(resourceId="com.alipay.mobile.contactsapp:id/search_tip_TableView").click()
 
@@ -171,7 +286,16 @@ class ALiPay(AsyncCrawler):
                     print('add_friend_btn 是否存在?: {}'.format(add_friend_btn.exists()))
                     if add_friend_btn.exists():
                         # 只对应单个支付宝账号
-                        pass
+                        try:
+                            add_friend_btn_text = add_friend_btn.info.get('text', '')
+                            # print('add_friend_btn_text: {}'.format(add_friend_btn_text))
+                            assert add_friend_btn_text != '发消息', '该账号已被添加!'
+                        except AssertionError as e:
+                            print(e)
+                            index += 1
+                            await u2_page_back(d=self.d, back_num=1)
+                            continue
+
                     else:
                         index += 1
                         print('[-] 添加 {} fail! 原因: 账号不存在!'.format(phone_num))
@@ -184,14 +308,6 @@ class ALiPay(AsyncCrawler):
                             # 防止卡住, 进行附近点击
                             self.d.click(0.755, 0.265)
                             continue
-
-                        add_friend_btn_text = add_friend_btn.get_text(timeout=4)
-                        # print('add_friend_btn_text: {}'.format(add_friend_btn_text))
-                        if add_friend_btn_text == '发消息':
-                            print('[-] 添加 {} fail! 原因: 该账号已被添加!'.format(phone_num))
-                            continue
-                        else:
-                            pass
 
                         continue
                 else:

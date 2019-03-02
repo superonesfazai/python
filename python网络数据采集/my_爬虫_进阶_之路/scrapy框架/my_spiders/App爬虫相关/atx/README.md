@@ -44,3 +44,52 @@ $ python3 -m atx version
 # 检查环境配置是否正常
 $ python3 -m atx doctor
 ```
+
+### 热键
+返回上一页
+```python
+d.press("back")
+```
+返回主页
+```python
+d.press('home')
+```
+屏幕解锁
+```python
+d.unlock()
+# 1. launch activity: com.github.uiautomator.ACTION_IDENTIFY
+# 2. press "home"
+```
+app启动
+```python
+d.app_start('包名')
+```
+xpath 用法
+```python
+d.xpath('//android.widget.TextView').all()[2].text
+```
+元素的文字内容获取
+```python
+d.xpath('//android.widget.TextView').info.get('contentDescription', '')
+```
+d(text='Clock', className='android.widget.TextView')中可用参数
+
+[java doc](https://developer.android.com/reference/android/support/test/uiautomator/UiSelector)
+```bash
+- text, textContains, textMatches, textStartsWith
+- className, classNameMatches
+- description, descriptionContains, descriptionMatches, descriptionStartsWith
+- checkable, checked, clickable, longClickable
+- scrollable, enabled,focusable, focused, selected
+- packageName, packageNameMatches
+- resourceId, resourceIdMatches
+- index, instance
+```
+
+滑动
+
+![](https://i.loli.net/2019/03/02/5c7a24c360d07.png)
+
+watcher
+
+![](https://i.loli.net/2019/03/02/5c7a24d38a9d1.png)

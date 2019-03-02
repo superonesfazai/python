@@ -93,7 +93,7 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'yw'                                                 # 设置爬取对象
+        self.spider_name = 'hn'                                                 # 设置爬取对象
         self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
@@ -109,6 +109,8 @@ class CompanySpider(AsyncCrawler):
         self.ic_max_page_num = 200                                              # 设置ic单个子页面抓取截止最大page_num
         self.yw_max_num_retries = 10                                            # 设置yw单页面最大重试次数
         self.yw_max_page_num = 100                                              # 设置yw单个子分类抓取截止的最大page_num
+        self.hn_city_info_list = []                                             # hn的城市路由地址信息list
+        self.hn_max_num_retries = 6                                             # hn单页面最大重试数
         self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
@@ -175,8 +177,166 @@ class CompanySpider(AsyncCrawler):
         elif short_name == 'yw':
             await self._yw_spider()
 
+        elif short_name == 'hn':
+            await self._hn_spider()
+
         else:
             raise NotImplemented
+
+    async def _hn_spider(self):
+        """
+        货牛牛spider(pc站)
+        :return:
+        """
+        self.db_hn_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=9)
+        self.hn_category_list = await self._get_hn_category()
+
+        pprint(self.hn_category_list)
+        self.lg.info('hn所有子分类总个数: {}'.format(len(self.hn_category_list)))
+        assert self.hn_category_list != [], '获取到的self.hn_category_list为空list!异常退出'
+
+        await self._crawl_hn_company_info()
+
+    async def _get_hn_category(self) -> list:
+        """
+        获取hn关键字
+        :return: ['短袖', ...]
+        """
+        async def _get_hn_base_info(trade_type_selector) -> tuple:
+            """获取相关信息"""
+            headers = await self._get_pc_headers()
+            headers.update({
+                'Proxy-Connection': 'keep-alive',
+            })
+            url = 'http://www.huoniuniu.com/'
+            body = await unblock_request(
+                url=url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.hn_max_num_retries,
+                logger=self.lg)
+            # self.lg.info(body)
+
+            # ['T恤', ....]
+            main_sort_name_list = await async_parse_field(
+                parser=trade_type_selector['type_name_sub'],
+                target_obj=body,
+                is_first=False,
+                logger=self.lg,)
+            main_sort_cid_list = list(set(await async_parse_field(
+                parser=trade_type_selector['type_cid_sub'],
+                target_obj=body,
+                is_first=False,
+                logger=self.lg,)))
+            city_name_list = await async_parse_field(
+                parser=trade_type_selector['city_name'],
+                target_obj=body,
+                is_first=False,
+                logger=self.lg,)
+            city_url_list = await async_parse_field(
+                parser=trade_type_selector['city_url'],
+                target_obj=body,
+                is_first=False,
+                logger=self.lg,)
+            city_info_list = list(zip(city_name_list, city_url_list))
+
+            return main_sort_name_list, main_sort_cid_list, city_info_list
+
+        async def _get_tasks_params_list(cate_info_list) -> list:
+            """获取tasks_params_list"""
+            tasks_params_list = []
+            for i in cate_info_list:
+                tasks_params_list.append({
+                    'cate_id': i,
+                })
+
+            return tasks_params_list
+
+        async def _get_one_res(slice_params_list) -> list:
+            tasks = []
+            for k in slice_params_list:
+                cate_id = k['cate_id']
+                self.lg.info('create task[where cate_id: {}]'.format(cate_id))
+                tasks.append(self.loop.create_task(_get_hn_one_cate_id_keyword_list(
+                    cate_id=cate_id,
+                )))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+            # pprint(one_res)
+
+            return one_res
+
+        async def _get_hn_one_cate_id_keyword_list(cate_id) -> list:
+            """
+            单个cate id 对应的keyword list
+            :param cate_id:
+            :return: ['短袖', ...]
+            """
+            headers = await self._get_pc_headers()
+            headers.update({
+                'Proxy-Connection': 'keep-alive',
+            })
+            params = (
+                ('ajax', '1'),
+                ('cid', cate_id),
+            )
+            url = 'http://www.huoniuniu.com/api/getCategory'
+            body = await unblock_request(
+                url=url,
+                headers=headers,
+                params=params,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.hn_max_num_retries,
+                logger=self.lg)
+            # self.lg.info(body)
+            cate_list = json_2_dict(
+                json_str=body,
+                default_res={},
+                logger=self.lg).get('categorys', [])
+            # ['短袖', ...]
+            data = [item.get('name', '') for item in cate_list]
+            self.lg.info('[{}] cate_id: {}'.format(
+                '+' if data != [] else '-',
+                cate_id))
+
+            return data
+
+        parser_obj = await self._get_parser_obj(short_name='hn')
+        # 获取父分类信息, cid, hn城市路由地址
+        main_sort_name_list, main_sort_cid_list, self.hn_city_info_list = await _get_hn_base_info(trade_type_selector=parser_obj['trade_type_info'])
+        pprint(main_sort_name_list)
+        pprint(main_sort_cid_list)
+        pprint(self.hn_city_info_list)
+
+        # 获取父分类的子分类
+        tasks_params_list = await _get_tasks_params_list(cate_info_list=main_sort_cid_list)
+        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+        all_keywords_list = main_sort_name_list
+        while True:
+            try:
+                slice_params_list = tasks_params_list_obj.__next__()
+            except AssertionError:
+                break
+
+            one_res = await _get_one_res(slice_params_list=slice_params_list)
+            for i in one_res:
+                for j in i:
+                    if j not in all_keywords_list:
+                        all_keywords_list.append(j)
+
+        # pprint(all_keywords_list)
+        self.lg.info('获取到的父分类的子分类总个数: {}'.format(len(all_keywords_list)))
+
+        all_hn_child_cate_info_list = all_keywords_list
+
+        return all_hn_child_cate_info_list
+
+    async def _crawl_hn_company_info(self):
+        """
+        采集hn所有商家信息
+        :return:
+        """
+        return None
 
     async def _yw_spider(self):
         """
@@ -192,7 +352,7 @@ class CompanySpider(AsyncCrawler):
 
         await self._crawl_yw_company_info()
 
-    async def _get_yw_category(self):
+    async def _get_yw_category(self) -> list:
         """
         获取yw所有子分类
         :return: [{'cate_id': xx, 'cate_name': xx}, ...]
