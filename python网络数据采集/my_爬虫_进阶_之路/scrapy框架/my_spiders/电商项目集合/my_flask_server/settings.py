@@ -840,7 +840,15 @@ COMPANY_ITEM_LIST = [
             'city_url': {           # 城市路由地址
                 'method': 'css',
                 'selector': 'div.ds-city.cf a ::attr("href")',
-            }
+            },
+            'shop_item': {
+                'method': 'css',
+                'selector': 'div.findstyle_left div.ps-item1 div.shopname_box a.shopname.max_width ::attr("href")',     # 此处要过滤掉最新上架的
+            },
+            'w3': {
+                'method': 're',
+                'selector': ':\/\/(\w+)\.',
+            },
         },
         'unique_id': {
             'method': 're',
@@ -850,32 +858,18 @@ COMPANY_ITEM_LIST = [
         'company_link': None,       # ''
         'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
             'method': 'css',
-            'selector': 'ul.shop_introduce li',
+            'selector': 'div.shop-item.cf',
         },
         'company_name': {
             'method': 'css',
-            'selector': 'li.temp-company-v span.blod ::text'
+            'selector': 'div.shop-jieshao span.title ::text'
         },
         'legal_person': None,       # ''
-        'phone': None,              # yw不在此处取值!从phone1 手机 phone2座机中取值!
-        'phone1': {
-            'method': 'css',
-            'selector': 'ul.shop_introduce li.ico-shop-02 ::text',
-        },
-        'phone2': {
-            'method': 'css',
-            'selector': 'ul.shop_introduce li.ico-shop-03 ::text',
-        },
-        'email_address': {
-            'method': 'css',
-            'selector': 'ul.shop_introduce li.ico-shop-04 ::text',
-        },
-        'address': None,            # 在company_info_detail_li_1中(span.c999:商铺地址：)
-        'brief_introduction': {     # 简介
-            'method': 'css',
-            'selector': 'div.mt15 p.c999 span#shop-int ::text',
-        },
-        'business_range': None,     # 在company_info_detail_li_1中(span.c999:主营商品：)
+        'phone': None,              # 在company_info_detail_li_1中(div.left span.title:电话)
+        'email_address': None,      # ''
+        'address': None,            # 在company_info_detail_li_1中(div.left span.title:地址)
+        'brief_introduction': None, # 简介 ''
+        'business_range': None,     # 主营范围 ''
         'founding_time': None,      # 赋默认值
         'employees_num': None,      # ''
         'lng': None,

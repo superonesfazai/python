@@ -263,7 +263,7 @@ class ALiPay(AsyncCrawler):
         """
         index = 0
         while index < len(self.phone_list):
-            phone_num = self.phone_list[index]
+            phone_num = self.phone_list[get_random_int_number(0, len(self.phone_list) - 1)]
 
             try:
                 # 清空输入框

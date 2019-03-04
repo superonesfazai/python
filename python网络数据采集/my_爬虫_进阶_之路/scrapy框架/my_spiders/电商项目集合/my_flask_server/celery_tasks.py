@@ -27,6 +27,7 @@ from fzutils.internet_utils import (
 from fzutils.common_utils import json_2_dict
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.celery_utils import *
+from fzutils.spider.selector import parse_field
 from fzutils.spider.fz_requests import Requests
 
 """
@@ -283,4 +284,89 @@ def _get_yw_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
 
     return company_info_list
 
+@app.task(name=tasks_name + '._get_hn_one_type_company_id_list_task', bind=True)
+def _get_hn_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, province_name, city_name, city_base_url, shop_item_selector:dict, shop_id_selector:dict, w3_selector:dict, num_retries=6, timeout=15,):
+    """
+    获取hn 某关键字的单页company_info
+    :param self:
+    :param ip_pool_type:
+    :param keyword:
+    :param page_num:
+    :param province_name:
+    :param city_name:
+    :param city_base_url:
+    :param shop_item_selector:
+    :param shop_id_selector:
+    :param w3_selector:
+    :param num_retries:
+    :param timeout:
+    :return: [{'company_id': xxx, 'province_name': 'xx', 'city_name': 'xx', 'w3': 'xx'}, ...]
+    """
+    try:
+        w3 = parse_field(
+            parser=w3_selector,
+            target_obj=city_base_url,
+            logger=lg,)
+        assert w3 != '', 'w3为空值!'
+    except AssertionError:
+        lg.error('遇到错误:', exc_info=True)
+        return []
 
+    headers = _get_pc_headers()
+    headers.update({
+        'Proxy-Connection': 'keep-alive',
+    })
+    params = (
+        ('q', str(keyword)),
+        ('sourcePage', '/goods'),
+        ('page_no', str(page_num)),
+    )
+    # url = 'http://www.huoniuniu.com/goods'
+    url = city_base_url + '/goods'
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        num_retries=num_retries,
+        ip_pool_type=ip_pool_type,
+        timeout=timeout)
+    # lg.info(body)
+
+    shop_item_list = parse_field(
+        parser=shop_item_selector,
+        target_obj=body,
+        is_first=False,
+        logger=lg,)
+    # pprint(shop_item_list)
+
+    shop_id_list = []
+    for item in shop_item_list:
+        try:
+            company_id = parse_field(
+                parser=shop_id_selector,
+                target_obj=item,
+                is_first=True,
+                logger=lg)
+            assert company_id != '', 'company_id不为空值!'
+            shop_id_list.append({
+                'company_id': company_id,
+                'province_name': province_name,
+                'city_name': city_name,
+                'w3': w3,
+            })
+        except AssertionError:
+            continue
+    shop_id_list = list_remove_repeat_dict_plus(
+        target=shop_id_list,
+        repeat_key='company_id',)
+    # pprint(shop_id_list)
+    lg.info('[{}] keyword: {}, page_num: {}, province_name: {}, city_name: {}'.format(
+        '+' if shop_id_list != [] else '-',
+        keyword,
+        page_num,
+        province_name,
+        city_name,
+    ))
+    collect()
+
+    return shop_id_list
