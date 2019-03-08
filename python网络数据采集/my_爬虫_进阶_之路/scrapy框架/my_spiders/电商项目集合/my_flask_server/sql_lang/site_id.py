@@ -56,7 +56,7 @@ where GoodsID='';
 
 # 查询最新入录的商品
 sql_str_2 = '''
-select top 20 ID, UserName, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange
+select top 20 ID, UserName, GoodsUrl, CreateTime, MainGoodsID, IsPriceChange, ModfiyTime
 from dbo.GoodsInfoAutoGet 
 where GETDATE()-CreateTime < 1
 order by ID desc;

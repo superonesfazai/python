@@ -23,6 +23,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import uiautomator2 as u2
 from uiautomator2.session import UiObject
 from uiautomator2.exceptions import UiObjectNotFoundError
+
+from exceptions import AddFriendsToTheUpperLimitException
 from fzutils.common_utils import _print
 from fzutils.spider.app_utils import u2_page_back
 from fzutils.spider.async_always import *
@@ -65,7 +67,8 @@ class ALiPay(AsyncCrawler):
         # self.wait = WebDriverWait(self.driver, 30)
 
         # adb device 查看
-        self.d = u2.connect("816QECTK24ND8")
+        self.d = u2.connect(addr="816QECTK24ND8")        # meizu
+        # self.d = u2.connect("U4AYPNDYCITWAE6D")     # oppo
         print(self.d.info)
         self.d.set_fastinput_ime(True)
         self.d.debug = True
@@ -73,6 +76,26 @@ class ALiPay(AsyncCrawler):
         self.phone_list = []
         # 支付宝登录页面类型
         self.login_type = 0
+
+    async def _fck_run(self):
+        # TODO 先退出登录
+        print('开始运行...')
+        login_res = await self._login()
+
+        # 批量加好友
+        await self._init_phone_list()
+        await self._batch_add_friends()
+
+        # 蚂蚁森林
+        # await self._ant_forest_steal_energy()
+
+        print('运行完毕!')
+
+    async def _init_phone_list(self):
+        """
+        初始化 phone list
+        :return:
+        """
         with open('phone.txt', 'r') as f:
             for line in f:
                 self.phone_list.append(line.replace('\n', ''))
@@ -80,15 +103,7 @@ class ALiPay(AsyncCrawler):
         self.phone_list = self.phone_list[150:]
         print('total phone num: {}'.format(len(self.phone_list)))
 
-    async def _fck_run(self):
-        # TODO 先退出登录
-        print('开始运行...')
-        login_res = await self._login()
-
-        await self._batch_add_friends()
-        # await self._ant_forest_steal_energy()
-
-        print('运行完毕!')
+        return
 
     async def _login(self) -> bool:
         """
@@ -282,7 +297,6 @@ class ALiPay(AsyncCrawler):
                 await async_sleep(2)
                 if not user_name_ele_first_exists:
                     add_friend_btn = self.d(resourceId="com.alipay.android.phone.wallet.profileapp:id/ll_menu2")
-                    print('8' * 50)
                     print('add_friend_btn 是否存在?: {}'.format(add_friend_btn.exists()))
                     if add_friend_btn.exists():
                         # 只对应单个支付宝账号
@@ -319,6 +333,11 @@ class ALiPay(AsyncCrawler):
                 # 加好友页面处理
                 # 加好友 btn
                 self.d(resourceId="com.alipay.android.phone.wallet.profileapp:id/ll_menu2").click()
+                await async_sleep(.5)
+                if self.d(resourceId="android:id/message", text=u"今天已经发送太多好友申请了，明天再来吧。", className="android.widget.TextView")\
+                        .exists():
+                    raise AddFriendsToTheUpperLimitException
+
                 # 朋友验证 发送btn
                 self.d(resourceId="com.alipay.mobile.ui:id/title_bar_generic_button").click()
 
@@ -327,6 +346,11 @@ class ALiPay(AsyncCrawler):
 
                 print('[+] 添加 {} success!'.format(phone_num))
                 index += 1
+
+            except AddFriendsToTheUpperLimitException:
+                print('今日添加好友数已达到上限!')
+                break
+
             except (AssertionError, UiObjectNotFoundError) as e:
                 print(e)
                 index += 1

@@ -17,11 +17,11 @@
     5. 114批发网
     6. 中国制造网(https://cn.made-in-china.com)
     7. 义乌购[义乌国际商贸城](http://www.yiwugo.com)
+    8. 货牛牛(eg: 广州: http://www.huoniuniu.com/ | 杭州: http://hz.huoniuniu.com/ | ...)
 
 待实现:
-    1. 货牛牛(eg: 广州: http://www.huoniuniu.com/ | 杭州: http://hz.huoniuniu.com/ | ...)
-    2. 品库(https://www.ppkoo.com/)
-    3. 广州南国小商品城(http://www.nanguo.cn/)
+    1. 品库(https://www.ppkoo.com/)
+    2. 广州南国小商品城(http://www.nanguo.cn/)
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -56,6 +56,7 @@ except ImportError:
 
 from requests import session
 from datetime import datetime
+from urllib.parse import urlencode
 import requests_html
 from pypinyin import lazy_pinyin
 from dateutil.parser import parse as date_util_parse
@@ -94,7 +95,7 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'hn'                                                 # 设置爬取对象
+        self.spider_name = 'pk'                                                 # 设置爬取对象
         self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
@@ -182,8 +183,97 @@ class CompanySpider(AsyncCrawler):
         elif short_name == 'hn':
             await self._hn_spider()
 
+        elif short_name == 'pk':
+            await self._pk_spider()
+
         else:
             raise NotImplemented
+
+    async def _pk_spider(self):
+        """
+        品库spider(m站, shop_info in pc)
+        :return:
+        """
+        self.db_pk_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=10)
+        self.pk_category_list = await self._get_pk_category()
+
+        pprint(self.pk_category_list)
+        self.lg.info('pk所有子分类总个数: {}'.format(len(self.pk_category_list)))
+        assert self.pk_category_list != [], '获取到的self.pk_category_list为空list!异常退出'
+
+        await self._crawl_pk_company_info()
+
+    async def _get_pk_category(self) -> list:
+        """
+        获取pk 关键字
+        :return: ['上衣', ...]
+        """
+        parser_obj = await self._get_parser_obj(short_name='pk')
+        headers = await self._get_phone_headers()
+        headers.update({
+            'authority': 'm.ppkoo.com',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        url = 'https://m.ppkoo.com/classlist'
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg)
+
+        tmp_type_name_sub_list = await async_parse_field(
+            parser=parser_obj['trade_type_info']['type_name_sub'],
+            target_obj=body,
+            is_first=False,
+            logger=self.lg)
+
+        type_name_sub_list = []
+        # 处理item 为 '蕾丝衫/雪纺衫'的
+        for item in tmp_type_name_sub_list:
+            _ = item.split('/')
+            for i in _:
+                if i not in type_name_sub_list:
+                    type_name_sub_list.append(i)
+
+        # pprint(type_name_sub_list)
+
+        return type_name_sub_list
+
+    async def _crawl_pk_company_info(self):
+        """
+        抓取品库所有company info
+        :return:
+        """
+        return None
+
+    @staticmethod
+    async def _get_pk_new_hn_city_info_list():
+        """
+        获取pk 城市对应信息
+        :return:
+        """
+        return [
+            {
+                'city_id': 1,
+                'city_name': '广州市',
+                'province_name': '广东省'
+            },
+            {
+                'city_id': 2,
+                'city_name': '温州市',
+                'province_name': '浙江省',
+            },
+            {
+                'city_id': 3,
+                'city_name': '杭州市',
+                'province_name': '浙江省',
+            },
+            {
+                'city_id': 4,
+                'city_name': '保定市',
+                'province_name': '河北省',
+            },
+        ]
 
     async def _hn_spider(self):
         """
@@ -192,6 +282,7 @@ class CompanySpider(AsyncCrawler):
         """
         self.db_hn_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=9)
         self.hn_category_list = await self._get_hn_category()
+        # self.hn_category_list = await self._get_al_category5()
 
         pprint(self.hn_category_list)
         self.lg.info('hn所有子分类总个数: {}'.format(len(self.hn_category_list)))
@@ -605,10 +696,10 @@ class CompanySpider(AsyncCrawler):
         })
         params = (
             ('q', str(keyword)),
-            ('sourcePage', '/goods'),
+            ('sourcePage', '/'),
             ('page_no', str(page_num)),
         )
-        # url = 'http://www.huoniuniu.com/goods'
+        # url = 'http://gz.huoniuniu.com/goods'
         url = city_base_url + '/goods'
         # body = await unblock_request(
         #     url=url,
@@ -620,7 +711,8 @@ class CompanySpider(AsyncCrawler):
         #     logger=self.lg)
 
         # requests成功率低, 改用driver
-        new_url = _get_url_contain_params(url=url, params=params)
+        # new_url = _get_url_contain_params(url=url, params=params)
+        new_url = url + '?' + urlencode(tuple_or_list_params_2_dict_params(params))
         body = await unblock_request_by_driver(
             url=new_url,
             type=PHANTOMJS,
@@ -674,7 +766,6 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         # pprint(self.hn_city_info_list)    # [('广州站', 'http://gz.huoniuniu.com'), ...]
-
         _ = [
             {
                 'province_name': '广东省',
@@ -2578,7 +2669,13 @@ class CompanySpider(AsyncCrawler):
         for i in one_res:
             index += 1
             if i != {}:
-                unique_id = short_name + i.get('unique_id', '')
+                tmp_unique_id = i.get('unique_id', '')
+                if re.compile('^{}'.format(short_name)).findall(tmp_unique_id) != []:
+                    # 处理已加头部的
+                    unique_id = tmp_unique_id
+                else:
+                    unique_id = short_name + tmp_unique_id
+
                 if unique_id in db_unique_id_list:
                     # 已在db的不存储
                     self.lg.info('company_id:{} in db, so pass!'.format(i.get('unique_id', '')))

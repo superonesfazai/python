@@ -22,7 +22,6 @@ from time import sleep
 import gc
 from logging import INFO, ERROR
 import asyncio
-import multiprocessing
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -33,7 +32,6 @@ from settings import (
 )
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
-    SqlPools
 )
 
 from tmall_parse_2 import TmallParse
@@ -43,7 +41,6 @@ from sql_str_controller import tb_select_str_5
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
     get_shanghai_time,
-    timestamp_to_regulartime,
 )
 from fzutils.linux_utils import (
     daemon_init,

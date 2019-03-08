@@ -389,9 +389,9 @@ kl_update_str_3 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s  wh
 # db拼团goods查询
 mia_select_str_1 = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
 mia_select_str_2 = '''
-select goods_id, miaosha_time, pid 
+select top 1000 goods_id, miaosha_time, pid 
 from dbo.mia_pintuan 
-where site_id=21
+where site_id=21 and is_delete=0
 order by modfiy_time asc
 '''
 # 秒杀实时更新

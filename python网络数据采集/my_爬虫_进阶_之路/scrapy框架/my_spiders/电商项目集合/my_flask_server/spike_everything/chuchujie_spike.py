@@ -9,6 +9,7 @@
 
 """
 楚楚街9块9限时秒杀，商品信息抓取
+https://m.chuchujie.com/?module=99 [官方页面无数据]
 """
 
 import json
@@ -32,7 +33,6 @@ from settings import (
 from sql_str_controller import cc_select_str_2
 
 from fzutils.time_utils import (
-    get_shanghai_time,
     timestamp_to_regulartime,)
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua

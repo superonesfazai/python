@@ -11,7 +11,6 @@
 蜜芽页面采集系统
 """
 
-import json
 from pprint import pprint
 from time import sleep
 import re
@@ -26,6 +25,7 @@ from sql_str_controller import (
     mia_update_str_4,
 )
 from multiplex_code import _mia_get_parent_dir
+from my_exceptions import MiaSkusIsNullListException
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import (
@@ -131,6 +131,10 @@ class MiaParse(Crawler):
                 data['goods_url'] = goods_url
                 data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
                 data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'])
+
+            except MiaSkusIsNullListException as e:
+                print('获取到的mia skus为空list !!')
+                return self._data_error_init()
 
             except Exception as e:
                 print('遇到错误如下:', e)
@@ -624,9 +628,12 @@ class MiaParse(Crawler):
 
         # pprint(self.main_info_dict)
         skus = self.main_info_dict.get('sale_property', {}).get('skus', [])
+        # 处理skus为空dict
+        skus = [] if isinstance(skus, dict) and skus == {} else skus
         com = self._get_com()
         # pprint(skus)
-        assert skus != [], 'skus不为空list!'
+        if skus == []:
+            raise MiaSkusIsNullListException
 
         tmp_sku_info = []
         # 先处理skus中的多规格
@@ -731,6 +738,49 @@ class MiaParse(Crawler):
             pass
 
         return com
+
+    def _get_replenishment_status(self, goods_id) -> bool:
+        """
+        获取某goods_id是否为缺货状态!
+        :param goods_id:
+        :return: True 缺货状态
+        """
+        headers = self._get_pc_headers()
+        data = {
+            'count': '1',
+            # 'size': 'SINGLE',
+            'id': goods_id,
+        }
+        url = 'https://www.mia.com/instant/cart/addToCart'
+        body = Requests.get_url_body(
+            method='post',
+            url=url,
+            headers=headers,
+            data=data,
+            ip_pool_type=self.ip_pool_type,)
+        data = json_2_dict(
+            json_str=body,
+            default_res={}).get('msg', '')
+        # print(data)
+
+        if data == '商品正在努力上架中'\
+                or data == '错误的商品规格':
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def _get_pc_headers():
+        return {
+            'Origin': 'https://www.mia.com',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'User-Agent': get_random_pc_ua(),
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Connection': 'keep-alive',
+        }
 
     def get_true_sku_info(self, sku_info, goods_id):
         '''

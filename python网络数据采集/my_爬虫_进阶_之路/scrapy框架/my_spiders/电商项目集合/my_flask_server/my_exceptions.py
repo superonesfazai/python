@@ -10,3 +10,6 @@ class GoodsShelvesException(Exception):
     """商品下架异常"""
     pass
 
+class MiaSkusIsNullListException(Exception):
+    """蜜芽skus参数为空list"""
+    pass

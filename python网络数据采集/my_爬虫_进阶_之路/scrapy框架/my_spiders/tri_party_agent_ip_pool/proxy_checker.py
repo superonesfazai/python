@@ -20,7 +20,6 @@ from settings import (
     HOROCN_API_URL,
     HOROCN_TOKEN,)
 
-from requests import session
 from gc import collect
 from termcolor import colored
 from urllib.parse import unquote_plus
@@ -185,6 +184,8 @@ class ProxyChecker(AsyncCrawler):
         # 每次启动先清空一次过期table
         print('Empty db old ip...')
         empty_db_proxy_data()
+        # TODO 避免报: linux server sqlite3 disk I/O error
+        #  $ chmod 777 proxy_checker.py proxy.db
         # 添加本机到白名单
         await self._add_to_white_list()
         self.checked_proxy_list = await self._get_db_old_data()
@@ -256,21 +257,21 @@ class ProxyChecker(AsyncCrawler):
         if add_white_list_url is None:
             return False
 
-        with session() as s:
-            if self.tri_id == 1:
-                params = (
-                    ('token', HOROCN_TOKEN),
-                    ('ip', self.local_ip),
-                )
-                with s.put(url=add_white_list_url, params=params) as resp:
-                    res = json_2_dict(resp.text).get('msg', 'err')
-                    if res == 'ok' or '白名单记录已存在' in res:
-                        print('{} add to 白名单 success!'.format(self.local_ip))
-                        return True
-                    assert res != 'err', '添加ip白名单失败!'
+        if self.tri_id == 1:
+            params = (
+                ('token', HOROCN_TOKEN),
+                ('ip', self.local_ip),
+            )
+            res = json_2_dict(
+                json_str=Requests.get_url_body(use_proxy=False, url=add_white_list_url, params=params),
+                default_res={}).get('msg', 'err')
+            if res == 'ok' or '白名单记录已存在' in res:
+                print('{} add to 白名单 success!'.format(self.local_ip))
+                return True
+            assert res != 'err', '添加ip白名单失败!'
 
-            else:
-                raise NotImplementedError
+        else:
+            raise NotImplementedError
 
     async def _get_db_old_data(self) -> list:
         '''
@@ -467,13 +468,15 @@ class ProxyChecker(AsyncCrawler):
                 break
         assert api_url != '' or api_return_type != '', 'api_url为空值 or api_return_type为空值!'
 
-        with session() as s:
-            with s.get(api_url, headers=get_base_headers(), params=None) as response:
-                body = response.text
-                # print(body)
-                data = body if api_return_type != 'json' else json_2_dict(body)
-                # pprint(data)
-                # 对应提取规则
+        headers = get_base_headers()
+        body = Requests.get_url_body(
+            use_proxy=False,
+            url=api_url,
+            headers=headers,
+            params=None)
+        data = body if api_return_type != 'json' else json_2_dict(body)
+        # pprint(data)
+        # 对应提取规则
 
         all = await self._parse_ori_proxy_list_data(data=data, area=area, id=id)
 

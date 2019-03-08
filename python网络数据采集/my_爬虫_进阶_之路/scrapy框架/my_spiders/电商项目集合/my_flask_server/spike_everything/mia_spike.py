@@ -9,17 +9,18 @@
 
 '''
 蜜芽秒杀抓取(秒杀时间为每日的10点，15点)
+
+19年版, 暂无秒杀板块
 '''
 
-import json
+import sys
+sys.path.append('..')
+
 import re
 import time
 from pprint import pprint
 import gc
 from time import sleep
-
-import sys
-sys.path.append('..')
 
 from settings import MIA_BASE_NUMBER, MIA_MAX_NUMBER, MIA_SPIKE_SLEEP_TIME
 from mia_parse import MiaParse
@@ -32,7 +33,6 @@ from settings import (
 from sql_str_controller import mia_select_str_4
 
 from fzutils.time_utils import (
-    get_shanghai_time,
     timestamp_to_regulartime,
 )
 from fzutils.linux_utils import daemon_init

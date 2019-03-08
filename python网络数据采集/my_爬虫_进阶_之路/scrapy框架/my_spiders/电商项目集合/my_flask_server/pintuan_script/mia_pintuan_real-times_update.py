@@ -21,7 +21,6 @@ import gc
 from time import sleep
 import json
 from pprint import pprint
-import time
 from settings import (
     IS_BACKGROUND_RUNNING, 
     MIA_SPIKE_SLEEP_TIME,
@@ -40,6 +39,7 @@ from multiplex_code import (
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
+    string_to_datetime,
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.internet_utils import get_random_pc_ua
@@ -82,9 +82,10 @@ class Mia_Pintuan_Real_Time_Update(object):
             index = 1
             for item in result:  # 实时更新数据
                 goods_id = item[0]
+                # 2020-04-12 00:00:00
                 pintuan_end_time = json_2_dict(item[1]).get('end_time')
-                pintuan_end_time = int(str(time.mktime(time.strptime(pintuan_end_time,'%Y-%m-%d %H:%M:%S')))[0:10])
-                # print(miaosha_end_time)
+                pintuan_end_time = datetime_to_timestamp(string_to_datetime(pintuan_end_time))
+                # print(pintuan_end_time)
 
                 data = {}
                 mia_pintuan = MiaPintuanParse()

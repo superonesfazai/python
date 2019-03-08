@@ -27,7 +27,10 @@ from fzutils.spider.fz_driver import PHONE
 from fzutils.common_utils import _print
 from fzutils.data.excel_utils import read_info_from_excel_file
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
-from fzutils.internet_utils import str_cookies_2_dict
+from fzutils.internet_utils import (
+    str_cookies_2_dict,
+    _get_url_contain_params,
+    tuple_or_list_params_2_dict_params,)
 from fzutils.spider.selector import *
 from fzutils.spider.async_always import *
 
@@ -58,3 +61,37 @@ from fzutils.spider.async_always import *
 # # pprint(data)
 # # 服务电话的js
 # print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
+
+headers = {
+    'Accept': 'application/json, text/plain, */*',
+    # 'Referer': 'https://m.ppkoo.com/classlist',
+    'Origin': 'https://m.ppkoo.com',
+    'User-Agent': get_random_phone_ua(),
+}
+
+params = (
+    # ('cid', '50000436'),          # 根据keywords索引的话, cid可不传
+    ('keywords', '裤子'),
+    ('hot', 'desc'),
+    ('page', '1'),                  # 1-300
+    ('city_id', '3'),
+    # ('v', '3784143914913054'),
+)
+url = 'https://www.ppkoo.com/api/Search/goods'
+body = Requests.get_url_body(
+    url=url,
+    headers=headers,
+    params=params,
+    ip_pool_type=tri_ip_pool,)
+# print(body)
+
+data = json_2_dict(
+    json_str=body,
+    default_res={},).get('data', [])
+# pprint(data)
+company_info_list = [{
+    'company_id': item.get('business_id', ''),
+} for item in data]
+company_info_list = list_remove_repeat_dict_plus(target=company_info_list, repeat_key='company_id')
+pprint(company_info_list)
+

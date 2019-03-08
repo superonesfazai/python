@@ -93,3 +93,18 @@ d(text='Clock', className='android.widget.TextView')中可用参数
 watcher
 
 ![](https://i.loli.net/2019/03/02/5c7a24d38a9d1.png)
+
+ATX的图片识别,是支持分辨率缩放匹配的,前提就是,在保存截图的时候要注明是在哪个分辨率下面截的图,命名方式如下:
+
+![](https://i.loli.net/2019/03/06/5c7f2d36ec620.png)
+
+原理大概就是:从文件名获取源分辨率,从设备获取设备分辨率,然后将图片按照比例缩放
+
+### 测试过程报告
+因为ATX集成了测试报告，所以生成响应的测试报告也很简单 在第3行代码之后加入以下代码
+```python
+from atx.ext.report import Report
+rp = Report(d)
+rp.patch_wda()
+```
+再次运行一遍代码，在当前脚本所在目录下就可以看到一个report目录，里面有一个image目录，里面是每一步的截图

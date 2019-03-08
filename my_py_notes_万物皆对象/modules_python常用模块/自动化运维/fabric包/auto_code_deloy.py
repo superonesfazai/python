@@ -49,8 +49,9 @@ def server_tasks(my_group):
         # 本地先压缩待上传的文件夹
         wait_2_compress_folders = [
             ('/Users/afa/myFiles', 'my_spider_logs'),
-            ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合',
-            'my_flask_server',)]
+            ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合', 'my_flask_server',),
+            ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders', 'tri_party_agent_ip_pool'),
+        ]
         [local_compress_folders(father_folders_path=o[0], folders_name=o[1]) for o in wait_2_compress_folders]
 
         return
@@ -75,8 +76,10 @@ def server_tasks(my_group):
         file_path = [
             ('/Users/afa/my_company_db_info.json', '/root/my_company_db_info.json'),
             ('/Users/afa/my_username_and_passwd.json', '/root/my_username_and_passwd.json'),
+            ('/Users/afa/myFiles/pwd/horocn_info.json', '/root/horocn_info.json'),
             ('/Users/afa/myFiles/tmp/my_spider_logs.zip', '/root/myFiles/my_spider_logs.zip'),
             ('/Users/afa/myFiles/tmp/my_flask_server.zip', '/root/myFiles/python/my_flask_server.zip'),
+            ('/Users/afa/myFiles/tmp/tri_party_agent_ip_pool.zip', '/root/myFiles/tri_party_agent_ip_pool.zip'),
         ]
         for i in file_path:
             upload_or_download_files(
@@ -94,6 +97,7 @@ def server_tasks(my_group):
         wait_2_decompress_folders = [
             ('/root/myFiles/my_spider_logs.zip', '/root/myFiles/'),
             ('/root/myFiles/python/my_flask_server.zip', '/root/myFiles/python'),
+            ('/root/myFiles/tri_party_agent_ip_pool.zip', '/root/myFiles/'),
         ]
         [remote_decompress_folders(
             connect_object=item,
@@ -108,6 +112,7 @@ def server_tasks(my_group):
         # 替换原settings.py
         server_settings_file_path = [
             ('/Users/afa/server_settings/{0}/settings.py', '/root/myFiles/python/my_flask_server/settings.py'),
+            ('/Users/afa/server_settings/{0}/tri_ip_pool/settings.py', '/root/myFiles/tri_party_agent_ip_pool/settings.py')
         ]
         for e in server_settings_file_path:
             if re.compile(r'118.31.39.97').findall(item.__repr__()) != []:

@@ -101,7 +101,10 @@ class JdParse(Crawler):
 
         url = 'https://item.m.jd.com/product/{}.html'.format(goods_id[1])
         # self.lg.info(url)
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=url,
+            headers=self._get_phone_headers(),
+            ip_pool_type=self.ip_pool_type)
         # self.lg.info(body)
 
         if not self._get_goods_is_delete(body=body):
@@ -259,25 +262,31 @@ class JdParse(Crawler):
         :return:
         '''
         params = (
+            ('callback', 'skuJDEvalA'),
             ('sorttype', '5'),
+            ('pagesize', '10'),
             ('sceneval', '2'),
+            ('score', '0'),
             ('sku', str(goods_id)),
             ('page', '1'),
-            ('pagesize', '10'),
-            ('score', '0'),
-            ('callback', 'skuJDEvalA'),
             # ('t', '0.31518758092351407'),
         )
         url = 'https://wq.jd.com/commodity/comment/getcommentlist'
+        headers = self._get_phone_headers()
+        headers.update({
+            'Referer': 'https://item.m.jd.com/product/{}.html'.format(goods_id),
+        })
         body = Requests.get_url_body(
             url=url,
-            headers=self._get_phone_headers(),
+            headers=headers,
             params=params,
             ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         all_sell_count = str(randint(800, 2000))
         try:
-            _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0], default_res={}).get('result', {})
+            _ = json_2_dict(
+                re.compile('\((.*)\)').findall(body)[0],
+                default_res={}).get('result', {})
         except:
             self.lg.error('获取all_sell_count失败!')
             return all_sell_count
@@ -485,14 +494,17 @@ class JdParse(Crawler):
         :return:
         '''
         url = 'https://wqsitem.jd.com/detail/{}_d{}_normal.html'.format(goods_id, description_id)
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=url,
+            headers=self._get_phone_headers(),
+            ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         try:
             _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0]).get('content', '')
             # self.lg.info(str(_))
             all = re.compile('background-image:url\((.*?)\)').findall(_)
             if all == []:
-                all = re.compile('<img.*?src=\"(.*?)\".*?/>').findall(_)
+                all = re.compile('<img.*?src=\"(.*?)\".*?>').findall(_)
         except IndexError:
             self.lg.error('获取div_desc时出错!')
             return ''

@@ -226,7 +226,6 @@ class TmallParse(Crawler):
                     self.lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
                     return self._data_error_init()
 
-                # self.driver.quit()
                 collect()
 
             '''

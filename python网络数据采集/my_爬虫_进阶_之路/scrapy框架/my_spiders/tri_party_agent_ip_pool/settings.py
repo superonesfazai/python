@@ -29,7 +29,10 @@ MIN_IP_POOl_NUM = 150
 SERVER_PORT = 8001
 
 # 蜻蜓代理api_url
+# local
 horocn_info_path = '/Users/afa/myFiles/pwd/horocn_info.json'
+# server
+# horocn_info_path = '/root/horocn_info.json'
 with open(horocn_info_path, 'r') as f:
     _ = json_2_dict(f.read())
     HOROCN_API_URL = _['api_url']

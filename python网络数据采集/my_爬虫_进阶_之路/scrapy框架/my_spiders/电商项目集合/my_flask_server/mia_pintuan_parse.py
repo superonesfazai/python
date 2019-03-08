@@ -29,6 +29,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _mia_get_parent_dir,
     _handle_goods_shelves_in_auto_goods_table,)
+from my_exceptions import MiaSkusIsNullListException
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.internet_utils import (
@@ -38,7 +39,8 @@ from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import (
     timestamp_to_regulartime,
-    get_shanghai_time,)
+    get_shanghai_time,
+    date_parse,)
 from fzutils.spider.crawler import Crawler
 
 class MiaPintuanParse(MiaParse, Crawler):
@@ -97,8 +99,11 @@ class MiaPintuanParse(MiaParse, Crawler):
 
         is_mia_mian_page = Selector(text=body).css('div.item-center ::text').extract_first() or ''
         # print(is_mia_mian_page)
-        if isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖':      # 单独处理拼团下架被定向到手机版主页的拼团商品
-            print('++++++ 该拼团商品已下架，被定向到蜜芽主页, 此处将其逻辑删除!')
+        # m站是否为补货状态的 判断方法: 通过pc站点击加入购物车的请求来判断是否已缺货!!
+        is_replenishment_status = self._get_replenishment_status(goods_id=goods_id)
+        if (isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖')\
+                or is_replenishment_status:      # 单独处理拼团下架被定向到手机版主页的拼团商品
+            print('++++++ 该拼团商品已下架，被定向到蜜芽主页 or 处在缺货状态中!')
             _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, update_sql_str=mia_update_str_7)
             gc.collect()
             return self._data_error_init()
@@ -141,11 +146,11 @@ class MiaPintuanParse(MiaParse, Crawler):
 
             # 设置detail_name_list
             data['detail_name_list'] = self.get_detail_name_list(true_sku_info=true_sku_info)
-            # print(detail_name_list)
+            # print(data['detail_name_list'])
 
             '''单独处理all_img_url为[]的情况'''
             if all_img_url == []:
-                all_img_url = [{'img_url': true_sku_info[0].get('img_url')}]
+                all_img_url = [{'img_url': true_sku_info[0].get('img_url', '')}]
 
             data['all_img_url'] = all_img_url
             # pprint(all_img_url)
@@ -156,6 +161,12 @@ class MiaPintuanParse(MiaParse, Crawler):
 
             data['goods_url'] = goods_url
             data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
+
+        except MiaSkusIsNullListException as e:
+            print('该商品已不参与拼团!! 无拼团属性')
+            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, update_sql_str=mia_update_str_7)
+            gc.collect()
+            return self._data_error_init()
 
         except Exception as e:
             print('遇到错误如下: ', e)
@@ -170,6 +181,7 @@ class MiaPintuanParse(MiaParse, Crawler):
         :return: result 类型 dict
         '''
         data = self.result_data
+        # pprint(data)
         if data != {}:
             shop_name = ''
             account = ''
@@ -320,10 +332,13 @@ class MiaPintuanParse(MiaParse, Crawler):
             :return:
             '''
             print('@@ 获取拼团属性失败!\n@@ 并且将该商品从拼团商品中逻辑下架!')
-            self._update_pintuan_goods_is_delete(goods_id=goods_id)
+            _handle_goods_shelves_in_auto_goods_table(
+                goods_id=goods_id,
+                update_sql_str=mia_update_str_7,)
 
             return ([], {}, {}, '0')
 
+        # pprint(sku_info)
         goods_id_str = '-'.join([item.get('goods_id', '') for item in sku_info])
         # print(goods_id_str)
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
@@ -372,12 +387,12 @@ class MiaPintuanParse(MiaParse, Crawler):
                         try:
                             s = str(item_2.get('g_l', [])[0].get('s', ''))  # 拼团开始时间
                             e = str(item_2.get('g_l', [])[0].get('e', ''))  # 拼团结束时间
-                            s = self.change_to_number_str_time(s)
-                            e = self.change_to_number_str_time(e)
+                            # print(s, e)
                             pintuan_time = {
-                                'begin_time': timestamp_to_regulartime(int(time.mktime(time.strptime(s, '%m %d %Y %H:%M:%S')))),
-                                'end_time': timestamp_to_regulartime(int(time.mktime(time.strptime(e, '%m %d %Y %H:%M:%S')))),
+                                'begin_time': str(date_parse(target_date_str=s)),
+                                'end_time': str(date_parse(target_date_str=e)),
                             }
+                            # pprint(pintuan_time)
                         except:
                             print('获取拼团pintuan_time时出错!')
                             return self._data_error_init()
@@ -388,7 +403,7 @@ class MiaPintuanParse(MiaParse, Crawler):
                             print('获取拼团all_sell_count时出错!')
                             return self._data_error_init()
 
-                        img_url = item_1.get('img_url')
+                        img_url = item_1.get('img_url', '')
                         rest_number = i_s.get(item_3)
                         if rest_number == 0:
                             continue
@@ -402,59 +417,12 @@ class MiaPintuanParse(MiaParse, Crawler):
                             true_sku_info.append(tmp)
 
         # pprint(true_sku_info)
+        # if true_sku_info == []:
+        #     # 空list即进行下架操作
+        #     # eg: https://www.mia.com/item-1179175.html 其phone https://m.mia.com/item-1179175.html为补货中
+        #     return _pintuan_error(goods_id=goods_id)
 
         return (true_sku_info, i_s, pintuan_time, all_sell_count)
-
-    def _update_pintuan_goods_is_delete(self, goods_id):
-        '''
-        拼团商品逻辑下架标记
-        :return:
-        '''
-        res = False
-        try:
-            sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-            res = sql_cli._update_table(
-                sql_str=mia_update_str_7,
-                params=(str(get_shanghai_time()), goods_id))
-            try:
-                del sql_cli
-            except:
-                pass
-        except Exception as e:
-            print(e)
-        finally:
-            pass
-
-        return res
-
-    def change_to_number_str_time(self, str):
-        '''
-        替换里面的月份的英文缩写为对应的数字月份
-        :return:
-        '''
-        a = {
-            'January': '01',
-            'February': '02',
-            'March': '03',
-            'April': '04',
-            'May': '05',
-            'June': '06',
-            'July': '07',
-            'August': '08',
-            'September': '09',
-            'October': '10',
-            'November': '11',
-            'December': '12',
-        }
-
-        month = str.split(' ')[0]
-
-        month = [a[key] for key in a if month == key][0]
-
-        new_str = str.split(' ')
-        new_str[0] = month
-
-        return ' '.join(new_str)
 
     def __del__(self):
         gc.collect()

@@ -828,6 +828,7 @@ def get_jd_data():
                 wait_to_deal_with_url=wait_to_deal_with_url,
                 my_lg=my_lg
             )
+            # pprint(wait_to_save_data)
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
 

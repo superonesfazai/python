@@ -119,7 +119,7 @@ TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 22140             # 起始session_id
+BASE_SESSION_ID = 22881             # 起始session_id
 MAX_SESSION_ID = 26000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
@@ -848,6 +848,41 @@ COMPANY_ITEM_LIST = [
             'w3': {
                 'method': 're',
                 'selector': ':\/\/(\w+)\.',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '\/shop\/(\d+)',
+        },
+        'company_status': None,     # ''
+        'company_link': None,       # ''
+        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
+            'method': 'css',
+            'selector': 'div.shop-item.cf',
+        },
+        'company_name': {
+            'method': 'css',
+            'selector': 'div.shop-jieshao span.title ::text'
+        },
+        'legal_person': None,       # ''
+        'phone': None,              # 在company_info_detail_li_1中(div.left span.title:电话)
+        'email_address': None,      # ''
+        'address': None,            # 在company_info_detail_li_1中(div.left span.title:地址)
+        'brief_introduction': None, # 简介 ''
+        'business_range': None,     # 主营范围 ''
+        'founding_time': None,      # 赋默认值
+        'employees_num': None,      # ''
+        'lng': None,
+        'lat': None,
+    },
+    {
+        'short_name': 'pk',
+        'debug': True,
+        'orj_origin': 'www.ppkoo.com',
+        'trade_type_info': {
+            'type_name_sub': {      # 第二类分类name type: list
+                'method': 'css',
+                'selector': 'div.item p.text ::text',
             },
         },
         'unique_id': {

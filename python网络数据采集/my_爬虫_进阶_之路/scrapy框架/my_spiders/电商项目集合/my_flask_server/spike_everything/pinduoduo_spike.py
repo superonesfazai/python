@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+拼多多退货严重, 不采集
+"""
+
 import json
 import re
 from pprint import pprint

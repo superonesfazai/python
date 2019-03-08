@@ -318,7 +318,7 @@ def _get_hn_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     })
     params = (
         ('q', str(keyword)),
-        ('sourcePage', '/goods'),
+        ('sourcePage', '/'),
         ('page_no', str(page_num)),
     )
     # url = 'http://www.huoniuniu.com/goods'
