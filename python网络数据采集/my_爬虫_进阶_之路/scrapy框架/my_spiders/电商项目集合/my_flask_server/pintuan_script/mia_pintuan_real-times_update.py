@@ -11,13 +11,15 @@
 蜜芽拼团商品实时更新脚本
 '''
 
+# TODO mia拼团放在本地跑, 服务器上被禁止403!
+
 import sys
 sys.path.append('..')
 
 from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
+from gc import collect
 from time import sleep
 import json
 from pprint import pprint
@@ -91,7 +93,9 @@ class Mia_Pintuan_Real_Time_Update(object):
                 mia_pintuan = MiaPintuanParse()
                 sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50)
                 if sql_cli.is_connect_success:
-                    if self.is_recent_time(pintuan_end_time) == 0:
+                    is_recent_time = self.is_recent_time(pintuan_end_time)
+                    if is_recent_time == 0:
+                        # 已恢复原价的
                         _handle_goods_shelves_in_auto_goods_table(
                             goods_id=goods_id,
                             update_sql_str=mia_update_str_7,
@@ -99,18 +103,22 @@ class Mia_Pintuan_Real_Time_Update(object):
                         print('该goods拼团开始时间为({})'.format(json.loads(item[1]).get('begin_time')))
                         sleep(.4)
 
-                    elif self.is_recent_time(pintuan_end_time) == 2:
+                    elif is_recent_time == 2:
+                        # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
                         pass
 
                     else:  # 返回1，表示在待更新区间内
-                        print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
+                        print('------>>>| 正在更新的goods_id为({}) | --------->>>@ 索引值为({})'.format(goods_id, index))
                         data['goods_id'] = goods_id
-                        # print('------>>>| 爬取到的数据为: ', data)
                         tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(item[2]) + '/0/'
                         # print(tmp_url)
 
                         try:
-                            body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+                            body = Requests.get_url_body(
+                                url=tmp_url,
+                                headers=self.headers,
+                                had_referer=True,
+                                ip_pool_type=self.ip_pool_type,)
                             assert body != '', 'body不为空值!'
                             tmp_data = json_2_dict(json_str=body)
                             assert tmp_data != {}, 'tmp_data不为空dict!'
@@ -177,7 +185,6 @@ class Mia_Pintuan_Real_Time_Update(object):
                                             goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
 
                                         # pprint(goods_data)
-                                        # print(goods_data)
                                         mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=sql_cli)
                                         sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
                                     else:
@@ -186,16 +193,18 @@ class Mia_Pintuan_Real_Time_Update(object):
                 else:  # 表示返回的data值为空值
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
+
                 index += 1
-                gc.collect()
+                collect()
+
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
             sleep(10 * 60)
-        gc.collect()
+        collect()
 
-    def is_recent_time(self, timestamp):
+    def is_recent_time(self, timestamp) -> int:
         '''
         判断是否在指定的日期差内
         :param timestamp: 时间戳
@@ -216,7 +225,7 @@ class Mia_Pintuan_Real_Time_Update(object):
             return 2
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 def just_fuck_run():
     while True:
@@ -227,7 +236,7 @@ def just_fuck_run():
             del tmp
         except:
             pass
-        gc.collect()
+        collect()
         print('一次大更新完毕'.center(30, '-'))
 
 def main():
@@ -235,10 +244,9 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')  #
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

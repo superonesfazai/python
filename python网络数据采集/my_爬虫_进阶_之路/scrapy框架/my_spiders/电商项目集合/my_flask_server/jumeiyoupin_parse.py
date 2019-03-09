@@ -66,7 +66,10 @@ class JuMeiYouPinParse(Crawler):
         #** 获取ajaxStaticDetail请求中的数据
         tmp_url = 'https://h5.jumei.com/product/ajaxStaticDetail?item_id=' + goods_id[0] + '&type=' + str(goods_id[1])
         self.headers['Referer'] = goods_url
-        body = Requests.get_url_body(url=tmp_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=tmp_url,
+            headers=self.headers,
+            ip_pool_type=self.ip_pool_type)
         # print(body)
         if body == '' or json_2_dict(json_str=body) == {}:
             print('获取到的body为空str! 或者 tmp_data为空dict!')

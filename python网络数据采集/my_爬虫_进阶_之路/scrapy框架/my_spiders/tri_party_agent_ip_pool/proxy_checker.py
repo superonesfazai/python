@@ -21,6 +21,7 @@ from settings import (
     HOROCN_TOKEN,)
 
 from gc import collect
+from os import system
 from termcolor import colored
 from urllib.parse import unquote_plus
 from fzutils.spider.async_always import *

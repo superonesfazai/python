@@ -2,11 +2,16 @@
 
 进入sqlite
 ```
-$ sqlite3
+$ sqlite3 
 SQLite version 3.8.2 2013-12-06 14:53:30
 Enter ".help" for instructions
 Enter SQL statements terminated with a ";"
 sqlite> 
+```
+
+进入某个db
+```bash
+sqlite> .open xx.db
 ```
 
 查看帮助：

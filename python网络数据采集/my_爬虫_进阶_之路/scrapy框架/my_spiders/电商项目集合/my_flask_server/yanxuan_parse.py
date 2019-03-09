@@ -40,6 +40,8 @@ from fzutils.time_utils import (
     string_to_datetime,)
 from fzutils.data.list_utils import unique_list_and_keep_original_order
 from fzutils.spider.crawler import Crawler
+from fzutils.spider.fz_driver import BaseDriver
+from fzutils.spider.selector import parse_field
 
 class YanXuanParse(Crawler):
     def __init__(self, logger=None):
@@ -89,9 +91,9 @@ class YanXuanParse(Crawler):
         # self.lg.info(str(body))
 
         '''改用phantomjs'''
-        body = self.driver.use_phantomjs_to_get_url_body(url=_get_url_contain_params(url=url, params=params))
+        body = self.driver.get_url_body(url=_get_url_contain_params(url=url, params=params))
         if body == '':
-            self.lg.error('获取到的body为空值!'+write_info)
+            self.lg.error('获取到的body为空值!' + write_info)
             return self._get_data_error_init()
 
         try:
@@ -103,7 +105,8 @@ class YanXuanParse(Crawler):
         body = nonstandard_json_str_handle(json_str=body)
         # self.lg.info(str(body))
         _ = json_2_dict(
-            json_str=body, logger=self.lg)
+            json_str=body,
+            logger=self.lg)
         # pprint(_)
         if _ == {}:
             self.lg.error('获取到的data为空dict!'+write_info)
@@ -129,19 +132,20 @@ class YanXuanParse(Crawler):
                 data['is_delete'] = 1
             else:
                 data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
+            data['parent_dir'] = self._get_parent_dir(data=_)
 
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
             self.lg.error(write_info)
             return self._get_data_error_init()
 
-        if data != {}:
-            self.result_data = data
-            # pprint(data)
-            return data
-        else:
+        if data == {}:
             self.lg.info('data为空值')
             return self._get_data_error_init()
+
+        self.result_data = data
+        # pprint(data)
+        return data
 
     def _deal_with_data(self):
         '''
@@ -149,68 +153,79 @@ class YanXuanParse(Crawler):
         :return:
         '''
         data = self.result_data
-        if data != {}:
-            shop_name = data['shop_name']
-            account = ''
-            title = data['title']
-            sub_title = data['sub_title']
-            detail_name_list = data['detail_name_list']
-            price_info_list = data['price_info_list']
-            all_img_url = data['all_img_url']
-            p_info = data['p_info']
-            # pprint(p_info)
-            div_desc = data['div_desc']
-            is_delete = data['is_delete']
-
-            # 上下架时间
-            if data.get('sell_time', {}) != {}:
-                schedule = [{
-                    'begin_time': data.get('sell_time', {}).get('begin_time', ''),
-                    'end_time': data.get('sell_time', {}).get('end_time', ''),
-                }]
-            else:
-                schedule = []
-
-            # 销售总量
-            all_sell_count = ''
-
-            # 商品价格和淘宝价
-            price, taobao_price = data['price'], data['taobao_price']
-
-            result = {
-                'shop_name': shop_name,                 # 店铺名称
-                'account': account,                     # 掌柜
-                'title': title,                         # 商品名称
-                'sub_title': sub_title,                 # 子标题
-                'price': price,                         # 商品价格
-                'taobao_price': taobao_price,           # 淘宝价
-                # 'goods_stock': goods_stock,               # 商品库存
-                'detail_name_list': detail_name_list,   # 商品标签属性名称
-                # 'detail_value_list': detail_value_list,   # 商品标签属性对应的值
-                'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
-                'all_img_url': all_img_url,             # 所有示例图片地址
-                'p_info': p_info,                       # 详细信息标签名对应属性
-                'div_desc': div_desc,                   # div_desc
-                'schedule': schedule,                   # 商品特价销售时间段
-                'all_sell_count': all_sell_count,       # 销售总量
-                'is_delete': is_delete                  # 是否下架
-            }
-            # pprint(result)
-            # print(result)
-            # wait_to_send_data = {
-            #     'reason': 'success',
-            #     'data': result,
-            #     'code': 1
-            # }
-            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
-            # print(json_data)
-            self.result_data = {}
-            return result
-
-        else:
+        if data == {}:
             self.lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
-
             return self._get_data_error_init()
+
+        shop_name = data['shop_name']
+        account = ''
+        title = data['title']
+        sub_title = data['sub_title']
+        detail_name_list = data['detail_name_list']
+        price_info_list = data['price_info_list']
+        all_img_url = data['all_img_url']
+        p_info = data['p_info']
+        # pprint(p_info)
+        div_desc = data['div_desc']
+        is_delete = data['is_delete']
+        parent_dir = data['parent_dir']
+
+        # 上下架时间
+        if data.get('sell_time', {}) != {}:
+            schedule = [{
+                'begin_time': data.get('sell_time', {}).get('begin_time', ''),
+                'end_time': data.get('sell_time', {}).get('end_time', ''),
+            }]
+        else:
+            schedule = []
+
+        # 销售总量
+        all_sell_count = ''
+        # 商品价格和淘宝价
+        price, taobao_price = data['price'], data['taobao_price']
+
+        result = {
+            'shop_name': shop_name,                 # 店铺名称
+            'account': account,                     # 掌柜
+            'title': title,                         # 商品名称
+            'sub_title': sub_title,                 # 子标题
+            'price': price,                         # 商品价格
+            'taobao_price': taobao_price,           # 淘宝价
+            # 'goods_stock': goods_stock,               # 商品库存
+            'detail_name_list': detail_name_list,   # 商品标签属性名称
+            # 'detail_value_list': detail_value_list,   # 商品标签属性对应的值
+            'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
+            'all_img_url': all_img_url,             # 所有示例图片地址
+            'p_info': p_info,                       # 详细信息标签名对应属性
+            'div_desc': div_desc,                   # div_desc
+            'schedule': schedule,                   # 商品特价销售时间段
+            'all_sell_count': all_sell_count,       # 销售总量
+            'is_delete': is_delete,                 # 是否下架
+            'parent_dir': parent_dir,
+        }
+        # pprint(result)
+        # print(result)
+        # wait_to_send_data = {
+        #     'reason': 'success',
+        #     'data': result,
+        #     'code': 1
+        # }
+        # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+        # print(json_data)
+        self.result_data = {}
+
+        return result
+
+    def _get_parent_dir(self, data) -> str:
+        """
+        获取parent_dir
+        :return:
+        """
+        cate_list = [item.get('name', '') for item in data.get('categoryList', [])]
+        # pprint(cate_list)
+        parent_dir = '/'.join(cate_list)
+
+        return parent_dir
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -261,6 +276,7 @@ class YanXuanParse(Crawler):
             item['is_stock_change'],
             item['stock_trans_time'],
             dumps(item['stock_change_info'], ensure_ascii=False),
+            item['parent_dir'],
 
             item['goods_id'],
         ]

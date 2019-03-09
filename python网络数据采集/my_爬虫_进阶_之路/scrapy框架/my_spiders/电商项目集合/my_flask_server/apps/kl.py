@@ -83,6 +83,7 @@ def _get_db_kaola_insert_params(item):
 
         item['site_id'],
         item['is_delete'],
+        item['parent_dir'],
     )
 
     return params

@@ -9,6 +9,8 @@
 
 """
 项目自动化部署(没打算用git)
+
+切记:: 每次发包要重启tri_ip_pool的 proxy_checker.py 否则无法对db进行数据写入
 """
 
 import re
@@ -52,7 +54,10 @@ def server_tasks(my_group):
             ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合', 'my_flask_server',),
             ('/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders', 'tri_party_agent_ip_pool'),
         ]
-        [local_compress_folders(father_folders_path=o[0], folders_name=o[1]) for o in wait_2_compress_folders]
+        [local_compress_folders(
+            father_folders_path=o[0],
+            folders_name=o[1],
+            exclude_folders=['*.db*',]) for o in wait_2_compress_folders]
 
         return
 

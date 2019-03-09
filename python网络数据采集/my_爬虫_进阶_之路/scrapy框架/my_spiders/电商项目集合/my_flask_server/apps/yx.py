@@ -81,6 +81,7 @@ def _get_db_yanxuan_insert_params(item):
 
         item['site_id'],
         item['is_delete'],
+        item['parent_dir'],
     )
 
     return params

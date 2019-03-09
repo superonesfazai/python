@@ -2108,10 +2108,10 @@ def save_every_url_right_data(**kwargs):
     # 存储['db插入结果类型bool', '对应goods_id']
     is_inserted_and_goods_id_list = []
     for item in tmp_list:
-        my_lg.info('------>>>| 正在存储的数据为: {0}'.format(str(item.get('goods_id'))))
+        my_lg.info('------>>>| 正在存储的数据为: {0}'.format(str(item.get('goods_id', ''))))
         params = get_db_who_insert_params(type=type, item=item)
         is_insert_into = my_page_info_save_item_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=my_lg)
-        is_inserted_and_goods_id_list.append((is_insert_into, str(item.get('goods_id'))))
+        is_inserted_and_goods_id_list.append((is_insert_into, str(item.get('goods_id', ''))))
 
     tmp_wait_to_save_data_list = [i for i in tmp_wait_to_save_data_list if i not in goods_to_delete]  # 删除已被插入
     my_lg.info('存入完毕'.center(100, '*'))

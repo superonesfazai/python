@@ -7,6 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
+# TODO 卷皮拼团官方19年, 暂无上架新拼团数据(https://tuan.juanpi.com/pintuan)
+
 from random import randint
 import json
 import re

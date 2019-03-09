@@ -62,36 +62,37 @@ from fzutils.spider.async_always import *
 # # 服务电话的js
 # print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
 
-headers = {
-    'Accept': 'application/json, text/plain, */*',
-    # 'Referer': 'https://m.ppkoo.com/classlist',
-    'Origin': 'https://m.ppkoo.com',
-    'User-Agent': get_random_phone_ua(),
-}
-
-params = (
-    # ('cid', '50000436'),          # 根据keywords索引的话, cid可不传
-    ('keywords', '裤子'),
-    ('hot', 'desc'),
-    ('page', '1'),                  # 1-300
-    ('city_id', '3'),
-    # ('v', '3784143914913054'),
-)
-url = 'https://www.ppkoo.com/api/Search/goods'
-body = Requests.get_url_body(
-    url=url,
-    headers=headers,
-    params=params,
-    ip_pool_type=tri_ip_pool,)
-# print(body)
-
-data = json_2_dict(
-    json_str=body,
-    default_res={},).get('data', [])
-# pprint(data)
-company_info_list = [{
-    'company_id': item.get('business_id', ''),
-} for item in data]
-company_info_list = list_remove_repeat_dict_plus(target=company_info_list, repeat_key='company_id')
-pprint(company_info_list)
-
+# headers = {
+#     'Accept': 'application/json, text/plain, */*',
+#     # 'Referer': 'https://m.ppkoo.com/classlist',
+#     'Origin': 'https://m.ppkoo.com',
+#     'User-Agent': get_random_phone_ua(),
+# }
+#
+# params = (
+#     # ('cid', '50000436'),          # 根据keywords索引的话, cid可不传
+#     ('keywords', '裤子'),
+#     ('hot', 'desc'),
+#     ('page', '1'),                  # 1-300
+#     ('city_id', '3'),
+#     # ('v', '3784143914913054'),
+# )
+# url = 'https://www.ppkoo.com/api/Search/goods'
+# body = Requests.get_url_body(
+#     url=url,
+#     headers=headers,
+#     params=params,
+#     ip_pool_type=tri_ip_pool,)
+# # print(body)
+#
+# data = json_2_dict(
+#     json_str=body,
+#     default_res={},).get('data', [])
+# # pprint(data)
+# company_info_list = [{
+#     'company_id': item.get('business_id', ''),
+# } for item in data]
+# company_info_list = list_remove_repeat_dict_plus(target=company_info_list, repeat_key='company_id')
+# pprint(company_info_list)
+#
+# # https://hz.ppkoo.com/shop/35471.html

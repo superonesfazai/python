@@ -44,6 +44,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
     string_to_datetime,
 )
+from fzutils.spider.selector import parse_field
 from fzutils.spider.crawler import Crawler
 
 class KaoLaParse(Crawler):
@@ -85,9 +86,16 @@ class KaoLaParse(Crawler):
         url = 'https://goods.kaola.com/product/{0}.html'.format(goods_id)
         self.lg.info('------>>>| 正在抓取考拉地址为: {0}'.format(url))
 
-        body = self._get_pc_goods_body(url=url, goods_id=goods_id)
+        body = self._get_pc_goods_body(goods_id=goods_id)
         # self.lg.info(body)
+        pc_goods_body = body
         if body == '':
+            return self._get_data_error_init()
+
+        if '你很神，找到了不存在的页面' in body:
+            _handle_goods_shelves_in_auto_goods_table(
+                goods_id=goods_id,
+                logger=self.lg,)
             return self._get_data_error_init()
 
         # _ = self._get_right_body(body)    # phone端
@@ -142,6 +150,8 @@ class KaoLaParse(Crawler):
                 price_info_list = data['price_info_list']
             )
             data['is_delete'] = self._get_is_delete(price_info_list=data['price_info_list'], data=data, other=_)
+            data['parent_dir'] = self._get_parent_dir(body=pc_goods_body)
+            self.lg.info('parent_dir: {}'.format(data['parent_dir']))
 
         except GoodsShelvesException:
             _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
@@ -173,6 +183,7 @@ class KaoLaParse(Crawler):
             # pprint(p_info)
             div_desc = data['div_desc']
             is_delete = data['is_delete']
+            parent_dir = data['parent_dir']
 
             # 上下架时间
             if data.get('sell_time', {}) != {}:
@@ -202,7 +213,8 @@ class KaoLaParse(Crawler):
                 'div_desc': div_desc,                       # div_desc
                 'schedule': schedule,                       # 商品特价销售时间段
                 'all_sell_count': all_sell_count,           # 销售总量
-                'is_delete': is_delete                      # 是否下架
+                'is_delete': is_delete,                     # 是否下架
+                'parent_dir': parent_dir,
             }
             # pprint(result)
             # print(result)
@@ -220,6 +232,46 @@ class KaoLaParse(Crawler):
             self.lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
+
+    def _get_parent_dir(self, body) -> str:
+        """
+        获取parent_dir
+        :param body:
+        :return: '面部清洁/洁面/丝芙兰'
+        """
+        parent_dir_selector = {
+            'method': 're',
+            'selector': 'category: \'(.*?)\',',
+        }
+        # self.lg.info(body)
+        parent_dir_str = parse_field(
+            parser=parent_dir_selector,
+            target_obj=body,
+            is_first=True,
+            logger=self.lg)
+        # pprint(parent_dir_str)
+        parent_dir = '/'.join(parent_dir_str.split('-'))
+
+        return parent_dir
+
+    def _get_pc_goods_body(self, goods_id):
+        """
+        获取pc body
+        :param goods_id:
+        :return:
+        """
+        headers = self._get_pc_headers()
+        headers.update({
+            'authority': 'goods.kaola.com',
+        })
+        url = 'https://goods.kaola.com/product/{}.html'.format(goods_id)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type)
+        # self.lg.info(body)
+
+        return body
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -272,6 +324,7 @@ class KaoLaParse(Crawler):
             item['is_stock_change'],
             item['stock_trans_time'],
             dumps(item['stock_change_info'], ensure_ascii=False),
+            item['parent_dir'],
 
             item['goods_id'],
         ]
@@ -284,42 +337,6 @@ class KaoLaParse(Crawler):
             params.insert(-1, item['delete_time'])
 
         return tuple(params)
-
-    def _get_pc_goods_body(self, url, goods_id):
-        '''
-        得到pc端商品的body
-        :param goods_id:
-        :return:
-        '''
-        headers = {
-            'authority': 'goods.kaola.com',
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_pc_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-
-        params = (
-            ('ri', 'navigation'),
-            ('from', 'page1'),
-            ('zn', 'result'),
-            ('zp', 'page1-0'),
-            ('position', '0'),
-            ('istext', '0'),
-            # ('srId', '8bd1e06482b5730be802f6ce6f56dacf'),
-            ('isMarketPriceShow', 'true'),
-            ('hcAntiCheatSwitch', '0'),
-            ('anstipamActiCheatSwitch', '1'),
-            # ('anstipamActiCheatToken', 'de3223456456fa2e3324354u4567lt'),
-            # ('anstipamActiCheatValidate', 'anstipam_acti_default_validate'),
-        )
-
-        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
-        # print(body)
-
-        return body
 
     def _get_title(self, data):
         title = data.get('goodsInfoBase', {}).get('title', '')
@@ -732,6 +749,17 @@ class KaoLaParse(Crawler):
         self.result_data = {}
 
         return {}
+
+    @staticmethod
+    def _get_pc_headers():
+        return {
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_pc_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        }
 
     def get_goods_id_from_url(self, kaola_url):
         '''

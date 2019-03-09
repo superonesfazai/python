@@ -95,7 +95,7 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'pk'                                                 # 设置爬取对象
+        self.spider_name = 'hn'                                                 # 设置爬取对象
         self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
@@ -256,22 +256,26 @@ class CompanySpider(AsyncCrawler):
             {
                 'city_id': 1,
                 'city_name': '广州市',
-                'province_name': '广东省'
+                'province_name': '广东省',
+                'w3': 'www',
             },
             {
                 'city_id': 2,
                 'city_name': '温州市',
                 'province_name': '浙江省',
+                'w3': 'wz',
             },
             {
                 'city_id': 3,
                 'city_name': '杭州市',
                 'province_name': '浙江省',
+                'w3': 'hz',
             },
             {
                 'city_id': 4,
-                'city_name': '保定市',
+                'city_name': '保定市',         # 高碑店市的白沟
                 'province_name': '河北省',
+                'w3': 'bg',
             },
         ]
 
@@ -283,6 +287,7 @@ class CompanySpider(AsyncCrawler):
         self.db_hn_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=9)
         self.hn_category_list = await self._get_hn_category()
         # self.hn_category_list = await self._get_al_category5()
+        self.hn_category_list = await self._get_pk_category()
 
         pprint(self.hn_category_list)
         self.lg.info('hn所有子分类总个数: {}'.format(len(self.hn_category_list)))
