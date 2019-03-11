@@ -15,7 +15,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
-    IP_POOL_TYPE,)
+    IP_POOL_TYPE,
+    TB_COOKIES,)
 
 from random import (
     randint,
@@ -26,7 +27,6 @@ import gc
 from time import sleep
 from scrapy.selector import Selector
 import re
-import datetime
 from pprint import pprint
 from demjson import decode
 from json import dumps
@@ -34,9 +34,16 @@ from json import dumps
 from sql_str_controller import (
     al_select_str_2,
 )
+from my_exceptions import SqlServerConnectionException
+from multiplex_code import (
+    get_top_n_buyer_name_and_comment_date_by_goods_id,
+    filter_crawled_comment_content,)
 
 from fzutils.cp_utils import filter_invalid_comment_content
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    str_cookies_2_dict,
+    get_base_headers,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import (
@@ -52,6 +59,9 @@ class ALi1688CommentParse(Crawler):
     阿里1688评论抓取解析类
     '''
     def __init__(self, logger=None):
+        # TODO 1688评论数据需要带上cookies进行请求
+        cookies = TB_COOKIES
+        self.login_cookies_dict = str_cookies_2_dict(cookies) if cookies is not None else None
         super(ALi1688CommentParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
@@ -61,7 +71,11 @@ class ALi1688CommentParse(Crawler):
         self.result_data = {}
         self.msg = ''
         self._set_headers()
-        self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type, logger=self.lg)
+        self.driver = BaseDriver(
+            executable_path=PHANTOMJS_DRIVER_PATH,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,
+            driver_cookies=cookies)
         # 可动态执行的代码
         self._exec_code = '''
         _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
@@ -81,6 +95,7 @@ class ALi1688CommentParse(Crawler):
         '''
         self._page_sleep_time = 2
         self.max_page = 4
+        self.max_page_num = 5
 
     def _get_comment_data(self, goods_id):
         if goods_id == '':
@@ -92,7 +107,7 @@ class ALi1688CommentParse(Crawler):
         # tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(goods_id)
         # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, exec_code=self._exec_code)
         # # self.lg.info(str(body))
-        #
+
         # if body == '':
         #     self.result_data = {}
         #     self.lg.error('该地址的body为空值, 出错地址: ' + tmp_url)
@@ -186,6 +201,16 @@ class ALi1688CommentParse(Crawler):
         # pprint(origin_comment_list)
 
         '''下面是模拟pc端好评接口'''
+        try:
+            # db中已有的buyer_name and comment_date_list
+            db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
+                goods_id=goods_id,
+                top_n_num=400,
+                logger=self.lg,)
+        except SqlServerConnectionException:
+            self.lg.error('db 连接异常! 此处抓取跳过!')
+            return self._error_init()
+
         member_id = self._get_this_goods_member_id(goods_id=goods_id)
         self.lg.info('------>>>| 获取到的member_id: {0}'.format(member_id))
         if member_id == '':
@@ -199,65 +224,49 @@ class ALi1688CommentParse(Crawler):
             return self._error_init()
 
         _comment_list = []
-        for page_num in range(1, 4):
+        for page_num in range(1, self.max_page_num):
             self.lg.info('------>>>| 正在抓取第{0}页...'.format(page_num))
-            params = self._set_params(goods_id=goods_id, member_id=member_id, page_num=page_num)
-            url = 'https://rate.1688.com/remark/offerDetail/rates.json'
-            tmp_headers = self.headers
-            tmp_headers.update({
-                'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
-            })
-            # 原先用Requests老是404，改用phantomjsy也还是老是404
-            body = Requests.get_url_body(url=url, headers=tmp_headers, params=params, ip_pool_type=self.ip_pool_type)
-            # self.lg.info(str(body))
-
-            # 用phantomjs
-            # url = self._set_url(url=url, params=params)
-            # self.lg.info(url)
-            # body = self.driver.use_phantomjs_to_get_url_body(url)
-            # try:
-            #     body = re.compile('<pre.*?>(.*)</pre>').findall(body)[0]
-            # except IndexError:
-            #     self.lg.error('获取body时索引异常!')
-            #     self.result_data = {}
-            #     return {}
-
-            if body == '':
-                self.lg.error('该地址的body为空值, 出错goods_id: {0}'.format(goods_id))
-                return self._error_init()
-
-            data = json_2_dict(json_str=body, logger=self.lg)
-            if data.get('url') is not None:
-                self.lg.info('------>>>| 被重定向到404页面, 休眠{0}s中...'.format(self._page_sleep_time))
-                sleep(self._page_sleep_time)
-                break
-
-            # self.lg.info(str(body))
-            data = data.get('data', {}).get('rates', [])
-            # pprint(data)
-            if data == []:
-                # sleep(self._page_sleep_time)
-                break
+            try:
+                data = self._get_one_page_comment_info(
+                    goods_id=goods_id,
+                    page_num=page_num,
+                    member_id=member_id,)
+            except (AssertionError, Exception):
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
 
             try:
                 for item in data:
                     buyer_name = item.get('member', '')
                     comment = []
-                    for i in item.get('rateItem', []):
-                        _comment_content = self._wash_comment(i.get('remarkContent', ''))
-                        if not filter_invalid_comment_content(_comment_content):
-                            continue
+                    # TODO item.get('rateItem', [])只取第一条comment
+                    try:
+                        first_rate_item = item.get('rateItem', [])[0]
+                    except IndexError:
+                        continue
 
-                        comment.append({
-                            'comment': _comment_content,
-                            'comment_date': str(i.get('remarkTime', '')),    # 评论日期
-                            'sku_info': choice(sku_info),  # 购买的商品规格(pc端1688商品没有规格)
-                            'star_level': i.get('starLevel', 5),
-                            'img_url_list': [],
-                            'video': '',
-                        })
+                    _comment_content = self._wash_comment(first_rate_item.get('remarkContent', ''))
+                    if not filter_invalid_comment_content(_comment_content):
+                        continue
+
+                    comment_date = self._get_comment_date2(item=first_rate_item)
+                    comment.append({
+                        'comment': _comment_content,
+                        'comment_date': comment_date,
+                        'sku_info': choice(sku_info),  # 购买的商品规格(pc端1688商品没有规格)
+                        'star_level': first_rate_item.get('starLevel', 5),
+                        'img_url_list': [],
+                        'video': '',
+                    })
                     quantify = item.get('quantity', 1)                                  # 购买数量
                     if comment == []:   # 为空不录入
+                        continue
+
+                    if not filter_crawled_comment_content(
+                        new_buyer_name=buyer_name,
+                        new_comment_date=comment_date,
+                        db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                        # 过滤已采集的comment
                         continue
 
                     _ = {
@@ -284,11 +293,64 @@ class ALi1688CommentParse(Crawler):
             _r['modify_time'] = _t
             _r['_comment_list'] = _comment_list
             self.result_data = _r
+            pprint(self.result_data)
 
             return self.result_data
         else:
             self.lg.error('出错goods_id: {0}'.format(goods_id))
             return self._error_init()
+
+    def _get_one_page_comment_info(self, goods_id, page_num, member_id,) -> list:
+        """
+        获取单页的comment info
+        :param page_num:
+        :return:
+        """
+        params = self._set_params(
+            goods_id=goods_id,
+            member_id=member_id,
+            page_num=page_num)
+        url = 'https://rate.1688.com/remark/offerDetail/rates.json'
+        headers = get_base_headers()
+        headers.update({
+            'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
+        })
+        # 原先用Requests老是404，改用phantomjsy也还是老是404
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            cookies=self.login_cookies_dict,)
+        self.lg.info(str(body))
+        assert body != '', '该地址的body为空值, 出错goods_id: {0}'.format(goods_id)
+
+        _data = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={})
+        if _data.get('url') is not None:
+            sleep(self._page_sleep_time)
+            assert _data.get('url') is not None, '------>>>| 被重定向到404页面, 休眠{0}s中...'.format(self._page_sleep_time)
+
+        data = _data.get('data', {}).get('rates', [])
+        self.lg.info('[{}] page_num: {}'.format(
+            '+' if data != [] else '-',
+            page_num, ))
+
+        # assert data != [], '获取到的data为空list!'
+
+        return data
+
+    def _get_comment_date2(self, item) -> str:
+        """
+        获取评论日期
+        :param item:
+        :return: eg: '2018-04-04 15:17:37'
+        """
+        comment_date = str(item.get('remarkTime', ''))
+
+        return comment_date
 
     def _get_origin_comment_list(self, **kwargs) -> list:
         '''
@@ -357,7 +419,7 @@ class ALi1688CommentParse(Crawler):
         # sku_info = self.json_2_dict(_._select_table(sql_str=sql_str, params=(str(goods_id),)))
         try:
             _r = _._select_table(sql_str=al_select_str_2, params=(str(goods_id),))[0][0]
-            # print(_r)
+            # self.lg.info(_r)
             sku_info = decode(_r)
         except Exception:
             self.lg.error('demjson.decode数据时遇到错误!', exc_info=True)
@@ -379,13 +441,15 @@ class ALi1688CommentParse(Crawler):
             'User-Agent': get_random_pc_ua(),
             # 'X-DevTools-Emulate-Network-Conditions-Client-Id': '5C1ED6AF76F4F84D961F136EAA06C40F',
         }
-
         params = (
             ('offerId', str(goods_id)),
         )
-
         url = 'https://m.1688.com/page/offerRemark.htm'
-        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         if body == '':
             self.lg.error('获取到的body为空值!此处跳过!')
@@ -451,20 +515,23 @@ class ALi1688CommentParse(Crawler):
         :return:
         '''
         # t = str(int(time.time())) + str(randint(100, 999))
+        # self.lg.info(member_id)
         params = (
+            # ('callback', 'jQuery17205914468174705312_1531451658317'),
             ('_input_charset', 'GBK'),
             ('offerId', str(goods_id)),
             ('page', str(page_num)),
             ('pageSize', '15'),
             ('starLevel', '7'),
-            ('orderBy', 'date'),
+            # ('orderBy', 'date'),
+            ('orderBy', ''),
             ('semanticId', ''),
-            ('showStat', '0'),
+            # ('showStat', '0'),
+            ('showStat', '1'),
             ('content', '1'),
             # ('t', t),
             ('memberId', str(member_id)),
-            # ('callback', 'jQuery17205914468174705312_1531451658317'),
-            # jQuery172035563097819771516_1535420323090
+            ('isNeedInitRate', 'false'),
         )
 
         return params

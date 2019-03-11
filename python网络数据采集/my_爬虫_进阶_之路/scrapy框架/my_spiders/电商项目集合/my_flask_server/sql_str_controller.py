@@ -32,21 +32,30 @@ comment
 """
 '''select'''
 cm_select_str_1 = '''
-select goods_id, SiteID as site_id 
-from dbo.GoodsInfoAutoGet as a, dbo.all_goods_comment as b 
-where a.GoodsID=b.goods_id and a.MainGoodsID is not null and a.IsDelete=0 and GETDATE()-modify_time < 1
-order by b.id asc'''
+select GoodsID, SiteID 
+from dbo.GoodsInfoAutoGet
+where MainGoodsID is not null
+and IsDelete=0
+and GoodsID in (
+select DISTINCT goods_id
+from dbo.goods_comment_new
+GROUP BY goods_id)
+'''
 
 cm_select_str_2 = '''
 select GoodsID, SiteID 
 from dbo.GoodsInfoAutoGet 
-where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select goods_id from dbo.all_goods_comment)
-ORDER BY ID DESC'''
+where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select DISTINCT goods_id from dbo.goods_comment_new)
+ORDER BY ID DESC
+'''
 # 得到评论表中所有goods_id
-cm_select_str_3 = 'select goods_id from dbo.all_goods_comment'
+cm_select_str_3 = 'select DISTINCT goods_id from dbo.goods_comment_new'
 '''insert'''
 # 评论插入
+# 老版本对应all_goods_comment 表
 cm_insert_str_1 = 'insert into dbo.all_goods_comment(goods_id, create_time, modify_time, comment_info) values(%s, %s, %s, %s)'
+# 新版
+cm_insert_str_2 = 'insert into dbo.goods_comment_new(goods_id, create_time, buyer_name, head_img_url, sku_info, purchase_quantify, comment_content, comment_date, img_url_list, video_url, star_level, append_comment_content, append_comment_date, append_comment_img_url_list) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 '''update'''
 # 评论更新
 cm_update_str_1 = 'update dbo.all_goods_comment set modify_time=%s, comment_info=%s where goods_id=%s'
@@ -219,8 +228,9 @@ z8_select_str_1 = 'select goods_id, is_delete from dbo.zhe_800_pintuan where sit
 z8_select_str_2 = '''
 select top 1000 goods_id, is_delete 
 from dbo.zhe_800_pintuan 
-where site_id=17 and GETDATE()-modfiy_time>0.5
-order by modfiy_time asc'''
+where site_id=17
+order by modfiy_time asc
+'''
 # 常规goods实时更新
 z8_select_str_3 = '''
 select top 1000 GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time

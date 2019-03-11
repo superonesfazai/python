@@ -22,7 +22,7 @@ from settings import (
     IP_POOL_TYPE,
 )
 
-import gc
+from gc import collect
 from time import sleep
 
 from pprint import pprint
@@ -37,6 +37,7 @@ from sql_str_controller import (
     kw_select_str_4,
     kw_insert_str_2,
 )
+from multiplex_code import _block_get_new_db_conn
 
 from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_escape
 from fzutils.linux_utils import daemon_init
@@ -107,7 +108,7 @@ class GoodsKeywordsSpider(Crawler):
                 # 即时释放资源
                 try: del result_2
                 except: pass
-                gc.collect()
+                collect()
 
                 for item in result:     # 每个关键字在True的接口都抓完, 再进行下一次
                     self.lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(item[0], item[1]))
@@ -116,12 +117,11 @@ class GoodsKeywordsSpider(Crawler):
                             self.lg.info('api为False, 跳过!')
                             continue
 
-                        if self.add_goods_index % 20 == 0:
-                            self.lg.info('my_pipeline客户端重连中...')
-                            try: del self.my_pipeline
-                            except: pass
-                            self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                            self.lg.info('my_pipeline客户端重连完毕!')
+                        self.my_pipeline = _block_get_new_db_conn(
+                            db_obj=self.my_pipeline,
+                            index=self.add_goods_index,
+                            logger=self.lg,
+                            remainder=20,)
 
                         goods_id_list = self._get_keywords_goods_id_list(type=type, keyword=item)
                         self.lg.info('关键字为{0}, 获取到的goods_id_list 如下: {1}'.format(item[1], str(goods_id_list)))
@@ -129,8 +129,7 @@ class GoodsKeywordsSpider(Crawler):
                         self._deal_with_goods_id_list(
                             type=type,
                             goods_id_list=goods_id_list,
-                            keyword_id=item[0]
-                        )
+                            keyword_id=item[0])
                         sleep(3)
 
     def _get_keywords_goods_id_list(self, type, keyword):
@@ -194,9 +193,7 @@ class GoodsKeywordsSpider(Crawler):
             'accept': '*/*',
             # 'referer': 'https://s.taobao.com/search?q=%E8%BF%9E%E8%A1%A3%E8%A3%99%E5%A4%8F&imgfile=&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=a21bo.2017.201856-taobao-item.1&ie=utf8&initiative_id=tbindexz_20170306',
             'authority': 's.taobao.com',
-            # 'cookie': 't=70c4fb481898a67a66d437321f7b5cdf; cna=nbRZExTgqWsCAXPCa6QA5B86; l=AkFBuFEM2rj4GbU8Mjl3KsFo0YZa/7Vg; thw=cn; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _cc_=UIHiLt3xSw%3D%3D; tg=0; enc=OFbfiyN19GGi1GicxsjVmrZoFzlt9plbuviK5OuthXYfocqTD%2BL079G%2BIt4OMg6ZrbV4veSg5SQEpzuMUgLe0w%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; miid=763730917900964122; mt=ci%3D-1_1; linezing_session=i72FGC0gr3GTls7K7lswxen2_1527664168714VAPN_1; cookie2=1cf9585e0c6d98c72c64beac41a68107; v=0; _tb_token_=5ee03e566b165; uc1=cookie14=UoTeOZOVOtrsVw%3D%3D; alitrackid=www.taobao.com; lastalitrackid=www.taobao.com; _m_h5_tk=14984d833a4647c13d4207c86d0dbd97_1528036508423; _m_h5_tk_enc=a8709d79a833625dc5c42b778ee7f1ee; JSESSIONID=F57610F0B34140EDC9F242BEA0F4800A; isg=BLm5VsJ0xr4M-pvu-R_LcQkeyCNTbqwVe7qvs9vvJODVYtj0JBZ5Sd704WaUEkWw',
         }
-
         # 获取到的为淘宝关键字搜索按销量排名
         params = (
             ('data-key', 'sort'),
@@ -214,7 +211,6 @@ class GoodsKeywordsSpider(Crawler):
             ('ie', 'utf8'),
             # ('initiative_id', 'tbindexz_20170306'),
         )
-
         s_url = 'https://s.taobao.com/search'
         body = Requests.get_url_body(url=s_url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         if body == '':
@@ -253,16 +249,13 @@ class GoodsKeywordsSpider(Crawler):
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            # 'cookie': 'cna=nbRZExTgqWsCAXPCa6QA5B86; ali_ab=113.215.180.118.1523857816418.4; lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; _csrf_token=1528708263870; JSESSIONID=9L783sX92-8iXZBHLCgK4fJiFKG9-W66WeuQ-BRgo4; hng=CN%7Czh-CN%7CCNY%7C156; t=70c4fb481898a67a66d437321f7b5cdf; _tb_token_=5ee03e566b165; __cn_logon__=false; h_keys="aa#2018%u5973%u88c5t%u6064"; alicnweb=homeIdttS%3D38414563432175544705031886000168094537%7Ctouch_tb_at%3D1528767881872%7ChomeIdttSAction%3Dtrue; ctoken=YnzGSFi23yEECqVO988Gzealot; _m_h5_tk=1cdad4dba1f1502fb29f57b3f73f5610_1528770803659; _m_h5_tk_enc=64259ec4fe4c33bc4555166994ed7b4d; __cn_logon__.sig=i6UL1cVhdIpbPPA_02yGiEyKMeZR2hBfnaoYK1CcrF4; ali_apache_id=11.182.158.193.1528768195886.327406.1; XSRF-TOKEN=b84fcec8-8bdf-41a5-a5c1-f8d6bfc9f83e; _tmp_ck_0=IlQ2M6x9F5xTkEpGRay66FVl%2BBaIEY076xELE8UtaLcz%2BgR%2FJ2UZOfDeKILA7R2VgXEJ7VYCkEQjS1RcUCwfL%2Br8ZFi0vwyVwyNpQsD2QG0HaihwedkkF9Cp9Ww0Jr%2BZF4la9CTe0AY8d1E1lDF91tD7lMAKIGVSne3V95CfI8VzpiWJ415B1IA0cc9J6IpYzn0mT1xLYnXcBAkDq0gop74NaynWIxw%2BLqmnXr%2BYU2bkOyMxZOBVY9B%2Bb0FU82h3TC9HCM8dGLnK2kxlgR%2B5lyT%2BCCFhhIX%2FioEMtA0TvDpXvRSUKoDTQG%2FCeJiKfy3LxMXmcTs5TBuWkh31F8nDCpLf6%2FlYOGkqeV1WLJeYXVe3SBvZC2O2JcYBQaKHcesETe%2FwTJL1fyc%3D; ad_prefer="2018/06/12 10:18:21"; webp=1; isg=BJWVxP7WYsuzzEf8vnJ3nRJEpJdFFdP4_0ZTRxc4b4wzbrxg3ONSdf5sPHJY2WFc; ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiJ5V3I0UVJGelVSVGp4dWs4aUxPWGl4dDIiLCJfZXhwaXJlIjoxNTI4ODU3MDE5ODMzLCJfbWF4QWdlIjo4NjQwMDAwMH0=; ali-ss.sig=z0qrG8Cj9BhDL_CLwTzgBGcdjSOXtp6YLxgDdTQRcWE',
         }
-
         params = (
             ('sortType', 'booked'),
             ('filtId', ''),
             ('keywords', keyword[1]),
             ('descendOrder', 'true'),
         )
-
         url = 'https://m.1688.com/offer_search/-6161.html'
         body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
@@ -293,9 +286,7 @@ class GoodsKeywordsSpider(Crawler):
             'accept': '*/*',
             # 'referer': 'https://list.tmall.com/search_product.htm?q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d',
             'authority': 'list.tmall.com',
-            # 'cookie': 'cna=nbRZExTgqWsCAXPCa6QA5B86; _med=dw:1280&dh:800&pw:2560&ph:1600&ist:0; cq=ccp%3D1; hng=CN%7Czh-CN%7CCNY%7C156; lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; enc=zIc9Cy5z0iS95tACxeX82fUsJdrekjC6%2BomP3kNKji1Z9RKwOt%2Fysyyewwf8twcytUGt2yT9AlAh5ASUlds05g%3D%3D; t=70c4fb481898a67a66d437321f7b5cdf; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _tb_token_=5ee03e566b165; cookie2=1cf9585e0c6d98c72c64beac41a68107; tt=tmall-main; pnm_cku822=098%23E1hvHpvUvbpvUvCkvvvvvjiPPFcvsjYnn2dvljEUPmP9sj1HPFsWtj3EP25ptj3PiQhvCvvvpZptvpvhvvCvpvhCvvOv9hCvvvmtvpvIvvCvxQvvvUgvvhVXvvvCxvvvBZZvvUhpvvChiQvv9Opvvho5vvmC3UyCvvOCvhEC0nkivpvUvvCCEppK6NOEvpCWvKXQwCzE%2BFuTRogRD76fdigqb64B9C97%2Bul1B5c6%2Bu0OVC61D70O58TJOymQD40OeutYon29V3Q7%2B3%2Busj7J%2Bu0OaokQD40OeutYLpGCvvpvvPMM; res=scroll%3A990*6982-client%3A472*680-offset%3A472*6982-screen%3A1280*800; _m_h5_tk=69794695b8eeb690d3ef037f6780d514_1529036786907; _m_h5_tk_enc=3e31314740c37d1fb14a26989cdac03c; isg=BN_f5lvy-LULYv0VwEkGMp59bjVjxpc1-mcB0nEsew7VAP6CeRTDNl2Gx5Z-nAte',
         }
-
         params = {
             'page_size': '20',
             'page_no': '1',
@@ -344,9 +335,7 @@ class GoodsKeywordsSpider(Crawler):
             'accept': '*/*',
             # 'referer': 'https://so.m.jd.com/ware/search.action?keyword=b&area_ids=1,72,2819&sort_type=sort_totalsales15_desc&qp_disable=no&fdesc=%E5%8C%97%E4%BA%AC&t1=1529934870416',
             'authority': 'so.m.jd.com',
-            # 'cookie': '3AB9D23F7A4B3C9B=SL4YPRE3Y4C627UCHFP4ROHI54TTYYJKLFSVROZQ57T7K3OUUKSYIVFUJKQHBAUPRANZOTPLCVC2TICTSJG6WEMUII; mba_muid=1523868445027-16c30fbc5f8c54c429; abtest=20180416164812814_35; visitkey=41587293677961039; shshshfpa=9e159581-c64f-e9f4-ad0c-8b6ced0d9f28-1525907842; shshshfpb=1a725fe3148b84c839f009c93fc261f2218f59c61e7f4e6c05af381826; retina=1; webp=1; TrackerID=GGwYSka4RvH3lm0ZwLoO2_qdMpBwRG39BvyBvQaJfzyN5cmdGt4lEMSqqJS-sbDqj4nAUX2HU4sVDGA8vl169D37w4EqceYcH6ysXv46kMVfvVdAPmSMV9LceeO3Cc6Z; whwswswws=; __jdc=122270672; subAbTest=20180604104024339_59; mobilev=html5; m_uuid_new=05C2D24B7D8FFDA8D4243A929A5C6234; intlIpLbsCountrySite=jd; mhome=1; cid=9; M_Identification=3721cafc2442fba2_42b6f64bb933019fdb27c9e124cfd67f; M_Identification_abtest=20180604104040270_32361722; M_Identification=3721cafc2442fba2_42b6f64bb933019fdb27c9e124cfd67f; so_eggsCount=1; warehistory="4764260,10658784927,"; wq_logid=1528080290.1936376147; __jdu=15238681432201722645210; __jda=122270672.15238681432201722645210.1523868143.1528255502.1529934182.18; __jdv=122270672|direct|-|none|-|1529934182053; cn=0; user-key=ecfc3673-cc54-43e2-96bd-fb7a7e700c32; ipLoc-djd=1-72-2799-0; shshshfp=a3b9323dfc6a675230170e6a43efcb81; USER_FLAG_CHECK=d9f73823a80c0305366f70a3b99b9ecb; sid=57ea016fe0ab4b04271e00f01d94d3b9; intlIpLbsCountryIp=60.177.32.78; autoOpenApp_downCloseDate_auto=1529934572240_21600000; wxa_level=1; PPRD_P=UUID.15238681432201722645210; sc_width=1280; wq_area=15_1213_0%7C3; __jdb=122270672.10.15238681432201722645210|18.1529934182; mba_sid=15299345705167145512031951538.7; __wga=1529934993217.1529934585585.1528080039013.1526716673573.6.3; shshshsID=7f3d94fa215b4e53b467f0d5e0563e9c_9_1529934993592',
         }
-
         params = (
             ('keyword', keyword[1]),
             ('datatype', '1'),
@@ -457,7 +446,7 @@ class GoodsKeywordsSpider(Crawler):
                     self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
-                gc.collect()
+                collect()
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
             if result:      # 仅处理goods_id被插入或者原先已存在于db中
                 self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
@@ -527,7 +516,7 @@ class GoodsKeywordsSpider(Crawler):
                 self.add_goods_index += 1
                 try: del ali_1688
                 except: pass
-                gc.collect()
+                collect()
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
             if result:      # 仅处理goods_id被插入或者原先已存在于db中
                 self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
@@ -539,11 +528,11 @@ class GoodsKeywordsSpider(Crawler):
         return True
 
     def _tmall_keywords_spider(self, **kwargs):
-        '''
+        """
         tmall对应关键字采集
         :param kwargs:
         :return:
-        '''
+        """
         goods_id_list = kwargs.get('goods_id_list')
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https:' + re.compile('&skuId=.*').sub('', item) for item in goods_id_list]
@@ -596,7 +585,7 @@ class GoodsKeywordsSpider(Crawler):
                     self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 self.add_goods_index += 1
-                gc.collect()
+                collect()
                 sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
             if result:      # 仅处理goods_id被插入或者原先已存在于db中
                 self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
@@ -667,7 +656,7 @@ class GoodsKeywordsSpider(Crawler):
                 try:
                     del jd
                 except: pass
-                gc.collect()
+                collect()
 
             if result:      # 仅处理goods_id被插入或者原先已存在于db中
                 self._insert_into_goods_id_and_keyword_middle_table(goods_id=goods_id, keyword_id=keyword_id)
@@ -755,7 +744,7 @@ class GoodsKeywordsSpider(Crawler):
             del self.db_existed_goods_id_list
         except:
             pass
-        gc.collect()
+        collect()
 
 def just_fuck_run():
     while True:
@@ -763,7 +752,7 @@ def just_fuck_run():
         _tmp = GoodsKeywordsSpider()
         # _tmp._add_keyword_2_db_from_excel_file()
         _tmp._just_run()
-        gc.collect()
+        collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(60*5)
 

@@ -16,23 +16,35 @@ from my_items import CommentItem
 from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
-    IP_POOL_TYPE,)
+    IP_POOL_TYPE,
+    TB_COOKIES,)
 
 from random import randint
 from time import sleep
 import gc
-import re, datetime, json
+import re
 from pprint import pprint
 from random import choice
+from my_exceptions import SqlServerConnectionException
+from multiplex_code import (
+    get_top_n_buyer_name_and_comment_date_by_goods_id,
+    filter_crawled_comment_content,)
 
 from fzutils.cp_utils import filter_invalid_comment_content
-from fzutils.internet_utils import _get_url_contain_params
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.common_utils import wash_sensitive_info
+from fzutils.internet_utils import (
+    _get_url_contain_params,
+    get_random_pc_ua,)
+from fzutils.time_utils import get_shanghai_time
+from fzutils.common_utils import (
+    wash_sensitive_info,
+    json_2_dict,)
 from fzutils.spider.crawler import Crawler
 
 class TmallCommentParse(Crawler):
     def __init__(self, logger=None):
+        # TODO 老数据接口得附上登录cookies才可请求成功! 且具有时效性!
+        # 登陆后的cookies
+        cookies = TB_COOKIES
         super(TmallCommentParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
@@ -41,7 +53,7 @@ class TmallCommentParse(Crawler):
             
             is_use_driver=True,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
-        )
+            driver_cookies=cookies,)
         self.result_data = {}
         self.msg = ''
         self._set_headers()
@@ -49,6 +61,7 @@ class TmallCommentParse(Crawler):
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
         self.g_data = {}                # 临时数据
         self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
+        self.max_page_num = 10
 
     def _get_comment_data(self, type:int, goods_id):
         """
@@ -58,19 +71,27 @@ class TmallCommentParse(Crawler):
         :return:
         """
         if goods_id == '' or type == '':
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
+        try:
+            # db中已有的buyer_name and comment_date_list
+            db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
+                goods_id=goods_id,
+                top_n_num=400,
+                logger=self.lg,)
+            # pprint(db_top_n_buyer_name_and_comment_date_list)
+        except SqlServerConnectionException:
+            self.lg.error('db 连接异常! 此处抓取跳过!')
+            return self._data_error()
+
         '''先获取到sellerId'''
         try:
             seller_id = self._get_seller_id(type=type, goods_id=goods_id)
         except AssertionError or IndexError as e:
             self.lg.error('出错goods_id: %s' % goods_id)
             self.lg.error(e.args[0])
-            self.random_sku_info_list = []
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         """再获取price_info_list"""
         try:
@@ -79,59 +100,34 @@ class TmallCommentParse(Crawler):
         except Exception as e:
             self.lg.error('出错goods_id: %s' % str(goods_id))
             self.lg.exception(e)
-            self.random_sku_info_list = []
-            self.result_data = {}
-            return {}
-
-        # TODO 老数据接口得附上登录cookies才可请求成功! 且具有时效性! 下次改版 可尝试下方地址(新版地址)来抓包comment接口数据
-        # https://m.intl.taobao.com/detail/detail.html?id=36428173407#modal=comment
+            return self._data_error()
 
         _tmp_comment_list = []
-        for current_page in range(1, 4):
+        for current_page in range(1, self.max_page_num):
             self.lg.info('------>>>| 正在抓取第 {0} 页的评论...'.format(str(current_page)))
-            _url = 'https://rate.tmall.com/list_detail_rate.htm'
-
-            params = self._set_params(goods_id=goods_id, seller_id=seller_id, current_page=current_page)
-            self.headers.update({'referer': 'https://detail.m.tmall.com/item.htm?id='+goods_id})
-
-            # 原先用代理请求不到数据的原因是没有cookies
-            # body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params, encoding='gbk')
-
-            # 所以直接用phantomjs来获取相关api数据
-            _url = _get_url_contain_params(url=_url, params=params)     # 根据params组合得到url
-            # self.lg.info(_url)
-
-            body = self.driver.use_phantomjs_to_get_url_body(url=_url)
-            # self.lg.info(str(body))
-            if body == '':
-                self.lg.error('获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
-                self.result_data = {}
-                return {}
-
             try:
-                _ = re.compile('\((.*)\)').findall(body)[0]
-            except IndexError:
-                _ = {}
-                self.lg.error('索引异常! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
+                data = self._get_one_page_comment_info(
+                    goods_id=goods_id,
+                    seller_id=seller_id,
+                    page_num=current_page)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
 
-            try:
-                data = json.loads(_).get('rateDetail', {}).get('rateList', [])
-                # pprint(data)
-            except:
-                data = []
-                self.lg.error('json.loads转换_出错! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
             _tmp_comment_list += data
+            # 必须进行短期休眠 否则跳滑动验证码!
             sleep(self.comment_page_switch_sleep_time)
 
         try:
-            _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
+            _comment_list = self._get_comment_list(
+                _tmp_comment_list=_tmp_comment_list,
+                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list)
         except Exception as e:
             self.lg.error('出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
             self.lg.exception(e)
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
-        _t = datetime.datetime.now()
+        _t = get_shanghai_time()
         _r = CommentItem()
         _r['goods_id'] = str(goods_id)
         _r['create_time'] = _t
@@ -142,7 +138,57 @@ class TmallCommentParse(Crawler):
 
         return self.result_data
 
-    def _get_comment_list(self, _tmp_comment_list):
+    def _get_one_page_comment_info(self, goods_id, seller_id, page_num) -> list:
+        """
+        获取单页comment info
+        :return:
+        """
+        _url = 'https://rate.tmall.com/list_detail_rate.htm'
+        params = self._set_params(
+            goods_id=goods_id,
+            seller_id=seller_id,
+            current_page=page_num)
+        self.headers.update({
+            'referer': 'https://detail.m.tmall.com/item.htm?id={}'.format(goods_id),
+        })
+
+        # 原先用代理请求不到数据的原因是没有cookies
+        # body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params, encoding='gbk')
+        # 所以直接用phantomjs来获取相关api数据
+        _url = _get_url_contain_params(url=_url, params=params)  # 根据params组合得到url
+        # self.lg.info(_url)
+        body = self.driver.get_url_body(url=_url)
+        # self.lg.info(str(body))
+        assert body != '', '获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id)
+
+        try:
+            data = json_2_dict(
+                json_str=re.compile('\((.*)\)').findall(body)[0],
+                default_res={},
+                logger=self.lg,)
+            redict_url = 'https:' + data.get('url', '').replace('https:', '') if data.get('url', '') != '' else ''
+            if redict_url != '':
+                self.lg.info(redict_url)
+            else:
+                pass
+
+            data = data.get('rateDetail', {}).get('rateList', [])
+        except IndexError:
+            raise IndexError
+
+        self.lg.info('[{}] page_num: {}'.format(
+            '+' if data != [] else '-',
+            page_num, ))
+
+        return data
+
+    def _data_error(self):
+        self.random_sku_info_list = []
+        self.result_data = {}
+
+        return {}
+
+    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list):
         '''
         转换成需求的结果集
         :param _tmp_comment_list:
@@ -151,8 +197,7 @@ class TmallCommentParse(Crawler):
         _comment_list = []
         for item in _tmp_comment_list:
             # pprint(item)
-            _comment_date = item.get('rateDate', '')
-            assert _comment_date != '', '得到的_comment_date为空str!请检查!'
+            _comment_date = self._get_comment_date(item=item)
 
             # 天猫接口拿到的sku_info默认为空
             # sku_info = ''
@@ -170,7 +215,6 @@ class TmallCommentParse(Crawler):
 
             # 天猫设置默认 购买量为1
             quantify = 1
-
             # 天猫没有head_img回传，就设置一个默认地址
             head_img = ''
 
@@ -199,6 +243,13 @@ class TmallCommentParse(Crawler):
             if not filter_invalid_comment_content(_comment_content):
                 continue
 
+            if not filter_crawled_comment_content(
+                new_buyer_name=buyer_name,
+                new_comment_date=_comment_date,
+                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                # 过滤已采集的comment
+                continue
+
             comment = [{
                 'comment': _comment_content,
                 'comment_date': _comment_date,
@@ -207,7 +258,6 @@ class TmallCommentParse(Crawler):
                 'star_level': randint(4, 5),
                 'video': '',
             }]
-
             _ = {
                 'buyer_name': buyer_name,           # 买家昵称
                 'comment': comment,                 # 评论内容
@@ -215,10 +265,20 @@ class TmallCommentParse(Crawler):
                 'head_img': head_img,               # 头像
                 'append_comment': append_comment,   # 追评
             }
-
             _comment_list.append(_)
 
         return _comment_list
+
+    def _get_comment_date(self, item):
+        """
+        获取comment date
+        :param item:
+        :return: eg: '2017-04-24 13:41:37'
+        """
+        _comment_date = item.get('rateDate', '')
+        assert _comment_date != '', '得到的_comment_date为空str!请检查!'
+
+        return _comment_date
 
     def _get_seller_id(self, type, goods_id):
         '''

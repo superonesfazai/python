@@ -23,8 +23,11 @@ from logging import INFO, ERROR
 from time import sleep
 from json import dumps
 
+from multiplex_code import _block_get_new_db_conn
+
 from sql_str_controller import (
     cm_update_str_1,
+    cm_insert_str_2,
     cm_select_str_1,
 )
 
@@ -38,27 +41,29 @@ class CommentRealTimeUpdateSpider(object):
         self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
-        self.sql_str = cm_update_str_1
+        # self.sql_str = cm_update_str_1
+        # 插入
+        self.sql_str = cm_insert_str_2
 
         if self._init_debugging_api().get(2):
-            self.my_lg.info('初始化 1688 phantomjs中...')
-            self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
+            self.lg.info('初始化 1688 phantomjs中...')
+            self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(3) is True \
                 or self._init_debugging_api().get(4) is True\
                 or self._init_debugging_api().get(6) is True:
-            self.my_lg.info('初始化 天猫 phantomjs中...')
-            self.tmall = TmallCommentParse(logger=self.my_lg)
+            self.lg.info('初始化 天猫 phantomjs中...')
+            self.tmall = TmallCommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(7) is True \
                 or self._init_debugging_api().get(8) is True\
                 or self._init_debugging_api().get(9) is True\
                 or self._init_debugging_api().get(10) is True:
-            self.my_lg.info('初始化 京东 phantomjs中...')
-            self.jd = JdCommentParse(logger=self.my_lg)
+            self.lg.info('初始化 京东 phantomjs中...')
+            self.jd = JdCommentParse(logger=self.lg)
 
     def _set_logger(self):
-        self.my_lg = set_logger(
+        self.lg = set_logger(
             log_file_name=MY_SPIDER_LOGS_PATH + '/all_comment/实时更新/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
@@ -70,11 +75,11 @@ class CommentRealTimeUpdateSpider(object):
         :return: dict
         '''
         return {
-            1: True,
-            2: True,
-            3: True,
-            4: True,
-            6: True,
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+            6: False,
             7: True,
             8: True,
             9: True,
@@ -100,32 +105,32 @@ class CommentRealTimeUpdateSpider(object):
     def _just_run(self):
         while True:
             #### 更新数据
-            self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-            #  and GETDATE()-a.modify_time>1
+            self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
             try:
-                result = list(self._comment_pipeline._select_table(sql_str=cm_select_str_1, logger=self.my_lg))
+                # 获取待更新的数据
+                result = list(self.sql_cli._select_table(sql_str=cm_select_str_1, logger=self.lg))
             except TypeError:
-                self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+                self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 continue
 
-            self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-            self.my_lg.info(str(result))
-            self.my_lg.info('--------------------------------------------------------')
-            self.my_lg.info('待更新个数: {0}'.format(len(result)))
-
-            self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+            self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+            self.lg.info(str(result))
+            self.lg.info('--------------------------------------------------------')
+            self.lg.info('待更新个数: {0}'.format(len(result)))
+            self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
 
             # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
             for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
-                if not self.debugging_api.get(item[1]):
-                    self.my_lg.info('api为False, 跳过! 索引值[%s]' % str(index))
+                goods_id, site_id = item
+                if not self.debugging_api.get(site_id):
+                    self.lg.info('api为False, 跳过! 索引值[%s]' % str(index))
                     continue
 
-                if index % 20 == 0:
-                    try: del self._comment_pipeline
-                    except: pass
-                    self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-
+                self.sql_cli = _block_get_new_db_conn(
+                    db_obj=self.sql_cli,
+                    index=index,
+                    logger=self.lg,
+                    remainder=20,)
                 switch = {
                     1: self.func_name_dict.get('taobao'),       # 淘宝
                     2: self.func_name_dict.get('ali'),          # 阿里1688
@@ -141,39 +146,40 @@ class CommentRealTimeUpdateSpider(object):
                     13: self.func_name_dict.get('pinduoduo'),   # 拼多多
                     25: self.func_name_dict.get('vip'),         # 唯品会
                 }
-
                 # 动态执行
-                exec_code = compile(switch[item[1]].format(index, item[0], item[1]), '', 'exec')
+                exec_code = compile(switch[site_id].format(index, goods_id, site_id), '', 'exec')
                 exec(exec_code)
-                sleep(1.1)
+                sleep(2)
 
     def _update_taobao_comment(self, index, goods_id, site_id):
         '''
-        处理淘宝的商品comment
+        处理新增的淘宝商品comment
         :param index: 索引
         :param goods_id:
         :param site_id:
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 淘宝\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 淘宝\t\t索引值(%s)' % str(index))
 
-            taobao = TaoBaoCommentParse(logger=self.my_lg)
+            taobao = TaoBaoCommentParse(logger=self.lg)
             _r = taobao._get_comment_data(goods_id=str(goods_id))
-
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_update_params(item=_r),
-                        logger=self.my_lg)
+                if self.sql_cli.is_connect_success:
+                    # self.sql_cli._update_table_2(
+                    #     sql_str=self.sql_str,
+                    #     params=self._get_db_update_params(item=_r),
+                    #     logger=self.lg)
+
+                    self._save_item_r(_r=_r, goods_id=goods_id)
+
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
 
             try:
                 del taobao
             except:
-                self.my_lg.info('del taobao失败!')
+                self.lg.info('del taobao失败!')
             gc.collect()
         else:
             pass
@@ -187,24 +193,25 @@ class CommentRealTimeUpdateSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 阿里1688\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 阿里1688\t\t索引值(%s)' % str(index))
 
             if index % 5 == 0:
                 try: del self.ali_1688
-                except: self.my_lg.error('del ali_1688失败!')
+                except: self.lg.error('del ali_1688失败!')
                 gc.collect()
-                self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
+                self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_update_params(item=_r),
-                        logger=self.my_lg)
+                if self.sql_cli.is_connect_success:
+                    # self.sql_cli._update_table_2(
+                    #     sql_str=self.sql_str,
+                    #     params=self._get_db_update_params(item=_r),
+                    #     logger=self.lg)
+                    self._save_item_r(_r=_r, goods_id=goods_id)
 
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
 
         else:
             pass
@@ -218,7 +225,7 @@ class CommentRealTimeUpdateSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 天猫\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 天猫\t\t索引值(%s)' % str(index))
 
             if site_id == 3:
                 _type = 0
@@ -233,19 +240,21 @@ class CommentRealTimeUpdateSpider(object):
                 try:
                     del self.tmall
                 except:
-                    self.my_lg.info('del tmall失败!')
+                    self.lg.info('del tmall失败!')
                 gc.collect()
-                self.tmall = TmallCommentParse(logger=self.my_lg)
+                self.tmall = TmallCommentParse(logger=self.lg)
 
             _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_update_params(item=_r),
-                        logger=self.my_lg)
+                if self.sql_cli.is_connect_success:
+                    # self.sql_cli._update_table_2(
+                    #     sql_str=self.sql_str,
+                    #     params=self._get_db_update_params(item=_r),
+                    #     logger=self.lg)
+                    self._save_item_r(_r=_r, goods_id=goods_id)
+
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
             gc.collect()
         else:
             pass
@@ -259,23 +268,25 @@ class CommentRealTimeUpdateSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 京东\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 京东\t\t索引值(%s)' % str(index))
 
             if index % 5 == 0:
                 try: del self.jd
-                except: self.my_lg.info('del jd失败!')
+                except: self.lg.info('del jd失败!')
                 gc.collect()
-                self.jd = JdCommentParse(logger=self.my_lg)
+                self.jd = JdCommentParse(logger=self.lg)
 
             _r = self.jd._get_comment_data(goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._update_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_update_params(item=_r),
-                        logger=self.my_lg)
+                if self.sql_cli.is_connect_success:
+                    # self.sql_cli._update_table_2(
+                    #     sql_str=self.sql_str,
+                    #     params=self._get_db_update_params(item=_r),
+                    #     logger=self.lg)
+                    self._save_item_r(_r=_r, goods_id=goods_id)
+
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
         else:
             pass
 
@@ -331,6 +342,50 @@ class CommentRealTimeUpdateSpider(object):
         else:
             pass
 
+    def _save_item_r(self, _r, goods_id) -> None:
+        """
+        保存item r
+        :return:
+        """
+        create_time = _r['create_time']
+        comment_list = _r['_comment_list']
+        for i in comment_list:
+            params = self._get_db_insert_params2(
+                goods_id=goods_id,
+                create_time=create_time,
+                i=i,
+            )
+            self.sql_cli._insert_into_table_2(
+                sql_str=self.sql_str,
+                params=params,
+                logger=self.lg)
+
+        return None
+
+    def _get_db_insert_params2(self, goods_id, create_time, i,):
+        """
+        得到新版待插入数据
+        :return:
+        """
+        return (
+            goods_id,
+            create_time,
+
+            i['buyer_name'],
+            i['head_img'],
+            i['comment'][0]['sku_info'],
+            i['quantify'],
+            i['comment'][0]['comment'],
+            i['comment'][0]['comment_date'],
+            dumps(i['comment'][0].get('img_url_list', []), ensure_ascii=False),
+            i['comment'][0].get('video', ''),
+            i['comment'][0]['star_level'],
+
+            i.get('append_comment', {}).get('comment', ''),
+            i.get('append_comment', {}).get('comment_date', ''),
+            dumps(i.get('append_comment', {}).get('img_url_list', []), ensure_ascii=False),
+        )
+
     def _get_db_update_params(self, item):
         return (
             item['modify_time'],
@@ -341,12 +396,12 @@ class CommentRealTimeUpdateSpider(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
             del self.debugging_api
         except:
             pass
-        try: del self._comment_pipeline
+        try: del self.sql_cli
         except: pass
         try:
             del self.tmall

@@ -481,3 +481,23 @@ create table company_info(
 	create_time datetime,
 	employees_num nvarchar(1000)
 );
+
+-- 创建新版采集评论存储表
+create table goods_comment_new(
+  id int identity(1,1) primary key,
+  goods_id varchar(200) not null,
+  create_time datetime not null,
+  buyer_name nvarchar(200) not null,
+  head_img_url nvarchar(max),
+  sku_info nvarchar(max),
+  purchase_quantify int,
+  comment_content nvarchar(max) not null,
+  comment_date datetime not null,
+  img_url_list nvarchar(max),
+  video_url nvarchar(max),
+  star_level int,
+
+  append_comment_content nvarchar(max),
+  append_comment_date datetime,
+  append_comment_img_url_list nvarchar(max),
+);

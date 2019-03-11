@@ -45,7 +45,7 @@ class ALUpdater(AsyncCrawler):
             **kwargs,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/1688/实时更新/')
-        self.tmp_sql_server = None
+        self.sql_cli = None
         self.goods_index = 1
         self.concurrency = 10        # 并发量
 
@@ -54,10 +54,10 @@ class ALUpdater(AsyncCrawler):
         获取db需求更新的数据
         :return:
         '''
-        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
-            result = list(self.tmp_sql_server._select_table(sql_str=al_select_str_6))
+            result = list(self.sql_cli._select_table(sql_str=al_select_str_6))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
@@ -86,8 +86,8 @@ class ALUpdater(AsyncCrawler):
         res = False
         goods_id = item[0]
         await self._get_new_ali_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg)
-        if self.tmp_sql_server.is_connect_success:
+        self.sql_cli = await _get_new_db_conn(db_obj=self.sql_cli, index=index, logger=self.lg)
+        if self.sql_cli.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
             # data = ali_1688.get_ali_1688_data(goods_id)
             data = await self._get_one_data(ali_1688=self.ali_1688, goods_id=goods_id)
@@ -105,7 +105,7 @@ class ALUpdater(AsyncCrawler):
                     shelf_time=item[4],
                     delete_time=item[5])
                 try:
-                    self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+                    self.ali_1688.to_right_and_update_data(data, pipeline=self.sql_cli)
                 except Exception:
                     self.lg.error(exc_info=True)
 
@@ -179,7 +179,7 @@ class ALUpdater(AsyncCrawler):
                     self.lg.info('该商品 起批量 大于1, 下架!!')
                     data['is_delete'] = 1
 
-                res = self.ali_1688.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+                res = self.ali_1688.to_right_and_update_data(data, pipeline=self.sql_cli)
                 await async_sleep(.3)
 
             else:  # 表示返回的data值为空值

@@ -26,9 +26,10 @@ from json import dumps
 from pprint import pprint
 
 from sql_str_controller import (
-    cm_insert_str_1,
+    cm_insert_str_2,
     cm_select_str_2,
     cm_select_str_3,)
+from multiplex_code import _block_get_new_db_conn
 
 from fzutils.log_utils import set_logger
 from fzutils.linux_utils import daemon_init
@@ -40,29 +41,29 @@ class MyAllCommentSpider(object):
         self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
-        self.sql_str = cm_insert_str_1
+        self.sql_str = cm_insert_str_2
 
         if self._init_debugging_api().get(2):
-            self.my_lg.info('初始化 1688 phantomjs中...')
-            self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
+            self.lg.info('初始化 1688 phantomjs中...')
+            self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(3) is True \
                 or self._init_debugging_api().get(4) is True\
                 or self._init_debugging_api().get(6) is True:
-            self.my_lg.info('初始化 天猫 phantomjs中...')
-            self.tmall = TmallCommentParse(logger=self.my_lg)
+            self.lg.info('初始化 天猫 phantomjs中...')
+            self.tmall = TmallCommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(7) is True \
                 or self._init_debugging_api().get(8) is True\
                 or self._init_debugging_api().get(9) is True\
                 or self._init_debugging_api().get(10) is True:
-            self.my_lg.info('初始化 京东 phantomjs中...')
-            self.jd = JdCommentParse(logger=self.my_lg)
+            self.lg.info('初始化 京东 phantomjs中...')
+            self.jd = JdCommentParse(logger=self.lg)
 
-        self.my_lg.info('初始化完毕!!!')
+        self.lg.info('初始化完毕!!!')
 
     def _set_logger(self):
-        self.my_lg = set_logger(
+        self.lg = set_logger(
             log_file_name=MY_SPIDER_LOGS_PATH + '/all_comment/_/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
             file_log_level=ERROR
@@ -75,7 +76,7 @@ class MyAllCommentSpider(object):
         '''
         return {
             1: True,
-            2: True,
+            2: False,
             3: True,
             4: True,
             6: True,
@@ -83,7 +84,7 @@ class MyAllCommentSpider(object):
             8: True,
             9: True,
             10: True,
-            11: True,
+            11: False,
             12: False,
             13: False,
             25: False,
@@ -108,48 +109,46 @@ class MyAllCommentSpider(object):
             try:
                 result = list(tmp_sql_server._select_table(sql_str=cm_select_str_2))
             except TypeError:
-                self.my_lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+                self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
             if result is None:
                 pass
             else:
-                self.my_lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-                self.my_lg.info(str(result))
-                self.my_lg.info('--------------------------------------------------------')
+                self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
+                self.lg.info(str(result))
+                self.lg.info('--------------------------------------------------------')
 
-                self.my_lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-                self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                if self._comment_pipeline.is_connect_success:
-                    _db_goods_id = self._comment_pipeline._select_table(sql_str=cm_select_str_3, logger=self.my_lg)
+                self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
+                self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+                if self.sql_cli.is_connect_success:
+                    _db_goods_id = self.sql_cli._select_table(sql_str=cm_select_str_3, logger=self.lg)
                     try:
                         _db_goods_id = [item[0] for item in _db_goods_id]
                     except IndexError:
                         continue
-                    self.my_lg.info(str(_db_goods_id))
-
+                    self.lg.info(str(_db_goods_id))
                 else:
                     continue
 
                 # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
                 for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
-                    if not self.debugging_api.get(item[1]):
-                        self.my_lg.info('api为False, 跳过! 索引值[%s]' % str(index))
+                    goods_id, site_id = item
+                    if not self.debugging_api.get(site_id):
+                        self.lg.info('api为False, 跳过! 索引值[{}]'.format(index))
                         continue
 
                     try:
-                        if item[0] in _db_goods_id:
-                            self.my_lg.info('该goods_id[%s]已存在于db中, 此处跳过!' % item[0])
+                        if goods_id in _db_goods_id:
+                            self.lg.info('该goods_id[{}]已存在于db中, 此处跳过!'.format(goods_id))
                             continue
                     except IndexError:
                         print('IndexError')
 
-                    if index % 20 == 0:
-                        self.my_lg.info('_comment_pipeline客户端重连中...')
-                        try: del self._comment_pipeline
-                        except: pass
-                        self._comment_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                        self.my_lg.info('_comment_pipeline客户端重连完毕!')
-
+                    self.sql_cli = _block_get_new_db_conn(
+                        db_obj=self.sql_cli,
+                        index=index,
+                        logger=self.lg,
+                        remainder=20,)
                     switch = {
                         1: self.func_name_dict.get('taobao'),       # 淘宝
                         2: self.func_name_dict.get('ali'),          # 阿里1688
@@ -167,12 +166,12 @@ class MyAllCommentSpider(object):
                     }
 
                     # 动态执行
-                    _code = switch[item[1]].format(index, item[0], item[1])
-                    if item[1] != 11:
+                    _code = switch[site_id].format(index, goods_id, site_id)
+                    if site_id != 11:
                         exec_code = compile(_code, '', 'exec')
                         exec(exec_code)
                     else:   # 特殊单独执行
-                        self._zhe_800_comment(index=index, goods_id=item[0], site_id=item[1])
+                        self._zhe_800_comment(index=index, goods_id=goods_id, site_id=site_id)
 
                     sleep(1.2)
 
@@ -185,23 +184,19 @@ class MyAllCommentSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 淘宝\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 淘宝\t\t索引值(%s)' % str(index))
 
-            taobao = TaoBaoCommentParse(logger=self.my_lg)
+            taobao = TaoBaoCommentParse(logger=self.lg)
             _r = taobao._get_comment_data(goods_id=str(goods_id))
 
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_insert_params(item=_r),
-                        logger=self.my_lg
-                    )
+                if self.sql_cli.is_connect_success:
+                    self._save_item_r(_r=_r, goods_id=goods_id)
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
                 
             try: del taobao
-            except: self.my_lg.info('del taobao失败!')
+            except: self.lg.info('del taobao失败!')
             gc.collect()
         else:
             pass
@@ -215,27 +210,23 @@ class MyAllCommentSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 阿里1688\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 阿里1688\t\t索引值(%s)' % str(index))
 
             if index % 5 == 0:
                 try:
                     del self.ali_1688
                 except:
-                    self.my_lg.info('del ali_1688失败!')
+                    self.lg.info('del ali_1688失败!')
                 gc.collect()
-                self.ali_1688 = ALi1688CommentParse(logger=self.my_lg)
+                self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_insert_params(item=_r),
-                        logger=self.my_lg
-                    )
+                if self.sql_cli.is_connect_success:
+                    self._save_item_r(_r=_r, goods_id=goods_id)
 
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
         else:
             pass
 
@@ -248,7 +239,7 @@ class MyAllCommentSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 天猫\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 天猫\t\t索引值(%s)' % str(index))
 
             if site_id == 3:
                 _type = 0
@@ -263,20 +254,17 @@ class MyAllCommentSpider(object):
                 try:
                     del self.tmall
                 except:
-                    self.my_lg.info('del tmall失败!')
+                    self.lg.info('del tmall失败!')
                 gc.collect()
-                self.tmall = TmallCommentParse(logger=self.my_lg)
+                self.tmall = TmallCommentParse(logger=self.lg)
 
             _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_insert_params(item=_r),
-                        logger=self.my_lg
-                    )
+                if self.sql_cli.is_connect_success:
+                    self._save_item_r(_r=_r, goods_id=goods_id)
+
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
                 
         else:
             pass
@@ -290,27 +278,24 @@ class MyAllCommentSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 京东\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 京东\t\t索引值(%s)' % str(index))
 
             if index % 5 == 0:
                 try:
                     del self.jd
                 except:
-                    self.my_lg.info('del jd失败!')
+                    self.lg.info('del jd失败!')
                 gc.collect()
-                self.jd = JdCommentParse(logger=self.my_lg)
+                self.jd = JdCommentParse(logger=self.lg)
 
             _r = self.jd._get_comment_data(goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
-                # self.my_lg.info('获取评论success!')
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_insert_params(item=_r),
-                        logger=self.my_lg
-                    )
+                # self.lg.info('获取评论success!')
+                if self.sql_cli.is_connect_success:
+                    self._save_item_r(_r=_r, goods_id=goods_id)
+
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
                 
         else:
             pass
@@ -324,25 +309,21 @@ class MyAllCommentSpider(object):
         :return:
         '''
         if self.debugging_api.get(site_id):
-            self.my_lg.info('------>>>| 折800\t\t索引值(%s)' % str(index))
+            self.lg.info('------>>>| 折800\t\t索引值(%s)' % str(index))
 
-            zhe_800 = Zhe800CommentParse(logger=self.my_lg)
+            zhe_800 = Zhe800CommentParse(logger=self.lg)
             _r = zhe_800._get_comment_data(goods_id=str(goods_id))
             # pprint(_r)
 
             if _r.get('_comment_list', []) != []:
-                # self.my_lg.info('获取评论success!')
-                if self._comment_pipeline.is_connect_success:
-                    self._comment_pipeline._insert_into_table_2(
-                        sql_str=self.sql_str,
-                        params=self._get_db_insert_params(item=_r),
-                        logger=self.my_lg
-                    )
+                # self.lg.info('获取评论success!')
+                if self.sql_cli.is_connect_success:
+                    self._save_item_r(_r=_r, goods_id=goods_id)
             else:
-                self.my_lg.info('该商品_comment_list为空list! 此处跳过!')
+                self.lg.info('该商品_comment_list为空list! 此处跳过!')
 
             try: del zhe_800
-            except: self.my_lg.info('del zhe_800失败!')
+            except: self.lg.info('del zhe_800失败!')
             gc.collect()
         else:
             pass
@@ -386,6 +367,26 @@ class MyAllCommentSpider(object):
         else:
             pass
 
+    def _save_item_r(self, _r, goods_id) -> None:
+        """
+        保存item r
+        :return:
+        """
+        create_time = _r['create_time']
+        comment_list = _r['_comment_list']
+        for i in comment_list:
+            params = self._get_db_insert_params2(
+                goods_id=goods_id,
+                create_time=create_time,
+                i=i,
+            )
+            self.sql_cli._insert_into_table_2(
+                sql_str=self.sql_str,
+                params=params,
+                logger=self.lg)
+
+        return None
+
     def _get_db_insert_params(self, item):
         '''
         得到待插入的数据
@@ -399,14 +400,38 @@ class MyAllCommentSpider(object):
             dumps(item['_comment_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
         )
 
+    def _get_db_insert_params2(self, goods_id, create_time, i,):
+        """
+        得到新版待插入数据
+        :return:
+        """
+        return (
+            goods_id,
+            create_time,
+
+            i['buyer_name'],
+            i['head_img'],
+            i['comment'][0]['sku_info'],
+            i['quantify'],
+            i['comment'][0]['comment'],
+            i['comment'][0]['comment_date'],
+            dumps(i['comment'][0].get('img_url_list', []), ensure_ascii=False),
+            i['comment'][0].get('video', ''),
+            i['comment'][0]['star_level'],
+
+            i.get('append_comment', {}).get('comment', ''),
+            i.get('append_comment', {}).get('comment_date', ''),
+            dumps(i.get('append_comment', {}).get('img_url_list', []), ensure_ascii=False),
+        )
+
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
             del self.debugging_api
         except:
             pass
-        try: del self._comment_pipeline
+        try: del self.sql_cli
         except: pass
         try: del self.ali_1688
         except: pass

@@ -53,6 +53,7 @@ class Mia_Pintuan_Real_Time_Update(object):
     def __init__(self):
         self._set_headers()
         self.ip_pool_type = IP_POOL_TYPE
+        self.sql_cli = None
 
     def _set_headers(self):
         self.headers = {
@@ -64,145 +65,152 @@ class Mia_Pintuan_Real_Time_Update(object):
             'Host': 'm.mia.com',
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
-
+        
     def run_forever(self):
         '''
         实时更新数据
         :return:
         '''
-        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        try:
-            sql_cli._delete_table(sql_str=mia_delete_str_2)
-            result = list(sql_cli._select_table(sql_str=mia_select_str_2))
-        except TypeError:
-            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
-            result = None
-        if result is None:
-            pass
-        else:
-            _block_print_db_old_data(result=result)
-            index = 1
-            for item in result:  # 实时更新数据
-                goods_id = item[0]
-                # 2020-04-12 00:00:00
-                pintuan_end_time = json_2_dict(item[1]).get('end_time')
-                pintuan_end_time = datetime_to_timestamp(string_to_datetime(pintuan_end_time))
-                # print(pintuan_end_time)
+        result = self._get_db_old_data()
+        index = 1
+        for item in result:  # 实时更新数据
+            goods_id = item[0]
+            # 2020-04-12 00:00:00
+            pintuan_end_time = json_2_dict(item[1]).get('end_time')
+            pintuan_end_time = datetime_to_timestamp(string_to_datetime(pintuan_end_time))
+            # print(pintuan_end_time)
 
-                data = {}
-                mia_pintuan = MiaPintuanParse()
-                sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50)
-                if sql_cli.is_connect_success:
-                    is_recent_time = self.is_recent_time(pintuan_end_time)
-                    if is_recent_time == 0:
-                        # 已恢复原价的
+            data = {}
+            mia_pintuan = MiaPintuanParse()
+            self.sql_cli = _block_get_new_db_conn(db_obj=self.sql_cli, index=index, remainder=50)
+            if self.sql_cli.is_connect_success:
+                is_recent_time = self.is_recent_time(pintuan_end_time)
+                if is_recent_time == 0:
+                    # 已恢复原价的
+                    _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        update_sql_str=mia_update_str_7,
+                        sql_cli=self.sql_cli)
+                    print('该goods拼团开始时间为({})'.format(json.loads(item[1]).get('begin_time')))
+                    sleep(.4)
+
+                elif is_recent_time == 2:
+                    # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
+                    pass
+
+                else:  # 返回1，表示在待更新区间内
+                    print('------>>>| 正在更新的goods_id为({}) | --------->>>@ 索引值为({})'.format(goods_id, index))
+                    data['goods_id'] = goods_id
+                    tmp_url = 'https://m.mia.com/instant/groupon/common_list/{}/0/'.format(item[2])
+                    # print(tmp_url)
+
+                    try:
+                        body = Requests.get_url_body(
+                            url=tmp_url,
+                            headers=self.headers,
+                            had_referer=True,
+                            ip_pool_type=self.ip_pool_type,)
+                        assert body != '', 'body不为空值!'
+                        tmp_data = json_2_dict(json_str=body)
+                        assert tmp_data != {}, 'tmp_data不为空dict!'
+                    except AssertionError as e:
+                        print(e)
+                        continue
+
+                    if tmp_data.get('data_list', []) == []:
+                        print('得到的data_list为[]!')
                         _handle_goods_shelves_in_auto_goods_table(
                             goods_id=goods_id,
                             update_sql_str=mia_update_str_7,
-                            sql_cli=sql_cli)
-                        print('该goods拼团开始时间为({})'.format(json.loads(item[1]).get('begin_time')))
+                            sql_cli=self.sql_cli)
                         sleep(.4)
 
-                    elif is_recent_time == 2:
-                        # 表示过期但是处于等待的数据不进行相关先删除操作(等<=24小时时再2删除)
-                        pass
+                    else:
+                        data_list = [{
+                            'goods_id': item_2.get('sku', ''),
+                            'sub_title': item_2.get('intro', ''),
+                        } for item_2 in tmp_data.get('data_list', [])]
+                        # pprint(data_list)
 
-                    else:  # 返回1，表示在待更新区间内
-                        print('------>>>| 正在更新的goods_id为({}) | --------->>>@ 索引值为({})'.format(goods_id, index))
-                        data['goods_id'] = goods_id
-                        tmp_url = 'https://m.mia.com/instant/groupon/common_list/' + str(item[2]) + '/0/'
-                        # print(tmp_url)
+                        pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in data_list]
+                        # print(pintuan_goods_all_goods_id)
 
-                        try:
-                            body = Requests.get_url_body(
-                                url=tmp_url,
-                                headers=self.headers,
-                                had_referer=True,
-                                ip_pool_type=self.ip_pool_type,)
-                            assert body != '', 'body不为空值!'
-                            tmp_data = json_2_dict(json_str=body)
-                            assert tmp_data != {}, 'tmp_data不为空dict!'
-                        except AssertionError as e:
-                            print(e)
-                            continue
+                        '''
+                        蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
+                        '''
+                        if goods_id not in pintuan_goods_all_goods_id:  # 内部已经下架的
+                            # 一律更新
+                            mia_pintuan.get_goods_data(goods_id=goods_id)
+                            goods_data = mia_pintuan.deal_with_data()
 
-                        if tmp_data.get('data_list', []) == []:
-                            print('得到的data_list为[]!')
-                            _handle_goods_shelves_in_auto_goods_table(
-                                goods_id=goods_id,
-                                update_sql_str=mia_update_str_7,
-                                sql_cli=sql_cli)
-                            sleep(.4)
+                            if goods_data == {}:  # 返回的data为空则跳过
+                                pass
+                            else:
+                                goods_data['goods_id'] = str(goods_id)
+                                if goods_data['pintuan_time'] == {}:  # 当没有拼团时间时，就表示已下架拼团(未让其正常更新进数据库, 我把拼团开始结束时间都设置为当前时间)
+                                    now_time = get_shanghai_time()
+                                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
+                                else:
+                                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
+
+                                # pprint(goods_data)
+                                mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=self.sql_cli)
+                                sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
 
                         else:
-                            data_list = [{
-                                'goods_id': item_2.get('sku', ''),
-                                'sub_title': item_2.get('intro', ''),
-                            } for item_2 in tmp_data.get('data_list', [])]
-                            # pprint(data_list)
+                            # 未下架的
+                            for item_2 in data_list:
+                                if item_2.get('goods_id', '') == goods_id:
+                                    mia_pintuan.get_goods_data(goods_id=goods_id)
+                                    goods_data = mia_pintuan.deal_with_data()
+                                    if goods_data == {}:
+                                        # 返回的data为空则跳过
+                                        continue
 
-                            pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in data_list]
-                            # print(pintuan_goods_all_goods_id)
-
-                            '''
-                            蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
-                            '''
-                            if goods_id not in pintuan_goods_all_goods_id:  # 内部已经下架的
-                                # 一律更新
-                                mia_pintuan.get_goods_data(goods_id=goods_id)
-                                goods_data = mia_pintuan.deal_with_data()
-
-                                if goods_data == {}:  # 返回的data为空则跳过
-                                    pass
-                                else:
                                     goods_data['goods_id'] = str(goods_id)
-                                    if goods_data['pintuan_time'] == {}:  # 当没有拼团时间时，就表示已下架拼团(未让其正常更新进数据库, 我把拼团开始结束时间都设置为当前时间)
+                                    goods_data['sub_title'] = item_2.get('sub_title', '')
+                                    if goods_data['pintuan_time'] == {}:    # 当没有拼团时间时，就表示已下架拼团
                                         now_time = get_shanghai_time()
                                         goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
                                     else:
                                         goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
 
                                     # pprint(goods_data)
-                                    # print(goods_data)
-                                    mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=sql_cli)
+                                    mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=self.sql_cli)
                                     sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
+                                else:
+                                    pass
 
-                            else:       # 未下架的
-                                for item_2 in data_list:
-                                    if item_2.get('goods_id', '') == goods_id:
-                                        mia_pintuan.get_goods_data(goods_id=goods_id)
-                                        goods_data = mia_pintuan.deal_with_data()
+            else:  # 表示返回的data值为空值
+                print('数据库连接失败，数据库可能关闭或者维护中')
+                pass
 
-                                        if goods_data == {}:  # 返回的data为空则跳过
-                                            continue
+            index += 1
+            collect()
 
-                                        goods_data['goods_id'] = str(goods_id)
-                                        goods_data['sub_title'] = item_2.get('sub_title', '')
-                                        if goods_data['pintuan_time'] == {}:    # 当没有拼团时间时，就表示已下架拼团
-                                            now_time = get_shanghai_time()
-                                            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = (now_time, now_time)
-                                        else:
-                                            goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data['pintuan_time'])
-
-                                        # pprint(goods_data)
-                                        mia_pintuan.update_mia_pintuan_table(data=goods_data, pipeline=sql_cli)
-                                        sleep(MIA_SPIKE_SLEEP_TIME)  # 放慢速度
-                                    else:
-                                        pass
-
-                else:  # 表示返回的data值为空值
-                    print('数据库连接失败，数据库可能关闭或者维护中')
-                    pass
-
-                index += 1
-                collect()
-
-            print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+        print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
             sleep(10 * 60)
         collect()
+
+    def _get_db_old_data(self) -> (list, None):
+        """
+        获取db待更新data
+        :return:
+        """
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        result = None
+        try:
+            self.sql_cli._delete_table(sql_str=mia_delete_str_2)
+            result = list(self.sql_cli._select_table(sql_str=mia_select_str_2))
+        except TypeError:
+            print('TypeError错误, 原因数据库连接失败...(可能维护中)')
+
+        _block_print_db_old_data(result=result)
+
+        return result
 
     def is_recent_time(self, timestamp) -> int:
         '''
@@ -244,7 +252,7 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  #
+    print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     just_fuck_run()

@@ -52,6 +52,7 @@ def run_forever():
             index = 1
             for item in result:  # 实时更新数据
                 goods_id = item[0]
+                db_is_delete = item[1]
                 # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
                 zhe_800_pintuan = Zhe800PintuanParse()
                 sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50,)
@@ -82,7 +83,7 @@ def run_forever():
                         print('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%d)' % (goods_id, index))
                         data['goods_id'] = goods_id
 
-                        if item[1] == 1:
+                        if db_is_delete == 1:
                             print('该goods_id[{0}]已过期!'.format(goods_id))
                             _handle_goods_shelves_in_auto_goods_table(
                                 goods_id=goods_id,

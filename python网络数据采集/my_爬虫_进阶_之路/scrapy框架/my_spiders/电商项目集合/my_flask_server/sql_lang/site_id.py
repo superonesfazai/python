@@ -242,3 +242,17 @@ sql_str_13 = '''
 -- stock_trans_time = GETDATE()
 -- where MainGoodsID is not NUll and IsDelete=0
 '''
+
+"""
+comment
+"""
+# 查看指定site_id的comment info
+sql_str_14 = '''
+select top 500 *
+from dbo.goods_comment_new as a, dbo.GoodsInfoAutoGet as b
+where a.goods_id =b.GoodsID 
+-- and goods_id='6120129'
+and (b.SiteID=7 or b.SiteID=8 or b.SiteID=9 or b.SiteID=10)
+-- and (b.SiteID=3 or b.SiteID=4 or b.SiteID=6)
+-- and b.SiteID=1
+'''

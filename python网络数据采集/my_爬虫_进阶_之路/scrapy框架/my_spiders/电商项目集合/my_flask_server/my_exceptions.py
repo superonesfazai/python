@@ -13,3 +13,7 @@ class GoodsShelvesException(Exception):
 class MiaSkusIsNullListException(Exception):
     """蜜芽skus参数为空list"""
     pass
+
+class SqlServerConnectionException(Exception):
+    """sql server连接异常!"""
+    pass

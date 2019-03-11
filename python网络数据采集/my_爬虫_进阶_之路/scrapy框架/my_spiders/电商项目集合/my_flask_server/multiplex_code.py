@@ -20,7 +20,10 @@ from json import dumps
 from scrapy.selector import Selector
 import re
 from time import time
+from pprint import pprint
 from asyncio import wait
+from my_exceptions import SqlServerConnectionException
+
 from fzutils.spider.fz_requests import MyRequests, Requests
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.internet_utils import (
@@ -34,7 +37,8 @@ from fzutils.cp_utils import get_taobao_sign_and_body
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
-    timestamp_to_regulartime,)
+    timestamp_to_regulartime,
+    string_to_datetime,)
 from fzutils.spider.selector import parse_field
 
 def _z8_get_parent_dir(goods_id) -> str:
@@ -476,14 +480,14 @@ def _block_get_new_db_conn(db_obj, index, logger=None, remainder=20, db_conn_typ
     :return:
     '''
     if index % remainder == 0:
-        _print(msg='正在重置，并与数据库建立新连接中...', logger=logger)
+        _print(msg='init sql_cli ...', logger=logger)
         if db_conn_type == 1:
             db_obj = SqlServerMyPageInfoSaveItemPipeline()
         elif db_conn_type == 2:
             db_obj = SqlPools()
         else:
             raise ValueError('db_conn_type赋值异常!')
-        _print(msg='与数据库的新连接成功建立...', logger=logger)
+        _print(msg='init over !', logger=logger)
 
     else:
         pass
@@ -771,3 +775,102 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
         _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
 
     return res
+
+def _get_random_head_img_url_from_db(need_head_img_num:int=1, logger=None) -> list:
+    """
+    从头像db中获取n张随机head url
+    :param need_head_img_num: 获取头像数
+    :return: ['xxxx', ...]
+    """
+    sql_str = '''
+    declare @d Datetime  
+    set @d=getdate()   
+    select top {need_head_img_num} head_img_url
+    from dbo.sina_weibo 
+    where 0.01 >= cast(checksum(newid(), id) & 0x7fffffff as float) / cast (0x7fffffff as int)  
+    '''.format(need_head_img_num=need_head_img_num)
+    head_img_url_list = []
+    try:
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        db_random_head_img_url_list = sql_cli._select_table(sql_str=sql_str, logger=logger)
+        try:
+            del sql_cli
+        except:
+            pass
+
+        for item in db_random_head_img_url_list:
+            try:
+                head_img_url_list.append(item[0])
+            except IndexError:
+                continue
+    except Exception as e:
+        _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+
+    return head_img_url_list
+
+def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=400, logger=None) -> list:
+    """
+    获取某goods_id前n个comment的buyer_name and comment_date
+    :param goods_id:
+    :param top_n_num: 前n个
+    :param logger:
+    :return:
+    """
+    res = []
+    sql_str = 'select top %d buyer_name, comment_date from dbo.goods_comment_new where goods_id=%s'
+    # _print(msg=sql_str)
+    try:
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        if not sql_cli.is_connect_success:
+            # 连接失败抛出连接异常!
+            raise SqlServerConnectionException
+
+        res = sql_cli._select_table(
+            sql_str=sql_str,
+            params=(top_n_num, goods_id),
+            logger=logger)
+        try:
+            del sql_cli
+        except:
+            pass
+    except Exception as e:
+        _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+
+    return res
+
+def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buyer_name_and_comment_date_info:list,) -> bool:
+    """
+    过滤已采集的评论内容
+    :param new_buyer_name:
+    :param new_comment_date:
+    :param db_buyer_name_and_comment_date_info: db中已采集的buyer_name, comment_date list
+    :return: 已存在返回 True
+    """
+    res = True
+    db_buyer_name_list = []
+    try:
+        db_buyer_name_list = [item[0] for item in db_buyer_name_and_comment_date_info]
+        # print(db_buyer_name_list)
+    except TypeError:
+        # 处理db中没有的由于sql查询
+        # 报错: _mssql.MSSQLDatabaseException: (8115, b'Arithmetic overflow error converting varchar to data type numeric.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
+        pass
+
+    if new_buyer_name not in db_buyer_name_list:
+        # 先排除名字不在卖家名list中的
+        return True
+
+    new_comment_date = string_to_datetime(new_comment_date)
+    for item in db_buyer_name_and_comment_date_info:
+        item_buyer_name = item[0]
+        item_comment_date = string_to_datetime(str(item[1]))
+
+        if new_buyer_name == item_buyer_name:
+            # print(new_buyer_name, type(new_comment_date), new_comment_date, type(item_comment_date), item_comment_date)
+            if new_comment_date == item_comment_date:
+                # 名字相同且comment_date也相同的, 即为重复的comment data
+                return False
+
+    return res
+
+
