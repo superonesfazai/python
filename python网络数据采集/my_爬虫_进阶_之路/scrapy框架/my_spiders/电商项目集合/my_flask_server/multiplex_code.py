@@ -19,10 +19,19 @@ from asyncio import new_event_loop
 from json import dumps
 from scrapy.selector import Selector
 import re
-from time import time
+from time import (
+    time,
+    sleep,)
 from pprint import pprint
+from gc import collect
 from asyncio import wait
-from my_exceptions import SqlServerConnectionException
+from my_exceptions import (
+    SqlServerConnectionException,
+    DBGetGoodsSkuInfoErrorException,)
+from sql_str_controller import (
+    cm_insert_str_2,
+    al_select_str_2,
+)
 
 from fzutils.spider.fz_requests import MyRequests, Requests
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
@@ -808,7 +817,7 @@ def _get_random_head_img_url_from_db(need_head_img_num:int=1, logger=None) -> li
 
     return head_img_url_list
 
-def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=400, logger=None) -> list:
+def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=800, logger=None) -> list:
     """
     获取某goods_id前n个comment的buyer_name and comment_date
     :param goods_id:
@@ -853,7 +862,6 @@ def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buye
         # print(db_buyer_name_list)
     except TypeError:
         # 处理db中没有的由于sql查询
-        # 报错: _mssql.MSSQLDatabaseException: (8115, b'Arithmetic overflow error converting varchar to data type numeric.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
         pass
 
     if new_buyer_name not in db_buyer_name_list:
@@ -873,4 +881,125 @@ def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buye
 
     return res
 
+def _save_comment_item_r(_r, goods_id, sql_cli, logger=None) -> None:
+    """
+    保存item r
+    :param _r:
+    :param goods_id:
+    :return:
+    """
+    def _get_db_insert_params(goods_id, create_time, i,) -> tuple:
+        """
+        得到新版待插入数据
+        :return:
+        """
+        return (
+            goods_id,
+            create_time,
 
+            i['buyer_name'],
+            i['head_img'],
+            i['comment'][0]['sku_info'],
+            i['quantify'],
+            i['comment'][0]['comment'],
+            i['comment'][0]['comment_date'],
+            dumps(i['comment'][0].get('img_url_list', []), ensure_ascii=False),
+            i['comment'][0].get('video', ''),
+            i['comment'][0]['star_level'],
+
+            i.get('append_comment', {}).get('comment', ''),
+            i.get('append_comment', {}).get('comment_date', ''),
+            dumps(i.get('append_comment', {}).get('img_url_list', []), ensure_ascii=False),
+        )
+
+    create_time = _r['create_time']
+    comment_list = _r['_comment_list']
+    for i in comment_list:
+        params = _get_db_insert_params(
+            goods_id=goods_id,
+            create_time=create_time,
+            i=i,)
+
+        # TODO 老是报错: pymssql.OperationalError: Cannot commit transaction: (3902, b'The COMMIT TRANSACTION request has no corresponding BEGIN TRANSACTION.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
+        # res = sql_cli._insert_into_table_2(
+        #     sql_str=cm_insert_str_2,
+        #     params=params,
+        #     logger=logger,
+        #     set_deadlock_priority_low=False,)
+        # if not res:
+        #     try:
+        #         new_sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        #         if new_sql_cli.is_connect_success:
+        #             new_sql_cli._insert_into_table_2(
+        #                 sql_str=cm_insert_str_2,
+        #                 params=params,
+        #                 logger=logger,
+        #                 set_deadlock_priority_low=False,)
+        #         try:
+        #             del new_sql_cli
+        #         except:
+        #             pass
+        #     except Exception:
+        #         continue
+
+        # 改用每次重连! 得以解决!
+        try:
+            new_sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            if new_sql_cli.is_connect_success:
+                new_sql_cli._insert_into_table_2(
+                    sql_str=cm_insert_str_2,
+                    params=params,
+                    logger=logger,
+                    set_deadlock_priority_low=False,)
+            try:
+                del new_sql_cli
+            except:
+                pass
+        except Exception:
+            continue
+
+    collect()
+
+    return None
+
+def _get_sku_info_from_db_by_goods_id(goods_id:str, logger=None) -> list:
+    '''
+    从db中得到sku_info
+    :param goods_id:
+    :return: [''] | ['xxx', ...] | raise DBGetGoodsSkuInfoErrorException
+    '''
+    res = ['']
+    try:
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        if sql_cli.is_connect_success:
+            _r = sql_cli._select_table(
+                sql_str=al_select_str_2,
+                params=(goods_id,))[0][0]
+            # logger.info(_r)
+            try:
+                del sql_cli
+            except:
+                pass
+        else:
+            raise SqlServerConnectionException
+    except Exception as e:
+        _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
+        raise DBGetGoodsSkuInfoErrorException
+
+    sku_info = json_2_dict(
+        json_str=_r,
+        logger=logger,
+        default_res=[])
+    if sku_info == []:
+        # 为空list, 即返回[''], 使其置''
+        return res
+
+    res = []
+    for item in sku_info:
+        spec_value = item.get('spec_value', '').replace('|', ';')
+        if spec_value not in res:
+            res.append(spec_value)
+
+    collect()
+
+    return res

@@ -34,10 +34,13 @@ from json import dumps
 from sql_str_controller import (
     al_select_str_2,
 )
-from my_exceptions import SqlServerConnectionException
+from my_exceptions import (
+    SqlServerConnectionException,
+    DBGetGoodsSkuInfoErrorException,)
 from multiplex_code import (
     get_top_n_buyer_name_and_comment_date_by_goods_id,
-    filter_crawled_comment_content,)
+    filter_crawled_comment_content,
+    _get_sku_info_from_db_by_goods_id,)
 
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
@@ -205,7 +208,6 @@ class ALi1688CommentParse(Crawler):
             # db中已有的buyer_name and comment_date_list
             db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
                 goods_id=goods_id,
-                top_n_num=400,
                 logger=self.lg,)
         except SqlServerConnectionException:
             self.lg.error('db 连接异常! 此处抓取跳过!')
@@ -218,9 +220,13 @@ class ALi1688CommentParse(Crawler):
             return self._error_init()
 
         # 这里从db获取该商品原先的规格值
-        sku_info = self._get_sku_info_from_db(goods_id)
-        # self.lg.info('sku_info: {0}'.format(sku_info))
-        if sku_info == []:
+        try:
+            sku_info = _get_sku_info_from_db_by_goods_id(
+                goods_id=goods_id,
+                logger=self.lg,)
+            assert sku_info != [], 'sku_info为空list!'
+        except DBGetGoodsSkuInfoErrorException:
+            self.lg.error('获取db goods_id: {} 的sku_info失败! 此处跳过!'.format(goods_id))
             return self._error_init()
 
         _comment_list = []
@@ -268,7 +274,6 @@ class ALi1688CommentParse(Crawler):
                         db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
                         # 过滤已采集的comment
                         continue
-
                     _ = {
                         'buyer_name': buyer_name,           # 买家昵称
                         'comment': comment,                 # 评论内容
@@ -408,27 +413,6 @@ class ALi1688CommentParse(Crawler):
         self.result_data = {}
 
         return {}
-
-    def _get_sku_info_from_db(self, goods_id):
-        '''
-        从db中得到sku_info
-        :param goods_id:
-        :return:
-        '''
-        _ = SqlServerMyPageInfoSaveItemPipeline()
-        # sku_info = self.json_2_dict(_._select_table(sql_str=sql_str, params=(str(goods_id),)))
-        try:
-            _r = _._select_table(sql_str=al_select_str_2, params=(str(goods_id),))[0][0]
-            # self.lg.info(_r)
-            sku_info = decode(_r)
-        except Exception:
-            self.lg.error('demjson.decode数据时遇到错误!', exc_info=True)
-            return []
-
-        if sku_info == []:
-            return ['']
-        else:
-            return list(set([item.get('spec_type', '').replace('|', ';') for item in sku_info]))
 
     def _get_this_goods_member_id(self, goods_id):
         '''

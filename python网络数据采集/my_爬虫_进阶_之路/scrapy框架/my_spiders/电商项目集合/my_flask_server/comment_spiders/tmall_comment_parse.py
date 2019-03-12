@@ -25,10 +25,13 @@ import gc
 import re
 from pprint import pprint
 from random import choice
-from my_exceptions import SqlServerConnectionException
+from my_exceptions import (
+    SqlServerConnectionException,
+    DBGetGoodsSkuInfoErrorException,)
 from multiplex_code import (
     get_top_n_buyer_name_and_comment_date_by_goods_id,
-    filter_crawled_comment_content,)
+    filter_crawled_comment_content,
+    _get_sku_info_from_db_by_goods_id,)
 
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
@@ -60,7 +63,6 @@ class TmallCommentParse(Crawler):
         self.page_size = '10'
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
         self.g_data = {}                # 临时数据
-        self.random_sku_info_list = []  # 临时数据(存该商品所有的规格)
         self.max_page_num = 10
 
     def _get_comment_data(self, type:int, goods_id):
@@ -78,7 +80,6 @@ class TmallCommentParse(Crawler):
             # db中已有的buyer_name and comment_date_list
             db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
                 goods_id=goods_id,
-                top_n_num=400,
                 logger=self.lg,)
             # pprint(db_top_n_buyer_name_and_comment_date_list)
         except SqlServerConnectionException:
@@ -88,18 +89,18 @@ class TmallCommentParse(Crawler):
         '''先获取到sellerId'''
         try:
             seller_id = self._get_seller_id(type=type, goods_id=goods_id)
-        except AssertionError or IndexError as e:
-            self.lg.error('出错goods_id: %s' % goods_id)
-            self.lg.error(e.args[0])
+            self.lg.info('------>>>| 获取到的seller_id: {}'.format(seller_id))
+        except AssertionError or IndexError:
+            self.lg.error('遇到错误[goods_id:{}]:'.format(goods_id), exc_info=True)
             return self._data_error()
 
-        """再获取price_info_list"""
+        # 获取db sku_info list
         try:
-            self.random_sku_info_list = self._get_random_sku_info_list()
-            # self.lg.info(self.random_sku_info_list)
-        except Exception as e:
-            self.lg.error('出错goods_id: %s' % str(goods_id))
-            self.lg.exception(e)
+            db_sku_info_list = _get_sku_info_from_db_by_goods_id(
+                goods_id=goods_id,
+                logger=self.lg,)
+        except DBGetGoodsSkuInfoErrorException:
+            self.lg.error('获取db goods_id: {} 的sku_info失败! 此处跳过!'.format(goods_id))
             return self._data_error()
 
         _tmp_comment_list = []
@@ -121,7 +122,8 @@ class TmallCommentParse(Crawler):
         try:
             _comment_list = self._get_comment_list(
                 _tmp_comment_list=_tmp_comment_list,
-                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list)
+                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list,
+                db_sku_info_list=db_sku_info_list)
         except Exception as e:
             self.lg.error('出错type:{0}, goods_id:{1}'.format(str(type), goods_id))
             self.lg.exception(e)
@@ -183,12 +185,11 @@ class TmallCommentParse(Crawler):
         return data
 
     def _data_error(self):
-        self.random_sku_info_list = []
         self.result_data = {}
 
         return {}
 
-    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list):
+    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info_list):
         '''
         转换成需求的结果集
         :param _tmp_comment_list:
@@ -202,9 +203,7 @@ class TmallCommentParse(Crawler):
             # 天猫接口拿到的sku_info默认为空
             # sku_info = ''
             # 从所有规格里面随机一个
-            if self.random_sku_info_list == []:
-                self.random_sku_info_list = ['']
-            sku_info = str(choice(self.random_sku_info_list))
+            sku_info = str(choice(db_sku_info_list))
 
             _comment_content = item.get('rateContent', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
@@ -299,23 +298,6 @@ class TmallCommentParse(Crawler):
         assert seller_id != 0, '获取到的seller_id为0!'
 
         return seller_id
-
-    def _get_random_sku_info_list(self):
-        '''
-        得到所有的sku_info_list信息，用于随机一个属性
-        :return:
-        '''
-        assert self.g_data != {}, 'g_data为空dict'
-        _t = TaoBaoLoginAndParse(logger=self.lg)
-        # 得到每个标签对应值的价格及其库存
-        price_info_list = _t._get_price_info_list(
-            data=self.g_data,
-            detail_value_list=_t._get_detail_name_and_value_list(data=self.g_data)[1]
-        )
-        try: del _t
-        except: pass
-
-        return list(set([_i.get('spec_value', '') for _i in price_info_list]))
 
     def _set_headers(self):
         self.headers = {

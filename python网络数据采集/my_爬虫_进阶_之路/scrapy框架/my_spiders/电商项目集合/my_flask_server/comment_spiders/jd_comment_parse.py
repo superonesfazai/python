@@ -59,7 +59,6 @@ class JdCommentParse(Crawler):
             # db中已有的buyer_name and comment_date_list
             db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
                 goods_id=goods_id,
-                top_n_num=400,
                 logger=self.lg,)
         except SqlServerConnectionException:
             self.lg.error('db 连接异常! 此处抓取跳过!')

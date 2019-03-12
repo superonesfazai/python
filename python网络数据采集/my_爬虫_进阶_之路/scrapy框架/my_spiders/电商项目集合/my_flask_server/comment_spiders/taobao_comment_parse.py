@@ -18,10 +18,13 @@ from settings import (
 from multiplex_code import (
     _get_random_head_img_url_from_db,
     get_top_n_buyer_name_and_comment_date_by_goods_id,
-    filter_crawled_comment_content,)
-from my_exceptions import SqlServerConnectionException
+    filter_crawled_comment_content,
+    _get_sku_info_from_db_by_goods_id,)
+from my_exceptions import (
+    SqlServerConnectionException,
+    DBGetGoodsSkuInfoErrorException,)
 
-from random import randint
+from random import randint, choice
 from time import sleep
 from gc import collect
 import re
@@ -72,10 +75,17 @@ class TaoBaoCommentParse(Crawler):
             # db中已有的buyer_name and comment_date_list
             db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
                 goods_id=goods_id,
-                top_n_num=400,
                 logger=self.lg,)
         except SqlServerConnectionException:
             self.lg.error('db 连接异常! 此处抓取跳过!')
+            return self._data_error_init()
+
+        try:
+            db_sku_info_list = _get_sku_info_from_db_by_goods_id(
+                goods_id=goods_id,
+                logger=self.lg,)
+        except DBGetGoodsSkuInfoErrorException:
+            self.lg.error('获取db goods_id: {} 的sku_info失败! 此处跳过!'.format(goods_id))
             return self._data_error_init()
 
         # 获取评论数据
@@ -94,14 +104,14 @@ class TaoBaoCommentParse(Crawler):
         try:
             _comment_list = self._get_comment_list(
                 _tmp_comment_list=_tmp_comment_list,
-                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list)
+                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list,
+                db_sku_info_list=db_sku_info_list)
         except Exception as e:
             self.lg.error('出错goods_id: ' + goods_id)
             self.lg.exception(e)
             return self._data_error_init()
 
         _t = get_shanghai_time()
-
         _r = CommentItem()
         _r['goods_id'] = str(goods_id)
         _r['create_time'] = _t
@@ -152,7 +162,7 @@ class TaoBaoCommentParse(Crawler):
 
         return data
 
-    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list):
+    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info_list):
         '''
         转化成需要的结果集
         :param _tmp_comment_list:
@@ -161,21 +171,8 @@ class TaoBaoCommentParse(Crawler):
         _comment_list = []
         _sku_info_list = []  # 用于存已有的规格
         for item in _tmp_comment_list:
-            comment_date = item.get('date', '')
-            assert comment_date != '', '得到的comment_date为空str!请检查!'
-            comment_date = self._get_comment_date(comment_date)
-
-            sku_info = item.get('auction', {}).get('sku', '')
-            # self.lg.info(sku_info)
-            if sku_info == '' and _sku_info_list == []:  # 规格为空就跳过, 即只抓取有效评论
-                continue
-            if sku_info != '':  # 不为空存入
-                _sku_info_list.append(sku_info)
-                _sku_info_list = list(set(_sku_info_list))
-            if sku_info == '':  # 为空的，随机设置一个
-                sku_info = _sku_info_list[randint(0, len(_sku_info_list) - 1)]
-                # print(sku_info)
-            sku_info = self._wash_sku_info(sku_info)
+            comment_date = self._get_comment_date(item=item)
+            sku_info = self._get_sku_info(item=item, db_sku_info_list=db_sku_info_list)
 
             # 评论照片
             img_url_list = item.get('photos', [])
@@ -226,6 +223,21 @@ class TaoBaoCommentParse(Crawler):
             _comment_list.append(_)
 
         return _comment_list
+
+    def _get_sku_info(self, item, db_sku_info_list) -> str:
+        """
+        获取sku_info
+        :param item:
+        :return:
+        """
+        sku_info = item.get('auction', {}).get('sku', '')
+        # self.lg.info(sku_info)
+        if sku_info == '':
+            sku_info = choice(db_sku_info_list)
+        else:
+            sku_info = self._wash_sku_info(sku_info)
+
+        return sku_info
 
     def _get_head_img_url(self, item):
         """
@@ -350,12 +362,15 @@ class TaoBaoCommentParse(Crawler):
 
         return comment
 
-    def _get_comment_date(self, comment_date:str):
+    def _get_comment_date(self, item):
         '''
         将格式如:2017年12月07日 14:50 转换为 '2017-12-07 14:50:00'
         :param comment_date:
         :return:
         '''
+        comment_date = item.get('date', '')
+        assert comment_date != '', '得到的comment_date为空str!请检查!'
+
         return comment_date.replace('年', '-').replace('月', '-').replace('日', '') + ':00'
 
     def __del__(self):

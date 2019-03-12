@@ -20,8 +20,16 @@ from time import sleep
 import gc
 import re
 from pprint import pprint
+from my_exceptions import (
+    NoNextPageException,
+    SqlServerConnectionException,)
+from multiplex_code import (
+    get_top_n_buyer_name_and_comment_date_by_goods_id,
+    filter_crawled_comment_content,)
 
-from fzutils.time_utils import get_shanghai_time
+from fzutils.time_utils import (
+    get_shanghai_time,
+    date_parse,)
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import Requests
@@ -41,6 +49,7 @@ class Zhe800CommentParse(Crawler):
         self._set_headers()
         self.page_size = '20'  # 固定值
         self.comment_page_switch_sleep_time = 1.5  # 评论下一页sleep time
+        self.max_page_num = 8
 
     def _set_headers(self):
         '''
@@ -52,59 +61,51 @@ class Zhe800CommentParse(Crawler):
             'accept-language': 'zh-CN,zh;q=0.9',
             'user-agent': get_random_pc_ua(),
             'accept': 'application/json, text/plain, */*',
-            'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid=ze180424214500488079&dealId=39890410&tagId=',
-            # 'cookie': 'gr_user_id=84b21fed-0302-46e0-a01a-f8f3d4cb223e; session_id=439012875.1524042625; user_id=; utm_csr_first=direct; utm_csr=direct; utm_ccn=notset_c0; utm_cmd=; utm_ctr=; utm_cct=; utm_etr=tao.home; firstTime=2018-04-20; __utmz=148564220.1524192137.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); qd_user=96713570.1524192142912; frequency=1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C1%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0; lastTime=2018-04-28; unix_time=1524881786; ju_version=0; __utma=148564220.212449404.1524192137.1524208015.1524881786.3; __utmc=148564220; cart_mark=1%7C0%7C0%7Cnil%7C0; user_type=0; user_role=4; student=0; dialog_time=2; downloadGuide_config=%257B%25220direct%2522%253A%257B%2522open%2522%253A2%257D%252C%25221002direct%2522%253A%257B%2522open%2522%253A1%257D%257D; f_jk_r=https://m.zhe800.com/mz/list/wireless3982; source=; platform=; version=; channelId=; deviceId=; userId=; cType=; cId=; dealId=; f_jk=6628971525400935425TfActXWw; f_jk_t=1525400935426; f_jk_e_t=1527992935; jk=6628971525400935425TfActXWw; wris_session_id=1145460586.1525400937; visit=18',
         }
 
     def _get_comment_data(self, goods_id):
         if goods_id == '':
-            self.result_data = {}
-            return {}
+            return self._data_error()
+
+        self.lg.info('------>>>| 待抓取的goods_id: {}'.format(goods_id))
+        try:
+            # db中已有的buyer_name and comment_date_list
+            db_top_n_buyer_name_and_comment_date_list = get_top_n_buyer_name_and_comment_date_by_goods_id(
+                goods_id=goods_id,
+                logger=self.lg,)
+        except SqlServerConnectionException:
+            self.lg.error('db 连接异常! 此处抓取跳过!')
+            return self._data_error()
+
+        # 下面是抓取m.zhe800.com的数据地址
         _tmp_comment_list = []
-        self.lg.info('------>>>| 待抓取的goods_id: %s' % goods_id)
+        for current_page_num in range(1, self.max_page_num):    # 起始页为1
+            self.lg.info('------>>>| 正在抓取第{}页评论...'.format(current_page_num))
+            try:
+                data, has_next_page = self._get_one_page_comment_info(
+                    page_num=current_page_num,
+                    goods_id=goods_id)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                return self._data_error()
 
-        '''
-        下面是抓取m.zhe800.com的数据地址
-        '''
-        for current_page_num in range(1, 4):    # 起始页为1
-            self.lg.info('------>>>| 正在抓取第%s页评论...' % str(current_page_num))
-            tmp_url = 'https://th5.m.zhe800.com/app/detail/comment/list'
-            _params = self._set_params(current_page_num=current_page_num, goods_id=goods_id)
-
-            self.headers.update({
-                'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
-            })
-            body = Requests.get_url_body(url=tmp_url, headers=self.headers, params=_params, encoding='utf-8', ip_pool_type=self.ip_pool_type)
-            # self.lg.info(str(body))
-
-            data = json_2_dict(json_str=body, logger=self.lg)
-            # pprint(data)
-
-            if data.get('comments') is not None:
-                _tmp_comment_list += data.get('comments')
-
-            # print(type(data.get('hasNext')))    # <class 'bool'>
-            if not data.get('hasNext', False):     # 先判断是否下页还有评论信息
+            _tmp_comment_list += data
+            if not has_next_page:
+                # 必须放在add data后面，否则会导致当前页面没被add, 就跳出
                 break
-
-            if data.get('comments') is None and data.get('hasNext') is None:    # 默认为空，如果下页没有的话，但是上面已经进行下页判断，此处加这个用于异常退出
-                self.lg.error('获取到的data为None, 出错goods_id: ' + goods_id)
-                self.result_data = {}
-                return {}
-
             sleep(self.comment_page_switch_sleep_time)
 
         # self.lg.info(str(len(_tmp_comment_list)))
         try:
-            _comment_list = self._get_comment_list(_tmp_comment_list=_tmp_comment_list)
+            _comment_list = self._get_comment_list(
+                _tmp_comment_list=_tmp_comment_list,
+                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list)
         except Exception as e:
             self.lg.error('出错goods_id: ' + goods_id)
             self.lg.exception(e)
-            self.result_data = {}
-            return {}
+            return self._data_error()
 
         _t = get_shanghai_time()
-
         _r = CommentItem()
         _r['goods_id'] = str(goods_id)
         _r['create_time'] = _t
@@ -115,7 +116,47 @@ class Zhe800CommentParse(Crawler):
 
         return self.result_data
 
-    def _get_comment_list(self, _tmp_comment_list):
+    def _get_one_page_comment_info(self, page_num, goods_id) -> tuple:
+        """
+        获取单页comment info
+        :return:
+        """
+        tmp_url = 'https://th5.m.zhe800.com/app/detail/comment/list'
+        _params = self._set_params(current_page_num=page_num, goods_id=goods_id)
+        self.headers.update({
+            'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
+        })
+        body = Requests.get_url_body(
+            url=tmp_url,
+            headers=self.headers,
+            params=_params,
+            encoding='utf-8',
+            ip_pool_type=self.ip_pool_type)
+        # self.lg.info(str(body))
+        data = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={})
+        # pprint(data)
+        assert data.get('comments') is not None\
+            and data.get('hasNext') is not None, '获取到的data为None, 出错goods_id: {}'.format(goods_id)
+
+        # 判断是否下页还有评论信息
+        # <class 'bool'>
+        has_next_page = data.get('hasNext', False)
+        data = data.get('comments', [])
+        self.lg.info('[{}] page_num: {}'.format(
+            '+' if data != [] else '-',
+            page_num,))
+
+        return data, has_next_page
+
+    def _data_error(self):
+        self.result_data = {}
+
+        return {}
+
+    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list):
         '''
         获取规范化的comment结果集
         :param _tmp_comment_list:
@@ -123,9 +164,7 @@ class Zhe800CommentParse(Crawler):
         '''
         _comment_list = []
         for item in _tmp_comment_list:
-            comment_date = item.get('createTime', '')
-            assert comment_date != '', '得到的comment_date为空str!请检查!'
-            comment_date = self._get_comment_date(comment_date)
+            comment_date = self._get_comment_date(item=item)
 
             buyer_name = item.get('nickname', '')
             assert buyer_name != '', '得到的用户昵称为空值!请检查!'
@@ -168,14 +207,18 @@ class Zhe800CommentParse(Crawler):
 
             # 购买数量, 随机
             quantify = randint(1, 2)
-
             # 用户头像, 默认留空
             head_img = ''
-
             # 评论星级
             star_level = int(item.get('levelStar', 5))
-
             if not filter_invalid_comment_content(_comment_content):
+                continue
+
+            if not filter_crawled_comment_content(
+                    new_buyer_name=buyer_name,
+                    new_comment_date=comment_date,
+                    db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                # 过滤已采集的comment
                 continue
 
             comment = [{
@@ -186,7 +229,6 @@ class Zhe800CommentParse(Crawler):
                 'star_level': star_level,
                 'video': '',
             }]
-
             _ = {
                 'buyer_name': buyer_name,  # 买家昵称
                 'comment': comment,  # 评论内容
@@ -209,33 +251,19 @@ class Zhe800CommentParse(Crawler):
 
         return comment
 
-    def _get_comment_date(self, comment_date:str):
+    def _get_comment_date(self, item) -> str:
         '''
         得到规范化的时间信息
         :param comment_date:
         :return: str 格式: 2017-05-26 09:00:00
         '''
-        comment_date = comment_date.replace('.', '-')
+        comment_date = item.get('createTime', '')
+        assert comment_date != '', '得到的comment_date为空str!请检查!'
+        # self.lg.info(comment_date)
+        # datetime.datetime(2019, 2, 25, 0, 0)
+        comment_date = str(date_parse(target_date_str=comment_date))
 
-        _ = str(randint(0, 23))
-        if len(_) == 1:
-            _hour = '0' + _
-        else:
-            _hour = _
-
-        _ = str(randint(0, 59))
-        if len(_) == 1:
-            _min = '0' + _
-        else:
-            _min = _
-
-        _ = str(randint(0, 59))
-        if len(_) == 1:
-            _s = '0' + _
-        else:
-            _s = _
-
-        return comment_date + ' ' + _hour + ':' + _min + ':' + _s
+        return comment_date
 
     def _wash_sku_info(self, sku_info):
         sku_info = sku_info.replace('&nbsp;', ' ').replace('&nbsp', ' ')

@@ -22,14 +22,15 @@ from zhe_800_comment_parse import Zhe800CommentParse
 import gc
 from logging import INFO, ERROR
 from time import sleep
-from json import dumps
 from pprint import pprint
 
 from sql_str_controller import (
-    cm_insert_str_2,
     cm_select_str_2,
     cm_select_str_3,)
-from multiplex_code import _block_get_new_db_conn
+from multiplex_code import (
+    _block_get_new_db_conn,
+    _save_comment_item_r,
+    _block_print_db_old_data,)
 
 from fzutils.log_utils import set_logger
 from fzutils.linux_utils import daemon_init
@@ -41,7 +42,6 @@ class MyAllCommentSpider(object):
         self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
-        self.sql_str = cm_insert_str_2
 
         if self._init_debugging_api().get(2):
             self.lg.info('初始化 1688 phantomjs中...')
@@ -71,7 +71,7 @@ class MyAllCommentSpider(object):
 
     def _init_debugging_api(self):
         '''
-        用于设置待抓取的商品的site_id
+        设置待抓取的商品的site_id
         :return: dict
         '''
         return {
@@ -112,68 +112,64 @@ class MyAllCommentSpider(object):
                 self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
                 result = None
             if result is None:
-                pass
-            else:
-                self.lg.info('------>>> 下面是数据库返回的所有符合条件的goods_id <<<------')
-                self.lg.info(str(result))
-                self.lg.info('--------------------------------------------------------')
+                sleep(30)
+                continue
 
-                self.lg.info('即将开始实时更新数据, 请耐心等待...'.center(100, '#'))
-                self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-                if self.sql_cli.is_connect_success:
-                    _db_goods_id = self.sql_cli._select_table(sql_str=cm_select_str_3, logger=self.lg)
-                    try:
-                        _db_goods_id = [item[0] for item in _db_goods_id]
-                    except IndexError:
-                        continue
-                    self.lg.info(str(_db_goods_id))
-                else:
+            _block_print_db_old_data(result=result, logger=self.lg)
+            self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            if self.sql_cli.is_connect_success:
+                _db_goods_id = self.sql_cli._select_table(sql_str=cm_select_str_3, logger=self.lg)
+                try:
+                    _db_goods_id = [item[0] for item in _db_goods_id]
+                except IndexError:
+                    continue
+                self.lg.info(str(_db_goods_id))
+            else:
+                continue
+
+            # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
+            for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
+                goods_id, site_id = item
+                if not self.debugging_api.get(site_id):
+                    self.lg.info('api为False, 跳过! 索引值[{}]'.format(index))
                     continue
 
-                # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
-                for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
-                    goods_id, site_id = item
-                    if not self.debugging_api.get(site_id):
-                        self.lg.info('api为False, 跳过! 索引值[{}]'.format(index))
+                try:
+                    if goods_id in _db_goods_id:
+                        self.lg.info('该goods_id[{}]已存在于db中, 此处跳过!'.format(goods_id))
                         continue
+                except IndexError:
+                    print('IndexError')
 
-                    try:
-                        if goods_id in _db_goods_id:
-                            self.lg.info('该goods_id[{}]已存在于db中, 此处跳过!'.format(goods_id))
-                            continue
-                    except IndexError:
-                        print('IndexError')
+                self.sql_cli = _block_get_new_db_conn(
+                    db_obj=self.sql_cli,
+                    index=index,
+                    logger=self.lg,
+                    remainder=5,)
+                switch = {
+                    1: self.func_name_dict.get('taobao'),       # 淘宝
+                    2: self.func_name_dict.get('ali'),          # 阿里1688
+                    3: self.func_name_dict.get('tmall'),        # 天猫
+                    4: self.func_name_dict.get('tmall'),        # 天猫超市
+                    6: self.func_name_dict.get('tmall'),        # 天猫国际
+                    7: self.func_name_dict.get('jd'),           # 京东
+                    8: self.func_name_dict.get('jd'),           # 京东超市
+                    9: self.func_name_dict.get('jd'),           # 京东全球购
+                    10: self.func_name_dict.get('jd'),          # 京东大药房
+                    11: self.func_name_dict.get('zhe_800'),     # 折800
+                    12: self.func_name_dict.get('juanpi'),      # 卷皮
+                    13: self.func_name_dict.get('pinduoduo'),   # 拼多多
+                    25: self.func_name_dict.get('vip'),         # 唯品会
+                }
+                # 动态执行
+                _code = switch[site_id].format(index, goods_id, site_id)
+                if site_id != 11:
+                    exec_code = compile(_code, '', 'exec')
+                    exec(exec_code)
+                else:   # 特殊单独执行
+                    self._zhe_800_comment(index=index, goods_id=goods_id, site_id=site_id)
 
-                    self.sql_cli = _block_get_new_db_conn(
-                        db_obj=self.sql_cli,
-                        index=index,
-                        logger=self.lg,
-                        remainder=20,)
-                    switch = {
-                        1: self.func_name_dict.get('taobao'),       # 淘宝
-                        2: self.func_name_dict.get('ali'),          # 阿里1688
-                        3: self.func_name_dict.get('tmall'),        # 天猫
-                        4: self.func_name_dict.get('tmall'),        # 天猫超市
-                        6: self.func_name_dict.get('tmall'),        # 天猫国际
-                        7: self.func_name_dict.get('jd'),           # 京东
-                        8: self.func_name_dict.get('jd'),           # 京东超市
-                        9: self.func_name_dict.get('jd'),           # 京东全球购
-                        10: self.func_name_dict.get('jd'),          # 京东大药房
-                        11: self.func_name_dict.get('zhe_800'),     # 折800
-                        12: self.func_name_dict.get('juanpi'),      # 卷皮
-                        13: self.func_name_dict.get('pinduoduo'),   # 拼多多
-                        25: self.func_name_dict.get('vip'),         # 唯品会
-                    }
-
-                    # 动态执行
-                    _code = switch[site_id].format(index, goods_id, site_id)
-                    if site_id != 11:
-                        exec_code = compile(_code, '', 'exec')
-                        exec(exec_code)
-                    else:   # 特殊单独执行
-                        self._zhe_800_comment(index=index, goods_id=goods_id, site_id=site_id)
-
-                    sleep(1.2)
+                sleep(1.2)
 
     def _taobao_comment(self, index, goods_id, site_id):
         '''
@@ -191,7 +187,11 @@ class MyAllCommentSpider(object):
 
             if _r.get('_comment_list', []) != []:
                 if self.sql_cli.is_connect_success:
-                    self._save_item_r(_r=_r, goods_id=goods_id)
+                    _save_comment_item_r(
+                        _r=_r,
+                        goods_id=goods_id,
+                        sql_cli=self.sql_cli,
+                        logger=self.lg,)
             else:
                 self.lg.info('该商品_comment_list为空list! 此处跳过!')
                 
@@ -223,7 +223,11 @@ class MyAllCommentSpider(object):
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
             if _r.get('_comment_list', []) != []:
                 if self.sql_cli.is_connect_success:
-                    self._save_item_r(_r=_r, goods_id=goods_id)
+                    _save_comment_item_r(
+                        _r=_r,
+                        goods_id=goods_id,
+                        sql_cli=self.sql_cli,
+                        logger=self.lg, )
 
             else:
                 self.lg.info('该商品_comment_list为空list! 此处跳过!')
@@ -261,7 +265,11 @@ class MyAllCommentSpider(object):
             _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
                 if self.sql_cli.is_connect_success:
-                    self._save_item_r(_r=_r, goods_id=goods_id)
+                    _save_comment_item_r(
+                        _r=_r,
+                        goods_id=goods_id,
+                        sql_cli=self.sql_cli,
+                        logger=self.lg, )
 
             else:
                 self.lg.info('该商品_comment_list为空list! 此处跳过!')
@@ -292,7 +300,11 @@ class MyAllCommentSpider(object):
             if _r.get('_comment_list', []) != []:
                 # self.lg.info('获取评论success!')
                 if self.sql_cli.is_connect_success:
-                    self._save_item_r(_r=_r, goods_id=goods_id)
+                    _save_comment_item_r(
+                        _r=_r,
+                        goods_id=goods_id,
+                        sql_cli=self.sql_cli,
+                        logger=self.lg, )
 
             else:
                 self.lg.info('该商品_comment_list为空list! 此处跳过!')
@@ -314,11 +326,13 @@ class MyAllCommentSpider(object):
             zhe_800 = Zhe800CommentParse(logger=self.lg)
             _r = zhe_800._get_comment_data(goods_id=str(goods_id))
             # pprint(_r)
-
             if _r.get('_comment_list', []) != []:
-                # self.lg.info('获取评论success!')
                 if self.sql_cli.is_connect_success:
-                    self._save_item_r(_r=_r, goods_id=goods_id)
+                    _save_comment_item_r(
+                        _r=_r,
+                        goods_id=goods_id,
+                        sql_cli=self.sql_cli,
+                        logger=self.lg, )
             else:
                 self.lg.info('该商品_comment_list为空list! 此处跳过!')
 
@@ -366,63 +380,6 @@ class MyAllCommentSpider(object):
             pass
         else:
             pass
-
-    def _save_item_r(self, _r, goods_id) -> None:
-        """
-        保存item r
-        :return:
-        """
-        create_time = _r['create_time']
-        comment_list = _r['_comment_list']
-        for i in comment_list:
-            params = self._get_db_insert_params2(
-                goods_id=goods_id,
-                create_time=create_time,
-                i=i,
-            )
-            self.sql_cli._insert_into_table_2(
-                sql_str=self.sql_str,
-                params=params,
-                logger=self.lg)
-
-        return None
-
-    def _get_db_insert_params(self, item):
-        '''
-        得到待插入的数据
-        :param item:
-        :return:
-        '''
-        return (
-            item['goods_id'],
-            item['create_time'],
-            item['modify_time'],
-            dumps(item['_comment_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
-        )
-
-    def _get_db_insert_params2(self, goods_id, create_time, i,):
-        """
-        得到新版待插入数据
-        :return:
-        """
-        return (
-            goods_id,
-            create_time,
-
-            i['buyer_name'],
-            i['head_img'],
-            i['comment'][0]['sku_info'],
-            i['quantify'],
-            i['comment'][0]['comment'],
-            i['comment'][0]['comment_date'],
-            dumps(i['comment'][0].get('img_url_list', []), ensure_ascii=False),
-            i['comment'][0].get('video', ''),
-            i['comment'][0]['star_level'],
-
-            i.get('append_comment', {}).get('comment', ''),
-            i.get('append_comment', {}).get('comment_date', ''),
-            dumps(i.get('append_comment', {}).get('img_url_list', []), ensure_ascii=False),
-        )
 
     def __del__(self):
         try:

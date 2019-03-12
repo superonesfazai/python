@@ -17,3 +17,11 @@ class MiaSkusIsNullListException(Exception):
 class SqlServerConnectionException(Exception):
     """sql server连接异常!"""
     pass
+
+class NoNextPageException(Exception):
+    """没有后续页面的异常"""
+    pass
+
+class DBGetGoodsSkuInfoErrorException(Exception):
+    """db中获取某个goods_id的sku_info失败的异常!"""
+    pass
