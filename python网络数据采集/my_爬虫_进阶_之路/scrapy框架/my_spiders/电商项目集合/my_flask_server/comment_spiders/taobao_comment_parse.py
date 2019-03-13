@@ -24,6 +24,11 @@ from my_exceptions import (
     SqlServerConnectionException,
     DBGetGoodsSkuInfoErrorException,)
 
+try:
+    from celery_tasks import _get_tb_one_page_comment_info_task
+except ImportError:
+    pass
+
 from random import randint, choice
 from time import sleep
 from gc import collect
@@ -34,11 +39,13 @@ import requests
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
     get_random_pc_ua,
-    str_cookies_2_dict,)
+    str_cookies_2_dict,
+    get_base_headers,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import get_shanghai_time
 from fzutils.spider.crawler import Crawler
+from fzutils.celery_utils import block_get_celery_async_results
 
 class TaoBaoCommentParse(Crawler):
     def __init__(self, logger=None):
@@ -55,10 +62,9 @@ class TaoBaoCommentParse(Crawler):
         )
         self.result_data = {}
         self.msg = ''
-        self._set_headers()
         self.comment_page_switch_sleep_time = 2   # 评论下一页sleep time
         self.db_random_head_img_url_list = []
-        self.max_page_num = 8
+        self.max_page_num = 10
 
     def _get_comment_data(self, goods_id):
         """
@@ -69,7 +75,7 @@ class TaoBaoCommentParse(Crawler):
         if goods_id == '':
             return self._data_error_init()
 
-        _tmp_comment_list = []
+        all_comment_list = []
         self.lg.info('------>>>| 待抓取的goods_id: {}'.format(goods_id))
         try:
             # db中已有的buyer_name and comment_date_list
@@ -88,22 +94,15 @@ class TaoBaoCommentParse(Crawler):
             self.lg.error('获取db goods_id: {} 的sku_info失败! 此处跳过!'.format(goods_id))
             return self._data_error_init()
 
-        # 获取评论数据
-        for current_page_num in range(1, self.max_page_num):
-            self.lg.info('------>>>| 正在抓取第 {} 页评论...'.format(current_page_num))
-            try:
-                data = self._get_one_page_comment_info(page_num=current_page_num, goods_id=goods_id)
-            except Exception:
-                self.lg.error('遇到错误:', exc_info=True)
-                continue
+        # 同步
+        # all_comment_list = self._get_all_comment_info(goods_id=goods_id)
+        # celery
+        all_comment_list = self._get_all_comment_info_by_celery(goods_id=goods_id)
+        # pprint(all_comment_list)
 
-            _tmp_comment_list += data
-            sleep(self.comment_page_switch_sleep_time)
-
-        # self.lg.info(str(len(_tmp_comment_list)))
         try:
             _comment_list = self._get_comment_list(
-                _tmp_comment_list=_tmp_comment_list,
+                all_comment_list=all_comment_list,
                 db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list,
                 db_sku_info_list=db_sku_info_list)
         except Exception as e:
@@ -122,6 +121,81 @@ class TaoBaoCommentParse(Crawler):
 
         return self.result_data
 
+    def _get_all_comment_info_by_celery(self, goods_id) -> list:
+        """
+        通过celery 获取某个goods_id所有的comment
+        :param goods_id:
+        :return:
+        """
+        tasks = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('create task[where goods_id: {}, page_num: {}]...'.format(goods_id, page_num))
+            try:
+                async_obj = self._create_tb_one_celery_task(
+                    ip_pool_type=self.ip_pool_type,
+                    goods_id=goods_id,
+                    page_num=page_num,
+                    cookies=self.login_cookies_dict,
+                )
+                tasks.append(async_obj)
+            except:
+                continue
+
+        one_res = block_get_celery_async_results(tasks=tasks)
+        all_comment_info_list = []
+        for i in one_res:
+            try:
+                for j in i:
+                    all_comment_info_list.append(j)
+            except TypeError:
+                continue
+
+        return all_comment_info_list
+
+    def _get_all_comment_info(self, goods_id) -> list:
+        """
+        获取某个goods_id所有评论数据
+        :param goods_id:
+        :return:
+        """
+        all_comment_list = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('------>>>| 正在抓取第 {} 页评论...'.format(page_num))
+            try:
+                data = self._get_one_page_comment_info(page_num=page_num, goods_id=goods_id)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+
+            all_comment_list += data
+            sleep(self.comment_page_switch_sleep_time)
+
+        return all_comment_list
+
+    def _create_tb_one_celery_task(self, **kwargs):
+        """
+        创建一个tb celery task
+        :param kwargs:
+        :return:
+        """
+        ip_pool_type = kwargs['ip_pool_type']
+        goods_id = kwargs['goods_id']
+        page_num = kwargs['page_num']
+        cookies = kwargs['cookies']
+
+        async_obj = _get_tb_one_page_comment_info_task.apply_async(
+            args=[
+                ip_pool_type,
+                goods_id,
+                page_num,
+                cookies,
+            ],
+            expires=5 * 60,
+            retry=False,
+        )
+
+        return async_obj
+
     def _get_one_page_comment_info(self, page_num, goods_id) -> list:
         """
         获取单页评论页面信息
@@ -129,15 +203,33 @@ class TaoBaoCommentParse(Crawler):
         :param goods_id:
         :return:
         """
-        tmp_url = 'https://rate.taobao.com/feedRateList.htm'
-        _params = self._set_params(current_page_num=page_num, goods_id=goods_id)
+        def _get_params(goods_id, page_num) -> tuple:
+            return (
+                ('auctionNumId', goods_id),
+                # ('userNumId', '1681172037'),
+                ('currentPageNum', str(page_num)),
+                ('pageSize', '20'),
+                ('rateType', '1'),
+                ('orderType', 'sort_weight'),
+                ('attribute', ''),
+                ('sku', ''),
+                ('hasSku', 'false'),
+                ('folded', '0'),  # 把默认的0改成1能得到需求数据
+                # ('ua', '098#E1hv1QvWvRGvUpCkvvvvvjiPPFMWAjEmRLdWlj1VPmPvtjEvnLsh1j1WR2cZgjnVRT6Cvvyv9VliFvmvngJjvpvhvUCvp2yCvvpvvhCv2QhvCPMMvvvCvpvVvUCvpvvvKphv8vvvpHwvvvmRvvCmDpvvvNyvvhxHvvmChvvvB8wvvUVhvvChiQvv9OoivpvUvvCCUqf1csREvpvVvpCmpaFZmphvLv84Rs+azCIajCiABq2XrqpAhjCbFO7t+3vXwyFEDLuTRLa9C7zhVTTJhLhL+87J+u0OakSGtEkfVCl1pY2ZV1OqrADn9Wma+fmtEp75vpvhvvCCBUhCvCiI712MPY147DSOSrGukn22SYHsp7uC6bSVksyCvvpvvhCv'),
+                # ('_ksTS', '1523329154439_1358'),
+                # ('callback', 'jsonp_tbcrate_reviews_list'),
+            )
 
-        self.headers.update({
-            'referer': 'https://item.taobao.com/item.htm?id=' + goods_id
+        headers = get_base_headers()
+        headers.update({
+            'authority': 'rate.taobao.com',
+            'referer': 'https://item.taobao.com/item.htm?id={}'.format(goods_id)
         })
+        url = 'https://rate.taobao.com/feedRateList.htm'
+        _params = _get_params(goods_id=goods_id, page_num=page_num)
         body = Requests.get_url_body(
-            url=tmp_url,
-            headers=self.headers,
+            url=url,
+            headers=headers,
             params=_params,
             encoding='gbk',
             ip_pool_type=self.ip_pool_type,
@@ -162,15 +254,15 @@ class TaoBaoCommentParse(Crawler):
 
         return data
 
-    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info_list):
+    def _get_comment_list(self, all_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info_list):
         '''
         转化成需要的结果集
-        :param _tmp_comment_list:
+        :param all_comment_list:
         :return:
         '''
         _comment_list = []
         _sku_info_list = []  # 用于存已有的规格
-        for item in _tmp_comment_list:
+        for item in all_comment_list:
             comment_date = self._get_comment_date(item=item)
             sku_info = self._get_sku_info(item=item, db_sku_info_list=db_sku_info_list)
 
@@ -200,7 +292,8 @@ class TaoBaoCommentParse(Crawler):
             if not filter_crawled_comment_content(
                 new_buyer_name=buyer_name,
                 new_comment_date=comment_date,
-                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,
+                logger=self.lg):
                 # 过滤已采集的comment
                 continue
 
@@ -298,7 +391,7 @@ class TaoBaoCommentParse(Crawler):
         tmp_proxies = Requests._get_proxies(ip_pool_type=self.ip_pool_type)
 
         try:
-            _res = requests.get(url=url, headers=self.headers, proxies=tmp_proxies)
+            _res = requests.get(url=url, headers=get_base_headers(), proxies=tmp_proxies)
             self.lg.info(str(_res.url))
             if _res.url == 'https://gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
                 return True
@@ -308,49 +401,10 @@ class TaoBaoCommentParse(Crawler):
             self.lg.info('检测图片地址时网络错误! 跳过!')
             return False
 
-    def _set_headers(self):
-        '''
-        设置headers
-        :return: dict
-        '''
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_pc_ua(),
-            'accept': '*/*',
-            'authority': 'rate.taobao.com',
-            # 'referer': 'https://item.taobao.com/item.htm?id=555635098639',
-        }
-
     def _wash_sku_info(self, sku_info):
         sku_info = sku_info.replace('&nbsp;', ' ').replace('&nbsp', ' ')
 
         return sku_info
-
-    def _set_params(self, current_page_num, goods_id):
-        '''
-        设置params
-        :param goods_id:
-        :param current_page_num:
-        :return:
-        '''
-        params = (
-            ('auctionNumId', goods_id),
-            # ('userNumId', '1681172037'),
-            ('currentPageNum', str(current_page_num)),
-            ('pageSize', '20'),
-            ('rateType', '1'),
-            ('orderType', 'sort_weight'),
-            ('attribute', ''),
-            ('sku', ''),
-            ('hasSku', 'false'),
-            ('folded', '0'),  # 把默认的0改成1能得到需求数据
-            # ('ua', '098#E1hv1QvWvRGvUpCkvvvvvjiPPFMWAjEmRLdWlj1VPmPvtjEvnLsh1j1WR2cZgjnVRT6Cvvyv9VliFvmvngJjvpvhvUCvp2yCvvpvvhCv2QhvCPMMvvvCvpvVvUCvpvvvKphv8vvvpHwvvvmRvvCmDpvvvNyvvhxHvvmChvvvB8wvvUVhvvChiQvv9OoivpvUvvCCUqf1csREvpvVvpCmpaFZmphvLv84Rs+azCIajCiABq2XrqpAhjCbFO7t+3vXwyFEDLuTRLa9C7zhVTTJhLhL+87J+u0OakSGtEkfVCl1pY2ZV1OqrADn9Wma+fmtEp75vpvhvvCCBUhCvCiI712MPY147DSOSrGukn22SYHsp7uC6bSVksyCvvpvvhCv'),
-            # ('_ksTS', '1523329154439_1358'),
-            # ('callback', 'jsonp_tbcrate_reviews_list'),
-        )
-
-        return params
 
     def _wash_comment(self, comment):
         '''

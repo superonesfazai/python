@@ -36,7 +36,6 @@ class ChinaAdjueDocsSpider(object):
             'User-Agent': get_random_pc_ua(),
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Accept': '*/*',
-            # 'Referer': 'https://wenshu.court.gov.cn/List/List?sorttype=1&conditions=searchWord+2++%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6+%E6%A1%88%E4%BB%B6%E7%B1%BB%E5%9E%8B:%E5%88%91%E4%BA%8B%E6%A1%88%E4%BB%B6',
             'X-Requested-With': 'XMLHttpRequest',
             'Connection': 'keep-alive',
         }

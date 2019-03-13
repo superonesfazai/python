@@ -94,7 +94,7 @@ class JdCommentParse(Crawler):
         _r['modify_time'] = _t
         _r['_comment_list'] = _comment_list
         self.result_data = _r
-        pprint(self.result_data)
+        # pprint(self.result_data)
 
         return self.result_data
 
@@ -199,7 +199,8 @@ class JdCommentParse(Crawler):
             if not filter_crawled_comment_content(
                 new_buyer_name=buyer_name,
                 new_comment_date=_comment_date,
-                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,
+                logger=self.lg):
                 # 过滤已采集的comment
                 continue
 

@@ -847,7 +847,7 @@ def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=800, l
 
     return res
 
-def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buyer_name_and_comment_date_info:list,) -> bool:
+def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buyer_name_and_comment_date_info:list, logger=None) -> bool:
     """
     过滤已采集的评论内容
     :param new_buyer_name:
@@ -877,6 +877,10 @@ def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buye
             # print(new_buyer_name, type(new_comment_date), new_comment_date, type(item_comment_date), item_comment_date)
             if new_comment_date == item_comment_date:
                 # 名字相同且comment_date也相同的, 即为重复的comment data
+                _print(
+                    msg='db had buyer_name: {}, comment_date: {}'.format(new_buyer_name, str(new_comment_date)),
+                    logger=logger,
+                    log_level=1,)
                 return False
 
     return res

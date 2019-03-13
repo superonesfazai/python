@@ -6,6 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import re
 from gc import collect
 from celery.utils.log import get_task_logger
 from asyncio import wait_for, Future
@@ -17,18 +18,30 @@ from asyncio import (
     new_event_loop,
     get_event_loop,
     set_event_loop,)
+from time import sleep
 from multiplex_code import (
     _get_al_one_type_company_id_list,
     _get_114_one_type_company_id_list,)
+from settings import (
+    PHANTOMJS_DRIVER_PATH,
+)
 from company_spider import CompanySpider
 from fzutils.internet_utils import (
     get_random_pc_ua,
-    get_random_phone_ua,)
+    get_random_phone_ua,
+    get_base_headers,
+    _get_url_contain_params,
+    dict_cookies_2_str,)
 from fzutils.common_utils import json_2_dict
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
+from fzutils.time_utils import (
+    get_shanghai_time,
+    datetime_to_timestamp,)
+from fzutils.common_utils import get_random_int_number
 from fzutils.celery_utils import *
 from fzutils.spider.selector import parse_field
 from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_driver import BaseDriver
 
 """
 redis:
@@ -370,3 +383,216 @@ def _get_hn_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     collect()
 
     return shop_id_list
+
+@app.task(name=tasks_name + '._get_tb_one_page_comment_info_task', bind=True)
+def _get_tb_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, cookies:dict) -> list:
+    """
+    获取单页评论页面信息
+    :param page_num:
+    :param goods_id:
+    :return:
+    """
+    def _get_params(goods_id, page_num) -> tuple:
+        return (
+            ('auctionNumId', goods_id),
+            # ('userNumId', '1681172037'),
+            ('currentPageNum', str(page_num)),
+            ('pageSize', '20'),
+            ('rateType', '1'),
+            ('orderType', 'sort_weight'),
+            ('attribute', ''),
+            ('sku', ''),
+            ('hasSku', 'false'),
+            ('folded', '0'),  # 把默认的0改成1能得到需求数据
+            # ('ua', '098#E1hv1QvWvRGvUpCkvvvvvjiPPFMWAjEmRLdWlj1VPmPvtjEvnLsh1j1WR2cZgjnVRT6Cvvyv9VliFvmvngJjvpvhvUCvp2yCvvpvvhCv2QhvCPMMvvvCvpvVvUCvpvvvKphv8vvvpHwvvvmRvvCmDpvvvNyvvhxHvvmChvvvB8wvvUVhvvChiQvv9OoivpvUvvCCUqf1csREvpvVvpCmpaFZmphvLv84Rs+azCIajCiABq2XrqpAhjCbFO7t+3vXwyFEDLuTRLa9C7zhVTTJhLhL+87J+u0OakSGtEkfVCl1pY2ZV1OqrADn9Wma+fmtEp75vpvhvvCCBUhCvCiI712MPY147DSOSrGukn22SYHsp7uC6bSVksyCvvpvvhCv'),
+            # ('_ksTS', '1523329154439_1358'),
+            # ('callback', 'jsonp_tbcrate_reviews_list'),
+        )
+
+    headers = get_base_headers()
+    headers.update({
+        'authority': 'rate.taobao.com',
+        'referer': 'https://item.taobao.com/item.htm?id={}'.format(goods_id)
+    })
+    url = 'https://rate.taobao.com/feedRateList.htm'
+    params = _get_params(goods_id=goods_id, page_num=page_num)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        encoding='gbk',
+        ip_pool_type=ip_pool_type,
+        cookies=cookies,)
+    # lg.info(str(body))
+
+    data = []
+    try:
+        data = json_2_dict(
+            json_str=re.compile('\((.*)\)').findall(body)[0],
+            logger=lg,
+            default_res={}).get('comments', [])
+        # pprint(data)
+        assert data != [], 'data为空list!出错goods_id:{}'.format(goods_id)
+    except (IndexError, AssertionError):
+        sleep(.5)
+        lg.error('re得到需求body时出错!出错goods_id: {}'.format(goods_id))
+
+    lg.info('[{}] page_num: {}, goods_id: {}'.format(
+        '+' if data != [] else '-',
+        page_num,
+        goods_id,))
+
+    return data
+
+@app.task(name=tasks_name + '._get_tm_one_page_comment_info_task', bind=True)
+def _get_tm_one_page_comment_info_task(self, ip_pool_type, goods_id, _type, seller_id, page_num, page_size, cookies:dict) -> list:
+    """
+    获取天猫某goods_id单页的comment
+    :param self:
+    :param ip_pool_type:
+    :return:
+    """
+    def _get_params(goods_id, seller_id, page_num, page_size):
+        callback = '_DLP_2519_der_3_currentPage_{0}_pageSize_{1}_'.format(page_num, page_size)
+        params = (
+            ('itemId', goods_id),
+            ('sellerId', seller_id),
+            ('order', '3'),
+            ('currentPage', str(page_num)),
+            ('pageSize', page_size),
+            ('callback', callback),
+        )
+
+        return params
+
+    url = 'https://rate.tmall.com/list_detail_rate.htm'
+    headers = get_base_headers()
+    headers.update({
+        'referer': 'https://detail.m.tmall.com/item.htm?id={}'.format(goods_id),
+    })
+    params = _get_params(
+        goods_id=goods_id,
+        seller_id=seller_id,
+        page_num=page_num,
+        page_size=page_size)
+    # cookies必须! requests 请求无数据!
+    # body = Requests.get_url_body(
+    #     url=url,
+    #     headers=headers,
+    #     params=params,
+    #     encoding='gbk',
+    #     cookies=cookies,
+    #     ip_pool_type=ip_pool_type,)
+
+    # 所以直接用phantomjs来获取相关api数据
+    url = _get_url_contain_params(url=url, params=params)
+    # lg.info(url)
+    driver = BaseDriver(
+        executable_path=PHANTOMJS_DRIVER_PATH,
+        logger=lg,
+        ip_pool_type=ip_pool_type,
+        driver_cookies=dict_cookies_2_str(cookies))
+    body = driver.get_url_body(url=url)
+    # lg.info(str(body))
+    try:
+        del driver
+    except:
+        pass
+
+    data = []
+    try:
+        assert body != '', '获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(_type, goods_id)
+        data = json_2_dict(
+            json_str=re.compile('\((.*)\)').findall(body)[0],
+            default_res={},
+            logger=lg,)
+        redict_url = 'https:' + data.get('url', '').replace('https:', '') if data.get('url', '') != '' else ''
+        if redict_url != '':
+            lg.info(redict_url)
+        else:
+            pass
+        data = data.get('rateDetail', {}).get('rateList', [])
+
+    except (IndexError, AssertionError):
+        lg.error('遇到错误:', exc_info=True)
+
+    lg.info('[{}] goods_id: {}, page_num: {}'.format(
+        '+' if data != [] else '-',
+        goods_id,
+        page_num, ))
+    collect()
+
+    return data
+
+@app.task(name=tasks_name + '._get_al_one_page_comment_info_task', bind=True)
+def _get_al_one_page_comment_info_task(self, ip_pool_type, goods_id, member_id, page_num, cookies:dict) -> list:
+    """
+    获取al单页评论信息
+    :param self:
+    :param ip_pool_type:
+    :param goods_id:
+    :param member_id:
+    :param page_num:
+    :param cookies:
+    :return:
+    """
+    def _get_params(goods_id, page_num, member_id):
+        # t = str(datetime_to_timestamp(get_shanghai_time())) + str(get_random_int_number(100, 999))
+        # self.lg.info(member_id)
+        params = (
+            # ('callback', 'jQuery17205914468174705312_1531451658317'),
+            ('_input_charset', 'GBK'),
+            ('offerId', str(goods_id)),
+            ('page', str(page_num)),
+            ('pageSize', '15'),
+            ('starLevel', '7'),
+            # ('orderBy', 'date'),
+            ('orderBy', ''),
+            ('semanticId', ''),
+            # ('showStat', '0'),
+            ('showStat', '1'),
+            ('content', '1'),
+            # ('t', t),
+            ('memberId', str(member_id)),
+            ('isNeedInitRate', 'false'),
+        )
+
+        return params
+
+    url = 'https://rate.1688.com/remark/offerDetail/rates.json'
+    headers = get_base_headers()
+    headers.update({
+        'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
+    })
+    params = _get_params(
+        goods_id=goods_id,
+        page_num=page_num,
+        member_id=member_id)
+    # 原先用Requests老是404，改用phantomjs也老是404
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        ip_pool_type=ip_pool_type,
+        cookies=cookies,)
+    # lg.info(str(body))
+
+    data = []
+    try:
+        _data = json_2_dict(
+            json_str=body,
+            logger=lg,
+            default_res={})
+        assert _data.get('url') is None, '被重定向到404页面!'
+        data = _data.get('data', {}).get('rates', [])
+
+    except Exception:
+        lg.error('遇到错误[goods_id:{}]:'.format(goods_id), exc_info=True)
+
+    lg.info('[{}] goods_id: {}, page_num: {}'.format(
+        '+' if data != [] else '-',
+        goods_id,
+        page_num,))
+    collect()
+
+    return data

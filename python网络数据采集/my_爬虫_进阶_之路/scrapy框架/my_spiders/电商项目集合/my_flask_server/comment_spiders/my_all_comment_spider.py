@@ -76,7 +76,7 @@ class MyAllCommentSpider(object):
         '''
         return {
             1: True,
-            2: False,
+            2: True,
             3: True,
             4: True,
             6: True,
@@ -84,7 +84,7 @@ class MyAllCommentSpider(object):
             8: True,
             9: True,
             10: True,
-            11: False,
+            11: True,
             12: False,
             13: False,
             25: False,

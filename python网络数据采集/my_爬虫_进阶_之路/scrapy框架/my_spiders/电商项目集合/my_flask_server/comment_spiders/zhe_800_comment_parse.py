@@ -215,9 +215,10 @@ class Zhe800CommentParse(Crawler):
                 continue
 
             if not filter_crawled_comment_content(
-                    new_buyer_name=buyer_name,
-                    new_comment_date=comment_date,
-                    db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                new_buyer_name=buyer_name,
+                new_comment_date=comment_date,
+                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,
+                logger=self.lg):
                 # 过滤已采集的comment
                 continue
 

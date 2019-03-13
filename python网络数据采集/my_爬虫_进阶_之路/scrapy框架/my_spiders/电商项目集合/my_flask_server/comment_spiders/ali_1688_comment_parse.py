@@ -11,7 +11,6 @@ import sys
 sys.path.append('..')
 
 from my_items import CommentItem
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
@@ -28,8 +27,12 @@ from time import sleep
 from scrapy.selector import Selector
 import re
 from pprint import pprint
-from demjson import decode
 from json import dumps
+
+try:
+    from celery_tasks import _get_al_one_page_comment_info_task
+except ImportError:
+    pass
 
 from sql_str_controller import (
     al_select_str_2,
@@ -56,6 +59,7 @@ from fzutils.spider.crawler import Crawler
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,)
+from fzutils.celery_utils import block_get_celery_async_results
 
 class ALi1688CommentParse(Crawler):
     '''
@@ -70,15 +74,13 @@ class ALi1688CommentParse(Crawler):
             log_print=True,
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/1688/comment/',
-        )
+
+            is_use_driver=False,
+            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+            driver_cookies=cookies)
         self.result_data = {}
         self.msg = ''
         self._set_headers()
-        self.driver = BaseDriver(
-            executable_path=PHANTOMJS_DRIVER_PATH,
-            ip_pool_type=self.ip_pool_type,
-            logger=self.lg,
-            driver_cookies=cookies)
         # 可动态执行的代码
         self._exec_code = '''
         _text = str(self.driver.find_element_by_css_selector('div.tab-item.filter:nth-child(2)').text)
@@ -105,73 +107,6 @@ class ALi1688CommentParse(Crawler):
             self.result_data = {}
             return {}
         self.lg.info('------>>>| 待处理的goods_id为: %s' % str(goods_id))
-
-        # # 原先采用phantomjs, 改用手机端抓html(speed slow, give up)
-        # tmp_url = 'https://m.1688.com/page/offerRemark.htm?offerId=' + str(goods_id)
-        # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, exec_code=self._exec_code)
-        # # self.lg.info(str(body))
-
-        # if body == '':
-        #     self.result_data = {}
-        #     self.lg.error('该地址的body为空值, 出错地址: ' + tmp_url)
-        #     return {}
-        #
-        # _html_comment_list = list(Selector(text=body).css('div.remark-item').extract())
-        # if _html_comment_list != []:
-        #     _comment_list = []
-        #     for index, item in enumerate(_html_comment_list):
-        #         if index > 25:  # 就取前25条评论信息
-        #             break
-        #
-        #         buyer_name = str(Selector(text=item).css('span.member::text').extract_first())
-        #         quantify = str(Selector(text=item).css('span.amount::text').extract_first())
-        #         try:
-        #             quantify = int(re.compile(r'\d+').findall(quantify)[0])
-        #         except IndexError:
-        #             self.lg.error('获取quantify时索引异常! 出错地址: ' + tmp_url)
-        #             self.result_data = {}
-        #             return {}
-        #
-        #         comment_date = str(Selector(text=item).css('div.date span::text').extract_first())
-        #         comment_date = self._get_comment_date(comment_date)     # str '2017-01-25 17:06:00'
-        #         tmp_sku_info = str(Selector(text=item).css('div.date::text').extract_first())
-        #
-        #         _comment_content = self._wash_comment(str(Selector(text=item).css('div.bd::text').extract_first()))
-        #         if not filter_invalid_comment_content(_comment_content):
-        #             continue
-        #
-        #         comment = [{
-        #             'comment': _comment_content,
-        #             'comment_date': comment_date,                                               # 评论创建日期
-        #             'sku_info': re.compile(r'<span.*?</span>').sub('', tmp_sku_info),           # 购买的商品规格
-        #             'img_url_list': [],
-        #             'star_level': randint(3, 5),                                                # 几星好评
-        #             'video': '',
-        #         }]
-        #
-        #         _ = {
-        #             'buyer_name': buyer_name,           # 买家昵称
-        #             'comment': comment,                 # 评论内容
-        #             'quantify': quantify,               # 购买数量
-        #             'head_img': '',                     # 用户头像
-        #             'append_comment': {},               # 追评
-        #         }
-        #         _comment_list.append(_)
-        #
-        #     _t = datetime.datetime.now()
-        #
-        #     _r = CommentItem()
-        #     _r['goods_id'] = str(goods_id)
-        #     _r['create_time'] = _t
-        #     _r['modify_time'] = _t
-        #     _r['_comment_list'] = _comment_list
-        #     self.result_data = _r
-        #     # pprint(self.result_data)
-        #     return self.result_data
-        # else:
-        #     self.lg.error('该商品的comment为空list! 出错地址: ' + tmp_url)
-        #     self.result_data = {}
-        #     return {}
 
         '''改版抓取m站接口, 分析js源码: 已破解1688 m站 get必须参数_csrf的加密方式'''
         # 即从https://m.1688.com/page/offerRemark.htm?offerId=xxxx 这个页面源码拿到csrf 即为: 下次请求四五星好评所需的_csrf
@@ -221,89 +156,175 @@ class ALi1688CommentParse(Crawler):
 
         # 这里从db获取该商品原先的规格值
         try:
-            sku_info = _get_sku_info_from_db_by_goods_id(
+            db_sku_info = _get_sku_info_from_db_by_goods_id(
                 goods_id=goods_id,
                 logger=self.lg,)
-            assert sku_info != [], 'sku_info为空list!'
+            assert db_sku_info != [], 'db_sku_info为空list!'
         except DBGetGoodsSkuInfoErrorException:
             self.lg.error('获取db goods_id: {} 的sku_info失败! 此处跳过!'.format(goods_id))
             return self._error_init()
 
-        _comment_list = []
+        # 同步
+        # all_comment_list = self._get_all_comment_info(goods_id=goods_id, member_id=member_id)
+        # celery
+        all_comment_list = self._get_all_comment_info_by_celery(goods_id=goods_id, member_id=member_id)
+
+        try:
+            _comment_list = self._get_comment_list(
+                all_comment_list=all_comment_list,
+                db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list,
+                db_sku_info=db_sku_info,
+            )
+            # pprint(_comment_list)
+        except Exception:
+            self.lg.error('遇到错误[goods_id:{}]:'.format(goods_id), exc_info=True)
+            return self._error_init()
+
+        _t = get_shanghai_time()
+        _r = CommentItem()
+        _r['goods_id'] = str(goods_id)
+        _r['create_time'] = _t
+        _r['modify_time'] = _t
+        _r['_comment_list'] = _comment_list
+        self.result_data = _r
+        # pprint(self.result_data)
+
+        return self.result_data
+
+    def _get_all_comment_info_by_celery(self, goods_id, member_id):
+        """
+        获取所有comment
+        :param goods_id:
+        :param member_id:
+        :return:
+        """
+        tasks = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('create task[where goods_id: {}, page_num: {}]...'.format(goods_id, page_num))
+            try:
+                async_obj = self._create_al_one_celery_task(
+                    ip_pool_type=self.ip_pool_type,
+                    goods_id=goods_id,
+                    member_id=member_id,
+                    page_num=page_num,
+                    cookies=self.login_cookies_dict,
+                )
+                tasks.append(async_obj)
+            except:
+                continue
+
+        one_res = block_get_celery_async_results(tasks=tasks)
+        all_comment_info_list = []
+        for i in one_res:
+            try:
+                for j in i:
+                    all_comment_info_list.append(j)
+            except TypeError:
+                continue
+
+        return all_comment_info_list
+
+    def _create_al_one_celery_task(self, **kwargs):
+        """
+        创建一个al celery obj
+        :param kwargs:
+        :return:
+        """
+        ip_pool_type = kwargs['ip_pool_type']
+        goods_id = kwargs['goods_id']
+        page_num = kwargs['page_num']
+        cookies = kwargs['cookies']
+        member_id = kwargs['member_id']
+
+        async_obj = _get_al_one_page_comment_info_task.apply_async(
+            args=[
+                ip_pool_type,
+                goods_id,
+                member_id,
+                page_num,
+                cookies,
+            ],
+            expires=5 * 60,
+            retry=False,
+        )
+
+        return async_obj
+
+    def _get_all_comment_info(self, goods_id, member_id):
+        """
+        获取所有comment
+        :param goods_id:
+        :param member_id:
+        :return:
+        """
+        all_comment_list = []
         for page_num in range(1, self.max_page_num):
             self.lg.info('------>>>| 正在抓取第{0}页...'.format(page_num))
             try:
                 data = self._get_one_page_comment_info(
                     goods_id=goods_id,
                     page_num=page_num,
-                    member_id=member_id,)
+                    member_id=member_id, )
             except (AssertionError, Exception):
                 self.lg.error('遇到错误:', exc_info=True)
                 continue
 
-            try:
-                for item in data:
-                    buyer_name = item.get('member', '')
-                    comment = []
-                    # TODO item.get('rateItem', [])只取第一条comment
-                    try:
-                        first_rate_item = item.get('rateItem', [])[0]
-                    except IndexError:
-                        continue
-
-                    _comment_content = self._wash_comment(first_rate_item.get('remarkContent', ''))
-                    if not filter_invalid_comment_content(_comment_content):
-                        continue
-
-                    comment_date = self._get_comment_date2(item=first_rate_item)
-                    comment.append({
-                        'comment': _comment_content,
-                        'comment_date': comment_date,
-                        'sku_info': choice(sku_info),  # 购买的商品规格(pc端1688商品没有规格)
-                        'star_level': first_rate_item.get('starLevel', 5),
-                        'img_url_list': [],
-                        'video': '',
-                    })
-                    quantify = item.get('quantity', 1)                                  # 购买数量
-                    if comment == []:   # 为空不录入
-                        continue
-
-                    if not filter_crawled_comment_content(
-                        new_buyer_name=buyer_name,
-                        new_comment_date=comment_date,
-                        db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
-                        # 过滤已采集的comment
-                        continue
-                    _ = {
-                        'buyer_name': buyer_name,           # 买家昵称
-                        'comment': comment,                 # 评论内容
-                        'quantify': quantify,               # 购买数量
-                        'head_img': '',                     # 用户头像
-                        'append_comment': {},               # 追评
-                    }
-                    _comment_list.append(_)
-            except Exception:
-                self.lg.error('出错商品goods_id: {0}'.format(goods_id), exc_info=True)
-                return self._error_init()
-
+            all_comment_list += data
             sleep(self._page_sleep_time)
 
-        if _comment_list != []:
-            # pprint(_comment_list)
-            _t = get_shanghai_time()
+        return all_comment_list
 
-            _r = CommentItem()
-            _r['goods_id'] = str(goods_id)
-            _r['create_time'] = _t
-            _r['modify_time'] = _t
-            _r['_comment_list'] = _comment_list
-            self.result_data = _r
-            pprint(self.result_data)
+    def _get_comment_list(self, all_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info):
+        """
+        转换成结果集
+        :param all_comment_list:
+        :return:
+        """
+        _comment_list = []
+        for item in all_comment_list:
+            buyer_name = item.get('member', '')
+            comment = []
+            # TODO item.get('rateItem', [])只取第一条comment
+            try:
+                first_rate_item = item.get('rateItem', [])[0]
+            except IndexError:
+                continue
 
-            return self.result_data
-        else:
-            self.lg.error('出错goods_id: {0}'.format(goods_id))
-            return self._error_init()
+            _comment_content = self._wash_comment(first_rate_item.get('remarkContent', ''))
+            if not filter_invalid_comment_content(_comment_content):
+                continue
+
+            comment_date = self._get_comment_date2(item=first_rate_item)
+            comment.append({
+                'comment': _comment_content,
+                'comment_date': comment_date,
+                'sku_info': choice(db_sku_info),  # 购买的商品规格(pc端1688商品没有规格)
+                'star_level': first_rate_item.get('starLevel', 5),
+                'img_url_list': [],
+                'video': '',
+            })
+            quantify = item.get('quantity', 1)  # 购买数量
+            if comment == []:  # 为空不录入
+                continue
+
+            if not filter_crawled_comment_content(
+                    new_buyer_name=buyer_name,
+                    new_comment_date=comment_date,
+                    db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,
+                    logger=self.lg):
+                # 过滤已采集的comment
+                continue
+
+            _ = {
+                'buyer_name': buyer_name,  # 买家昵称
+                'comment': comment,  # 评论内容
+                'quantify': quantify,  # 购买数量
+                'head_img': '',  # 用户头像
+                'append_comment': {},  # 追评
+            }
+            _comment_list.append(_)
+
+        return _comment_list
 
     def _get_one_page_comment_info(self, goods_id, page_num, member_id,) -> list:
         """
@@ -311,16 +332,39 @@ class ALi1688CommentParse(Crawler):
         :param page_num:
         :return:
         """
-        params = self._set_params(
+        def _get_params(goods_id, page_num, member_id):
+            # t = str(int(time.time())) + str(randint(100, 999))
+            # self.lg.info(member_id)
+            params = (
+                # ('callback', 'jQuery17205914468174705312_1531451658317'),
+                ('_input_charset', 'GBK'),
+                ('offerId', str(goods_id)),
+                ('page', str(page_num)),
+                ('pageSize', '15'),
+                ('starLevel', '7'),
+                # ('orderBy', 'date'),
+                ('orderBy', ''),
+                ('semanticId', ''),
+                # ('showStat', '0'),
+                ('showStat', '1'),
+                ('content', '1'),
+                # ('t', t),
+                ('memberId', str(member_id)),
+                ('isNeedInitRate', 'false'),
+            )
+
+            return params
+
+        params = _get_params(
             goods_id=goods_id,
-            member_id=member_id,
-            page_num=page_num)
+            page_num=page_num,
+            member_id=member_id)
         url = 'https://rate.1688.com/remark/offerDetail/rates.json'
         headers = get_base_headers()
         headers.update({
             'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
         })
-        # 原先用Requests老是404，改用phantomjsy也还是老是404
+        # 原先用Requests老是404，改用phantomjs也老是404
         body = Requests.get_url_body(
             url=url,
             headers=headers,
@@ -339,9 +383,10 @@ class ALi1688CommentParse(Crawler):
             assert _data.get('url') is not None, '------>>>| 被重定向到404页面, 休眠{0}s中...'.format(self._page_sleep_time)
 
         data = _data.get('data', {}).get('rates', [])
-        self.lg.info('[{}] page_num: {}'.format(
+        self.lg.info('[{}] goods_id: {}, page_num: {}'.format(
             '+' if data != [] else '-',
-            page_num, ))
+            goods_id,
+            page_num,))
 
         # assert data != [], '获取到的data为空list!'
 
@@ -459,15 +504,6 @@ class ALi1688CommentParse(Crawler):
         return comment
 
     def _set_headers(self):
-        # self.headers = {
-        #     # 下面的ali-ss为必要字段
-        #     'cookie': 'ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiI5WmZucV96VDl6NDhTOTg4WkNsaFpxSEwiLCJfZXhwaXJlIjoxNTI0MTE5MzI3NDQ5LCJfbWF4QWdlIjo4NjQwMDAwMH0=; ',
-        #     'accept-language': 'zh-CN,zh;q=0.9',
-        #     'user-agent': get_random_pc_ua(),
-        #     'accept': 'application/json, text/javascript, */*; q=0.01',
-        #     'referer': 'https://m.1688.com/page/offerRemark.htm?offerId=42735065607',
-        #     'x-requested-with': 'XMLHttpRequest',
-        # }
         self.headers = {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
@@ -478,47 +514,6 @@ class ALi1688CommentParse(Crawler):
             # 其中的ali-ss为必须参数
             'cookie': 'ali-ss=eyJ1c2VySWQiOm51bGwsImxvZ2luSWQiOm51bGwsInNpZCI6bnVsbCwiZWNvZGUiOm51bGwsIm1lbWJlcklkIjpudWxsLCJzZWNyZXQiOiJFOF9XcF9NMWV5QWRKWHBVb1lLTlhaZk8iLCJfZXhwaXJlIjoxNTMxNTM0MTMwODMzLCJfbWF4QWdlIjo4NjQwMDAwMH0=; ali-ss.sig=573tlT1Aed2ggvlhClMHb8sZatbgVlRrIxljURSRZys; JSESSIONID=9L78RXlv1-k80a7jb9VDbOxXoH4H-OW2AexQ-jQ3d; cookie2=10d7bba23bbc61948af48e1dd2611282; t=1bdcbe0b678123e1755897be375b453f; _tb_token_=77fe63e3066b3; _tmp_ck_0=3Oo5x6beKeA77mSeFyI8GT8FHF5re5voELqxVsc%2FfpE4tqj%2B88wXi1tm1CBqsrie3iytT%2FtexS2f1gz4cNHi2Eu4hv7YjQ3LERzyqyHdFPQhvo0xY7gXNGXM9%2FZ1vj7kgF%2FDvB6r3ddV6BnQSr5Z6yrZIruC7DPdfJO0g23ShfLkoDeSB6j7j5l9OOSrQ0hXXsClBhhps89CzdCYLvmRWeOqmbTf1LoCMhMayyk116UUrhNQqpgoaurnG6C1XKdmm1QpNwyCdPzmJxb2%2FhafYOVC8Zmqu9DtlO48topX3Pg9HVynFVMDXBBTq6GYgoVx5rwkN6JkXezXK9RU9OIu3o9TtslpsNTXIwD1NkXOb4mUmH1PDBJ3yvST9GePCQeaxovWab0bwzQ%3D;',
         }
-
-    def _set_url(self, url, params):
-        '''
-        得到待抓取的api接口地址
-        :param url:
-        :param params:
-        :return: str
-        '''
-        _ = [item[0] + '=' + str(item[1]) for item in params]
-
-        return url + '?' + '&'.join(_)
-
-    def _set_params(self, goods_id, member_id, page_num:int):
-        '''
-        设置params
-        :param goods_id:
-        :param member_id:
-        :param page_num:
-        :return:
-        '''
-        # t = str(int(time.time())) + str(randint(100, 999))
-        # self.lg.info(member_id)
-        params = (
-            # ('callback', 'jQuery17205914468174705312_1531451658317'),
-            ('_input_charset', 'GBK'),
-            ('offerId', str(goods_id)),
-            ('page', str(page_num)),
-            ('pageSize', '15'),
-            ('starLevel', '7'),
-            # ('orderBy', 'date'),
-            ('orderBy', ''),
-            ('semanticId', ''),
-            # ('showStat', '0'),
-            ('showStat', '1'),
-            ('content', '1'),
-            # ('t', t),
-            ('memberId', str(member_id)),
-            ('isNeedInitRate', 'false'),
-        )
-
-        return params
 
     def _get_comment_date(self, comment_date):
         '''
@@ -551,12 +546,14 @@ class ALi1688CommentParse(Crawler):
     def __del__(self):
         try:
             del self.driver
+        except:
+            pass
+        try:
             del self.lg
             del self.msg
         except:
             pass
         gc.collect()
-
 
 if __name__ == '__main__':
     ali_1688 = ALi1688CommentParse()

@@ -11,7 +11,6 @@ import sys
 sys.path.append('..')
 
 from tmall_parse_2 import TmallParse
-from taobao_parse import TaoBaoLoginAndParse
 from my_items import CommentItem
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -33,33 +32,42 @@ from multiplex_code import (
     filter_crawled_comment_content,
     _get_sku_info_from_db_by_goods_id,)
 
+try:
+    from celery_tasks import _get_tm_one_page_comment_info_task
+except ImportError:
+    pass
+
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
     _get_url_contain_params,
-    get_random_pc_ua,)
+    get_random_pc_ua,
+    get_base_headers,
+    str_cookies_2_dict,
+    get_random_phone_ua,)
 from fzutils.time_utils import get_shanghai_time
 from fzutils.common_utils import (
     wash_sensitive_info,
     json_2_dict,)
 from fzutils.spider.crawler import Crawler
+from fzutils.spider.fz_requests import Requests
+from fzutils.celery_utils import block_get_celery_async_results
 
 class TmallCommentParse(Crawler):
     def __init__(self, logger=None):
         # TODO 老数据接口得附上登录cookies才可请求成功! 且具有时效性!
         # 登陆后的cookies
-        cookies = TB_COOKIES
+        self.login_cookies_dict = str_cookies_2_dict(TB_COOKIES)
         super(TmallCommentParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/comment/',
             
-            is_use_driver=True,
+            is_use_driver=False,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
-            driver_cookies=cookies,)
+            driver_cookies=TB_COOKIES,)
         self.result_data = {}
         self.msg = ''
-        self._set_headers()
         self.page_size = '10'
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
         self.g_data = {}                # 临时数据
@@ -86,42 +94,38 @@ class TmallCommentParse(Crawler):
             self.lg.error('db 连接异常! 此处抓取跳过!')
             return self._data_error()
 
-        '''先获取到sellerId'''
         try:
+            # 先获取到sellerId
             seller_id = self._get_seller_id(type=type, goods_id=goods_id)
             self.lg.info('------>>>| 获取到的seller_id: {}'.format(seller_id))
+
+            # 获取db sku_info list
+            db_sku_info_list = _get_sku_info_from_db_by_goods_id(
+                goods_id=goods_id,
+                logger=self.lg, )
         except AssertionError or IndexError:
             self.lg.error('遇到错误[goods_id:{}]:'.format(goods_id), exc_info=True)
             return self._data_error()
 
-        # 获取db sku_info list
-        try:
-            db_sku_info_list = _get_sku_info_from_db_by_goods_id(
-                goods_id=goods_id,
-                logger=self.lg,)
         except DBGetGoodsSkuInfoErrorException:
             self.lg.error('获取db goods_id: {} 的sku_info失败! 此处跳过!'.format(goods_id))
             return self._data_error()
 
-        _tmp_comment_list = []
-        for current_page in range(1, self.max_page_num):
-            self.lg.info('------>>>| 正在抓取第 {0} 页的评论...'.format(str(current_page)))
-            try:
-                data = self._get_one_page_comment_info(
-                    goods_id=goods_id,
-                    seller_id=seller_id,
-                    page_num=current_page)
-            except Exception:
-                self.lg.error('遇到错误:', exc_info=True)
-                continue
-
-            _tmp_comment_list += data
-            # 必须进行短期休眠 否则跳滑动验证码!
-            sleep(self.comment_page_switch_sleep_time)
+        # 同步
+        # all_comment_list = self._get_all_comment_list(
+        #     goods_id=goods_id,
+        #     seller_id=seller_id,
+        #     _type=type)
+        # celery
+        all_comment_list = self._get_all_comment_list_by_celery(
+            goods_id=goods_id,
+            seller_id=seller_id,
+            _type=type)
+        # pprint(all_comment_list)
 
         try:
             _comment_list = self._get_comment_list(
-                _tmp_comment_list=_tmp_comment_list,
+                all_comment_list=all_comment_list,
                 db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list,
                 db_sku_info_list=db_sku_info_list)
         except Exception as e:
@@ -140,28 +144,140 @@ class TmallCommentParse(Crawler):
 
         return self.result_data
 
-    def _get_one_page_comment_info(self, goods_id, seller_id, page_num) -> list:
+    def _get_all_comment_list_by_celery(self, goods_id, seller_id, _type) -> list:
+        """
+        通过celery获取所有comment
+        :param goods_id:
+        :param seller_id:
+        :param _type:
+        :return:
+        """
+        tasks = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('create task[where goods_id: {}, page_num: {}]...'.format(goods_id, page_num))
+            try:
+                async_obj = self._create_tm_one_celery_task(
+                    ip_pool_type=self.ip_pool_type,
+                    goods_id=goods_id,
+                    page_num=page_num,
+                    cookies=self.login_cookies_dict,
+                    page_size=self.page_size,
+                    _type=_type,
+                    seller_id=seller_id,
+                )
+                tasks.append(async_obj)
+            except Exception:
+                continue
+
+        one_res = block_get_celery_async_results(tasks=tasks)
+        all_comment_list = []
+        for i in one_res:
+            try:
+                for j in i:
+                    all_comment_list.append(j)
+            except TypeError:
+                continue
+
+        return all_comment_list
+
+    def _create_tm_one_celery_task(self, **kwargs):
+        """
+        创建tm celery obj
+        :param kwargs:
+        :return:
+        """
+        ip_pool_type = kwargs['ip_pool_type']
+        goods_id = kwargs['goods_id']
+        page_num = kwargs['page_num']
+        cookies = kwargs['cookies']
+        page_size = kwargs['page_size']
+        _type = kwargs['_type']
+        seller_id = kwargs['seller_id']
+
+        async_obj = _get_tm_one_page_comment_info_task.apply_async(
+            args=[
+                ip_pool_type,
+                goods_id,
+                _type,
+                seller_id,
+                page_num,
+                page_size,
+                cookies,
+            ],
+            expires=5 * 60,
+            retry=False,
+        )
+
+        return async_obj
+
+    def _get_all_comment_list(self, goods_id, seller_id, _type) -> list:
+        """
+        获取所有评论
+        :param goods_id:
+        :return:
+        """
+        all_comment_list = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('------>>>| 正在抓取第 {0} 页的评论...'.format(str(page_num)))
+            try:
+                data = self._get_one_page_comment_info(
+                    goods_id=goods_id,
+                    seller_id=seller_id,
+                    page_num=page_num,
+                    _type=_type)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+
+            all_comment_list += data
+            # 必须进行短期休眠 否则跳滑动验证码!
+            sleep(self.comment_page_switch_sleep_time)
+
+        return all_comment_list
+
+    def _get_one_page_comment_info(self, goods_id, seller_id, page_num, _type) -> list:
         """
         获取单页comment info
         :return:
         """
+        def _get_params(goods_id, seller_id, page_num, page_size):
+            callback = '_DLP_2519_der_3_currentPage_{0}_pageSize_{1}_'.format(page_num, page_size)
+            params = (
+                ('itemId', goods_id),
+                ('sellerId', seller_id),
+                ('order', '3'),
+                ('currentPage', str(page_num)),
+                ('pageSize', page_size),
+                ('callback', callback),
+            )
+
+            return params
+
         _url = 'https://rate.tmall.com/list_detail_rate.htm'
-        params = self._set_params(
-            goods_id=goods_id,
-            seller_id=seller_id,
-            current_page=page_num)
-        self.headers.update({
+        headers = get_base_headers()
+        headers.update({
             'referer': 'https://detail.m.tmall.com/item.htm?id={}'.format(goods_id),
         })
+        params = _get_params(
+            goods_id=goods_id,
+            seller_id=seller_id,
+            page_num=page_num,
+            page_size=self.page_size)
+        # cookies必须! requests 请求无数据!
+        # body = Requests.get_url_body(
+        #     url=_url,
+        #     headers=headers,
+        #     params=params,
+        #     encoding='gbk',
+        #     cookies=self.login_cookies_dict,
+        #     ip_pool_type=self.ip_pool_type,)
 
-        # 原先用代理请求不到数据的原因是没有cookies
-        # body = MyRequests.get_url_body(url=_url, headers=self.headers, params=params, encoding='gbk')
         # 所以直接用phantomjs来获取相关api数据
-        _url = _get_url_contain_params(url=_url, params=params)  # 根据params组合得到url
+        _url = _get_url_contain_params(url=_url, params=params)
         # self.lg.info(_url)
         body = self.driver.get_url_body(url=_url)
         # self.lg.info(str(body))
-        assert body != '', '获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(str(type), goods_id)
+        assert body != '', '获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(_type, goods_id)
 
         try:
             data = json_2_dict(
@@ -189,21 +305,22 @@ class TmallCommentParse(Crawler):
 
         return {}
 
-    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info_list):
+    def _get_comment_list(self, all_comment_list, db_top_n_buyer_name_and_comment_date_list, db_sku_info_list):
         '''
         转换成需求的结果集
-        :param _tmp_comment_list:
+        :param all_comment_list:
         :return:
         '''
         _comment_list = []
-        for item in _tmp_comment_list:
+        for item in all_comment_list:
             # pprint(item)
             _comment_date = self._get_comment_date(item=item)
 
-            # 天猫接口拿到的sku_info默认为空
-            # sku_info = ''
-            # 从所有规格里面随机一个
-            sku_info = str(choice(db_sku_info_list))
+            sku_info = item.get('auctionSku', '')
+            # self.lg.info(sku_info)
+            if sku_info == '':
+                # 从所有规格里面随机一个
+                sku_info = str(choice(db_sku_info_list))
 
             _comment_content = item.get('rateContent', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
@@ -245,7 +362,8 @@ class TmallCommentParse(Crawler):
             if not filter_crawled_comment_content(
                 new_buyer_name=buyer_name,
                 new_comment_date=_comment_date,
-                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,):
+                db_buyer_name_and_comment_date_info=db_top_n_buyer_name_and_comment_date_list,
+                logger=self.lg):
                 # 过滤已采集的comment
                 continue
 
@@ -286,27 +404,45 @@ class TmallCommentParse(Crawler):
         :param goods_id:
         :return:
         '''
-        _ = TmallParse(logger=self.lg)
-        _g = [type, goods_id]
-        self.g_data = _.get_goods_data(goods_id=_g)
-        seller_id = str(self.g_data.get('seller', {}).get('userId', 0))
-        # self.lg.info('获取到的seller_id: ' + seller_id)
+        # TODO 与更新脚本接口冲突
+        # tmall = TmallParse(logger=self.lg)
+        # _g = [type, goods_id]
+        # self.g_data = tmall.get_goods_data(goods_id=_g)
+        # seller_id = str(self.g_data.get('seller', {}).get('userId', 0))
+        # # self.lg.info('获取到的seller_id: ' + seller_id)
+        # try:
+        #     del tmall
+        # except:
+        #     pass
+
+        # 方案2:
+        headers = self._get_phone_headers()
+        headers.update({
+            'authority': 'detail.m.tmall.com',
+        })
+        # 测试发现: 必要字段_tb_token_, cookie2, t
+        params = (
+            ('id', goods_id),
+        )
+        url = 'https://detail.m.tmall.com/item.htm'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            cookies=self.login_cookies_dict)
+        # self.lg.info(body)
+
+        seller_id = '0'
         try:
-            del _
-        except:
+            seller_id = str(re.compile('\"userId\":(\d+),').findall(body)[0])
+        except (IndexError, Exception):
             pass
-        assert seller_id != 0, '获取到的seller_id为0!'
+        # self.lg.info(seller_id)
+
+        assert seller_id != '0', '获取到的seller_id为0!'
 
         return seller_id
-
-    def _set_headers(self):
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_pc_ua(),
-            'accept': '*/*',
-            'referer': 'https://detail.m.tmall.com/item.htm?id=524718632348',
-        }
 
     def _wash_comment(self, comment):
         '''
@@ -336,31 +472,24 @@ class TmallCommentParse(Crawler):
 
         return comment
 
-    def _set_params(self, **kwargs):
-        '''
-        设置params
-        :param kwargs:
-        :return:
-        '''
-        goods_id = kwargs.get('goods_id')
-        seller_id = kwargs.get('seller_id')
-        current_page = kwargs.get('current_page')
-        callback = '_DLP_2519_der_3_currentPage_{0}_pageSize_{1}_'.format(str(current_page), self.page_size)
-        _params = (
-            ('itemId', goods_id),
-            ('sellerId', seller_id),
-            ('order', '3'),
-            ('currentPage', str(current_page)),
-            ('pageSize', self.page_size),
-            ('callback', callback),
-        )
-
-        return _params
+    @staticmethod
+    def _get_phone_headers():
+        return {
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        }
 
     def __del__(self):
         try:
-            del self.lg
             del self.driver
+        except:
+            pass
+        try:
+            del self.lg
             del self.g_data
         except:
             pass
