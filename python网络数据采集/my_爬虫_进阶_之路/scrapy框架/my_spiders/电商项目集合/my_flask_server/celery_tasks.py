@@ -9,7 +9,9 @@
 import re
 from gc import collect
 from celery.utils.log import get_task_logger
-from asyncio import wait_for, Future
+from asyncio import (
+    wait_for,
+    Future,)
 from functools import partial
 from threading import (
     Thread,

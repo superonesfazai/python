@@ -31,7 +31,8 @@ from my_exceptions import (
     SqlServerConnectionException,)
 from multiplex_code import (
     get_top_n_buyer_name_and_comment_date_by_goods_id,
-    filter_crawled_comment_content,)
+    filter_crawled_comment_content,
+    wash_goods_comment,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -44,7 +45,9 @@ from fzutils.internet_utils import (
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
-from fzutils.celery_utils import block_get_celery_async_results
+from fzutils.celery_utils import (
+    block_get_celery_async_results,
+    get_current_all_celery_handled_results_list,)
 
 class Zhe800CommentParse(Crawler):
     def __init__(self, logger=None):
@@ -123,13 +126,9 @@ class Zhe800CommentParse(Crawler):
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
-        all_comment_info_list = []
-        for i in one_res:
-            try:
-                for j in i:
-                    all_comment_info_list.append(j)
-            except TypeError:
-                continue
+        all_comment_info_list = get_current_all_celery_handled_results_list(
+            one_res=one_res,
+            logger=self.lg)
 
         return all_comment_info_list
 
@@ -253,7 +252,7 @@ class Zhe800CommentParse(Crawler):
 
             _comment_content = item.get('content', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
-            _comment_content = self._wash_comment(comment=_comment_content)
+            _comment_content = wash_goods_comment(comment_content=_comment_content)
 
             sku_info = item.get('skuDesc', '')
             # self.lg.info(sku_info)
@@ -285,7 +284,7 @@ class Zhe800CommentParse(Crawler):
 
                 append_comment = {
                     'comment_date': append_comment_date,
-                    'comment': self._wash_comment(_tmp_append_comment_content),
+                    'comment': wash_goods_comment(comment_content=_tmp_append_comment_content),
                     'img_url_list': _append_comment_img_list,
                 }
 
@@ -344,16 +343,6 @@ class Zhe800CommentParse(Crawler):
             pass
 
         return str(append_comment_date)
-
-    def _wash_comment(self, comment):
-        '''
-        清洗评论
-        :param sku_info:
-        :return:
-        '''
-        comment = re.compile('折800|zhe800|ZHE800').sub('', comment)
-
-        return comment
 
     def _get_comment_date(self, item) -> str:
         '''

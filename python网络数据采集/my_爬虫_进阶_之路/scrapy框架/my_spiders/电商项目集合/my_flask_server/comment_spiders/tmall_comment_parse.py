@@ -30,7 +30,8 @@ from my_exceptions import (
 from multiplex_code import (
     get_top_n_buyer_name_and_comment_date_by_goods_id,
     filter_crawled_comment_content,
-    _get_sku_info_from_db_by_goods_id,)
+    _get_sku_info_from_db_by_goods_id,
+    wash_goods_comment,)
 
 try:
     from celery_tasks import _get_tm_one_page_comment_info_task
@@ -50,7 +51,9 @@ from fzutils.common_utils import (
     json_2_dict,)
 from fzutils.spider.crawler import Crawler
 from fzutils.spider.fz_requests import Requests
-from fzutils.celery_utils import block_get_celery_async_results
+from fzutils.celery_utils import (
+    block_get_celery_async_results,
+    get_current_all_celery_handled_results_list,)
 
 class TmallCommentParse(Crawler):
     def __init__(self, logger=None):
@@ -170,15 +173,11 @@ class TmallCommentParse(Crawler):
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
-        all_comment_list = []
-        for i in one_res:
-            try:
-                for j in i:
-                    all_comment_list.append(j)
-            except TypeError:
-                continue
+        all_comment_info_list = get_current_all_celery_handled_results_list(
+            one_res=one_res,
+            logger=self.lg)
 
-        return all_comment_list
+        return all_comment_info_list
 
     def _create_tm_one_celery_task(self, **kwargs):
         """
@@ -324,7 +323,7 @@ class TmallCommentParse(Crawler):
 
             _comment_content = item.get('rateContent', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
-            _comment_content = self._wash_comment(comment=_comment_content)
+            _comment_content = wash_goods_comment(comment_content=_comment_content)
 
             buyer_name = item.get('displayUserNick', '')
             assert buyer_name != '', '得到的用户昵称为空值!请检查!'
@@ -350,7 +349,7 @@ class TmallCommentParse(Crawler):
             if _tmp_append_comment != {}:
                 append_comment = {
                     'comment_date': _tmp_append_comment.get('commentTime', ''),
-                    'comment': self._wash_comment(_tmp_append_comment.get('content', '')),
+                    'comment': wash_goods_comment(comment_content=_tmp_append_comment.get('content', '')),
                     'img_url_list': _append_comment_img_list,
                 }
             else:
@@ -443,34 +442,6 @@ class TmallCommentParse(Crawler):
         assert seller_id != '0', '获取到的seller_id为0!'
 
         return seller_id
-
-    def _wash_comment(self, comment):
-        '''
-        清洗评论
-        :param comment:
-        :return:
-        '''
-        add_sensitive_str_list = [
-            '天猫超市',
-            '天猫国际',
-            '天猫全球购',
-            '天猫大药房',
-            '某淘',
-            '某宝',
-            '天猫',
-            '淘宝',
-            'tmall',
-            'Tmall',
-            'TMALL',
-            'TAOBAO',
-            'taobao',
-        ]
-        comment = wash_sensitive_info(
-            data=comment,
-            add_sensitive_str_list=add_sensitive_str_list
-        )
-
-        return comment
 
     @staticmethod
     def _get_phone_headers():

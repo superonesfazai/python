@@ -52,6 +52,7 @@ from fzutils.time_utils import (
     timestamp_to_regulartime,
     string_to_datetime,)
 from fzutils.spider.selector import parse_field
+from fzutils.common_utils import wash_sensitive_info
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''
@@ -1027,3 +1028,39 @@ def _get_sku_info_from_db_by_goods_id(goods_id, logger=None) -> list:
     collect()
 
     return res
+
+def wash_goods_comment(comment_content:str) -> str:
+    """
+    统一清洗comment content
+    :param comment_content:
+    :return:
+    """
+    add_sensitive_str_list = []
+    YIUXIU_NAME = '优秀网'
+    BLANK_SPACE = ' '
+    replace_str_list = [
+        ('1688', YIUXIU_NAME),
+        ('阿里巴巴', YIUXIU_NAME),
+        ('阿里', YIUXIU_NAME),
+        ('某淘', YIUXIU_NAME),
+        ('某宝', YIUXIU_NAME),
+        ('淘宝', YIUXIU_NAME),
+        ('taobao', YIUXIU_NAME),
+        ('天猫', YIUXIU_NAME),
+        ('tmall', YIUXIU_NAME),
+        ('jd', YIUXIU_NAME),
+        ('京东', YIUXIU_NAME),
+        ('zhe800', YIUXIU_NAME),
+        ('折800', YIUXIU_NAME),
+
+        ('\r', BLANK_SPACE),
+        ('\n', BLANK_SPACE),
+        ('\t', BLANK_SPACE),
+        ('&nbsp;', BLANK_SPACE),
+    ]
+    comment_content = wash_sensitive_info(
+        data=comment_content,
+        replace_str_list=replace_str_list,
+        add_sensitive_str_list=add_sensitive_str_list,)
+
+    return comment_content

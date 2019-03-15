@@ -23,7 +23,8 @@ import datetime
 from pprint import pprint
 from multiplex_code import (
     get_top_n_buyer_name_and_comment_date_by_goods_id,
-    filter_crawled_comment_content,)
+    filter_crawled_comment_content,
+    wash_goods_comment,)
 from my_exceptions import SqlServerConnectionException
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
@@ -164,7 +165,7 @@ class JdCommentParse(Crawler):
 
             _comment_content = item.get('content', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
-            _comment_content = self._wash_comment(comment=_comment_content)
+            _comment_content = wash_goods_comment(comment_content=_comment_content)
 
             buyer_name = item.get('nickname', '')
             assert buyer_name != '', '得到的用户昵称为空值!请检查!'
@@ -264,38 +265,6 @@ class JdCommentParse(Crawler):
             'referer': 'https://item.m.jd.com/ware/view.action?wareId=5025518',
             'x-requested-with': 'XMLHttpRequest',
         }
-
-    def _wash_comment(self, comment):
-        '''
-        清洗评论
-        :param comment:
-        :return:
-        '''
-        comment = re.compile(r'jd|\n|Jd|JD').sub('', comment)
-        comment = re.compile('京东').sub('优秀网', comment)
-
-        return comment
-
-    def _set_params(self, goods_id, current_page):
-        '''
-        设置params
-        :param goods_id:
-        :param current_page:
-        :return:
-        '''
-        _params = [
-          ('wareId', goods_id),
-          ('offset', str(current_page)),
-          ('num', '10'),
-          ('checkParam', 'LUIPPTP'),
-          ('category', '670_671_1105'),
-          ('isUseMobile', 'true'),
-          ('evokeType', ''),
-          ('type', '3'),        # '0' 全部评论 | '3' 好评
-          ('isCurrentSku', 'false'),
-        ]
-
-        return _params
 
     def __del__(self):
         try:

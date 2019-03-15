@@ -19,7 +19,8 @@ from multiplex_code import (
     _get_random_head_img_url_from_db,
     get_top_n_buyer_name_and_comment_date_by_goods_id,
     filter_crawled_comment_content,
-    _get_sku_info_from_db_by_goods_id,)
+    _get_sku_info_from_db_by_goods_id,
+    wash_goods_comment,)
 from my_exceptions import (
     SqlServerConnectionException,
     DBGetGoodsSkuInfoErrorException,)
@@ -45,7 +46,9 @@ from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import get_shanghai_time
 from fzutils.spider.crawler import Crawler
-from fzutils.celery_utils import block_get_celery_async_results
+from fzutils.celery_utils import (
+    block_get_celery_async_results,
+    get_current_all_celery_handled_results_list,)
 
 class TaoBaoCommentParse(Crawler):
     def __init__(self, logger=None):
@@ -141,13 +144,9 @@ class TaoBaoCommentParse(Crawler):
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
-        all_comment_info_list = []
-        for i in one_res:
-            try:
-                for j in i:
-                    all_comment_info_list.append(j)
-            except TypeError:
-                continue
+        all_comment_info_list = get_current_all_celery_handled_results_list(
+            one_res=one_res,
+            logger=self.lg)
 
         return all_comment_info_list
 
@@ -273,7 +272,7 @@ class TaoBaoCommentParse(Crawler):
 
             _comment_content = item.get('content', '')
             assert _comment_content != '', '得到的评论内容为空str!请检查!'
-            _comment_content = self._wash_comment(comment=_comment_content)
+            _comment_content = wash_goods_comment(comment_content=_comment_content)
 
             buyer_name = item.get('user', {}).get('nick', '')
             assert buyer_name != '', '得到的用户昵称为空值!请检查!'
@@ -404,16 +403,6 @@ class TaoBaoCommentParse(Crawler):
         sku_info = sku_info.replace('&nbsp;', ' ').replace('&nbsp', ' ')
 
         return sku_info
-
-    def _wash_comment(self, comment):
-        '''
-        清洗评论
-        :param sku_info:
-        :return:
-        '''
-        comment = re.compile('淘宝|taobao|TAOBAO').sub('', comment)
-
-        return comment
 
     def _get_comment_date(self, item):
         '''

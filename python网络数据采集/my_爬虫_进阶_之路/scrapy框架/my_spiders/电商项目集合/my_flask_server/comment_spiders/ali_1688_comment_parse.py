@@ -24,7 +24,6 @@ from random import (
 
 import gc
 from time import sleep
-from scrapy.selector import Selector
 import re
 from pprint import pprint
 from json import dumps
@@ -40,7 +39,8 @@ from my_exceptions import (
 from multiplex_code import (
     get_top_n_buyer_name_and_comment_date_by_goods_id,
     filter_crawled_comment_content,
-    _get_sku_info_from_db_by_goods_id,)
+    _get_sku_info_from_db_by_goods_id,
+    wash_goods_comment,)
 
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
@@ -48,7 +48,6 @@ from fzutils.internet_utils import (
     str_cookies_2_dict,
     get_base_headers,)
 from fzutils.spider.fz_requests import Requests
-from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.common_utils import (
     json_2_dict,
     get_random_int_number,)
@@ -56,7 +55,9 @@ from fzutils.spider.crawler import Crawler
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,)
-from fzutils.celery_utils import block_get_celery_async_results
+from fzutils.celery_utils import (
+    block_get_celery_async_results,
+    get_current_all_celery_handled_results_list,)
 
 class ALi1688CommentParse(Crawler):
     '''
@@ -211,13 +212,9 @@ class ALi1688CommentParse(Crawler):
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
-        all_comment_info_list = []
-        for i in one_res:
-            try:
-                for j in i:
-                    all_comment_info_list.append(j)
-            except TypeError:
-                continue
+        all_comment_info_list = get_current_all_celery_handled_results_list(
+            one_res=one_res,
+            logger=self.lg)
 
         return all_comment_info_list
 
@@ -287,7 +284,7 @@ class ALi1688CommentParse(Crawler):
             except IndexError:
                 continue
 
-            _comment_content = self._wash_comment(first_rate_item.get('remarkContent', ''))
+            _comment_content = wash_goods_comment(comment_content=first_rate_item.get('remarkContent', ''))
             if not filter_invalid_comment_content(_comment_content):
                 continue
 
@@ -488,17 +485,6 @@ class ALi1688CommentParse(Crawler):
             return ''
 
         return member_id
-
-    def _wash_comment(self, comment:str):
-        '''
-        清洗comment
-        :param comment:
-        :return:
-        '''
-        comment = re.compile('1688|合作|阿里|阿里巴巴').sub('', comment)
-        comment = re.compile('\r|\n|\t').sub(' ', comment)
-
-        return comment
 
     def _set_headers(self):
         self.headers = {
