@@ -75,7 +75,6 @@ class TaoBaoCommentParse(Crawler):
         if goods_id == '':
             return self._data_error_init()
 
-        all_comment_list = []
         self.lg.info('------>>>| 待抓取的goods_id: {}'.format(goods_id))
         try:
             # db中已有的buyer_name and comment_date_list

@@ -44,20 +44,20 @@ class MyAllCommentSpider(object):
         self._set_func_name_dict()
 
         if self._init_debugging_api().get(2):
-            self.lg.info('初始化 1688 phantomjs中...')
+            self.lg.info('初始化 1688 driver中...')
             self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(3) is True \
                 or self._init_debugging_api().get(4) is True\
                 or self._init_debugging_api().get(6) is True:
-            self.lg.info('初始化 天猫 phantomjs中...')
+            self.lg.info('初始化 天猫 driver中...')
             self.tmall = TmallCommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(7) is True \
                 or self._init_debugging_api().get(8) is True\
                 or self._init_debugging_api().get(9) is True\
                 or self._init_debugging_api().get(10) is True:
-            self.lg.info('初始化 京东 phantomjs中...')
+            self.lg.info('初始化 京东 driver中...')
             self.jd = JdCommentParse(logger=self.lg)
 
         self.lg.info('初始化完毕!!!')
@@ -76,7 +76,7 @@ class MyAllCommentSpider(object):
         '''
         return {
             1: True,
-            2: True,
+            2: False,
             3: True,
             4: True,
             6: True,

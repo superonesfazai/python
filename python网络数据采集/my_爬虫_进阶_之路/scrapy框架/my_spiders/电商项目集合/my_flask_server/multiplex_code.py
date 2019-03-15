@@ -13,7 +13,9 @@
 
 from settings import IP_POOL_TYPE
 
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline, SqlPools
+from my_pipeline import (
+    SqlServerMyPageInfoSaveItemPipeline,
+    SqlPools,)
 
 from asyncio import new_event_loop
 from json import dumps
@@ -22,6 +24,7 @@ import re
 from time import (
     time,
     sleep,)
+from datetime import datetime
 from pprint import pprint
 from gc import collect
 from asyncio import wait
@@ -817,7 +820,7 @@ def _get_random_head_img_url_from_db(need_head_img_num:int=1, logger=None) -> li
 
     return head_img_url_list
 
-def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=800, logger=None) -> list:
+def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=1500, logger=None) -> list:
     """
     获取某goods_id前n个comment的buyer_name and comment_date
     :param goods_id:
@@ -826,7 +829,8 @@ def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=800, l
     :return:
     """
     res = []
-    sql_str = 'select top %d buyer_name, comment_date from dbo.goods_comment_new where goods_id=%s'
+    sql_str = 'select top {top_n_num} buyer_name, comment_date from dbo.goods_comment_new where goods_id=%s'\
+        .format(top_n_num=top_n_num)
     # _print(msg=sql_str)
     try:
         sql_cli = SqlServerMyPageInfoSaveItemPipeline()
@@ -836,7 +840,7 @@ def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=800, l
 
         res = sql_cli._select_table(
             sql_str=sql_str,
-            params=(top_n_num, goods_id),
+            params=(str(goods_id),),
             logger=logger)
         try:
             del sql_cli
@@ -897,6 +901,14 @@ def _save_comment_item_r(_r, goods_id, sql_cli, logger=None) -> None:
         得到新版待插入数据
         :return:
         """
+        comment_date = i['comment'][0]['comment_date']
+        try:
+            append_comment_date = i.get('append_comment', {}).get('comment_date', '')
+            assert append_comment_date != '', 'append_comment_date为空值!'
+        except AssertionError:
+            # 设置个默认值!
+            append_comment_date = str(datetime(1900, 1, 1))
+        # logger.info('comment_date: {}, append_comment_date: {}'.format(comment_date, append_comment_date))
         return (
             goods_id,
             create_time,
@@ -906,23 +918,30 @@ def _save_comment_item_r(_r, goods_id, sql_cli, logger=None) -> None:
             i['comment'][0]['sku_info'],
             i['quantify'],
             i['comment'][0]['comment'],
-            i['comment'][0]['comment_date'],
+            string_to_datetime(comment_date),
             dumps(i['comment'][0].get('img_url_list', []), ensure_ascii=False),
             i['comment'][0].get('video', ''),
             i['comment'][0]['star_level'],
 
             i.get('append_comment', {}).get('comment', ''),
-            i.get('append_comment', {}).get('comment_date', ''),
+            string_to_datetime(append_comment_date),
             dumps(i.get('append_comment', {}).get('img_url_list', []), ensure_ascii=False),
         )
 
     create_time = _r['create_time']
     comment_list = _r['_comment_list']
     for i in comment_list:
-        params = _get_db_insert_params(
-            goods_id=goods_id,
-            create_time=create_time,
-            i=i,)
+        try:
+            params = _get_db_insert_params(
+                goods_id=goods_id,
+                create_time=create_time,
+                i=i,)
+        except Exception as e:
+            _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+            return None
+
+        # if re.compile('^ze').findall(goods_id):
+        #     pprint(params)
 
         # TODO 老是报错: pymssql.OperationalError: Cannot commit transaction: (3902, b'The COMMIT TRANSACTION request has no corresponding BEGIN TRANSACTION.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
         # res = sql_cli._insert_into_table_2(
@@ -966,7 +985,7 @@ def _save_comment_item_r(_r, goods_id, sql_cli, logger=None) -> None:
 
     return None
 
-def _get_sku_info_from_db_by_goods_id(goods_id:str, logger=None) -> list:
+def _get_sku_info_from_db_by_goods_id(goods_id, logger=None) -> list:
     '''
     从db中得到sku_info
     :param goods_id:
@@ -978,14 +997,15 @@ def _get_sku_info_from_db_by_goods_id(goods_id:str, logger=None) -> list:
         if sql_cli.is_connect_success:
             _r = sql_cli._select_table(
                 sql_str=al_select_str_2,
-                params=(goods_id,))[0][0]
-            # logger.info(_r)
+                params=(str(goods_id),))[0][0]
+            # _print(msg=_r, logger=logger)
             try:
                 del sql_cli
             except:
                 pass
         else:
             raise SqlServerConnectionException
+
     except Exception as e:
         _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
         raise DBGetGoodsSkuInfoErrorException

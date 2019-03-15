@@ -32,6 +32,7 @@ from fzutils.internet_utils import (
     _get_url_contain_params,
     tuple_or_list_params_2_dict_params,
     driver_cookies_list_2_str,)
+from fzutils.qrcode_utils import decode_qrcode
 from fzutils.spider.selector import *
 from fzutils.spider.async_always import *
 
@@ -97,4 +98,5 @@ from fzutils.spider.async_always import *
 # pprint(company_info_list)
 #
 # # https://hz.ppkoo.com/shop/35471.html
+
 

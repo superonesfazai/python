@@ -34,9 +34,6 @@ try:
 except ImportError:
     pass
 
-from sql_str_controller import (
-    al_select_str_2,
-)
 from my_exceptions import (
     SqlServerConnectionException,
     DBGetGoodsSkuInfoErrorException,)

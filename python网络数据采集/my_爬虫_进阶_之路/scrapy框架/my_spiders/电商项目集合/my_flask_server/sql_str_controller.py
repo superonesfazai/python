@@ -41,12 +41,11 @@ select DISTINCT goods_id
 from dbo.goods_comment_new
 GROUP BY goods_id)
 '''
-
 cm_select_str_2 = '''
 select GoodsID, SiteID 
 from dbo.GoodsInfoAutoGet 
 where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select DISTINCT goods_id from dbo.goods_comment_new)
-ORDER BY ID DESC
+ORDER BY CreateTime DESC
 '''
 # 得到评论表中所有goods_id
 cm_select_str_3 = 'select DISTINCT goods_id from dbo.goods_comment_new'

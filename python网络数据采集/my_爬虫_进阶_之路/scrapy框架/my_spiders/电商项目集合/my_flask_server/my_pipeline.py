@@ -30,6 +30,7 @@ from settings import (
 )
 
 from fzutils.sql_utils import BaseSqlServer
+from fzutils.common_utils import _print
 
 class SqlServerMyPageInfoSaveItemPipeline(BaseSqlServer):
     """
@@ -190,12 +191,14 @@ class SqlPools(object):
             print('数据库连接失败!!')
             self.is_connect_success = False
 
-    def _select_table(self, sql_str, params=None):
+    def _select_table(self, sql_str, params=None, logger=None):
         self.engine.begin()
         self.conn = self.engine.connect()
         result = None
 
         try:
+            # 设置隔离级别为脏读
+            self.conn.execute('set tran isolation level read uncommitted;')
             self.conn.execute('set lock_timeout 20000;')     # 设置客户端执行超时等待为20秒
             if params is not None:
                 if not isinstance(params, tuple):
@@ -205,7 +208,8 @@ class SqlPools(object):
                 result = self.conn.execute(sql_str).fetchall()
 
         except Exception as e:
-            print('---------| 筛选level时报错：', e)
+            _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+
         finally:
             try:
                 self.conn.close()

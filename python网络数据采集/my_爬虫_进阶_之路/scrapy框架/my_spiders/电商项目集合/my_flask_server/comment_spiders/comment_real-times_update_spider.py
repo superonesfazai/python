@@ -46,20 +46,20 @@ class CommentRealTimeUpdateSpider(object):
         self._set_func_name_dict()
 
         if self._init_debugging_api().get(2):
-            self.lg.info('初始化 1688 phantomjs中...')
+            self.lg.info('初始化 1688 driver中...')
             self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(3) is True \
                 or self._init_debugging_api().get(4) is True\
                 or self._init_debugging_api().get(6) is True:
-            self.lg.info('初始化 天猫 phantomjs中...')
+            self.lg.info('初始化 天猫 driver中...')
             self.tmall = TmallCommentParse(logger=self.lg)
 
         if self._init_debugging_api().get(7) is True \
                 or self._init_debugging_api().get(8) is True\
                 or self._init_debugging_api().get(9) is True\
                 or self._init_debugging_api().get(10) is True:
-            self.lg.info('初始化 京东 phantomjs中...')
+            self.lg.info('初始化 京东 driver中...')
             self.jd = JdCommentParse(logger=self.lg)
 
     def _set_logger(self):
@@ -75,16 +75,16 @@ class CommentRealTimeUpdateSpider(object):
         :return: dict
         '''
         return {
-            1: False,
+            1: True,
             2: False,
-            3: False,
-            4: False,
-            6: False,
+            3: True,
+            4: True,
+            6: True,
             7: True,
             8: True,
             9: True,
             10: True,
-            11: False,
+            11: True,
             12: False,
             13: False,
             25: False,
@@ -143,8 +143,15 @@ class CommentRealTimeUpdateSpider(object):
                     25: self.func_name_dict.get('vip'),         # 唯品会
                 }
                 # 动态执行
-                exec_code = compile(switch[site_id].format(index, goods_id, site_id), '', 'exec')
-                exec(exec_code)
+                # exec_code = compile(switch[site_id].format(index, goods_id, site_id), '', 'exec')
+                _code = switch[site_id].format(index, goods_id, site_id)
+                if site_id != 11:
+                    exec_code = compile(_code, '', 'exec')
+                    exec(exec_code)
+                else:
+                    # 单独执行
+                    self._update_zhe_800_comment(index=index, goods_id=goods_id, site_id=site_id)
+
                 sleep(2)
 
     def _update_taobao_comment(self, index, goods_id, site_id):

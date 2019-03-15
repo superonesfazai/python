@@ -10,6 +10,11 @@
 import sys
 sys.path.append('..')
 
+try:
+    from celery_tasks import _get_z8_one_page_comment_info_task
+except ImportError:
+    pass
+
 from my_items import CommentItem
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -19,6 +24,7 @@ from random import randint
 from time import sleep
 import gc
 import re
+from datetime import timedelta
 from pprint import pprint
 from my_exceptions import (
     NoNextPageException,
@@ -29,12 +35,16 @@ from multiplex_code import (
 
 from fzutils.time_utils import (
     get_shanghai_time,
-    date_parse,)
+    date_parse,
+    string_to_datetime,)
 from fzutils.cp_utils import filter_invalid_comment_content
-from fzutils.internet_utils import get_random_pc_ua
+from fzutils.internet_utils import (
+    get_random_pc_ua,
+    get_base_headers,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
+from fzutils.celery_utils import block_get_celery_async_results
 
 class Zhe800CommentParse(Crawler):
     def __init__(self, logger=None):
@@ -51,18 +61,6 @@ class Zhe800CommentParse(Crawler):
         self.comment_page_switch_sleep_time = 1.5  # 评论下一页sleep time
         self.max_page_num = 8
 
-    def _set_headers(self):
-        '''
-        设置headers
-        :return: dict
-        '''
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_pc_ua(),
-            'accept': 'application/json, text/plain, */*',
-        }
-
     def _get_comment_data(self, goods_id):
         if goods_id == '':
             return self._data_error()
@@ -77,28 +75,15 @@ class Zhe800CommentParse(Crawler):
             self.lg.error('db 连接异常! 此处抓取跳过!')
             return self._data_error()
 
-        # 下面是抓取m.zhe800.com的数据地址
-        _tmp_comment_list = []
-        for current_page_num in range(1, self.max_page_num):    # 起始页为1
-            self.lg.info('------>>>| 正在抓取第{}页评论...'.format(current_page_num))
-            try:
-                data, has_next_page = self._get_one_page_comment_info(
-                    page_num=current_page_num,
-                    goods_id=goods_id)
-            except Exception:
-                self.lg.error('遇到错误:', exc_info=True)
-                return self._data_error()
+        # 同步
+        # all_comment_list = self._get_all_comment_info(goods_id=goods_id)
+        # celery
+        all_comment_list = self._get_all_comment_info_by_celery(goods_id=goods_id)
 
-            _tmp_comment_list += data
-            if not has_next_page:
-                # 必须放在add data后面，否则会导致当前页面没被add, 就跳出
-                break
-            sleep(self.comment_page_switch_sleep_time)
-
-        # self.lg.info(str(len(_tmp_comment_list)))
+        # self.lg.info(str(len(all_comment_list)))
         try:
             _comment_list = self._get_comment_list(
-                _tmp_comment_list=_tmp_comment_list,
+                all_comment_list=all_comment_list,
                 db_top_n_buyer_name_and_comment_date_list=db_top_n_buyer_name_and_comment_date_list)
         except Exception as e:
             self.lg.error('出错goods_id: ' + goods_id)
@@ -116,21 +101,118 @@ class Zhe800CommentParse(Crawler):
 
         return self.result_data
 
+    def _get_all_comment_info_by_celery(self, goods_id) -> list:
+        """
+        通过celery 获取所有comment info
+        :param goods_id:
+        :return:
+        """
+        # 用celery就不管是否有下一页了has_next_page
+        tasks = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('create task[where goods_id: {}, page_num: {}]...'.format(goods_id, page_num))
+            try:
+                async_obj = self._create_z8_one_celery_task(
+                    ip_pool_type=self.ip_pool_type,
+                    goods_id=goods_id,
+                    page_num=page_num,
+                    page_size=self.page_size,
+                )
+                tasks.append(async_obj)
+            except:
+                continue
+
+        one_res = block_get_celery_async_results(tasks=tasks)
+        all_comment_info_list = []
+        for i in one_res:
+            try:
+                for j in i:
+                    all_comment_info_list.append(j)
+            except TypeError:
+                continue
+
+        return all_comment_info_list
+
+    def _create_z8_one_celery_task(self, **kwargs):
+        """
+        创建celery obj
+        :param kwargs:
+        :return:
+        """
+        ip_pool_type = kwargs['ip_pool_type']
+        goods_id = kwargs['goods_id']
+        page_num = kwargs['page_num']
+        page_size = kwargs['page_size']
+
+        async_obj = _get_z8_one_page_comment_info_task.apply_async(
+            args=[
+                ip_pool_type,
+                goods_id,
+                page_num,
+                page_size,
+            ],
+            expires=5 * 60,
+            retry=False,
+        )
+
+        return async_obj
+
+    def _get_all_comment_info(self, goods_id) -> list:
+        """
+        获取所有comment info
+        :param goods_id:
+        :return:
+        """
+        # 下面是抓取m.zhe800.com的数据地址
+        all_comment_list = []
+        for page_num in range(1, self.max_page_num):
+            self.lg.info('------>>>| 正在抓取第{}页评论...'.format(page_num))
+            try:
+                data, has_next_page = self._get_one_page_comment_info(
+                    page_num=page_num,
+                    goods_id=goods_id)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+
+            all_comment_list += data
+            if not has_next_page:
+                # 必须放在add data后面，否则会导致当前页面没被add, 就跳出
+                break
+
+            sleep(self.comment_page_switch_sleep_time)
+
+        return all_comment_list
+
     def _get_one_page_comment_info(self, page_num, goods_id) -> tuple:
         """
         获取单页comment info
         :return:
         """
+        def _get_params(goods_id, page_num, page_size):
+            params = (
+                ('productId', str(goods_id)),
+                ('tagId', ''),
+                ('page', str(page_num)),
+                ('perPage', page_size),
+            )
+
+            return params
+        
         tmp_url = 'https://th5.m.zhe800.com/app/detail/comment/list'
-        _params = self._set_params(current_page_num=page_num, goods_id=goods_id)
-        self.headers.update({
+        headers = get_base_headers()
+        headers.update({
             'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
         })
+        params = _get_params(
+            goods_id=goods_id,
+            page_num=page_num,
+            page_size=self.page_size,
+        )
         body = Requests.get_url_body(
             url=tmp_url,
-            headers=self.headers,
-            params=_params,
-            encoding='utf-8',
+            headers=headers,
+            params=params,
             ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         data = json_2_dict(
@@ -156,14 +238,14 @@ class Zhe800CommentParse(Crawler):
 
         return {}
 
-    def _get_comment_list(self, _tmp_comment_list, db_top_n_buyer_name_and_comment_date_list):
+    def _get_comment_list(self, all_comment_list, db_top_n_buyer_name_and_comment_date_list):
         '''
         获取规范化的comment结果集
-        :param _tmp_comment_list:
+        :param all_comment_list:
         :return:
         '''
         _comment_list = []
-        for item in _tmp_comment_list:
+        for item in all_comment_list:
             comment_date = self._get_comment_date(item=item)
 
             buyer_name = item.get('nickname', '')
@@ -191,7 +273,9 @@ class Zhe800CommentParse(Crawler):
 
             '''追评'''
             append_comment = {}
-            if item.get('appendTime', '') == '':    # 追评时间为空即表示无追评
+            append_comment_date = item.get('appendTime', '')
+            append_comment_date = self._get_append_comment_date(append_comment_date, comment_date)
+            if append_comment_date == '':    # 追评时间为空即表示无追评
                 pass
             else:
                 _tmp_append_comment_content = item.get('append', '')
@@ -200,7 +284,7 @@ class Zhe800CommentParse(Crawler):
                 # self.lg.info(_append_comment_img_list)
 
                 append_comment = {
-                    'comment_date': item.get('appendTime', ''),
+                    'comment_date': append_comment_date,
                     'comment': self._wash_comment(_tmp_append_comment_content),
                     'img_url_list': _append_comment_img_list,
                 }
@@ -242,6 +326,25 @@ class Zhe800CommentParse(Crawler):
 
         return _comment_list
 
+    def _get_append_comment_date(self, append_comment_date, comment_date) -> str:
+        """
+        获取并处理追评时间点
+        :return:
+        """
+        # 处理append_comment_date值为n天后追评, or 当天追评
+        if re.compile('追评').findall(append_comment_date) != []:
+            add_days = re.compile('(\d+)天后').findall(append_comment_date)
+            if re.compile('当天').findall(append_comment_date) != []:
+                append_comment_date = comment_date
+            elif add_days != []:
+                append_comment_date = str(string_to_datetime(comment_date) + timedelta(days=int(add_days[0])))
+            else:
+                raise ValueError('未知append_comment_date: {}'.format(append_comment_date))
+        else:
+            pass
+
+        return str(append_comment_date)
+
     def _wash_comment(self, comment):
         '''
         清洗评论
@@ -271,22 +374,6 @@ class Zhe800CommentParse(Crawler):
         sku_info = re.compile('zhe800|折800|ZHE800').sub('', sku_info)
 
         return sku_info
-
-    def _set_params(self, current_page_num, goods_id):
-        '''
-        设置params
-        :param current_page_num:
-        :param goods_id:
-        :return:
-        '''
-        params = (
-            ('productId', str(goods_id)),
-            ('tagId', ''),
-            ('page', str(current_page_num)),
-            ('perPage', self.page_size),
-        )
-
-        return params
 
     def __del__(self):
         try:

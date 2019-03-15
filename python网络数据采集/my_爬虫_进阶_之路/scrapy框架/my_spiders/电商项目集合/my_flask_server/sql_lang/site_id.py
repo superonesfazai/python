@@ -256,3 +256,14 @@ and (b.SiteID=7 or b.SiteID=8 or b.SiteID=9 or b.SiteID=10)
 -- and (b.SiteID=3 or b.SiteID=4 or b.SiteID=6)
 -- and b.SiteID=1
 '''
+# 查看还有多少个goods_id 未被同步到goods_comment_new表中
+sql_str_15 = '''
+select count(GoodsID)
+from dbo.GoodsInfoAutoGet
+where MainGoodsID is not null
+and IsDelete=0
+and GoodsID not in (
+select DISTINCT goods_id
+from dbo.goods_comment_new
+GROUP BY goods_id)
+'''

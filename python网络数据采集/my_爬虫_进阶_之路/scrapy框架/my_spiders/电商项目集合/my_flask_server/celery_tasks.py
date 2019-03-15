@@ -50,6 +50,7 @@ $ redis-server /usr/local/etc/redis.conf
 
 分布式任务启动: 
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
+单个后台 celery multi start w0 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 (多开效果更快)
 2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 w20 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
@@ -589,6 +590,64 @@ def _get_al_one_page_comment_info_task(self, ip_pool_type, goods_id, member_id, 
     except Exception:
         lg.error('遇到错误[goods_id:{}]:'.format(goods_id), exc_info=True)
 
+    lg.info('[{}] goods_id: {}, page_num: {}'.format(
+        '+' if data != [] else '-',
+        goods_id,
+        page_num,))
+    collect()
+
+    return data
+
+@app.task(name=tasks_name + '._get_z8_one_page_comment_info_task', bind=True)
+def _get_z8_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, page_size) -> list:
+    """
+    获取zhe800单页评论信息
+    :param self:
+    :param ip_pool_type:
+    :param goods_id:
+    :param page_num:
+    :return:
+    """
+    def _get_params(goods_id, page_num, page_size):
+        params = (
+            ('productId', str(goods_id)),
+            ('tagId', ''),
+            ('page', str(page_num)),
+            ('perPage', page_size),
+        )
+
+        return params
+
+    url = 'https://th5.m.zhe800.com/app/detail/comment/list'
+    headers = _get_phone_headers()
+    headers.update({
+        'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
+    })
+    params = _get_params(
+        goods_id=goods_id,
+        page_num=page_num,
+        page_size=page_size,)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        ip_pool_type=ip_pool_type)
+    # lg.info(str(body))
+    _data = json_2_dict(
+        json_str=body,
+        logger=lg,
+        default_res={})
+    # pprint(_data)
+    data = _data.get('comments', [])
+    try:
+        assert _data.get('comments') is not None \
+               and _data.get('hasNext') is not None, '获取到的data为None, 出错goods_id: {}'.format(goods_id)
+    except AssertionError:
+        pass
+
+    # 判断是否下页还有评论信息
+    # <class 'bool'>
+    # has_next_page = _data.get('hasNext', False)
     lg.info('[{}] goods_id: {}, page_num: {}'.format(
         '+' if data != [] else '-',
         goods_id,
