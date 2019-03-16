@@ -32,6 +32,7 @@ from multiplex_code import (
 
 from sql_str_controller import (
     cm_select_str_1,
+    cm_update_str_2,
 )
 
 from fzutils.log_utils import set_logger
@@ -115,6 +116,7 @@ class CommentRealTimeUpdateSpider(object):
                 continue
 
             _block_print_db_old_data(result=result, logger=self.lg)
+            switch = self._get_func_name_dict_switch_dict()
             # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
             for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
                 goods_id, site_id = item
@@ -127,21 +129,6 @@ class CommentRealTimeUpdateSpider(object):
                     index=index,
                     logger=self.lg,
                     remainder=5,)
-                switch = {
-                    1: self.func_name_dict.get('taobao'),       # 淘宝
-                    2: self.func_name_dict.get('ali'),          # 阿里1688
-                    3: self.func_name_dict.get('tmall'),        # 天猫
-                    4: self.func_name_dict.get('tmall'),        # 天猫超市
-                    6: self.func_name_dict.get('tmall'),        # 天猫国际
-                    7: self.func_name_dict.get('jd'),           # 京东
-                    8: self.func_name_dict.get('jd'),           # 京东超市
-                    9: self.func_name_dict.get('jd'),           # 京东全球购
-                    10: self.func_name_dict.get('jd'),          # 京东大药房
-                    11: self.func_name_dict.get('zhe_800'),     # 折800
-                    12: self.func_name_dict.get('juanpi'),      # 卷皮
-                    13: self.func_name_dict.get('pinduoduo'),   # 拼多多
-                    25: self.func_name_dict.get('vip'),         # 唯品会
-                }
                 # 动态执行
                 # exec_code = compile(switch[site_id].format(index, goods_id, site_id), '', 'exec')
                 _code = switch[site_id].format(index, goods_id, site_id)
@@ -152,7 +139,51 @@ class CommentRealTimeUpdateSpider(object):
                     # 单独执行
                     self._update_zhe_800_comment(index=index, goods_id=goods_id, site_id=site_id)
 
+                self._update_goods_id_comment_update_time(goods_id=goods_id)
                 sleep(2)
+
+    def _get_func_name_dict_switch_dict(self) -> dict:
+        """
+        获取func_name_dict switch dict
+        :return:
+        """
+        return {
+            1: self.func_name_dict.get('taobao'),       # 淘宝
+            2: self.func_name_dict.get('ali'),          # 阿里1688
+            3: self.func_name_dict.get('tmall'),        # 天猫
+            4: self.func_name_dict.get('tmall'),        # 天猫超市
+            6: self.func_name_dict.get('tmall'),        # 天猫国际
+            7: self.func_name_dict.get('jd'),           # 京东
+            8: self.func_name_dict.get('jd'),           # 京东超市
+            9: self.func_name_dict.get('jd'),           # 京东全球购
+            10: self.func_name_dict.get('jd'),          # 京东大药房
+            11: self.func_name_dict.get('zhe_800'),     # 折800
+            12: self.func_name_dict.get('juanpi'),      # 卷皮
+            13: self.func_name_dict.get('pinduoduo'),   # 拼多多
+            25: self.func_name_dict.get('vip'),         # 唯品会
+        }
+
+    def _update_goods_id_comment_update_time(self, goods_id) -> None:
+        """
+        更新comment_modify_time
+        :param goods_id:
+        :return:
+        """
+        self.lg.info('@@ recording goods_id[{}] comment_modify_time ...'.format(goods_id))
+        try:
+            sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            sql_cli._update_table_2(
+                sql_str=cm_update_str_2,
+                params=(get_shanghai_time(), goods_id),
+                logger=self.lg,)
+            try:
+                del sql_cli
+            except:
+                pass
+        except Exception:
+            self.lg.error(msg='遇到错误:', exc_info=True)
+
+        return
 
     def _update_taobao_comment(self, index, goods_id, site_id):
         '''
@@ -246,7 +277,7 @@ class CommentRealTimeUpdateSpider(object):
                 collect()
                 self.tmall = TmallCommentParse(logger=self.lg)
 
-            _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
+            _r = self.tmall._get_comment_data(_type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
                 if self.sql_cli.is_connect_success:
                     _save_comment_item_r(

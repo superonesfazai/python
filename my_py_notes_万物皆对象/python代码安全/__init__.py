@@ -2,8 +2,6 @@
 
 '''
 @author = super_fazai
-@File    : suning_parse.py
-@Time    : 2017/12/16 09:52
+@File    : __init__.py.py
 @connect : superonesfazai@gmail.com
 '''
-

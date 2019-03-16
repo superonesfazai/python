@@ -208,7 +208,8 @@ class ALi1688CommentParse(Crawler):
                     cookies=self.login_cookies_dict,
                 )
                 tasks.append(async_obj)
-            except:
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
@@ -229,6 +230,9 @@ class ALi1688CommentParse(Crawler):
         page_num = kwargs['page_num']
         cookies = kwargs['cookies']
         member_id = kwargs['member_id']
+
+        # 重新导入
+        from celery_tasks import _get_al_one_page_comment_info_task
 
         async_obj = _get_al_one_page_comment_info_task.apply_async(
             args=[

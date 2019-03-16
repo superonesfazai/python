@@ -10,7 +10,6 @@
 import sys
 sys.path.append('..')
 
-from tmall_parse_2 import TmallParse
 from my_items import CommentItem
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -76,7 +75,7 @@ class TmallCommentParse(Crawler):
         self.g_data = {}                # 临时数据
         self.max_page_num = 10
 
-    def _get_comment_data(self, type:int, goods_id):
+    def _get_comment_data(self, _type:int, goods_id):
         """
         获取对应goods_id的评论数据
         :param type:
@@ -99,14 +98,15 @@ class TmallCommentParse(Crawler):
 
         try:
             # 先获取到sellerId
-            seller_id = self._get_seller_id(type=type, goods_id=goods_id)
+            seller_id = self._get_seller_id(_type=type, goods_id=goods_id)
             self.lg.info('------>>>| 获取到的seller_id: {}'.format(seller_id))
 
             # 获取db sku_info list
             db_sku_info_list = _get_sku_info_from_db_by_goods_id(
                 goods_id=goods_id,
-                logger=self.lg, )
-        except AssertionError or IndexError:
+                logger=self.lg,)
+            # pprint(db_sku_info_list)
+        except (AssertionError, IndexError,):
             self.lg.error('遇到错误[goods_id:{}]:'.format(goods_id), exc_info=True)
             return self._data_error()
 
@@ -118,12 +118,12 @@ class TmallCommentParse(Crawler):
         # all_comment_list = self._get_all_comment_list(
         #     goods_id=goods_id,
         #     seller_id=seller_id,
-        #     _type=type)
+        #     _type=_type)
         # celery
         all_comment_list = self._get_all_comment_list_by_celery(
             goods_id=goods_id,
             seller_id=seller_id,
-            _type=type)
+            _type=_type)
         # pprint(all_comment_list)
 
         try:
@@ -169,10 +169,13 @@ class TmallCommentParse(Crawler):
                     seller_id=seller_id,
                 )
                 tasks.append(async_obj)
+                # self.lg.info('async_obj: {}'.format(str(async_obj)))
             except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
+        # self.lg.info(str(one_res))
         all_comment_info_list = get_current_all_celery_handled_results_list(
             one_res=one_res,
             logger=self.lg)
@@ -192,6 +195,9 @@ class TmallCommentParse(Crawler):
         page_size = kwargs['page_size']
         _type = kwargs['_type']
         seller_id = kwargs['seller_id']
+
+        # 重新导入
+        from celery_tasks import _get_tm_one_page_comment_info_task
 
         async_obj = _get_tm_one_page_comment_info_task.apply_async(
             args=[
@@ -396,7 +402,7 @@ class TmallCommentParse(Crawler):
 
         return _comment_date
 
-    def _get_seller_id(self, type, goods_id):
+    def _get_seller_id(self, _type, goods_id):
         '''
         得到seller_id
         :param type:
@@ -405,7 +411,7 @@ class TmallCommentParse(Crawler):
         '''
         # TODO 与更新脚本接口冲突
         # tmall = TmallParse(logger=self.lg)
-        # _g = [type, goods_id]
+        # _g = [_type, goods_id]
         # self.g_data = tmall.get_goods_data(goods_id=_g)
         # seller_id = str(self.g_data.get('seller', {}).get('userId', 0))
         # # self.lg.info('获取到的seller_id: ' + seller_id)
@@ -423,7 +429,8 @@ class TmallCommentParse(Crawler):
         params = (
             ('id', goods_id),
         )
-        url = 'https://detail.m.tmall.com/item.htm'
+        # 处理天猫国际
+        url = 'https://detail.m.tmall.com/item.htm' if _type != 2 else 'https://detail.m.tmall.hk/item.htm'
         body = Requests.get_url_body(
             url=url,
             headers=headers,
@@ -473,6 +480,6 @@ if __name__ == '__main__':
         _type = _type.strip('\n').strip(';')
         goods_id = input('请输入要爬取的商品goods_id(以英文分号结束): ')
         goods_id = goods_id.strip('\n').strip(';')
-        data = tmall._get_comment_data(type=int(_type), goods_id=goods_id)
+        data = tmall._get_comment_data(_type=int(_type), goods_id=goods_id)
         pprint(data)
         gc.collect()

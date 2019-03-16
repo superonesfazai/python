@@ -140,7 +140,8 @@ class TaoBaoCommentParse(Crawler):
                     cookies=self.login_cookies_dict,
                 )
                 tasks.append(async_obj)
-            except:
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
@@ -180,6 +181,9 @@ class TaoBaoCommentParse(Crawler):
         goods_id = kwargs['goods_id']
         page_num = kwargs['page_num']
         cookies = kwargs['cookies']
+
+        # 重新导入
+        from celery_tasks import _get_tb_one_page_comment_info_task
 
         async_obj = _get_tb_one_page_comment_info_task.apply_async(
             args=[

@@ -833,12 +833,13 @@ def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=1500, 
     sql_str = 'select top {top_n_num} buyer_name, comment_date from dbo.goods_comment_new where goods_id=%s'\
         .format(top_n_num=top_n_num)
     # _print(msg=sql_str)
-    try:
-        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        if not sql_cli.is_connect_success:
-            # 连接失败抛出连接异常!
-            raise SqlServerConnectionException
+    # 必须放在try外, 连接异常则立即抛出异常
+    sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+    if not sql_cli.is_connect_success:
+        # 连接失败抛出连接异常!
+        raise SqlServerConnectionException
 
+    try:
         res = sql_cli._select_table(
             sql_str=sql_str,
             params=(str(goods_id),),
@@ -883,14 +884,14 @@ def filter_crawled_comment_content(new_buyer_name:str, new_comment_date, db_buye
             if new_comment_date == item_comment_date:
                 # 名字相同且comment_date也相同的, 即为重复的comment data
                 _print(
-                    msg='db had buyer_name: {}, comment_date: {}'.format(new_buyer_name, str(new_comment_date)),
+                    msg='db had comment_date: {}, buyer_name: {}'.format(str(new_comment_date), new_buyer_name),
                     logger=logger,
                     log_level=1,)
                 return False
 
     return res
 
-def _save_comment_item_r(_r, goods_id, sql_cli, logger=None) -> None:
+def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
     """
     保存item r
     :param _r:
@@ -995,20 +996,20 @@ def _get_sku_info_from_db_by_goods_id(goods_id, logger=None) -> list:
     res = ['']
     try:
         sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        if sql_cli.is_connect_success:
-            _r = sql_cli._select_table(
-                sql_str=al_select_str_2,
-                params=(str(goods_id),))[0][0]
-            # _print(msg=_r, logger=logger)
-            try:
-                del sql_cli
-            except:
-                pass
-        else:
+        if not sql_cli.is_connect_success:
             raise SqlServerConnectionException
 
+        _r = sql_cli._select_table(
+            sql_str=al_select_str_2,
+            params=(str(goods_id),))[0][0]
+        # _print(msg=_r, logger=logger)
+        try:
+            del sql_cli
+        except:
+            pass
     except Exception as e:
         _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
+        # 统一抛出DBGetGoodsSkuInfoErrorException
         raise DBGetGoodsSkuInfoErrorException
 
     sku_info = json_2_dict(
@@ -1064,3 +1065,86 @@ def wash_goods_comment(comment_content:str) -> str:
         add_sensitive_str_list=add_sensitive_str_list,)
 
     return comment_content
+
+from comment_spiders.ali_1688_comment_parse import ALi1688CommentParse
+from comment_spiders.taobao_comment_parse import TaoBaoCommentParse
+from comment_spiders.tmall_comment_parse import TmallCommentParse
+from comment_spiders.jd_comment_parse import JdCommentParse
+from comment_spiders.zhe_800_comment_parse import Zhe800CommentParse
+
+def _get_someone_goods_id_all_comment(index, site_id:int, goods_id, logger) -> dict:
+    """
+    获取某个goods_id的all comment info
+    :param self:
+    :param site_id:
+    :return: (goods_id, res)
+    """
+    def _get_tm_type(site_id):
+        """获取tm type"""
+        if site_id == 3:
+            _type = 0
+        elif site_id == 4:
+            _type = 1
+        elif site_id == 6:
+            _type = 2
+        else:
+            raise ValueError('site_id值异常!')
+
+        return _type
+
+    if site_id == 1:
+        tb = TaoBaoCommentParse(logger=logger)
+        res = tb._get_comment_data(goods_id=goods_id)
+        try:
+            del tb
+        except:
+            pass
+
+    elif site_id == 2:
+        al = ALi1688CommentParse(logger=logger)
+        res = al._get_comment_data(goods_id=goods_id)
+        try:
+            del al
+        except:
+            pass
+
+    elif site_id in (3, 4, 6):
+        try:
+            _type = _get_tm_type(site_id)
+        except ValueError:
+            return {}
+
+        tm = TmallCommentParse(logger=logger)
+        res = tm._get_comment_data(_type=_type, goods_id=goods_id)
+        try:
+            del tm
+        except:
+            pass
+
+    elif site_id in (7, 8, 9, 10):
+        jd = JdCommentParse(logger=logger)
+        res = jd._get_comment_data(goods_id=goods_id)
+        try:
+            del jd
+        except:
+            pass
+
+    elif site_id == 11:
+        z8 = Zhe800CommentParse(logger=logger)
+        res = z8._get_comment_data(goods_id=goods_id)
+        try:
+            del z8
+        except:
+            pass
+
+    else:
+        raise NotImplementedError
+
+    logger.info('[{}] index: {}, goods_id: {}, site_id: {}'.format(
+        '+' if res != {} else '-',
+        index,
+        goods_id,
+        site_id,))
+    collect()
+
+    return res

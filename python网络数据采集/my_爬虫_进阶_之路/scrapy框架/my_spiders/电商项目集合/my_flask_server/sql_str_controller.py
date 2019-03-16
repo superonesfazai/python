@@ -32,7 +32,7 @@ comment
 """
 '''select'''
 cm_select_str_1 = '''
-select GoodsID, SiteID 
+select top 500 GoodsID, SiteID 
 from dbo.GoodsInfoAutoGet
 where MainGoodsID is not null
 and IsDelete=0
@@ -40,6 +40,7 @@ and GoodsID in (
 select DISTINCT goods_id
 from dbo.goods_comment_new
 GROUP BY goods_id)
+ORDER BY comment_modify_time asc
 '''
 cm_select_str_2 = '''
 select GoodsID, SiteID 
@@ -58,6 +59,8 @@ cm_insert_str_2 = 'insert into dbo.goods_comment_new(goods_id, create_time, buye
 '''update'''
 # 评论更新
 cm_update_str_1 = 'update dbo.all_goods_comment set modify_time=%s, comment_info=%s where goods_id=%s'
+# comment更新时间点记录
+cm_update_str_2 = 'update dbo.GoodsInfoAutoGet set comment_modify_time=%s where GoodsID=%s'
 
 """
 关键字spider

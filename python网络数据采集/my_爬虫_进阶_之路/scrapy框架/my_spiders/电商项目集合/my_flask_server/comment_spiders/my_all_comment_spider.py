@@ -3,15 +3,21 @@
 '''
 @author = super_fazai
 @File    : my_all_comment_spider.py
-@Time    : 2018/4/9 15:24
+@Time    : 2018/1/9 15:24
 @connect : superonesfazai@gmail.com
 '''
+
+"""
+动态执行同步pass, 弃用!
+"""
 
 import sys
 sys.path.append('..')
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
+from settings import (
+    IS_BACKGROUND_RUNNING,
+    MY_SPIDER_LOGS_PATH,)
 
 from ali_1688_comment_parse import ALi1688CommentParse
 from taobao_comment_parse import TaoBaoCommentParse
@@ -19,7 +25,7 @@ from tmall_comment_parse import TmallCommentParse
 from jd_comment_parse import JdCommentParse
 from zhe_800_comment_parse import Zhe800CommentParse
 
-import gc
+from gc import collect
 from logging import INFO, ERROR
 from time import sleep
 from pprint import pprint
@@ -39,7 +45,6 @@ from fzutils.time_utils import get_shanghai_time
 class MyAllCommentSpider(object):
     def __init__(self):
         self._set_logger()
-        self.msg = ''
         self.debugging_api = self._init_debugging_api()
         self._set_func_name_dict()
 
@@ -127,6 +132,7 @@ class MyAllCommentSpider(object):
             else:
                 continue
 
+            switch = self._get_func_name_dict_switch_dict()
             # 1.淘宝 2.阿里 3.天猫 4.天猫超市 5.聚划算 6.天猫国际 7.京东 8.京东超市 9.京东全球购 10.京东大药房  11.折800 12.卷皮 13.拼多多 14.折800秒杀 15.卷皮秒杀 16.拼多多秒杀 25.唯品会
             for index, item in enumerate(result):     # item: ('xxxx':goods_id, 'y':site_id)
                 goods_id, site_id = item
@@ -146,21 +152,6 @@ class MyAllCommentSpider(object):
                     index=index,
                     logger=self.lg,
                     remainder=5,)
-                switch = {
-                    1: self.func_name_dict.get('taobao'),       # 淘宝
-                    2: self.func_name_dict.get('ali'),          # 阿里1688
-                    3: self.func_name_dict.get('tmall'),        # 天猫
-                    4: self.func_name_dict.get('tmall'),        # 天猫超市
-                    6: self.func_name_dict.get('tmall'),        # 天猫国际
-                    7: self.func_name_dict.get('jd'),           # 京东
-                    8: self.func_name_dict.get('jd'),           # 京东超市
-                    9: self.func_name_dict.get('jd'),           # 京东全球购
-                    10: self.func_name_dict.get('jd'),          # 京东大药房
-                    11: self.func_name_dict.get('zhe_800'),     # 折800
-                    12: self.func_name_dict.get('juanpi'),      # 卷皮
-                    13: self.func_name_dict.get('pinduoduo'),   # 拼多多
-                    25: self.func_name_dict.get('vip'),         # 唯品会
-                }
                 # 动态执行
                 _code = switch[site_id].format(index, goods_id, site_id)
                 if site_id != 11:
@@ -168,8 +159,24 @@ class MyAllCommentSpider(object):
                     exec(exec_code)
                 else:   # 特殊单独执行
                     self._zhe_800_comment(index=index, goods_id=goods_id, site_id=site_id)
-
                 sleep(1.2)
+
+    def _get_func_name_dict_switch_dict(self) -> dict:
+        return {
+            1: self.func_name_dict.get('taobao'),       # 淘宝
+            2: self.func_name_dict.get('ali'),          # 阿里1688
+            3: self.func_name_dict.get('tmall'),        # 天猫
+            4: self.func_name_dict.get('tmall'),        # 天猫超市
+            6: self.func_name_dict.get('tmall'),        # 天猫国际
+            7: self.func_name_dict.get('jd'),           # 京东
+            8: self.func_name_dict.get('jd'),           # 京东超市
+            9: self.func_name_dict.get('jd'),           # 京东全球购
+            10: self.func_name_dict.get('jd'),          # 京东大药房
+            11: self.func_name_dict.get('zhe_800'),     # 折800
+            12: self.func_name_dict.get('juanpi'),      # 卷皮
+            13: self.func_name_dict.get('pinduoduo'),   # 拼多多
+            25: self.func_name_dict.get('vip'),         # 唯品会
+        }
 
     def _taobao_comment(self, index, goods_id, site_id):
         '''
@@ -197,7 +204,7 @@ class MyAllCommentSpider(object):
                 
             try: del taobao
             except: self.lg.info('del taobao失败!')
-            gc.collect()
+            collect()
         else:
             pass
 
@@ -217,7 +224,7 @@ class MyAllCommentSpider(object):
                     del self.ali_1688
                 except:
                     self.lg.info('del ali_1688失败!')
-                gc.collect()
+                collect()
                 self.ali_1688 = ALi1688CommentParse(logger=self.lg)
 
             _r = self.ali_1688._get_comment_data(goods_id=goods_id)
@@ -242,27 +249,27 @@ class MyAllCommentSpider(object):
         :param site_id:
         :return:
         '''
+        if site_id == 3:
+            _type = 0
+        elif site_id == 4:
+            _type = 1
+        elif site_id == 6:
+            _type = 2
+        else:
+            return None
+
         if self.debugging_api.get(site_id):
             self.lg.info('------>>>| 天猫\t\t索引值(%s)' % str(index))
-
-            if site_id == 3:
-                _type = 0
-            elif site_id == 4:
-                _type = 1
-            elif site_id == 6:
-                _type = 2
-            else:
-                return None
 
             if index % 5 == 0:
                 try:
                     del self.tmall
                 except:
                     self.lg.info('del tmall失败!')
-                gc.collect()
+                collect()
                 self.tmall = TmallCommentParse(logger=self.lg)
 
-            _r = self.tmall._get_comment_data(type=_type, goods_id=str(goods_id))
+            _r = self.tmall._get_comment_data(_type=_type, goods_id=str(goods_id))
             if _r.get('_comment_list', []) != []:
                 if self.sql_cli.is_connect_success:
                     _save_comment_item_r(
@@ -293,7 +300,7 @@ class MyAllCommentSpider(object):
                     del self.jd
                 except:
                     self.lg.info('del jd失败!')
-                gc.collect()
+                collect()
                 self.jd = JdCommentParse(logger=self.lg)
 
             _r = self.jd._get_comment_data(goods_id=str(goods_id))
@@ -338,7 +345,7 @@ class MyAllCommentSpider(object):
 
             try: del zhe_800
             except: self.lg.info('del zhe_800失败!')
-            gc.collect()
+            collect()
         else:
             pass
 
@@ -384,7 +391,6 @@ class MyAllCommentSpider(object):
     def __del__(self):
         try:
             del self.lg
-            del self.msg
             del self.debugging_api
         except:
             pass
@@ -396,18 +402,14 @@ class MyAllCommentSpider(object):
         except: pass
         try: del self.jd
         except: pass
-        gc.collect()
+        collect()
 
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         _tmp = MyAllCommentSpider()
         _tmp._just_run()
-        # try:
-        #     del _tmp
-        # except:
-        #     pass
-        gc.collect()
+        collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(60*5)
 
@@ -416,10 +418,9 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')  
+    daemon_init()  
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

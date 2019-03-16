@@ -122,7 +122,8 @@ class Zhe800CommentParse(Crawler):
                     page_size=self.page_size,
                 )
                 tasks.append(async_obj)
-            except:
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
                 continue
 
         one_res = block_get_celery_async_results(tasks=tasks)
@@ -142,6 +143,9 @@ class Zhe800CommentParse(Crawler):
         goods_id = kwargs['goods_id']
         page_num = kwargs['page_num']
         page_size = kwargs['page_size']
+
+        # 重新导入
+        from celery_tasks import _get_z8_one_page_comment_info_task
 
         async_obj = _get_z8_one_page_comment_info_task.apply_async(
             args=[
@@ -244,6 +248,7 @@ class Zhe800CommentParse(Crawler):
         :return:
         '''
         _comment_list = []
+        # pprint(all_comment_list)
         for item in all_comment_list:
             comment_date = self._get_comment_date(item=item)
 

@@ -23,11 +23,19 @@ from asyncio import (
 from time import sleep
 from multiplex_code import (
     _get_al_one_type_company_id_list,
-    _get_114_one_type_company_id_list,)
+    _get_114_one_type_company_id_list,
+    _get_someone_goods_id_all_comment,)
 from settings import (
     PHANTOMJS_DRIVER_PATH,
 )
+
 from company_spider import CompanySpider
+from comment_spiders.ali_1688_comment_parse import ALi1688CommentParse
+from comment_spiders.taobao_comment_parse import TaoBaoCommentParse
+from comment_spiders.tmall_comment_parse import TmallCommentParse
+from comment_spiders.jd_comment_parse import JdCommentParse
+from comment_spiders.zhe_800_comment_parse import Zhe800CommentParse
+
 from fzutils.internet_utils import (
     get_random_pc_ua,
     get_random_phone_ua,
@@ -53,7 +61,7 @@ $ redis-server /usr/local/etc/redis.conf
 分布式任务启动: 
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
 单个后台 celery multi start w0 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
-(多开效果更快)
+(多开)
 2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 w20 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
 监控:
@@ -657,3 +665,20 @@ def _get_z8_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, p
     collect()
 
     return data
+
+@app.task(name=tasks_name + '._get_someone_goods_id_all_comment_task', bind=True)
+def _get_someone_goods_id_all_comment_task(self, index, site_id:int, goods_id) -> dict:
+    """
+    获取某个goods_id的all comment info
+    :param self:
+    :param site_id:
+    :return:
+    """
+    res = _get_someone_goods_id_all_comment(
+        index=index,
+        site_id=site_id,
+        goods_id=goods_id,
+        logger=lg)
+
+    return res
+
