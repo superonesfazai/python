@@ -316,3 +316,10 @@ $ pip3 install pyqt5
 
 ## 安装网易云音乐
 https://music.163.com/#/download
+
+## 处理mac蓝牙老是断开连接
+```bash
+$ brew install blueutil
+# 重启蓝牙
+$ blueutil -p 0 && sleep 1 && blueutil -p 1
+```

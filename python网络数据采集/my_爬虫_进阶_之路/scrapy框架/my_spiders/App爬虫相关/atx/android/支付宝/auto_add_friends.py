@@ -340,10 +340,8 @@ class ALiPay(AsyncCrawler):
 
                 # 朋友验证 发送btn
                 self.d(resourceId="com.alipay.mobile.ui:id/title_bar_generic_button").click()
-
                 # 返回加好友页面
                 self.d(resourceId="com.alipay.mobile.antui:id/back_button").click()
-
                 print('[+] 添加 {} success!'.format(phone_num))
                 index += 1
 

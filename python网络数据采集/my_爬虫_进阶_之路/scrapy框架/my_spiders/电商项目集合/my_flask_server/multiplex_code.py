@@ -27,7 +27,9 @@ from time import (
 from datetime import datetime
 from pprint import pprint
 from gc import collect
-from asyncio import wait
+from asyncio import (
+    wait,
+    get_event_loop,)
 from my_exceptions import (
     SqlServerConnectionException,
     DBGetGoodsSkuInfoErrorException,)
@@ -36,7 +38,7 @@ from sql_str_controller import (
     al_select_str_2,
 )
 
-from fzutils.spider.fz_requests import MyRequests, Requests
+from fzutils.spider.fz_requests import Requests
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.internet_utils import (
     get_random_pc_ua,
@@ -53,6 +55,8 @@ from fzutils.time_utils import (
     string_to_datetime,)
 from fzutils.spider.selector import parse_field
 from fzutils.common_utils import wash_sensitive_info
+from fzutils.aio_utils import async_wait_tasks_finished
+from fzutils.celery_utils import _get_celery_async_results
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''
@@ -75,7 +79,7 @@ def _z8_get_parent_dir(goods_id) -> str:
         ('qd_key', 'qyOwt6Jn'),
     )
     url = 'https://shop.zhe800.com/products/{0}'.format(goods_id)
-    body = MyRequests.get_url_body(url=url, headers=headers, params=None, high_conceal=True, ip_pool_type=IP_POOL_TYPE)
+    body = Requests.get_url_body(url=url, headers=headers, params=None, high_conceal=True, ip_pool_type=IP_POOL_TYPE)
     # print(body)
 
     parent_dir = []
@@ -1148,3 +1152,138 @@ def _get_someone_goods_id_all_comment(index, site_id:int, goods_id, logger) -> d
     collect()
 
     return res
+
+async def async_get_someone_goods_id_all_comment(**kwargs):
+    """
+    异步的获取
+    :return:
+    """
+    index = kwargs['index']
+    site_id = kwargs['site_id']
+    goods_id = kwargs['goods_id']
+    logger = kwargs['logger']
+
+    async def _get_args() -> list:
+        return [
+            index,
+            site_id,
+            goods_id,
+            logger,
+        ]
+
+    loop = get_event_loop()
+    args = await _get_args()
+    res = {}
+    try:
+        res = await loop.run_in_executor(None, _get_someone_goods_id_all_comment, *args)
+    except Exception:
+        logger.error('遇到错误:', exc_info=True)
+    finally:
+        try:
+            del loop
+        except:
+            pass
+        collect()
+
+        return res
+
+async def create_goods_comment_celery_task_obj(**kwargs):
+    """
+    获取goods comment celery obj
+    :param kwargs:
+    :return:
+    """
+    index = kwargs['index']
+    goods_id = kwargs['goods_id']
+    site_id = kwargs['site_id']
+
+    from celery_tasks import _get_someone_goods_id_all_comment_task
+
+    async_obj = _get_someone_goods_id_all_comment_task.apply_async(
+        args=[
+            index,
+            site_id,
+            goods_id,
+        ],
+        expires=5 * 60,
+        retry=False,
+    )
+
+    return async_obj
+
+async def get_goods_comment_async_one_res(slice_params_list, now_loop, logger, conc_type_num=0) -> list:
+    """
+    获取goods comment 异步 slice_params_list的one_res
+    :param slice_params_list:
+    :param now_loop: 当前事件循环obj
+    :param logger:
+    :param conc_type: 并发类型: 0:'celery' or 1:'asyncio'
+    :return:
+    """
+    if conc_type_num not in (0, 1):
+        raise ValueError('conc_type_num值异常!')
+
+    tasks = []
+    for item in slice_params_list:
+        index, goods_id, site_id = item['index'], item['goods_id'], item['site_id']
+        logger.info('create task[where index: {}, goods_id: {}, site_id: {}]'.format(index, goods_id, site_id))
+        if conc_type_num == 0:
+            try:
+                async_obj = await create_goods_comment_celery_task_obj(
+                    index=index,
+                    site_id=site_id,
+                    goods_id=goods_id,)
+                tasks.append(async_obj)
+            except Exception:
+                logger.error('遇到错误:', exc_info=True)
+                continue
+
+        elif conc_type_num == 1:
+            tasks.append(now_loop.create_task(async_get_someone_goods_id_all_comment(
+                index=index,
+                site_id=site_id,
+                goods_id=goods_id,
+                logger=logger)))
+
+        else:
+            raise NotImplementedError
+
+    if conc_type_num == 0:
+        # celery
+        one_res = await _get_celery_async_results(tasks=tasks)
+
+    elif conc_type_num == 1:
+        # asyncio
+        one_res = await async_wait_tasks_finished(tasks=tasks)
+    else:
+        raise NotImplementedError
+
+    return one_res
+
+async def handle_and_save_goods_comment_info(now_goods_comment_list, logger) -> None:
+    """
+    处理和存储comment info
+    :param now_goods_comment_list:
+    :param logger:
+    :return:
+    """
+    for item in now_goods_comment_list:
+        try:
+            goods_id = item.get('goods_id', '')
+            assert goods_id != '', 'goods_id不为空值!'
+        except AssertionError:
+            continue
+        except AttributeError:
+            logger.error('遇到错误:', exc_info=True)
+            continue
+
+        if item.get('_comment_list', []) != []:
+            logger.info('[+] crawler goods_id: {} success!'.format(goods_id))
+            _save_comment_item_r(
+                _r=item,
+                goods_id=goods_id,
+                logger=logger,)
+        else:
+            logger.info('[-] goods_id: {} 的comment_list为空list! 跳过!'.format(goods_id))
+
+    return None

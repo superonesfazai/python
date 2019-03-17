@@ -2,45 +2,38 @@
 
 '''
 @author = super_fazai
-@File    : all_comment_spider.py
+@File    : all_comment_real-times_update_spider.py
 @connect : superonesfazai@gmail.com
 '''
 
 """
-分布式 goods comment 抓取
+分布式 comment update
 """
 
 import sys
 sys.path.append('..')
 
-try:
-    from celery_tasks import _get_someone_goods_id_all_comment_task
-except ImportError:
-    pass
-
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_exceptions import (
-    SqlServerConnectionException,
-)
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 
 from gc import collect
-from pprint import pprint
 
-from sql_str_controller import (
-    cm_select_str_2,
-    cm_select_str_3,)
 from multiplex_code import (
     _print_db_old_data,
+    handle_and_save_goods_comment_info,
     get_goods_comment_async_one_res,
-    handle_and_save_goods_comment_info,)
+)
+
+from sql_str_controller import (
+    cm_select_str_1,
+)
 
 from fzutils.spider.async_always import *
 
-class CommentSpider(AsyncCrawler):
+class CommentRealTimesUpdateSpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
         AsyncCrawler.__init__(
             self,
@@ -48,10 +41,9 @@ class CommentSpider(AsyncCrawler):
             **kwargs,
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/all_comment/_/',
-        )
+            log_save_path=MY_SPIDER_LOGS_PATH + '/all_comment/实时更新/',)
         # 并发量
-        self.concurrency = 4
+        self.concurrency = 2
         self.debugging_api = self._init_debugging_api()
 
     async def _fck_run(self):
@@ -64,14 +56,6 @@ class CommentSpider(AsyncCrawler):
             if result is None:
                 pass
             else:
-                try:
-                    self.db_goods_id_list = await self._get_goods_comment_new_distinct_goods_id_list()
-                except Exception:
-                    self.lg.error('遇到错误:', exc_info=True)
-                    self.lg.info('sleeping time: {}s...'.format(60))
-                    await async_sleep(60)
-                    continue
-
                 tasks_params_list = await self._get_tasks_params_list(result=result)
                 tasks_params_list = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
                 while True:
@@ -85,19 +69,20 @@ class CommentSpider(AsyncCrawler):
                         slice_params_list=slice_params_list,
                         now_loop=self.loop,
                         logger=self.lg,
-                        conc_type_num=0)
+                        conc_type_num=1,)
                     # pprint(one_res)
                     now_goods_comment_list = one_res
                     await handle_and_save_goods_comment_info(
                         now_goods_comment_list=now_goods_comment_list,
-                        logger=self.lg)
+                        logger=self.lg,)
                     await async_sleep(1.2)
 
                 collect()
 
-    async def _get_tasks_params_list(self, result):
+    async def _get_tasks_params_list(self, result) -> list:
         """
         获取tasks_params_list
+        :param result:
         :return:
         """
         tasks_params_list = []
@@ -105,15 +90,8 @@ class CommentSpider(AsyncCrawler):
             # item: ('xxxx':goods_id, 'y':site_id)
             goods_id, site_id = item
             if not self.debugging_api.get(site_id):
-                self.lg.info('api为False, 跳过! 索引值[{}]'.format(index))
+                self.lg.info('api为False, 跳过! 索引值[%s]' % str(index))
                 continue
-
-            try:
-                if goods_id in self.db_goods_id_list:
-                    self.lg.info('该goods_id[{}]已存在于db中, 此处跳过!'.format(goods_id))
-                    continue
-            except IndexError:
-                self.lg.error('IndexError')
 
             tasks_params_list.append({
                 'index': index,
@@ -123,26 +101,6 @@ class CommentSpider(AsyncCrawler):
 
         return tasks_params_list
 
-    async def _get_goods_comment_new_distinct_goods_id_list(self) -> list:
-        """
-        获取goods_comment_new 去重后的goods_id list
-        :return:
-        """
-        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        if sql_cli.is_connect_success:
-            db_goods_id = sql_cli._select_table(
-                sql_str=cm_select_str_3,
-                logger=self.lg)
-            try:
-                db_goods_id = [item[0] for item in db_goods_id]
-                self.lg.info(str(db_goods_id))
-            except IndexError:
-                raise IndexError
-        else:
-            raise SqlServerConnectionException
-
-        return db_goods_id
-
     async def _get_db_old_data(self) -> (list, None):
         """
         获取db 待采集的data
@@ -151,9 +109,12 @@ class CommentSpider(AsyncCrawler):
         tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
-            result = list(tmp_sql_server._select_table(sql_str=cm_select_str_2))
+            result = list(tmp_sql_server._select_table(
+                sql_str=cm_select_str_1,
+                logger=self.lg))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+            await async_sleep(60)
 
         await _print_db_old_data(result=result, logger=self.lg)
 
@@ -162,7 +123,7 @@ class CommentSpider(AsyncCrawler):
     @staticmethod
     def _init_debugging_api():
         '''
-        设置待抓取的商品的site_id
+        用于设置待抓取的商品的site_id
         :return: dict
         '''
         return {
@@ -185,6 +146,7 @@ class CommentSpider(AsyncCrawler):
         try:
             del self.lg
             del self.loop
+            del self.debugging_api
         except:
             pass
         collect()
@@ -192,12 +154,11 @@ class CommentSpider(AsyncCrawler):
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
-        _ = CommentSpider()
+        _ = CommentRealTimesUpdateSpider()
         loop = get_event_loop()
         res = loop.run_until_complete(_._fck_run())
         collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        sleep(60 * 5)
 
 def main():
     print('========主函数开始========')
