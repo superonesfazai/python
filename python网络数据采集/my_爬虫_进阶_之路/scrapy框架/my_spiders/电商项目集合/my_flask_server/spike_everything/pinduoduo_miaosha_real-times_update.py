@@ -6,6 +6,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+拼多多退货严重, 不维护
+"""
+
 import sys
 sys.path.append('..')
 

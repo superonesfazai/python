@@ -45,6 +45,8 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
         # 并发量
         self.concurrency = 2
         self.debugging_api = self._init_debugging_api()
+        # 设置并发obj
+        self.conc_type_num = 0
 
     async def _fck_run(self):
         """
@@ -69,7 +71,7 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
                         slice_params_list=slice_params_list,
                         now_loop=self.loop,
                         logger=self.lg,
-                        conc_type_num=1,)
+                        conc_type_num=self.conc_type_num,)
                     # pprint(one_res)
                     now_goods_comment_list = one_res
                     await handle_and_save_goods_comment_info(

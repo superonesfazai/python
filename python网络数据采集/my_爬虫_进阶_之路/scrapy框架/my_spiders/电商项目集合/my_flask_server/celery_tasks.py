@@ -30,11 +30,6 @@ from settings import (
 )
 
 from company_spider import CompanySpider
-from comment_spiders.ali_1688_comment_parse import ALi1688CommentParse
-from comment_spiders.taobao_comment_parse import TaoBaoCommentParse
-from comment_spiders.tmall_comment_parse import TmallCommentParse
-from comment_spiders.jd_comment_parse import JdCommentParse
-from comment_spiders.zhe_800_comment_parse import Zhe800CommentParse
 
 from fzutils.internet_utils import (
     get_random_pc_ua,
