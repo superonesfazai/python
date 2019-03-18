@@ -57,7 +57,7 @@ $ redis-server /usr/local/etc/redis.conf
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
 单个后台 celery multi start w0 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 (多开)
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 w20 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
@@ -677,3 +677,72 @@ def _get_someone_goods_id_all_comment_task(self, index, site_id:int, goods_id) -
 
     return res
 
+@app.task(name=tasks_name + '._get_pk_one_type_company_id_list_task', bind=True)
+def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_num, province_name, city_name, city_id, w3, num_retries=6, timeout=15,) -> list:
+    """
+    获取pk单个关键字单页的company_id_list
+    :param self:
+    :param ip_pool_type:
+    :param keyword:
+    :param page_num:
+    :param province_name:
+    :param city_name:
+    :param city_id:
+    :param w3:
+    :param num_retries:
+    :param timeout:
+    :return:
+    """
+    headers = _get_phone_headers()
+    headers.update({
+        'accept': 'application/json, text/plain, */*',
+        'Origin': 'https://m.ppkoo.com',
+    })
+    params = (
+        # ('cid', '50000436'),          # 根据keywords索引的话, cid可不传
+        ('keywords', keyword),
+        ('hot', 'desc'),
+        ('page', str(page_num)),
+        ('city_id', str(city_id)),
+        # ('v', '3784143914913054'),
+    )
+    url = 'https://www.ppkoo.com/api/Search/goods'
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,
+        timeout=timeout,)
+    # lg.info(body)
+
+    data = json_2_dict(
+        json_str=body,
+        default_res={},
+        logger=lg).get('data', [])
+    # pprint(data)
+    company_info_list = []
+    for item in data:
+        try:
+            company_id = item.get('business_id', '')
+            assert company_id != ''
+            address = item.get('shop_location', '')
+            assert address != ''
+            company_info_list.append({
+                'company_id': company_id,
+                'province_name': province_name,
+                'city_name': city_name,
+                'w3': w3,
+                'address': address,                 # 此处即可获取详细地址!
+            })
+        except Exception:
+            continue
+
+    company_info_list = list_remove_repeat_dict_plus(target=company_info_list, repeat_key='company_id')
+    # pprint(company_info_list)
+    lg.info('[{}] keyword: {}, page_num: {}'.format(
+        '+' if company_info_list != [] else '-',
+        keyword,
+        page_num,))
+
+    return company_info_list

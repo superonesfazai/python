@@ -32,7 +32,7 @@ comment
 """
 '''select'''
 cm_select_str_1 = '''
-select top 500 GoodsID, SiteID 
+select top 888 GoodsID, SiteID 
 from dbo.GoodsInfoAutoGet
 where MainGoodsID is not null
 and IsDelete=0

@@ -891,18 +891,11 @@ COMPANY_ITEM_LIST = [
         },
         'company_status': None,     # ''
         'company_link': None,       # ''
-        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
-            'method': 'css',
-            'selector': 'div.shop-item.cf',
-        },
-        'company_name': {
-            'method': 'css',
-            'selector': 'div.shop-jieshao span.title ::text'
-        },
+        'company_name': None,       # data.get('shop_name', '')
         'legal_person': None,       # ''
-        'phone': None,              # 在company_info_detail_li_1中(div.left span.title:电话)
+        'phone': None,              # data.get('phone_mob', '')
         'email_address': None,      # ''
-        'address': None,            # 在company_info_detail_li_1中(div.left span.title:地址)
+        'address': None,            # 在ori_address中
         'brief_introduction': None, # 简介 ''
         'business_range': None,     # 主营范围 ''
         'founding_time': None,      # 赋默认值

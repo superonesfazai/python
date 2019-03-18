@@ -267,3 +267,15 @@ select DISTINCT goods_id
 from dbo.goods_comment_new
 GROUP BY goods_id)
 '''
+# 查看现有goods comment 更新情况
+sql_str_16 = '''
+select top 10 GoodsId, CreateTime, comment_modify_time
+from dbo.GoodsInfoAutoGet
+where MainGoodsID is not null
+and IsDelete=0
+and GoodsID in (
+select DISTINCT goods_id
+from dbo.goods_comment_new
+GROUP BY goods_id)
+ORDER BY comment_modify_time desc
+'''
