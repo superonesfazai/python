@@ -71,6 +71,9 @@ def method_2():
     t2 = Thread(target=worker2, name='thread2', args=(20, 1,))
     t1.start()
     t2.start()
+    # 将线程设置为守护线程
+    # t1.setDaemon(True)
+    # t2.setDaemon(True)
     t1.join()   # 阻塞
     t2.join()
     while not q.empty():

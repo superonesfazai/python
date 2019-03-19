@@ -26,6 +26,12 @@ from time import (
     sleep,)
 from datetime import datetime
 from pprint import pprint
+from threading import Thread
+# cpu密集型
+# from multiprocessing import Pool, cpu_count
+# IO密集型
+from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import cpu_count
 from gc import collect
 from asyncio import (
     wait,
@@ -57,6 +63,7 @@ from fzutils.time_utils import (
 from fzutils.spider.selector import parse_field
 from fzutils.common_utils import wash_sensitive_info
 from fzutils.aio_utils import async_wait_tasks_finished
+from fzutils.safe_utils import get_uuid1
 from fzutils.celery_utils import _get_celery_async_results
 
 def _z8_get_parent_dir(goods_id) -> str:
@@ -935,8 +942,36 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
             dumps(i.get('append_comment', {}).get('img_url_list', []), ensure_ascii=False),
         )
 
+    def save_comment_2_db_worker(params, logger) -> bool:
+        """
+        save 单条comment
+        :param params:
+        :param logger:
+        :return:
+        """
+        # 多线程并发存储会导致内存回收错误, 使脚本截止!: malloc: *** error for object 0x4: pointer being freed was not allocated
+        res = False
+        try:
+            new_sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            if new_sql_cli.is_connect_success:
+                res = new_sql_cli._insert_into_table_2(
+                    sql_str=cm_insert_str_2,
+                    params=params,
+                    logger=logger,
+                    set_deadlock_priority_low=False, )
+            try:
+                del new_sql_cli
+            except:
+                pass
+        except Exception:
+            pass
+
+        return res
+
     create_time = _r['create_time']
     comment_list = _r['_comment_list']
+    # thread_pool = ThreadPool(cpu_count())
+
     for i in comment_list:
         try:
             params = _get_db_insert_params(
@@ -947,46 +982,40 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
             _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
             return None
 
-        # if re.compile('^ze').findall(goods_id):
-        #     pprint(params)
-
+        # 公用sql_cli 导致下方错误
         # TODO 老是报错: pymssql.OperationalError: Cannot commit transaction: (3902, b'The COMMIT TRANSACTION request has no corresponding BEGIN TRANSACTION.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
-        # res = sql_cli._insert_into_table_2(
-        #     sql_str=cm_insert_str_2,
-        #     params=params,
-        #     logger=logger,
-        #     set_deadlock_priority_low=False,)
-        # if not res:
-        #     try:
-        #         new_sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        #         if new_sql_cli.is_connect_success:
-        #             new_sql_cli._insert_into_table_2(
-        #                 sql_str=cm_insert_str_2,
-        #                 params=params,
-        #                 logger=logger,
-        #                 set_deadlock_priority_low=False,)
-        #         try:
-        #             del new_sql_cli
-        #         except:
-        #             pass
-        #     except Exception:
-        #         continue
 
         # 改用每次重连! 得以解决!
         try:
-            new_sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-            if new_sql_cli.is_connect_success:
-                new_sql_cli._insert_into_table_2(
-                    sql_str=cm_insert_str_2,
-                    params=params,
-                    logger=logger,
-                    set_deadlock_priority_low=False,)
-            try:
-                del new_sql_cli
-            except:
-                pass
-        except Exception:
+            # 阻塞存
+            save_comment_2_db_worker(params=params, logger=logger)
+
+            # Thread存
+            # worker = Thread(
+            #     target=save_comment_2_db_worker,
+            #     name='save_2_db_worker:' + get_uuid1(),
+            #     args=(
+            #         params,
+            #         logger),)
+            # worker.setDaemon(True)
+            # worker.start()
+        except:
             continue
+
+        # 改用线程池存, 使用线程长期运行:python内部c垃圾回收错误，会导致脚本停止
+        # try:
+        #     thread_pool.apply_async(save_comment_2_db_worker, args=(params, logger))
+        # except:
+        #     # 处理segmentation fault报错
+        #     # 设置为不限制 stack size, 我mac上默认限制为:8192
+        #     # $ ulimit -s unlimited
+        #     continue
+
+    # try:
+    #     thread_pool.close()
+    #     thread_pool.join()
+    # except:
+    #     pass
 
     collect()
 

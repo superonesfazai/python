@@ -44,7 +44,7 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/all_comment/实时更新/',)
         # 并发量
-        self.concurrency = 10
+        self.concurrency = 50
         self.debugging_api = self._init_debugging_api()
         # 设置并发obj
         self.conc_type_num = 0
