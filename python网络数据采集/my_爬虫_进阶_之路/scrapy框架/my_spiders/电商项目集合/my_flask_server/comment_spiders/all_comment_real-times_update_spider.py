@@ -25,6 +25,7 @@ from multiplex_code import (
     _print_db_old_data,
     handle_and_save_goods_comment_info,
     get_goods_comment_async_one_res,
+    record_goods_comment_modify_time,
 )
 
 from sql_str_controller import (
@@ -43,7 +44,7 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/all_comment/实时更新/',)
         # 并发量
-        self.concurrency = 2
+        self.concurrency = 10
         self.debugging_api = self._init_debugging_api()
         # 设置并发obj
         self.conc_type_num = 0
@@ -77,9 +78,29 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
                     await handle_and_save_goods_comment_info(
                         now_goods_comment_list=now_goods_comment_list,
                         logger=self.lg,)
+                    await self._update_goods_comment_modify_time(now_goods_comment_list)
                     await async_sleep(1.2)
 
                 collect()
+
+    async def _update_goods_comment_modify_time(self, now_goods_comment_list) -> None:
+        """
+        更新comment_modify_time(遍历过即更新, 不管成功与否!)
+        :param now_goods_comment_list:
+        :return:
+        """
+        self.lg.info('Recoding ' + '.' * 50)
+        for item in now_goods_comment_list:
+            try:
+                goods_id = item.get('goods_id', '')
+                assert goods_id != '', 'goods_id不为空值!'
+                res = await record_goods_comment_modify_time(
+                    goods_id=goods_id,
+                    logger=self.lg)
+            except AssertionError:
+                continue
+
+        return None
 
     async def _get_tasks_params_list(self, result) -> list:
         """

@@ -199,6 +199,9 @@ class CompanySpider(AsyncCrawler):
         """
         self.db_pk_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=10)
         self.pk_category_list = await self._get_pk_category()
+        # 汉字
+        self.pk_category_list = await self._get_al_category4()
+        # self.pk_category_list = 'z x c v b n m a s d f g h j k l p o i u y t r e w q 1 2 3 4 5 6 7 8 9 0'.split(' ')
 
         pprint(self.pk_category_list)
         self.lg.info('pk所有子分类总个数: {}'.format(len(self.pk_category_list)))
@@ -336,14 +339,14 @@ class CompanySpider(AsyncCrawler):
             return one_all_company_id_list
 
         self.lg.info('即将开始采集pk shop info...')
-        new_concurrency = 300
+        new_concurrency = 1200
         new_tasks_params_list = []
         parser_obj = await self._get_parser_obj(short_name='pk')
         self.new_pk_city_info_list = await self._get_pk_new_hn_city_info_list()
         for ii in self.new_pk_city_info_list:
             province_name, city_name, city_id, w3 = ii['province_name'], ii['city_name'], ii['city_id'], ii['w3']
             for cate_name_index, cate_name in enumerate(self.pk_category_list):
-                self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
+                self.lg.info('crawl cate_name: {}, cate_name_index: {}, city_name: {} ...'.format(cate_name, cate_name_index, city_name))
                 tasks_params_list = await _get_tasks_params_list(
                     cate_name=cate_name,
                     province_name=province_name,
@@ -358,7 +361,9 @@ class CompanySpider(AsyncCrawler):
                 except AssertionError:
                     continue
 
-                new_step = self.concurrency
+                # new_step = self.concurrency
+                # 并发量设置为1200, 不用默认的300
+                new_step = 1200
                 tasks_params_list_obj = TasksParamsListObj(
                     tasks_params_list=new_tasks_params_list,
                     step=new_step)

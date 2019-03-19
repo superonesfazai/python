@@ -57,7 +57,7 @@ $ redis-server /usr/local/etc/redis.conf
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
 单个后台 celery multi start w0 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 (多开)
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 w18 w19 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
@@ -482,28 +482,27 @@ def _get_tm_one_page_comment_info_task(self, ip_pool_type, goods_id, _type, sell
         page_num=page_num,
         page_size=page_size)
     # cookies必须! requests 请求无数据!
-    # body = Requests.get_url_body(
-    #     url=url,
-    #     headers=headers,
-    #     params=params,
-    #     encoding='gbk',
-    #     cookies=cookies,
-    #     ip_pool_type=ip_pool_type,)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        cookies=cookies,
+        ip_pool_type=ip_pool_type,)
 
     # 所以直接用phantomjs来获取相关api数据
-    url = _get_url_contain_params(url=url, params=params)
-    # lg.info(url)
-    driver = BaseDriver(
-        executable_path=PHANTOMJS_DRIVER_PATH,
-        logger=lg,
-        ip_pool_type=ip_pool_type,
-        driver_cookies=dict_cookies_2_str(cookies))
-    body = driver.get_url_body(url=url)
+    # url = _get_url_contain_params(url=url, params=params)
+    # # lg.info(url)
+    # driver = BaseDriver(
+    #     executable_path=PHANTOMJS_DRIVER_PATH,
+    #     logger=lg,
+    #     ip_pool_type=ip_pool_type,
+    #     driver_cookies=dict_cookies_2_str(cookies))
+    # body = driver.get_url_body(url=url)
+    # try:
+    #     del driver
+    # except:
+    #     pass
     # lg.info(str(body))
-    try:
-        del driver
-    except:
-        pass
 
     data = []
     try:
@@ -714,6 +713,7 @@ def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_
         ip_pool_type=ip_pool_type,
         num_retries=num_retries,
         timeout=timeout,)
+    # 存在: {"status":true,"total":"0","data":null}
     # lg.info(body)
 
     data = json_2_dict(
@@ -721,6 +721,12 @@ def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_
         default_res={},
         logger=lg).get('data', [])
     # pprint(data)
+    if data is None:
+        # 处理null的赋值情况
+        data = []
+    else:
+        pass
+
     company_info_list = []
     for item in data:
         try:

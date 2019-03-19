@@ -100,7 +100,7 @@ class ALiPay(AsyncCrawler):
             for line in f:
                 self.phone_list.append(line.replace('\n', ''))
         pprint(self.phone_list)
-        self.phone_list = self.phone_list[150:]
+        self.phone_list = self.phone_list[:]
         print('total phone num: {}'.format(len(self.phone_list)))
 
         return

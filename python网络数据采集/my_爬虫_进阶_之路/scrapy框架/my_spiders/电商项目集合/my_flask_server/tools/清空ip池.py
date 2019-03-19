@@ -7,7 +7,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from fzutils.ip_pools import MyIpPools
-
-_ = MyIpPools()
-_._empty_ip_pools()
+# from fzutils.ip_pools import MyIpPools
+#
+# _ = MyIpPools()
+# _._empty_ip_pools()

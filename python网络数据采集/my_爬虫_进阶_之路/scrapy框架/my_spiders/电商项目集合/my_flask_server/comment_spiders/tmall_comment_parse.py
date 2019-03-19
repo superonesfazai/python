@@ -269,18 +269,17 @@ class TmallCommentParse(Crawler):
             page_num=page_num,
             page_size=self.page_size)
         # cookies必须! requests 请求无数据!
-        # body = Requests.get_url_body(
-        #     url=_url,
-        #     headers=headers,
-        #     params=params,
-        #     encoding='gbk',
-        #     cookies=self.login_cookies_dict,
-        #     ip_pool_type=self.ip_pool_type,)
+        body = Requests.get_url_body(
+            url=_url,
+            headers=headers,
+            params=params,
+            cookies=self.login_cookies_dict,
+            ip_pool_type=self.ip_pool_type,)
 
         # 所以直接用phantomjs来获取相关api数据
-        _url = _get_url_contain_params(url=_url, params=params)
+        # _url = _get_url_contain_params(url=_url, params=params)
         # self.lg.info(_url)
-        body = self.driver.get_url_body(url=_url)
+        # body = self.driver.get_url_body(url=_url)
         # self.lg.info(str(body))
         assert body != '', '获取到的body为空str! 出错type:{0}, goods_id:{1}'.format(_type, goods_id)
 

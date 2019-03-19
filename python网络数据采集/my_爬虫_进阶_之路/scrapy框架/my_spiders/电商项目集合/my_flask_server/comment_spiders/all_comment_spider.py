@@ -51,7 +51,7 @@ class CommentSpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/all_comment/_/',
         )
         # 并发量
-        self.concurrency = 2
+        self.concurrency = 3
         self.debugging_api = self._init_debugging_api()
         # 设置并发obj
         self.conc_type_num = 0

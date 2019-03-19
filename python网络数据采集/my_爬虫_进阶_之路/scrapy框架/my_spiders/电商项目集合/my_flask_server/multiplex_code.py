@@ -36,6 +36,7 @@ from my_exceptions import (
 from sql_str_controller import (
     cm_insert_str_2,
     al_select_str_2,
+    cm_update_str_2,
 )
 
 from fzutils.spider.fz_requests import Requests
@@ -1287,3 +1288,31 @@ async def handle_and_save_goods_comment_info(now_goods_comment_list, logger) -> 
             logger.info('[-] goods_id: {} 的comment_list为空list! 跳过!'.format(goods_id))
 
     return None
+
+async def record_goods_comment_modify_time(goods_id, logger=None) -> bool:
+    """
+    记录goods_id的评论更新的时间点
+    :param goods_id:
+    :return:
+    """
+    res = False
+    try:
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        res = await sql_cli._update_table_3(
+            sql_str=cm_update_str_2,
+            params=(str(get_shanghai_time()), str(goods_id)),
+            logger=logger,)
+        try:
+            del sql_cli
+        except:
+            pass
+    except Exception:
+        logger.error('遇到错误:', exc_info=True)
+
+    logger.info('[{}] record goods_id: {} comment_modify_time success!'.format(
+        '+' if res else '-',
+        goods_id,))
+    collect()
+
+    return res
+
