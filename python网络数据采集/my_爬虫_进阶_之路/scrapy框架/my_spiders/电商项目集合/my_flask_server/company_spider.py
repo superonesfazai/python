@@ -115,7 +115,7 @@ class CompanySpider(AsyncCrawler):
         self.hn_city_info_list = []                                             # hn的城市路由地址信息list
         self.hn_max_num_retries = 6                                             # hn单页面最大重试数
         self.hn_max_page_num = 100                                              # hn单个keyword最大搜索戒指页
-        self.pk_max_page_num = 1200                                             # pk单个keyword最大搜索截止页
+        self.pk_max_page_num = 20000                                             # pk单个keyword最大搜索截止页
         self.pk_max_num_retries = 6                                             # pk num_retries
         self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
@@ -200,7 +200,7 @@ class CompanySpider(AsyncCrawler):
         self.db_pk_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=10)
         self.pk_category_list = await self._get_pk_category()
         # 汉字
-        self.pk_category_list = await self._get_al_category4()
+        # self.pk_category_list = await self._get_al_category4()
         # self.pk_category_list = 'z x c v b n m a s d f g h j k l p o i u y t r e w q 1 2 3 4 5 6 7 8 9 0'.split(' ')
 
         pprint(self.pk_category_list)

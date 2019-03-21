@@ -11,6 +11,7 @@ import sys
 import time
 import gevent
 from gevent import monkey
+from socket import AF_INET, SOCK_STREAM
 
 monkey.patch_all()  # 替换平常用到的函数
 
@@ -25,7 +26,7 @@ def handle_request(conn):
 
 def main(port):
     # 注意是从gevent包中的socket类来创建对象
-    s = gevent.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = gevent.socket(AF_INET, SOCK_STREAM)
     s.bind(('', 8080))
     s.listen(5)
     while True:

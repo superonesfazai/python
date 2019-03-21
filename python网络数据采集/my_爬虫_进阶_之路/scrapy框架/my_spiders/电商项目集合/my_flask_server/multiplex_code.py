@@ -972,7 +972,19 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
     comment_list = _r['_comment_list']
     # thread_pool = ThreadPool(cpu_count())
 
+    from fzutils.gevent_utils import (
+        gevent_monkey,
+        GeventPool,
+        gevent_joinall,)
+    # sql 连接只需针对socket连接的替换即可
+    gevent_monkey.patch_socket()
+
+    # 限制并发量30个
+    gevent_pool = GeventPool(30)
+    tasks = []
+
     for i in comment_list:
+        logger.info('create_task[where goods_id: {}] ...'.format(goods_id))
         try:
             params = _get_db_insert_params(
                 goods_id=goods_id,
@@ -986,21 +998,21 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
         # TODO 老是报错: pymssql.OperationalError: Cannot commit transaction: (3902, b'The COMMIT TRANSACTION request has no corresponding BEGIN TRANSACTION.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
 
         # 改用每次重连! 得以解决!
-        try:
-            # 阻塞存
-            save_comment_2_db_worker(params=params, logger=logger)
-
-            # Thread存
-            # worker = Thread(
-            #     target=save_comment_2_db_worker,
-            #     name='save_2_db_worker:' + get_uuid1(),
-            #     args=(
-            #         params,
-            #         logger),)
-            # worker.setDaemon(True)
-            # worker.start()
-        except:
-            continue
+        # try:
+        #     # 阻塞存
+        #     save_comment_2_db_worker(params=params, logger=logger)
+        #
+        #     # Thread存
+        #     # worker = Thread(
+        #     #     target=save_comment_2_db_worker,
+        #     #     name='save_2_db_worker:' + get_uuid1(),
+        #     #     args=(
+        #     #         params,
+        #     #         logger),)
+        #     # worker.setDaemon(True)
+        #     # worker.start()
+        # except:
+        #     continue
 
         # 改用线程池存, 使用线程长期运行:python内部c垃圾回收错误，会导致脚本停止
         # try:
@@ -1011,11 +1023,18 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
         #     # $ ulimit -s unlimited
         #     continue
 
+        # gevent
+        tasks.append(gevent_pool.spawn(save_comment_2_db_worker, params, logger))
+
+    # 线程池
     # try:
     #     thread_pool.close()
     #     thread_pool.join()
     # except:
     #     pass
+
+    # gevent
+    gevent_joinall(tasks)
 
     collect()
 
