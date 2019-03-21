@@ -97,7 +97,8 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
                 res = await record_goods_comment_modify_time(
                     goods_id=goods_id,
                     logger=self.lg)
-            except AssertionError:
+            except (AssertionError, AttributeError):
+                # 处理 AttributeError: 'TaskRevokedError' object has no attribute 'get'
                 continue
 
         return None

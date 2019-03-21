@@ -317,7 +317,6 @@ class ALi1688LoginAndParse(Crawler):
         title = self._wash_sensitive_words(data.get('subject', ''))
         link_name = ''
 
-        # 商品价格信息, 及其对应起批量   [{'price': '119.00', 'begin': '3'}, ...]
         price_info = self._get_price_info(data=data)
         # self.lg.info(str(price_info))
 

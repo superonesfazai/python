@@ -752,3 +752,4 @@ def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_
         page_num,))
 
     return company_info_list
+
