@@ -959,6 +959,12 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
                     params=params,
                     logger=logger,
                     set_deadlock_priority_low=False, )
+                if res:
+                    try:
+                        buyer_name = params[2]
+                        logger.info('buyer_name: {} saved!'.format(buyer_name))
+                    except IndexError:
+                        pass
             try:
                 del new_sql_cli
             except:
@@ -979,12 +985,11 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
     # sql 连接只需针对socket连接的替换即可
     gevent_monkey.patch_socket()
 
-    # 限制并发量30个
-    gevent_pool = GeventPool(30)
+    # 限制并发量50个
+    gevent_pool = GeventPool(50)
     tasks = []
 
     for i in comment_list:
-        logger.info('create_task[where goods_id: {}] ...'.format(goods_id))
         try:
             params = _get_db_insert_params(
                 goods_id=goods_id,
@@ -993,6 +998,12 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
         except Exception as e:
             _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
             return None
+
+        try:
+            buyer_name = params[2]
+        except IndexError:
+            continue
+        logger.info('create_task[where goods_id is {}, buyer_name is {}] ...'.format(goods_id, buyer_name))
 
         # 公用sql_cli 导致下方错误
         # TODO 老是报错: pymssql.OperationalError: Cannot commit transaction: (3902, b'The COMMIT TRANSACTION request has no corresponding BEGIN TRANSACTION.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
@@ -1019,11 +1030,12 @@ def _save_comment_item_r(_r, goods_id, sql_cli=None, logger=None) -> None:
         #     thread_pool.apply_async(save_comment_2_db_worker, args=(params, logger))
         # except:
         #     # 处理segmentation fault报错
-        #     # 设置为不限制 stack size, 我mac上默认限制为:8192
+        #     # 设置为不限制 stack size, 我mac上默认限制为:8192, 不限制后mac会经常巨卡!!
         #     # $ ulimit -s unlimited
         #     continue
 
         # gevent
+        # spawn()运行协程
         tasks.append(gevent_pool.spawn(save_comment_2_db_worker, params, logger))
 
     # 线程池
@@ -1106,6 +1118,7 @@ def wash_goods_comment(comment_content:str) -> str:
         ('京东', YIUXIU_NAME),
         ('zhe800', YIUXIU_NAME),
         ('折800', YIUXIU_NAME),
+        ('闲鱼', YIUXIU_NAME),
 
         ('\r', BLANK_SPACE),
         ('\n', BLANK_SPACE),

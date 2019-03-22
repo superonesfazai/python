@@ -55,6 +55,7 @@ try:
 except ImportError:
     pass
 
+from jieba import cut as jieba_cut
 from requests import session
 from datetime import datetime
 from urllib.parse import urlencode
@@ -82,6 +83,7 @@ from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.ocr_utils import yundama_ocr_captcha
 from fzutils.celery_utils import _get_celery_async_results
+from fzutils.memory_utils import get_current_func_name
 from fzutils.spider.async_always import *
 
 # uvloop替换asyncio默认事件循环
@@ -96,7 +98,7 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'pk'                                                 # 设置爬取对象
+        self.spider_name = 'al'                                                 # 设置爬取对象
         self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
@@ -115,7 +117,7 @@ class CompanySpider(AsyncCrawler):
         self.hn_city_info_list = []                                             # hn的城市路由地址信息list
         self.hn_max_num_retries = 6                                             # hn单页面最大重试数
         self.hn_max_page_num = 100                                              # hn单个keyword最大搜索戒指页
-        self.pk_max_page_num = 20000                                             # pk单个keyword最大搜索截止页
+        self.pk_max_page_num = 100000                                             # pk单个keyword最大搜索截止页
         self.pk_max_num_retries = 6                                             # pk num_retries
         self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
@@ -2557,14 +2559,31 @@ class CompanySpider(AsyncCrawler):
             return []
 
         all_key_list = []
+        new_sql_add_index = 0
         for index, item in enumerate(excel_result):
             keyword = item.get('关键词', None)
             if not keyword:
                 continue
 
-            if keyword not in all_key_list:
-                self.lg.info('{}, add {}'.format(index, keyword))
-                all_key_list.append(keyword)
+            # 原数据接入
+            # if keyword not in all_key_list:
+            #     self.lg.info('{}, add {}'.format(index, keyword))
+            #     all_key_list.append(keyword)
+
+            # jieba分词存入
+            try:
+                for seq in jieba_cut(sentence=keyword, cut_all=False):
+                    # 精准模式先拆分原句
+                    seq = seq.lower()
+                    if ' ' == seq:
+                        continue
+                    if seq not in all_key_list:
+                        self.lg.info('{}, add {}'.format(new_sql_add_index, seq))
+                        all_key_list.append(seq)
+                        new_sql_add_index += 1
+            except Exception:
+                self.lg.info('遇到错误', exc_info=True)
+                continue
 
         try:
             del excel_result
@@ -2572,7 +2591,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[7800:]
+        return all_key_list[0:]
 
     async def _get_al_category7(self) -> list:
         """
@@ -2848,10 +2867,6 @@ class CompanySpider(AsyncCrawler):
             tasks = []
             for k in slice_params_list:
                 company_id = k['company_id']
-                if 'al' + company_id in self.db_al_unique_id_list:
-                    self.lg.info('company_id: {} in db, so pass!'.format(company_id))
-                    continue
-
                 self.lg.info('create task[where company_id: {}]'.format(company_id))
                 company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
                 tasks.append(self.loop.create_task(self._parse_one_company_info(
@@ -2865,6 +2880,7 @@ class CompanySpider(AsyncCrawler):
 
             return one_res
 
+        self.lg.info('-> {}.{} invoked'.format(self.__class__.__name__, get_current_func_name()))
         # 对应company_id 采集该分类截止页面的所有company info
         tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
         tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)

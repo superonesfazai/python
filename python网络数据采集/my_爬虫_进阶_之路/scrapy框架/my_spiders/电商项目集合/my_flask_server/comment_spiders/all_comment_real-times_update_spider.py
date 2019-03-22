@@ -94,7 +94,7 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
             try:
                 goods_id = item.get('goods_id', '')
                 assert goods_id != '', 'goods_id不为空值!'
-                res = await record_goods_comment_modify_time(
+                await record_goods_comment_modify_time(
                     goods_id=goods_id,
                     logger=self.lg)
             except (AssertionError, AttributeError):
