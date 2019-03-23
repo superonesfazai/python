@@ -2745,7 +2745,7 @@ class CompanySpider(AsyncCrawler):
                         company_id = j.get('company_id', '')
                         # if 'al' + company_id not in self.db_al_unique_id_list:
                         if 'al' + company_id not in self.bloom_filter:
-                            # 原生去重太慢, 改用bloom算法判重
+                            # 原生判重太慢, 改用bloom算法判重
                             one_all_company_id_list.append({
                                 'company_id': company_id,
                                 'province_name': j['province_name'],
@@ -2853,8 +2853,8 @@ class CompanySpider(AsyncCrawler):
             tasks_params_list = []
             for item in one_all_company_id_list:
                 company_id = item['company_id']
-                if 'al' + company_id not in self.db_al_unique_id_list:
-                    # self.lg.info('company_id: {} not in db! to add!'.format(company_id))
+                # if 'al' + company_id not in self.db_al_unique_id_list:
+                if 'al' + company_id not in self.bloom_filter:
                     tasks_params_list.append({
                         'company_id': company_id,
                         'province_name': item['province_name'],
@@ -3649,6 +3649,7 @@ class CompanySpider(AsyncCrawler):
 
         for item in res:
             self.bloom_filter.add(item[0])
+
         self.lg.info('组成unique_id list 成功!')
 
         return oo
