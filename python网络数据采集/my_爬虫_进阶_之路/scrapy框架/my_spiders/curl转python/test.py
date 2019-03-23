@@ -65,6 +65,3 @@ from fzutils.spider.async_always import *
 # print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
 
 
-
-
-

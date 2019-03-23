@@ -18,10 +18,10 @@
     6. 中国制造网(https://cn.made-in-china.com)
     7. 义乌购[义乌国际商贸城](http://www.yiwugo.com)
     8. 货牛牛(eg: 广州: http://www.huoniuniu.com/ | 杭州: http://hz.huoniuniu.com/ | ...)
+    9. 品库(https://www.ppkoo.com/)
 
 待实现:
-    1. 品库(https://www.ppkoo.com/)
-    2. 广州南国小商品城(http://www.nanguo.cn/)
+    1. 广州南国小商品城(http://www.nanguo.cn/)
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -46,6 +46,7 @@ from multiplex_code import (
 try:
     from celery_tasks import (
         _get_al_one_type_company_id_list_task,
+        _get_al_company_page_html_task,
         _get_114_one_type_company_id_list_task,
         _parse_one_company_info_task,
         _get_114_company_page_html_task,
@@ -83,7 +84,8 @@ from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.ocr_utils import yundama_ocr_captcha
 from fzutils.celery_utils import _get_celery_async_results
-from fzutils.memory_utils import get_current_func_name
+from fzutils.memory_utils import get_current_func_info_by_traceback
+from fzutils.spider.bloom_utils import BloomFilter
 from fzutils.spider.async_always import *
 
 # uvloop替换asyncio默认事件循环
@@ -129,6 +131,7 @@ class CompanySpider(AsyncCrawler):
         self.insert_into_sql = gs_insert_str_1                                  # 存储的sql_str
         self.driver_path = PHANTOMJS_DRIVER_PATH                                # driver path
         self.driver_timeout = 20                                                # driver timeout
+        self.bloom_filter = BloomFilter(capacity=5000000, error_rate=0.000001)
         # wx sc_key
         with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
             self.sc_key = json_2_dict(f.read())['sckey']
@@ -2582,7 +2585,7 @@ class CompanySpider(AsyncCrawler):
                         all_key_list.append(seq)
                         new_sql_add_index += 1
             except Exception:
-                self.lg.info('遇到错误', exc_info=True)
+                self.lg.error('遇到错误', exc_info=True)
                 continue
 
         try:
@@ -2591,7 +2594,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[0:]
+        return all_key_list[1205:]
 
     async def _get_al_category7(self) -> list:
         """
@@ -2735,21 +2738,25 @@ class CompanySpider(AsyncCrawler):
         async def _get_one_all_company_id_list(one_res) -> list:
             """获取该子分类截止页面的所有company_id_list"""
             one_all_company_id_list = []
-            tmp_id_list = []
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
             for i in one_res:
                 try:
                     for j in i:
                         company_id = j.get('company_id', '')
-                        if 'al' + company_id not in self.db_al_unique_id_list:
-                            if company_id not in tmp_id_list:
-                                one_all_company_id_list.append({
-                                    'company_id': company_id,
-                                    'province_name': j['province_name'],
-                                    'city_name': j['city_name'],
-                                })
-                                tmp_id_list.append(company_id)
+                        # if 'al' + company_id not in self.db_al_unique_id_list:
+                        if 'al' + company_id not in self.bloom_filter:
+                            # 原生去重太慢, 改用bloom算法判重
+                            one_all_company_id_list.append({
+                                'company_id': company_id,
+                                'province_name': j['province_name'],
+                                'city_name': j['city_name'],
+                            })
                 except TypeError:
                     return []
+
+            one_all_company_id_list = list_remove_repeat_dict_plus(
+                target=one_all_company_id_list,
+                repeat_key='company_id',)
 
             return one_all_company_id_list
 
@@ -2777,10 +2784,6 @@ class CompanySpider(AsyncCrawler):
                 keyword = k['keyword']
                 page_num = k['page_num']
                 self.lg.info('create task[where keyword: {}, page_num: {}]...'.format(keyword, page_num))
-                # tasks.append(self.loop.create_task(self._get_al_one_type_company_id_list(
-                #     keyword=keyword,
-                #     page_num=page_num,)))
-
                 try:
                     async_obj = await _create_one_celery_task(
                         ip_pool_type=self.ip_pool_type,
@@ -2792,15 +2795,13 @@ class CompanySpider(AsyncCrawler):
                 except:
                     continue
 
-            # asyncio
-            # one_res = await async_wait_tasks_finished(tasks=tasks)
             # celery
             one_res = await _get_celery_async_results(tasks=tasks)
 
             return one_res
 
         self.lg.info('即将开始采集al shop info...')
-        new_concurrency = 300
+        new_concurrency = 1000
         new_tasks_params_list = []
         for cate_name_index, cate_name in enumerate(self.al_category_list):
             self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
@@ -2813,7 +2814,12 @@ class CompanySpider(AsyncCrawler):
             except AssertionError:
                 continue
 
-            tasks_params_list_obj = TasksParamsListObj(tasks_params_list=new_tasks_params_list, step=self.concurrency)
+            # new_concurrency2 = self.concurrency
+            # 达标后设置并发量为1000个
+            new_concurrency2 = 1000
+            tasks_params_list_obj = TasksParamsListObj(
+                tasks_params_list=new_tasks_params_list,
+                step=new_concurrency2)
             while True:
                 try:
                     slice_params_list = tasks_params_list_obj.__next__()
@@ -2843,10 +2849,12 @@ class CompanySpider(AsyncCrawler):
         """
         async def _get_tasks_params_list(one_all_company_id_list) -> list:
             """获取tasks_params_list"""
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
             tasks_params_list = []
             for item in one_all_company_id_list:
                 company_id = item['company_id']
                 if 'al' + company_id not in self.db_al_unique_id_list:
+                    # self.lg.info('company_id: {} not in db! to add!'.format(company_id))
                     tasks_params_list.append({
                         'company_id': company_id,
                         'province_name': item['province_name'],
@@ -2862,28 +2870,87 @@ class CompanySpider(AsyncCrawler):
 
             return tasks_params_list
 
+        async def _create_one_celery_task(**kwargs):
+            ip_pool_type = kwargs['ip_pool_type']
+            company_id = kwargs['company_id']
+            province_name = kwargs['province_name']
+            city_name = kwargs['city_name']
+
+            async_obj = _get_al_company_page_html_task.apply_async(
+                args=[
+                    ip_pool_type,
+                    company_id,
+                    province_name,
+                    city_name,
+                ],
+                expires=5 * 60,
+                retry=False,)
+
+            return async_obj
+
         async def _get_one_res(slice_params_list) -> list:
             """获取one_res"""
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
             tasks = []
+
+            # asyncio
+            # for k in slice_params_list:
+            #     company_id = k['company_id']
+            #     self.lg.info('create task[where company_id: {}]'.format(company_id))
+            #     company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
+            #     tasks.append(self.loop.create_task(self._parse_one_company_info(
+            #         short_name='al',
+            #         company_id=company_id,
+            #         province_name=k['province_name'],
+            #         city_name=k['city_name'],
+            #         company_url=company_url)))
+            #
+            # one_res = await async_wait_tasks_finished(tasks=tasks)
+
+            # 通过celery
             for k in slice_params_list:
                 company_id = k['company_id']
                 self.lg.info('create task[where company_id: {}]'.format(company_id))
-                company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
-                tasks.append(self.loop.create_task(self._parse_one_company_info(
-                    short_name='al',
-                    company_id=company_id,
-                    province_name=k['province_name'],
-                    city_name=k['city_name'],
-                    company_url=company_url)))
+                try:
+                    async_obj = await _create_one_celery_task(
+                        ip_pool_type=self.ip_pool_type,
+                        company_id=company_id,
+                        province_name=k['province_name'],
+                        city_name=k['city_name'],)
+                    tasks.append(async_obj)
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+            celery_one_res = await _get_celery_async_results(tasks=tasks)
+            # pprint(celery_one_res)
 
+            tasks = []
+            for p in celery_one_res:
+                try:
+                    company_id, company_html, province_name, city_name = p
+                    self.lg.info('create task[where company_id: {}]'.format(company_id))
+                    company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
+                    tasks.append(self.loop.create_task(self._parse_one_company_info(
+                        short_name='al',
+                        company_id=company_id,
+                        province_name=province_name,
+                        city_name=city_name,
+                        company_url=company_url,
+                        company_html=company_html)))
+                except Exception:
+                    continue
             one_res = await async_wait_tasks_finished(tasks=tasks)
 
             return one_res
 
-        self.lg.info('-> {}.{} invoked'.format(self.__class__.__name__, get_current_func_name()))
+        get_current_func_info_by_traceback(self=self, logger=self.lg)
         # 对应company_id 采集该分类截止页面的所有company info
         tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
-        tasks_params_list_obj = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+        # new_concurrency = self.concurrency
+        new_concurrency = 500
+        tasks_params_list_obj = TasksParamsListObj(
+            tasks_params_list=tasks_params_list,
+            step=new_concurrency)
 
         index = 0
         while True:
@@ -2938,118 +3005,16 @@ class CompanySpider(AsyncCrawler):
                         db_unique_id_list.append(unique_id)
                     else:
                         pass
+                    if unique_id not in self.bloom_filter:
+                        self.bloom_filter.add(unique_id)
+                    else:
+                        pass
                 else:
                     pass
             else:
                 pass
 
         return index, db_unique_id_list
-
-    async def _get_al_one_type_company_id_list(self, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
-        """
-        获取某个子分类的单页的company_id_list
-        :param keyword:
-        :return: [{'company_id': xxx, 'province_name': xxx, 'city_name':xxx}, ...]
-        """
-        async def _get_params() -> tuple:
-            return (
-                ('jsv', '2.4.11'),
-                ('appKey', '12574478'),
-                ('api', 'mtop.1688.offerService.getOffers'),
-                ('v', '1.0'),
-                ('type', 'jsonp'),
-                ('dataType', 'jsonp'),
-                ('callback', 'mtopjsonp3'),
-                # ('t', '1545810411923'),
-                # ('sign', 'a39f6182845e02c9159e36fd4dc8f108'),
-            )
-
-        async def _get_request_data() -> str:
-            return dumps({
-                'appName': 'wap',
-                'beginPage': page_num,
-                'keywords': keyword,
-                'pageSize': 20,
-                # 'spm': 'a26g8.7710019.0.0'
-            })
-
-        headers = await self._get_phone_headers()
-        headers.update({
-            # 'referer': 'https://m.1688.com/offer_search/-CBDCC1CFBACFBDF0.html?spm=a26g8.7710019.0.0',
-            'authority': 'h5api.m.1688.com',
-        })
-        params = await _get_params()
-        data = await _get_request_data()
-        params = tuple_or_list_params_2_dict_params(params)
-        base_url = 'https://h5api.m.1688.com/h5/mtop.1688.offerservice.getoffers/1.0/'
-
-        res1 = await unblock_get_taobao_sign_and_body(
-            base_url=base_url,
-            headers=headers,
-            params=params,
-            data=data,
-            timeout=timeout,
-            ip_pool_type=self.ip_pool_type,
-            logger=self.lg)
-        _m_h5_tk = res1[0]
-        error_record_msg = '出错keyword:{}, page_num:{}'.format(keyword, page_num)
-        if _m_h5_tk == '':
-            self.lg.error('获取到的_m_h5_tk为空str!' + error_record_msg)
-            self.lg.info('[{}] keyword:{}, page_num:{}'.format('-', keyword, page_num))
-
-            return []
-
-        res2 = await unblock_get_taobao_sign_and_body(
-            base_url=base_url,
-            headers=headers,
-            params=params,
-            data=data,
-            _m_h5_tk=_m_h5_tk,
-            session=res1[1],
-            ip_pool_type=self.ip_pool_type,
-            logger=self.lg,
-            timeout=timeout)
-        try:
-            body = res2[2]
-            # self.lg.info(body)
-            _ = json_2_dict(
-                json_str=re.compile('\((.*)\)').findall(body)[0],
-                default_res={}).get('data', {}).get('offers', [])
-            # pprint(_)
-        except IndexError:
-            self.lg.error('获取body时索引异常!' + error_record_msg)
-            return []
-
-        self.lg.info('[{}] keyword:{}, page_num:{}'.format('+' if _ != [] else '-', keyword, page_num))
-
-        member_id_list = []
-        for i in _:
-            if i.get('memberId') is not None:
-                member_id = i.get('memberId', '')
-                # if 'al' + member_id not in self.db_al_unique_id_list:
-                #     # 先去重避免重复建任务
-                #     member_id_list.append({
-                #         'company_id': member_id,
-                #         'province_name': i.get('province', ''),
-                #         'city_name': i.get('city', ''),
-                #     })
-                # else:
-                #     # self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
-                #     pass
-
-                # 放在外部去重
-                member_id_list.append({
-                    'company_id': member_id,
-                    'province_name': i.get('province', ''),
-                    'city_name': i.get('city', ''),
-                })
-
-        # list 内部dict去重
-        member_id_list = list_remove_repeat_dict_plus(target=member_id_list, repeat_key='company_id')
-        # pprint(member_id_list)
-        # al company url: https://m.1688.com/winport/company/b2b-3221063020830e2.html
-
-        return member_id_list
 
     async def _mt_spider(self):
         """
@@ -3681,6 +3646,9 @@ class CompanySpider(AsyncCrawler):
         oo = []
         for item in res:
             oo.append(item[0])
+
+        for item in res:
+            self.bloom_filter.add(item[0])
         self.lg.info('组成unique_id list 成功!')
 
         return oo

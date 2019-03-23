@@ -56,45 +56,54 @@ class MiaPintuan(object):
         :return: None
         '''
         goods_list = []
-        for index in range(1, 1000):     # 0跟1返回一样，所有从1开始遍历
-            tmp_url = 'https://m.mia.com/instant/groupon/common_list/{}/0/'.format(str(index))
-            print('正在抓取: ', tmp_url)
-
-            try:
-                body = Requests.get_url_body(
-                    url=tmp_url,
-                    headers=self.headers,
-                    had_referer=True,
-                    ip_pool_type=self.ip_pool_type)
-                # print(body)
-                assert body != '', 'body为空值!'
-            except AssertionError:
-                continue
-
-            try:
-                tmp_data = json_2_dict(json_str=body, default_res={})
-                assert tmp_data != {}, 'tmp_data不为空dict!'
-                assert tmp_data.get('data_list', []) != [], '得到的data_list为[], 此处跳过!'
-            except AssertionError as e:
-                print(e)
+        for page_num in range(1, 1000):     # 0跟1返回一样，所有从1开始遍历
+            one_page_list = self._get_one_page_mia_pintuan_api_goods_info(page_num=page_num)
+            if one_page_list == []:
                 break
 
-            # print(tmp_data)
-            data_list = [{
-                'goods_id': item.get('sku', ''),
-                'sub_title': item.get('intro', ''),
-                'pid': index,
-            } for item in tmp_data.get('data_list', [])]
-            # pprint(data_list)
-
-            for item in data_list:
+            for item in one_page_list:
                 goods_list.append(item)
+
             sleep(.5)
 
         pprint(goods_list)
         self.deal_with_data(goods_list=goods_list)
         sleep(8)
+
         return None
+
+    def _get_one_page_mia_pintuan_api_goods_info(self, page_num) -> list:
+        """
+        得到mia 拼团单页api goods
+        :param page_num:
+        :return:
+        """
+        tmp_url = 'https://m.mia.com/instant/groupon/common_list/{}/0/'.format(str(page_num))
+        print('正在抓取: ', tmp_url)
+        body = Requests.get_url_body(
+            url=tmp_url,
+            headers=self.headers,
+            had_referer=True,
+            ip_pool_type=self.ip_pool_type)
+        # print(body)
+        try:
+            tmp_data = json_2_dict(
+                json_str=body,
+                default_res={}).get('data_list', [])
+            assert tmp_data != [], '得到的data_list为[], 此处跳过!'
+            # print(tmp_data)
+        except AssertionError as e:
+            print(e)
+            return []
+
+        data_list = [{
+            'goods_id': item.get('sku', ''),
+            'sub_title': item.get('intro', ''),
+            'pid': page_num,
+        } for item in tmp_data]
+        # pprint(data_list)
+
+        return data_list
 
     def deal_with_data(self, goods_list):
         '''

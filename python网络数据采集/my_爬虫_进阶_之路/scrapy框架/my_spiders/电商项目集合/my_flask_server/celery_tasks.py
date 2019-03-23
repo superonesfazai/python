@@ -70,6 +70,26 @@ app = init_celery_app(
 )
 lg = get_task_logger(tasks_name)
 
+def _get_pc_headers() -> dict:
+    return {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': get_random_pc_ua(),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+
+def _get_phone_headers() -> dict:
+    return {
+        'upgrade-insecure-requests': '1',
+        'user-agent': get_random_phone_ua(),
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'zh-CN,zh;q=0.9',
+    }
+
 @app.task(name=tasks_name + '._get_al_one_type_company_id_list_task', bind=True)
 def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, timeout=15):
     """
@@ -125,6 +145,36 @@ def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     collect()
 
     return res
+
+@app.task(name=tasks_name + '._get_al_company_page_html_task', bind=True)
+def _get_al_company_page_html_task(self, ip_pool_type, company_id, province_name, city_name, num_retries=3) -> tuple:
+    """
+    获取al的company html
+    :param self:
+    :param ip_pool_type:
+    :param company_id:
+    :return: (company_id, body)
+    """
+    headers = _get_phone_headers()
+    headers.update({
+        'authority': 'm.1688.com',
+        'cache-control': 'max-age=0',
+    })
+    url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,)
+    # lg.info(body)
+    if body == '':
+        lg.error('店铺body为空值! shop_url: {}'.format(url))
+
+    lg.info('[{}] al company_id: {}'.format(
+        '+' if body != '' else '-',
+        company_id))
+
+    return (company_id, body, province_name, city_name)
 
 @app.task(name=tasks_name + '._get_114_one_type_company_id_list_task', bind=True)
 def _get_114_one_type_company_id_list_task(self, ip_pool_type, num_retries, parser_obj, cate_num, page_num):
@@ -199,26 +249,6 @@ def _parse_one_company_info_task(self, short_name, company_url='', province_name
     lg.info('thread {} is running...'.format(current_thread().name))
 
     return thread1._get_result()
-
-def _get_pc_headers() -> dict:
-    return {
-        'Connection': 'keep-alive',
-        'Cache-Control': 'max-age=0',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': get_random_pc_ua(),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-CN,zh;q=0.9',
-    }
-
-def _get_phone_headers() -> dict:
-    return {
-        'upgrade-insecure-requests': '1',
-        'user-agent': get_random_phone_ua(),
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9',
-    }
 
 @app.task(name=tasks_name + '._get_114_company_page_html_task', bind=True)
 def _get_114_company_page_html_task(self, company_id, ip_pool_type, num_retries) -> tuple:

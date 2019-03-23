@@ -17,7 +17,6 @@ from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
     SqlPools,)
 
-from asyncio import new_event_loop
 from json import dumps
 from scrapy.selector import Selector
 import re
@@ -54,7 +53,8 @@ from fzutils.internet_utils import (
 from fzutils.common_utils import (
     _print,
     json_2_dict,)
-from fzutils.cp_utils import get_taobao_sign_and_body
+from fzutils.cp_utils import (
+    block_get_tb_sign_and_body,)
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
@@ -623,15 +623,14 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
     params = tuple_or_list_params_2_dict_params(params)
     base_url = 'https://h5api.m.1688.com/h5/mtop.1688.offerservice.getoffers/1.0/'
 
-    loop = new_event_loop()
-    res1 = loop.run_until_complete(get_taobao_sign_and_body(
+    res1 = block_get_tb_sign_and_body(
         base_url=base_url,
         headers=headers,
         params=params,
         data=data,
         timeout=timeout,
         ip_pool_type=ip_pool_type,
-        logger=logger))
+        logger=logger)
     _m_h5_tk = res1[0]
     error_record_msg = '出错keyword:{}, page_num:{}'.format(keyword, page_num)
     if _m_h5_tk == '':
@@ -640,7 +639,7 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
 
         return []
 
-    res2 = loop.run_until_complete(get_taobao_sign_and_body(
+    res2 = block_get_tb_sign_and_body(
         base_url=base_url,
         headers=headers,
         params=params,
@@ -649,16 +648,7 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
         session=res1[1],
         ip_pool_type=ip_pool_type,
         logger=logger,
-        timeout=timeout))
-    # 显式关闭事件循环: 避免 OSError too many files open错误!
-    try:
-        loop.close()
-        try:
-            del loop
-        except:
-            pass
-    except:
-        pass
+        timeout=timeout)
     try:
         body = res2[2]
         # self.lg.info(body)
@@ -671,22 +661,10 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
         return []
 
     logger.info('[{}] keyword:{}, page_num:{}'.format('+' if _ != [] else '-', keyword, page_num))
-
     member_id_list = []
     for i in _:
         if i.get('memberId') is not None:
             member_id = i.get('memberId', '')
-            # if 'al' + member_id not in db_al_unique_id_list:
-            #     # 先去重避免重复建任务
-            #     member_id_list.append({
-            #         'company_id': member_id,
-            #         'province_name': i.get('province', ''),
-            #         'city_name': i.get('city', ''),
-            #     })
-            # else:
-            #     # self.lg.info('not create task again, company_id: {} in db!'.format(member_id))
-            #     pass
-
             if len(i.get('province_name', '')) > 8 \
                 or len(i.get('city_name', '')) > 10:
                 # 获取省份or城市名异常的跳过!
