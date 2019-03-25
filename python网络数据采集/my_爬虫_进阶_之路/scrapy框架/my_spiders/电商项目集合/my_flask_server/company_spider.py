@@ -19,9 +19,9 @@
     7. 义乌购[义乌国际商贸城](http://www.yiwugo.com)
     8. 货牛牛(eg: 广州: http://www.huoniuniu.com/ | 杭州: http://hz.huoniuniu.com/ | ...)
     9. 品库(https://www.ppkoo.com/)
+    10. 广州南国小商品城(http://www.nanguo.cn/|http://m.nanguo.cn/)
 
 待实现:
-    1. 广州南国小商品城(http://www.nanguo.cn/|http://m.nanguo.cn/)
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -87,9 +87,38 @@ from fzutils.celery_utils import _get_celery_async_results
 from fzutils.memory_utils import get_current_func_info_by_traceback
 from fzutils.spider.bloom_utils import BloomFilter
 from fzutils.spider.async_always import *
+from fzutils.shell_utils import *
 
 # uvloop替换asyncio默认事件循环
 set_event_loop_policy(EventLoopPolicy())
+
+# 启动爬虫name
+SPIDER_NAME = None
+
+@click_command()
+@click_option('--spider_name', type=str, default=None, help='where is spider_name !!')
+def init_spider(spider_name,):
+    """
+    main
+    :param spider_name:
+    :return:
+    """
+    global SPIDER_NAME
+
+    SPIDER_NAME = spider_name
+    try:
+        _ = CompanySpider()
+        loop = get_event_loop()
+        res = loop.run_until_complete(_._fck_run())
+    except KeyboardInterrupt:
+        kill_process_by_name('phantomjs')
+        kill_process_by_name('firefox')
+    finally:
+        try:
+            loop.close()
+            del loop
+        except:
+            pass
 
 class CompanySpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
@@ -100,7 +129,7 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'ng'                                                 # 设置爬取对象
+        self.spider_name = 'al' if SPIDER_NAME is None else SPIDER_NAME         # 设置爬取对象
         self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
@@ -6660,16 +6689,4 @@ class CompanySpider(AsyncCrawler):
         collect()
 
 if __name__ == '__main__':
-    try:
-        _ = CompanySpider()
-        loop = get_event_loop()
-        res = loop.run_until_complete(_._fck_run())
-    except KeyboardInterrupt:
-        kill_process_by_name('phantomjs')
-        kill_process_by_name('firefox')
-    finally:
-        try:
-            loop.close()
-            del loop
-        except:
-            pass
+    init_spider()
