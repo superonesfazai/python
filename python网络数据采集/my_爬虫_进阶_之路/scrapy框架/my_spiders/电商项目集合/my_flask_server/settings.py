@@ -904,6 +904,60 @@ COMPANY_ITEM_LIST = [
         'lat': None,
     },
     {
+        'short_name': 'ng',
+        'debug': True,
+        'orj_origin': 'www.nanguo.cn',
+        'trade_type_info': {
+            'type_url_sub': {       # 第二类分类url: list
+                'method': 'css',
+                'selector': 'li.category-li a ::attr("href")',
+            },
+            'type_id_sub': {      # 第二类分类id
+                'method': 're',
+                'selector': 'id=(\d+)',
+            },
+            'type_name_third': {    # 第三类分类name type:list
+                'method': 'css',
+                'selector': 'div.box a ::text',
+            },
+            'one_type_cate_id_list': {  # 一个子分类的厂家cate_id
+                'method': 'css',
+                'selector': 'div.j_AddCartBtn.j_AddCartBtn ::attr("data-coaid")',
+            },
+        },
+        'unique_id': {
+            'method': 're',
+            'selector': '\/id\/(\d+)',
+        },
+        'company_status': None,     # 公司状态, 1: 在业 or 续存
+        'company_link': None,       # 公司网站
+        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
+            'method': 'css',
+            'selector': 'div.companyContact-companyName',
+        },
+        'company_info_detail_li_2': { # 公司信息的li (电话, 固话)
+            'method': 'css',
+            'selector': 'span.companyContactConsultContent',
+        },
+        'company_name': None,       # 在company_info_detail_li_1中(span:店铺名称, 其值::text)
+        'legal_person': None,       # ''
+        'phone': None,              # 在company_info_detail_li_2中(div.companyContactConsultTouch:电话客服 or 手机客服)
+        'email_address': None,
+        'address': {
+            'method': 'css',
+            'selector': 'span.companyContact-adressValue ::text',
+        },
+        'brief_introduction': None,
+        'business_range': {
+            'method': 'css',
+            'selector': 'div.companyBasicShelling.wbg ::text'
+        },
+        'founding_time': None,
+        'employees_num': None,
+        'lng': None,
+        'lat': None,
+    },
+    {
         'short_name': 'mt',
         'debug': True,
         'obj_origin': 'i.meituan.com',

@@ -63,5 +63,3 @@ from fzutils.spider.async_always import *
 # # pprint(data)
 # # 服务电话的js
 # print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
-
-

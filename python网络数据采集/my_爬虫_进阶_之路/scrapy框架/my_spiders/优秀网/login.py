@@ -55,7 +55,7 @@ class CrackSlider():
         '''
         self.driver.get(self.url)
         self.driver.find_element_by_id('yzmRadio').click()
-        self.driver.find_element_by_id("phone").send_keys('18698570079')
+        self.driver.find_element_by_id("phone2").send_keys('18698570079')
         sleep(1)
         self.driver.find_element_by_id("getYZM").send_keys(Keys.ENTER)
         sleep(1)
@@ -65,7 +65,7 @@ class CrackSlider():
     def crack_slider(self,
                      before_text_css_selector='yidun_tips__text',
                      before_text_content='向右滑动滑块填充拼图',
-                     last_move_x=-5):
+                     last_move_x=-6):
         '''
         模拟拖动滑块
         :param before_text_css_selector: 滑块未被拖动前其中文字的css选择器

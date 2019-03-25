@@ -57,7 +57,7 @@ $ redis-server /usr/local/etc/redis.conf
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
 单个后台 celery multi start w0 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 (多开限制在15个, 考虑mac性能问题!)
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
@@ -67,6 +67,7 @@ $ open http://localhost:5555
 tasks_name = 'celery_tasks'
 app = init_celery_app(
     name=tasks_name,
+    celeryd_max_tasks_per_child=1000,
 )
 lg = get_task_logger(tasks_name)
 
@@ -783,3 +784,53 @@ def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_
 
     return company_info_list
 
+@app.task(name=tasks_name + '._get_ng_one_type_company_id_list_task', bind=True)
+def _get_ng_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, company_item_id_selector, num_retries=8, timeout=15) -> list:
+    """
+    获取ng单个keyword的某个页面num对应的所有company_id list(m站搜索)
+    :param self:
+    :param ip_pool_type:
+    :param keyword:
+    :param page_num:
+    :param num_retries:
+    :param timeout:
+    :return:
+    """
+    headers = _get_phone_headers()
+    headers.update({
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'accept': '*/*',
+        # 'Referer': 'http://m.nanguo.cn/search/?q=%E6%88%91&l=zh-CN',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Connection': 'keep-alive',
+    })
+    params = (
+        ('q', str(keyword)),
+        ('l', 'zh-CN'),
+        ('loadmore', 'true'),
+        ('p', str(page_num)),
+    )
+    url = 'http://m.nanguo.cn/search/index/'
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,
+        timeout=timeout,)
+    # lg.info(body)
+    company_item_id_list = list(set(parse_field(
+        parser=company_item_id_selector,
+        target_obj=body,
+        is_first=False,
+        logger=lg)))
+    # pprint(company_item_list)
+    company_item_list = [{
+        'company_id': item,
+    } for item in company_item_id_list]
+    lg.info('[{}] keyword: {}, page_num: {}'.format(
+        '+' if company_item_list != [] else '-',
+        keyword,
+        page_num,))
+
+    return company_item_list
