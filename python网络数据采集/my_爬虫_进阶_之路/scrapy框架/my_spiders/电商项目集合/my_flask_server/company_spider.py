@@ -152,6 +152,7 @@ class CompanySpider(AsyncCrawler):
         self.pk_max_num_retries = 6                                             # pk num_retries
         self.ng_max_num_retries = 8                                             # nf num_retries
         self.ng_max_page_num = 100                                              # ng单个keyword最大搜索截止页面
+        self.ng_capacity = None
         self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
@@ -237,14 +238,41 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         self.db_ng_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=11)
-        self.ng_category_list = await self._get_ng_category()
+        # 根据key抓取
+        # self.ng_category_list = await self._get_ng_category()
+        # self.ng_category_list = await self._get_al_category6()
+        # pprint(self.ng_category_list)
+        # self.lg.info('ng所有子分类总个数: {}'.format(len(self.ng_category_list)))
+        # assert self.ng_category_list != [], '获取到的self.ng_category_list为空list!异常退出'
+        # 
+        # await self._crawl_ng_company_info()
+        
+        # 全站抓取
+        self.ng_category_list = []
+        one_all_company_id_list = await self._get_ng_all_company_id_list()
+        self.lg.info('all_company_id_list: {}'.format(len(one_all_company_id_list)))
+        await self._crawl_ng_one_type_all_company_info(one_all_company_id_list=one_all_company_id_list)
+    
+    async def _get_ng_all_company_id_list(self) -> list:
+        """
+        穷举获取ng所有company_id
+        :return: 
+        """
+        one_all_company_id_list = []
+        self.ng_capacity = 100000
+        for company_id in range(1, self.ng_capacity):
+            company_id = str(company_id)
+            if 'ng' + company_id not in self.db_ng_unique_id_list:
+                one_all_company_id_list.append({
+                    'company_id': company_id,
+                    'province_name': '广东省',
+                    'city_name': '广州市',
+                })
+            else:
+                continue
 
-        pprint(self.ng_category_list)
-        self.lg.info('ng所有子分类总个数: {}'.format(len(self.ng_category_list)))
-        assert self.ng_category_list != [], '获取到的self.ng_category_list为空list!异常退出'
-
-        await self._crawl_ng_company_info()
-
+        return one_all_company_id_list
+        
     async def _get_ng_category(self) -> list:
         """
         获取ng的cate_name_list
@@ -489,10 +517,13 @@ class CompanySpider(AsyncCrawler):
         """
         async def _get_tasks_params_list(one_all_company_id_list) -> list:
             """获取tasks_params_list"""
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
             tasks_params_list = []
             for item in one_all_company_id_list:
                 company_id = item['company_id']
-                if 'ng' + company_id not in self.db_ng_unique_id_list:
+                # if 'ng' + company_id not in self.db_ng_unique_id_list:
+                if 'ng' + company_id not in self.bloom_filter:
+                    self.lg.info('add company_id: {}'.format(company_id))
                     tasks_params_list.append({
                         'company_id': company_id,
                         'province_name': '广东省',
@@ -501,14 +532,23 @@ class CompanySpider(AsyncCrawler):
                 else:
                     continue
 
-            tasks_params_list = list_remove_repeat_dict_plus(
-                target=tasks_params_list,
-                repeat_key='company_id')
+            self.lg.info('company_id 去重ing...')
+            if not isinstance(self.ng_capacity, int):
+                tasks_params_list = list_remove_repeat_dict_plus(
+                    target=tasks_params_list,
+                    repeat_key='company_id')
+            else:
+                tasks_params_list = list_remove_repeat_dict_plus_by_bloom_filter(
+                    target=tasks_params_list,
+                    repeat_key='company_id',
+                    capacity=self.ng_capacity,
+                    error_rate=1/self.ng_capacity*10,)
 
             return tasks_params_list
 
         async def _get_one_res(slice_params_list) -> list:
             """获取one_res"""
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
             tasks = []
             for k in slice_params_list:
                 # self.lg.info(str(k))
@@ -554,6 +594,8 @@ class CompanySpider(AsyncCrawler):
                 index=index,)
 
             # await async_sleep(3.)
+
+        collect()
 
         return None
 
@@ -2709,7 +2751,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = await self._get_al_category6()
+        self.al_category_list = (await self._get_al_category6())[3765:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -2954,7 +2996,7 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
-        return all_key_list[2175:]
+        return all_key_list
 
     async def _get_al_category7(self) -> list:
         """

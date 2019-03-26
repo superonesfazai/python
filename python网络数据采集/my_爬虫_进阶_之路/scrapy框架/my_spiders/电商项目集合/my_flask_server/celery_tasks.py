@@ -67,7 +67,7 @@ $ open http://localhost:5555
 tasks_name = 'celery_tasks'
 app = init_celery_app(
     name=tasks_name,
-    celeryd_max_tasks_per_child=1000,
+    celeryd_max_tasks_per_child=500,
 )
 lg = get_task_logger(tasks_name)
 
@@ -174,6 +174,7 @@ def _get_al_company_page_html_task(self, ip_pool_type, company_id, province_name
     lg.info('[{}] al company_id: {}'.format(
         '+' if body != '' else '-',
         company_id))
+    collect()
 
     return (company_id, body, province_name, city_name)
 
@@ -276,6 +277,7 @@ def _get_114_company_page_html_task(self, company_id, ip_pool_type, num_retries)
         lg.error('company body为空值! shop_url: {}'.format(url))
 
     lg.info('[{}] 114 company_id: {}'.format('+' if body != '' else '-', company_id))
+    collect()
 
     return company_id, body
 
@@ -331,6 +333,7 @@ def _get_yw_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
         '+' if company_info_list != [] else '-',
         keyword,
         page_num,))
+    collect()
 
     return company_info_list
 
@@ -478,6 +481,7 @@ def _get_tb_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, c
         '+' if data != [] else '-',
         page_num,
         goods_id,))
+    collect()
 
     return data
 
@@ -781,6 +785,7 @@ def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_
         '+' if company_info_list != [] else '-',
         keyword,
         page_num,))
+    collect()
 
     return company_info_list
 
@@ -832,5 +837,6 @@ def _get_ng_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
         '+' if company_item_list != [] else '-',
         keyword,
         page_num,))
+    collect()
 
     return company_item_list
