@@ -37,7 +37,7 @@ xposed-uninstaller*.zip from https://dl-xda.xposed.info/framework/: Can be flash
 
 The small .asc files are GPG signatures of the .zip files. You can verify them against this key (fingerprint: 0DC8 2B3E B1C4 6D48 33B4 C434 E82F 0871 7235 F333). That's actually the master key, the files are signed with subkey 852109AA.
 
-# VirtualXposed
+# VirtualXposed(推荐使用)
 无需root的xposed
 
 [github](https://github.com/android-hacker/VirtualXposed)
@@ -84,3 +84,90 @@ dependencies {
 [blog1](https://blog.csdn.net/niubitianping/article/details/52571438)
 
 [blog2](https://blog.csdn.net/yzzst/article/details/47659479)
+
+## simple use
+```java
+package com.example.fzxposedhook81;
+
+import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+/*
+* 确保禁用Instant Run（File -> Settings -> Build, Execution, Deployment -> Instant Run）
+* 否则你的类不会直接包含在APK中，导致HOOK失败！！！
+*
+* 注意:
+* 1. XposedBridgeApi.jar放入lib(注意不是libs)后, 必须Add As Library! 再修改app下面的 build.gradle把 XposedBridgeApi.jar的implementation换成compileOnly
+*   (估计Xposed作者在其框架内部也使用了BridgeApi，使用provided即(compileOnly)依赖避免重复引用；)
+*   (不进行上诉操作, loadPackageParam.processName会报java.lang.NullPointreException, 无法进行后续hook)
+* */
+
+/*
+* 用法:
+* Xposed调用FZXposedHook插件
+* assets设置为com.example.fzxposedhook81.FZXposedHook
+* */
+
+public class FZXposedHook implements IXposedHookLoadPackage {
+    @Override
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+        String hook_package_name = "com.example.fzxposedhook81";
+        XposedBridge.log("fz start hooking package...");
+        XposedBridge.log("被加载的process_name:" + loadPackageParam.appInfo.processName);
+        XposedBridge.log("@@@被加载的包名:" + loadPackageParam.appInfo.packageName);
+
+        if (loadPackageParam.packageName.equals(hook_package_name)) {
+            // equals 判断对象是否相等
+            XposedBridge.log("找到该包!!");
+//            法1:
+//             loadPackageParam.classLoader报NullPointerException
+            Class clazz = loadPackageParam.classLoader.loadClass(hook_package_name + ".MainActivity");
+//            法2:
+//             有些动态加载的类，你用默认的 loadPackageParam.classLoader 怎么都拦截不到，这是正常的，因为它就不在这个 classloader 里
+//             但可曲线救国，先 hook 动态加载的类在系统中的父类，通过这个父类找到真正的 classloader，再用这个真正的 classloader 去 hook动态加载的类。
+//             拦截onCreate方法，得到 Fragment, 根据当前动态加载的 fragment 去获取它真正的 classloader
+//            Class clazz = XposedHelpers.findClass("android.support.v4.app.Fragment", loadPackageParam.classLoader);
+
+            XposedHelpers.findAndHookMethod(clazz, "toast_message", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+                }
+
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                    super.afterHookedMethod(param);
+                    Class c_name = param.thisObject.getClass();
+                    XposedBridge.log("class_name:" + c_name.getName());
+                    param.setResult("你已被劫持!");
+                }
+            });
+            XposedBridge.log("别看了, 老子已成功hook!");
+        } else {
+            XposedBridge.log("未找到package_name:" + hook_package_name);
+        }
+    }
+}
+```
+
+## 注意点
+```android
+/*
+* 确保禁用Instant Run（File -> Settings -> Build, Execution, Deployment -> Instant Run）
+* 否则你的类不会直接包含在APK中，导致HOOK失败！！！
+*
+* 注意:
+* 1. XposedBridgeApi.jar放入lib(注意不是libs)后, 必须Add As Library! 再修改app下面的 build.gradle把 XposedBridgeApi.jar的implementation换成compileOnly
+*   (估计Xposed作者在其框架内部也使用了BridgeApi，使用provided即(compileOnly)依赖避免重复引用；)
+*   (不进行上诉操作, loadPackageParam.processName会报java.lang.NullPointreException, 无法进行后续hook)
+* */
+
+/*
+* 用法:
+* Xposed调用FZXposedHook插件
+* assets设置为com.example.fzxposedhook81.FZXposedHook
+* */
+```

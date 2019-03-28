@@ -85,6 +85,11 @@ set @sql='kill '+cast(@spid  as varchar)
 exec(@sql)
 '''
 
+# 查看db大小
+sql_str_17 = '''
+exec sp_helpdb gather 
+'''
+
 # 秒杀取值(修改方案: 全按第一类来)(over)
 sql_str_6 = '''
 -- 秒杀取值
