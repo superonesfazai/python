@@ -7,33 +7,12 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import asyncio
 import time
-from pprint import pprint
-from scrapy.selector import Selector
+from operator import itemgetter
 
-from fzutils.spider.fz_aiohttp import MyAiohttp
+from fzutils.ip_pools import tri_ip_pool
+from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.async_always import *
-
-def get_right_time():
-    a = time.ctime().split()
-    a[0] = a[0] + ','
-    b = [a[0], a[2], a[1], a[4], a[3]]
-
-    return ' '.join(b) + ' GMT'
-
-print(get_right_time())
-
-headers = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-    # 'Accept-Encoding:': 'gzip, deflate, br',
-    'Accept-Language': 'zh-CN,zh;q=0.9',
-    'Cache-Control': 'max-age=0',
-    'Connection': 'keep-alive',
-    'Host': 'huayu.baidu.com',
-    'if-modified-since': get_right_time(),
-    'User-Agent': get_random_pc_ua(),      # 随机一个请求头
-}
 
 async def deal_with_result(result):
     '''
@@ -68,7 +47,6 @@ async def deal_with_result(result):
             cleaned_data.append(one_data)
 
             # print(sort, ' ', book_name, ' ', book_link, ' ', book_click_number, ' ', author)
-    from operator import itemgetter
 
     cleaned_data = sorted(cleaned_data, key=itemgetter('book_click_number'))   # 按点击数进行排序从小到大
     for item in reversed(cleaned_data):
@@ -80,18 +58,55 @@ async def deal_with_result(result):
 
 async def main(loop):
     tasks = []
-    for _ in range(1, 18):
-        url = 'http://huayu.baidu.com/rank/c0/u14/p{0}/v0/ALL.html'.format(str(_))
-        print('create task url: {}'.format(url))
-        tasks.append(loop.create_task(MyAiohttp.aio_get_url_body(url=url, headers=headers, params=None, timeout=12, num_retries=8)))
+    for page_num in range(1, 18):
+        print('create task page_num: {}'.format(page_num))
+        tasks.append(loop.create_task(_get_one_page(
+            page_num=page_num,
+        )))
 
-    finished, unfinished = await asyncio.wait(tasks)
-    all_result = [r.result() for r in finished]
-    await deal_with_result(all_result)
+    all_res = await async_wait_tasks_finished(tasks=tasks)
+    await deal_with_result(all_res)
     # print(all_result)
 
+async def _get_one_page(page_num) -> str:
+    """
+    获取单页html
+    :param page_num:
+    :return:
+    """
+    headers = get_base_headers()
+    headers.update({
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Cache-Control': 'max-age=0',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+    })
+    url = 'http://huayu.baidu.com/rank/c0/u14/p{0}/v0/ALL.html'.format(page_num)
+    # 成功率高于unblock_request且更快!
+    body = await AioHttp.aio_get_url_body(
+        url=url,
+        headers=headers,
+        ip_pool_type=tri_ip_pool,
+        timeout=12,
+        num_retries=1,)
+
+    # body = await unblock_request(
+    #     url=url,
+    #     headers=headers,
+    #     ip_pool_type=tri_ip_pool,
+    #     timeout=12,
+    #     num_retries=1,)
+
+    print('[{}] page_num: {}'.format(
+        '+' if body != '' else '-',
+        page_num,
+    ))
+
+    return body
+
 start_time = time.time()
-loop = asyncio.get_event_loop()
+loop = get_event_loop()
 loop.run_until_complete(main(loop))
 end_time = time.time()
 print('用时: ', end_time-start_time)

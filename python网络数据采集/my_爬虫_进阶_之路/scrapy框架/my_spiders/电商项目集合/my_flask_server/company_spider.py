@@ -2751,7 +2751,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[9065:]
+        self.al_category_list = (await self._get_al_category6())[9805:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -3207,7 +3207,7 @@ class CompanySpider(AsyncCrawler):
             return one_res
 
         self.lg.info('即将开始采集al shop info...')
-        new_concurrency = 2000
+        new_concurrency = 1000
         new_tasks_params_list = []
         for cate_name_index, cate_name in enumerate(self.al_category_list):
             self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
@@ -3221,8 +3221,8 @@ class CompanySpider(AsyncCrawler):
                 continue
 
             # new_concurrency2 = self.concurrency
-            # 达标后设置并发量为2000个
-            new_concurrency2 = 2000
+            # 达标后设置并发量为1000个, 设置过大, 无数据!!
+            new_concurrency2 = 1000
             tasks_params_list_obj = TasksParamsListObj(
                 tasks_params_list=new_tasks_params_list,
                 step=new_concurrency2)

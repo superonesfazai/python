@@ -179,7 +179,7 @@ tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 tm_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
-where MainGoodsID is not null and (SiteID=3 or SiteID=4 or SiteID=6)
+where MainGoodsID is not null and (SiteID=3 or SiteID=4 or SiteID=6) 
 order by ModfiyTime asc
 '''
 '''insert'''

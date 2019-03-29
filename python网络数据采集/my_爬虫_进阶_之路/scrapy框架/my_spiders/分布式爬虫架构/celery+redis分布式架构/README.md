@@ -29,10 +29,8 @@ celery 中的一个 worker 其实是代表一个进程池，一个进程池是�
 
 ### 解决方案
 ```bash
-# 推荐第一种
-1. celery -A proj worker -P eventlet -c 1000
-or
-2. celery -A proj worker --concurrency 10
+# pool 可选项 celery worker --help来查看(eg: gevent, eventlet)
+$ celery -A proj worker --pool=eventlet --concurrency=1000
 ```
 
 ## Celery序列化

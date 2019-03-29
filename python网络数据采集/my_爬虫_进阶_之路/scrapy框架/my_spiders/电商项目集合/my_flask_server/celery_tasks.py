@@ -57,7 +57,7 @@ $ redis-server /usr/local/etc/redis.conf
 1. celery -A celery_tasks worker -l info -P eventlet -c 300
 单个后台 celery multi start w0 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 (多开限制在15个, 考虑mac性能问题!)
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 -A celery_tasks -P eventlet -c 300 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 -A celery_tasks --concurrency=300 --pool=gevent -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
 监控:
 $ celery -A celery_tasks flower --address=127.0.0.1 --port=5555
@@ -67,7 +67,7 @@ $ open http://localhost:5555
 tasks_name = 'celery_tasks'
 app = init_celery_app(
     name=tasks_name,
-    celeryd_max_tasks_per_child=500,
+    celeryd_max_tasks_per_child=100,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
 )
 lg = get_task_logger(tasks_name)
 
