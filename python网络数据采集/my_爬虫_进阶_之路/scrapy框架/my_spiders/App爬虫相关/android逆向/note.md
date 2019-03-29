@@ -20,6 +20,23 @@ $ cd /usr/local/bin && chmod +x apktool && chmod +x apktool.jar
 ```
 6. Try running apktool via cli
 
+# Android-Crack-Tool For Mac
+[github](https://github.com/Jermic/Android-Crack-Tool)
+
+本软件集成了Android开发中常见的一些编译/反编译工具,方便用户对Apk进行逆向分析,提供Apk信息查看功能.目前主要功能包括(详细使用方法见使用说明):
+
+- 反编译APK
+- 重建APK
+- 签名APK
+- 优化APK
+- DEX2JAR（APK2JAR）
+- JDGUI
+- 提取DEX
+- 提取XML
+- Class to smail
+- Apk信息查看
+- Unicode转换
+
 # jadx
 持续更新, 比jd_gui更完美的dex2jar的工具
 

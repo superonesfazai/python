@@ -2751,7 +2751,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[7255:]
+        self.al_category_list = (await self._get_al_category6())[9065:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -3199,11 +3199,15 @@ class CompanySpider(AsyncCrawler):
 
             # celery
             one_res = await _get_celery_async_results(tasks=tasks)
+            try:
+                del tasks
+            except:
+                pass
 
             return one_res
 
         self.lg.info('即将开始采集al shop info...')
-        new_concurrency = 1000
+        new_concurrency = 2000
         new_tasks_params_list = []
         for cate_name_index, cate_name in enumerate(self.al_category_list):
             self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
@@ -3217,8 +3221,8 @@ class CompanySpider(AsyncCrawler):
                 continue
 
             # new_concurrency2 = self.concurrency
-            # 达标后设置并发量为1000个
-            new_concurrency2 = 1000
+            # 达标后设置并发量为2000个
+            new_concurrency2 = 2000
             tasks_params_list_obj = TasksParamsListObj(
                 tasks_params_list=new_tasks_params_list,
                 step=new_concurrency2)
@@ -3240,7 +3244,6 @@ class CompanySpider(AsyncCrawler):
             new_tasks_params_list = []
 
             # break
-            # await async_sleep(1.5)
             collect()
 
     async def _crawl_al_one_type_all_company_info(self, one_all_company_id_list):
@@ -3342,6 +3345,10 @@ class CompanySpider(AsyncCrawler):
                 except Exception:
                     continue
             one_res = await async_wait_tasks_finished(tasks=tasks)
+            try:
+                del tasks
+            except:
+                pass
 
             return one_res
 
@@ -3370,8 +3377,7 @@ class CompanySpider(AsyncCrawler):
                 short_name='al',
                 db_unique_id_list=self.db_al_unique_id_list,
                 index=index,)
-
-            # await async_sleep(3.)
+            collect()
 
         return None
 
@@ -3415,6 +3421,11 @@ class CompanySpider(AsyncCrawler):
                     pass
             else:
                 pass
+
+        try:
+            del one_res
+        except:
+            pass
 
         return index, db_unique_id_list
 
