@@ -2751,7 +2751,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[9805:]
+        self.al_category_list = (await self._get_al_category6())[9915:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
