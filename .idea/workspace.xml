@@ -6,10 +6,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="&quot;新增 PyQt5相关&quot;">
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/taobao_real-times_update.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/taobao_real-times_update.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/taobao_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/taobao_parse.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -1240,12 +1238,12 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/煎蛋网/fried_eggs_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tmall_parse_2.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/taobao_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/taobao_parse.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py" />
       </list>
     </option>
   </component>
@@ -2130,7 +2128,7 @@
       <workItem from="1553588714896" duration="472000" />
       <workItem from="1553591462260" duration="898000" />
       <workItem from="1553736523879" duration="11811000" />
-      <workItem from="1553823079298" duration="30104000" />
+      <workItem from="1553823079298" duration="32391000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2182,7 +2180,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="803406000" />
+    <option name="totallyTimeSpent" value="805693000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2793,23 +2791,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="381">
-          <caret line="51" column="3" lean-forward="true" selection-start-line="51" selection-start-column="3" selection-end-line="51" selection-end-column="3" />
-          <folding>
-            <element signature="e#110#119#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="2753" column="68" selection-start-line="2753" selection-start-column="68" selection-end-line="2753" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script/mogujie_pintuan_real-times_update.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -2877,6 +2858,20 @@
             <element signature="e#13757#14544#0" />
             <element signature="e#14577#14728#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="494">
+          <caret line="2753" column="72" lean-forward="true" selection-start-line="2753" selection-start-column="72" selection-end-line="2753" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="660">
+          <caret line="44" column="22" lean-forward="true" selection-start-line="44" selection-start-column="22" selection-end-line="44" selection-end-column="22" />
         </state>
       </provider>
     </entry>
