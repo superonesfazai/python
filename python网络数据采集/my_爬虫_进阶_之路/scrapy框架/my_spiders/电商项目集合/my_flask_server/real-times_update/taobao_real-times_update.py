@@ -34,7 +34,8 @@ from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
     _get_stock_trans_record,
-    _print_db_old_data,)
+    _print_db_old_data,
+    to_right_and_update_tb_data,)
 
 from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
@@ -50,6 +51,43 @@ class TBUpdater(AsyncCrawler):
         self.tmp_sql_server = None
         self.goods_index = 1
         self.concurrency = 50  # 并发量
+
+    async def _update_db(self):
+        '''
+        实时更新数据
+        :return:
+        '''
+        while True:
+            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            result = await self._get_db_old_data()
+            if result is None:
+                pass
+            else:
+                self.goods_index = 1
+                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
+                self.taobao = TaoBaoLoginAndParse(logger=self.lg)
+                index = 1
+                while True:
+                    try:
+                        slice_params_list = tasks_params_list.__next__()
+                    except AssertionError:  # 全部提取完毕, 正常退出
+                        break
+
+                    tasks = []
+                    for item in slice_params_list:
+                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        index += 1
+
+                    res = await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    await self._except_sleep(res=res)
+
+                self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
+            if get_shanghai_time().hour == 0:  # 0点以后不更新
+                await async_sleep(60 * 60 * 5.5)
+            else:
+                await async_sleep(10)
+            collect()
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -93,62 +131,11 @@ class TBUpdater(AsyncCrawler):
             oo_is_delete = oo.get('is_delete', 0)  # 避免下面解析data错误休眠
             data = self.taobao.deal_with_data(goods_id=goods_id)
             if data != {}:
-                data['goods_id'] = goods_id
-                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                    tmp_data=data,
-                    is_delete=item[1],
-                    shelf_time=item[4],
-                    delete_time=item[5])
-                price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
-                try:
-                    old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=1)
-                except AttributeError:  # 处理已被格式化过的
-                    pass
-                new_sku_info = format_price_info_list(data['price_info_list'], site_id=1)
-                # if len(new_sku_info) <= 6:
-                #     self.lg.info('old_sku_info:')
-                #     pprint(old_sku_info)
-                #     self.lg.info('new_sku_info:')
-                #     pprint(new_sku_info)
-
-                data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_price_change=item[7] if item[7] is not None else 0,
-                    db_price_change_info=json_2_dict(item[9], default_res=[]),
-                    old_price_trans_time=item[12])
-                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                    old_price=item[2],
-                    old_taobao_price=item[3],
-                    new_price=data['price'],
-                    new_taobao_price=data['taobao_price'],
-                    is_price_change=data['_is_price_change'],
-                    price_change_info=price_change_info)
-                if data['_is_price_change'] == 1:
-                    self.lg.info('价格变动!!')
-                    # pprint(data['_price_change_info'])
-
-                # 监控纯规格变动
-                data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_spec_change=item[8] if item[8] is not None else 0,
-                    old_spec_trans_time=item[13])
-                if data['is_spec_change'] == 1:
-                    self.lg.info('规格属性变动!!')
-
-                # 监控纯库存变动
-                data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_stock_change=item[10] if item[10] is not None else 0,
-                    db_stock_change_info=json_2_dict(item[11], default_res=[]),
-                    old_stock_trans_time=item[14])
-                if data['is_stock_change'] == 1:
-                    self.lg.info('规格的库存变动!!')
-                # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))
-
-                res = self.taobao.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
+                data = await self._get_new_goods_data(
+                    data=data,
+                    goods_id=goods_id,
+                    item=item,)
+                res = to_right_and_update_tb_data(data=data, pipeline=self.tmp_sql_server, logger=self.lg)
 
             else:
                 if oo_is_delete == 1:
@@ -169,42 +156,73 @@ class TBUpdater(AsyncCrawler):
 
         return [goods_id, res]
 
-    async def _update_db(self):
-        '''
-        实时更新数据
+    async def _get_new_goods_data(self, **kwargs) -> dict:
+        """
+        处理并得到新的待存储的goods_data
+        :param kwargs:
         :return:
-        '''
-        while True:
-            self.lg = await self._get_new_logger(logger_name=get_uuid1())
-            result = await self._get_db_old_data()
-            if result is None:
-                pass
-            else:
-                self.goods_index = 1
-                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
-                self.taobao = TaoBaoLoginAndParse(logger=self.lg)
-                index = 1
-                while True:
-                    try:
-                        slice_params_list = tasks_params_list.__next__()
-                    except AssertionError:  # 全部提取完毕, 正常退出
-                        break
+        """
+        data = kwargs.get('data', {})
+        goods_id = kwargs.get('goods_id', '')
+        item = kwargs.get('item', [])
+        assert item != [], 'item != []'
 
-                    tasks = []
-                    for item in slice_params_list:
-                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
-                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
-                        index += 1
+        data['goods_id'] = goods_id
+        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+            tmp_data=data,
+            is_delete=item[1],
+            shelf_time=item[4],
+            delete_time=item[5])
+        price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
+        try:
+            old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=1)
+        except AttributeError:  # 处理已被格式化过的
+            pass
+        new_sku_info = format_price_info_list(data['price_info_list'], site_id=1)
+        # if len(new_sku_info) <= 6:
+        #     self.lg.info('old_sku_info:')
+        #     pprint(old_sku_info)
+        #     self.lg.info('new_sku_info:')
+        #     pprint(new_sku_info)
 
-                    res = await _get_async_task_result(tasks=tasks, logger=self.lg)
-                    await self._except_sleep(res=res)
+        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_price_change=item[7] if item[7] is not None else 0,
+            db_price_change_info=json_2_dict(item[9], default_res=[]),
+            old_price_trans_time=item[12])
+        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+            old_price=item[2],
+            old_taobao_price=item[3],
+            new_price=data['price'],
+            new_taobao_price=data['taobao_price'],
+            is_price_change=data['_is_price_change'],
+            price_change_info=price_change_info)
+        if data['_is_price_change'] == 1:
+            self.lg.info('价格变动!!')
+            # pprint(data['_price_change_info'])
 
-                self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-            if get_shanghai_time().hour == 0:  # 0点以后不更新
-                await async_sleep(60 * 60 * 5.5)
-            else:
-                await async_sleep(10)
-            collect()
+        # 监控纯规格变动
+        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_spec_change=item[8] if item[8] is not None else 0,
+            old_spec_trans_time=item[13])
+        if data['is_spec_change'] == 1:
+            self.lg.info('规格属性变动!!')
+
+        # 监控纯库存变动
+        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_stock_change=item[10] if item[10] is not None else 0,
+            db_stock_change_info=json_2_dict(item[11], default_res=[]),
+            old_stock_trans_time=item[14])
+        if data['is_stock_change'] == 1:
+            self.lg.info('规格的库存变动!!')
+        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))
+
+        return data
 
     async def _except_sleep(self, res):
         '''
