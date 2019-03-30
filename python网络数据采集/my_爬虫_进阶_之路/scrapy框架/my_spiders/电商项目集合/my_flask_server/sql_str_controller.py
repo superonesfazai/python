@@ -176,10 +176,11 @@ tm_select_str_1 = 'select SiteID, GoodsID, IsDelete, MyShelfAndDownTime, Price, 
 tm_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where OutGoodsType<=13 and onoffshelf=1 and not exists (select maingoodsid from gather.dbo.GoodsInfoAutoGet c where c.maingoodsid=goodsinfo.goods_id)'
 # 常规goods实时更新(下架的也更新)
 # and IsDelete=0 下架的也进行监控, 测试发现: 只是部分会无数据, 总体IsDelete=1的也可以的
+# and MainGoodsID=134804
 tm_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
-where MainGoodsID is not null and (SiteID=3 or SiteID=4 or SiteID=6) 
+where MainGoodsID is not null and (SiteID=3 or SiteID=4 or SiteID=6)
 order by ModfiyTime asc
 '''
 '''insert'''

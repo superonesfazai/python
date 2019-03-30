@@ -30,6 +30,7 @@ from settings import (
 )
 
 from company_spider import CompanySpider
+from tmall_parse_2 import TmallParse
 
 from fzutils.internet_utils import (
     get_random_pc_ua,
@@ -54,8 +55,8 @@ redis:
 $ redis-server /usr/local/etc/redis.conf
 
 分布式任务启动: 
-1. celery -A celery_tasks worker -l info -P gevent -c 500
-单个后台 celery multi start w0 -A celery_tasks -P gevent -c 500 -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
+1. celery -A celery_tasks worker -l info --concurrency=500 --pool=gevent
+单个后台 celery multi start w0 -A celery_tasks --concurrency=500 --pool=gevent -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 (多开限制在15个, 考虑mac性能问题!)
 2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 -A celery_tasks --concurrency=500 --pool=gevent -f /Users/afa/myFiles/my_spider_logs/tmp/celery_tasks.log 
 
@@ -840,3 +841,23 @@ def _get_ng_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     collect()
 
     return company_item_list
+
+@app.task(name=tasks_name + '._get_tm_one_goods_info_task', bind=True)
+def _get_tm_one_goods_info_task(self, goods_id:list, index:int) -> tuple:
+    """
+    获取tmall单个goods信息
+    :param self:
+    :return:
+    """
+    tm = TmallParse(logger=lg)
+    site_id, _goods_id = goods_id
+    before_goods_data = tm.get_goods_data(goods_id=goods_id)
+    end_goods_data = tm.deal_with_data()
+
+    try:
+        del tm
+    except:
+        pass
+    collect()
+
+    return (site_id, _goods_id, index, before_goods_data, end_goods_data)

@@ -42,6 +42,7 @@ from sql_str_controller import (
     cm_insert_str_2,
     al_select_str_2,
     cm_update_str_2,
+    tm_update_str_1,
 )
 
 from fzutils.spider.fz_requests import Requests
@@ -54,7 +55,8 @@ from fzutils.common_utils import (
     _print,
     json_2_dict,)
 from fzutils.cp_utils import (
-    block_get_tb_sign_and_body,)
+    block_get_tb_sign_and_body,
+    _get_right_model_data,)
 from fzutils.time_utils import (
     get_shanghai_time,
     datetime_to_timestamp,
@@ -1355,3 +1357,99 @@ async def record_goods_comment_modify_time(goods_id, logger=None) -> bool:
 
     return res
 
+def from_tmall_type_get_site_id(type) -> (bool, int):
+    """
+    根据tmall的type得到site_id的值
+    :param type:
+    :return:
+    """
+    # # 采集的来源地
+    if type == 0:
+        site_id = 3  # 采集来源地(天猫)
+    elif type == 1:
+        site_id = 4  # 采集来源地(天猫超市)
+    elif type == 2:
+        site_id = 6  # 采集来源地(天猫国际)
+    else:
+        return False
+
+    return site_id
+
+def to_right_and_update_tm_data(data, pipeline, logger=None) -> bool:
+    """
+    更新常规tm数据
+    :param data:
+    :param pipeline:
+    :param logger:
+    :return:
+    """
+    def _get_db_update_params(item):
+        """得到tm db待更新的数据"""
+        params = [
+            item['modify_time'],
+            item['shop_name'],
+            item['account'],
+            item['title'],
+            item['sub_title'],
+            item['link_name'],
+            item['price'],
+            item['taobao_price'],
+            dumps(item['price_info'], ensure_ascii=False),
+            dumps(item['detail_name_list'], ensure_ascii=False),
+            dumps(item['price_info_list'], ensure_ascii=False),
+            dumps(item['all_img_url'], ensure_ascii=False),
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
+            item['all_sell_count'],
+            # item['delete_time'],
+            item['is_delete'],
+            item['is_price_change'],
+            dumps(item['price_change_info'], ensure_ascii=False),
+            item['sku_info_trans_time'],
+            item['is_spec_change'],
+            item['spec_trans_time'],
+            item['is_stock_change'],
+            item['stock_trans_time'],
+            dumps(item['stock_change_info'], ensure_ascii=False),
+
+            item['goods_id'],
+        ]
+        if item.get('delete_time', '') == '':
+            params.insert(-1, item['shelf_time'])
+        elif item.get('shelf_time', '') == '':
+            params.insert(-1, item['delete_time'])
+        else:
+            params.insert(-1, item['shelf_time'])
+            params.insert(-1, item['delete_time'])
+
+        return tuple(params)
+
+    site_id = from_tmall_type_get_site_id(type=data.get('type'))
+    if site_id is False:
+        _print(
+            msg='获取到的site_id为False!出错!请检查!出错goods_id: {0}'.format(data.get('goods_id')),
+            logger=logger,
+            log_level=2)
+        return False
+
+    tmp = _get_right_model_data(
+        data=data,
+        site_id=site_id,
+        logger=logger)
+    # pprint(tmp)
+
+    params = _get_db_update_params(item=tmp)
+    base_sql_str = tm_update_str_1
+    if tmp['delete_time'] == '':
+        sql_str = base_sql_str.format('shelf_time=%s', '')
+    elif tmp['shelf_time'] == '':
+        sql_str = base_sql_str.format('delete_time=%s', '')
+    else:
+        sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
+
+    res = pipeline._update_table_2(
+        sql_str=sql_str,
+        params=params,
+        logger=logger)
+
+    return res
