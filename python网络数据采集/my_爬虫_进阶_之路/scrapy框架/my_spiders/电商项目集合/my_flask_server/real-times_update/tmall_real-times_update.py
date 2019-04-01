@@ -238,7 +238,8 @@ class TMUpdater(AsyncCrawler):
 
             else:  # 表示返回的data值为空值
                 if before_goods_data_is_delete == 1:
-                    pass
+                    # 检索后下架状态的, res也设置为True
+                    res = True
                 else:
                     self.lg.info('goods_id: {}, 阻塞休眠7s中...'.format(goods_id))
                     await async_sleep(delay=7., loop=self.loop)
@@ -288,12 +289,7 @@ class TMUpdater(AsyncCrawler):
             # except:
             #     pass
 
-            oo_is_delete = oo.get('is_detele', 0)  # 避免下面解析data错误休眠
-            if isinstance(oo, int):  # 单独处理return 4041
-                self.goods_index += 1
-                await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
-                return [goods_id, res]
-
+            before_goods_data_is_delete = oo.get('is_detele', 0)  # 避免下面解析data错误休眠
             # 阻塞方式
             data = tmall.deal_with_data()
             if data != {}:
@@ -303,9 +299,10 @@ class TMUpdater(AsyncCrawler):
                     goods_id=goods_id,)
                 res = to_right_and_update_tm_data(data=data, pipeline=self.tmp_sql_server, logger=self.lg)
                 
-            else:  # 表示返回的data值为空值
-                if oo_is_delete == 1:
-                    pass
+            else:
+                if before_goods_data_is_delete == 1:
+                    # 检索后下架状态的, res也设置为True
+                    res = True
                 else:
                     self.lg.info('------>>>| 阻塞休眠7s中...')
                     await async_sleep(delay=7., loop=self.loop)
@@ -325,7 +322,7 @@ class TMUpdater(AsyncCrawler):
         collect()
         await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
         
-        return [goods_id, res]
+        return [goods_id, res,]
 
     async def _get_new_goods_data(self, **kwargs) -> dict:
         """

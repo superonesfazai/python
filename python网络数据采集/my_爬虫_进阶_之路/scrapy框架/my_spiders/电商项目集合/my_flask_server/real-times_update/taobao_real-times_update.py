@@ -135,11 +135,15 @@ class TBUpdater(AsyncCrawler):
                     data=data,
                     goods_id=goods_id,
                     item=item,)
-                res = to_right_and_update_tb_data(data=data, pipeline=self.tmp_sql_server, logger=self.lg)
+                res = to_right_and_update_tb_data(
+                    data=data,
+                    pipeline=self.tmp_sql_server,
+                    logger=self.lg)
 
             else:
                 if oo_is_delete == 1:
-                    pass
+                    # 检索后下架状态的, res也设置为True
+                    res = True
                 else:
                     self.lg.info('------>>>| 休眠8s中...')
                     await async_sleep(delay=8, loop=self.loop)

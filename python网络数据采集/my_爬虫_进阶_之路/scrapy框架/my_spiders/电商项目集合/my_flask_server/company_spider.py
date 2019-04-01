@@ -22,6 +22,7 @@
     10. 广州南国小商品城(http://www.nanguo.cn/|http://m.nanguo.cn/)
 
 待实现:
+    1. 购途网(http://www.go2.cn/)(女鞋货源)
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -53,7 +54,8 @@ try:
         _get_yw_one_type_company_id_list_task,
         _get_hn_one_type_company_id_list_task,
         _get_pk_one_type_company_id_list_task,
-        _get_ng_one_type_company_id_list_task,)
+        _get_ng_one_type_company_id_list_task,
+        _get_gt_one_type_company_id_list_task,)
 except ImportError:
     pass
 
@@ -96,7 +98,7 @@ set_event_loop_policy(EventLoopPolicy())
 SPIDER_NAME = None
 
 @click_command()
-@click_option('--spider_name', type=str, default=None, help='where is spider_name !!')
+@click_option('--spider_name', type=str, default=None, help='what is spider_name !!')
 def init_spider(spider_name,):
     """
     main
@@ -129,7 +131,7 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'al' if SPIDER_NAME is None else SPIDER_NAME         # 设置爬取对象
+        self.spider_name = 'gt' if SPIDER_NAME is None else SPIDER_NAME         # 设置爬取对象
         self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
@@ -153,6 +155,8 @@ class CompanySpider(AsyncCrawler):
         self.ng_max_num_retries = 8                                             # nf num_retries
         self.ng_max_page_num = 100                                              # ng单个keyword最大搜索截止页面
         self.ng_capacity = None
+        self.gt_max_num_retries = 8                                             # gt最大重试数
+        self.gt_max_page_num = 50                                               # gt 单个keyword最大搜索截止页码
         self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
@@ -229,8 +233,270 @@ class CompanySpider(AsyncCrawler):
         elif short_name == 'ng':
             await self._ng_spider()
 
+        elif short_name == 'gt':
+            await self._gt_spider()
+
         else:
             raise NotImplemented
+
+    async def _gt_spider(self):
+        """
+        购途女鞋批发网spider(pc, 无m站)
+        :return:
+        """
+        self.db_gt_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=12)
+        # 根据key抓取
+        self.gt_category_list = await self._get_gt_category()
+        pprint(self.gt_category_list)
+        self.lg.info('gt所有子分类总个数: {}'.format(len(self.gt_category_list)))
+        assert self.gt_category_list != [], '获取到的self.gt_category_list为空list!异常退出'
+
+        await self._crawl_gt_company_info()
+
+    async def _get_gt_category(self,) -> list:
+        """
+        获取gc的cate name list
+        :return: ['板鞋',]
+        """
+        # search
+        headers = await self._get_pc_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            # 'Referer': 'http://www.go2.cn/search/all/?category_id=all&search_1=1&q=%E9%9E%8B%E5%AD%90',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        params = (
+            ('category_id', 'all'),
+            ('search_1', '1'),
+            ('q', '鞋子'),
+        )
+        page_num = 1
+        # /search/all
+        url = 'http://www.go2.cn/search/all/page{}.html'.format(page_num)
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.gt_max_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+
+        parser_obj = await self._get_parser_obj(short_name='gt')
+        # 获取该页面的所有鞋子属性!
+        shoes_attr_name_list1 = await async_parse_field(
+            parser=parser_obj['trade_type_info']['shoes_attr_name1'],
+            target_obj=body,
+            is_first=False,
+            logger=self.lg,)
+        assert shoes_attr_name_list1 != [], 'shoes_attr_name_list1不为空值list!'
+        shoes_attr_name_list2 = await async_parse_field(
+            parser=parser_obj['trade_type_info']['shoes_attr_name2'],
+            target_obj=body,
+            is_first=False,
+            logger=self.lg,)
+        assert shoes_attr_name_list2 != [], 'shoes_attr_name_list2不为空值list!'
+        all_shoes_attr_name_list = list(set(shoes_attr_name_list1 + shoes_attr_name_list2))
+
+        return all_shoes_attr_name_list
+
+    async def _crawl_gt_company_info(self,):
+        """
+        抓取gt公司信息
+        :return:
+        """
+        async def _get_tasks_params_list(**kwargs) -> list:
+            """获取tasks_params_list"""
+            tasks_params_list = []
+            for page_num in range(1, self.gt_max_page_num + 1):
+                tasks_params_list.append({
+                    'keyword': kwargs['cate_name'],
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        async def _get_one_res(slice_params_list, parser_obj) -> list:
+            """获取one_res"""
+            async def _create_one_celery_task(**kwargs):
+                keyword = kwargs['keyword']
+                page_num = kwargs['page_num']
+                company_url_selector = kwargs['company_url_selector']
+                company_id_selector = kwargs['company_id_selector']
+
+                async_obj = _get_gt_one_type_company_id_list_task.apply_async(
+                    args=[
+                        self.ip_pool_type,
+                        keyword,
+                        company_url_selector,
+                        company_id_selector,
+                        page_num,
+                        self.gt_max_num_retries,
+                    ],
+                    expires=5 * 60,
+                    retry=False,
+                )
+
+                return async_obj
+
+            tasks = []
+            for k in slice_params_list:
+                keyword = k['keyword']
+                page_num = k['page_num']
+                self.lg.info('create task[where keyword: {}, page_num: {}]...'.format(keyword, page_num))
+                try:
+                    async_obj = await _create_one_celery_task(
+                        keyword=keyword,
+                        page_num=page_num,
+                        company_url_selector=parser_obj['trade_type_info']['company_url'],
+                        company_id_selector=parser_obj['unique_id'],)
+                    tasks.append(async_obj)
+                except:
+                    continue
+
+            # celery ng
+            one_res = await _get_celery_async_results(tasks=tasks)
+
+            return one_res
+
+        async def _get_one_all_company_id_list(one_res) -> list:
+            """获取该子分类截止页面的所有company_id_list"""
+            one_all_company_id_list = []
+            for i in one_res:
+                try:
+                    for j in i:
+                        company_id = j.get('company_id', '')
+                        if 'gt' + company_id not in self.db_gt_unique_id_list:
+                            one_all_company_id_list.append({
+                                'company_id': company_id,
+                            })
+                except TypeError:
+                    return []
+
+            one_all_company_id_list = list_remove_repeat_dict_plus(
+                target=one_all_company_id_list,
+                repeat_key='company_id',)
+
+            return one_all_company_id_list
+
+        get_current_func_info_by_traceback(self=self, logger=self.lg,)
+        self.lg.info('即将开始采集gt shop info...')
+        new_concurrency = 300
+        new_tasks_params_list = []
+        parser_obj = await self._get_parser_obj(short_name='gt')
+        for cate_name_index, cate_name in enumerate(self.gt_category_list):
+            self.lg.info('crawl cate_name: {}, cate_name_index: {}...'.format(cate_name, cate_name_index,))
+            tasks_params_list = await _get_tasks_params_list(cate_name=cate_name,)
+            try:
+                new_tasks_params_list = await self._get_new_tasks_params_list_from_tasks_params_list(
+                    tasks_params_list=tasks_params_list,
+                    new_concurrency=new_concurrency,
+                    new_tasks_params_list=new_tasks_params_list)
+            except AssertionError:
+                continue
+
+            # new_step = self.concurrency
+            new_step = 300
+            tasks_params_list_obj = TasksParamsListObj(
+                tasks_params_list=new_tasks_params_list,
+                step=new_step)
+            while True:
+                try:
+                    slice_params_list = tasks_params_list_obj.__next__()
+                except AssertionError:
+                    break
+
+                one_res = await _get_one_res(
+                    slice_params_list=slice_params_list,
+                    parser_obj=parser_obj,)
+                # pprint(one_res)
+                one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
+
+                self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
+                await self._crawl_gt_one_type_all_company_info(
+                    one_all_company_id_list=one_all_company_id_list)
+                collect()
+
+            # 重置
+            new_tasks_params_list = []
+            collect()
+            # break
+
+        # break
+
+        return None
+
+    async def _crawl_gt_one_type_all_company_info(self, one_all_company_id_list):
+        """
+        抓取gt keyword的所有company_info
+        :param one_all_company_id_list:
+        :return:
+        """
+        async def _get_tasks_params_list(one_all_company_id_list) -> list:
+            """获取tasks_params_list"""
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
+            tasks_params_list = []
+            for item in one_all_company_id_list:
+                company_id = item['company_id']
+                if 'gt' + company_id not in self.bloom_filter:
+                    tasks_params_list.append({
+                        'company_id': company_id,
+                    })
+                else:
+                    continue
+
+            self.lg.info('company_id 去重ing...')
+            tasks_params_list = list_remove_repeat_dict_plus(
+                target=tasks_params_list,
+                repeat_key='company_id')
+
+            return tasks_params_list
+
+        async def _get_one_res(slice_params_list) -> list:
+            """获取one_res"""
+            get_current_func_info_by_traceback(self=self, logger=self.lg)
+            tasks = []
+            for k in slice_params_list:
+                company_id = k['company_id']
+                self.lg.info('create task[where company_id: {}]'.format(company_id))
+                company_url = 'http://{}.go2.cn'.format(company_id)
+                tasks.append(self.loop.create_task(self._parse_one_company_info(
+                    short_name='gt',
+                    company_id=company_id,
+                    company_url=company_url,)))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+
+            return one_res
+
+        get_current_func_info_by_traceback(self=self, logger=self.lg)
+        tasks_params_list = await _get_tasks_params_list(one_all_company_id_list=one_all_company_id_list)
+        new_step = self.concurrency
+        # new_step = 30
+        tasks_params_list_obj = TasksParamsListObj(
+            tasks_params_list=tasks_params_list,
+            step=new_step,)
+
+        index = 0
+        while True:
+            try:
+                slice_params_list = tasks_params_list_obj.__next__()
+            except AssertionError:
+                break
+
+            # asyncio
+            one_res = await _get_one_res(slice_params_list=slice_params_list)
+
+            # 存储
+            # index, self.db_gt_unique_id_list = await self._save_company_one_res(
+            #     one_res=one_res,
+            #     short_name='gt',
+            #     db_unique_id_list=self.db_gt_unique_id_list,
+            #     index=index,)
+
+        collect()
+
+        return None
 
     async def _ng_spider(self):
         """
@@ -2751,7 +3017,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[15570:]
+        self.al_category_list = (await self._get_al_category6())[26850:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -4953,6 +5219,8 @@ class CompanySpider(AsyncCrawler):
             site_id = 10
         elif short_name == 'ng':
             site_id = 11
+        elif short_name == 'gt':
+            site_id = 12
         else:
             raise NotImplemented('site_id没有实现!')
 
@@ -5748,6 +6016,9 @@ class CompanySpider(AsyncCrawler):
         if parser_obj['short_name'] == 'ng':
             unique_id = 'ng' + unique_id
 
+        if parser_obj['short_name'] == 'gt':
+            unique_id = 'gt' + unique_id
+
         return unique_id
 
     async def _get_province_id(self, parser_obj, target_obj, province_name, city_name):
@@ -6221,8 +6492,34 @@ class CompanySpider(AsyncCrawler):
         elif short_name == 'ng':
             return await self._get_ng_company_page_html(company_id=company_id)
 
+        elif short_name == 'gt':
+            return await self._get_gt_company_page_html(company_id=company_id)
+
         else:
             raise NotImplemented
+
+    async def _get_gt_company_page_html(self, company_id) -> str:
+        """
+        获取gt pc站的公司详情html
+        :param company_id:
+        :return:
+        """
+        headers = await self._get_pc_headers()
+        headers.update({
+            # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        url = 'http://{}.go2.cn/'.format(company_id)
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,)
+        # self.lg.info(body)
+        if body == '':
+            self.lg.error('company body为空值! company_id: {}'.format(company_id))
+
+        return body
 
     async def _get_ng_company_page_html(self, company_id) -> str:
         """

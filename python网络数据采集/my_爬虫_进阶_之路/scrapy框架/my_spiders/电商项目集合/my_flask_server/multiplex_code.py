@@ -1525,3 +1525,4 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
     res = pipeline._update_table(sql_str=sql_str, params=params, logger=logger)
 
     return res
+

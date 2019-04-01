@@ -68,3 +68,20 @@ from fzutils.spider.async_always import *
 # print(type(_.driver))
 # del _
 
+# company_info
+headers = {
+    'Connection': 'keep-alive',
+    'Cache-Control': 'max-age=0',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': get_random_pc_ua(),
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+    # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+}
+url = 'http://dongqin.go2.cn/'
+body = Requests.get_url_body(
+    url=url,
+    headers=headers,
+    ip_pool_type=tri_ip_pool,)
+print(body)

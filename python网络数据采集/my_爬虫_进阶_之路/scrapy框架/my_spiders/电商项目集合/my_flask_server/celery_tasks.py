@@ -861,3 +861,67 @@ def _get_tm_one_goods_info_task(self, goods_id:list, index:int) -> tuple:
     collect()
 
     return (site_id, _goods_id, index, before_goods_data, end_goods_data)
+
+@app.task(name=tasks_name + '._get_gt_one_type_company_id_list_task', bind=True)
+def _get_gt_one_type_company_id_list_task(self, ip_pool_type, keyword, company_url_selector:dict, company_id_selector:dict, page_num, num_retries=8, timeout=15,) -> list:
+    """
+    根据keyword获取gt单页的所有comapny_id list
+    :param self:
+    :param ip_pool_type:
+    :param keyword:
+    :param page_num:
+    :param num_retries:
+    :param timeout:
+    :return:
+    """
+    # search
+    headers = _get_pc_headers()
+    headers.update({
+        # 'Referer': 'http://www.go2.cn/search/all/?category_id=all&search_1=1&q=%E9%9E%8B%E5%AD%90',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    })
+    params = (
+        ('category_id', 'all'),
+        ('search_1', '1'),
+        ('q', str(keyword)),
+    )
+    url = 'http://www.go2.cn/search/all/page{}.html'.format(page_num)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,
+        timeout=timeout,)
+    # lg.info(body)
+
+    company_url_list = parse_field(
+        parser=company_url_selector,
+        target_obj=body,
+        is_first=False,
+        logger=lg,)
+    # pprint(company_url_list)
+
+    res = []
+    for item in company_url_list:
+        try:
+            company_id = parse_field(
+                parser=company_id_selector,
+                target_obj=item,
+                logger=lg,)
+            assert company_id != '', 'company_id不为空值!'
+        except AssertionError:
+            continue
+        res.append({
+            'company_id': company_id,
+        })
+
+    res = list_remove_repeat_dict_plus(
+        target=res,
+        repeat_key='company_id',)
+    lg.info('[{}] keyword: {}, page_num: {}'.format(
+        '+' if res != [] else '-',
+        keyword,
+        page_num,))
+
+    return res
