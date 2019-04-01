@@ -925,3 +925,27 @@ def _get_gt_one_type_company_id_list_task(self, ip_pool_type, keyword, company_u
         page_num,))
 
     return res
+
+@app.task(name=tasks_name + '._get_gt_company_page_html_task', bind=True)
+def _get_gt_company_page_html_task(self, ip_pool_type, company_id, num_retries=8, timeout=15) -> tuple:
+    """
+    获取gt 的company_html
+    :param self:
+    :param ip_pool_type:
+    :return:
+    """
+    headers = _get_pc_headers()
+    headers.update({
+        # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    })
+    url = 'http://{}.go2.cn/'.format(company_id)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        ip_pool_type=ip_pool_type,
+        num_retries=num_retries,
+        timeout=timeout,)
+    # lg.info(body)
+
+    return (company_id, body)

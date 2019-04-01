@@ -258,6 +258,7 @@ class CompanySpider(AsyncCrawler):
         获取gc的cate name list
         :return: ['板鞋',]
         """
+        get_current_func_info_by_traceback(logger=self.lg, self=self)
         # search
         headers = await self._get_pc_headers()
         headers.update({
@@ -488,11 +489,11 @@ class CompanySpider(AsyncCrawler):
             one_res = await _get_one_res(slice_params_list=slice_params_list)
 
             # 存储
-            # index, self.db_gt_unique_id_list = await self._save_company_one_res(
-            #     one_res=one_res,
-            #     short_name='gt',
-            #     db_unique_id_list=self.db_gt_unique_id_list,
-            #     index=index,)
+            index, self.db_gt_unique_id_list = await self._save_company_one_res(
+                one_res=one_res,
+                short_name='gt',
+                db_unique_id_list=self.db_gt_unique_id_list,
+                index=index,)
 
         collect()
 
@@ -5101,7 +5102,7 @@ class CompanySpider(AsyncCrawler):
             phone = await self._get_phone(parser_obj=parser_obj, target_obj=company_html)
             email_address = await self._get_email_address(parser_obj=parser_obj, target_obj=company_html)
             address = await self._get_address(parser_obj=parser_obj, target_obj=company_html, ori_address=ori_address)
-            brief_introduction = await self._get_brief_introduction(parser_obj=parser_obj, target_obj=company_html)
+            brief_introduction = await self._get_brief_introduction(parser_obj=parser_obj, target_obj=company_html, company_id=company_id)
             business_range = await self._get_business_range(parser_obj=parser_obj, target_obj=company_html)
             founding_time = await self._get_founding_time(parser_obj=parser_obj, target_obj=company_html)
             province_id = await self._get_province_id(parser_obj=parser_obj, target_obj=company_html, province_name=province_name, city_name=city_name)
@@ -5605,7 +5606,8 @@ class CompanySpider(AsyncCrawler):
                 parser_obj['short_name'] == 'yw' or \
                 parser_obj['short_name'] == 'hn' or \
                 parser_obj['short_name'] == 'pk' or \
-                parser_obj['short_name'] == 'ng':
+                parser_obj['short_name'] == 'ng' or \
+                parser_obj['short_name'] == 'gt':
             assert phone_list != [], 'phone_list不能为空list!'
 
         return phone_list
@@ -5745,7 +5747,7 @@ class CompanySpider(AsyncCrawler):
 
         return address
 
-    async def _get_brief_introduction(self, parser_obj, target_obj) -> str:
+    async def _get_brief_introduction(self, parser_obj, target_obj, company_id) -> str:
         """
         获取company简介
         :param parser_obj:
@@ -5760,6 +5762,18 @@ class CompanySpider(AsyncCrawler):
             brief_introduction = '主营产品:' + brief_introduction \
                 if brief_introduction != '' \
                 else brief_introduction
+
+        elif parser_obj['short_name'] == 'gt':
+            introduction_html = await self._get_gt_introduction_html(company_id=company_id)
+            brief_introduction = await async_parse_field(
+                parser=parser_obj['brief_introduction'],
+                target_obj=introduction_html,
+                logger=self.lg)
+            if '该商家暂无商家介绍' \
+                    or '商家暂无此信息' \
+                    in brief_introduction:
+                brief_introduction = ''
+
         else:
             brief_introduction = await async_parse_field(
                 parser=parser_obj['brief_introduction'],
@@ -5767,13 +5781,36 @@ class CompanySpider(AsyncCrawler):
                 logger=self.lg)
 
         if parser_obj['short_name'] == 'hy'\
-                or parser_obj['short_name'] == 'ic':
+                or parser_obj['short_name'] == 'ic'\
+                or parser_obj['short_name'] == 'gt':
             brief_introduction = re.compile('<br>|<a.*?>|</a>|<br/>|<br />').sub(' ', brief_introduction)
 
         # 可为空值
         # assert brief_introduction != '', 'brief_introduction为空值!'
 
         return await self._wash_data(brief_introduction)
+
+    async def _get_gt_introduction_html(self, company_id) -> str:
+        """
+        获取gt company简介html
+        :param company_id:
+        :return:
+        """
+        headers = await self._get_pc_headers()
+        headers.update({
+            # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        url = 'http://{}.go2.cn/introduce.html'.format(company_id)
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,
+            num_retries=self.gt_max_num_retries,)
+        # self.lg.info(body)
+
+        return body
 
     async def _get_business_range(self, parser_obj, target_obj):
         """
@@ -5855,7 +5892,8 @@ class CompanySpider(AsyncCrawler):
                 or parser_obj['short_name'] == 'ic'\
                 or parser_obj['short_name'] == 'yw'\
                 or parser_obj['short_name'] == 'hn'\
-                or parser_obj['short_name'] == 'pk':
+                or parser_obj['short_name'] == 'pk'\
+                or parser_obj['short_name'] == 'gt':
             # mt可为空, 因为读其名知其意
             pass
         else:
@@ -5954,7 +5992,8 @@ class CompanySpider(AsyncCrawler):
                 or parser_obj['short_name'] == 'yw'\
                 or parser_obj['short_name'] == 'hn'\
                 or parser_obj['short_name'] == 'pk'\
-                or parser_obj['short_name'] == 'ng':
+                or parser_obj['short_name'] == 'ng'\
+                or parser_obj['short_name'] == 'gt':
             founding_time = datetime(1900, 1, 1)
 
         elif parser_obj['short_name'] == 'al'\
@@ -6067,6 +6106,17 @@ class CompanySpider(AsyncCrawler):
             else:
                 raise ValueError('未知地址信息: {}'.format(local_place))
 
+        if parser_obj['short_name'] == 'gt':
+            local_place = await self._get_gt_li_text_by_label_name(
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='城市',)
+            try:
+                # eg: '四川省'
+                province_name = local_place.split(' ')[0]
+            except IndexError:
+                raise IndexError('获取local_place时索引异常! local_place:{}'.format(local_place))
+
         for item in self.province_and_city_code_list:
             c_name = item[0]
             code = item[1]
@@ -6079,6 +6129,7 @@ class CompanySpider(AsyncCrawler):
             elif parser_obj['short_name'] == '114'\
                     or parser_obj['short_name'] == 'ic':
                 # 处理114的, 因为province_name, city_name传过来都是空值!
+                # 根据local_place来获取
                 if parent_code == '':
                     # 说明是省份or直辖市
                     if c_name in local_place:
@@ -6154,6 +6205,17 @@ class CompanySpider(AsyncCrawler):
             else:
                 raise ValueError('未知地址信息: {}'.format(local_place))
 
+        if parser_obj['short_name'] == 'gt':
+            local_place = await self._get_gt_li_text_by_label_name(
+                parser_obj=parser_obj,
+                target_obj=target_obj,
+                label_name='城市',)
+            try:
+                # eg: '成都市'
+                city_name = local_place.split(' ')[1]
+            except IndexError:
+                raise IndexError('获取local_place时索引异常! local_place:{}'.format(local_place))
+
         for item in self.province_and_city_code_list:
             c_name = item[0]
             code = item[1]
@@ -6163,6 +6225,7 @@ class CompanySpider(AsyncCrawler):
             if parser_obj['short_name'] == '114'\
                     or parser_obj['short_name'] == 'ic':
                 # 处理114的, 因为province_name, city_name传过来都是空值!
+                # 根据local_place来获取city_id
                 if parent_code == '':
                     # 说明是省份or直辖市
                     if re.compile('市').findall(c_name) != []:
@@ -6193,12 +6256,43 @@ class CompanySpider(AsyncCrawler):
         if parser_obj['short_name'] == '114' \
                 or parser_obj['short_name'] == 'ic'\
                 or parser_obj['short_name'] == 'hn'\
-                or parser_obj['short_name'] == 'pk':
+                or parser_obj['short_name'] == 'pk'\
+                or parser_obj['short_name'] == 'gt':
             raise AssertionError('未知的city_name:{}, db中未找到!'.format(city_name))
 
         else:
             # 可以为空, 企查查的为空
             pass
+
+        return ''
+
+    async def _get_gt_li_text_by_label_name(self, parser_obj, target_obj, label_name) -> str:
+        """
+        根据label_name获取gt对应的值
+        :param parser_obj:
+        :param target_obj:
+        :param label_name:
+        :return:
+        """
+        company_info_detail_li = await async_parse_field(
+            parser=parser_obj['company_info_detail_li_1'],
+            target_obj=target_obj,
+            logger=self.lg,
+            is_first=False)
+        company_info_detail_li = list_duplicate_remove(company_info_detail_li)
+        for item in company_info_detail_li:
+            item = item.replace('\r', '').replace('\t', '').replace('\n', '')
+            # self.lg.info(item)
+            label = (Selector(text=item).css('label ::text').extract_first() or '') \
+                .replace(':', '').replace(' ', '').replace('：', '')
+            _text = await self._wash_data(
+                data=Selector(text=item).css('span ::text').extract_first() or ''
+            )
+
+            # self.lg.info('label: {}'.format(label))
+            # self.lg.info('_text: {}'.format(_text))
+            if label == label_name:
+                return _text
 
         return ''
 
@@ -6514,7 +6608,8 @@ class CompanySpider(AsyncCrawler):
             url=url,
             headers=headers,
             ip_pool_type=self.ip_pool_type,
-            logger=self.lg,)
+            logger=self.lg,
+            num_retries=self.gt_max_num_retries,)
         # self.lg.info(body)
         if body == '':
             self.lg.error('company body为空值! company_id: {}'.format(company_id))

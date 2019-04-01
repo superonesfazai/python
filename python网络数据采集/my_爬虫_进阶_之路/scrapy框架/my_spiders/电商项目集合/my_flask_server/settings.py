@@ -981,27 +981,29 @@ COMPANY_ITEM_LIST = [
         },
         'company_status': None,     # 公司状态, 1: 在业 or 续存
         'company_link': None,       # 公司网站
-        'company_info_detail_li_1': { # 公司信息的li (详细信息部分)
+        'company_info_detail_li_1': { # 公司信息的li (详细信息部分, 此处用来获取province, city, 在label(城市：))
             'method': 'css',
-            'selector': 'div.companyContact-companyName',
+            'selector': 'div.merchant-info-item.text',
         },
-        'company_info_detail_li_2': { # 公司信息的li (电话, 固话)
+        'company_name': {
             'method': 'css',
-            'selector': 'span.companyContactConsultContent',
+            'selector': 'a.merchant-title ::text',
         },
-        'company_name': None,       # 在company_info_detail_li_1中(span:店铺名称, 其值::text)
         'legal_person': None,       # ''
-        'phone': None,              # 在company_info_detail_li_2中(div.companyContactConsultTouch:电话客服 or 手机客服)
+        'phone': {
+            'method': 'css',
+            'selector': 'span.contact-tel span ::text',
+        },
         'email_address': None,
         'address': {
             'method': 'css',
-            'selector': 'span.companyContact-adressValue ::text',
+            'selector': 'span.merchant-info-addr ::text',   # 有两个值, 取第一个(即is_first=True)
         },
-        'brief_introduction': None,
-        'business_range': {
+        'brief_introduction': {
             'method': 'css',
-            'selector': 'div.companyBasicShelling.wbg ::text'
+            'selector': 'div.main-content div.int-letter ::text'
         },
+        'business_range': None,
         'founding_time': None,
         'employees_num': None,
         'lng': None,

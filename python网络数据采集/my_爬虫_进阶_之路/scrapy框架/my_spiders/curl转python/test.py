@@ -64,10 +64,6 @@ from fzutils.spider.async_always import *
 # # 服务电话的js
 # print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
 
-# _ = BaseDriver()
-# print(type(_.driver))
-# del _
-
 # company_info
 headers = {
     'Connection': 'keep-alive',
@@ -79,9 +75,19 @@ headers = {
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
 }
-url = 'http://dongqin.go2.cn/'
+url = 'http://diteni.go2.cn/'
 body = Requests.get_url_body(
     url=url,
     headers=headers,
     ip_pool_type=tri_ip_pool,)
 print(body)
+
+company_name_selector = {
+    'method': 'css',
+    'selector': 'a.merchant-title ::text'
+}
+company_name = parse_field(
+    parser=company_name_selector,
+    target_obj=body,
+)
+print(company_name)
