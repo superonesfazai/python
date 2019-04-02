@@ -59,6 +59,7 @@ try:
 except ImportError:
     pass
 
+from os import walk
 from jieba import cut as jieba_cut
 from requests import session
 from datetime import datetime
@@ -81,7 +82,7 @@ from fzutils.spider.fz_driver import (
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.selenium_always import *
-from fzutils.data.excel_utils import read_info_from_excel_file
+from fzutils.data.excel_utils import async_read_info_from_excel_file
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.ocr_utils import yundama_ocr_captcha
@@ -3018,7 +3019,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[26850:]
+        self.al_category_list = (await self._get_al_category6())[33000:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -3220,29 +3221,54 @@ class CompanySpider(AsyncCrawler):
         读取最新的淘热搜excel的top 20W关键字
         :return:
         """
-        excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
-        self.lg.info('正在读取{0}, 请耐心等待...'.format(excel_file_path))
+        old_excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
+        old_excel_res = await self.read_excel_file(old_excel_file_path)
+
+        tb_20w_path = '/Users/afa/myFiles/tmp/tb_top20w'
+        all_new_excel_res = []
+        for item in walk(tb_20w_path):
+            dir_path, dir_names, file_names = item
+            for file_name in file_names:
+                new_excel_file_path = '{}/{}'.format(dir_path, file_name)
+                new_excel_res = await self.read_excel_file(new_excel_file_path)
+                all_new_excel_res += new_excel_res
+
+        # 先处理得到已遍历的老关键字 list
+        old_key_list = await self.jieba_handle_excel_res(excel_result=old_excel_res)
+        # 再处理新关键字 list
+        new_key_list = await self.jieba_handle_excel_res(excel_result=all_new_excel_res)
+
+        all_key_list = old_key_list
+        for item in new_key_list:
+            if item not in all_key_list:
+                self.lg.info('add {}'.format(item))
+                all_key_list.append(item)
 
         try:
-            excel_result = read_info_from_excel_file(excel_file_path=excel_file_path)
-            self.lg.info('读取excel success!\n开始处理excel数据...')
-        except Exception:
-            self.lg.error('遇到错误:', exc_info=True)
-            return []
+            del old_excel_res
+            del all_new_excel_res
+            del old_key_list
+            del new_key_list
+        except:
+            pass
+        collect()
 
+        return all_key_list
+
+    async def jieba_handle_excel_res(self, excel_result:list) -> list:
+        """
+        关键字进行结巴分词处理
+        :return:
+        """
+        self.lg.info('开始处理excel数据...')
         all_key_list = []
         new_sql_add_index = 0
-        for index, item in enumerate(excel_result):
+        for item in excel_result:
             keyword = item.get('关键词', None)
             if not keyword:
                 continue
 
-            # 原数据接入
-            # if keyword not in all_key_list:
-            #     self.lg.info('{}, add {}'.format(index, keyword))
-            #     all_key_list.append(keyword)
-
-            # jieba分词存入
+            # 不进行原数据接入(原因太具体很多搜索不到), jieba分词存入
             try:
                 for seq in jieba_cut(sentence=keyword, cut_all=False):
                     # 精准模式先拆分原句
@@ -3264,6 +3290,24 @@ class CompanySpider(AsyncCrawler):
         collect()
 
         return all_key_list
+
+    async def read_excel_file(self, excel_file_path) -> list:
+        """
+        读取excel file
+        :return:
+        """
+        excel_result = []
+        self.lg.info('正在读取{}, 请耐心等待...'.format(excel_file_path))
+        try:
+            excel_result = await async_read_info_from_excel_file(excel_file_path=excel_file_path)
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+
+        self.lg.info('[{}] 读取excel_file: {}!'.format(
+            '+' if excel_result != [] else '-',
+            excel_file_path))
+
+        return excel_result
 
     async def _get_al_category7(self) -> list:
         """
@@ -5796,6 +5840,7 @@ class CompanySpider(AsyncCrawler):
         :param company_id:
         :return:
         """
+        self.lg.info('crawling company_id: {} introduction ...'.format(company_id))
         headers = await self._get_pc_headers()
         headers.update({
             # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
@@ -6114,6 +6159,15 @@ class CompanySpider(AsyncCrawler):
             try:
                 # eg: '四川省'
                 province_name = local_place.split(' ')[0]
+                if province_name == '暂无':
+                    address = await async_parse_field(
+                        parser=parser_obj['address'],
+                        target_obj=target_obj,
+                        logger=self.lg,
+                        is_first=True)
+                    if '国际商贸城' in address:
+                        province_name = '四川省'
+
             except IndexError:
                 raise IndexError('获取local_place时索引异常! local_place:{}'.format(local_place))
 
@@ -6211,8 +6265,21 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 label_name='城市',)
             try:
-                # eg: '成都市'
-                city_name = local_place.split(' ')[1]
+                province_name = local_place.split(' ')[0]
+                if province_name == '暂无':
+                    # 处理local_place为'暂无'的
+                    address = await async_parse_field(
+                        parser=parser_obj['address'],
+                        target_obj=target_obj,
+                        logger=self.lg,
+                        is_first=True)
+                    if '国际商贸城' in address:
+                        city_name = '成都市'
+                    else:
+                        pass
+                else:
+                    # eg: '成都市'
+                    city_name = local_place.split(' ')[1]
             except IndexError:
                 raise IndexError('获取local_place时索引异常! local_place:{}'.format(local_place))
 
