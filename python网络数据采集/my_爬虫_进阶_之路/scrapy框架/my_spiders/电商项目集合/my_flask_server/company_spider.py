@@ -3221,17 +3221,58 @@ class CompanySpider(AsyncCrawler):
         读取最新的淘热搜excel的top 20W关键字
         :return:
         """
-        old_excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
-        old_excel_res = await self.read_excel_file(old_excel_file_path)
+        async def _get_tasks_params_list() -> list:
+            tb_20w_path = '/Users/afa/myFiles/tmp/tb_top20w'
+            tasks_params_list = []
+            for item in walk(tb_20w_path):
+                dir_path, dir_names, file_names = item
+                for file_name in file_names:
+                    new_excel_file_path = '{}/{}'.format(dir_path, file_name)
+                    tasks_params_list.append(new_excel_file_path)
 
-        tb_20w_path = '/Users/afa/myFiles/tmp/tb_top20w'
+            return tasks_params_list
+
+        async def get_one_res(slice_params_list) -> list:
+            tasks = []
+            for k in slice_params_list:
+                excel_file_path = k
+                self.lg.info('create task[where excel_file_path: {}] ...'.format(excel_file_path))
+                tasks.append(self.loop.create_task(self.read_excel_file(excel_file_path)))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+
+            return one_res
+
+        old_excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
+        old_excel_res = (await self.read_excel_file(old_excel_file_path))[1]
+
+        all_new_excel_file_path_list = await _get_tasks_params_list()
+        tasks_params_list = TasksParamsListObj(
+            tasks_params_list=all_new_excel_file_path_list,
+            step=20,)
+        all_res = []
+        while True:
+            try:
+                slice_params_list = tasks_params_list.__next__()
+            except AssertionError:
+                break
+
+            one_res = await get_one_res(slice_params_list)
+            for i in one_res:
+                all_res.append(i)
+
+        # 保持原先读取顺序进行拼接
         all_new_excel_res = []
-        for item in walk(tb_20w_path):
-            dir_path, dir_names, file_names = item
-            for file_name in file_names:
-                new_excel_file_path = '{}/{}'.format(dir_path, file_name)
-                new_excel_res = await self.read_excel_file(new_excel_file_path)
-                all_new_excel_res += new_excel_res
+        for i in all_new_excel_file_path_list:
+            for item in all_res:
+                excel_file_path, new_excel_res = item
+                if i == excel_file_path:
+                    all_new_excel_res += new_excel_res
+
+        try:
+            del all_res
+        except:
+            pass
 
         # 先处理得到已遍历的老关键字 list
         old_key_list = await self.jieba_handle_excel_res(excel_result=old_excel_res)
@@ -3261,8 +3302,11 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         self.lg.info('开始处理excel数据...')
-        all_key_list = []
         new_sql_add_index = 0
+        excel_result_len = len(excel_result)
+        bloom_filter = BloomFilter(capacity=excel_result_len + 1, error_rate=1/excel_result_len*100)
+
+        all_key_list = []
         for item in excel_result:
             keyword = item.get('关键词', None)
             if not keyword:
@@ -3275,9 +3319,10 @@ class CompanySpider(AsyncCrawler):
                     seq = seq.lower()
                     if ' ' == seq:
                         continue
-                    if seq not in all_key_list:
+                    if seq not in bloom_filter:
                         self.lg.info('{}, add {}'.format(new_sql_add_index, seq))
                         all_key_list.append(seq)
+                        bloom_filter.add(seq)
                         new_sql_add_index += 1
             except Exception:
                 self.lg.error('遇到错误', exc_info=True)
@@ -3287,11 +3332,15 @@ class CompanySpider(AsyncCrawler):
             del excel_result
         except:
             pass
+        try:
+            del bloom_filter
+        except:
+            pass
         collect()
 
         return all_key_list
 
-    async def read_excel_file(self, excel_file_path) -> list:
+    async def read_excel_file(self, excel_file_path) -> tuple:
         """
         读取excel file
         :return:
@@ -3307,7 +3356,7 @@ class CompanySpider(AsyncCrawler):
             '+' if excel_result != [] else '-',
             excel_file_path))
 
-        return excel_result
+        return excel_file_path, excel_result
 
     async def _get_al_category7(self) -> list:
         """
