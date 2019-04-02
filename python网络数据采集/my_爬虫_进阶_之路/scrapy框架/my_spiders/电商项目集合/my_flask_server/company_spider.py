@@ -59,7 +59,8 @@ try:
 except ImportError:
     pass
 
-from os import walk
+from os import (walk, remove)
+from os.path import exists as path_exists
 from jieba import cut as jieba_cut
 from requests import session
 from datetime import datetime
@@ -3243,55 +3244,86 @@ class CompanySpider(AsyncCrawler):
 
             return one_res
 
-        old_excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
-        old_excel_res = (await self.read_excel_file(old_excel_file_path))[1]
+        tb_hot_keywords_file_path = '/Users/afa/myFiles/tmp/tb_hot_keywords.txt'
+        # 存储最后返回的keywords list
+        all_key_list = []
+        # TODO 如果要更新tb_hot_keywords.txt里面的值, 直接在路径下删除该文件即可!
+        if path_exists(tb_hot_keywords_file_path):
+            self.lg.info('[+] 存在{}, reading ...'.format(tb_hot_keywords_file_path))
+            # 存在则直接读取!
+            with open(tb_hot_keywords_file_path, 'r',) as f:
+                for line in f:
+                    all_key_list.append(line.replace('\n', ''))
 
-        all_new_excel_file_path_list = await _get_tasks_params_list()
-        tasks_params_list = TasksParamsListObj(
-            tasks_params_list=all_new_excel_file_path_list,
-            step=20,)
-        all_res = []
-        while True:
+        else:
+            self.lg.info('[-] 不存在{}, creating ...'.format(tb_hot_keywords_file_path))
+            # 创建tb_hot_keywords_file_path, 并写入内容
+            old_excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
+            old_excel_res = (await self.read_excel_file(old_excel_file_path))[1]
+
+            all_res = []
+            all_new_excel_file_path_list = await _get_tasks_params_list()
+            # 同步读取...(同步读取, 不容易导致mac卡住! 故异步需控制并发量!)
+            # for excel_file_path in all_new_excel_file_path_list:
+            #     all_res.append(await self.read_excel_file(
+            #         excel_file_path=excel_file_path))
+
+            # 异步读取..
+            # 并发量=5, 性能较好! 不易卡住!
+            tasks_params_list = TasksParamsListObj(
+                tasks_params_list=all_new_excel_file_path_list,
+                step=5,)
+            while True:
+                try:
+                    slice_params_list = tasks_params_list.__next__()
+                except AssertionError:
+                    break
+
+                one_res = await get_one_res(slice_params_list)
+                for i in one_res:
+                    all_res.append(i)
+
+            # 保持原先读取顺序进行拼接
+            all_new_excel_res = []
+            for i in all_new_excel_file_path_list:
+                for item in all_res:
+                    excel_file_path, new_excel_res = item
+                    if i == excel_file_path:
+                        all_new_excel_res += new_excel_res
+                        break
+                    else:
+                        continue
+
             try:
-                slice_params_list = tasks_params_list.__next__()
-            except AssertionError:
-                break
+                del all_res
+            except:
+                pass
 
-            one_res = await get_one_res(slice_params_list)
-            for i in one_res:
-                all_res.append(i)
+            # 先处理得到已遍历的老关键字 list
+            old_key_list = await self.jieba_handle_excel_res(excel_result=old_excel_res)
+            # 再处理新关键字 list
+            new_key_list = await self.jieba_handle_excel_res(excel_result=all_new_excel_res)
 
-        # 保持原先读取顺序进行拼接
-        all_new_excel_res = []
-        for i in all_new_excel_file_path_list:
-            for item in all_res:
-                excel_file_path, new_excel_res = item
-                if i == excel_file_path:
-                    all_new_excel_res += new_excel_res
+            all_key_list = old_key_list
+            for item in new_key_list:
+                if item not in all_key_list:
+                    self.lg.info('add {}'.format(item))
+                    all_key_list.append(item)
 
-        try:
-            del all_res
-        except:
-            pass
+            try:
+                del old_excel_res
+                del all_new_excel_res
+                del old_key_list
+                del new_key_list
+            except:
+                pass
 
-        # 先处理得到已遍历的老关键字 list
-        old_key_list = await self.jieba_handle_excel_res(excel_result=old_excel_res)
-        # 再处理新关键字 list
-        new_key_list = await self.jieba_handle_excel_res(excel_result=all_new_excel_res)
+            # 写入
+            self.lg.info('writing keywords to {} ...'.format(tb_hot_keywords_file_path))
+            with open(tb_hot_keywords_file_path, 'w',) as f:
+                for item in all_key_list:
+                    f.write(item + '\n')
 
-        all_key_list = old_key_list
-        for item in new_key_list:
-            if item not in all_key_list:
-                self.lg.info('add {}'.format(item))
-                all_key_list.append(item)
-
-        try:
-            del old_excel_res
-            del all_new_excel_res
-            del old_key_list
-            del new_key_list
-        except:
-            pass
         collect()
 
         return all_key_list
