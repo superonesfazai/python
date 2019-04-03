@@ -3270,16 +3270,19 @@ class CompanySpider(AsyncCrawler):
             #         excel_file_path=excel_file_path))
 
             # 异步读取..
-            # 并发量=5, 性能较好! 不易卡住!
+            # 并发量=3, 性能较好! 不易卡住!
+            step = 3
             tasks_params_list = TasksParamsListObj(
                 tasks_params_list=all_new_excel_file_path_list,
-                step=30,)
+                step=step,)
+            slice_index = 1
             while True:
                 try:
                     slice_params_list = tasks_params_list.__next__()
                 except AssertionError:
                     break
 
+                self.lg.info('-> slice_index: {}, step: {}'.format(slice_index, step))
                 one_res = await get_one_res(slice_params_list)
                 for i in one_res:
                     all_res.append(i)
@@ -3288,6 +3291,8 @@ class CompanySpider(AsyncCrawler):
                     del one_res
                 except:
                     pass
+                collect()
+                slice_index += 1
 
             # 保持原先读取顺序进行拼接
             all_new_excel_res = []
@@ -3304,6 +3309,7 @@ class CompanySpider(AsyncCrawler):
                 del all_res
             except:
                 pass
+            collect()
 
             # 先处理得到已遍历的老关键字 list
             old_key_list = await self.jieba_handle_excel_res(excel_result=old_excel_res)
@@ -3323,11 +3329,13 @@ class CompanySpider(AsyncCrawler):
                 del new_key_list
             except:
                 pass
+            collect()
 
             # 写入
             self.lg.info('writing keywords to {} ...'.format(tb_hot_keywords_file_path))
             with open(tb_hot_keywords_file_path, 'w',) as f:
                 for item in all_key_list:
+                    print('-> add {} to txt'.format(item))
                     f.write(item + '\n')
 
         collect()
