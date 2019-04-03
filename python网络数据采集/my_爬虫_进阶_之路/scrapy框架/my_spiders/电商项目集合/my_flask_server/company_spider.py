@@ -3270,8 +3270,8 @@ class CompanySpider(AsyncCrawler):
             #         excel_file_path=excel_file_path))
 
             # 异步读取..
-            # 并发量=3, 性能较好! 不易卡住!
-            step = 3
+            # 并发量=5, 性能较好! 不易卡住!
+            step = 5
             tasks_params_list = TasksParamsListObj(
                 tasks_params_list=all_new_excel_file_path_list,
                 step=step,)
@@ -3295,11 +3295,13 @@ class CompanySpider(AsyncCrawler):
                 slice_index += 1
 
             # 保持原先读取顺序进行拼接
+            self.lg.info('按原先读取顺序进行拼接ing...')
             all_new_excel_res = []
             for i in all_new_excel_file_path_list:
                 for item in all_res:
                     excel_file_path, new_excel_res = item
                     if i == excel_file_path:
+                        self.lg.info('add {} to all_new_excel_res ...'.format(excel_file_path))
                         all_new_excel_res += new_excel_res
                         break
                     else:
@@ -3392,7 +3394,6 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         excel_result = []
-        self.lg.info('正在读取{}, 请耐心等待...'.format(excel_file_path))
         try:
             excel_result = await async_read_info_from_excel_file(excel_file_path=excel_file_path)
         except Exception:

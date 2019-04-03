@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="&quot;新增 PyQt5相关&quot;">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -1103,11 +1102,16 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="3295" lean-forward="true" selection-start-line="3295" selection-end-line="3295" />
+            <state relative-caret-position="258">
+              <caret line="3272" column="19" selection-start-line="3272" selection-start-column="19" selection-end-line="3272" selection-end-column="19" />
               <folding>
                 <element signature="e#549#571#0" expanded="true" />
+                <element signature="e#122264#122672#0" />
+                <element signature="e#122744#123116#0" />
                 <element signature="e#123379#123629#0" />
+                <element signature="e#126515#127792#0" />
+                <element signature="e#127865#128375#0" />
+                <element signature="e#128432#129922#0" />
               </folding>
             </state>
           </provider>
@@ -2154,7 +2158,7 @@
       <workItem from="1553823079298" duration="36681000" />
       <workItem from="1554082494719" duration="20781000" />
       <workItem from="1554171452891" duration="36037000" />
-      <workItem from="1554287201726" duration="1414000" />
+      <workItem from="1554287201726" duration="2240000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2206,7 +2210,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="868215000" />
+    <option name="totallyTimeSpent" value="869041000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2814,11 +2818,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="3295" lean-forward="true" selection-start-line="3295" selection-end-line="3295" />
+        <state relative-caret-position="258">
+          <caret line="3272" column="19" selection-start-line="3272" selection-start-column="19" selection-end-line="3272" selection-end-column="19" />
           <folding>
             <element signature="e#549#571#0" expanded="true" />
+            <element signature="e#122264#122672#0" />
+            <element signature="e#122744#123116#0" />
             <element signature="e#123379#123629#0" />
+            <element signature="e#126515#127792#0" />
+            <element signature="e#127865#128375#0" />
+            <element signature="e#128432#129922#0" />
           </folding>
         </state>
       </provider>
