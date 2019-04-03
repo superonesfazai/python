@@ -156,14 +156,15 @@ class ALiPay(AsyncCrawler):
         蚂蚁森林偷能量
         :return:
         """
-        # 点蚂蚁森林
-        self.d(
-            resourceId="com.alipay.android.phone.openplatform:id/app_icon",
-            className="android.widget.ImageView",
-            instance=9).click()
-        print('等待蚂蚁森林页面启动...')
-        await async_sleep(15)
+        await self._init_ant_forest()
+        await self._join_into_friend_page()
+        await self._start_steal_energy()
 
+    async def _join_into_friend_page(self) -> None:
+        """
+        进入好友列表页面
+        :return:
+        """
         # 向下滑动
         while True:
             try:
@@ -178,6 +179,24 @@ class ALiPay(AsyncCrawler):
         print('获取好友页面中...')
         await async_sleep(6)
 
+    async def _init_ant_forest(self) -> None:
+        """
+        初始化蚂蚁森林
+        :return:
+        """
+        # 点蚂蚁森林
+        self.d(
+            resourceId="com.alipay.android.phone.openplatform:id/app_icon",
+            className="android.widget.ImageView",
+            instance=9).click()
+        print('等待蚂蚁森林页面启动...')
+        await async_sleep(15)
+
+    async def _start_steal_energy(self) -> None:
+        """
+        开始偷能量
+        :return:
+        """
         ori_img_path = self.screen_save_path + 'screen.jpg'
         div_img_path = self.screen_save_path + 'div_img.jpg'
         # 待对比的hand路径
@@ -193,88 +212,95 @@ class ALiPay(AsyncCrawler):
             for index in range(base_one_page_min_num, base_one_page_max_num):
                 try:
                     # div 块
-                    div_ele = self.d(className="android.view.View", instance=index)
+                    div_ele = self.d(
+                        className="android.view.View",
+                        instance=index,
+                        description='',)
                     child_count = div_ele.info.get('childCount', 0)
                 except UiObjectNotFoundError:
                     # 处理index找不到元素带来的异常!
                     break
 
-                if child_count >= 6:
-                    # 表示是最外层的div块
-                    # div_index: 8, 14, 20, 26, 33, 40, 47, 54, 61
-                    if index in (8, 14, 20):
-                        # 排名前三的元素只有6个, friend_name索引需特殊设置
-                        friend_name_ele_index = 1
-                    else:
-                        friend_name_ele_index = 2
-
-                    try:
-                        friends_name = div_ele.child(instance=friend_name_ele_index).info.get('contentDescription', '')
-                        # print('friends_name: {}'.format(friends_name))
-                    except UiObjectNotFoundError:
-                        # 处理index找不到元素带来的异常!
-                        break
-
-                    if friends_name == '邀请':
-                        # 退出
-                        print('所有好友已遍历完成!')
-                        break
-
-                    if friends_name == '方波' \
-                            or friends_name in traversed_friends_name_list\
-                            or re.compile('获得了\d+个环保证书').findall(friends_name) != []\
-                            or re.compile('\d+kg').findall(friends_name) != []:
-                        continue
-                    else:
-                        # print('friends_name: {}'.format(friends_name))
-                        pass
-
-                    div_ele_bounds = div_ele.info.get('bounds', {})
-                    self.d.screenshot(ori_img_path)
-                    # 指定位置截图
-                    specified_position_screenshot(
-                        ori_img_path=ori_img_path,
-                        target_img_save_path=div_img_path,
-                        left=div_ele_bounds['left'],
-                        top=div_ele_bounds['top'],
-                        right=div_ele_bounds['right'],
-                        bottom=div_ele_bounds['bottom'],)
-                    # 截图小手
-                    specified_position_screenshot(
-                        ori_img_path=div_img_path,
-                        target_img_save_path=hand_img_path,
-                        left=self.hand_bounds['left'],
-                        top=self.hand_bounds['top'],
-                        right=self.hand_bounds['right'],
-                        bottom=self.hand_bounds['bottom'],)
-                    img_similarity = img_similarity_calculate(
-                        img_path1=ori_hand_img_path,
-                        img_path2=hand_img_path,
-                        mode=3,)
-                    if img_similarity >= 0.9:
-                        print('[+] {} 可收取!'.format(friends_name))
-                        self.d(className="android.view.View", instance=index).click()
-                        await async_sleep(3.)
-
-                        # 收取能量
-                        # descriptionMatches中为re
-                        power_ele_list = self.d(descriptionMatches='收集能量\d+克', className="android.widget.Button")
-                        for power_ele in power_ele_list:
-                            power_ele.click()
-                        
-                        await u2_page_back(d=self.d,)
-                        await async_sleep(1.)
-
-                    else:
-                        print('[-] {} 不可收取!'.format(friends_name))
-
-                    if friends_name not in traversed_friends_name_list:
-                        traversed_friends_name_list.append(friends_name)
-
-                else:
+                if child_count < 6:
                     continue
 
-            await u2_up_swipe_some_height(d=self.d, swipe_height=.5)
+                # 表示是最外层的div块
+                # div_index: 8, 14, 20, 26, 33, 40, 47, 54, 61
+                if index in (8, 14, 20):
+                    # 排名前三的元素只有6个, friend_name索引需特殊设置
+                    friend_name_ele_index = 1
+                else:
+                    friend_name_ele_index = 2
+
+                try:
+                    friends_name = div_ele.child(instance=friend_name_ele_index).info.get('contentDescription', '')
+                    # print('friends_name: {}'.format(friends_name))
+                except UiObjectNotFoundError:
+                    # 处理index找不到元素带来的异常!
+                    break
+
+                if friends_name == '邀请':
+                    # 退出
+                    print('所有好友已遍历完成!')
+                    break
+
+                if friends_name in ('方波',) \
+                        or friends_name == ''\
+                        or friends_name in traversed_friends_name_list \
+                        or re.compile('获得了\d+个环保证书').findall(friends_name) != [] \
+                        or re.compile('\d+kg').findall(friends_name) != []:
+                    continue
+                else:
+                    pass
+
+                div_ele_bounds = div_ele.info.get('bounds', {})
+                self.d.screenshot(ori_img_path)
+                # 指定位置截图
+                specified_position_screenshot(
+                    ori_img_path=ori_img_path,
+                    target_img_save_path=div_img_path,
+                    left=div_ele_bounds['left'],
+                    top=div_ele_bounds['top'],
+                    right=div_ele_bounds['right'],
+                    bottom=div_ele_bounds['bottom'], )
+                # 截图小手
+                specified_position_screenshot(
+                    ori_img_path=div_img_path,
+                    target_img_save_path=hand_img_path,
+                    left=self.hand_bounds['left'],
+                    top=self.hand_bounds['top'],
+                    right=self.hand_bounds['right'],
+                    bottom=self.hand_bounds['bottom'], )
+                img_similarity = img_similarity_calculate(
+                    img_path1=ori_hand_img_path,
+                    img_path2=hand_img_path,
+                    mode=3, )
+                print('img_similarity: {}'.format(img_similarity))
+                if img_similarity >= 0.85:
+                    print('[+] {} 可收取!'.format(friends_name))
+                    div_ele.child(instance=friend_name_ele_index).click()
+                    await async_sleep(5.)
+
+                    # 收取能量
+                    # descriptionMatches中为re
+                    power_ele_list = self.d(descriptionMatches='收集能量\d+克', className="android.widget.Button")
+                    for power_ele in power_ele_list:
+                        power_ele.click()
+
+                    await u2_page_back(d=self.d, )
+                    await async_sleep(1.)
+
+                else:
+                    print('[-] {} 不可收取!'.format(friends_name))
+
+                if friends_name not in traversed_friends_name_list:
+                    traversed_friends_name_list.append(friends_name)
+
+
+            # 这样处理避免出现查看更多的刷新未完成!
+            await u2_up_swipe_some_height(d=self.d, swipe_height=.2)
+            await async_sleep(1.5)
+            await u2_up_swipe_some_height(d=self.d, swipe_height=.3)
             await async_sleep(1.5)
 
     async def async_get_ele_info(self, ele:UiObject, logger=None) -> tuple:
