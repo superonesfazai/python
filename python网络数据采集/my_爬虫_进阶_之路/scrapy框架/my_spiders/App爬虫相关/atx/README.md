@@ -8,7 +8,7 @@ ATX(AutomatorX) 是一款开源的自动化测试工具，支持测试iOS平台�
 ## 重要说明
 新版本以采用新的uiautomator2替换到原来的atx-uiautomator. 历史版本可以通过Tag查看tag:1.1.3 测试安卓应用前，需要先进行init操作
 ```bash
-$ python3 -muiautomator2 init
+$ python3 -m uiautomator2 init
 ```
 
 用于安卓和iOS原生应用测试的库已经分离出来，可以单独使用（强烈推荐单独使用，一来依赖少、稳定性高，二来写代码的时候还能自动补全）
@@ -99,6 +99,25 @@ ATX的图片识别,是支持分辨率缩放匹配的,前提就是,在保存截�
 ![](https://i.loli.net/2019/03/06/5c7f2d36ec620.png)
 
 原理大概就是:从文件名获取源分辨率,从设备获取设备分辨率,然后将图片按照比例缩放
+
+截图
+```bash
+# require Android>=4.2.
+d.screenshot("home.jpg")
+
+# get PIL.Image格式化图像。你需要先install pillow
+image = d.screenshot() # default format="pillow"
+image.save("home.jpg") # or home.png. Currently, only png and jpg are supported
+
+# get opencv formatted images. Naturally, you need numpy and cv2 installed first
+import cv2
+image = d.screenshot(format='opencv')
+cv2.imwrite('home.jpg', image)
+
+# get raw jpeg data
+imagebin = d.screenshot(format='raw')
+open("some.jpg", "wb").write(imagebin)
+```
 
 ### 测试过程报告
 因为ATX集成了测试报告，所以生成响应的测试报告也很简单 在第3行代码之后加入以下代码

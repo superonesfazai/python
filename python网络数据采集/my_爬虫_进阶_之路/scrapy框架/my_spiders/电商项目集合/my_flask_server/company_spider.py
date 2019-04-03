@@ -3020,7 +3020,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[33000:]
+        self.al_category_list = (await self._get_al_category6())[33020:]
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -3264,24 +3264,25 @@ class CompanySpider(AsyncCrawler):
             all_res = []
             all_new_excel_file_path_list = await _get_tasks_params_list()
             # 同步读取...(同步读取, 不容易导致mac卡住! 故异步需控制并发量!)
-            # for excel_file_path in all_new_excel_file_path_list:
-            #     all_res.append(await self.read_excel_file(
-            #         excel_file_path=excel_file_path))
+            for index, excel_file_path in enumerate(all_new_excel_file_path_list):
+                self.lg.info('read excel_file index: {}'.format(index))
+                all_res.append(await self.read_excel_file(
+                    excel_file_path=excel_file_path))
 
             # 异步读取..
-            # 并发量=5, 性能较好! 不易卡住!
-            tasks_params_list = TasksParamsListObj(
-                tasks_params_list=all_new_excel_file_path_list,
-                step=5,)
-            while True:
-                try:
-                    slice_params_list = tasks_params_list.__next__()
-                except AssertionError:
-                    break
-
-                one_res = await get_one_res(slice_params_list)
-                for i in one_res:
-                    all_res.append(i)
+            # 并发量=3, 性能较好! 不易卡住!
+            # tasks_params_list = TasksParamsListObj(
+            #     tasks_params_list=all_new_excel_file_path_list,
+            #     step=3,)
+            # while True:
+            #     try:
+            #         slice_params_list = tasks_params_list.__next__()
+            #     except AssertionError:
+            #         break
+            #
+            #     one_res = await get_one_res(slice_params_list)
+            #     for i in one_res:
+            #         all_res.append(i)
 
             # 保持原先读取顺序进行拼接
             all_new_excel_res = []
@@ -6246,7 +6247,7 @@ class CompanySpider(AsyncCrawler):
                         target_obj=target_obj,
                         logger=self.lg,
                         is_first=True)
-                    if '国际商贸城' in address:
+                    if '国际商贸城' or '商贸城' in address:
                         province_name = '四川省'
 
             except IndexError:
@@ -6354,7 +6355,7 @@ class CompanySpider(AsyncCrawler):
                         target_obj=target_obj,
                         logger=self.lg,
                         is_first=True)
-                    if '国际商贸城' in address:
+                    if '国际商贸城' or '商贸城' in address:
                         city_name = '成都市'
                     else:
                         pass

@@ -13,7 +13,8 @@ from uiautomator2.exceptions import UiObjectNotFoundError
 from fzutils.spider.app_utils import (
     u2_get_some_ele_height,
     u2_page_back,
-    u2_get_device_display_h_and_w,)
+    u2_get_device_display_h_and_w,
+    u2_up_swipe_some_height,)
 from fzutils.spider.async_always import *
 
 class TaoBaoOps(AsyncCrawler):
@@ -83,7 +84,7 @@ class TaoBaoOps(AsyncCrawler):
         self.first_swipe_height, self.second_swipe_height = await self._get_first_swipe_height_and_second_swipe_height()
 
         # 先上滑隐藏全部, 天猫, 店铺, 淘宝经验
-        await self._u2_up_swipe_some_height(d=self.d, height=self.first_swipe_height)
+        await u2_up_swipe_some_height(d=self.d, swipe_height=self.first_swipe_height)
         shop_name_list = []
 
         shop_crawl_count = 1
@@ -117,7 +118,7 @@ class TaoBaoOps(AsyncCrawler):
                 shop_name_list.append(shop_title)
             else:
                 print('该店名: {} 已遍历, pass'.format(shop_title))
-                await self._u2_up_swipe_some_height(d=self.d, height=self.second_swipe_height)
+                await u2_up_swipe_some_height(d=self.d, swipe_height=self.second_swipe_height)
                 # await async_sleep(2)  # 等待新返回的list成功显示
                 continue
 
@@ -156,7 +157,7 @@ class TaoBaoOps(AsyncCrawler):
             while not first_shop_title_ele.exists():
                 await u2_page_back(d=self.d, back_num=1)
 
-            await self._u2_up_swipe_some_height(d=self.d, height=self.second_swipe_height)
+            await u2_up_swipe_some_height(d=self.d, swipe_height=self.second_swipe_height)
             # await async_sleep(2)  # 等待新返回的list成功显示
             shop_crawl_count += 1
 
@@ -190,14 +191,6 @@ class TaoBaoOps(AsyncCrawler):
             h2/1000))
 
         return first_swipe_height, second_swipe_height
-
-    async def _u2_up_swipe_some_height(self, d, height) -> None:
-        """
-        u2 上滑某个高度
-        :param height:
-        :return:
-        """
-        d.swipe(0., 0.1 + height, 0, 0.1)
 
     def __del__(self):
         try:

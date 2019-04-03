@@ -26,7 +26,9 @@ from uiautomator2.exceptions import UiObjectNotFoundError
 
 from exceptions import AddFriendsToTheUpperLimitException
 from fzutils.common_utils import _print
-from fzutils.spider.app_utils import u2_page_back
+from fzutils.spider.app_utils import (
+    u2_page_back,
+    u2_up_swipe_some_height,)
 from fzutils.spider.async_always import *
 
 class ALiPay(AsyncCrawler):
@@ -71,11 +73,20 @@ class ALiPay(AsyncCrawler):
         # self.d = u2.connect("U4AYPNDYCITWAE6D")     # oppo
         print(self.d.info)
         self.d.set_fastinput_ime(True)
-        self.d.debug = True
+        self.d.debug = False
         self.now_session = self.d.session(pkg_name="com.eg.android.AlipayGphone")
         self.phone_list = []
         # 支付宝登录页面类型
         self.login_type = 0
+        # 截图保存的位置
+        self.screen_save_path = '/Users/afa/myFiles/tmp/uiautomator2_files/screen/'
+        # 小手位置
+        self.hand_bounds = {
+            'left': 676,
+            'top': 0,
+            'right': 720,
+            'bottom': 45,
+        }
 
     async def _fck_run(self):
         # TODO 先退出登录
@@ -83,11 +94,11 @@ class ALiPay(AsyncCrawler):
         login_res = await self._login()
 
         # 批量加好友
-        await self._init_phone_list()
-        await self._batch_add_friends()
+        # await self._init_phone_list()
+        # await self._batch_add_friends()
 
         # 蚂蚁森林
-        # await self._ant_forest_steal_energy()
+        await self._ant_forest_steal_energy()
 
         print('运行完毕!')
 
@@ -146,7 +157,10 @@ class ALiPay(AsyncCrawler):
         :return:
         """
         # 点蚂蚁森林
-        self.d(resourceId="com.alipay.android.phone.openplatform:id/app_icon", className="android.widget.ImageView", instance=9).click()
+        self.d(
+            resourceId="com.alipay.android.phone.openplatform:id/app_icon",
+            className="android.widget.ImageView",
+            instance=9).click()
         print('等待蚂蚁森林页面启动...')
         await async_sleep(15)
 
@@ -164,46 +178,104 @@ class ALiPay(AsyncCrawler):
         print('获取好友页面中...')
         await async_sleep(6)
 
-        # 下滑好友页面到底部
+        ori_img_path = self.screen_save_path + 'screen.jpg'
+        div_img_path = self.screen_save_path + 'div_img.jpg'
+        # 待对比的hand路径
+        ori_hand_img_path = self.screen_save_path + 'ori_hand.jpg'
+        hand_img_path = self.screen_save_path + 'hand.jpg'
+
+        # 单页设置起始截止范围
+        base_one_page_min_num = 0
+        base_one_page_max_num = 80
+        # 存储已被遍历的好友名
+        traversed_friends_name_list = []
         while True:
-            try:
-                self.d.swipe(0., 0.7, 0., 0.2)
-                assert self.d(resourceId="J_rank_list_more", description=u"没有更多了", className="android.view.View").exists() is not True
-            except AssertionError:
-                break
-        print('已下滑至底部!')
-
-        li_ele_list = self.d(className="android.view.View").child()
-        pprint(li_ele_list)
-
-        friends_ele_list = []
-        for ele in li_ele_list:
-            ele_info = ele.info
-            # print(ele_info)
-            content_description = ele_info.get('contentDescription', '')
-            # print(content_description)
-            if content_description != '' \
-                    and '方波' not in content_description \
-                    and '获得了' not in content_description \
-                    and 'g' not in content_description \
-                    and '阿发' not in content_description \
-                    and '邀请' not in content_description:
+            for index in range(base_one_page_min_num, base_one_page_max_num):
                 try:
-                    # 处理content_description为eg: '6的'
-                    int(content_description)
+                    # div 块
+                    div_ele = self.d(className="android.view.View", instance=index)
+                    child_count = div_ele.info.get('childCount', 0)
+                except UiObjectNotFoundError:
+                    # 处理index找不到元素带来的异常!
+                    break
+
+                if child_count >= 6:
+                    # 表示是最外层的div块
+                    # div_index: 8, 14, 20, 26, 33, 40, 47, 54, 61
+                    if index in (8, 14, 20):
+                        # 排名前三的元素只有6个, friend_name索引需特殊设置
+                        friend_name_ele_index = 1
+                    else:
+                        friend_name_ele_index = 2
+
+                    try:
+                        friends_name = div_ele.child(instance=friend_name_ele_index).info.get('contentDescription', '')
+                        # print('friends_name: {}'.format(friends_name))
+                    except UiObjectNotFoundError:
+                        # 处理index找不到元素带来的异常!
+                        break
+
+                    if friends_name == '邀请':
+                        # 退出
+                        print('所有好友已遍历完成!')
+                        break
+
+                    if friends_name == '方波' \
+                            or friends_name in traversed_friends_name_list\
+                            or re.compile('获得了\d+个环保证书').findall(friends_name) != []\
+                            or re.compile('\d+kg').findall(friends_name) != []:
+                        continue
+                    else:
+                        # print('friends_name: {}'.format(friends_name))
+                        pass
+
+                    div_ele_bounds = div_ele.info.get('bounds', {})
+                    self.d.screenshot(ori_img_path)
+                    # 指定位置截图
+                    specified_position_screenshot(
+                        ori_img_path=ori_img_path,
+                        target_img_save_path=div_img_path,
+                        left=div_ele_bounds['left'],
+                        top=div_ele_bounds['top'],
+                        right=div_ele_bounds['right'],
+                        bottom=div_ele_bounds['bottom'],)
+                    # 截图小手
+                    specified_position_screenshot(
+                        ori_img_path=div_img_path,
+                        target_img_save_path=hand_img_path,
+                        left=self.hand_bounds['left'],
+                        top=self.hand_bounds['top'],
+                        right=self.hand_bounds['right'],
+                        bottom=self.hand_bounds['bottom'],)
+                    img_similarity = img_similarity_calculate(
+                        img_path1=ori_hand_img_path,
+                        img_path2=hand_img_path,
+                        mode=3,)
+                    if img_similarity >= 0.9:
+                        print('[+] {} 可收取!'.format(friends_name))
+                        self.d(className="android.view.View", instance=index).click()
+                        await async_sleep(3.)
+
+                        # 收取能量
+                        # descriptionMatches中为re
+                        power_ele_list = self.d(descriptionMatches='收集能量\d+克', className="android.widget.Button")
+                        for power_ele in power_ele_list:
+                            power_ele.click()
+                        
+                        await u2_page_back(d=self.d,)
+                        await async_sleep(1.)
+
+                    else:
+                        print('[-] {} 不可收取!'.format(friends_name))
+
+                    if friends_name not in traversed_friends_name_list:
+                        traversed_friends_name_list.append(friends_name)
+
+                else:
                     continue
-                except ValueError:
-                    print(content_description)
-                    friends_ele_list.append({
-                        'content_description': content_description,
-                        'ele': ele,
-                    })
 
-        print('@@@@@@ 下面是好友列表:')
-        pprint(friends_ele_list)
-
-        # descriptionMatches中为re
-        # d(descriptionMatches='收集能量\d+克', className="android.widget.Button").count
+            await u2_up_swipe_some_height(d=self.d, swipe_height=.5)
+            await async_sleep(1.5)
 
     async def async_get_ele_info(self, ele:UiObject, logger=None) -> tuple:
         """

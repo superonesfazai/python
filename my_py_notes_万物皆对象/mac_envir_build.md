@@ -323,3 +323,8 @@ $ brew install blueutil
 # 重启蓝牙
 $ blueutil -p 0 && sleep 1 && blueutil -p 1
 ```
+
+### mac 图片编辑
+轻量图片编辑app
+
+1. pixelstyle(app store可安装!)
