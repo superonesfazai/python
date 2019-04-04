@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="&quot;新增 PyQt5相关&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -1100,54 +1098,20 @@
     <favorites_list name="python" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="148">
-                  <caret line="7387" column="29" selection-start-line="7387" selection-start-column="29" selection-end-line="7387" selection-end-column="29" />
-                  <folding>
-                    <element signature="e#549#571#0" expanded="true" />
-                    <element signature="e#3448#274183#0" />
-                    <element signature="e#134556#134864#0" />
-                    <element signature="e#134943#135985#0" />
-                    <element signature="e#136058#137466#0" />
-                    <element signature="e#141076#141931#0" />
-                    <element signature="e#141998#142512#0" />
-                    <element signature="e#142585#145120#0" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf>
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="204">
-                  <caret line="6048" column="17" selection-start-line="6048" selection-start-column="17" selection-end-line="6048" selection-end-column="17" />
-                  <folding>
-                    <element signature="e#549#571#0" expanded="true" />
-                    <element signature="e#225099#225741#0" />
-                    <element signature="e#233673#234075#0" />
-                    <element signature="e#234135#234437#0" />
-                    <element signature="e#234496#234797#0" />
-                    <element signature="e#234856#235313#0" />
-                    <element signature="e#235372#236140#0" />
-                    <element signature="e#236351#236467#0" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="770">
+              <caret line="6073" column="34" lean-forward="true" selection-start-line="6073" selection-start-column="34" selection-end-line="6073" selection-end-column="34" />
+              <folding>
+                <element signature="e#549#571#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -2196,7 +2160,7 @@
       <workItem from="1554082494719" duration="20781000" />
       <workItem from="1554171452891" duration="36037000" />
       <workItem from="1554287201726" duration="2977000" />
-      <workItem from="1554340879043" duration="13777000" />
+      <workItem from="1554340879043" duration="14213000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2248,7 +2212,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="883555000" />
+    <option name="totallyTimeSpent" value="883991000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2263,13 +2227,13 @@
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.1512247" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.1512247" />
       <window_info id="Structure" order="1" sideWeight="0.5019802" side_tool="true" weight="0.1400426" />
       <window_info id="Favorites" order="2" sideWeight="0.5009901" side_tool="true" weight="0.12140575" />
       <window_info anchor="bottom" id="Database Console" order="0" weight="0.34059405" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.3029703" />
-      <window_info active="true" anchor="bottom" id="Run" order="3" sideWeight="0.49840257" visible="true" weight="0.44059405" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.49840257" weight="0.44059405" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.44653466" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
@@ -2843,17 +2807,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="6048" column="17" selection-start-line="6048" selection-start-column="17" selection-end-line="6048" selection-end-column="17" />
+        <state relative-caret-position="770">
+          <caret line="6073" column="34" lean-forward="true" selection-start-line="6073" selection-start-column="34" selection-end-line="6073" selection-end-column="34" />
           <folding>
             <element signature="e#549#571#0" expanded="true" />
-            <element signature="e#225099#225741#0" />
-            <element signature="e#233673#234075#0" />
-            <element signature="e#234135#234437#0" />
-            <element signature="e#234496#234797#0" />
-            <element signature="e#234856#235313#0" />
-            <element signature="e#235372#236140#0" />
-            <element signature="e#236351#236467#0" />
           </folding>
         </state>
       </provider>

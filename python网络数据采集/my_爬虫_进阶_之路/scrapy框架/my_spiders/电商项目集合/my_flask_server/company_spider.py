@@ -6035,7 +6035,7 @@ class CompanySpider(AsyncCrawler):
                     business_range = '主营行业: ' + business_range
 
         elif parser_obj['short_name'] == 'al':
-            # 可为''
+            # TODO 可为'', business_range = ''的数据中发现company_name很多都为人名, 与原始页面一对比, 确实company_name为人名, 采集正确!!
             business_range = await self._get_al_li_text_by_label_name(
                 parser_obj=parser_obj,
                 target_obj=target_obj,
