@@ -95,7 +95,7 @@ class OXYRYObfuscatedCoder(AsyncCrawler):
             headers=headers,
             data=data,
             ip_pool_type=self.ip_pool_type,
-            num_retries=20,)
+            num_retries=35,)
         # print(body)
         data = json_2_dict(
             json_str=body,

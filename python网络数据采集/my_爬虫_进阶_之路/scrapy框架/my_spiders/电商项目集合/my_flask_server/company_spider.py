@@ -3671,10 +3671,18 @@ class CompanySpider(AsyncCrawler):
                 one_res = await _get_one_res(slice_params_list=slice_params_list)
                 # pprint(one_res)
                 one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
+                try:
+                    del one_res
+                except:
+                    pass
 
                 self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
                 await self._crawl_al_one_type_all_company_info(
                     one_all_company_id_list=one_all_company_id_list)
+                try:
+                    del one_all_company_id_list
+                except:
+                    pass
 
             # 写入txt and tb_jb_boom_filter
             await self._write_tb_jb_hot_keyword_txt(target_list=tmp_cate_name_list)
@@ -3845,6 +3853,10 @@ class CompanySpider(AsyncCrawler):
                 short_name='al',
                 db_unique_id_list=self.db_al_unique_id_list,
                 index=index,)
+            try:
+                del one_res
+            except:
+                pass
             collect()
 
         return None

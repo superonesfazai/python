@@ -11,6 +11,7 @@ dist/
 build/
 */build/
 */__pycache__/
+*.DS_Store
 
 # c
 *.so

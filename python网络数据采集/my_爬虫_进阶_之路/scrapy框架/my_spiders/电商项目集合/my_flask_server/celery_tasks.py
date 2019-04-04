@@ -58,7 +58,7 @@ $ redis-server /usr/local/etc/redis.conf
 分布式任务启动: 
 1. celery --app=celery_tasks worker -l info --concurrency=500 --pool=gevent
 (多开限制在15个, 考虑mac性能问题!)
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 --app=celery_tasks --concurrency=500 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log 
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 --app=celery_tasks --concurrency=500 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log 
 
 监控:
 $ celery --app=celery_tasks flower --address=127.0.0.1 --port=5555
