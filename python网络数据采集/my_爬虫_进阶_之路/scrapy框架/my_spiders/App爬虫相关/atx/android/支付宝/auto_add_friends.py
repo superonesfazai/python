@@ -21,11 +21,9 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import uiautomator2 as u2
-from uiautomator2.session import UiObject
 from uiautomator2.exceptions import UiObjectNotFoundError
 
 from exceptions import AddFriendsToTheUpperLimitException
-from fzutils.common_utils import _print
 from fzutils.spider.app_utils import (
     u2_page_back,
     u2_up_swipe_some_height,)
@@ -36,8 +34,7 @@ class ALiPay(AsyncCrawler):
         AsyncCrawler.__init__(
             self,
             *params,
-            **kwargs,
-        )
+            **kwargs,)
         # TODO 魅族采坑记(appium速度太慢, 改用atx)
         # 魅族要关闭flyme支付保护, 否则自动化打开支付宝, usb连接就会被自动断开, 导致无法进行后续自动化操作
         # 关闭方式: 手机管家 -> 右上角设置 -> 关闭flyme支付保护
@@ -87,6 +84,10 @@ class ALiPay(AsyncCrawler):
             'right': 720,
             'bottom': 45,
         }
+        # 小手相似度
+        self.hand_img_similarity = .84
+        # 不收取的好友list
+        self.no_collect_friends_list = ['方波',]
 
     async def _fck_run(self):
         # TODO 先退出登录
@@ -200,7 +201,7 @@ class ALiPay(AsyncCrawler):
         ori_img_path = self.screen_save_path + 'screen.jpg'
         div_img_path = self.screen_save_path + 'div_img.jpg'
         # 待对比的hand路径
-        ori_hand_img_path = self.screen_save_path + 'ori_hand.jpg'
+        ori_hand_img_path = 'ori_hand.jpg'
         hand_img_path = self.screen_save_path + 'hand.jpg'
 
         # 单页设置起始截止范围
@@ -244,11 +245,10 @@ class ALiPay(AsyncCrawler):
                     print('所有好友已遍历完成!')
                     break
 
-                if friends_name in ('方波',) \
+                if friends_name in self.no_collect_friends_list \
                         or friends_name == ''\
                         or friends_name in traversed_friends_name_list \
-                        or re.compile('获得了\d+个环保证书').findall(friends_name) != [] \
-                        or re.compile('\d+kg').findall(friends_name) != []:
+                        or re.compile('\d+kg|获得了\d+个环保证书|\d+g').findall(friends_name) != []:
                     continue
                 else:
                     pass
@@ -275,68 +275,50 @@ class ALiPay(AsyncCrawler):
                     img_path1=ori_hand_img_path,
                     img_path2=hand_img_path,
                     mode=3, )
-                print('img_similarity: {}'.format(img_similarity))
-                if img_similarity >= 0.85:
-                    print('[+] {} 可收取!'.format(friends_name))
+                if img_similarity >= self.hand_img_similarity\
+                        or img_similarity in (0.703125,):
+                    print('[+] {} 可收取! img_similarity: {}'.format(friends_name, img_similarity))
+                    # 点击进入待收取的friend
                     div_ele.child(instance=friend_name_ele_index).click()
                     await async_sleep(5.)
-
-                    # 收取能量
-                    # descriptionMatches中为re
-                    power_ele_list = self.d(descriptionMatches='收集能量\d+克', className="android.widget.Button")
-                    for power_ele in power_ele_list:
-                        power_ele.click()
-
-                    await u2_page_back(d=self.d, )
-                    await async_sleep(1.)
+                    await self._collect_energy()
 
                 else:
-                    print('[-] {} 不可收取!'.format(friends_name))
+                    print('[-] {} 不可收取! img_similarity: {}'.format(friends_name, img_similarity))
 
                 if friends_name not in traversed_friends_name_list:
                     traversed_friends_name_list.append(friends_name)
 
-
             # 这样处理避免出现查看更多的刷新未完成!
             await u2_up_swipe_some_height(d=self.d, swipe_height=.2)
             await async_sleep(1.5)
-            await u2_up_swipe_some_height(d=self.d, swipe_height=.3)
+            await u2_up_swipe_some_height(d=self.d, swipe_height=.5)
             await async_sleep(1.5)
 
-    async def async_get_ele_info(self, ele:UiObject, logger=None) -> tuple:
+    async def _collect_energy(self,) -> None:
         """
-        异步获取ele 的info
-        :param ele:
-        :return: (ele, ele_info)
+        收集能量并返回上页
+        :return:
         """
-        async def _get_args() -> list:
-            '''获取args'''
-            return [
-                ele,
-            ]
-
-        def _get_ele_info(ele) -> dict:
-            return ele.info
-
-        loop = get_event_loop()
-        args = await _get_args()
-        ele_info = {}
-        try:
-            ele_info = await loop.run_in_executor(None, _get_ele_info, *args)
-            # print('*' * 50)
-            # print(ele_info)
-        except Exception as e:
-            _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
-        finally:
-            # loop.close()
+        # 收取能量
+        # descriptionMatches中为re
+        power_ele_list = self.d(descriptionMatches='收集能量\d+克', className="android.widget.Button")
+        power_ele_count = power_ele_list.count
+        print('this friend had energy_num: {}个'.format(power_ele_count))
+        # 原先使用下面无法遍历元素, 只能取到第一个, 第二个就报UiObjectNotFoundError
+        # for power_ele in power_ele_list:
+        # 改用下面的方式
+        for index in range(power_ele_count):
             try:
-                del loop
-            except:
-                pass
-            collect()
-            _print(msg='[{}] ele: {}'.format('+' if ele_info != {} else '-', ele))
+                power_ele_list.__getitem__(index=index).click()
+            except UiObjectNotFoundError as e:
+                print(e)
 
-            return ele, ele_info
+        # 用于查看收取效果
+        await async_sleep(2)
+        await u2_page_back(d=self.d,)
+
+        return None
 
     async def _batch_add_friends(self):
         """
