@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="&quot;新增 PyQt5相关&quot;">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -461,7 +462,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$logging_test__1_.coverage" NAME="logging_test (1) Coverage Results" MODIFIED="1517971339232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/日志处理(log)/logging" />
     <SUITE FILE_PATH="coverage/python$httperror_demo.coverage" NAME="httperror_demo Coverage Results" MODIFIED="1535090266640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)/urllib2(py3 urllib.request)的异常错误处理" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$headers.coverage" NAME="添加headers和查询参数 Coverage Results" MODIFIED="1503914781428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/request/基本get请求(headers参数和params参数)" />
-    <SUITE FILE_PATH="coverage/python$company_spider.coverage" NAME="company_spider Coverage Results" MODIFIED="1554099205707" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
+    <SUITE FILE_PATH="coverage/python$company_spider.coverage" NAME="company_spider Coverage Results" MODIFIED="1554341750205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
     <SUITE FILE_PATH="coverage/python$gevent_tcp_server.coverage" NAME="gevent版_单进程tcp_server Coverage Results" MODIFIED="1539225704825" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/tcp/服务器模型/协程/协程-gevent版" />
     <SUITE FILE_PATH="coverage/python$scipy_base.coverage" NAME="scipy_base Coverage Results" MODIFIED="1534389860379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python量化交易" />
     <SUITE FILE_PATH="coverage/python$pytest_in_vip_parse_py.coverage" NAME="pytest in vip_parse.py Coverage Results" MODIFIED="1535510196278" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
@@ -1098,26 +1099,7 @@
     <favorites_list name="python" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="258">
-              <caret line="3272" column="19" selection-start-line="3272" selection-start-column="19" selection-end-line="3272" selection-end-column="19" />
-              <folding>
-                <element signature="e#549#571#0" expanded="true" />
-                <element signature="e#122264#122672#0" />
-                <element signature="e#122744#123116#0" />
-                <element signature="e#123379#123629#0" />
-                <element signature="e#126515#127792#0" />
-                <element signature="e#127865#128375#0" />
-                <element signature="e#128432#129922#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -1132,8 +1114,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>asyncio</find>
-      <find>IpPools</find>
       <find>gc</find>
       <find>aiohttp</find>
       <find>orange-name</find>
@@ -1162,6 +1142,8 @@
       <find>_al_spi</find>
       <find>_u2_up_swipe_some_height</find>
       <find>获得了</find>
+      <find>al_s</find>
+      <find>init_tb</find>
     </findStrings>
     <replaceStrings>
       <replace>=self.cookies</replace>
@@ -1367,6 +1349,86 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="App爬虫相关" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="App爬虫相关" type="462c0819:PsiDirectoryNode" />
+              <item name="atx" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
+              <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="日常脚本" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="Scope">
         <subPane subId="Scope 'Default'; set:Default; class com.intellij.packageDependencies.ChangeListScope">
           <expand>
@@ -1596,86 +1658,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="App爬虫相关" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="App爬虫相关" type="462c0819:PsiDirectoryNode" />
-              <item name="atx" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
-              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
-              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
-              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="电商项目集合" type="462c0819:PsiDirectoryNode" />
-              <item name="my_flask_server" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="日常脚本" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1719,7 +1701,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.auto_add_friends">
+  <component name="RunManager" selected="Python.company_spider">
     <configuration name="auto_add_friends" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -2110,11 +2092,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.company_spider" />
         <item itemvalue="Python.auto_add_friends" />
         <item itemvalue="Python.img_utils" />
         <item itemvalue="Python.time_utils" />
         <item itemvalue="Python.test (1)" />
-        <item itemvalue="Python.company_spider" />
       </list>
     </recent_temporary>
   </component>
@@ -2158,7 +2140,8 @@
       <workItem from="1553823079298" duration="36681000" />
       <workItem from="1554082494719" duration="20781000" />
       <workItem from="1554171452891" duration="36037000" />
-      <workItem from="1554287201726" duration="2240000" />
+      <workItem from="1554287201726" duration="2977000" />
+      <workItem from="1554340879043" duration="3090000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2210,7 +2193,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="869041000" />
+    <option name="totallyTimeSpent" value="872868000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2223,9 +2206,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.14962727" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.1512247" />
       <window_info id="Structure" order="1" sideWeight="0.5019802" side_tool="true" weight="0.1400426" />
       <window_info id="Favorites" order="2" sideWeight="0.5009901" side_tool="true" weight="0.12140575" />
       <window_info anchor="bottom" id="Database Console" order="0" weight="0.34059405" />
@@ -2601,13 +2583,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/spider/bloom_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1010">
-          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/celery_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="470">
@@ -2678,34 +2653,6 @@
           <caret line="39" column="24" lean-forward="true" selection-start-line="39" selection-start-column="24" selection-end-line="39" selection-end-column="24" />
           <folding>
             <element signature="e#136#161#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="43" column="32" lean-forward="true" selection-start-line="43" selection-start-column="32" selection-end-line="43" selection-end-column="32" />
-          <folding>
-            <element signature="e#2097#2469#0" />
-            <element signature="e#2509#2810#0" />
-            <element signature="e#2991#4315#0" />
-            <element signature="e#4513#5267#0" />
-            <element signature="e#5464#5707#0" />
-            <element signature="e#5736#6277#0" />
-            <element signature="e#6484#7518#0" />
-            <element signature="e#7690#8452#0" />
-            <element signature="e#8633#10133#0" />
-            <element signature="e#10437#12726#0" />
-            <element signature="e#12912#15029#0" />
-            <element signature="e#15244#17491#0" />
-            <element signature="e#17688#19678#0" />
-            <element signature="e#19861#21343#0" />
-            <element signature="e#21519#21767#0" />
-            <element signature="e#22015#24091#0" />
-            <element signature="e#24321#25681#0" />
-            <element signature="e#25832#26200#0" />
-            <element signature="e#26458#28059#0" />
           </folding>
         </state>
       </provider>
@@ -2816,18 +2763,52 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="363">
+          <caret line="47" column="34" lean-forward="true" selection-start-line="47" selection-start-column="34" selection-end-line="47" selection-end-column="34" />
+          <folding>
+            <element signature="e#2097#2469#0" />
+            <element signature="e#2509#2810#0" />
+            <element signature="e#2991#4315#0" />
+            <element signature="e#4513#5267#0" />
+            <element signature="e#5464#5707#0" />
+            <element signature="e#5736#6277#0" />
+            <element signature="e#6484#7518#0" />
+            <element signature="e#7690#8452#0" />
+            <element signature="e#8633#10133#0" />
+            <element signature="e#10437#12726#0" />
+            <element signature="e#12912#15029#0" />
+            <element signature="e#15244#17491#0" />
+            <element signature="e#17688#19678#0" />
+            <element signature="e#19861#21343#0" />
+            <element signature="e#21519#21767#0" />
+            <element signature="e#22015#24091#0" />
+            <element signature="e#24321#25681#0" />
+            <element signature="e#25832#26200#0" />
+            <element signature="e#26458#28059#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/spider/bloom_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-595">
+          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="3272" column="19" selection-start-line="3272" selection-start-column="19" selection-end-line="3272" selection-end-column="19" />
+        <state relative-caret-position="318">
+          <caret line="178" lean-forward="true" selection-start-line="178" selection-end-line="178" />
           <folding>
             <element signature="e#549#571#0" expanded="true" />
-            <element signature="e#122264#122672#0" />
             <element signature="e#122744#123116#0" />
             <element signature="e#123379#123629#0" />
-            <element signature="e#126515#127792#0" />
-            <element signature="e#127865#128375#0" />
-            <element signature="e#128432#129922#0" />
+            <element signature="e#133708#134016#0" />
+            <element signature="e#134095#135137#0" />
+            <element signature="e#135210#136618#0" />
           </folding>
         </state>
       </provider>

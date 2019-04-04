@@ -133,46 +133,65 @@ class CompanySpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/companys/_/',)
-        self.spider_name = 'gt' if SPIDER_NAME is None else SPIDER_NAME         # 设置爬取对象
-        self.concurrency = 300                                                  # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
+        self.spider_name = 'gt' if SPIDER_NAME is None else SPIDER_NAME                 # 设置爬取对象
+        self.concurrency = 300                                                          # 并发量, ty(推荐:5)高并发被秒封-_-! 慢慢抓
         self.sema = Semaphore(self.concurrency)
         assert 300 >= self.concurrency, 'self.concurrency并发量不允许大于300!'
-        self.ty_max_page_num = 250                                              # 设置天眼查抓取截止页数(查询限制5000个) max 250页
-        self.qcc_max_page_num = 2000                                            # 设置企查查抓取截止页数
-        self.hy_min_company_id = 2896700                                        # hy抓取开始company_id (1-88402, 1187459-, 2865539-, 2871053-)
-        self.hy_max_company_id = 2972941                                        # 设置hy抓取截止company_id(20000000)(直接写20000000, 程序会卡死)
-        self.al_min_index_cate_id = 0                                           # 设置al父分类最小的index_cate_id
-        self.al_max_index_cate_id = 16                                          # 设置al父分类最大的index_cate_id
-        self.al_max_page_num = 100                                              # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
-        self.a114_max_page_num = 50                                             # 设置114单个子分类抓取截止最大page_num
-        self.a114_max_num_retries = 15                                          # 设置114单页面最大重试次数
-        self.ic_max_page_num = 200                                              # 设置ic单个子页面抓取截止最大page_num
-        self.yw_max_num_retries = 10                                            # 设置yw单页面最大重试次数
-        self.yw_max_page_num = 100                                              # 设置yw单个子分类抓取截止的最大page_num
-        self.hn_city_info_list = []                                             # hn的城市路由地址信息list
-        self.hn_max_num_retries = 6                                             # hn单页面最大重试数
-        self.hn_max_page_num = 100                                              # hn单个keyword最大搜索戒指页
-        self.pk_max_page_num = 100000                                             # pk单个keyword最大搜索截止页
-        self.pk_max_num_retries = 6                                             # pk num_retries
-        self.ng_max_num_retries = 8                                             # nf num_retries
-        self.ng_max_page_num = 100                                              # ng单个keyword最大搜索截止页面
+        self.ty_max_page_num = 250                                                      # 设置天眼查抓取截止页数(查询限制5000个) max 250页
+        self.qcc_max_page_num = 2000                                                    # 设置企查查抓取截止页数
+        self.hy_min_company_id = 2896700                                                # hy抓取开始company_id (1-88402, 1187459-, 2865539-, 2871053-)
+        self.hy_max_company_id = 2972941                                                # 设置hy抓取截止company_id(20000000)(直接写20000000, 程序会卡死)
+        self.al_min_index_cate_id = 0                                                   # 设置al父分类最小的index_cate_id
+        self.al_max_index_cate_id = 16                                                  # 设置al父分类最大的index_cate_id
+        self.al_max_page_num = 100                                                      # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
+        self.a114_max_page_num = 50                                                     # 设置114单个子分类抓取截止最大page_num
+        self.a114_max_num_retries = 15                                                  # 设置114单页面最大重试次数
+        self.ic_max_page_num = 200                                                      # 设置ic单个子页面抓取截止最大page_num
+        self.yw_max_num_retries = 10                                                    # 设置yw单页面最大重试次数
+        self.yw_max_page_num = 100                                                      # 设置yw单个子分类抓取截止的最大page_num
+        self.hn_city_info_list = []                                                     # hn的城市路由地址信息list
+        self.hn_max_num_retries = 6                                                     # hn单页面最大重试数
+        self.hn_max_page_num = 100                                                      # hn单个keyword最大搜索戒指页
+        self.pk_max_page_num = 100000                                                   # pk单个keyword最大搜索截止页
+        self.pk_max_num_retries = 6                                                     # pk num_retries
+        self.ng_max_num_retries = 8                                                     # nf num_retries
+        self.ng_max_page_num = 100                                                      # ng单个keyword最大搜索截止页面
         self.ng_capacity = None
-        self.gt_max_num_retries = 8                                             # gt最大重试数
-        self.gt_max_page_num = 50                                               # gt 单个keyword最大搜索截止页码
-        self.mt_max_page_num = 50                                               # mt最大限制页数(只抓取前50页, 后续无数据)
-        self.mt_ocr_record_shop_id = ''                                         # mt robot ocr record shop_id
+        self.gt_max_num_retries = 8                                                     # gt最大重试数
+        self.gt_max_page_num = 50                                                       # gt 单个keyword最大搜索截止页码
+        self.mt_max_page_num = 50                                                       # mt最大限制页数(只抓取前50页, 后续无数据)
+        self.mt_ocr_record_shop_id = ''                                                 # mt robot ocr record shop_id
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
         self._set_province_code_list_and_city_code_list()
         self.ty_cookies_dict = {}
-        self.ty_robot = False                                                   # ty robot
-        self.mt_robot = False                                                   # mt robot
-        self.insert_into_sql = gs_insert_str_1                                  # 存储的sql_str
-        self.driver_path = PHANTOMJS_DRIVER_PATH                                # driver path
-        self.driver_timeout = 20                                                # driver timeout
+        self.ty_robot = False                                                           # ty robot
+        self.mt_robot = False                                                           # mt robot
+        self.insert_into_sql = gs_insert_str_1                                          # 存储的sql_str
+        self.driver_path = PHANTOMJS_DRIVER_PATH                                        # driver path
+        self.driver_timeout = 20                                                        # driver timeout
+        self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'   # 结巴分词后已检索的hot keyword写入处
+        self.tb_20w_path = '/Users/afa/Desktop/tb_top20w'                               # 待读取的tb20w xlsx文件目录
         self.bloom_filter = BloomFilter(capacity=5000000, error_rate=0.000001)
+        self._init_tb_jb_boom_filter()
         # wx sc_key
         with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
             self.sc_key = json_2_dict(f.read())['sckey']
+
+    def _init_tb_jb_boom_filter(self) -> None:
+        """
+        初始化
+        :return:
+        """
+        self.lg.info('初始化ing self.tb_jb_boom_filter ...')
+        self.tb_jb_boom_filter = BloomFilter(capacity=1000000, error_rate=.00001)       # 结巴分词后已检索的hot keyword存储
+        with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
+            for line in f:
+                item = line.replace('\n', '')
+                if item not in self.tb_jb_boom_filter:
+                    self.tb_jb_boom_filter.add(item)
+        self.lg.info('初始化完毕! len: {}'.format(self.tb_jb_boom_filter.__len__()))
+
+        return None
 
     def _set_province_code_list_and_city_code_list(self) -> None:
         """
@@ -3020,7 +3039,7 @@ class CompanySpider(AsyncCrawler):
         # self.al_category_list = await self._get_al_category4()
         # self.al_category_list = await self._get_al_category5()
         # 读取最新的热搜goods词
-        self.al_category_list = (await self._get_al_category6())[33020:]
+        self.al_category_list = (await self._get_al_category6())
         # self.al_category_list = await self._get_al_category7()
 
         pprint(self.al_category_list)
@@ -3223,9 +3242,8 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         async def _get_tasks_params_list() -> list:
-            tb_20w_path = '/Users/afa/myFiles/tmp/tb_top20w'
             tasks_params_list = []
-            for item in walk(tb_20w_path):
+            for item in walk(self.tb_20w_path):
                 dir_path, dir_names, file_names = item
                 for file_name in file_names:
                     new_excel_file_path = '{}/{}'.format(dir_path, file_name)
@@ -3258,9 +3276,6 @@ class CompanySpider(AsyncCrawler):
         else:
             self.lg.info('[-] 不存在{}, creating ...'.format(tb_hot_keywords_file_path))
             # 创建tb_hot_keywords_file_path, 并写入内容
-            old_excel_file_path = '/Users/afa/Desktop/02月20日TOP20万词表无线.xlsx'
-            old_excel_res = (await self.read_excel_file(old_excel_file_path))[1]
-
             all_res = []
             all_new_excel_file_path_list = await _get_tasks_params_list()
             # 同步读取...(同步读取, 不容易导致mac卡住! 故异步需控制并发量!)
@@ -3271,6 +3286,7 @@ class CompanySpider(AsyncCrawler):
 
             # 异步读取..
             # 并发量=5, 性能较好! 不易卡住!
+            # 5时挂在 2018.4.26.xlsx 第30个!
             step = 5
             tasks_params_list = TasksParamsListObj(
                 tasks_params_list=all_new_excel_file_path_list,
@@ -3287,6 +3303,11 @@ class CompanySpider(AsyncCrawler):
                 for i in one_res:
                     all_res.append(i)
 
+                # 回收两次让其进入分代回收的第三代
+                try:
+                    del one_res
+                except:
+                    pass
                 try:
                     del one_res
                 except:
@@ -3313,32 +3334,28 @@ class CompanySpider(AsyncCrawler):
                 pass
             collect()
 
-            # 先处理得到已遍历的老关键字 list
-            old_key_list = await self.jieba_handle_excel_res(excel_result=old_excel_res)
-            # 再处理新关键字 list
+            # 处理新关键字 list
             new_key_list = await self.jieba_handle_excel_res(excel_result=all_new_excel_res)
 
-            all_key_list = old_key_list
+            all_key_list = []
             for item in new_key_list:
                 if item not in all_key_list:
                     self.lg.info('add {}'.format(item))
                     all_key_list.append(item)
 
             try:
-                del old_excel_res
                 del all_new_excel_res
-                del old_key_list
                 del new_key_list
             except:
                 pass
             collect()
 
-            # 写入
-            self.lg.info('writing keywords to {} ...'.format(tb_hot_keywords_file_path))
-            with open(tb_hot_keywords_file_path, 'w',) as f:
-                for item in all_key_list:
-                    print('-> add {} to txt'.format(item))
-                    f.write(item + '\n')
+            # * 不再进行写入, 保证这个文件一直不存在!!
+            # self.lg.info('writing keywords to {} ...'.format(tb_hot_keywords_file_path))
+            # with open(tb_hot_keywords_file_path, 'w',) as f:
+            #     for item in all_key_list:
+            #         print('-> add {} to txt'.format(item))
+            #         f.write(item + '\n')
 
         collect()
 
@@ -3352,7 +3369,11 @@ class CompanySpider(AsyncCrawler):
         self.lg.info('开始处理excel数据...')
         new_sql_add_index = 0
         excel_result_len = len(excel_result)
-        bloom_filter = BloomFilter(capacity=excel_result_len + 1, error_rate=1/excel_result_len*100)
+        try:
+            bloom_filter = BloomFilter(capacity=excel_result_len + 1, error_rate=1/excel_result_len*100)
+        except ZeroDivisionError:
+            self.lg.error('遇到错误:', exc_info=True)
+            return []
 
         all_key_list = []
         for item in excel_result:
@@ -3616,8 +3637,16 @@ class CompanySpider(AsyncCrawler):
         self.lg.info('即将开始采集al shop info...')
         new_concurrency = 1000
         new_tasks_params_list = []
+        # 存储成功被遍历的cate_name
+        tmp_cate_name_list = []
         for cate_name_index, cate_name in enumerate(self.al_category_list):
+            if cate_name in self.tb_jb_boom_filter:
+                # 去除已遍历的过的hot key
+                self.lg.info('hot key: {} in self.tb_jb_boom_filter'.format(cate_name))
+                continue
+
             self.lg.info('crawl cate_name: {}, cate_name_index: {} ...'.format(cate_name, cate_name_index))
+            tmp_cate_name_list.append(cate_name)
             tasks_params_list = await _get_tasks_params_list(cate_name=cate_name)
             try:
                 new_tasks_params_list = await self._get_new_tasks_params_list_from_tasks_params_list(
@@ -3647,11 +3676,43 @@ class CompanySpider(AsyncCrawler):
                 await self._crawl_al_one_type_all_company_info(
                     one_all_company_id_list=one_all_company_id_list)
 
+            # 写入txt and tb_jb_boom_filter
+            await self._write_tb_jb_hot_keyword_txt(target_list=tmp_cate_name_list)
+            await self._add_to_tb_jb_boom_filter(target_list=tmp_cate_name_list)
+
             # 重置
             new_tasks_params_list = []
+            tmp_cate_name_list = []
 
             # break
             collect()
+
+    async def _write_tb_jb_hot_keyword_txt(self, target_list) -> None:
+        """
+        写入tb_jb_hot_keyword.txt
+        :param target_list:
+        :return:
+        """
+        target_list = list(set(target_list))
+        with open(self.tb_jb_hot_keyword_file_path, 'a+') as f:
+            for item in target_list:
+                f.write(item + '\n')
+                self.lg.info('write hot key: {}'.format(item))
+
+        return None
+
+    async def _add_to_tb_jb_boom_filter(self, target_list) -> None:
+        """
+        写入self.tb_jb_boom_filter
+        :param target_list:
+        :return:
+        """
+        target_list = list(set(target_list))
+        for item in target_list:
+            if item not in self.tb_jb_boom_filter:
+                self.tb_jb_boom_filter.add(item)
+
+        return None
 
     async def _crawl_al_one_type_all_company_info(self, one_all_company_id_list):
         """
