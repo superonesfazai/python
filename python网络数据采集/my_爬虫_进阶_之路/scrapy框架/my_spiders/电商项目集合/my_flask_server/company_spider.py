@@ -95,34 +95,8 @@ from fzutils.shell_utils import *
 
 # uvloop替换asyncio默认事件循环
 set_event_loop_policy(EventLoopPolicy())
-
 # 启动爬虫name
 SPIDER_NAME = None
-
-@click_command()
-@click_option('--spider_name', type=str, default=None, help='what is spider_name !!')
-def init_spider(spider_name,):
-    """
-    main
-    :param spider_name:
-    :return:
-    """
-    global SPIDER_NAME
-
-    SPIDER_NAME = spider_name
-    try:
-        _ = CompanySpider()
-        loop = get_event_loop()
-        res = loop.run_until_complete(_._fck_run())
-    except KeyboardInterrupt:
-        kill_process_by_name('phantomjs')
-        kill_process_by_name('firefox')
-    finally:
-        try:
-            loop.close()
-            del loop
-        except:
-            pass
 
 class CompanySpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
@@ -184,11 +158,20 @@ class CompanySpider(AsyncCrawler):
         """
         self.lg.info('初始化ing self.tb_jb_boom_filter ...')
         self.tb_jb_boom_filter = BloomFilter(capacity=1000000, error_rate=.00001)       # 结巴分词后已检索的hot keyword存储
-        with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
-            for line in f:
-                item = line.replace('\n', '')
-                if item not in self.tb_jb_boom_filter:
-                    self.tb_jb_boom_filter.add(item)
+        try:
+            with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
+                try:
+                    for line in f:
+                        item = line.replace('\n', '')
+                        if item not in self.tb_jb_boom_filter:
+                            self.tb_jb_boom_filter.add(item)
+                except UnicodeDecodeError as e:
+                    self.lg.error('遇到错误: {}'.format(e))
+
+        except Exception as e:
+            self.lg.error('遇到错误:', exc_info=True)
+            raise e
+
         self.lg.info('初始化完毕! len: {}'.format(self.tb_jb_boom_filter.__len__()))
 
         return None
@@ -5318,8 +5301,8 @@ class CompanySpider(AsyncCrawler):
             brief_introduction = await self._get_brief_introduction(parser_obj=parser_obj, target_obj=company_html, company_id=company_id)
             business_range = await self._get_business_range(parser_obj=parser_obj, target_obj=company_html)
             founding_time = await self._get_founding_time(parser_obj=parser_obj, target_obj=company_html)
-            province_id = await self._get_province_id(parser_obj=parser_obj, target_obj=company_html, province_name=province_name, city_name=city_name)
-            city_id = await self._get_city_id(parser_obj=parser_obj, target_obj=company_html, city_name=city_name)
+            province_id = await self._get_province_id(parser_obj=parser_obj, target_obj=company_html, province_name=province_name, city_name=city_name, address=address)
+            city_id = await self._get_city_id(parser_obj=parser_obj, target_obj=company_html, city_name=city_name, address=address)
             employees_num = await self._get_employees_num(parser_obj=parser_obj, target_obj=company_html)
             type_code = await self._get_type_code(parser_obj=parser_obj, type_code=type_code)
             lng = await self._get_lng(parser_obj=parser_obj, target_obj=company_html)
@@ -5564,6 +5547,7 @@ class CompanySpider(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        # self.lg.info(str(target_obj))
         if parser_obj['short_name'] == 'hy':
             company_name = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -6051,14 +6035,11 @@ class CompanySpider(AsyncCrawler):
                     business_range = '主营行业: ' + business_range
 
         elif parser_obj['short_name'] == 'al':
+            # 可为''
             business_range = await self._get_al_li_text_by_label_name(
                 parser_obj=parser_obj,
                 target_obj=target_obj,
                 label_name='经营范围',)
-            # 不这样设置, 导致存储时company_name为legal_name, 并且legal_name为空
-            # if business_range == '':
-            #     # 设置个默认值
-            #     business_range = '无'
 
         elif parser_obj['short_name'] == '114':
             business_range = await self._get_114_li_text_by_label_name(
@@ -6107,7 +6088,8 @@ class CompanySpider(AsyncCrawler):
                 or parser_obj['short_name'] == 'yw'\
                 or parser_obj['short_name'] == 'hn'\
                 or parser_obj['short_name'] == 'pk'\
-                or parser_obj['short_name'] == 'gt':
+                or parser_obj['short_name'] == 'gt'\
+                or parser_obj['short_name'] == 'al':
             # mt可为空, 因为读其名知其意
             pass
         else:
@@ -6274,7 +6256,7 @@ class CompanySpider(AsyncCrawler):
 
         return unique_id
 
-    async def _get_province_id(self, parser_obj, target_obj, province_name, city_name):
+    async def _get_province_id(self, parser_obj, target_obj, province_name, city_name, address):
         """
         获取对应的省份code
         :return:
@@ -6376,7 +6358,7 @@ class CompanySpider(AsyncCrawler):
 
         raise AssertionError('未知的province_name:{}, db中未找到!'.format(province_name))
 
-    async def _get_city_id(self, parser_obj, target_obj, city_name) -> str:
+    async def _get_city_id(self, parser_obj, target_obj, city_name, address) -> str:
         """
         获取对应的city的code
         :param city_name:
@@ -7088,6 +7070,7 @@ class CompanySpider(AsyncCrawler):
             'authority': 'm.1688.com',
             'cache-control': 'max-age=0',
         })
+        # self.lg.info(company_id)
         url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
         body = await unblock_request(
             url=url,
@@ -7369,5 +7352,62 @@ class CompanySpider(AsyncCrawler):
             pass
         collect()
 
+@click_command()
+@click_option('--spider_name', type=str, default=None, help='what is spider_name !!')
+def init_spider(spider_name,):
+    """
+    main
+    :param spider_name:
+    :return:
+    """
+    global SPIDER_NAME
+
+    SPIDER_NAME = spider_name
+    try:
+        _ = CompanySpider()
+        loop = get_event_loop()
+        res = loop.run_until_complete(_._fck_run())
+    except KeyboardInterrupt:
+        kill_process_by_name('phantomjs')
+        kill_process_by_name('firefox')
+    finally:
+        try:
+            loop.close()
+            del loop
+        except:
+            pass
+
+def test_parse_one_company_info():
+    """
+    use: 使用时注释掉func init_spider
+    :return:
+    """
+    def get_al_kwargs():
+        company_id = 'my2010gd'
+        company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
+
+        return {
+            'short_name': 'al',
+            'company_id': company_id,
+            'company_url': company_url,
+            'province_name': '广东',
+            'city_name': '广州市',
+        }
+
+    kwargs = get_al_kwargs()
+    try:
+        _ = CompanySpider()
+        loop = get_event_loop()
+        res = loop.run_until_complete(_._parse_one_company_info(**kwargs))
+        pprint(res)
+    except Exception as e:
+        print(e)
+    finally:
+        try:
+            loop.close()
+        except:
+            pass
+
 if __name__ == '__main__':
     init_spider()
+    # test_parse_one_company_info()
