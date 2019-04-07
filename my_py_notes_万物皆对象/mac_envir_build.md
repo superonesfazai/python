@@ -237,6 +237,8 @@ $ docker logs [container ID or NAMES]
 
 ## 安装Caffeine
 
+## 安装Amphetamine(类似caffeine)
+
 ## 安装xcode(也可不装, 通过共享wifi)
 ```
 # 用于wireshark抓包iphone

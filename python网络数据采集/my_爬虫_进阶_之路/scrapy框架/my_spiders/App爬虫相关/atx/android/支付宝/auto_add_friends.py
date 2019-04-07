@@ -95,11 +95,11 @@ class ALiPay(AsyncCrawler):
         login_res = await self._login()
 
         # 批量加好友
-        # await self._init_phone_list()
-        # await self._batch_add_friends()
+        await self._init_phone_list()
+        await self._batch_add_friends()
 
         # 蚂蚁森林
-        await self._ant_forest_steal_energy()
+        # await self._ant_forest_steal_energy()
 
         print('运行完毕!')
 

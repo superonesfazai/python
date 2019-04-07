@@ -68,7 +68,7 @@ $ open http://localhost:5555
 tasks_name = 'celery_tasks'
 app = init_celery_app(
     name=tasks_name,
-    celeryd_max_tasks_per_child=100,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
+    celeryd_max_tasks_per_child=80,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
 )
 lg = get_task_logger(tasks_name)
 

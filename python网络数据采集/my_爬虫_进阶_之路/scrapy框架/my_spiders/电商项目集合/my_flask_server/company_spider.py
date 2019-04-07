@@ -69,6 +69,7 @@ import requests_html
 from pypinyin import lazy_pinyin
 from dateutil.parser import parse as date_util_parse
 from asyncio import TimeoutError as AsyncTimeoutError
+from asyncio import wait_for as async_wait_for
 from asyncio import wait_for
 from PIL import Image
 
@@ -145,7 +146,8 @@ class CompanySpider(AsyncCrawler):
         self.driver_timeout = 20                                                        # driver timeout
         self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'   # 结巴分词后已检索的hot keyword写入处
         self.tb_20w_path = '/Users/afa/Desktop/tb_top20w'                               # 待读取的tb20w xlsx文件目录
-        self.bloom_filter = BloomFilter(capacity=5000000, error_rate=0.000001)
+        self.bloom_filter = BloomFilter(capacity=1000000, error_rate=0.000001)
+        self.celery_task_res_expires_time = 10 * 60                                     # 过期时间
         self._init_tb_jb_boom_filter()
         # wx sc_key
         with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
@@ -157,7 +159,7 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         self.lg.info('初始化ing self.tb_jb_boom_filter ...')
-        self.tb_jb_boom_filter = BloomFilter(capacity=1000000, error_rate=.00001)       # 结巴分词后已检索的hot keyword存储
+        self.tb_jb_boom_filter = BloomFilter(capacity=500000, error_rate=.00001)       # 结巴分词后已检索的hot keyword存储
         try:
             with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
                 try:
@@ -338,7 +340,7 @@ class CompanySpider(AsyncCrawler):
                         page_num,
                         self.gt_max_num_retries,
                     ],
-                    expires=5 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,
                 )
 
@@ -687,7 +689,7 @@ class CompanySpider(AsyncCrawler):
                         company_item_id_selector,
                         self.ng_max_num_retries,
                     ],
-                    expires=5 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,
                 )
 
@@ -964,7 +966,7 @@ class CompanySpider(AsyncCrawler):
                         w3,
                         self.pk_max_num_retries,
                     ],
-                    expires=5 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,
                 )
 
@@ -1380,7 +1382,7 @@ class CompanySpider(AsyncCrawler):
                         w3_selector,
                         self.hn_max_num_retries,
                     ],
-                    expires=5 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,
                 )
 
@@ -1902,7 +1904,7 @@ class CompanySpider(AsyncCrawler):
                         keyword,
                         page_num,
                     ],
-                    expires=3.5 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,
                 )
 
@@ -2674,7 +2676,7 @@ class CompanySpider(AsyncCrawler):
                         cate_num,
                         page_num,
                     ],
-                    expires=5 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False, )
 
                 return async_obj
@@ -2906,7 +2908,7 @@ class CompanySpider(AsyncCrawler):
                         self.ip_pool_type,
                         self.a114_max_num_retries,
                     ],
-                    expires=5*60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,)
 
                 return async_obj
@@ -3005,7 +3007,7 @@ class CompanySpider(AsyncCrawler):
                 company_id,
                 type_code,
             ],
-            expires=5 * 60,
+            expires=self.celery_task_res_expires_time,
             retry=False,)
 
         return async_obj
@@ -3586,7 +3588,7 @@ class CompanySpider(AsyncCrawler):
                         keyword,
                         page_num,
                     ],
-                    expires=3 * 60,
+                    expires=self.celery_task_res_expires_time,
                     retry=False,
                 )
 
@@ -3600,7 +3602,6 @@ class CompanySpider(AsyncCrawler):
                 try:
                     async_obj = await _create_one_celery_task(
                         ip_pool_type=self.ip_pool_type,
-                        # logger=self.lg,
                         keyword=keyword,
                         page_num=page_num,
                     )
@@ -3609,7 +3610,13 @@ class CompanySpider(AsyncCrawler):
                     continue
 
             # celery
-            one_res = await _get_celery_async_results(tasks=tasks)
+            one_res = []
+            try:
+                one_res = await async_wait_for(_get_celery_async_results(tasks=tasks), timeout=10 * 60)
+            except AsyncTimeoutError:
+                # 超时退出
+                self.lg.error('遇到错误:', exc_info=True)
+
             try:
                 del tasks
             except:
@@ -3640,7 +3647,7 @@ class CompanySpider(AsyncCrawler):
                 continue
 
             # new_concurrency2 = self.concurrency
-            # 达标后设置并发量为1000个, 设置过大, 无数据!!
+            # 达标后设置并发量为1000个, 设置过大, 无数据!! 或者脚本卡死!!
             new_concurrency2 = 1000
             tasks_params_list_obj = TasksParamsListObj(
                 tasks_params_list=new_tasks_params_list,
@@ -3654,6 +3661,7 @@ class CompanySpider(AsyncCrawler):
                 one_res = await _get_one_res(slice_params_list=slice_params_list)
                 # pprint(one_res)
                 one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
+
                 try:
                     del one_res
                 except:
@@ -3747,7 +3755,7 @@ class CompanySpider(AsyncCrawler):
                     province_name,
                     city_name,
                 ],
-                expires=5 * 60,
+                expires=self.celery_task_res_expires_time,
                 retry=False,)
 
             return async_obj
