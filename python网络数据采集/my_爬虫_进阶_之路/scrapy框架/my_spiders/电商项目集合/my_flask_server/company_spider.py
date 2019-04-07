@@ -3610,13 +3610,9 @@ class CompanySpider(AsyncCrawler):
                     continue
 
             # celery
-            one_res = []
-            try:
-                one_res = await async_wait_for(_get_celery_async_results(tasks=tasks), timeout=10 * 60)
-            except AsyncTimeoutError:
-                # 超时退出
-                self.lg.error('遇到错误:', exc_info=True)
-
+            one_res = await _get_celery_async_results(
+                tasks=tasks,
+                func_timeout=5*60,)
             try:
                 del tasks
             except:
@@ -3658,10 +3654,17 @@ class CompanySpider(AsyncCrawler):
                 except AssertionError:
                     break
 
-                one_res = await _get_one_res(slice_params_list=slice_params_list)
+                try:
+                    one_res = await async_wait_for(
+                        fut=_get_one_res(slice_params_list=slice_params_list),
+                        timeout=5*60,)
+                except AsyncTimeoutError:
+                    # 超时退出
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+
                 # pprint(one_res)
                 one_all_company_id_list = await _get_one_all_company_id_list(one_res=one_res)
-
                 try:
                     del one_res
                 except:
