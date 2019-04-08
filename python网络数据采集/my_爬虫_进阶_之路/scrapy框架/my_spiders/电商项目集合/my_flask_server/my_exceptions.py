@@ -25,3 +25,11 @@ class NoNextPageException(Exception):
 class DBGetGoodsSkuInfoErrorException(Exception):
     """db中获取某个goods_id的sku_info失败的异常!"""
     pass
+
+class ProvinceIdNotFindException(Exception):
+    """db中province_id未找到的异常"""
+    pass
+
+class CityIdNotFindException(Exception):
+    """db中city_id未找到的异常"""
+    pass

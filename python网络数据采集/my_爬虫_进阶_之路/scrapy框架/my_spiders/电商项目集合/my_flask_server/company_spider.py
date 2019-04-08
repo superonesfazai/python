@@ -42,6 +42,9 @@ from sql_str_controller import (
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from multiplex_code import (
     _get_new_db_conn,)
+from my_exceptions import (
+    ProvinceIdNotFindException,
+    CityIdNotFindException,)
 
 # 避免分布式task导入此包时报错!
 try:
@@ -6273,6 +6276,8 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         local_place = ''
+        address = address if isinstance(address, str) else ''
+
         if parser_obj['short_name'] == 'hy':
             local_place = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -6343,31 +6348,62 @@ class CompanySpider(AsyncCrawler):
                     return parent_code
 
             elif parser_obj['short_name'] == '114'\
-                    or parser_obj['short_name'] == 'ic':
-                # 处理114的, 因为province_name, city_name传过来都是空值!
-                # 根据local_place来获取
-                if parent_code == '':
-                    # 说明是省份or直辖市
-                    if c_name in local_place:
-                        return code
-                    else:
-                        pass
+                    or parser_obj['short_name'] == 'ic'\
+                    or (parser_obj['short_name'] == 'al' and province_name == '' and city_name == ''):
+                # 处理下al中 province_name, city_name都为空的情况
+                if parser_obj['short_name'] == 'al':
+                    local_place = address
                 else:
-                    # 否则就是 市级别
-                    if re.compile('000$').findall(parent_code) != []:
-                        # 说明是市,县级别
-                        if c_name in local_place:
-                            return parent_code
-                        else:
-                            pass
-                    else:
-                        # 说明其为县区级别, 不进行对比操作!!
-                        pass
+                    pass
+                try:
+                    province_id = await self.get_null_province_name_province_id(
+                        parent_code=parent_code,
+                        local_place=local_place,
+                        c_name=c_name,
+                        code=code,)
+                    return province_id
+
+                except ProvinceIdNotFindException:
+                    pass
+
             else:
                 if province_name in c_name:
                     return code
 
         raise AssertionError('未知的province_name:{}, db中未找到!'.format(province_name))
+
+    async def get_null_province_name_province_id(self, parent_code, local_place, c_name, code,) -> str:
+        """
+        获取province_name, city_name都为空str的province_id获取
+        :param parent_code:
+        :param local_place:
+        :param c_name:
+        :param code:
+        :return:
+        """
+        # 因为province_name, city_name传过来都是空值!
+        # 根据local_place来获取
+        # 处理eg: '中国广东深圳龙华区观湖街道观城社区横坑河东村宝志工业路3号一键科技厂房305'
+        c_name = re.compile('省|市').sub('', c_name)
+        if parent_code == '':
+            # 说明是省份or直辖市
+            if c_name in local_place:
+                return code
+            else:
+                pass
+        else:
+            # 否则就是 市级别
+            if re.compile('000$').findall(parent_code) != []:
+                # 说明是市, 县级别
+                if c_name in local_place:
+                    return parent_code
+                else:
+                    pass
+            else:
+                # 说明其为县区级别, 不进行对比操作!!
+                pass
+
+        raise ProvinceIdNotFindException
 
     async def _get_city_id(self, parser_obj, target_obj, city_name, address) -> str:
         """
@@ -6376,6 +6412,8 @@ class CompanySpider(AsyncCrawler):
         :return: '' or not ''
         """
         local_place = ''
+        address = address if isinstance(address, str) else ''
+
         if parser_obj['short_name'] == 'hy':
             local_place = await self._get_hy_li_text_by_label_name(
                 parser_obj=parser_obj,
@@ -6452,32 +6490,25 @@ class CompanySpider(AsyncCrawler):
             parent_code = item[2]
 
             if parser_obj['short_name'] == '114'\
-                    or parser_obj['short_name'] == 'ic':
-                # 处理114的, 因为province_name, city_name传过来都是空值!
-                # 根据local_place来获取city_id
-                if parent_code == '':
-                    # 说明是省份or直辖市
-                    if re.compile('市').findall(c_name) != []:
-                        # 只匹配四个直辖市, 匹配不到就跳过
-                        if c_name in local_place:
-                            return code
-                        else:
-                            continue
-                    else:
-                        continue
+                    or parser_obj['short_name'] == 'ic'\
+                    or (parser_obj['short_name'] == 'al' and city_name == ''):
+                if parser_obj['short_name'] == 'al':
+                    local_place = address
                 else:
-                    # self.lg.info('该地址为市级别: {}'.format(local_place))
-                    # 否则就是 市级别
-                    if re.compile('000$').findall(parent_code) != []:
-                        # 说明是市, 县级别
-                        if c_name in local_place:
-                            # self.lg.info('code: {}, c_name: {}'.format(code, c_name))
-                            return code
-                        else:
-                            continue
-                    else:
-                        # 说明其为县区级别, 不进行对比操作!!
-                        continue
+                    pass
+
+                try:
+                    city_id = await self.get_null_city_name_city_id(
+                        parent_code=parent_code,
+                        c_name=c_name,
+                        local_place=local_place,
+                        code=code,)
+
+                    return city_id
+
+                except CityIdNotFindException:
+                    pass
+
             else:
                 if city_name in c_name:
                     return code
@@ -6494,6 +6525,45 @@ class CompanySpider(AsyncCrawler):
             pass
 
         return ''
+
+    async def get_null_city_name_city_id(self, parent_code, c_name, local_place, code):
+        """
+        获取city_name为空的city_id
+        :param parent_code:
+        :param c_name:
+        :param local_place:
+        :param code:
+        :return:
+        """
+        # 因为province_name, city_name传过来都是空值!
+        # 根据local_place来获取city_id
+        if parent_code == '':
+            # 说明是省份or直辖市
+            if re.compile('市').findall(c_name) != []:
+                # 只匹配四个直辖市, 匹配不到就跳过
+                c_name = re.compile('市').sub('', c_name)
+                if c_name in local_place:
+                    return code
+                else:
+                    pass
+            else:
+                pass
+        else:
+            # self.lg.info('该地址为市级别: {}'.format(local_place))
+            # 否则就是 市级别
+            if re.compile('000$').findall(parent_code) != []:
+                # 说明是市, 县级别
+                c_name = re.compile('市').sub('', c_name)
+                if c_name in local_place:
+                    # self.lg.info('code: {}, c_name: {}'.format(code, c_name))
+                    return code
+                else:
+                    pass
+            else:
+                # 说明其为县区级别, 不进行对比操作!!
+                pass
+
+        raise CityIdNotFindException
 
     async def _get_gt_li_text_by_label_name(self, parser_obj, target_obj, label_name) -> str:
         """
@@ -7394,15 +7464,15 @@ def test_parse_one_company_info():
     :return:
     """
     def get_al_kwargs():
-        company_id = 'b2b-33841277454045e'
+        company_id = 'b2b-281768017862df0'
         company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
 
         return {
             'short_name': 'al',
             'company_id': company_id,
             'company_url': company_url,
-            'province_name': '北京市',
-            'city_name': '北京市',
+            'province_name': '',
+            'city_name': '',
         }
 
     kwargs = get_al_kwargs()

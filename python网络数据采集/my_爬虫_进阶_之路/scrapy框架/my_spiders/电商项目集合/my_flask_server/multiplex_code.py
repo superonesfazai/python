@@ -674,9 +674,10 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
                 continue
 
             province_name = i.get('province', '')
-            # province_name = 'CN', city_name = '北京'的情况单独处理
+            city_name = i.get('city', '')
             if province_name == 'CN':
-                province_name = '北京市'
+                # province_name = 'CN', city_name = 'xxx' eg: '北京', '天津' 的情况单独处理
+                province_name = city_name
             else:
                 pass
 
@@ -684,7 +685,7 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
             member_id_list.append({
                 'company_id': member_id,
                 'province_name': province_name,
-                'city_name': i.get('city', ''),
+                'city_name': city_name,
             })
 
     # list 内部dict去重
