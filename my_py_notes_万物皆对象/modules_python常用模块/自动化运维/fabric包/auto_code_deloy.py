@@ -10,7 +10,7 @@
 """
 项目自动化部署(没打算用git)
 
-切记:: 每次发包要重启tri_ip_pool的 proxy_checker.py 否则无法对db进行数据写入
+切记:: 每次发包要重启tri_ip_pool的 proxy_checker.py server.py 否则无法对db进行数据写入
 """
 
 import re

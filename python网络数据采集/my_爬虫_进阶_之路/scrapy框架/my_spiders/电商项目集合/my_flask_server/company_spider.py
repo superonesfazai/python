@@ -5317,6 +5317,7 @@ class CompanySpider(AsyncCrawler):
             founding_time = await self._get_founding_time(parser_obj=parser_obj, target_obj=company_html)
             province_id = await self._get_province_id(parser_obj=parser_obj, target_obj=company_html, province_name=province_name, city_name=city_name, address=address)
             city_id = await self._get_city_id(parser_obj=parser_obj, target_obj=company_html, city_name=city_name, address=address)
+            await self._judge_city_id_belong_to_province_id(parser_obj=parser_obj, province_id=province_id, city_id=city_id)
             employees_num = await self._get_employees_num(parser_obj=parser_obj, target_obj=company_html)
             type_code = await self._get_type_code(parser_obj=parser_obj, type_code=type_code)
             lng = await self._get_lng(parser_obj=parser_obj, target_obj=company_html)
@@ -5356,6 +5357,20 @@ class CompanySpider(AsyncCrawler):
             company_url,))
 
         return dict(company_item)
+
+    async def _judge_city_id_belong_to_province_id(self, parser_obj, province_id, city_id):
+        """
+        判断city_id 是否属于province_id下的(不属于则抛出异常!)
+        :param province_id:
+        :param city_id:
+        :return:
+        """
+        if str(city_id) != '':
+            assert str(province_id)[0] == str(city_id)[0], \
+                'city_id: {} 不属于province_id: {}'.format(city_id, province_id)
+        else:
+            # 跳过province_id != '', city_id = ''的情况!!
+            pass
 
     async def _get_lng(self, parser_obj, target_obj) -> float:
         """
