@@ -20,9 +20,9 @@
     8. 货牛牛(eg: 广州: http://www.huoniuniu.com/ | 杭州: http://hz.huoniuniu.com/ | ...)
     9. 品库(https://www.ppkoo.com/)
     10. 广州南国小商品城(http://www.nanguo.cn/|http://m.nanguo.cn/)
+    11. 购途网(http://www.go2.cn/)(女鞋货源)
 
 待实现:
-    1. 购途网(http://www.go2.cn/)(女鞋货源)
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -7394,15 +7394,15 @@ def test_parse_one_company_info():
     :return:
     """
     def get_al_kwargs():
-        company_id = 'my2010gd'
+        company_id = 'b2b-33841277454045e'
         company_url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
 
         return {
             'short_name': 'al',
             'company_id': company_id,
             'company_url': company_url,
-            'province_name': '广东',
-            'city_name': '广州市',
+            'province_name': '北京市',
+            'city_name': '北京市',
         }
 
     kwargs = get_al_kwargs()

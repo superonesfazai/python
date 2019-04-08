@@ -673,10 +673,17 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
                 # 获取省份or城市名异常的跳过!
                 continue
 
+            province_name = i.get('province', '')
+            # province_name = 'CN', city_name = '北京'的情况单独处理
+            if province_name == 'CN':
+                province_name = '北京市'
+            else:
+                pass
+
             # 外部进行去重
             member_id_list.append({
                 'company_id': member_id,
-                'province_name': i.get('province', ''),
+                'province_name': province_name,
                 'city_name': i.get('city', ''),
             })
 
