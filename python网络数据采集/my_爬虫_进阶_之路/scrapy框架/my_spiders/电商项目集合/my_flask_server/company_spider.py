@@ -119,6 +119,7 @@ class CompanySpider(AsyncCrawler):
         self.qcc_max_page_num = 2000                                                    # 设置企查查抓取截止页数
         self.hy_min_company_id = 2896700                                                # hy抓取开始company_id (1-88402, 1187459-, 2865539-, 2871053-)
         self.hy_max_company_id = 2972941                                                # 设置hy抓取截止company_id(20000000)(直接写20000000, 程序会卡死)
+        self.al_search_concurrency = 1000                                               # al最大搜索并发量, 设置过大, 无数据!! 或者脚本卡死!!
         self.al_min_index_cate_id = 0                                                   # 设置al父分类最小的index_cate_id
         self.al_max_index_cate_id = 16                                                  # 设置al父分类最大的index_cate_id
         self.al_max_page_num = 100                                                      # 设置al单个子分类抓取截止的最大page_num(100, 往后无数据回传)
@@ -3624,7 +3625,7 @@ class CompanySpider(AsyncCrawler):
             return one_res
 
         self.lg.info('即将开始采集al shop info...')
-        new_concurrency = 1000
+        new_concurrency = self.al_search_concurrency
         new_tasks_params_list = []
         # 存储成功被遍历的cate_name
         tmp_cate_name_list = []
@@ -3647,7 +3648,7 @@ class CompanySpider(AsyncCrawler):
 
             # new_concurrency2 = self.concurrency
             # 达标后设置并发量为1000个, 设置过大, 无数据!! 或者脚本卡死!!
-            new_concurrency2 = 1000
+            new_concurrency2 = self.al_search_concurrency
             tasks_params_list_obj = TasksParamsListObj(
                 tasks_params_list=new_tasks_params_list,
                 step=new_concurrency2)

@@ -43,6 +43,15 @@ ip.src ==192.168.3.2
 3. 填写搜索数据 “xxx″;
 ```
 
+## wireshark与对应的OSI七层模型
+![](https://i.loli.net/2019/04/09/5cac4ab46dd9c.png)
+
+## http/ssl
+```bash
+http.request
+ssl
+```
+
 ## dns报文
 dns有两条报文, 一条是query报文, 一条是response报文
 

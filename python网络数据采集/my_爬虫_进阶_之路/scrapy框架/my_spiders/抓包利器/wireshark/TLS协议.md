@@ -52,6 +52,7 @@ TLS协议也是由两层组成： TLS 记录协议（TLS Record）和 TLS 握手
 
 ## TLS解密
 我们现在获取到的Wireshark抓包数据在握手完成之后，还是各种TLSv1.2的东东，都是加密后的数据。
+
 ![](https://i.loli.net/2019/01/19/5c42951c4a9a7.jpg)
 
 解密方式有好几种，介绍我觉得最简单的，通过浏览器保存的TLS 会话中使用的对称密钥来进行数据解密。
@@ -61,9 +62,11 @@ TLS协议也是由两层组成： TLS 记录协议（TLS Record）和 TLS 握手
 ### windows配置sslkeylog.log到wireshark
 
 以windows系统+Chrome浏览器为例，首先要导出浏览器存储的密钥，通过计算机属性—>高级系统设置—>环境变量，新建一个变量名“SSLKEYLOGFILE”的变量，变量值是导出的密钥具体文件地址。
+
 ![](https://i.loli.net/2019/01/19/5c4295b3d6ad8.jpg)
 
-设置后可以通过Chrome浏览器打开任意一个HTTPS网址，此时查看变量值对应路径，已经生成sslkey.log。
+设置后可以通过Chrome浏览器打开任意一个HTTPS网址，此时查看变量值对应路径，已经生成sslkey.log
+
 ![](https://i.loli.net/2019/01/19/5c4295d425b4b.jpg)
 
 ### mac配置sslkeylog.log到wireshark
@@ -73,6 +76,7 @@ TLS协议也是由两层组成： TLS 记录协议（TLS Record）和 TLS 握手
 # 可以找到binary所在路径为/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 $ sudo find / -iname "Google Chrome"
 2. 运行chrome并指定sslkey logfile, 来获取sslkeylog文件
+$ sudo /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --ssl-key-log-file=/Users/afa/sslkeylog.log
 3. 启动wireshark，并配置sslkey文档
 菜单栏 -> Wireshark -> Preferences -> Protocols -> SSL
 在(Pre)-Master-Secret log filename填入刚才启动时指定的文档路径，如图
@@ -93,6 +97,7 @@ $ sudo find / -iname "Google Chrome"
 ![](https://i.loli.net/2019/01/19/5c42a0c2b5dd8.png)
 
 然后就会有相对应的SSLKEY数据保存下来了，可以去看看这个信息：
+
 ![](https://i.loli.net/2019/01/19/5c42a0d79d34c.png)
 
 密钥成功导出到本地啦。
@@ -100,18 +105,23 @@ $ sudo find / -iname "Google Chrome"
 现在可以将密钥应用到Wireshark了。
 
 具体路径如下：菜单栏Edit—>Preferences—>Protocols—>SSL（注意，不论是SSL还是TLS这里都是SSL，没有单独的TLS选项），在(Pre)-Master-Secretlog filename中选择刚才设置的变量值。
+
 ![](https://i.loli.net/2019/01/19/5c429618238e9.jpg)
 
 配置完成，看下效果：
+
 ![](https://i.loli.net/2019/01/19/5c42963fdda15.jpg)
 
 看到有HTTP了，之前都是TLSv1.2。同时，WireShark下面会有一个“Decrypted SSL data”即已解密的SSL Data的标签，点击之后你就可以如上图所示的看到已经解密的TLS数据包的相信信息了。
 
 觉得这样太难看了？OK，也可以像HTTP一样，通过鼠标右键在菜单栏中选择“Follow SSL Stream”，查看完整的HTTPS解密之后的请求数据哦。
+
 ![](https://i.loli.net/2019/01/19/5c42969cc62fa.jpg)
+
 ![](https://i.loli.net/2019/01/19/5c4296a711aba.jpg)
 
 除此之外，上面还有很多TLSv1.2的东东，比如：client_key_exchange、Session Ticket，这是最初提到过的TLS握手过程的第四步和第五步，并不是请求数据包的内容，因此看到其中像是没有解密的内容也不要奇怪哦。
+
 ![](https://i.loli.net/2019/01/19/5c4296c8af3cd.jpg)
 
 

@@ -6,9 +6,13 @@
 @connect : superonesfazai@gmail.com
 '''
 
+import sys
+sys.path.append('..')
+
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import SqlServerConnectionException
 from gc import collect
+from concurrent.futures import ThreadPoolExecutor
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
@@ -18,9 +22,11 @@ class SpiderInfo(AsyncCrawler):
             self,
             ip_pool_type=tri_ip_pool,
         )
-        self.concurrency = 50
+        self.concurrency = 20
+        # with ThreadPoolExecutor(max_workers=10) as executor:
+        self.executor = ThreadPoolExecutor(max_workers=self.concurrency)
         # 设置最大的统计截止num
-        self.total_num = 500
+        self.total_num = 200
 
     def _get_sql_params(self, before_time, end_time):
         """
@@ -63,6 +69,10 @@ class SpiderInfo(AsyncCrawler):
                 )))
 
             one_res = await async_wait_tasks_finished(tasks=tasks)
+            try:
+                del tasks
+            except:
+                pass
 
             return one_res
 
@@ -79,6 +89,10 @@ class SpiderInfo(AsyncCrawler):
             one_res = await get_one_res(slice_params_list=slice_params_list)
             for i in one_res:
                 all_res.append(i)
+            try:
+                del one_res
+            except:
+                pass
 
         print(all_res)
         print(len(all_res))
@@ -126,6 +140,8 @@ class SpiderInfo(AsyncCrawler):
                 del sql_cli
             except:
                 pass
+            # TODO 此处不进行垃圾回收, 否则报对象无法被回收异常: malloc: *** error for object 0x10297b000: pointer being freed was not allocated
+            # collect()
         except Exception as e:
             print(e)
             print('[-] index: {}, middle_time: {}, count: 0'.format(index, middle_time,))
@@ -164,7 +180,7 @@ class SpiderInfo(AsyncCrawler):
         args = await _get_args()
         res = {}
         try:
-            res = await loop.run_in_executor(None, self.get_save_2_db_count_by_time_period, *args)
+            res = await loop.run_in_executor(self.executor, self.get_save_2_db_count_by_time_period, *args)
         except Exception as e:
             print(e)
         finally:
@@ -173,7 +189,7 @@ class SpiderInfo(AsyncCrawler):
                 del loop
             except:
                 pass
-            collect()
+            # collect()
 
             return res
 
