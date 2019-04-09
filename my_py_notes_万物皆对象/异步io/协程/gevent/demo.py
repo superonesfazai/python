@@ -37,5 +37,9 @@ if __name__ == '__main__':
         for line in f:
             tasks.append(pool.spawn(run_Spider, line.strip()))
 
-    joinall(tasks)
+    one_res = joinall(tasks)
+    for g in one_res:
+        res = g.get()
+        print(res)
+
     print("finish")

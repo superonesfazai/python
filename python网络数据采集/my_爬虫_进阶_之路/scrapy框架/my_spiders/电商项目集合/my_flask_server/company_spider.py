@@ -6383,6 +6383,13 @@ class CompanySpider(AsyncCrawler):
 
             else:
                 if province_name in c_name:
+                    # if parser_obj['short_name'] == 'al':
+                    #     # todo 此处不进行单独处理, province_name为北京市, 但是地址却不在北京的
+                    #     if code == '110000':
+                    #         pass
+                    #     else:
+                    #         pass
+
                     return code
 
         raise AssertionError('未知的province_name:{}, db中未找到!'.format(province_name))
