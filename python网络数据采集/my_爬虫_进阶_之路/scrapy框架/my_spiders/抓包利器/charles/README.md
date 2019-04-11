@@ -14,6 +14,17 @@ mac -> 系统偏好设置 -> 网络 -> 高级 -> 代理 -> 取消勾选自动代
 
 抓包完毕后勾选回自动代配置即可
 
+## android 配置证书
+```bash
+$ adb push charles-ssl-proxying-certificate.pem sdcard/charles.pem
+
+or
+
+浏览器 chls.pro/ssl
+
+(出现安装证书提示，随便打个名称 比如android，选择WLAN（这里Android，一定要选WLAN而不是VPNxxx）)
+```
+
 ## NOTICE
 一些app会设置主流抓包软件无法抓取其关键接口
 

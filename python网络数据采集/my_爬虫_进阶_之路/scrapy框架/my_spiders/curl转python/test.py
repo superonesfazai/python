@@ -59,13 +59,41 @@ body = Requests.get_url_body(
     cookies=None,
     ip_pool_type=tri_ip_pool)
 # print(body)
-data = json_2_dict(body)
+data = json_2_dict(
+    json_str=body,
+    default_res={}).get('module', {})
 # pprint(data)
 # 服务电话的js
-print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
+# print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
+
+def wash_ori_data(ori_data:dict):
+    """
+    清洗原始data
+    :return:
+    """
+    try:
+        ori_data.pop('moduleSpecs')
+        ori_data.pop('moduleList')
+    except:
+        pass
+
+    return ori_data
+
+data = wash_ori_data(ori_data=data)
+pprint(data)
 
 # wireshark
-# (ip.addr == 192.168.3.2 or ip.src == 192.168.3.2) and ssl
+# iOS (ip.addr == 192.168.3.2 or ip.src == 192.168.3.2) and ssl
+
+# charles
+# https://campaigncdn.m.taobao.com/moduledata/downgrade.htm?dataId=taobao
+# https://alisitecdn.m.taobao.com/pagedata/shop/index?pathInfo=shop/index&userId=201249601&shopId=58640118&pageId=1860970
+# https://alisitecdn.m.taobao.com/pagedata/shop/impression?pathInfo=shop/impression&userId=201249601&shopId=58640118&pageId=0
+
+# wireshark
+# $ sudo /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --ssl-key-log-file=/Users/afa/sslkeylog.log
+
+# android (ip.addr == 192.168.3.4 or ip.src == 192.168.3.4) and ssl
 
 # company_info
 # headers = {

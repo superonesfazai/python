@@ -216,6 +216,29 @@ end
 
 抓完记得设置回去!
 
+## 抓包app
+android 
+```bash
+# 手机浏览器 http://mitm.it
+```
+问题
+```python
+# TODO OPPO R15手机无法安装mitmproxy证书
+# $ adb push mitmproxy-ca-cert.cer sdcard/mitm.cer
+
+# TODO Android7.0以上使用Charles抓包Https
+# 由于Android7以后google更改了安全策略，用户添加的CA证书不能再用于安全连接，
+# 意思就是你自己安装的Charles的证书也没有卵用了。当我们抓HTTPS的包时候会出现下面的问题
+
+# 官方如何信任CAcert的根证书(android高版本需要root)
+# http://wiki.cacert.org/FAQ/ImportRootCert#Android_Phones_.26_Tablets
+```
+
+ios
+
+两者都得信任证书
+
+
 ## mitmproxy快键键
 - ? 快捷键用于查看帮助信息
 - q 用于返回／退出
@@ -225,3 +248,13 @@ end
 - ~m 拦截所有post请求
 - id=1 拦截url中id=1的请求
 - esc+G 跳到最后, g跳到开始位置
+
+## 报错处理
+1. Cannot establish TLS with client: TlsException("SSL handshake error")
+```bash
+$ mitmproxy -s tls_passthrough.py
+```
+[见blog](https://blog.csdn.net/andrew_wf/article/details/84991989)
+
+## 可以通过mitmproxy记录SSL / SSL主密钥
+[doc](https://docs.mitmproxy.org/stable/howto-wireshark-tls/)

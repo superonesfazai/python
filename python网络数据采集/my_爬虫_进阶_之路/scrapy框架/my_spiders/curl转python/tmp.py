@@ -1,6 +1,6 @@
 # coding:utf-8
 
-from js2py import require
+# from js2py import require
 from js2py.pyjs import *
 
 # setting scope
