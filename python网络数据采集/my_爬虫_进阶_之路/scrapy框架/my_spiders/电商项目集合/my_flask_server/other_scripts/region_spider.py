@@ -12,22 +12,20 @@
 
 import re
 from gc import collect
-from pprint import pprint
-from scrapy.selector import Selector
-from asyncio import get_event_loop
-from json import dumps
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import IP_POOL_TYPE
 
 from fzutils.spider.fz_requests import Requests
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.common_utils import json_2_dict
+from fzutils.spider.async_always import *
 
-class RegionSpider(object):
+class RegionSpider(AsyncCrawler):
     def __init__(self):
+        AsyncCrawler.__init__(
+            self,
+            ip_pool_type=IP_POOL_TYPE,
+        )
         self.ame_list = None
         self.target_data = None   # 存储最终需求数据
-        self.ip_pool_type = IP_POOL_TYPE
 
     async def _get_headers(self):
         return {
@@ -45,7 +43,10 @@ class RegionSpider(object):
         得到全国最新区码(http://xzqh.mca.gov.cn/map)
         :return:
         '''
-        body = Requests.get_url_body(url='http://xzqh.mca.gov.cn/map', headers=await self._get_headers(), cookies=None, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url='http://xzqh.mca.gov.cn/map',
+            headers=await self._get_headers(),
+            ip_pool_type=self.ip_pool_type)
         # print(body)
         # http://www.mca.gov.cn/article/sj/tjbz/a/2018/201803131439.html
         data = json_2_dict(
@@ -134,9 +135,12 @@ class RegionSpider(object):
         headers = {
             'User-Agent': get_random_pc_ua(),
         }
-        body = Requests.get_url_body(url='https://division-data.alicdn.com/simple/addr_3_001.js', headers=headers, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url='https://division-data.alicdn.com/simple/addr_3_001.js',
+            headers=headers,
+            ip_pool_type=self.ip_pool_type)
         _ = json_2_dict(re.compile('var tdist=(.*);window\.goldlog&&').findall(body)[0])
-        # pprint(_)
+        pprint(_)
         new = []
         for key, value in _.items():
             new.append({
@@ -216,8 +220,10 @@ class RegionSpider(object):
         return True
 
     async def _fck_fun(self) -> bool:
+        # db存入用的下面这个
         all_ame_list = await self._get_all_ame_from_office()
         # all_ame_list = await self._get_all_ame_from_tb()
+        # pprint(all_ame_list)
         if all_ame_list == []:
             print('获取到的all_ame_list为空list!')
             return False

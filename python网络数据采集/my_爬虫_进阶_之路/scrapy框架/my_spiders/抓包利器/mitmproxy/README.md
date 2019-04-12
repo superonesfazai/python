@@ -228,16 +228,46 @@ android
 
 # TODO Android7.0以上使用Charles抓包Https
 # 由于Android7以后google更改了安全策略，用户添加的CA证书不能再用于安全连接，
-# 意思就是你自己安装的Charles的证书也没有卵用了。当我们抓HTTPS的包时候会出现下面的问题
+# 意思就是你自己安装的Charles的证书也没有卵用了。当我们抓HTTPS的包时候会出现下面的问题，无连接
 
 # 官方如何信任CAcert的根证书(android高版本需要root)
 # http://wiki.cacert.org/FAQ/ImportRootCert#Android_Phones_.26_Tablets
+
+# 模拟器中(adb shell 为root权限)
+# $ cat /proc/mounts | grep "system"
+# /dev/block/sda6 /system ext4 ro,relatime,data=ordered 0 0
+# 设置可读写
+# $ mount -o remount,rw /dev/block/sda6 /system
+# 将证书进行hash (原证书 xxx.pem)
+# $ adb push c8750f0d.0 /sdcard
+# $ cp /sdcard/c8750f0d.0 /system/etc/security/cacerts
+# $ chmod 644 c8750f0d.0
+# 恢复只读
+# $ mount -o remount,ro /dev/block/sda6 /system
+
+# 或者
+# android 7以上系统需root后使用这款软件导入系统证书
+# https://apkpure.com/root-certificate-manager-root/net.jolivier.cert.Importer
 ```
 
 ios
 
 两者都得信任证书
 
+### 如何在Android 7.X上抓第三方app的https包
+一般情况下第三方我们都是抓第三方app的包，为了分析别人的数据。但是像上面所说的前两种方式一般在第三方app上不会存在的，谁也不想让自己的app被抓包不是。
+
+1. 我们可以通过重打包的方式强行修改配置，或者强行降低 targetSdkVersion，或者强行修改别人源码里面的信任证书的代码，然后再重打包就好了(分别针对上面1，2，3里面所说的方法，只不过通过逆向的方式添加)。
+
+2. 通过使用Xposed的 [JustTrustMe](https://github.com/Fuzion24/JustTrustMe) 模块来信任所有的证书(通过hook方式)，Xposed不会用的[看这里](https://www.jianshu.com/p/01a9e86581b9)
+
+3. 哈哈，使用Android 7.0 以下的系统安装应用，并抓包
+
+[见blog](https://www.jianshu.com/p/3b4cd6fdd8a9)
+
+[使用Xposed+JustTrustMe来突破SSL Pinning](https://bbs.pediy.com/thread-226435.htm)
+
+[virtualXposed + justtrustme](https://www.jianshu.com/p/a818a0d0aa9f)
 
 ## mitmproxy快键键
 - ? 快捷键用于查看帮助信息
@@ -258,3 +288,6 @@ $ mitmproxy -s tls_passthrough.py
 
 ## 可以通过mitmproxy记录SSL / SSL主密钥
 [doc](https://docs.mitmproxy.org/stable/howto-wireshark-tls/)
+
+##  CA证书和文件
+[doc](https://docs.mitmproxy.org/stable/concepts-certificates/)
