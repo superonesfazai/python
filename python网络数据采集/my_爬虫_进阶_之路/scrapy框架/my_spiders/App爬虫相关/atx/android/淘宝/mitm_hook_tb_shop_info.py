@@ -11,6 +11,8 @@
     mitmproxy -p 8080 -s mitm_hook_tb_shop_info.py
     或者
     mitmweb -p 8080 -s mitm_hook_tb_shop_info.py
+    或
+    mitmdump -p 8080 -s mitm_hook_tb_shop_info.py
 """
 
 from mitmproxy import (
@@ -59,17 +61,32 @@ def response(flow):
     # logger.info(str(response.headers))
     # logger.info(str(response.cookies))
     # logger.info(str(response.text))
+
+    # regex = '\/pagedata\/shop\/impression'
+    regex = '\/pagedata\/shop\/index'
     if request.host == 'alisitecdn.m.taobao.com'\
-            and re.compile('\/pagedata\/shop\/impression').findall(request.path) != []:     # 锁定抓取接口
+            and re.compile(regex).findall(request.path) != []:
+        # 锁定抓取接口
         # lg.info(str(request.host))
         # lg.info(str(request.path))
         # lg.info(str(response.text))
         ori_data = wash_ori_data(json_2_dict(
             json_str=response.text,
             default_res={}).get('module', {}))
-        lg.info('[+] tb_api ! user_id: {}, shop_name: {}'.format(
-            ori_data.get('globalData', {}).get('userId', ''),
-            ori_data.get('globalData', {}).get('userNick', ''),))
+
+        try:
+            user_id = ori_data.get('globalData', {}).get('userId', '')
+            # 用户昵称
+            user_nick = ori_data.get('globalData', {}).get('userNick', '')
+            shop_id = ori_data.get('globalData', {}).get('shopId', '')
+        except Exception:
+            lg.error('遇到错误:', exc_info=True)
+            return
+
+        lg.info('[+] tb_api ! user_id: {}, user_nick: {}, shop_id: {}'.format(
+            user_id,
+            user_nick,
+            shop_id,))
 
         url = 'http://127.0.0.1:9001/tb_shop_info'
         data = dumps(ori_data)

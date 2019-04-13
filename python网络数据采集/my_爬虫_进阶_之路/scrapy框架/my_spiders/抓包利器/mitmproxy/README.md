@@ -278,6 +278,8 @@ ios
 - ~m 拦截所有post请求
 - id=1 拦截url中id=1的请求
 - esc+G 跳到最后, g跳到开始位置
+- / 查找关键字
+- 复制 fn + 鼠标左键
 
 ## 报错处理
 1. Cannot establish TLS with client: TlsException("SSL handshake error")
