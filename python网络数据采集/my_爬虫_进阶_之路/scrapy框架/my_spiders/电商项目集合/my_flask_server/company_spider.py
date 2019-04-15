@@ -5448,6 +5448,7 @@ class CompanySpider(AsyncCrawler):
             site_id = 11
         elif short_name == 'gt':
             site_id = 12
+        # site_id = 13是tb
         else:
             raise NotImplemented('site_id没有实现!')
 

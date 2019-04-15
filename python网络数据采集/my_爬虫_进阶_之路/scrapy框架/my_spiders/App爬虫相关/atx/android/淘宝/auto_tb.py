@@ -15,6 +15,7 @@ from fzutils.spider.app_utils import (
     u2_page_back,
     u2_get_device_display_h_and_w,
     u2_up_swipe_some_height,)
+from fzutils.spider.bloom_utils import BloomFilter
 from fzutils.spider.async_always import *
 
 class TaoBaoOps(AsyncCrawler):
@@ -23,19 +24,73 @@ class TaoBaoOps(AsyncCrawler):
             self,
             *params,
             **kwargs,
+            log_print=True,
+            log_save_path='/Users/afa/myFiles/my_spider_logs/atx/tb/shop_info/',
         )
         # adb device 查看
         self.d = u2.connect('816QECTK24ND8')
-        print(self.d.info)
+        self.lg.info(self.d.info)
         self.d.set_fastinput_ime(True)
         self.d.debug = False
         self.now_session = self.d.session(pkg_name='com.taobao.taobao')
-        self.max_shop_crawl_count = 20                                          # 一个keyword需要抓取的店铺数
+        self.max_shop_crawl_count = 100                                                   # 一个keyword需要抓取的店铺数
+        self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'     # 结巴分词后已检索的hot keyword写入处
+        self.tb_ops_file_path = '/Users/afa/Desktop/tb_ops.txt'
+        self._init_tb_jb_boom_filter()
+        self._init_key_list()
+
+    def _init_key_list(self) -> None:
+        """
+        初始化待采集key
+        :return:
+        """
+        self.lg.info('初始化ing self.key_list ...')
+        self.key_list = []
+        with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
+            try:
+                for line in f:
+                    item = line.replace('\n', '')
+                    if item not in self.key_list:
+                        self.key_list.append(item)
+            except UnicodeDecodeError as e:
+                self.lg.error('遇到错误: {}'.format(e))
+
+        self.lg.info('初始化完毕! len: {}'.format(self.key_list.__len__()))
+
+        return None
+
+    def _init_tb_jb_boom_filter(self) -> None:
+        """
+        初始化
+        :return:
+        """
+        self.lg.info('初始化ing self.tb_jb_boom_filter ...')
+        # 结巴分词后已检索的hot keyword存储
+        self.tb_jb_boom_filter = BloomFilter(
+            capacity=500000,
+            error_rate=.00001)
+        try:
+            with open(self.tb_ops_file_path, 'r') as f:
+                try:
+                    for line in f:
+                        item = line.replace('\n', '')
+                        if item not in self.tb_jb_boom_filter:
+                            self.tb_jb_boom_filter.add(item)
+                except UnicodeDecodeError as e:
+                    self.lg.error('遇到错误: {}'.format(e))
+
+        except Exception as e:
+            self.lg.error('遇到错误:', exc_info=True)
+            raise e
+
+        self.lg.info('初始化完毕! len: {}'.format(self.tb_jb_boom_filter.__len__()))
+
+        return None
 
     async def _fck_run(self):
-        print('开始运行...')
+        self.lg.info('开始运行...')
         await self._search()
-        print('运行完毕!')
+        self.lg.info('运行完毕!')
 
     async def _search(self):
         """
@@ -45,13 +100,19 @@ class TaoBaoOps(AsyncCrawler):
         # 首页点击搜索框
         self.d(resourceId="com.taobao.taobao:id/home_searchedit").click()
 
-        keyword_list = ['aa', 'bb']
+        for keyword in self.key_list:
+            if keyword in self.tb_jb_boom_filter:
+                # 去除已遍历的过的hot key
+                self.lg.info('hot key: {} in self.tb_jb_boom_filter'.format(keyword))
+                continue
 
-        for item in keyword_list:
-            one_res = await self._search_shop_info_by_one_keyword(keyword=item)
+            one_res = await self._search_shop_info_by_one_keyword(keyword=keyword)
             pprint(one_res)
+            # add record
+            await self._write_tb_ops_txt(target_list=[keyword])
+            self.tb_jb_boom_filter.add(keyword)
 
-        print('全部关键字采集完毕!!!')
+        self.lg.info('全部关键字采集完毕!!!')
 
     async def _search_shop_info_by_one_keyword(self, keyword) -> list:
         """
@@ -59,10 +120,9 @@ class TaoBaoOps(AsyncCrawler):
         :param keyword:
         :return:
         """
-        print('--->>> 即将开始采集 keyword: {} 对应的shop info...'.format(keyword))
+        self.lg.info('--->>> 即将开始采集 keyword: {} 对应的shop info...'.format(keyword))
         # 搜索的是否为店铺
         is_shop_search = False
-        res = []
 
         # 输入内容
         self.d(resourceId="com.taobao.taobao:id/searchEdit").send_keys(keyword)
@@ -82,14 +142,15 @@ class TaoBaoOps(AsyncCrawler):
         # TODO 方案一无法再ele list里面定位某个特定ele, 并进行后续操作! pass
         # 方案2: 滑动一个采集一个
         self.first_swipe_height, self.second_swipe_height = await self._get_first_swipe_height_and_second_swipe_height()
+        self.lg.info('self.first_swipe_height: {}, self.second_swipe_height: {}'.format(self.first_swipe_height, self.second_swipe_height))
 
         # 先上滑隐藏全部, 天猫, 店铺, 淘宝经验
         await u2_up_swipe_some_height(d=self.d, swipe_height=self.first_swipe_height)
-        shop_name_list = []
 
+        shop_name_list = []
         shop_crawl_count = 1
+        res = []
         while shop_crawl_count < self.max_shop_crawl_count:
-            print()
             # TODO 不适用instance, 而是用ele index索引的原因是
             #   instance会导致循环到一定个数出现instance=0对应的某元素不在当前page, 而无法被点击, 导致后续操作紊乱
             # 当前页面的shop_title list
@@ -99,7 +160,7 @@ class TaoBaoOps(AsyncCrawler):
                     resourceId="com.taobao.taobao:id/shopTitle",
                     className="android.widget.TextView",
                     clickable=False, )]
-            pprint(now_page_shop_title_list)
+            self.lg.info('now_page_shop_title_list: {}'.format(str(now_page_shop_title_list)))
             # clickable = False 确定当前页面某btn是否已被点击, 未被点击 False
             first_shop_title_ele = self.d(
                 resourceId="com.taobao.taobao:id/shopTitle",
@@ -107,44 +168,41 @@ class TaoBaoOps(AsyncCrawler):
                 # instance=0,
                 text=now_page_shop_title_list[1] if shop_crawl_count != 1 else now_page_shop_title_list[0],
                 # 保证每个都被遍历
-                clickable=False, )
+                clickable=False,)
             try:
                 shop_title = first_shop_title_ele.info.get('text', '')
             except UiObjectNotFoundError:
                 continue
 
             if shop_title not in shop_name_list:
-                print('正在采集店名: {}, shop_crawl_count: {} ...'.format(shop_title, shop_crawl_count))
+                self.lg.info('正在采集店名: {}, shop_crawl_count: {} ...'.format(shop_title, shop_crawl_count))
                 shop_name_list.append(shop_title)
             else:
-                print('该店名: {} 已遍历, pass'.format(shop_title))
+                self.lg.info('该店名: {} 已遍历, pass'.format(shop_title))
                 await u2_up_swipe_some_height(d=self.d, swipe_height=self.second_swipe_height)
                 # await async_sleep(2)  # 等待新返回的list成功显示
                 continue
 
             try:
                 # 点击shop title ele进店
-                # print('++++++ {} ele exists is {}'.format(shop_title, first_shop_title_ele.exists()))
-                # print('即将点击first_shop_title_ele...')
+                # self.lg.info('++++++ {} ele exists is {}'.format(shop_title, first_shop_title_ele.exists()))
+                # self.lg.info('即将点击first_shop_title_ele...')
                 first_shop_title_ele.click()
                 await async_sleep(3)
                 # 点击粉丝数进入店铺印象页面
                 self.d(descriptionMatches='粉丝数\d+.*?', className="android.view.View").click()
                 await async_sleep(6)
 
-                phone_exist = self.d(description='服务电话', className="android.view.View").exists()
-                assert phone_exist is True, '[-] 无服务电话!!!'
-                print('[+] 有服务电话!!!')
-                phone_num = self.d(descriptionMatches="\d+-\d+|\d+", className="android.view.View") \
-                    .info.get('contentDescription', '')
-                print('@' * 10 + ' 服务电话: {}'.format(phone_num))
+                phone_list = await self._get_shop_phone_num_list()
+                address = await self._get_shop_address()
 
                 res.append({
                     'shop_name': shop_title,
-                    'phone': phone_num,
+                    'phone_list': phone_list,
+                    'address': address,
                 })
             except (UiObjectNotFoundError, AssertionError) as e:
-                print(e)
+                self.lg.error('遇到错误:', exc_info=True)
                 while not first_shop_title_ele.exists():
                     await u2_page_back(d=self.d, back_num=1)
 
@@ -161,9 +219,64 @@ class TaoBaoOps(AsyncCrawler):
             # await async_sleep(2)  # 等待新返回的list成功显示
             shop_crawl_count += 1
 
-        print('--->>> 采集 keyword: {} 对应的shop info 完毕!'.format(keyword))
+        # 将该关键字所有采集结果发往server
+        url = 'http://127.0.0.1:9001/tb_shop_info_handle'
+        data = dumps(res)
+        Requests.get_url_body(
+            use_proxy=False,
+            method='post',
+            url=url,
+            data=data,)
+
+        self.lg.info('--->>> 采集 keyword: {} 对应的shop info 完毕!'.format(keyword))
 
         return res
+
+    async def _write_tb_ops_txt(self, target_list) -> None:
+        """
+        写入tb_jb_hot_keyword.txt
+        :param target_list:
+        :return:
+        """
+        target_list = list(set(target_list))
+        with open(self.tb_ops_file_path, 'a+') as f:
+            for item in target_list:
+                f.write(item + '\n')
+                self.lg.info('write hot key: {}'.format(item))
+
+        return None
+
+    async def _get_shop_phone_num_list(self) -> list:
+        """
+        获取某店铺的手机号list
+        :return:
+        """
+        phone_exist = self.d(description='服务电话', className="android.view.View").exists()
+        assert phone_exist is True, '[-] 无服务电话!!!'
+        self.lg.info('[+] 有服务电话!!!')
+        phone_num = self.d(descriptionMatches="\d+-\d+|\d+", className="android.view.View") \
+            .info.get('contentDescription', '')
+        self.lg.info('@' * 10 + ' 服务电话: {}'.format(phone_num))
+
+        return [{
+            'phone': phone_num,
+        }]
+
+    async def _get_shop_address(self) -> str:
+        """
+        获取shop所在地
+        :return:
+        """
+        # 由于所在地无法定位, 默认都是北京
+        address = '北京'
+
+        # address_exist = self.d(description='所在地', className="android.view.View").exists()
+        # if address_exist:
+        #     self.lg.info('[+] 所在地存在')
+        # else:
+        #     self.lg.info('[-] 所在地不存在')
+
+        return address
 
     async def _get_first_swipe_height_and_second_swipe_height(self) -> tuple:
         """
@@ -171,13 +284,14 @@ class TaoBaoOps(AsyncCrawler):
         :return:
         """
         # 获取上方全部, 天猫, 店铺, 淘宝经验的parent 元素块的 height
-        h1 = await u2_get_some_ele_height(ele=self.d(className="android.support.v7.app.ActionBar$Tab", instance=3))
+        # h1 = await u2_get_some_ele_height(ele=self.d(className="android.support.v7.app.ActionBar$Tab", instance=3))
+        h1 = await u2_get_some_ele_height(ele=self.d(className="android.widget.LinearLayout", instance=18))
         first_swipe_height = h1 / 1000
 
         # 获取综合排序的元素块 height
         h2 = await u2_get_some_ele_height(ele=self.d(resourceId="com.taobao.taobao:id/sortbtnContainer", className="android.widget.LinearLayout"))
 
-        # 获取店铺label块 height
+        # 获取店铺label块 height(第一个)
         h3 = await u2_get_some_ele_height(ele=self.d(resourceId="com.taobao.taobao:id/topLayout"))
         # 获取goods 块height
         h4 = await u2_get_some_ele_height(ele=self.d(resourceId="com.taobao.taobao:id/midLayout"))
@@ -185,16 +299,18 @@ class TaoBaoOps(AsyncCrawler):
         h5 = await u2_get_some_ele_height(ele=self.d(resourceId="com.taobao.taobao:id/shop_tag_line"))
 
         second_swipe_height = (h4 + h5) / 1000
-        print('###### first_swipe_height: {}, second_swipe_height: {}, h2: {}'.format(
-            first_swipe_height,
-            second_swipe_height,
-            h2/1000))
+        # self.lg.info('###### first_swipe_height: {}, second_swipe_height: {}, h2: {}'.format(
+        #     first_swipe_height,
+        #     second_swipe_height,
+        #     h2/1000))
 
         return first_swipe_height, second_swipe_height
 
     def __del__(self):
         try:
             del self.d
+            del self.lg
+            del self.loop
         except:
             pass
         collect()

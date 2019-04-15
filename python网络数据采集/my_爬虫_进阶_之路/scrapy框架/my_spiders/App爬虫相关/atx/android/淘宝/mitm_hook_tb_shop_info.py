@@ -62,8 +62,8 @@ def response(flow):
     # logger.info(str(response.cookies))
     # logger.info(str(response.text))
 
-    # regex = '\/pagedata\/shop\/impression'
-    regex = '\/pagedata\/shop\/index'
+    regex = '\/pagedata\/shop\/impression'
+    # regex = '\/pagedata\/shop\/index'
     if request.host == 'alisitecdn.m.taobao.com'\
             and re.compile(regex).findall(request.path) != []:
         # 锁定抓取接口
