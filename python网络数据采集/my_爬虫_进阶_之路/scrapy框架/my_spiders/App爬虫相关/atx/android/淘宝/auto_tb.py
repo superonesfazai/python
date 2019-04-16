@@ -38,6 +38,8 @@ class TaoBaoOps(AsyncCrawler):
         self.tb_ops_file_path = '/Users/afa/Desktop/tb_ops.txt'
         self._init_tb_jb_boom_filter()
         self._init_key_list()
+        # 不遍历的list
+        self.dump_shop_name_list = ['天猫超市', '阿里健康大药房', '天猫精灵官方旗舰店']
 
     def _init_key_list(self) -> None:
         """
@@ -46,12 +48,15 @@ class TaoBaoOps(AsyncCrawler):
         """
         self.lg.info('初始化ing self.key_list ...')
         self.key_list = []
+        index = 0
         with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
             try:
                 for line in f:
                     item = line.replace('\n', '')
                     if item not in self.key_list:
+                        self.lg.info('add {}, index: {}'.format(item, index))
                         self.key_list.append(item)
+                        index += 1
             except UnicodeDecodeError as e:
                 self.lg.error('遇到错误: {}'.format(e))
 
@@ -69,13 +74,17 @@ class TaoBaoOps(AsyncCrawler):
         self.tb_jb_boom_filter = BloomFilter(
             capacity=500000,
             error_rate=.00001)
+        index = 0
         try:
             with open(self.tb_ops_file_path, 'r') as f:
                 try:
                     for line in f:
                         item = line.replace('\n', '')
                         if item not in self.tb_jb_boom_filter:
+                            self.lg.info('add {}, index: {}'.format(item, index))
                             self.tb_jb_boom_filter.add(item)
+                            index += 1
+
                 except UnicodeDecodeError as e:
                     self.lg.error('遇到错误: {}'.format(e))
 
@@ -107,7 +116,7 @@ class TaoBaoOps(AsyncCrawler):
                 continue
 
             one_res = await self._search_shop_info_by_one_keyword(keyword=keyword)
-            pprint(one_res)
+            # pprint(one_res)
             # add record
             await self._write_tb_ops_txt(target_list=[keyword])
             self.tb_jb_boom_filter.add(keyword)
@@ -161,6 +170,17 @@ class TaoBaoOps(AsyncCrawler):
                     className="android.widget.TextView",
                     clickable=False, )]
             self.lg.info('now_page_shop_title_list: {}'.format(str(now_page_shop_title_list)))
+            try:
+                assert now_page_shop_title_list != [], 'now_page_shop_title_list不为空list!'
+            except AssertionError:
+                # 从店铺首页返回搜索页
+                await u2_page_back(d=self.d, back_num=1)
+                await u2_up_swipe_some_height(
+                    d=self.d,
+                    swipe_height=self.second_swipe_height)
+                await async_sleep(1.)  # 等待新返回的list成功显示
+                continue
+
             # clickable = False 确定当前页面某btn是否已被点击, 未被点击 False
             first_shop_title_ele = self.d(
                 resourceId="com.taobao.taobao:id/shopTitle",
@@ -174,13 +194,21 @@ class TaoBaoOps(AsyncCrawler):
             except UiObjectNotFoundError:
                 continue
 
-            if shop_title not in shop_name_list:
+            if shop_title not in shop_name_list \
+                    and shop_title not in self.dump_shop_name_list:
                 self.lg.info('正在采集店名: {}, shop_crawl_count: {} ...'.format(shop_title, shop_crawl_count))
                 shop_name_list.append(shop_title)
+
             else:
+                # 处理已遍历的店 or 不遍历的店
                 self.lg.info('该店名: {} 已遍历, pass'.format(shop_title))
-                await u2_up_swipe_some_height(d=self.d, swipe_height=self.second_swipe_height)
-                # await async_sleep(2)  # 等待新返回的list成功显示
+                await u2_up_swipe_some_height(
+                    d=self.d,
+                    # 注意: 此处这样设置是为避免上滑过快, 导致first_shop_title_ele元素为空!
+                    # 导致进入while not first_shop_title_ele.exists()死循环而退出tb app, 返回系统首页!!
+                    swipe_height=self.second_swipe_height/2)
+                # TODO 此处可以设置不休眠!! 未刷新出来下次再下滑刷新
+                # await async_sleep(.5)  # 等待新返回的list成功显示
                 continue
 
             try:
@@ -191,17 +219,18 @@ class TaoBaoOps(AsyncCrawler):
                 await async_sleep(3)
                 # 点击粉丝数进入店铺印象页面
                 self.d(descriptionMatches='粉丝数\d+.*?', className="android.view.View").click()
-                await async_sleep(6)
+                await async_sleep(6.5)
 
                 phone_list = await self._get_shop_phone_num_list()
                 address = await self._get_shop_address()
-
-                res.append({
+                ii = {
                     'shop_name': shop_title,
                     'phone_list': phone_list,
                     'address': address,
-                })
-            except (UiObjectNotFoundError, AssertionError) as e:
+                }
+                await self._send_2_tb_shop_info_handle(one_dict=ii)
+                res.append(ii)
+            except (UiObjectNotFoundError, AssertionError):
                 self.lg.error('遇到错误:', exc_info=True)
                 while not first_shop_title_ele.exists():
                     await u2_page_back(d=self.d, back_num=1)
@@ -219,18 +248,26 @@ class TaoBaoOps(AsyncCrawler):
             # await async_sleep(2)  # 等待新返回的list成功显示
             shop_crawl_count += 1
 
-        # 将该关键字所有采集结果发往server
+        self.lg.info('--->>> 采集 keyword: {} 对应的shop info 完毕!'.format(keyword))
+
+        return res
+
+    async def _send_2_tb_shop_info_handle(self, one_dict:dict) -> None:
+        """
+        发送到tb_shop_info_handle
+        :param one_dict:
+        :return:
+        """
+        # 将采集结果发往server
         url = 'http://127.0.0.1:9001/tb_shop_info_handle'
-        data = dumps(res)
+        data = dumps([one_dict])
         Requests.get_url_body(
             use_proxy=False,
             method='post',
             url=url,
-            data=data,)
+            data=data, )
 
-        self.lg.info('--->>> 采集 keyword: {} 对应的shop info 完毕!'.format(keyword))
-
-        return res
+        return
 
     async def _write_tb_ops_txt(self, target_list) -> None:
         """

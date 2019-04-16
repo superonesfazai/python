@@ -134,7 +134,8 @@ def tb_shop_info_handle():
                 i_shop_name = i.get('shop_name', '')
                 unique_id = 'tb' + str(i['shop_id'])
                 if unique_id in company_id_bloom_filter:
-                    lg.info('company unique_id: {} in db! pass'.format(unique_id))
+                    # lg.info('company unique_id: {} in db! pass'.format(unique_id))
+                    continue
 
                 if item_shop_name == i_shop_name:
                     company_item = CompanyItem()
