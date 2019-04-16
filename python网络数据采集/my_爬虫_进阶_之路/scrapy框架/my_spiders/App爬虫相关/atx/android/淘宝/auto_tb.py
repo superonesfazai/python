@@ -144,9 +144,22 @@ class TaoBaoOps(AsyncCrawler):
             self.d(resourceId="com.taobao.taobao:id/tab_text", text=u"店铺").click()
             await async_sleep(2)
             # 点击销量优先
-            self.d(resourceId="com.taobao.taobao:id/show_text", text=u"销量优先", description=u"销量优先",
-                   className="android.widget.TextView").click()
+            self.d(
+                resourceId="com.taobao.taobao:id/show_text",
+                text=u"销量优先",
+                description=u"销量优先",
+                className="android.widget.TextView").click()
             is_shop_search = True
+
+        await async_sleep(2)
+        if self.d(
+                resourceId="com.taobao.taobao:id/tipTitle",
+                text=u"没有搜索结果",
+                className="android.widget.TextView")\
+                .exists():
+            # 处理没有搜索结果的
+            self.lg.info('### 该关键字: {} 无搜索结果!'.format(keyword))
+            return []
 
         # TODO 方案一无法再ele list里面定位某个特定ele, 并进行后续操作! pass
         # 方案2: 滑动一个采集一个
