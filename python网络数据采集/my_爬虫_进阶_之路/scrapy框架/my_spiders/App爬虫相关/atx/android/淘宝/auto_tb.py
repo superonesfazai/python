@@ -229,7 +229,8 @@ class TaoBaoOps(AsyncCrawler):
                 # self.lg.info('++++++ {} ele exists is {}'.format(shop_title, first_shop_title_ele.exists()))
                 # self.lg.info('即将点击first_shop_title_ele...')
                 first_shop_title_ele.click()
-                await async_sleep(3)
+                # TODO 此处可不睡眠, 因为该元素出现较快, atx会等待
+                # await async_sleep(3.)
                 # 点击粉丝数进入店铺印象页面
                 self.d(descriptionMatches='粉丝数\d+.*?', className="android.view.View").click()
                 await async_sleep(6.5)
@@ -245,8 +246,7 @@ class TaoBaoOps(AsyncCrawler):
                 res.append(ii)
             except (UiObjectNotFoundError, AssertionError):
                 self.lg.error('遇到错误:', exc_info=True)
-                while not first_shop_title_ele.exists():
-                    await u2_page_back(d=self.d, back_num=1)
+                await self._back_2_search_page(first_shop_title_ele=first_shop_title_ele)
 
                 continue
 
@@ -254,8 +254,7 @@ class TaoBaoOps(AsyncCrawler):
             # 默认返回前两页会页面混乱
             # await u2_page_back(d=self.d, back_num=2)
             # 改用元素定位来看是否成功返回上层
-            while not first_shop_title_ele.exists():
-                await u2_page_back(d=self.d, back_num=1)
+            await self._back_2_search_page(first_shop_title_ele=first_shop_title_ele)
 
             await u2_up_swipe_some_height(d=self.d, swipe_height=self.second_swipe_height)
             # await async_sleep(2)  # 等待新返回的list成功显示
@@ -264,6 +263,22 @@ class TaoBaoOps(AsyncCrawler):
         self.lg.info('--->>> 采集 keyword: {} 对应的shop info 完毕!'.format(keyword))
 
         return res
+
+    async def _back_2_search_page(self, first_shop_title_ele=None) -> None:
+        """
+        回退至搜索页
+        :return:
+        """
+        while not self.d(
+                resourceId="com.taobao.taobao:id/show_text",
+                text=u"销量优先",
+                className="android.widget.TextView").exists():
+            # 根据销量优先按钮
+        # 根据first_shop_title_ele来判断是否已返回搜索页, 长期运行会出错!
+        # while not first_shop_title_ele.exists():
+            await u2_page_back(d=self.d, back_num=1)
+            # 此处休眠, 等待判断元素出现, 不可忽略
+            await async_sleep(.3)
 
     async def _send_2_tb_shop_info_handle(self, one_dict:dict) -> None:
         """
@@ -361,6 +376,8 @@ class TaoBaoOps(AsyncCrawler):
             del self.d
             del self.lg
             del self.loop
+            del self.tb_jb_boom_filter
+            del self.key_list
         except:
             pass
         collect()

@@ -7,6 +7,11 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+本地长期更新(server可更新!), 部分goods_id采集会被强制登录(ip被封), 但是不是所有!
+推荐放在server上更新!(目前只放在server上更新)
+"""
+
 import sys
 sys.path.append('..')
 
@@ -293,8 +298,8 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
 

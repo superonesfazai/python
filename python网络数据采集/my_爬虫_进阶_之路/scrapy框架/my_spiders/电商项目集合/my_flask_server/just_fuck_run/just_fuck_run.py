@@ -10,7 +10,6 @@ import sys
 sys.path.append('..')
 
 from time import sleep
-import re
 import os
 
 from fzutils.time_utils import get_shanghai_time
@@ -72,7 +71,8 @@ logs_file_name_list = [
     'expired_logs_deal_with'
 ]
 
-night_run_file_name_list = [    # 只在晚上run
+# 只在晚上run
+night_run_file_name_list = [
     'ali_1688_real-times_update',
 ]
 

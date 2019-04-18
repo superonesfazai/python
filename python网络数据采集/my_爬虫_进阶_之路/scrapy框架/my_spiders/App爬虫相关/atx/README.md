@@ -45,6 +45,9 @@ $ python3 -m atx version
 $ python3 -m atx doctor
 ```
 
+## 注意
+atx 避免被杀死, 要在电量管理设置允许后台运行!!
+
 ### 热键
 返回上一页
 ```python

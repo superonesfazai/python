@@ -7,6 +7,11 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+本地长期更新(server可更新!), 部分goods_id采集会被强制登录(ip被封), 但是不是所有!
+推荐放在server上更新!(目前只放在server上更新)
+"""
+
 from pprint import pprint
 import re
 from gc import collect
@@ -17,6 +22,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from scrapy.selector import Selector
 from settings import (
     PHANTOMJS_DRIVER_PATH,
+    FIREFOX_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,
 )
@@ -34,7 +40,8 @@ from fzutils.internet_utils import (
     get_random_phone_ua,
     str_cookies_2_dict,
     _get_url_contain_params,
-    html_entities_2_standard_html,)
+    html_entities_2_standard_html,
+    dict_cookies_2_str,)
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
 from fzutils.spider.fz_driver import (
@@ -57,10 +64,53 @@ class ALi1688LoginAndParse(Crawler):
             is_use_driver=True,
             driver_type=PHANTOMJS,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
+
+            # driver_type=FIREFOX,
+            # driver_executable_path=FIREFOX_DRIVER_PATH,
+            # headless=False,
+
+            driver_cookies=dict_cookies_2_str(self._get_cookies()),
             user_agent_type=PHONE,
         )
         self.result_data = {}
         self.is_activity_goods = False
+
+    def _get_cookies(self) -> dict:
+        # 经测试下面参数为必须
+        return {
+            # 'CNZZDATA1000231236': '',
+            # 'CNZZDATA1000282329': '',
+            # 'CNZZDATA1261998348': '',
+            # 'UM_distinctid': '',
+            'XSRF-TOKEN': 'c8661197-9737-48b2-8a82-2767d6154b68',
+            # '__cn_logon__': 'true',
+            # '__cn_logon__.sig': '',
+            # '__cn_logon_id__': '',
+            # '_csrf_token': '',
+            # '_m_h5_tk': '',
+            # '_m_h5_tk_enc': '',
+            # '_tb_token_': '',
+            # 'ali-ss': '',
+            # 'ali-ss.sig': '',
+            # 'ali_apache_id': '',
+            # 'ali_apache_track': '',
+            # 'ali_apache_tracktmp': '',
+            'cna': 'wRsVFTj6JEoCAXHXtCqXOzC7',
+            # 'cookie1': '',
+            'cookie17': 'UUplY9Ft9xwldQ%3D%3D',
+            'cookie2': '1f053c521aa2f39a260fcd9cc6eaeb29',
+            # 'csg': '',
+            # 'ctoken': '',
+            # 'hng': '',
+            # 'isg': '',
+            # 'l': '',
+            # 'lid': '',
+            # 'sg': '',
+            # 't': '593a350382a4f28aa3e06c16c39febf2',
+            # 'unb': '',
+            # 'webp': '',
+            'x5sec': '7b226c61707574613b32223a22333135626663303333363965303766306635323665303064613362383466636343493752332b554645493777684e65777575505465686f4d4d6a49304d6a41794e444d784e7a7379227d'
+        }
 
     def _get_phone_headers(self):
         return {
@@ -91,6 +141,7 @@ class ALi1688LoginAndParse(Crawler):
         # body = Requests.get_url_body(
         #     url=wait_to_deal_with_url,
         #     headers=self._get_phone_headers(),
+        #     cookies=self._get_cookies(),
         #     ip_pool_type=self.ip_pool_type,)
         # self.lg.info(str(body))
         if body == '':
@@ -899,6 +950,9 @@ class ALi1688LoginAndParse(Crawler):
     def __del__(self):
         try:
             del self.driver
+        except:
+            pass
+        try:
             del self.lg
         except Exception:
             pass

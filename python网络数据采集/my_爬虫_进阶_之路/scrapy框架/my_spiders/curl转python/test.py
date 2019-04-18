@@ -19,7 +19,8 @@ from fzutils.ip_pools import (
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.fz_driver import (
     BaseDriver, 
-    CHROME,)
+    CHROME,
+    FIREFOX,)
 from fzutils.spider.fz_phantomjs import CHROME_DRIVER_PATH
 from fzutils.url_utils import unquote_plus
 from fzutils.img_utils import save_img_through_url
@@ -36,51 +37,53 @@ from fzutils.qrcode_utils import decode_qrcode
 from fzutils.spider.selector import *
 from fzutils.spider.async_always import *
 
-headers = {
-    'Accept-Encoding': 'br, gzip, deflate',
-    'Connection': 'keep-alive',
-    'Accept': '*/*',
-    'Host': 'alisitecdn.m.taobao.com',
-    'User-Agent': 'iPhone7,1(iOS/11.0) AliApp(TB/8.4.0) Weex/0.20.0 1242x2208',
-    'Accept-Language': 'zh-cn',
-}
+FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 
-params = (
-    ('pathInfo', 'shop/impression'),
-    ('userId', '3012445016'),
-    ('shopId', '380157209'),
-    ('pageId', '0'),
-)
-url = 'https://alisitecdn.m.taobao.com/pagedata/shop/impression'
-body = Requests.get_url_body(
-    url=url,
-    headers=headers,
-    params=params,
-    cookies=None,
-    ip_pool_type=tri_ip_pool)
-# print(body)
-data = json_2_dict(
-    json_str=body,
-    default_res={}).get('module', {})
+# headers = {
+#     'Accept-Encoding': 'br, gzip, deflate',
+#     'Connection': 'keep-alive',
+#     'Accept': '*/*',
+#     'Host': 'alisitecdn.m.taobao.com',
+#     'User-Agent': 'iPhone7,1(iOS/11.0) AliApp(TB/8.4.0) Weex/0.20.0 1242x2208',
+#     'Accept-Language': 'zh-cn',
+# }
+#
+# params = (
+#     ('pathInfo', 'shop/impression'),
+#     ('userId', '3012445016'),
+#     ('shopId', '380157209'),
+#     ('pageId', '0'),
+# )
+# url = 'https://alisitecdn.m.taobao.com/pagedata/shop/impression'
+# body = Requests.get_url_body(
+#     url=url,
+#     headers=headers,
+#     params=params,
+#     cookies=None,
+#     ip_pool_type=tri_ip_pool)
+# # print(body)
+# data = json_2_dict(
+#     json_str=body,
+#     default_res={}).get('module', {})
+# # pprint(data)
+# # 服务电话的js
+# # print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
+#
+# def wash_ori_data(ori_data:dict):
+#     """
+#     清洗原始data
+#     :return:
+#     """
+#     try:
+#         ori_data.pop('moduleSpecs')
+#         ori_data.pop('moduleList')
+#     except:
+#         pass
+#
+#     return ori_data
+#
+# data = wash_ori_data(ori_data=data)
 # pprint(data)
-# 服务电话的js
-# print(data.get('module', {}).get('moduleSpecs', {}).get('shop_base_info', {}).get('moduleCode', ''))
-
-def wash_ori_data(ori_data:dict):
-    """
-    清洗原始data
-    :return:
-    """
-    try:
-        ori_data.pop('moduleSpecs')
-        ori_data.pop('moduleList')
-    except:
-        pass
-
-    return ori_data
-
-data = wash_ori_data(ori_data=data)
-pprint(data)
 
 # wireshark
 # iOS (ip.addr == 192.168.3.2 or ip.src == 192.168.3.2) and ssl
