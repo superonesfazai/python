@@ -133,6 +133,7 @@ def tb_shop_info_handle():
     for item in all_shop_info_list:
         try:
             item_shop_name = item.get('shop_name', '')
+            item_manager_name = item.get('manager_name', '')
             for i in tb_shop_info_list:
                 i_shop_name = i.get('shop_name', '')
                 unique_id = 'tb' + str(i['shop_id'])
@@ -143,7 +144,9 @@ def tb_shop_info_handle():
                     continue
 
                 # lg.info('shop_name: {}, 未被录入db中, 即将进行匹配入录 ...'.format(item_shop_name))
-                if item_shop_name == i_shop_name:
+                if item_shop_name == i_shop_name\
+                        or (item_manager_name != '' and item_manager_name == i_shop_name):
+                    # 或者 掌柜名相同
                     lg.info('@@@ 匹配到shop_name: {} !!'.format(item_shop_name))
                     company_item = CompanyItem()
                     # 所在地元素无法被定位, 全部设置为北京
@@ -153,7 +156,7 @@ def tb_shop_info_handle():
                     company_item['company_url'] = ''
                     company_item['company_link'] = ''
                     company_item['company_status'] = ''
-                    company_item['company_name'] = i_shop_name
+                    company_item['company_name'] = item_shop_name
                     company_item['legal_person'] = ''
                     company_item['phone'] = item.get('phone_list', [])
                     company_item['email_address'] = []

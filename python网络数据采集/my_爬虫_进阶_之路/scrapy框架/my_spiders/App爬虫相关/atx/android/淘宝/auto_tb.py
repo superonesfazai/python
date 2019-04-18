@@ -41,11 +41,11 @@ class TaoBaoOps(AsyncCrawler):
         self.max_shop_crawl_count = 100                                                     # 一个keyword需要抓取的店铺数
         self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'       # 结巴分词后已检索的hot keyword写入处
         self.tb_ops_file_path = '/Users/afa/Desktop/tb_ops.txt'
+        self.jb_max_num = 1000                                                              # jb分词截止num, 控制待检束的个数
+        self.dump_shop_name_list = ['天猫超市', '阿里健康大药房', '天猫精灵官方旗舰店']           # 不遍历的list
         if not unit_test:
             self._init_tb_jb_boom_filter()
             self._init_key_list()
-        self.dump_shop_name_list = ['天猫超市', '阿里健康大药房', '天猫精灵官方旗舰店']           # 不遍历的list
-        self.jb_max_num = 1000                                                              # jb分词截止num, 控制待检束的个数
 
     def _init_key_list(self) -> None:
         """
@@ -247,12 +247,15 @@ class TaoBaoOps(AsyncCrawler):
 
                 # 无法定位, pass
                 # manager_name = await self._get_manager_name()
+                # 改用读取本地缓存名字
+                manager_name = await self._read_now_manager_name_file()
                 phone_list = await self._get_shop_phone_num_list()
                 address = await self._get_shop_address()
                 ii = {
                     'shop_name': shop_title,
                     'phone_list': phone_list,
                     'address': address,
+                    'manager_name': manager_name,
                 }
                 await self._send_2_tb_shop_info_handle(one_dict=ii)
                 res.append(ii)
@@ -275,6 +278,17 @@ class TaoBaoOps(AsyncCrawler):
         self.lg.info('--->>> 采集 keyword: {} 对应的shop info 完毕!'.format(keyword))
 
         return res
+
+    async def _read_now_manager_name_file(self) -> str:
+        """
+        读取当前的manager_name
+        :return:
+        """
+        manager_name = ''
+        with open('now_manager_name.txt', 'r') as f:
+            manager_name = f.readline().replace('\n', '')
+
+        return manager_name
 
     async def _back_2_search_page(self, first_shop_title_ele=None) -> None:
         """

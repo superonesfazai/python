@@ -95,8 +95,21 @@ def response(flow):
             method='post',
             url=url,
             data=data,)
+        write_2_now_manager_name_file(manager_name=user_nick)
     else:
         return
+
+def write_2_now_manager_name_file(manager_name:str):
+    """
+    写入当前manager_name到指定文件
+    :param manager_name:
+    :return:
+    """
+    with open('now_manager_name.txt', 'w') as f:
+        f.write(manager_name)
+        lg.info('write into file[where manager_name: {}]'.format(manager_name))
+
+    return
 
 def wash_ori_data(ori_data:dict):
     """
