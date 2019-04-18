@@ -27,6 +27,7 @@ from utils import (
 from datetime import datetime
 from pprint import pprint
 from logging import INFO, ERROR
+from json import dumps
 
 try:
     from gevent.wsgi import WSGIServer      # 高并发部署
@@ -121,6 +122,8 @@ def tb_shop_info_handle():
             json_str=request.get_data().decode(),
             default_res=[])
         assert all_shop_info_list != [], 'all_shop_info_list不为空list!'
+        # pprint(all_shop_info_list)
+        # pprint(tb_shop_info_list)
     except Exception:
         lg.error('遇到错误:', exc_info=True)
         return server_return
@@ -135,9 +138,13 @@ def tb_shop_info_handle():
                 unique_id = 'tb' + str(i['shop_id'])
                 if unique_id in company_id_bloom_filter:
                     # lg.info('company unique_id: {} in db! pass'.format(unique_id))
+                    # 已存入db的也删除! 避免list无限增大!
+                    new_add_2_db_shop_name_list.append(i_shop_name)
                     continue
 
+                # lg.info('shop_name: {}, 未被录入db中, 即将进行匹配入录 ...'.format(item_shop_name))
                 if item_shop_name == i_shop_name:
+                    lg.info('@@@ 匹配到shop_name: {} !!'.format(item_shop_name))
                     company_item = CompanyItem()
                     # 所在地元素无法被定位, 全部设置为北京
                     company_item['province_id'] = '110000'
@@ -165,12 +172,13 @@ def tb_shop_info_handle():
                     if res and unique_id not in company_id_bloom_filter:
                         company_id_bloom_filter.add(unique_id)
                         new_add_2_db_shop_name_list.append(i_shop_name)
+                    else:
+                        pass
 
                     lg.info('[{}] unique_id: {}, shop_name: {}'.format(
                         '+' if res else '-',
                         unique_id,
-                        i_shop_name,
-                    ))
+                        i_shop_name,))
                     break
 
                 else:
@@ -189,6 +197,16 @@ def tb_shop_info_handle():
     tb_shop_info_list = new_tb_shop_info_list
 
     return server_return
+
+@app.route('/all_tb_shop_info', methods=['GET'])
+def all_tb_shop_info():
+    """
+    获取所有tb_shop_info
+    :return:
+    """
+    global tb_shop_info_list
+
+    return dumps(tb_shop_info_list)
 
 def main():
     lg.info('server 已启动...\nhttp://0.0.0.0:{}\n'.format(SERVER_PORT))

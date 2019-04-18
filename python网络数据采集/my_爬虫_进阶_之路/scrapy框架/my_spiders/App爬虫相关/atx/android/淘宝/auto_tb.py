@@ -14,32 +14,38 @@ from fzutils.spider.app_utils import (
     u2_get_some_ele_height,
     u2_page_back,
     u2_get_device_display_h_and_w,
-    u2_up_swipe_some_height,)
+    u2_up_swipe_some_height,
+    async_get_u2_ele_info,)
 from fzutils.spider.bloom_utils import BloomFilter
 from fzutils.spider.async_always import *
 
 class TaoBaoOps(AsyncCrawler):
-    def __init__(self, *params, **kwargs):
+    def __init__(self, unit_test=False, *params, **kwargs,):
+        """
+        :param unit_test: 是否为单元测试
+        :param params:
+        :param kwargs:
+        """
         AsyncCrawler.__init__(
             self,
             *params,
             **kwargs,
             log_print=True,
-            log_save_path='/Users/afa/myFiles/my_spider_logs/atx/tb/shop_info/',
-        )
+            log_save_path='/Users/afa/myFiles/my_spider_logs/atx/tb/shop_info/',)
         # adb device 查看
         self.d = u2.connect('816QECTK24ND8')
         self.lg.info(self.d.info)
         self.d.set_fastinput_ime(True)
         self.d.debug = False
         self.now_session = self.d.session(pkg_name='com.taobao.taobao')
-        self.max_shop_crawl_count = 100                                                   # 一个keyword需要抓取的店铺数
-        self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'     # 结巴分词后已检索的hot keyword写入处
+        self.max_shop_crawl_count = 100                                                     # 一个keyword需要抓取的店铺数
+        self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'       # 结巴分词后已检索的hot keyword写入处
         self.tb_ops_file_path = '/Users/afa/Desktop/tb_ops.txt'
-        self._init_tb_jb_boom_filter()
-        self._init_key_list()
-        # 不遍历的list
-        self.dump_shop_name_list = ['天猫超市', '阿里健康大药房', '天猫精灵官方旗舰店']
+        if not unit_test:
+            self._init_tb_jb_boom_filter()
+            self._init_key_list()
+        self.dump_shop_name_list = ['天猫超市', '阿里健康大药房', '天猫精灵官方旗舰店']           # 不遍历的list
+        self.jb_max_num = 1000                                                              # jb分词截止num, 控制待检束的个数
 
     def _init_key_list(self) -> None:
         """
@@ -52,11 +58,15 @@ class TaoBaoOps(AsyncCrawler):
         with open(self.tb_jb_hot_keyword_file_path, 'r') as f:
             try:
                 for line in f:
+                    if index > self.jb_max_num:
+                        break
+
                     item = line.replace('\n', '')
                     if item not in self.key_list:
                         self.lg.info('add {}, index: {}'.format(item, index))
                         self.key_list.append(item)
                         index += 1
+
             except UnicodeDecodeError as e:
                 self.lg.error('遇到错误: {}'.format(e))
 
@@ -235,6 +245,8 @@ class TaoBaoOps(AsyncCrawler):
                 self.d(descriptionMatches='粉丝数\d+.*?', className="android.view.View").click()
                 await async_sleep(6.5)
 
+                # 无法定位, pass
+                # manager_name = await self._get_manager_name()
                 phone_list = await self._get_shop_phone_num_list()
                 address = await self._get_shop_address()
                 ii = {
@@ -278,7 +290,7 @@ class TaoBaoOps(AsyncCrawler):
         # while not first_shop_title_ele.exists():
             await u2_page_back(d=self.d, back_num=1)
             # 此处休眠, 等待判断元素出现, 不可忽略
-            await async_sleep(.3)
+            await async_sleep(.4)
 
     async def _send_2_tb_shop_info_handle(self, one_dict:dict) -> None:
         """
@@ -293,7 +305,7 @@ class TaoBaoOps(AsyncCrawler):
             use_proxy=False,
             method='post',
             url=url,
-            data=data, )
+            data=data,)
 
         return
 
@@ -310,6 +322,54 @@ class TaoBaoOps(AsyncCrawler):
                 self.lg.info('write hot key: {}'.format(item))
 
         return None
+
+    async def _get_manager_name(self) -> str:
+        """
+        获取掌柜名
+        :return:
+        """
+        # TODO 无法定位, pass
+        manager_name = ''
+        child_list = list(self.d(className="android.widget.FrameLayout",).child())
+        tasks = []
+        for index, child in enumerate(child_list):
+            # child_info = child.info
+            # self.lg.info(str(child_info))
+            # description = child_info.get('description', '')
+            # self.lg.info(description)
+            self.lg.info('create task[where ele: {}] ...'.format(child))
+            tasks.append(self.loop.create_task(async_get_u2_ele_info(
+                ele=child,
+                logger=self.lg,)))
+
+        one_res = await async_wait_tasks_finished(tasks=tasks)
+        # pprint(one_res)
+
+        for item in one_res:
+            try:
+                ele, ele_info = item
+                # self.lg.info(str(ele_info))
+                ele_content_description = ele_info.get('contentDescription', '')
+                if ele_info.get('childCount', 1) == 0\
+                        and ele_info.get('className', '') == 'android.view.View'\
+                        and ele_content_description != ''\
+                        and ele_info.get('text', '') == ''\
+                        and ele_info.get('bounds', {}).get('right', 0) == 695\
+                        and ele_content_description != '已签署消保协议':
+                    self.lg.info(str(ele_info))
+                    self.lg.info('ele_content_description: {}'.format(ele_content_description))
+                else:
+                    continue
+
+            except Exception:
+                continue
+
+        try:
+            del one_res
+        except:
+            pass
+
+        return manager_name
 
     async def _get_shop_phone_num_list(self) -> list:
         """
@@ -383,6 +443,10 @@ class TaoBaoOps(AsyncCrawler):
         collect()
 
 if __name__ == '__main__':
-    _ = TaoBaoOps()
     loop = get_event_loop()
+    _ = TaoBaoOps()
     res = loop.run_until_complete(_._fck_run())
+
+    # 单元测试
+    # _ = TaoBaoOps(unit_test=True)
+    # res = loop.run_until_complete(_._get_manager_name())

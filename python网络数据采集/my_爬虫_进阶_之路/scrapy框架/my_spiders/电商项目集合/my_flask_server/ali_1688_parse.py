@@ -9,7 +9,8 @@
 
 """
 本地长期更新(server可更新!), 部分goods_id采集会被强制登录(ip被封), 但是不是所有!
-推荐放在server上更新!(目前只放在server上更新)
+推荐放在server上更新!
+本地ip被封时, 可通过重启路由器来获取新ip
 """
 
 from pprint import pprint
