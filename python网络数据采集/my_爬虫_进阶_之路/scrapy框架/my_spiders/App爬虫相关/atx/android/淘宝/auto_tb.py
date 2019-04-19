@@ -46,6 +46,26 @@ class TaoBaoOps(AsyncCrawler):
         if not unit_test:
             self._init_tb_jb_boom_filter()
             self._init_key_list()
+            self._init_db_company_name_filter()
+
+    def _init_db_company_name_filter(self) -> None:
+        """
+        初始化db中已存在的company_name filter
+        :return:
+        """
+        company_name_list = json_2_dict(
+            json_str=Requests.get_url_body(
+                use_proxy=False,
+                url='http://127.0.0.1:9001/get_tb_db_company_name_list',),
+            default_res=[]),
+        assert company_name_list != [], 'company_name_list不为空list!'
+
+        self.company_name_list_filter = BloomFilter(capacity=500000, error_rate=.00001)
+        for item in company_name_list:
+            if item not in self.company_name_list_filter:
+                self.company_name_list_filter.add(item)
+
+        return None
 
     def _init_key_list(self) -> None:
         """
@@ -200,40 +220,48 @@ class TaoBaoOps(AsyncCrawler):
                 await u2_page_back(d=self.d, back_num=1)
                 await u2_up_swipe_some_height(
                     d=self.d,
-                    swipe_height=self.second_swipe_height)
+                    swipe_height=self.second_swipe_height/2)
                 await async_sleep(1.)  # 等待新返回的list成功显示
                 continue
 
-            # clickable = False 确定当前页面某btn是否已被点击, 未被点击 False
-            first_shop_title_ele = self.d(
-                resourceId="com.taobao.taobao:id/shopTitle",
-                className="android.widget.TextView",
-                # instance=0,
-                text=now_page_shop_title_list[1] if shop_crawl_count != 1 else now_page_shop_title_list[0],
-                # 保证每个都被遍历
-                clickable=False,)
             try:
-                shop_title = first_shop_title_ele.info.get('text', '')
-            except UiObjectNotFoundError:
+                # clickable = False 确定当前页面某btn是否已被点击, 未被点击 False
+                first_shop_title_ele = self.d(
+                    resourceId="com.taobao.taobao:id/shopTitle",
+                    className="android.widget.TextView",
+                    # instance=0,
+                    text=now_page_shop_title_list[1] if shop_crawl_count != 1 else now_page_shop_title_list[0],
+                    # 保证每个都被遍历
+                    clickable=False,)
+            except IndexError:
+                # 无法定位first_shop_title_ele元素时
+                await u2_up_swipe_some_height(
+                    d=self.d,
+                    swipe_height=self.second_swipe_height/2)
+                # 等待新返回的list成功显示
+                await async_sleep(1.)
                 continue
 
-            if shop_title not in shop_name_list \
-                    and shop_title not in self.dump_shop_name_list:
-                self.lg.info('正在采集店名: {}, shop_crawl_count: {} ...'.format(shop_title, shop_crawl_count))
-                shop_name_list.append(shop_title)
+            try:
+                shop_title = first_shop_title_ele.info.get('text', '')
+            except (UiObjectNotFoundError,):
+                continue
 
-            else:
-                # 处理已遍历的店 or 不遍历的店
-                self.lg.info('该店名: {} 已遍历, pass'.format(shop_title))
+            if shop_title in self.company_name_list_filter\
+                    or shop_title in self.dump_shop_name_list:
+                # 已在db的跳过采集
+                self.lg.info('### 该company_name: {} in db or 已被遍历过!! so pass'.format(shop_title))
                 await u2_up_swipe_some_height(
                     d=self.d,
                     # 注意: 此处这样设置是为避免上滑过快, 导致first_shop_title_ele元素为空!
                     # 导致进入while not first_shop_title_ele.exists()死循环而退出tb app, 返回系统首页!!
-                    swipe_height=self.second_swipe_height/2)
+                    swipe_height=self.second_swipe_height / 2)
                 # TODO 此处可以设置不休眠!! 未刷新出来下次再下滑刷新
-                # await async_sleep(.5)  # 等待新返回的list成功显示
+                # await async_sleep(1.)     # 等待新返回的list成功显示
                 continue
 
+            self.lg.info('正在采集店名: {}, shop_crawl_count: {} ...'.format(shop_title, shop_crawl_count))
+            shop_name_list.append(shop_title)
             try:
                 # 点击shop title ele进店
                 # self.lg.info('++++++ {} ele exists is {}'.format(shop_title, first_shop_title_ele.exists()))
@@ -257,11 +285,20 @@ class TaoBaoOps(AsyncCrawler):
                     'address': address,
                     'manager_name': manager_name,
                 }
-                await self._send_2_tb_shop_info_handle(one_dict=ii)
+                send_res = await self._send_2_tb_shop_info_handle(one_dict=ii)
                 res.append(ii)
+                if send_res == 'success'\
+                        and shop_title not in self.company_name_list_filter:
+                    # 存入成功储存到db中的
+                    self.company_name_list_filter.add(shop_title)
+
             except (UiObjectNotFoundError, AssertionError):
                 self.lg.error('遇到错误:', exc_info=True)
                 await self._back_2_search_page(first_shop_title_ele=first_shop_title_ele)
+
+                if shop_title not in self.company_name_list_filter:
+                    # 存入异常退出但是已被遍历的, 即不管结果如何, 已遍历的都进行存储!!
+                    self.company_name_list_filter.add(shop_title)
 
                 continue
 
@@ -306,7 +343,7 @@ class TaoBaoOps(AsyncCrawler):
             # 此处休眠, 等待判断元素出现, 不可忽略
             await async_sleep(.4)
 
-    async def _send_2_tb_shop_info_handle(self, one_dict:dict) -> None:
+    async def _send_2_tb_shop_info_handle(self, one_dict:dict) -> str:
         """
         发送到tb_shop_info_handle
         :param one_dict:
@@ -315,13 +352,13 @@ class TaoBaoOps(AsyncCrawler):
         # 将采集结果发往server
         url = 'http://127.0.0.1:9001/tb_shop_info_handle'
         data = dumps([one_dict])
-        Requests.get_url_body(
+        res = Requests.get_url_body(
             use_proxy=False,
             method='post',
             url=url,
             data=data,)
 
-        return
+        return res
 
     async def _write_tb_ops_txt(self, target_list) -> None:
         """

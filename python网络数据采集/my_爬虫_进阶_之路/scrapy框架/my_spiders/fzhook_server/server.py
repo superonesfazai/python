@@ -23,6 +23,7 @@ from spider_items import CompanyItem
 from utils import (
     _save_company_item,
     _get_db_company_unique_id_list_by_site_id,)
+from sql_obj import SqlServerCli
 
 from datetime import datetime
 from pprint import pprint
@@ -112,7 +113,7 @@ def tb_shop_info():
 def tb_shop_info_handle():
     """
     tb shop handle
-    :return:
+    :return: str 'success' 表示成功存入 | 其他
     """
     global tb_shop_info_list, company_id_bloom_filter
 
@@ -182,6 +183,10 @@ def tb_shop_info_handle():
                         '+' if res else '-',
                         unique_id,
                         i_shop_name,))
+                    if res:
+                        # 记录成功存入的
+                        server_return = 'success'
+
                     break
 
                 else:
@@ -210,6 +215,23 @@ def all_tb_shop_info():
     global tb_shop_info_list
 
     return dumps(tb_shop_info_list)
+
+@app.route('/get_tb_db_company_name_list', methods=['GET'])
+def get_tb_db_company_name_list():
+    """
+    获取tb 已采集的db company_name list
+    :return: json
+    """
+    sql_str = '''select company_name from dbo.company_info where site_id=13'''
+    res = []
+    try:
+        sql_cli = SqlServerCli()
+        res = sql_cli._select_table(sql_str=sql_str, logger=lg)
+        res = [item[0] for item in res]
+    except Exception:
+        lg.error('遇到错误:', exc_info=True)
+
+    return dumps(res)
 
 def main():
     lg.info('server 已启动...\nhttp://0.0.0.0:{}\n'.format(SERVER_PORT))
