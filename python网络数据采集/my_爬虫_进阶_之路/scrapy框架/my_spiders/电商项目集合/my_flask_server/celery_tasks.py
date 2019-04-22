@@ -49,6 +49,7 @@ from fzutils.celery_utils import *
 from fzutils.spider.selector import parse_field
 from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_driver import BaseDriver
+from fzutils.free_api_utils import get_bd_map_shop_info_list_by_keyword_and_area_name
 
 """
 redis:
@@ -949,3 +950,76 @@ def _get_gt_company_page_html_task(self, ip_pool_type, company_id, num_retries=8
     # lg.info(body)
 
     return (company_id, body)
+
+@app.task(name=tasks_name + '._get_bd_one_type_company_info_list_task', bind=True)
+def _get_bd_one_type_company_info_list_task(self, ak:str, keyword, area_name, page_num:int, ip_pool_type, timeout=15, num_retries=8) -> list:
+    """
+    获取bd的商家信息
+    :param self:
+    :param ak: 申请的ak码
+    :param keyword: eg: '鞋子'
+    :param area_name: eg: '金华市'
+    :param page_num:
+    :param ip_pool_type:
+    :param timeout:
+    :param num_retries:
+    :return:
+    """
+    # 百度api 关键字搜索信息
+    tmp_shop_list = get_bd_map_shop_info_list_by_keyword_and_area_name(
+        ak=ak,
+        keyword=keyword,
+        area_name=area_name,
+        page_num=page_num,
+        ip_pool_type=ip_pool_type,
+        timeout=timeout,
+        num_retries=num_retries,)
+    # pprint(tmp_shop_list)
+
+    shop_info_list = []
+    for item in tmp_shop_list:
+        try:
+            phone = item.get('telephone', '')
+            assert phone != '', 'phone不为空str!'
+            phone = [{
+                'phone': item.replace('(', '').replace(')', ''),
+            } for item in phone.split(',')]
+            address = item.get('address', '')
+            assert address != '', 'address不为空str'
+            company_name = item.get('name', '')
+            assert company_name != '', 'company_name不为空str!'
+            city_name = item.get('city', '')
+            assert city_name != '', 'city_name != ""'
+            province_name = item.get('province', '')
+            assert province_name != '', 'province_name != ""'
+            company_id = item.get('uid', '')
+            assert company_id != '', 'company_id != ""'
+            lat = item.get('location', {}).get('lat', 0.)
+            lng = item.get('location', {}).get('lng', 0.)
+            assert lat != 0. or lng != 0., 'lat or lng异常!'
+        except AssertionError:
+            continue
+
+        shop_info_list.append({
+            'company_id': company_id,
+            'company_name': company_name,
+            'address': address,
+            'city_name': city_name,
+            'province_name': province_name,
+            'phone': phone,
+            'lat': lat,
+            'lng': lng,
+        })
+
+    shop_info_list = list_remove_repeat_dict_plus(
+        target=shop_info_list,
+        repeat_key='company_id',)
+    # pprint(shop_info_list)
+
+    lg.info('[{}] keyword:{}, page_num:{}, area_name: {}'.format(
+        '+' if shop_info_list != [] else '-',
+        keyword,
+        page_num,
+        area_name,))
+
+    return shop_info_list

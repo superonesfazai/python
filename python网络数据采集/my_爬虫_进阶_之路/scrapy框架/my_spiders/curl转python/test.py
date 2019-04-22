@@ -87,6 +87,7 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 
 # wireshark
 # iOS (ip.addr == 192.168.3.2 or ip.src == 192.168.3.2) and ssl
+# meizu (ip.addr == 192.168.3.4 or ip.src == 192.168.3.4) and (ssl or http)
 
 # charles
 # https://campaigncdn.m.taobao.com/moduledata/downgrade.htm?dataId=taobao

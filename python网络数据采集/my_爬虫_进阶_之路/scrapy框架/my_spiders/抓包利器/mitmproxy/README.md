@@ -291,5 +291,7 @@ $ mitmproxy -s tls_passthrough.py
 ## 可以通过mitmproxy记录SSL / SSL主密钥
 [doc](https://docs.mitmproxy.org/stable/howto-wireshark-tls/)
 
+原先用chrome是存放在(/Users/afa/sslkeylog.log), 用mitmproxy需进行相应修改
+
 ##  CA证书和文件
 [doc](https://docs.mitmproxy.org/stable/concepts-certificates/)

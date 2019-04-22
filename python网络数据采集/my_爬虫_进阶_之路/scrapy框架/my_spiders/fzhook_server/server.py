@@ -228,6 +228,10 @@ def get_tb_db_company_name_list():
         sql_cli = SqlServerCli()
         res = sql_cli._select_table(sql_str=sql_str, logger=lg)
         res = [item[0] for item in res]
+        try:
+            del sql_cli
+        except:
+            pass
     except Exception:
         lg.error('遇到错误:', exc_info=True)
 

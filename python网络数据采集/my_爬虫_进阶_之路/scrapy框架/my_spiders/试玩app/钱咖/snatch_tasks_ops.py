@@ -86,8 +86,7 @@ class MoneyCaffeine(AsyncCrawler):
                     if '进行中' in message or '已抢到' in message:
                         print('抢到一个任务, 请抓紧完成!'.center(120, '@'))
                         try:
-                            with async_timeout(timeout=60*4):
-                                await self.do_tasking()
+                            await async_wait_for(self.do_tasking(), timeout=4 * 60)
                         except (AsyncTimeoutError, Exception) as e:
                             print(e)
                         finally:
@@ -114,7 +113,11 @@ class MoneyCaffeine(AsyncCrawler):
     async def _get_cookies(self):
         return {
             'DIS4': 'cf31af399b8f444ab2feb7235a6d1d59',
-            '_uab_collina': '153794227445918868865459',
+            '_umdata': 'GC509162CC37106314FFEF52EEF6B588C0B3241',
+            'Hm_lpvt_484788504bd0bc163a54b110d0dc003c': '1555654853',
+            'Hm_lvt_484788504bd0bc163a54b110d0dc003c': '1555643297,1555646103,1555652420,1555654688',
+            'lite_token': 'a2638bc14df0d9d81af7ce7fda69e83f',
+            '_uab_collina': '154173334518606826831388',
             'ln': '1',
             'lu': '47204417',
             'user_redirct_subtask_list': '1',
@@ -193,7 +196,9 @@ class MoneyCaffeine(AsyncCrawler):
         :return:
         '''
         headers = await self._get_base_headers()
-        headers.update({'Referer': 'https://qianka.com/v4/tasks/lite',})
+        headers.update({
+            'Referer': 'https://qianka.com/v4/tasks/lite',
+        })
         params = (
             ('task_id', str(task_id)),
             ('quality', str(quality)),
@@ -254,7 +259,7 @@ class MoneyCaffeine(AsyncCrawler):
 
         return res
 
-    async def _send_msg_to_wx(self):
+    async def _send_msg_to_wx(self) -> bool:
         '''
         发送内容给微信
         :return:

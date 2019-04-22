@@ -12,7 +12,7 @@
     或者
     mitmweb -p 8080 -s mitm_hook_tb_shop_info.py
     或
-    mitmdump -p 8080 -s mitm_hook_tb_shop_info.py
+    SSLKEYLOGFILE="$PWD/.mitmproxy/sslkeylogfile.txt" mitmdump -s mitm_hook_tb_shop_info.py -p 8080
 """
 
 from mitmproxy import (
@@ -26,11 +26,13 @@ import typing
 from logging import INFO, ERROR
 
 from fzutils.log_utils import set_logger
+from fzutils.spider.app_utils import get_mitm_flow_request_headers_user_agent
 from fzutils.spider.async_always import *
 
 LOG_SAVE_PATH = '/Users/afa/myFiles/my_spider_logs/mitmproxy/tb/'
 logger = ctx.log
 lg = set_logger(
+    logger_name=get_uuid1(),
     log_file_name=LOG_SAVE_PATH + str(get_shanghai_time())[0:10] + '.txt',
     file_log_level=INFO,)
 
@@ -55,12 +57,20 @@ def response(flow):
     :param flow:
     :return:
     """
+    request_headers = flow.request.headers
     response = flow.response
     request = flow.request
     # logger.info(str(response.status_code))
     # logger.info(str(response.headers))
     # logger.info(str(response.cookies))
     # logger.info(str(response.text))
+    # lg.info(str(request_headers))
+
+    # 根据user_agent分辨是哪台设备的请求
+    user_agent = get_mitm_flow_request_headers_user_agent(
+        headers=request_headers,
+        logger=lg,)
+    lg.info('user_agent: {}'.format(user_agent))
 
     regex = '\/pagedata\/shop\/impression'
     # regex = '\/pagedata\/shop\/index'

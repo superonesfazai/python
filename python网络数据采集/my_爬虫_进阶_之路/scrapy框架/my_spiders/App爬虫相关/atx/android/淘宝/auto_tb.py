@@ -17,6 +17,7 @@ from fzutils.spider.app_utils import (
     u2_up_swipe_some_height,
     async_get_u2_ele_info,)
 from fzutils.spider.bloom_utils import BloomFilter
+from fzutils.memory_utils import get_current_func_info_by_traceback
 from fzutils.spider.async_always import *
 
 class TaoBaoOps(AsyncCrawler):
@@ -159,6 +160,7 @@ class TaoBaoOps(AsyncCrawler):
         :param keyword:
         :return:
         """
+        get_current_func_info_by_traceback(self=self, logger=self.lg)
         self.lg.info('--->>> 即将开始采集 keyword: {} 对应的shop info...'.format(keyword))
         # 搜索的是否为店铺
         is_shop_search = False
@@ -203,25 +205,17 @@ class TaoBaoOps(AsyncCrawler):
         shop_crawl_count = 1
         res = []
         while shop_crawl_count < self.max_shop_crawl_count:
-            # TODO 不适用instance, 而是用ele index索引的原因是
-            #   instance会导致循环到一定个数出现instance=0对应的某元素不在当前page, 而无法被点击, 导致后续操作紊乱
-            # 当前页面的shop_title list
-            now_page_shop_title_list = [
-                item.info.get('text', '')
-                for item in self.d(
-                    resourceId="com.taobao.taobao:id/shopTitle",
-                    className="android.widget.TextView",
-                    clickable=False, )]
-            self.lg.info('now_page_shop_title_list: {}'.format(str(now_page_shop_title_list)))
             try:
-                assert now_page_shop_title_list != [], 'now_page_shop_title_list不为空list!'
-            except AssertionError:
+                now_page_shop_title_list = await self._get_now_page_shop_title_list()
+            except (AssertionError, UiObjectNotFoundError):
+                self.lg.error('遇到错误:', exc_info=True)
                 # 从店铺首页返回搜索页
                 await u2_page_back(d=self.d, back_num=1)
                 await u2_up_swipe_some_height(
                     d=self.d,
                     swipe_height=self.second_swipe_height/2)
-                await async_sleep(1.)  # 等待新返回的list成功显示
+                # 等待新返回的list成功显示
+                await async_sleep(1.)
                 continue
 
             try:
@@ -234,6 +228,7 @@ class TaoBaoOps(AsyncCrawler):
                     # 保证每个都被遍历
                     clickable=False,)
             except IndexError:
+                self.lg.error('遇到错误:', exc_info=True)
                 # 无法定位first_shop_title_ele元素时
                 await u2_up_swipe_some_height(
                     d=self.d,
@@ -247,46 +242,19 @@ class TaoBaoOps(AsyncCrawler):
             except (UiObjectNotFoundError,):
                 continue
 
-            if shop_title in self.company_name_list_filter\
-                    or shop_title in self.dump_shop_name_list:
-                # 已在db的跳过采集
-                self.lg.info('### 该company_name: {} in db or 已被遍历过!! so pass'.format(shop_title))
-                await u2_up_swipe_some_height(
-                    d=self.d,
-                    # 注意: 此处这样设置是为避免上滑过快, 导致first_shop_title_ele元素为空!
-                    # 导致进入while not first_shop_title_ele.exists()死循环而退出tb app, 返回系统首页!!
-                    swipe_height=self.second_swipe_height / 2)
-                # TODO 此处可以设置不休眠!! 未刷新出来下次再下滑刷新
-                # await async_sleep(1.)     # 等待新返回的list成功显示
+            if await self._shop_title_has_been_traversed(
+                shop_title=shop_title,
+                shop_name_list=shop_name_list,):
                 continue
 
-            self.lg.info('正在采集店名: {}, shop_crawl_count: {} ...'.format(shop_title, shop_crawl_count))
+            self.lg.info('正在采集店名: {}, shop_crawl_count: {}, keyword: {} ...'.format(shop_title, shop_crawl_count, keyword))
             shop_name_list.append(shop_title)
             try:
-                # 点击shop title ele进店
-                # self.lg.info('++++++ {} ele exists is {}'.format(shop_title, first_shop_title_ele.exists()))
-                # self.lg.info('即将点击first_shop_title_ele...')
-                first_shop_title_ele.click()
-                # TODO 此处可不睡眠, 因为该元素出现较快, atx会等待
-                # await async_sleep(3.)
-                # 点击粉丝数进入店铺印象页面
-                self.d(descriptionMatches='粉丝数\d+.*?', className="android.view.View").click()
-                await async_sleep(6.5)
-
-                # 无法定位, pass
-                # manager_name = await self._get_manager_name()
-                # 改用读取本地缓存名字
-                manager_name = await self._read_now_manager_name_file()
-                phone_list = await self._get_shop_phone_num_list()
-                address = await self._get_shop_address()
-                ii = {
-                    'shop_name': shop_title,
-                    'phone_list': phone_list,
-                    'address': address,
-                    'manager_name': manager_name,
-                }
-                send_res = await self._send_2_tb_shop_info_handle(one_dict=ii)
-                res.append(ii)
+                shop_intro_page_info = await self._crawl_tb_one_shop_intro_page_info(
+                    first_shop_title_ele=first_shop_title_ele,
+                    shop_title=shop_title,)
+                send_res = await self._send_2_tb_shop_info_handle(one_dict=shop_intro_page_info)
+                res.append(shop_intro_page_info)
                 if send_res == 'success'\
                         and shop_title not in self.company_name_list_filter:
                     # 存入成功储存到db中的
@@ -316,6 +284,81 @@ class TaoBaoOps(AsyncCrawler):
 
         return res
 
+    async def _crawl_tb_one_shop_intro_page_info(self, first_shop_title_ele, shop_title) -> dict:
+        """
+        抓取店铺介绍页信息
+        :return:
+        """
+        get_current_func_info_by_traceback(self=self, logger=self.lg)
+        # 点击shop title ele进店
+        # self.lg.info('++++++ {} ele exists is {}'.format(shop_title, first_shop_title_ele.exists()))
+        # self.lg.info('即将点击first_shop_title_ele...')
+        first_shop_title_ele.click()
+        # TODO 此处可不睡眠, 因为该元素出现较快, atx会等待
+        # await async_sleep(3.)
+
+        # 点击粉丝数进入店铺印象页面
+        self.d(descriptionMatches='粉丝数\d+.*?', className="android.view.View").click()
+        await async_sleep(6.5)
+
+        # 无法定位, pass
+        # manager_name = await self._get_manager_name()
+        # 改用读取本地缓存名字
+        manager_name = await self._read_now_manager_name_file()
+        phone_list = await self._get_shop_phone_num_list()
+        address = await self._get_shop_address()
+        shop_intro_page_info = {
+            'shop_name': shop_title,
+            'phone_list': phone_list,
+            'address': address,
+            'manager_name': manager_name,
+        }
+
+        return shop_intro_page_info
+
+    async def _shop_title_has_been_traversed(self, shop_title, shop_name_list) -> bool:
+        """
+        shop_title 是否已被遍历
+        :return:
+        """
+        if shop_title in self.company_name_list_filter \
+                or shop_title in self.dump_shop_name_list \
+                or shop_title in shop_name_list:
+            # 已在db的跳过采集
+            self.lg.info('### 该company_name: {} in db or 已被遍历过!! so pass'.format(shop_title))
+            await u2_up_swipe_some_height(
+                d=self.d,
+                # 注意: 此处这样设置是为避免上滑过快, 导致first_shop_title_ele元素为空!
+                # 导致进入while not first_shop_title_ele.exists()死循环而退出tb app, 返回系统首页!!
+                swipe_height=self.second_swipe_height / 2 + self.second_swipe_height / 3)
+            # TODO 此处可以设置不休眠!! 未刷新出来下次再下滑刷新
+            # await async_sleep(1.)     # 等待新返回的list成功显示
+            return True
+
+        else:
+            return False
+
+    async def _get_now_page_shop_title_list(self) -> list:
+        """
+        获取now_page_shop_title_list
+        :return:
+        """
+        get_current_func_info_by_traceback(self=self, logger=self.lg)
+        # TODO 不适用instance, 而是用ele index索引的原因是
+        #   instance会导致循环到一定个数出现instance=0对应的某元素不在当前page, 而无法被点击, 导致后续操作紊乱
+        # 当前页面的shop_title list
+        now_page_shop_title_list = [
+            item.info.get('text', '')
+            for item in self.d(
+                resourceId="com.taobao.taobao:id/shopTitle",
+                className="android.widget.TextView",
+                clickable=False,)]
+        self.lg.info('now_page_shop_title_list: {}'.format(str(now_page_shop_title_list)))
+
+        assert now_page_shop_title_list != [], 'now_page_shop_title_list不为空list!'
+
+        return now_page_shop_title_list
+
     async def _read_now_manager_name_file(self) -> str:
         """
         读取当前的manager_name
@@ -341,7 +384,7 @@ class TaoBaoOps(AsyncCrawler):
         # while not first_shop_title_ele.exists():
             await u2_page_back(d=self.d, back_num=1)
             # 此处休眠, 等待判断元素出现, 不可忽略
-            await async_sleep(.4)
+            await async_sleep(.6)
 
     async def _send_2_tb_shop_info_handle(self, one_dict:dict) -> str:
         """
