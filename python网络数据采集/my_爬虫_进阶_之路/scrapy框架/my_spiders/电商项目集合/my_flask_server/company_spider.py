@@ -23,7 +23,7 @@
     11. 购途网(http://www.go2.cn/)(女鞋货源)
 
 待实现:
-    1. 百度地图商家信息
+    1. 百度地图 or 高德地图商家信息
 Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
@@ -60,7 +60,7 @@ try:
         _get_pk_one_type_company_id_list_task,
         _get_ng_one_type_company_id_list_task,
         _get_gt_one_type_company_id_list_task,
-        _get_bd_one_type_company_info_list_task,)
+        _get_bd_or_gd_one_type_company_info_list_task,)
 except ImportError:
     pass
 
@@ -142,7 +142,6 @@ class CompanySpider(AsyncCrawler):
         self.gt_max_page_num = 50                                                       # gt 单个keyword最大搜索截止页码
         self.mt_max_page_num = 50                                                       # mt最大限制页数(只抓取前50页, 后续无数据)
         self.mt_ocr_record_shop_id = ''                                                 # mt robot ocr record shop_id
-        self.bd_max_page_num = 20                                                       # bd 最大搜索截止页
         self.sql_server_cli = SqlServerMyPageInfoSaveItemPipeline()
         self._set_province_code_list_and_city_code_list()
         self.ty_cookies_dict = {}
@@ -155,11 +154,17 @@ class CompanySpider(AsyncCrawler):
         self.tb_20w_path = '/Users/afa/Desktop/tb_top20w'                               # 待读取的tb20w xlsx文件目录
         self.jb_max_num = 10000                                                         # 待检索的key 最大截止个数
         self.bd_key_list_file_path = '/Users/afa/Desktop/bd_key_list.txt'               # 已检索的key 存储
-        self.bd_baidu_map_pwd_file_path = '/Users/afa/myFiles/pwd/baidu_map_pwd.json'
+        self.bd_map_pwd_file_path = '/Users/afa/myFiles/pwd/baidu_map_pwd.json'
+        self.gd_map_pwd_file_path = '/Users/afa/myFiles/pwd/gaode_map_pwd.json'
         self.bloom_filter = BloomFilter(capacity=1000000, error_rate=0.000001)
         self.celery_task_res_expires_time = 10 * 60                                     # 过期时间
         self._init_tb_jb_boom_filter()
         self._init_bd_ak()
+        self._init_gd_key()
+        self.map_type = 'bd' \
+            if self.spider_name not in ('bd', 'gd') \
+            else self.spider_name                                                       # 设置采集对象
+        self.bd_or_gd_max_page_num = 20 if self.map_type == 'bd' else 100               # bd or gd 最大搜索截止页
         # wx sc_key
         with open('/Users/afa/myFiles/pwd/server_sauce_sckey.json', 'r') as f:
             self.sc_key = json_2_dict(f.read())['sckey']
@@ -195,7 +200,7 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         bd_api_json = ''
-        with open(self.bd_baidu_map_pwd_file_path, 'r') as f:
+        with open(self.bd_map_pwd_file_path, 'r') as f:
             for line in f:
                 bd_api_json += line.replace('\n', '').replace('  ', '')
             # self.lg.info(bd_api_json)
@@ -207,6 +212,24 @@ class CompanySpider(AsyncCrawler):
         self.bd_ak = ak
 
         return
+    
+    def _init_gd_key(self) -> None:
+        """
+        初始化gd key
+        :return: 
+        """
+        gd_api_json = ''
+        with open(self.gd_map_pwd_file_path, 'r') as f:
+            for line in f:
+                gd_api_json += line.replace('\n', '').replace('  ', '')
+            # self.lg.info(gd_api_json)
+            gd_key = json_2_dict(json_str=gd_api_json) \
+                .get('fz_map_info', {}) \
+                .get('key', '')
+        assert gd_key != '', 'gd_key不为空str!'
+        self.gd_key = gd_key
+        
+        return None
 
     def _set_province_code_list_and_city_code_list(self) -> None:
         """
@@ -272,27 +295,28 @@ class CompanySpider(AsyncCrawler):
         elif short_name == 'gt':
             await self._gt_spider()
 
-        elif short_name == 'bd':
-            await self._bd_spider()
+        elif short_name == self.map_type:
+            await self._bd_or_gd_spider()
 
         else:
             raise NotImplemented
 
-    async def _bd_spider(self):
+    async def _bd_or_gd_spider(self):
         """
         百度地图商家信息spider
         :return:
         """
-        self.db_bd_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=14)
+        site_id = 14 if self.map_type == 'bd' else 15
+        self.db_bd_or_gd_unique_id_list = await self._get_db_unique_id_list_by_site_id(site_id=site_id)
         # 根据key抓取
-        self.bd_category_list = await self._get_tb_jb_hot_key_list()
-        pprint(self.bd_category_list)
-        self.lg.info('bd所有子分类总个数: {}'.format(len(self.bd_category_list)))
-        assert self.bd_category_list != [], '获取到的self.bd_category_list为空list!异常退出'
+        self.bd_or_gd_category_list = await self._get_tb_jb_hot_key_list()
+        pprint(self.bd_or_gd_category_list)
+        self.lg.info('bd所有子分类总个数: {}'.format(len(self.bd_or_gd_category_list)))
+        assert self.bd_or_gd_category_list != [], '获取到的self.bd_or_gd_category_list为空list!异常退出'
 
-        await self._crawl_bd_company_info()
+        await self._crawl_bd_or_gd_company_info()
 
-    async def _crawl_bd_company_info(self):
+    async def _crawl_bd_or_gd_company_info(self):
         """
         抓取bd商家信息
         :return:
@@ -304,7 +328,7 @@ class CompanySpider(AsyncCrawler):
             :return:
             """
             tasks_params_list = []
-            for page_num in range(1, self.bd_max_page_num + 1):
+            for page_num in range(1, self.bd_or_gd_max_page_num + 1):
                 tasks_params_list.append({
                     'page_num': page_num,
                     'keyword': keyword,
@@ -323,17 +347,19 @@ class CompanySpider(AsyncCrawler):
                 page_num = kwargs['page_num']
                 city_name = kwargs['city_name']
 
-                async_obj = _get_bd_one_type_company_info_list_task.apply_async(
+                async_obj = _get_bd_or_gd_one_type_company_info_list_task.apply_async(
                     args=[
-                        self.bd_ak,
+                        self.bd_ak if self.map_type == 'bd' else self.gd_key,
                         keyword,
                         city_name,
                         page_num,
                         self.ip_pool_type,
+                        15,
+                        8,
+                        self.map_type,
                     ],
                     expires=self.celery_task_res_expires_time,
-                    retry=False,
-                )
+                    retry=False,)
 
                 return async_obj
 
@@ -371,7 +397,7 @@ class CompanySpider(AsyncCrawler):
                 try:
                     for j in i:
                         company_id = j.get('company_id', '')
-                        if 'bd' + company_id not in self.bloom_filter:
+                        if self.map_type + company_id not in self.bloom_filter:
                             one_all_company_id_list.append(j)
                 except TypeError:
                     return []
@@ -383,17 +409,17 @@ class CompanySpider(AsyncCrawler):
             return one_all_company_id_list
 
         self.lg.info('即将开始采集bd shop info...')
-        await self._init_bd_jb_bloom_filter()
+        await self._init_bd_or_jb_bloom_filter()
         self.crawl_city_list = await self._get_crawl_city_area()
 
-        # TODO 此处设置为固定值, 过大导致写入txt 异常!!
-        new_concurrency = 220
+        # TODO 此处设置为固定值, 过大导致写入txt 异常!! bd须设置为220, gd 300
+        new_concurrency = 220 if self.map_type == 'bd' else self.concurrency
         new_tasks_params_list = []
         # 存储成功被遍历的cate_name
         tmp_cate_name_list = []
-        for keyword_index, keyword in enumerate(self.bd_category_list):
-            if keyword in self.bd_jb_boom_filter:
-                self.lg.info('hot key: {} in self.bd_jb_boom_filter'.format(keyword))
+        for keyword_index, keyword in enumerate(self.bd_or_gd_category_list):
+            if keyword in self.bd_or_gd_jb_boom_filter:
+                self.lg.info('hot key: {} in self.bd_or_gd_jb_boom_filter'.format(keyword))
                 continue
 
             tmp_cate_name_list.append(keyword)
@@ -415,7 +441,6 @@ class CompanySpider(AsyncCrawler):
                 tasks_params_list_obj = TasksParamsListObj(
                     tasks_params_list=new_tasks_params_list,
                     step=self.concurrency)
-
                 while True:
                     try:
                         slice_params_list = tasks_params_list_obj.__next__()
@@ -439,7 +464,7 @@ class CompanySpider(AsyncCrawler):
                         pass
 
                     self.lg.info('one_all_company_id_list num: {}'.format(len(one_all_company_id_list)))
-                    await self._crawl_bd_one_type_all_company_info(
+                    await self._crawl_bd_or_gd_one_type_all_company_info(
                         one_all_company_id_list=one_all_company_id_list)
                     try:
                         del one_all_company_id_list
@@ -450,7 +475,7 @@ class CompanySpider(AsyncCrawler):
 
             # 写入txt and bd_jb_boom_filter
             await self._write_2_bd_key_list_txt(target_list=tmp_cate_name_list)
-            await self._add_to_bd_jb_boom_filter(target_list=tmp_cate_name_list)
+            await self._add_to_bd_or_gd_jb_boom_filter(target_list=tmp_cate_name_list)
             # 重置
             new_tasks_params_list = []
             tmp_cate_name_list = []
@@ -458,7 +483,7 @@ class CompanySpider(AsyncCrawler):
             # break
             collect()
 
-    async def _crawl_bd_one_type_all_company_info(self, one_all_company_id_list):
+    async def _crawl_bd_or_gd_one_type_all_company_info(self, one_all_company_id_list):
         """
         采集bd某关键字所有的company_info
         :param one_all_company_id_list:
@@ -470,7 +495,7 @@ class CompanySpider(AsyncCrawler):
             tasks_params_list = []
             for item in one_all_company_id_list:
                 company_id = item['company_id']
-                if 'bd' + company_id not in self.bloom_filter:
+                if self.map_type + company_id not in self.bloom_filter:
                     tasks_params_list.append(item)
                 else:
                     pass
@@ -493,7 +518,7 @@ class CompanySpider(AsyncCrawler):
                 self.lg.info('create task[where company_id: {}]'.format(company_id))
                 company_url = ''
                 tasks.append(self.loop.create_task(self._parse_one_company_info(
-                    short_name='bd',
+                    short_name=self.map_type,
                     company_id=company_id,
                     province_name=k['province_name'],
                     city_name=k['city_name'],
@@ -527,10 +552,10 @@ class CompanySpider(AsyncCrawler):
             one_res = await _get_one_res(slice_params_list=slice_params_list)
 
             # 存储
-            index, self.db_bd_unique_id_list = await self._save_company_one_res(
+            index, self.db_bd_or_gd_unique_id_list = await self._save_company_one_res(
                 one_res=one_res,
-                short_name='bd',
-                db_unique_id_list=self.db_bd_unique_id_list,
+                short_name=self.map_type,
+                db_unique_id_list=self.db_bd_or_gd_unique_id_list,
                 index=index,)
             try:
                 del one_res
@@ -540,7 +565,7 @@ class CompanySpider(AsyncCrawler):
 
         return None
 
-    async def _add_to_bd_jb_boom_filter(self, target_list):
+    async def _add_to_bd_or_gd_jb_boom_filter(self, target_list):
         """
         写入self.bd_jb_bloom_filter
         :param target_list:
@@ -548,25 +573,25 @@ class CompanySpider(AsyncCrawler):
         """
         target_list = list(set(target_list))
         for item in target_list:
-            if item not in self.bd_jb_boom_filter:
-                self.bd_jb_boom_filter.add(item)
+            if item not in self.bd_or_gd_jb_boom_filter:
+                self.bd_or_gd_jb_boom_filter.add(item)
 
         return None
 
-    async def _init_bd_jb_bloom_filter(self) -> None:
+    async def _init_bd_or_jb_bloom_filter(self) -> None:
         """
         初始化bd已采集的keyword bloom filter
         :return:
         """
         self.lg.info('初始化ing self.bd_jb_bloom_filter ...')
-        self.bd_jb_boom_filter = BloomFilter(capacity=500000, error_rate=.00001)  # 结巴分词后已检索的hot keyword存储
+        self.bd_or_gd_jb_boom_filter = BloomFilter(capacity=500000, error_rate=.00001)  # 结巴分词后已检索的hot keyword存储
         try:
             with open(self.bd_key_list_file_path, 'r') as f:
                 try:
                     for line in f:
                         item = line.replace('\n', '')
-                        if item not in self.bd_jb_boom_filter:
-                            self.bd_jb_boom_filter.add(item)
+                        if item not in self.bd_or_gd_jb_boom_filter:
+                            self.bd_or_gd_jb_boom_filter.add(item)
                 except UnicodeDecodeError as e:
                     self.lg.error('遇到错误: {}'.format(e))
 
@@ -574,7 +599,7 @@ class CompanySpider(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
             raise e
 
-        self.lg.info('初始化完毕! len: {}'.format(self.bd_jb_boom_filter.__len__()))
+        self.lg.info('初始化完毕! len: {}'.format(self.bd_or_gd_jb_boom_filter.__len__()))
 
         return None
 
@@ -5756,7 +5781,7 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 logger=self.lg,)
 
-        elif parser_obj['short_name'] == 'bd':
+        elif parser_obj['short_name'] == self.map_type:
             lng = target_obj.get('lng', 0.)
 
         else:
@@ -5777,7 +5802,7 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 logger=self.lg,)
 
-        elif parser_obj['short_name'] == 'bd':
+        elif parser_obj['short_name'] == self.map_type:
             lat = target_obj.get('lat', 0.)
 
         else:
@@ -5829,6 +5854,8 @@ class CompanySpider(AsyncCrawler):
         # site_id = 13是tb
         elif short_name == 'bd':
             site_id = 14
+        elif short_name == 'gd':
+            site_id = 15
         else:
             raise NotImplemented('site_id没有实现!')
 
@@ -5985,7 +6012,7 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 label_name='店铺名称',)
 
-        elif parser_obj['short_name'] == 'bd':
+        elif parser_obj['short_name'] == self.map_type:
             company_name = target_obj.get('company_name', '')
 
         else:
@@ -6155,7 +6182,7 @@ class CompanySpider(AsyncCrawler):
                 target_obj=target_obj,
                 label_name='手机客服',)
 
-        elif parser_obj['short_name'] == 'bd':
+        elif parser_obj['short_name'] == self.map_type:
             phone = target_obj.get('phone', [])
 
         else:
@@ -6202,7 +6229,7 @@ class CompanySpider(AsyncCrawler):
                 })
             # self.lg.info('phone1:{}, phone2:{}'.format(_phone1, _phone2))
 
-        elif parser_obj['short_name'] == 'bd':
+        elif parser_obj['short_name'] == self.map_type:
             # bd里面的已被处理为 [{'phone': 'xxx'}, ...]
             phone_list = phone
 
@@ -6226,7 +6253,7 @@ class CompanySpider(AsyncCrawler):
                 parser_obj['short_name'] == 'pk' or \
                 parser_obj['short_name'] == 'ng' or \
                 parser_obj['short_name'] == 'gt' or \
-                parser_obj['short_name'] == 'bd':
+                parser_obj['short_name'] == self.map_type:
             assert phone_list != [], 'phone_list不能为空list!'
 
         return phone_list
@@ -6328,7 +6355,7 @@ class CompanySpider(AsyncCrawler):
         elif parser_obj['short_name'] == 'pk':
             address = ori_address
 
-        elif parser_obj['short_name'] == 'bd':
+        elif parser_obj['short_name'] == self.map_type:
             address = target_obj.get('address', '')
 
         else:
@@ -6515,7 +6542,7 @@ class CompanySpider(AsyncCrawler):
                 or parser_obj['short_name'] == 'pk'\
                 or parser_obj['short_name'] == 'gt'\
                 or parser_obj['short_name'] == 'al'\
-                or parser_obj['short_name'] == 'bd':
+                or parser_obj['short_name'] == self.map_type:
             # mt可为空, 因为读其名知其意
             pass
         else:
@@ -6616,7 +6643,7 @@ class CompanySpider(AsyncCrawler):
                 or parser_obj['short_name'] == 'pk'\
                 or parser_obj['short_name'] == 'ng'\
                 or parser_obj['short_name'] == 'gt'\
-                or parser_obj['short_name'] == 'bd':
+                or parser_obj['short_name'] == self.map_type:
             founding_time = datetime(1900, 1, 1)
 
         elif parser_obj['short_name'] == 'al'\
@@ -6645,7 +6672,7 @@ class CompanySpider(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        if parser_obj['short_name'] == 'bd':
+        if parser_obj['short_name'] == self.map_type:
             unique_id = company_html.get('company_id', '')
         else:
             unique_id = await async_parse_field(
@@ -6685,8 +6712,8 @@ class CompanySpider(AsyncCrawler):
         if parser_obj['short_name'] == 'gt':
             unique_id = 'gt' + unique_id
 
-        if parser_obj['short_name'] == 'bd':
-            unique_id = 'bd' + unique_id
+        if parser_obj['short_name'] == self.map_type:
+            unique_id = self.map_type + unique_id
 
         return unique_id
 
@@ -6758,7 +6785,7 @@ class CompanySpider(AsyncCrawler):
             except IndexError:
                 raise IndexError('获取local_place时索引异常! local_place:{}'.format(local_place))
 
-        if parser_obj['short_name'] == 'bd':
+        if parser_obj['short_name'] == self.map_type:
             province_name = target_obj.get('province_name', '')
 
         for item in self.province_and_city_code_list:
@@ -6913,7 +6940,7 @@ class CompanySpider(AsyncCrawler):
             except IndexError:
                 raise IndexError('获取local_place时索引异常! local_place:{}'.format(local_place))
 
-        if parser_obj['short_name'] == 'bd':
+        if parser_obj['short_name'] == self.map_type:
             city_name = target_obj.get('city_name', '')
 
         for item in self.province_and_city_code_list:
@@ -6951,7 +6978,7 @@ class CompanySpider(AsyncCrawler):
                 or parser_obj['short_name'] == 'hn'\
                 or parser_obj['short_name'] == 'pk'\
                 or parser_obj['short_name'] == 'gt'\
-                or parser_obj['short_name'] == 'bd':
+                or parser_obj['short_name'] == self.map_type:
             raise AssertionError('未知的city_name:{}, db中未找到!'.format(city_name))
 
         else:
