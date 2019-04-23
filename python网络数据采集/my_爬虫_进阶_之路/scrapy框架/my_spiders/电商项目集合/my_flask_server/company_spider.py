@@ -410,7 +410,7 @@ class CompanySpider(AsyncCrawler):
 
         self.lg.info('即将开始采集bd shop info...')
         await self._init_bd_or_jb_bloom_filter()
-        self.crawl_city_list = await self._get_crawl_city_area()
+        self.crawl_city_list = await self._get_bd_or_gd_crawl_city_info_list()
 
         # TODO 此处设置为固定值, 过大导致写入txt 异常!! bd须设置为220, gd 300
         new_concurrency = 220 if self.map_type == 'bd' else self.concurrency
@@ -564,6 +564,14 @@ class CompanySpider(AsyncCrawler):
             collect()
 
         return None
+
+    @staticmethod
+    async def _get_bd_or_gd_crawl_city_info_list():
+        """
+        bd or gd 待抓取的city list
+        :return:
+        """
+        return ['北京', '天津', '上海', '重庆', '石家庄', '保定', '张家口', '沈阳', '南京', '杭州', '金华', '青岛', '武汉', '广州', '深圳']
 
     async def _add_to_bd_or_gd_jb_boom_filter(self, target_list):
         """
