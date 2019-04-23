@@ -10,28 +10,18 @@
 测试bd or gd map shop_info
 """
 
+from json import dumps
 from pprint import pprint
 from fzutils.common_utils import json_2_dict
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
+from fzutils.internet_utils import get_random_pc_ua
+from fzutils.spider.fz_requests import Requests
 from fzutils.free_api_utils import (
     get_bd_map_shop_info_list_by_keyword_and_area_name,
     get_gd_map_shop_info_list_by_keyword_and_area_name,)
 
 def get_bd_shop_info():
-    def get_ak() -> str:
-        bd_api_json = ''
-        with open('/Users/afa/myFiles/pwd/baidu_map_pwd.json', 'r') as f:
-            for line in f:
-                bd_api_json += line.replace('\n', '').replace('  ', '')
-            # print(bd_api_json)
-            ak = json_2_dict(json_str=bd_api_json) \
-                .get('fz_map_info', {}) \
-                .get('ak', '')
-        assert ak != '', 'ak不为空str!'
-
-        return ak
-
     ak = get_ak()
     # ak = ''
 
@@ -87,20 +77,6 @@ def get_bd_shop_info():
     pprint(shop_info_list)
 
 def get_gd_shop_info():
-    def get_gd_key() -> str:
-        gd_api_json = ''
-        gd_map_pwd_file_path = '/Users/afa/myFiles/pwd/gaode_map_pwd.json'
-        with open(gd_map_pwd_file_path, 'r') as f:
-            for line in f:
-                gd_api_json += line.replace('\n', '').replace('  ', '')
-            # self.lg.info(gd_api_json)
-            gd_key = json_2_dict(json_str=gd_api_json) \
-                .get('fz_map_info', {}) \
-                .get('key', '')
-        assert gd_key != '', 'gd_key不为空str!'
-
-        return gd_key
-
     gd_key = get_gd_key()
     # gd_key = ''
     tmp_shop_info_data = get_gd_map_shop_info_list_by_keyword_and_area_name(
@@ -148,4 +124,31 @@ def get_gd_shop_info():
         })
     pprint(shop_info_list)
 
-get_gd_shop_info()
+def get_ak() -> str:
+    bd_api_json = ''
+    with open('/Users/afa/myFiles/pwd/baidu_map_pwd.json', 'r') as f:
+        for line in f:
+            bd_api_json += line.replace('\n', '').replace('  ', '')
+        # print(bd_api_json)
+        ak = json_2_dict(json_str=bd_api_json) \
+            .get('fz_map_info', {}) \
+            .get('ak', '')
+    assert ak != '', 'ak不为空str!'
+
+    return ak
+
+def get_gd_key() -> str:
+    gd_api_json = ''
+    gd_map_pwd_file_path = '/Users/afa/myFiles/pwd/gaode_map_pwd.json'
+    with open(gd_map_pwd_file_path, 'r') as f:
+        for line in f:
+            gd_api_json += line.replace('\n', '').replace('  ', '')
+        # self.lg.info(gd_api_json)
+        gd_key = json_2_dict(json_str=gd_api_json) \
+            .get('fz_map_info', {}) \
+            .get('key', '')
+    assert gd_key != '', 'gd_key不为空str!'
+
+    return gd_key
+
+# get_gd_shop_info()
