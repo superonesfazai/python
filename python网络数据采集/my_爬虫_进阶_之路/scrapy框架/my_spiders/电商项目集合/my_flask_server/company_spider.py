@@ -437,7 +437,6 @@ class CompanySpider(AsyncCrawler):
                     continue
 
                 self.lg.info('new_tasks_params_list_len: {}'.format(len(new_tasks_params_list)))
-
                 tasks_params_list_obj = TasksParamsListObj(
                     tasks_params_list=new_tasks_params_list,
                     step=self.concurrency)
@@ -472,6 +471,9 @@ class CompanySpider(AsyncCrawler):
                         pass
 
                     collect()
+
+                # 执行完一次并发后, 必须放在此处进行重置空list
+                new_tasks_params_list = []
 
             # 写入txt and bd_jb_boom_filter
             await self._write_2_bd_key_list_txt(target_list=tmp_cate_name_list)
