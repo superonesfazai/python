@@ -205,6 +205,10 @@ class TaoBaoOps(AsyncCrawler):
         shop_crawl_count = 1
         res = []
         while shop_crawl_count < self.max_shop_crawl_count:
+            if self.d(resourceId="com.taobao.taobao:id/loading_text", text=u"没有更多内容了", className="android.widget.TextView").exists():
+                self.lg.info('该关键字下滑，无更多内容!! 跳过该关键字采集!')
+                break
+
             try:
                 now_page_shop_title_list = await self._get_now_page_shop_title_list()
             except (AssertionError, UiObjectNotFoundError):
