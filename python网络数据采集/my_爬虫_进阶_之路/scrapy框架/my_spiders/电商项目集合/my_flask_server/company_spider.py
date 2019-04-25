@@ -437,8 +437,8 @@ class CompanySpider(AsyncCrawler):
         await self._init_bd_or_jb_bloom_filter()
         self.crawl_city_list = await self._get_bd_or_gd_crawl_city_info_list()
 
-        # TODO 此处设置为固定值, 过大导致写入txt 异常!! bd须设置为220, gd 600
-        new_concurrency = 220 if self.map_type == 'bd' else 600
+        # TODO 此处设置为固定值, 过大导致写入txt 异常!! bd须设置为220, gd 900
+        new_concurrency = 220 if self.map_type == 'bd' else 900
         new_tasks_params_list = []
         # 存储成功被遍历的cate_name
         tmp_cate_name_list = []
