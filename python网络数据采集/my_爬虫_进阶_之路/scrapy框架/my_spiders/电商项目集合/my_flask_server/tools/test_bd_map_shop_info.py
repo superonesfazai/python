@@ -144,11 +144,15 @@ def get_gd_key() -> str:
         for line in f:
             gd_api_json += line.replace('\n', '').replace('  ', '')
         # self.lg.info(gd_api_json)
-        gd_key = json_2_dict(json_str=gd_api_json) \
-            .get('fz_map_info', {}) \
-            .get('key', '')
+        gd_key_list = json_2_dict(
+            json_str=gd_api_json, ) \
+            .get('fz_map_info', [])
+    pprint(gd_key_list)
+    assert gd_key_list != [], 'gd_key_list不为空list!'
+    gd_key_list = [item.get('key', '') for item in gd_key_list]
+    gd_key = gd_key_list[1]
     assert gd_key != '', 'gd_key不为空str!'
 
     return gd_key
 
-# get_gd_shop_info()
+get_gd_shop_info()

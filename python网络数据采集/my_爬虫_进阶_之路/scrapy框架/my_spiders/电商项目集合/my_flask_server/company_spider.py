@@ -223,11 +223,16 @@ class CompanySpider(AsyncCrawler):
             for line in f:
                 gd_api_json += line.replace('\n', '').replace('  ', '')
             # self.lg.info(gd_api_json)
-            gd_key = json_2_dict(json_str=gd_api_json) \
-                .get('fz_map_info', {}) \
-                .get('key', '')
-        assert gd_key != '', 'gd_key不为空str!'
-        self.gd_key = gd_key
+            gd_key_list = json_2_dict(
+                json_str=gd_api_json,
+                logger=self.lg,) \
+                .get('fz_map_info', [])
+
+        assert gd_key_list != [], 'gd_key_list不为空list!'
+        gd_key_list = [item.get('key', '') for item in gd_key_list]
+        self.gd_key = gd_key_list[0]
+        assert self.gd_key != '', 'self.gd_key不为空str!'
+        self.gd_key_list = gd_key_list
         
         return None
 
@@ -346,10 +351,11 @@ class CompanySpider(AsyncCrawler):
                 keyword = kwargs['keyword']
                 page_num = kwargs['page_num']
                 city_name = kwargs['city_name']
+                gd_key_list_index = kwargs['gd_key_list_index']
 
                 async_obj = _get_bd_or_gd_one_type_company_info_list_task.apply_async(
                     args=[
-                        self.bd_ak if self.map_type == 'bd' else self.gd_key,
+                        self.bd_ak if self.map_type == 'bd' else self.gd_key_list[gd_key_list_index],
                         keyword,
                         city_name,
                         page_num,
@@ -363,17 +369,36 @@ class CompanySpider(AsyncCrawler):
 
                 return async_obj
 
+            async def get_gd_key_list_index(index, gd_key_list_index):
+                if self.map_type == 'gd':
+                    if index % 300 == 0 \
+                            and index != 0:
+                        # 每300个传入一个新的gd_key_list的索引值
+                        gd_key_list_index += 1
+                    else:
+                        pass
+                else:
+                    raise ValueError('请检查bd 单个ak的最大并发限制是否在许可范围, 否则需进行相应修改!')
+
+                return gd_key_list_index
+
             tasks = []
-            for k in slice_params_list:
+            gd_key_list_index = 0
+            for index, k in enumerate(slice_params_list):
                 keyword = k['keyword']
                 page_num = k['page_num']
                 city_name = k['city_name']
-                self.lg.info('create task[where keyword: {}, page_num: {}, city_name: {}]...'.format(keyword, page_num, city_name))
+
+                gd_key_list_index = await get_gd_key_list_index(
+                    index=index,
+                    gd_key_list_index=gd_key_list_index,)
+                self.lg.info('create task[where keyword: {}, page_num: {}, city_name: {}, gd_key_list_index: {}]...'.format(keyword, page_num, city_name, gd_key_list_index))
                 try:
                     async_obj = await _create_one_celery_task(
                         keyword=keyword,
                         page_num=page_num,
-                        city_name=city_name,)
+                        city_name=city_name,
+                        gd_key_list_index=gd_key_list_index,)
                     tasks.append(async_obj)
                 except:
                     continue
@@ -412,8 +437,8 @@ class CompanySpider(AsyncCrawler):
         await self._init_bd_or_jb_bloom_filter()
         self.crawl_city_list = await self._get_bd_or_gd_crawl_city_info_list()
 
-        # TODO 此处设置为固定值, 过大导致写入txt 异常!! bd须设置为220, gd 300
-        new_concurrency = 220 if self.map_type == 'bd' else self.concurrency
+        # TODO 此处设置为固定值, 过大导致写入txt 异常!! bd须设置为220, gd 600
+        new_concurrency = 220 if self.map_type == 'bd' else 600
         new_tasks_params_list = []
         # 存储成功被遍历的cate_name
         tmp_cate_name_list = []
@@ -439,7 +464,7 @@ class CompanySpider(AsyncCrawler):
                 self.lg.info('new_tasks_params_list_len: {}'.format(len(new_tasks_params_list)))
                 tasks_params_list_obj = TasksParamsListObj(
                     tasks_params_list=new_tasks_params_list,
-                    step=self.concurrency)
+                    step=new_concurrency)
                 while True:
                     try:
                         slice_params_list = tasks_params_list_obj.__next__()
@@ -573,7 +598,7 @@ class CompanySpider(AsyncCrawler):
         bd or gd 待抓取的city list
         :return:
         """
-        return ['北京', '天津', '上海', '重庆', '石家庄', '保定', '张家口', '沈阳', '南京', '杭州', '金华', '青岛', '武汉', '广州', '深圳']
+        return ['北京', '天津', '上海', '重庆', '石家庄', '保定', '张家口', '沈阳', '南京', '杭州', '金华', '青岛', '武汉', '广州', '深圳', '温州', '济南', '南昌']
 
     async def _add_to_bd_or_gd_jb_boom_filter(self, target_list):
         """
