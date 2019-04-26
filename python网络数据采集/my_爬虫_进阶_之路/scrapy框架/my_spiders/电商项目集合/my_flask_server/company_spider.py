@@ -156,7 +156,7 @@ class CompanySpider(AsyncCrawler):
         self.bd_key_list_file_path = '/Users/afa/Desktop/bd_key_list.txt'               # 已检索的key 存储
         self.bd_map_pwd_file_path = '/Users/afa/myFiles/pwd/baidu_map_pwd.json'
         self.gd_map_pwd_file_path = '/Users/afa/myFiles/pwd/gaode_map_pwd.json'
-        self.bloom_filter = BloomFilter(capacity=1000000, error_rate=0.000001)
+        self.bloom_filter = BloomFilter(capacity=1500000, error_rate=0.000001)
         self.celery_task_res_expires_time = 10 * 60                                     # 过期时间
         self._init_tb_jb_boom_filter()
         self._init_bd_ak()

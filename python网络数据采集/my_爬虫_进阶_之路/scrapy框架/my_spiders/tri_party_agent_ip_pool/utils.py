@@ -6,6 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from termcolor import colored
 from fzutils.common_utils import json_2_dict
 from fzutils.internet_utils import get_random_phone_ua
 from fzutils.aio_utils import unblock_request
@@ -64,3 +65,25 @@ async def async_judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_p
         now_ip = json_2_dict(body).get('origin', '')
 
     return now_ip
+
+async def proxy_checker_welcome_page():
+    """
+    欢迎页
+    :param self:
+    :return:
+    """
+    _welcome = r"""
+        ____                           ________              __            
+       / __ \_________  _  ____  __   / ____/ /_  ___  _____/ /_____  _____
+      / /_/ / ___/ __ \| |/_/ / / /  / /   / __ \/ _ \/ ___/ //_/ _ \/ ___/
+     / ____/ /  / /_/ />  </ /_/ /  / /___/ / / /  __/ /__/ ,< /  __/ /    
+    /_/   /_/   \____/_/|_|\__, /   \____/_/ /_/\___/\___/_/|_|\___/_/     
+                          /____/                                           
+    """
+    _author = r"""
+                                                            By: super_fazai
+    """
+    print(colored(_welcome, 'green'))
+    print(colored(_author, 'red'))
+
+    return None

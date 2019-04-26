@@ -1,12 +1,14 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : proxy_checker.py
 @connect : superonesfazai@gmail.com
-'''
+"""
 
-from utils import async_judge_ip_is_anonymity
+from utils import (
+    async_judge_ip_is_anonymity,
+    proxy_checker_welcome_page,)
 from items import ProxyItem
 from db_controller import (
     create_proxy_obj_table,
@@ -22,7 +24,6 @@ from settings import (
 
 from gc import collect
 from os import system
-from termcolor import colored
 from urllib.parse import unquote_plus
 from fzutils.spider.async_always import *
 from fzutils.sql_utils import BaseSqlite3Cli
@@ -62,12 +63,12 @@ class ProxyChecker(AsyncCrawler):
 
     @staticmethod
     async def _get_rules_list(data=None, area='') -> list:
-        '''
+        """
         设置三方代理抽取规格
         :param data: data dict中待提取的源对象(源数据 or item), 每个selector可能不同, 需要进行动态的赋值data获取正确的selector
         :param area: '' | '国内' | '国外'
         :return:
-        '''
+        """
         return [
             {
                 'id': 0,
@@ -139,10 +140,10 @@ class ProxyChecker(AsyncCrawler):
 
     @staticmethod
     async def _get_insert_params(item) -> dict:
-        '''
+        """
         获取待插入的参数
         :return:
-        '''
+        """
         return {
             'ip': item['ip'],
             'port': int(item['port']),
@@ -151,35 +152,12 @@ class ProxyChecker(AsyncCrawler):
             'check_time': item['check_time'],
         }
 
-    @staticmethod
-    async def _welcome() -> None:
-        '''
-        欢迎页
-        :param self:
-        :return:
-        '''
-        _welcome = r'''
-            ____                           ________              __            
-           / __ \_________  _  ____  __   / ____/ /_  ___  _____/ /_____  _____
-          / /_/ / ___/ __ \| |/_/ / / /  / /   / __ \/ _ \/ ___/ //_/ _ \/ ___/
-         / ____/ /  / /_/ />  </ /_/ /  / /___/ / / /  __/ /__/ ,< /  __/ /    
-        /_/   /_/   \____/_/|_|\__, /   \____/_/ /_/\___/\___/_/|_|\___/_/     
-                              /____/                                           
-        '''
-        _author = r'''
-                                                                By: super_fazai
-        '''
-        print(colored(_welcome, 'green'))
-        print(colored(_author, 'red'))
-
-        return None
-
     async def _fck_run(self) -> None:
-        '''
+        """
         main
         :return:
-        '''
-        await self._welcome()
+        """
+        await proxy_checker_welcome_page()
         self.local_ip = await self._get_local_ip()
         create_proxy_obj_table()
         # 每次启动先清空一次过期table
@@ -231,10 +209,10 @@ class ProxyChecker(AsyncCrawler):
                 pass
 
     async def _get_api_url_call_frequency_sleep_time(self) -> (int, float):
-        '''
+        """
         得到api_url的单次调用频率
         :return:
-        '''
+        """
         rules_list = await self._get_rules_list()
         for i in rules_list:
             if i['id'] == self.tri_id:
@@ -245,10 +223,10 @@ class ProxyChecker(AsyncCrawler):
         raise NotImplementedError
 
     async def _add_to_white_list(self) -> bool:
-        '''
+        """
         添加本机ip到白名单
         :return:
-        '''
+        """
         add_white_list_url = None
         rules_list = await self._get_rules_list()
         for i in rules_list:
@@ -275,10 +253,10 @@ class ProxyChecker(AsyncCrawler):
             raise NotImplementedError
 
     async def _get_db_old_data(self) -> list:
-        '''
+        """
         得到db中原先保存的proxy data
         :return:
-        '''
+        """
         db_old_data = await self._select_all_proxy_data_in_db()
         activity_time = await self._get_ip_activity_time()
         _ = []
@@ -305,10 +283,10 @@ class ProxyChecker(AsyncCrawler):
         return _
 
     async def _select_all_proxy_data_in_db(self) -> list:
-        '''
+        """
         返回db中所有proxy item
         :return:
-        '''
+        """
         cursor = self.sqlite3_cli._execute(sql_str=self.select_sql_str)
         db_old_data = cursor.fetchall()
         cursor.close()
@@ -316,10 +294,10 @@ class ProxyChecker(AsyncCrawler):
         return db_old_data
 
     async def _get_ip_activity_time(self, id:int=None) -> int:
-        '''
+        """
         得到规则中的单个ip存活时长(单位秒)
         :return:
-        '''
+        """
         id = self.tri_id if id is None else id
         rules_list = await self._get_rules_list()
         for i in rules_list:
@@ -331,10 +309,10 @@ class ProxyChecker(AsyncCrawler):
         raise NotImplementedError
 
     async def _insert_into_db(self) -> None:
-        '''
+        """
         插入db
         :return:
-        '''
+        """
         db_old_data = await self._select_all_proxy_data_in_db()
         db_ip_list = [i[1] for i in db_old_data]
         for item in self.checked_proxy_list:
@@ -350,10 +328,10 @@ class ProxyChecker(AsyncCrawler):
         return
 
     async def _update_db(self) -> None:
-        '''
+        """
         更新db数据(包括低分删除)
         :return:
-        '''
+        """
         print('@@@ 更新db proxy...')
         db_old_data = await self._select_all_proxy_data_in_db()
         db_ip_list = [i[1] for i in db_old_data]
@@ -383,10 +361,10 @@ class ProxyChecker(AsyncCrawler):
         return None
 
     async def _delete_proxy_in_db(self, ip) -> bool:
-        '''
+        """
         删除db中的ip
         :return:
-        '''
+        """
         cursor = self.sqlite3_cli._execute(sql_str=self.delete_sql_str, params=(ip,))
         res = True if cursor.rowcount > 0 else False
         # print('[{}] {} delete {}'.format('+' if res else '-', ip, 'success' if res else 'error'))
@@ -395,10 +373,10 @@ class ProxyChecker(AsyncCrawler):
         return res
 
     async def _update_score_in_db(self, ip, score, check_time) -> bool:
-        '''
+        """
         更新db中的score
         :return:
-        '''
+        """
         cursor = self.sqlite3_cli._execute(sql_str=self.update_sql_str, params=(score, check_time, ip,))
         res = True if cursor.rowcount > 0 else False
         # print('[{}] {} update {} {}'.format('+' if res else '-', ip, score, check_time))
@@ -407,10 +385,10 @@ class ProxyChecker(AsyncCrawler):
         return res
 
     async def _delete_proxy_item(self) -> list:
-        '''
+        """
         删除score低的proxy
         :return:
-        '''
+        """
         new = []
         now_time = get_shanghai_time()
         activity_time = await self._get_ip_activity_time()
@@ -427,10 +405,10 @@ class ProxyChecker(AsyncCrawler):
         return new
 
     async def _dynamic_get_new_dict_rule(self, **kwargs) -> dict:
-        '''
+        """
         动态刷新并获取新规则(其他的类似就行修改即可)
         :return:
-        '''
+        """
         data = kwargs.get('data')
         area = kwargs.get('area', '')
         id = kwargs.get('id')
@@ -452,12 +430,12 @@ class ProxyChecker(AsyncCrawler):
         return this_rules
 
     async def _get_proxy_list(self, id, area='') -> list:
-        '''
+        """
         根据api获取并解析得到proxy_list
         :param id:
         :param area: '国内' or '国外'
         :return:
-        '''
+        """
         # 先调用一次获取api_url and api_return_type
         api_url = ''
         api_return_type = ''
@@ -484,10 +462,10 @@ class ProxyChecker(AsyncCrawler):
         return all
 
     async def _parse_ori_proxy_list_data(self, **kwargs) -> list:
-        '''
+        """
         解析原始proxy_list数据
         :return:
-        '''
+        """
         all = []
         data = kwargs.get('data', {})
         area = kwargs.get('area', '')
@@ -519,44 +497,44 @@ class ProxyChecker(AsyncCrawler):
         return all
 
     async def _get_ori_proxy_list(self, parser, target_obj) -> list:
-        '''
+        """
         获取origin proxy_list地址
         :param parser:
         :param target_obj:
         :return:
-        '''
+        """
         proxy_list = await async_parse_field(parser=parser, target_obj=target_obj)
         assert  proxy_list != [], 'proxy_list为空list!'
 
         return proxy_list
 
     async def _get_ip(self, parser, target_obj) -> str:
-        '''
+        """
         获取ip address
         :return:
-        '''
+        """
         ip = await async_parse_field(parser=parser, target_obj=target_obj)
         assert ip != '', '获取到的ip为空值!'
 
         return ip
 
     async def _get_port(self, parser, target_obj):
-        '''
+        """
         获取ip的端口
         :param parser:
         :param target_obj:
         :return:
-        '''
+        """
         port = await async_parse_field(parser=parser, target_obj=target_obj)
         assert port != '', '获取到的port为空值!'
 
         return port
 
     async def _check_proxy_list(self, proxy_list):
-        '''
+        """
         验证代理ip可用度
         :return:
-        '''
+        """
         tasks_params_list = TasksParamsListObj(
             tasks_params_list=proxy_list,
             step=self.concurrency)
@@ -582,13 +560,13 @@ class ProxyChecker(AsyncCrawler):
         return all_res
 
     async def _check_one(self, **kwargs) -> dict:
-        '''
+        """
         检测单个(只验证https, 保证高匿可用)
         :param kwargs:
         :return:
-        '''
+        """
         async def _update_item() -> dict:
-            '''更新item'''
+            """更新item"""
             nonlocal res
 
             item.update({
@@ -637,10 +615,10 @@ class ProxyChecker(AsyncCrawler):
         return await _update_item()
 
     async def _get_local_ip(self) -> str:
-        '''
+        """
         获取本地ip
         :return:
-        '''
+        """
         # 检验两次确保本地ip获取正确
         first_ip = ''
         second_ip = ''
@@ -662,10 +640,10 @@ class ProxyChecker(AsyncCrawler):
         return second_ip
 
     async def _add_to_checked_proxy_list(self, check_res) -> int:
-        '''
+        """
         new add to self.checked_proxy_list
         :return:
-        '''
+        """
         used_index = 0
         _ = [i.get('ip', '') for i in self.checked_proxy_list] if self.checked_proxy_list != [] else []
         for item in check_res:
@@ -680,10 +658,10 @@ class ProxyChecker(AsyncCrawler):
         return used_index
 
     def _init_base_sql_str(self) -> None:
-        '''
+        """
         初始化基础sql_str
         :return:
-        '''
+        """
         self.select_sql_str = 'select * from proxy_obj_table'
         self.insert_sql_str = 'insert into proxy_obj_table(ip, port, score, agency_agreement, check_time) values(:ip, :port, :score, :agency_agreement, :check_time)'
         self.delete_sql_str = 'delete from proxy_obj_table where ip=?'

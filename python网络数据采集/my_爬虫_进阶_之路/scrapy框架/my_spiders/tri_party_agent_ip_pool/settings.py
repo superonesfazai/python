@@ -30,7 +30,7 @@ if SYSTEM_TYPE == 'Darwin':
     # ip_pool中的最小ip数量, 由于tri有时效
     # 蜻蜓代理测试实时的可设置为: 100个(比较友好并保证更新监控)
     # 蘑菇代理可设置: 500
-    MIN_IP_POOl_NUM = 170
+    MIN_IP_POOl_NUM = 155
     # local
     horocn_info_path = '/Users/afa/myFiles/pwd/horocn_info.json'
 else:
