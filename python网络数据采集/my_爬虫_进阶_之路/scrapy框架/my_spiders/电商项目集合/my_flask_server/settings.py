@@ -12,42 +12,61 @@ from fzutils.ip_pools import (
     fz_ip_pool,
     ip_proxy_pool,
     tri_ip_pool,)
+from fzutils.linux_utils import get_system_type
+from fzutils.spider.fz_driver import (
+    PHANTOMJS,
+    PHONE,)
+
+SYSTEM_TYPE = get_system_type()
 
 """
-驱动相关设置
+服务器运行端口
 """
-# chrome驱动
-CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
-# phantomjs驱动
-PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
-# firefox
-FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
+SERVER_PORT = 5000
 
-# 我自己服务器上的地址
-# CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
-# PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+if SYSTEM_TYPE == 'Darwin':
+    """
+    驱动相关设置
+    """
+    CHROME_DRIVER_PATH = '/Users/afa/myFiles/tools/chromedriver'
+    PHANTOMJS_DRIVER_PATH = '/Users/afa/myFiles/tools/phantomjs-2.1.1-macosx/bin/phantomjs'
+    FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
+
+    """
+    ip_pool_type: 使用的ip_pool类型
+    """
+    IP_POOL_TYPE = tri_ip_pool
+    """
+    db_info_json_path
+    """
+    db_info_json_path = '/Users/afa/my_company_db_info.json'
+    '''
+    taobao
+    '''
+    taobao_u_and_p_path = '/Users/afa/my_username_and_passwd.json'
+    """
+    日志文件目录
+    """
+    MY_SPIDER_LOGS_PATH = '/Users/afa/myFiles/my_spider_logs/电商项目'
+    """
+    是否为后台运行
+    """
+    IS_BACKGROUND_RUNNING = False
+
+else:
+    # server
+    CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
+    PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+    FIREFOX_DRIVER_PATH = ''
+    IP_POOL_TYPE = tri_ip_pool
+    db_info_json_path = '/root/my_company_db_info.json'
+    taobao_u_and_p_path = '/root/my_username_and_passwd.json'
+    MY_SPIDER_LOGS_PATH = '/root/myFiles/my_spider_logs/电商项目'
+    IS_BACKGROUND_RUNNING = True
 
 """
-ip_pool_type: 使用的ip_pool类型
-"""
-IP_POOL_TYPE = tri_ip_pool
-
-"""
-db_info_json_path
-"""
-# 自己电脑上
-db_info_json_path = '/Users/afa/my_company_db_info.json'
-# linux服务器
-# db_info_json_path = '/root/my_company_db_info.json'
-
-'''
 taobao
-'''
-# 自己电脑
-taobao_u_and_p_path = '/Users/afa/my_username_and_passwd.json'
-# linux服务器
-# taobao_u_and_p_path = '/root/my_username_and_passwd.json'
-
+"""
 def get_u_and_p_info():
     try:
         with open(taobao_u_and_p_path, 'r') as f:
@@ -62,29 +81,6 @@ def get_u_and_p_info():
     return _tmp['taobao_username'], _tmp['taobao_passwd']
 
 TAOBAO_USERNAME, TAOBAO_PASSWD = get_u_and_p_info()
-
-# 避免登录弹窗
-_tmall_cookies = 't=1a77751093aca97df6ff633d179a4153; _tb_token_=e3dfee4bb4eb3; cookie2=1d639cd1684a3541c57c553d6854615a; dnk=zy118; uc1=cookie21=V32FPkk%2Fgi8IDE%2FSq3xx&cookie15=VT5L2FSpMGV7TQ%3D%3D&cookie14=UoTePTIfvOsB5w%3D%3D; uc3=vt3=F8dBz4D6JuPl1o5Emq4%3D&id2=VW8dqnjNBhw%3D&nk2=GdFnyJY%3D&lg2=VFC%2FuZ9ayeYq2g%3D%3D; tracknick=zy118; _l_g_=Ug%3D%3D; unb=60387916; lgc=zy118; cookie1=B0Bahel1MMqhEHy5Lu5lvH1XHjVvXnxb65n13jIusnA%3D; login=true; cookie17=VW8dqnjNBhw%3D; _nk_=zy118; sg=869; csg=fe1c2ee8; ucn=unsz; _m_h5_tk=524e6b249bd8003b8d30d129494a7e03_1523702758043; _m_h5_tk_enc=8b107feac79bc4f6b98a3b2838e3913c; cna=xMFYEyS2NhQCAaQ0DFNuhw68; isg=BJycLPyHKn6hed6i9U6YY7ZsbbyOvUCEPiF1fHadrgdqwTxLniUQzxJzJSk5yXiX'
-
-"""
-日志文件目录
-"""
-# 自己电脑上
-MY_SPIDER_LOGS_PATH = '/Users/afa/myFiles/my_spider_logs/电商项目'
-# linux服务器
-# MY_SPIDER_LOGS_PATH = '/root/myFiles/my_spider_logs/电商项目'
-
-"""
-服务器运行端口
-"""
-SERVER_PORT = 5000
-
-'''
-是否为后台运行
-'''
-IS_BACKGROUND_RUNNING = False
-# jd优选达人推荐
-JD_YOUXUAN_DAREN_IS_BACKGROUND_RUNNING = False
 
 '''
 淘宝requests间接请求时间
@@ -129,7 +125,6 @@ ZHE_800_PINTUAN_SLEEP_TIME = 2.0    # 折800拼团sleep_time
 '''
 蜜芽 base_number相关
 '''
-# MIA_BASE_NUMBER = 56000         # 起始的base_number
 MIA_BASE_NUMBER = 79710         # 起始的base_number
 MIA_MAX_NUMBER = 85000          # 截止的base_number
 MIA_SPIKE_SLEEP_TIME = 1.8
@@ -1182,9 +1177,6 @@ COMPANY_ITEM_LIST = [
 '''
 goods item
 '''
-
-from fzutils.spider.fz_driver import PHANTOMJS, PHONE
-
 GOODS_ITEM_LIST = [
     {
         'short_name': 'al',

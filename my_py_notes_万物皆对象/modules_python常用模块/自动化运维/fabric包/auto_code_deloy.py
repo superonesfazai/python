@@ -117,7 +117,8 @@ def server_tasks(my_group):
         # 替换原settings.py
         server_settings_file_path = [
             ('/Users/afa/server_settings/{0}/settings.py', '/root/myFiles/python/my_flask_server/settings.py'),
-            ('/Users/afa/server_settings/{0}/tri_ip_pool/settings.py', '/root/myFiles/tri_party_agent_ip_pool/settings.py')
+            # 不进行替换, 已做系统兼容
+            # ('/Users/afa/server_settings/{0}/tri_ip_pool/settings.py', '/root/myFiles/tri_party_agent_ip_pool/settings.py')
         ]
         for e in server_settings_file_path:
             if re.compile(r'118.31.39.97').findall(item.__repr__()) != []:

@@ -557,7 +557,9 @@ class ProxyChecker(AsyncCrawler):
         验证代理ip可用度
         :return:
         '''
-        tasks_params_list = TasksParamsListObj(tasks_params_list=proxy_list, step=self.concurrency)
+        tasks_params_list = TasksParamsListObj(
+            tasks_params_list=proxy_list,
+            step=self.concurrency)
         all_res = []
         while True:
             try:
