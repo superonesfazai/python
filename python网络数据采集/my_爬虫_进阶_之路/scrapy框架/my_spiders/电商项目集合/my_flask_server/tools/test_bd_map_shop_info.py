@@ -87,6 +87,7 @@ def get_gd_shop_info():
         ip_pool_type=tri_ip_pool,
         num_retries=8,
         timeout=15,)
+    # pprint(tmp_shop_info_data)
 
     shop_info_list = []
     for item in tmp_shop_info_data:
