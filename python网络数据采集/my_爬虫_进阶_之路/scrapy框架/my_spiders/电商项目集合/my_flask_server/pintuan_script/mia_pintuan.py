@@ -20,6 +20,7 @@ from time import sleep
 from settings import MIA_SPIKE_SLEEP_TIME
 from mia_pintuan_parse import MiaPintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from multiplex_code import get_mia_pintuan_one_page_api_goods_info
 from settings import (
     IS_BACKGROUND_RUNNING,
     IP_POOL_TYPE,)
@@ -29,26 +30,11 @@ from sql_str_controller import (
 )
 
 from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MiaPintuan(object):
     def __init__(self):
-        self._set_headers()
         self.ip_pool_type = IP_POOL_TYPE
-
-    def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'm.mia.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
 
     def get_pintuan_goods_info(self):
         '''
@@ -57,8 +43,10 @@ class MiaPintuan(object):
         '''
         goods_list = []
         for page_num in range(1, 1000):     # 0跟1返回一样，所有从1开始遍历
-            one_page_list = self._get_one_page_mia_pintuan_api_goods_info(page_num=page_num)
-            if one_page_list == []:
+            one_page_list = get_mia_pintuan_one_page_api_goods_info(page_num=page_num)
+            try:
+                assert one_page_list != [], 'one_page_list不为空list!'
+            except AssertionError:
                 break
 
             for item in one_page_list:
@@ -71,39 +59,6 @@ class MiaPintuan(object):
         sleep(8)
 
         return None
-
-    def _get_one_page_mia_pintuan_api_goods_info(self, page_num) -> list:
-        """
-        得到mia 拼团单页api goods
-        :param page_num:
-        :return:
-        """
-        tmp_url = 'https://m.mia.com/instant/groupon/common_list/{}/0/'.format(str(page_num))
-        print('正在抓取: ', tmp_url)
-        body = Requests.get_url_body(
-            url=tmp_url,
-            headers=self.headers,
-            had_referer=True,
-            ip_pool_type=self.ip_pool_type)
-        # print(body)
-        try:
-            tmp_data = json_2_dict(
-                json_str=body,
-                default_res={}).get('data_list', [])
-            assert tmp_data != [], '得到的data_list为[], 此处跳过!'
-            # print(tmp_data)
-        except AssertionError as e:
-            print(e)
-            return []
-
-        data_list = [{
-            'goods_id': item.get('sku', ''),
-            'sub_title': item.get('intro', ''),
-            'pid': page_num,
-        } for item in tmp_data]
-        # pprint(data_list)
-
-        return data_list
 
     def deal_with_data(self, goods_list):
         '''

@@ -162,7 +162,7 @@ class MiaPintuanParse(MiaParse, Crawler):
             data['goods_url'] = goods_url
             data['parent_dir'] = _mia_get_parent_dir(p_info=p_info)
 
-        except MiaSkusIsNullListException as e:
+        except MiaSkusIsNullListException:
             print('该商品已不参与拼团!! 无拼团属性')
             _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, update_sql_str=mia_update_str_7)
             gc.collect()
@@ -363,9 +363,13 @@ class MiaPintuanParse(MiaParse, Crawler):
             for item_2 in tmp_data:
                 if item_1.get('goods_id', '') == str(item_2.get('id', '')):
                     i_s = item_2.get('i_s', {})
+                    g_l = item_2.get('g_l', [])
                     # print(i_s)
-                    if i_s == {}:
+                    # pprint(g_l)
+                    if i_s == {}\
+                            or g_l == []:
                         # 无拼团属性的商品逻辑下架  eg: https://www.mia.com/item-2736567.html 无货!!
+                        # gl == [] 表示如果该规格的拼团价为[], 则跳出这层循环
                         return _pintuan_error(goods_id=goods_id)
 
                     for item_3 in i_s.keys():
@@ -374,19 +378,15 @@ class MiaPintuanParse(MiaParse, Crawler):
                         normal_price = str(item_2.get('mp'))
                         detail_price = str(item_2.get('sp'))
                         try:
-                            if item_2.get('g_l', []) == []:
-                                # 表示如果该规格的拼团价为[], 则跳出这层循环
-                                return _pintuan_error(goods_id=goods_id)
-
-                            pintuan_price = str(item_2.get('g_l', [])[0].get('gp', ''))
+                            pintuan_price = str(g_l[0].get('gp', ''))
                             # print(pintuan_price)
                         except:
                             print('获取该规格拼团价pintuan_price时出错!')
                             return self._data_error_init()
 
                         try:
-                            s = str(item_2.get('g_l', [])[0].get('s', ''))  # 拼团开始时间
-                            e = str(item_2.get('g_l', [])[0].get('e', ''))  # 拼团结束时间
+                            s = str(g_l[0].get('s', ''))  # 拼团开始时间
+                            e = str(g_l[0].get('e', ''))  # 拼团结束时间
                             # print(s, e)
                             pintuan_time = {
                                 'begin_time': str(date_parse(target_date_str=s)),
@@ -398,7 +398,7 @@ class MiaPintuanParse(MiaParse, Crawler):
                             return self._data_error_init()
 
                         try:
-                            all_sell_count = str(item_2.get('g_l', [])[0].get('rsn', ''))
+                            all_sell_count = str(g_l[0].get('rsn', ''))
                         except:
                             print('获取拼团all_sell_count时出错!')
                             return self._data_error_init()

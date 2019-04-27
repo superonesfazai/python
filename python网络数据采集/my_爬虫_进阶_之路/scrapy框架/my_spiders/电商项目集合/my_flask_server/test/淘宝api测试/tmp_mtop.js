@@ -1,4 +1,4 @@
-define("mui/mtop/index", ["mui/mtb-windvane/", "mui/babel-polyfill/"], function(e, t, n) {
+define("mui/mtop/index", ["test/淘宝api测试/tmp_mtop", "mui/babel-polyfill/"], function(e, t, n) {
     "use strict";
     var o = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(e) {
         return typeof e

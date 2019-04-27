@@ -758,13 +758,13 @@ class MiaParse(Crawler):
             headers=headers,
             data=data,
             ip_pool_type=self.ip_pool_type,)
-        data = json_2_dict(
+        msg = json_2_dict(
             json_str=body,
             default_res={}).get('msg', '')
-        # print(data)
+        # print("add to cart返回的msg: {}".format(msg))
 
-        if data == '商品正在努力上架中'\
-                or data == '错误的商品规格':
+        if msg == '商品正在努力上架中'\
+                or msg == '错误的商品规格':
             return True
         else:
             return False

@@ -51,7 +51,8 @@ from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.internet_utils import (
     get_random_pc_ua,
     tuple_or_list_params_2_dict_params,
-    get_random_phone_ua,)
+    get_random_phone_ua,
+    get_base_headers,)
 from fzutils.common_utils import (
     _print,
     json_2_dict,)
@@ -68,6 +69,7 @@ from fzutils.common_utils import wash_sensitive_info
 from fzutils.aio_utils import async_wait_tasks_finished
 from fzutils.safe_utils import get_uuid1
 from fzutils.celery_utils import _get_celery_async_results
+from fzutils.exceptions import ResponseBodyIsNullStrException
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''
@@ -1120,6 +1122,51 @@ def wash_goods_comment(comment_content:str) -> str:
         add_sensitive_str_list=add_sensitive_str_list,)
 
     return comment_content
+
+def get_mia_pintuan_one_page_api_goods_info(page_num:(int, str)) -> list:
+    """
+    得到mia 拼团单页api goods
+    :param page_num:
+    :return:
+    """
+    headers = get_base_headers()
+    headers.update({
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'accept-language': 'zh-CN,zh;q=0.8',
+        'Cache-Control': 'max-age=0',
+        'Connection': 'keep-alive',
+        'Host': 'm.mia.com',
+    })
+    tmp_url = 'https://m.mia.com/instant/groupon/common_list/{}/0/'.format(str(page_num))
+    print('正在抓取: ', tmp_url)
+    body = Requests.get_url_body(
+        url=tmp_url,
+        headers=headers,
+        had_referer=True,
+        ip_pool_type=IP_POOL_TYPE)
+    # print(body)
+    if body == '':
+        # 避免proxy异常导致返回空list, 错误下架商品
+        raise ResponseBodyIsNullStrException
+
+    try:
+        tmp_data = json_2_dict(
+            json_str=body,
+            default_res={}).get('data_list', [])
+        assert tmp_data != [], '得到的data_list为[], 此处跳过!'
+        # print(tmp_data)
+    except AssertionError as e:
+        print(e)
+        return []
+
+    data_list = [{
+        'goods_id': item.get('sku', ''),
+        'sub_title': item.get('intro', ''),
+        'pid': page_num,
+    } for item in tmp_data]
+    # pprint(data_list)
+
+    return data_list
 
 from comment_spiders.ali_1688_comment_parse import ALi1688CommentParse
 from comment_spiders.taobao_comment_parse import TaoBaoCommentParse
