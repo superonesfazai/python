@@ -15,13 +15,9 @@ import sys
 sys.path.append('..')
 
 import json
-import re
 from pprint import pprint
-from time import sleep
 import datetime
 import gc
-from logging import INFO, ERROR
-import asyncio
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -36,28 +32,20 @@ from taobao_parse import TaoBaoLoginAndParse
 
 from sql_str_controller import tb_select_str_6
 
-from fzutils.log_utils import set_logger
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,
-)
-from fzutils.cp_utils import (
-    get_taobao_sign_and_body,
-    get_miaosha_begin_time_and_miaosha_end_time,
-)
+from fzutils.spider.async_always import *
 
-class TaoBaoTianTianTeJia(object):
+class TaoBaoTianTianTeJia(AsyncCrawler):
     def __init__(self, logger=None):
+        AsyncCrawler.__init__(
+            self,
+            logger=logger,
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/',
+        )
         self._set_headers()
-        self._set_logger(logger)
         self.msg = ''
         self._set_main_sort()
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -69,16 +57,6 @@ class TaoBaoTianTianTeJia(object):
             'Host': 'h5api.m.taobao.com',
             'User-Agent': get_random_pc_ua(),  # 随机一个请求头
         }
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     def _set_main_sort(self):
         self.main_sort = {
@@ -105,38 +83,38 @@ class TaoBaoTianTianTeJia(object):
         '''
         sort_data = []
         for category in self.main_sort.keys():
-            self.my_lg.info('正在抓取的分类为: ' + self.main_sort[category][0])
+            self.lg.info('正在抓取的分类为: ' + self.main_sort[category][0])
             for current_page in range(1, 300, 1):
-                self.my_lg.info('正在抓取第 ' + str(current_page) + ' 页...')
+                self.lg.info('正在抓取第 ' + str(current_page) + ' 页...')
 
                 body = await self.get_one_api_body(current_page=current_page, category=category)
                 # print(body)
                 if body == '':
                     self.msg = '获取到的body为空str! 出错category为: ' + category
-                    self.my_lg.error(self.msg)
+                    self.lg.error(self.msg)
                     continue
 
                 try:
                     body = re.compile(r'\((.*?)\)').findall(body)[0]
                 except IndexError:
                     self.msg = 're筛选body时出错, 请检查! 出错category为: ' + category
-                    self.my_lg.error(self.msg)
+                    self.lg.error(self.msg)
                     continue
                 tmp_sort_data = await self.get_sort_data_list(body=body)
                 if tmp_sort_data == 'no items':
                     break
 
-                # self.my_lg.info(tmp_sort_data)
+                # self.lg.info(tmp_sort_data)
                 sort_data.append({
                     'category': category,
                     'current_page': current_page,
                     'data': tmp_sort_data,
                 })
-                await asyncio.sleep(1.5)
+                await async_sleep(1.5)
 
             #     break   # 下面2行用于测试, 避免全抓完太慢
             # break
-        self.my_lg.info(sort_data)
+        self.lg.info(sort_data)
         gc.collect()
 
         return sort_data
@@ -152,16 +130,16 @@ class TaoBaoTianTianTeJia(object):
         index = 1
         if my_pipeline.is_connect_success:
             # 普通sql_server连接(超过3000无返回结果集)
-            self.my_lg.info('正在获取天天特价db原有goods_id, 请耐心等待...')
+            self.lg.info('正在获取天天特价db原有goods_id, 请耐心等待...')
             db_ = list(my_pipeline._select_table(sql_str=tb_select_str_6))
             db_goods_id_list = [[item[0], item[2]] for item in db_]
-            self.my_lg.info('获取完毕!!!')
+            self.lg.info('获取完毕!!!')
             # print(db_goods_id_list)
             db_all_goods_id = [i[0] for i in db_goods_id_list]
 
             for item in sort_data:
                 tejia_goods_list = await self.get_tiantiantejia_goods_list(data=item.get('data', []))
-                self.my_lg.info(str(tejia_goods_list))
+                self.lg.info(str(tejia_goods_list))
 
                 for tmp_item in tejia_goods_list:
                     if tmp_item.get('goods_id', '') in db_all_goods_id:    # 处理如果该goods_id已经存在于数据库中的情况
@@ -175,9 +153,9 @@ class TaoBaoTianTianTeJia(object):
                             '''
                             * 处理由常规商品又转换为天天特价商品 *
                             '''
-                            self.my_lg.info('##### 该商品由常规商品又转换为天天特价商品! #####')
+                            self.lg.info('##### 该商品由常规商品又转换为天天特价商品! #####')
                             # 先删除，再重新插入
-                            _ = await my_pipeline.delete_taobao_tiantiantejia_expired_goods_id(goods_id=tmp_item.get('goods_id', ''), logger=self.my_lg)
+                            _ = await my_pipeline.delete_taobao_tiantiantejia_expired_goods_id(goods_id=tmp_item.get('goods_id', ''), logger=self.lg)
                             if _ is False:
                                 continue
 
@@ -188,18 +166,18 @@ class TaoBaoTianTianTeJia(object):
                                 my_pipeline=my_pipeline,
                                 index=index,
                             )
-                            await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+                            await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
 
                         else:
-                            self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
+                            self.lg.info('该goods_id已经存在于数据库中, 此处跳过')
                             pass
 
                     else:
                         if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                            self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                            self.lg.info('正在重置，并与数据库建立新连接中...')
                             my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                             # my_pipeline = SqlPools()
-                            self.my_lg.info('与数据库的新连接成功建立...')
+                            self.lg.info('与数据库的新连接成功建立...')
 
                         if my_pipeline.is_connect_success:
                             index = await self.insert_into_table(
@@ -209,14 +187,14 @@ class TaoBaoTianTianTeJia(object):
                                 my_pipeline=my_pipeline,
                                 index=index,
                             )
-                            await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+                            await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
 
                         else:
-                            self.my_lg.error('数据库连接失败!')
+                            self.lg.error('数据库连接失败!')
                             pass
 
         else:
-            self.my_lg.error('数据库连接失败!')
+            self.lg.error('数据库连接失败!')
             pass
         gc.collect()
 
@@ -233,7 +211,7 @@ class TaoBaoTianTianTeJia(object):
         :return: index 加1
         '''
         tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
-        taobao = TaoBaoLoginAndParse(logger=self.my_lg)
+        taobao = TaoBaoLoginAndParse(logger=self.lg)
         goods_id = taobao.get_goods_id_from_url(tmp_url)
         taobao.get_goods_data(goods_id=goods_id)
         goods_data = taobao.deal_with_data(goods_id=goods_id)
@@ -254,7 +232,7 @@ class TaoBaoTianTianTeJia(object):
 
             await taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=my_pipeline)
         else:
-            await asyncio.sleep(4)  # 否则休息4秒
+            await async_sleep(4)  # 否则休息4秒
             pass
         index += 1
 
@@ -305,14 +283,14 @@ class TaoBaoTianTianTeJia(object):
             headers=self.headers,
             params=params,
             data=data,
-            logger=self.my_lg,
+            logger=self.lg,
             ip_pool_type=self.ip_pool_type
         )
         _m_h5_tk = result_1[0]
 
         if _m_h5_tk == '':
             self.msg = '获取到的_m_h5_tk为空str! 出错category为: ' + category
-            self.my_lg.error(self.msg)
+            self.lg.error(self.msg)
             return ''
 
         # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
@@ -323,11 +301,11 @@ class TaoBaoTianTianTeJia(object):
             data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
-            logger=self.my_lg,
+            logger=self.lg,
             ip_pool_type=self.ip_pool_type
         )
         body = result_2[2]
-        # self.my_lg.info(str(body))
+        # self.lg.info(str(body))
 
         return body
 
@@ -340,7 +318,7 @@ class TaoBaoTianTianTeJia(object):
         try:
             sort_data = json.loads(body)
         except Exception:
-            self.my_lg.error('在获取分类信息的list时, json.loads转换出错, 此处跳过!')
+            self.lg.error('在获取分类信息的list时, json.loads转换出错, 此处跳过!')
             sort_data = {}
 
         if sort_data.get('data', {}).get('data', {}).get('TjGetItems', '') == 'tejia_004 error : no items':
@@ -366,13 +344,13 @@ class TaoBaoTianTianTeJia(object):
                     'end_time': timestamp_to_regulartime(int(item.get('baseinfo', {}).get('oetime', '')[0:10])),
                 } for item in data]
             except Exception as e:
-                self.my_lg.exception(e)
+                self.lg.exception(e)
 
         return tejia_goods_list
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
         except: pass
         gc.collect()
@@ -381,7 +359,7 @@ def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         taobao_tiantaintejia = TaoBaoTianTianTeJia()
-        loop = asyncio.get_event_loop()
+        loop = get_event_loop()
         loop.run_until_complete(taobao_tiantaintejia.deal_with_all_goods_id())
         try:
             del taobao_tiantaintejia

@@ -7172,7 +7172,6 @@ class CompanySpider(AsyncCrawler):
 
         return ''
 
-
     async def _get_hn_li_text_by_label_name(self, parser_obj_dict_name:str, parser_obj, target_obj, label_name):
         """
         根据label_name获取hn对应的值
@@ -7940,6 +7939,7 @@ def init_spider(spider_name,):
     global SPIDER_NAME
 
     SPIDER_NAME = spider_name
+    loop = None
     try:
         _ = CompanySpider()
         loop = get_event_loop()

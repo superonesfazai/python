@@ -14,10 +14,7 @@
 import sys
 sys.path.append('..')
 
-from json import loads, dumps
-import re
 import asyncio
-from logging import INFO, ERROR
 import gc
 from pprint import pprint
 from urllib.parse import unquote
@@ -31,21 +28,21 @@ from my_items import WellRecommendArticle
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from taobao_parse import TaoBaoLoginAndParse
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import get_shanghai_time
-from fzutils.linux_utils import restart_program
-from fzutils.cp_utils import get_taobao_sign_and_body
-from fzutils.common_utils import list_duplicate_remove
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
+from fzutils.spider.async_always import *
 
-class TaoBaoWeiTaoShareParse():
-    def __init__(self, logger=None):
+class TaoBaoWeiTaoShareParse(AsyncCrawler):
+    def __init__(self, logger=None, *params, **kwargs,):
+        AsyncCrawler.__init__(
+            self,
+            *params,
+            **kwargs,
+            logger=logger,
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/微淘/',)
         self._set_headers()
-        self._set_logger(logger)
         self.msg = ''
         self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -56,18 +53,8 @@ class TaoBaoWeiTaoShareParse():
             'referer': 'https://market.m.taobao.com/apps/market/content/index.html?ut_sk=1.VmYadv9DXkkDAFZm0VV4JBNq_21380790_1527298517854.Copy.33&params=%7B%22csid%22%3A%2254a52aea54b7c29d289a0e36b2bf2f51%22%7D&wh_weex=true&contentId=200668154273&source=weitao_2017_nocover&data_prefetch=true&suid=3D763077-A7BF-43BC-9092-C17B35E896F9&wx_navbar_transparent=false&wx_navbar_hidden=false&sourceType=other&un=bc80c9f324602d31384c4a342af87869&share_crt_v=1&sp_tk=o6R2Q0ZDMHZvaDBlS6Ok&cpp=1&shareurl=true&spm=a313p.22.68.948703884987&short_name=h.WAjz5RP&app=chrome',
             'authority': 'h5api.m.taobao.com',
             # cookie得注释掉, 否则为非法请求
-            # 'cookie': 't=70c4fb481898a67a66d437321f7b5cdf; cna=nbRZExTgqWsCAXPCa6QA5B86; l=AkFBuFEM2rj4GbU8Mjl3KsFo0YZa/7Vg; thw=cn; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _cc_=UIHiLt3xSw%3D%3D; tg=0; enc=OFbfiyN19GGi1GicxsjVmrZoFzlt9plbuviK5OuthXYfocqTD%2BL079G%2BIt4OMg6ZrbV4veSg5SQEpzuMUgLe0w%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; miid=763730917900964122; mt=ci%3D-1_1; cookie2=16c0da3976ab60d7c87ef7cea1e83cb2; v=0; _tb_token_=dd9fe0edb4b3; tk_trace=oTRxOWSBNwn9dPy4KVJVbutfzK5InlkjwbWpxHegXyGxPdWTLVRjn23RuZzZtB1ZgD6Khe0jl%2BAoo68rryovRBE2Yp933GccTPwH%2FTbWVnqEfudSt0ozZPG%2BkA1iKeVv2L5C1tkul3c1pEAfoOzBoBsNsJyRfZ0FH5AEyz0CWtQgYlWnUAkbLeBYDpeNMwsdmBZ5GYwOAPdU1B2IUBU8G0MXGQCqFCjZt1pjb2TJN2uXIiZePpK9SWkwA%2FlD1sTTfYGTmnCo0YJ7IAG%2BnJtbITMYZ3mzYjFZtYlGojOqye861%2FNFDJbTR41FruF%2BHJRnt%2BHJNgFj3F7IDGXJCs8K; linezing_session=4ic7MPhjlPi65fN5BzW36xB7_1527299424026Fe7K_1; isg=BDo6U2SENb2uULiLxiJ4XA6ri2ZWbZPa3G9M1kQz602YN9pxLHsO1QBGg8PrpzZd; _m_h5_tk=53d85a4f43d72bc623586c142f0c5293_1527305714711; _m_h5_tk_enc=cc75764d122f72920ae715c9102701a8'
+            # 'cookie': ''
         }
-
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/微淘/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
 
     async def _get_target_url_and_content_id_and_csid(self, taobao_short_url):
         '''
@@ -80,35 +67,38 @@ class TaoBaoWeiTaoShareParse():
             target_url = taobao_short_url
 
         else:
-            body = Requests.get_url_body(url=taobao_short_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
-            # self.my_lg.info(str(body))
+            body = Requests.get_url_body(
+                url=taobao_short_url,
+                headers=self.headers,
+                ip_pool_type=self.ip_pool_type,)
+            # self.lg.info(str(body))
             if body == '':
-                self.my_lg.error('获取到的body为空值, 出错短链接地址: {0}'.format(str(taobao_short_url)))
+                self.lg.error('获取到的body为空值, 出错短链接地址: {0}'.format(str(taobao_short_url)))
                 return '', '', ''
 
             try:
                 # 获取短连接的目标地址
                 target_url = re.compile('var url = \'(.*?)\';').findall(body)[0]
-                # self.my_lg.info(str(target_url))
+                self.lg.info('获取到原始连接: {}'.format(target_url))
             except IndexError:
-                self.my_lg.error('获取target_url的时候IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
+                self.lg.error('获取target_url的时候IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
                 target_url = ''
 
         try:
             # 得到contentId
             content_id = re.compile('contentId=(\d+)').findall(target_url)[0]
-            # self.my_lg.info(content_id)
+            self.lg.info(content_id)
         except IndexError:
-            self.my_lg.error('获取content_id时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
+            self.lg.error('获取content_id时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
             content_id = ''
 
         try:
             # 得到csid
             csid = re.compile('csid%22%3A%22(.*?)%22%7D').findall(target_url)[0]
-            # self.my_lg.info(csid)
+            # self.lg.info(csid)
         except IndexError:
-            self.my_lg.info('此链接为无csid情况的链接...')
-            # self.my_lg.error('获取csid时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
+            self.lg.info('此链接为无csid情况的链接...')
+            # self.lg.error('获取csid时IndexError! 出错短链接地址: {0}'.format(str(taobao_short_url)))
             csid = ''
 
         try:
@@ -134,7 +124,7 @@ class TaoBaoWeiTaoShareParse():
         try:
             target_url, content_id, csid, tag_name, tag = await self._get_target_url_and_content_id_and_csid(taobao_short_url)
         except ValueError:
-            self.my_lg.error('遇到ValueError!', exc_info=True)
+            self.lg.error('遇到ValueError!', exc_info=True)
             return ''
 
         if content_id == '' and csid == '':      # 异常退出
@@ -152,7 +142,6 @@ class TaoBaoWeiTaoShareParse():
             'track_params': '',
             'type': 'h5',
         })
-
         params = {
             'AntiCreep': 'true',
             'AntiFlood': 'true',
@@ -169,19 +158,21 @@ class TaoBaoWeiTaoShareParse():
             'type': 'jsonp',
             'v': '1.0'
         }
-
+        # TODO 新版
+        # 必传参数(无cookies, sign正确也无结果!)
+        # 而且登录后的cookies, 但是继续采集, tb会报: 亲,访问被拒绝了哦!请检查是否使用了代理软件或VPN哦~
         result_1 = await get_taobao_sign_and_body(
             base_url=base_url,
             headers=self.headers,
             params=params,
             data=data,
-            logger=self.my_lg,
+            logger=self.lg,
             ip_pool_type=self.ip_pool_type
         )
         _m_h5_tk = result_1[0]
 
         if _m_h5_tk == '':
-            self.my_lg.error('获取到的_m_h5_tk为空str! 出错短链接地址: {0}'.format(taobao_short_url))
+            self.lg.error('获取到的_m_h5_tk为空str! 出错短链接地址: {0}'.format(taobao_short_url))
 
         # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
         result_2 = await get_taobao_sign_and_body(
@@ -191,7 +182,7 @@ class TaoBaoWeiTaoShareParse():
             data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
-            logger=self.my_lg,
+            logger=self.lg,
             ip_pool_type=self.ip_pool_type
         )
         body = result_2[2]
@@ -206,21 +197,21 @@ class TaoBaoWeiTaoShareParse():
         '''
         data = await self._get_api_body(taobao_short_url)
         if data == '':
-            self.my_lg.error('获取到的api数据为空值!')
+            self.lg.error('获取到的api数据为空值!')
             return {}
 
         try:
             data = re.compile('mtopjsonp1\((.*)\)').findall(data)[0]
         except IndexError:
-            self.my_lg.error('re获取主信息失败, IndexError, 出错短链接地址:{0}'.format(taobao_short_url))
+            self.lg.error('re获取主信息失败, IndexError, 出错短链接地址:{0}'.format(taobao_short_url))
             data = {}
 
         try:
             data = await self._wash_api_info(loads(data))
             # pprint(data)
         except Exception as e:
-            self.my_lg.error('出错短链接地址:{0}'.format(taobao_short_url))
-            self.my_lg.exception(e)
+            self.lg.error('出错短链接地址:{0}'.format(taobao_short_url))
+            self.lg.exception(e)
             return {}
 
         article = await self._get_article(data=data, taobao_short_url=taobao_short_url)
@@ -235,7 +226,7 @@ class TaoBaoWeiTaoShareParse():
 
             return True
         else:
-            self.my_lg.info('获取到的文章失败! article为空dict!')
+            self.lg.info('获取到的文章失败! article为空dict!')
             return False
 
     async def _crawl_and_save_these_goods(self, goods_url_list):
@@ -251,7 +242,7 @@ class TaoBaoWeiTaoShareParse():
         except TypeError:
             result = []
 
-        self.my_lg.info('即将开始抓取该文章的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取该文章的goods, 请耐心等待...')
         index = 1
 
         db_all_goods_id_list = [item[0] for item in result]
@@ -259,28 +250,28 @@ class TaoBaoWeiTaoShareParse():
             try:
                 goods_id = re.compile(r'id=(\d+)').findall(item.get('goods_url', ''))[0]
             except IndexError:
-                self.my_lg.error('re获取goods_id时出错, 请检查!')
+                self.lg.error('re获取goods_id时出错, 请检查!')
                 continue
 
             if goods_id in db_all_goods_id_list:
-                self.my_lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                self.lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
                 continue
 
             else:
-                taobao = TaoBaoLoginAndParse(logger=self.my_lg)
+                taobao = TaoBaoLoginAndParse(logger=self.lg)
                 if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                    self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                    self.lg.info('正在重置，并与数据库建立新连接中...')
                     self.my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
-                    self.my_lg.info('与数据库的新连接成功建立...')
+                    self.lg.info('与数据库的新连接成功建立...')
 
                 if self.my_pipeline.is_connect_success:
                     goods_id = taobao.get_goods_id_from_url(item.get('goods_url', ''))
                     if goods_id == '':
-                        self.my_lg.info('@@@ 原商品的地址为: {0}'.format(item.get('goods_url', '')))
+                        self.lg.info('@@@ 原商品的地址为: {0}'.format(item.get('goods_url', '')))
                         continue
 
                     else:
-                        self.my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
+                        self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
                         tt = taobao.get_goods_data(goods_id)
                         data = taobao.deal_with_data(goods_id=goods_id)
                         if data != {}:
@@ -296,13 +287,13 @@ class TaoBaoWeiTaoShareParse():
                             pass
 
                 else:  # 表示返回的data值为空值
-                    self.my_lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                    self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
                 gc.collect()
                 await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
 
-        self.my_lg.info('该文章的商品已经抓取完毕!')
+        self.lg.info('该文章的商品已经抓取完毕!')
 
         return True
 
@@ -316,21 +307,21 @@ class TaoBaoWeiTaoShareParse():
         db_share_id = [j[0] for j in list(self.my_pipeline._select_table(sql_str=sql_str))]
 
         if article.get('share_id') in db_share_id:
-            self.my_lg.info('该share_id({})已存在于数据库中, 此处跳过!'.format(article.get('share_id', '')))
+            self.lg.info('该share_id({})已存在于数据库中, 此处跳过!'.format(article.get('share_id', '')))
 
             return True
 
         else:
-            self.my_lg.info('即将开始存储该文章...')
+            self.lg.info('即将开始存储该文章...')
             if self.my_pipeline.is_connect_success:
                 params = await self._get_db_insert_params(item=article)
                 # pprint(params)
                 sql_str = r'insert into dbo.daren_recommend(nick_name, head_url, profile, share_id, gather_url, title, comment_content, share_goods_base_info, div_body, create_time, site_id) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.my_lg)
+                self.my_pipeline._insert_into_table_2(sql_str=sql_str, params=params, logger=self.lg)
 
                 return True
             else:
-                self.my_lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(article.get('gather_url', '')))
+                self.lg.error('db连接失败!存储失败! 出错article地址:{0}'.format(article.get('gather_url', '')))
                 return False
 
     async def _get_db_insert_params(self, item):
@@ -369,7 +360,7 @@ class TaoBaoWeiTaoShareParse():
             profile = tmp_profile if tmp_profile is not None else ''
 
             title = self._wash_sensitive_info(data.get('data', {}).get('models', {}).get('content', {}).get('title', ''))
-            # self.my_lg.info(title)
+            # self.lg.info(title)
             assert title != '', '获取到的title为空值!请检查!'
 
             # 达人的评论，可用于荐好首页的文字信息
@@ -408,8 +399,8 @@ class TaoBaoWeiTaoShareParse():
             # pprint(tags)
 
         except Exception as e:
-            self.my_lg.error('出错短链接地址:{0}'.format(taobao_short_url))
-            self.my_lg.exception(e)
+            self.lg.error('出错短链接地址:{0}'.format(taobao_short_url))
+            self.lg.exception(e)
             return {}
 
         article = WellRecommendArticle()
@@ -529,7 +520,7 @@ class TaoBaoWeiTaoShareParse():
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
             del self.my_pipeline
         except: pass
@@ -537,7 +528,9 @@ class TaoBaoWeiTaoShareParse():
 
 # _short_url = 'http://m.tb.cn/h.WAjz5RP'
 # _short_url = 'http://m.tb.cn/h.WA6JGoC'
-_short_url = 'http://m.tb.cn/h.WA6Hp6H'
+# _short_url = 'http://m.tb.cn/h.WA6Hp6H'
+
+_short_url = 'https://m.tb.cn/h.e18JeHI'
 
 if __name__ == '__main__':
     while True:
