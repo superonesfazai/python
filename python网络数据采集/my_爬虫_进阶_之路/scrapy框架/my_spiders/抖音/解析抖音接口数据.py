@@ -12,7 +12,7 @@ from pprint import pprint
 from time import sleep
 from random import randint
 
-from fzutils.spider.fz_requests import MyRequests
+from fzutils.spider.fz_requests import Requests
 from fzutils.internet_utils import get_random_phone_ua
 
 class DouYinUserIdParse():
@@ -40,7 +40,7 @@ class DouYinUserIdParse():
         )
 
         url = 'https://www.douyin.com/aweme/v1/aweme/post/'
-        body = MyRequests.get_url_body(url=url, headers=self.headers, params=params)
+        body = Requests.get_url_body(url=url, headers=self.headers, params=params)
         # print(body)
 
         self.deal_with_data(body=body)
