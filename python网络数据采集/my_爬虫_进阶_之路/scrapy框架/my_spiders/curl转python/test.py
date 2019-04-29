@@ -127,4 +127,47 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 # )
 # print(company_name)
 
+# 源自百家号
+# 百度某作者的文章
+# 必传
+# cookies = {
+#     'BAIDUID': '1666ADBB95B083DBB2DA29E9BEFCB50B:FG=1',
+#     'BIDUPSID': '1666ADBB95B083DBB2DA29E9BEFCB50B',
+#     # 'PSTM': '1553750958',
+#     # 'locale': 'zh',
+# }
+#
+# headers = {
+#     'Accept-Encoding': 'gzip, deflate, br',
+#     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+#     'User-Agent': get_random_phone_ua(),
+#     'Accept': '*/*',
+#     # 'Referer': 'https://author.baidu.com/home?type=profile&action=profile&mthfr=box_share&context=%7B%22from%22%3A%22ugc_share%22%2C%22app_id%22%3A%221617808623102717%22%7D&from=singlemessage&isappinstalled=0',
+#     'Connection': 'keep-alive',
+# }
+#
+# params = (
+#     ('type', 'article'),
+#     ('tab', '2'),
+#     ('uk', 'sCWQteHJevYiu1bvIiKrEw'),           # 非定值, 看分享出来文章的uk
+#     # ('ctime', '15564325069740'),
+#     ('num', '14'),
+#     # ('_', '1556502637335'),
+#     ('callback', 'jsonp2'),
+# )
+# url = 'https://author.baidu.com/list'
+# body = Requests.get_url_body(
+#     url=url,
+#     headers=headers,
+#     params=params,
+#     cookies=cookies,
+#     ip_pool_type=tri_ip_pool,)
+# # print(body)
+#
+# data = json_2_dict(
+#     json_str=re.compile('\((.*)\)').findall(body)[0],
+# )
+# pprint(data)
+
+
 

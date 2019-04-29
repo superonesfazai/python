@@ -16,6 +16,7 @@ class LookSnowSpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
         )
         self.home_page_max_page_num = 100
+        self.num_retries = 8
 
     async def _fck_run(self):
         tasks = []
@@ -30,11 +31,17 @@ class LookSnowSpider(AsyncCrawler):
         res = []
         for item in one_res:
             for j in item:
+                # res.append(j)
                 res.append({
-                    'article_name': j.get('subject'),
+                    'article_name': j.get('subject', ''),
+                    'brief': j.get('brief', ''),
+                    'article_id': j.get('articleid', ''),
+                    'article_url': j.get('source_url', ''),
+                    'create_time': j.get('create_date_fmt', ''),
                 })
 
         pprint(res)
+        print('res.len: {}'.format(len(res)))
 
     async def _get_home_page_article_one_api_info(self, page_num:int) -> list:
         """
@@ -58,7 +65,8 @@ class LookSnowSpider(AsyncCrawler):
             url=url,
             headers=headers,
             data=data,
-            ip_pool_type=self.ip_pool_type,)
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,)
         # print(body)
         data = json_2_dict(
             json_str=body).get('message', {}).get('list', [])

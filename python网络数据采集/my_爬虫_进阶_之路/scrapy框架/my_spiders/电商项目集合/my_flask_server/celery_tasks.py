@@ -61,7 +61,7 @@ $ redis-server /usr/local/etc/redis.conf
 分布式任务启动: 
 1. celery --app=celery_tasks worker -l info --concurrency=500 --pool=gevent
 (多开限制在15个, 考虑mac性能问题!)
-2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 --app=celery_tasks --concurrency=500 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log 
+2. celery multi start w0 w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16 w17 --app=celery_tasks --concurrency=300 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log 
 
 监控:
 $ celery --app=celery_tasks flower --address=127.0.0.1 --port=5555
@@ -71,7 +71,7 @@ $ open http://localhost:5555
 tasks_name = 'celery_tasks'
 app = init_celery_app(
     name=tasks_name,
-    celeryd_max_tasks_per_child=50,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
+    celeryd_max_tasks_per_child=60,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
 )
 lg = get_task_logger(tasks_name)
 
@@ -152,7 +152,12 @@ def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     return res
 
 @app.task(name=tasks_name + '._get_al_company_page_html_task', bind=True)
-def _get_al_company_page_html_task(self, ip_pool_type, company_id, province_name, city_name, num_retries=3) -> tuple:
+def _get_al_company_page_html_task(self,
+                                   ip_pool_type,
+                                   company_id,
+                                   province_name,
+                                   city_name,
+                                   num_retries=3) -> tuple:
     """
     获取al的company html
     :param self:
@@ -183,7 +188,12 @@ def _get_al_company_page_html_task(self, ip_pool_type, company_id, province_name
     return (company_id, body, province_name, city_name)
 
 @app.task(name=tasks_name + '._get_114_one_type_company_id_list_task', bind=True)
-def _get_114_one_type_company_id_list_task(self, ip_pool_type, num_retries, parser_obj, cate_num, page_num):
+def _get_114_one_type_company_id_list_task(self,
+                                           ip_pool_type,
+                                           num_retries,
+                                           parser_obj,
+                                           cate_num,
+                                           page_num):
     res = _get_114_one_type_company_id_list(
         ip_pool_type=ip_pool_type,
         num_retries=num_retries,
@@ -219,7 +229,13 @@ class TaskObj(Thread):
             return self.default_res
 
 @app.task(name=tasks_name + '._parse_one_company_info_task', bind=True)
-def _parse_one_company_info_task(self, short_name, company_url='', province_name='', city_name='', company_id='', type_code=''):
+def _parse_one_company_info_task(self,
+                                 short_name,
+                                 company_url='',
+                                 province_name='',
+                                 city_name='',
+                                 company_id='',
+                                 type_code=''):
     def oo():
         try:
             company_spider = CompanySpider()
@@ -342,7 +358,17 @@ def _get_yw_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     return company_info_list
 
 @app.task(name=tasks_name + '._get_hn_one_type_company_id_list_task', bind=True)
-def _get_hn_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, province_name, city_name, city_base_url, shop_item_selector:dict, shop_id_selector:dict, w3_selector:dict, num_retries=6, timeout=15,):
+def _get_hn_one_type_company_id_list_task(self,
+                                          ip_pool_type,
+                                          keyword, page_num,
+                                          province_name,
+                                          city_name,
+                                          city_base_url,
+                                          shop_item_selector:dict,
+                                          shop_id_selector:dict,
+                                          w3_selector:dict,
+                                          num_retries=6,
+                                          timeout=15,):
     """
     获取hn 某关键字的单页company_info
     :param self:
@@ -490,7 +516,14 @@ def _get_tb_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, c
     return data
 
 @app.task(name=tasks_name + '._get_tm_one_page_comment_info_task', bind=True)
-def _get_tm_one_page_comment_info_task(self, ip_pool_type, goods_id, _type, seller_id, page_num, page_size, cookies:dict) -> list:
+def _get_tm_one_page_comment_info_task(self,
+                                       ip_pool_type,
+                                       goods_id,
+                                       _type,
+                                       seller_id,
+                                       page_num,
+                                       page_size,
+                                       cookies:dict) -> list:
     """
     获取天猫某goods_id单页的comment
     :param self:
@@ -569,7 +602,12 @@ def _get_tm_one_page_comment_info_task(self, ip_pool_type, goods_id, _type, sell
     return data
 
 @app.task(name=tasks_name + '._get_al_one_page_comment_info_task', bind=True)
-def _get_al_one_page_comment_info_task(self, ip_pool_type, goods_id, member_id, page_num, cookies:dict) -> list:
+def _get_al_one_page_comment_info_task(self,
+                                       ip_pool_type,
+                                       goods_id,
+                                       member_id,
+                                       page_num,
+                                       cookies:dict) -> list:
     """
     获取al单页评论信息
     :param self:
@@ -716,7 +754,16 @@ def _get_someone_goods_id_all_comment_task(self, index, site_id:int, goods_id) -
     return res
 
 @app.task(name=tasks_name + '._get_pk_one_type_company_id_list_task', bind=True)
-def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_num, province_name, city_name, city_id, w3, num_retries=6, timeout=15,) -> list:
+def _get_pk_one_type_company_id_list_task(self,
+                                          ip_pool_type,
+                                          keyword:str,
+                                          page_num,
+                                          province_name,
+                                          city_name,
+                                          city_id,
+                                          w3,
+                                          num_retries=6,
+                                          timeout=15,) -> list:
     """
     获取pk单个关键字单页的company_id_list
     :param self:
@@ -794,7 +841,13 @@ def _get_pk_one_type_company_id_list_task(self, ip_pool_type, keyword:str, page_
     return company_info_list
 
 @app.task(name=tasks_name + '._get_ng_one_type_company_id_list_task', bind=True)
-def _get_ng_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, company_item_id_selector, num_retries=8, timeout=15) -> list:
+def _get_ng_one_type_company_id_list_task(self,
+                                          ip_pool_type,
+                                          keyword,
+                                          page_num,
+                                          company_item_id_selector,
+                                          num_retries=8,
+                                          timeout=15) -> list:
     """
     获取ng单个keyword的某个页面num对应的所有company_id list(m站搜索)
     :param self:
@@ -866,7 +919,14 @@ def _get_tm_one_goods_info_task(self, goods_id:list, index:int) -> tuple:
     return (site_id, _goods_id, index, before_goods_data, end_goods_data)
 
 @app.task(name=tasks_name + '._get_gt_one_type_company_id_list_task', bind=True)
-def _get_gt_one_type_company_id_list_task(self, ip_pool_type, keyword, company_url_selector:dict, company_id_selector:dict, page_num, num_retries=8, timeout=15,) -> list:
+def _get_gt_one_type_company_id_list_task(self,
+                                          ip_pool_type,
+                                          keyword,
+                                          company_url_selector:dict,
+                                          company_id_selector:dict,
+                                          page_num,
+                                          num_retries=8,
+                                          timeout=15,) -> list:
     """
     根据keyword获取gt单页的所有comapny_id list
     :param self:
@@ -954,7 +1014,15 @@ def _get_gt_company_page_html_task(self, ip_pool_type, company_id, num_retries=8
     return (company_id, body)
 
 @app.task(name=tasks_name + '._get_bd_one_type_company_info_list_task', bind=True)
-def _get_bd_or_gd_one_type_company_info_list_task(self, ak:str, keyword, area_name, page_num:int, ip_pool_type, timeout=15, num_retries=8, map_type='bd') -> list:
+def _get_bd_or_gd_one_type_company_info_list_task(self,
+                                                  ak:str,
+                                                  keyword,
+                                                  area_name,
+                                                  page_num:int,
+                                                  ip_pool_type,
+                                                  timeout=15,
+                                                  num_retries=8,
+                                                  map_type='bd') -> list:
     """
     获取bd or gd的商家信息
     :param self:
