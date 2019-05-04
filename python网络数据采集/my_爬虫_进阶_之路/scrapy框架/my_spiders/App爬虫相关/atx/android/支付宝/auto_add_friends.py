@@ -47,7 +47,7 @@ class ALiPay(AsyncCrawler):
         #     'appPackage': 'com.eg.android.AlipayGphone',
         #     'appActivity': '.AlipayLogin',
         #     'platformVersion': '8.1',
-        #     'automationName': 'appium',                     # 还是用appium, 不用uiautomator2
+        #     'automationName': 'uiautomator2',                     # android >= 6 用uiautomator2
         #     'autoLaunch': 'true',                           # 只要autoLaunch为false,就不会安装ServerApk
         #     # 此外: @@ 所有一定要把uiautomator2Server加入神隐模式的白名单,或者关闭神隐模式.即让它能后台运行 (从电量管理设置)
         # }

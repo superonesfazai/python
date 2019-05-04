@@ -39,10 +39,14 @@ def action(d):
     # 发送文本，对有提交需求的prompt框
     # alert.send_keys('aaa')
 
-    # 验证，针对需要身份验证的alert
+    # 验证，针对需要身份验证的alert, 不成功!
     alert.authenticate(
         username='fzhook',
         password='pwd!',)
+
+    # 下面这种方式成功!!
+    # new_url = "https://{}:{}@sso.volkswagen.de/kpmweb/b2bLogin.do".format(username, pwd)
+    # d.get_url_body(new_url)
 
     sleep(60)
 

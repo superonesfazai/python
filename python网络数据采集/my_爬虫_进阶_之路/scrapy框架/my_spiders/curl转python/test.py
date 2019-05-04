@@ -36,6 +36,7 @@ from fzutils.internet_utils import (
 from fzutils.qrcode_utils import decode_qrcode
 from fzutils.spider.selector import *
 from fzutils.spider.async_always import *
+from fzutils.spider.selenium_always import *
 
 FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 
@@ -168,6 +169,4 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 #     json_str=re.compile('\((.*)\)').findall(body)[0],
 # )
 # pprint(data)
-
-
 
