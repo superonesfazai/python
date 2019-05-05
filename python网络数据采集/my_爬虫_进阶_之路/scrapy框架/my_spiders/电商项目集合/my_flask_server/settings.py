@@ -82,6 +82,7 @@ def get_u_and_p_info():
 
 TAOBAO_USERNAME, TAOBAO_PASSWD = get_u_and_p_info()
 
+TB_COOKIES = ''
 '''
 淘宝requests间接请求时间
 '''

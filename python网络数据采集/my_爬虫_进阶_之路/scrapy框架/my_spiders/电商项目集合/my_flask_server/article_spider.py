@@ -11,8 +11,8 @@
 
 已支持:
     1. 微信文章内容爬取(https://weixin.sogou.com)
-    2. 今日头条文章内容爬取(https://www.toutiao.com)
-    3. 简书文章内容爬取(https://www.jianshu.com)
+    2. 简书文章内容爬取(https://www.jianshu.com)
+    3. 今日头条文章内容爬取(https://www.toutiao.com)
     4. qq看点文章内容爬取(根据QQ看点中分享出的地址)
     5. 天天快报(根据天天快报分享出的地址)
 待实现:
@@ -22,6 +22,8 @@
 from os import getcwd
 from os.path import abspath
 from gc import collect
+from ftfy import fix_text
+from requests import session
 from my_items import WellRecommendArticle
 from settings import (
     ARTICLE_ITEM_LIST,
@@ -30,8 +32,6 @@ from settings import (
     IP_POOL_TYPE,)
 
 from fzutils.spider.fz_driver import BaseDriver
-from ftfy import fix_text
-from requests import session
 from fzutils.spider.selector import async_parse_field
 from fzutils.spider.async_always import *
 
@@ -48,27 +48,68 @@ class ArticleParser(AsyncCrawler):
             ip_pool_type=IP_POOL_TYPE)
         self.driver_path = PHANTOMJS_DRIVER_PATH
 
-    @staticmethod
-    async def _get_headers():
-        return {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': get_random_pc_ua(),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-        }
+    async def _parse_article(self, article_url) -> dict:
+        '''
+        解析文章内容
+        :param article_url: 待抓取文章的url
+        :return:
+        '''
+        self.obj_origin_dict = await self._get_obj_origin()    # 设置obj_origin_dict
+        child_debug = await self.is_child_can_debug(article_url)
+        if not child_debug:
+            self.lg.error('article_url未匹配到对象 or debug未开启!')
+            return {}
 
-    async def _get_phone_headers(self):
-        return {
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
+        try:
+            article_url_type = await self._judge_url_type(article_url=article_url)
+            parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
+        except (ValueError, NotImplementedError):      # article_url未知!
+            self.lg.error(exc_info=True)
+            return {}
+
+        article_html, video_url = await self._get_article_html(
+            article_url=article_url,
+            article_url_type=article_url_type)
+        # self.lg.info(article_html)
+        try:
+            title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html)
+            author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
+            head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
+            content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html, article_url=article_url)
+            print(content)
+            create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
+            comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
+            fav_num = await self._get_fav_num(parse_obj=parse_obj, target_obj=article_html)
+            praise_num = await self._get_praise_num(parse_obj=parse_obj, target_obj=article_html)
+            tags_list = await self._get_tags_list(parse_obj=parse_obj, target_obj=article_html)
+            site_id = await self._get_site_id(article_url_type=article_url_type)
+            profile = await self._get_profile(parse_obj=parse_obj, target_obj=article_html)
+        except (AssertionError, Exception):
+            self.lg.error('遇到错误:', exc_info=True, stack_info=False)
+            return {}
+
+        _ = WellRecommendArticle()
+        _['nick_name'] = author
+        _['head_url'] = head_url
+        _['profile'] = profile
+        _['share_id'] = await self._get_share_id(article_url_type=article_url_type, article_url=article_url)
+        _['title'] = title
+        _['comment_content'] = ''
+        _['share_img_url_list'] = []
+        _['goods_id_list'] = []
+        _['div_body'] = content
+        _['gather_url'] = article_url       # wx 阅读原文跳出个验证
+        _['create_time'] = create_time
+        _['site_id'] = site_id
+        _['goods_url_list'] = []
+        _['tags'] = tags_list
+        _['share_goods_base_info'] = []     # [{'goods_id': 'xxx', 'img_url': 'xxx'}, ...]
+        _['video_url'] = video_url
+        _['likes'] = praise_num
+        _['collects'] = fav_num
+        _['comment_num'] = comment_num
+
+        return dict(_)
 
     @staticmethod
     async def _get_obj_origin() -> dict:
@@ -124,7 +165,7 @@ class ArticleParser(AsyncCrawler):
         得到wx文章内容
         :return: body, video_url
         '''
-        body = await unblock_request(url=article_url, headers=await self._get_headers(), ip_pool_type=self.ip_pool_type, logger=self.lg)
+        body = await unblock_request(url=article_url, headers=await self._get_random_pc_headers(), ip_pool_type=self.ip_pool_type, logger=self.lg)
         # self.lg.info(body)
         assert body != '', '获取到wx的body为空值!'
 
@@ -136,7 +177,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return: body, video_url
         '''
-        headers = await self._get_headers()
+        headers = await self._get_random_pc_headers()
         headers.update({
             'authority': 'www.toutiao.com',
             'referer': 'https://www.toutiao.com/',
@@ -153,12 +194,16 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         '''
-        headers = await self._get_headers()
+        headers = await self._get_random_pc_headers()
         headers.update({
             'authority': 'www.jianshu.com',
             'referer': 'https://www.jianshu.com/',
         })
-        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,)
         # self.lg.info(str(body))
         assert body != '', '获取到的js的body为空值!'
 
@@ -196,12 +241,19 @@ class ArticleParser(AsyncCrawler):
         #     _ = Requests._wash_html(f.read())
         #     self.lg.info(str(_))
 
-        jianshu_style_txt_url = 'http://pimkvjbu6.bkt.clouddn.com/jianshu_style.txt'
-        with session() as s:
-            _ = Requests._wash_html(s.get(url=jianshu_style_txt_url).content.decode('utf-8'))
-        assert _ != '', '云端jianshu_style_txt获取失败!'
+        # 云存储
+        # jianshu_style_txt_url = 'http://pimkvjbu6.bkt.clouddn.com/jianshu_style.txt'
+        # with session() as s:
+        #     _ = Requests._wash_html(s.get(url=jianshu_style_txt_url).content.decode('utf-8'))
+        # assert _ != '', '云端jianshu_style_txt获取失败!'
+
+        # 直接处理到原js
+        _ = '<style type="text/css">@charset "UTF-8";.image-package .image-container{position:relative;z-index:2;background-color:#eee;-webkit-transition:background-color .1s linear;-o-transition:background-color .1s linear;transition:background-color .1s linear;margin:0 auto}body.reader-night-mode .image-package .image-container{background-color:#545454}.image-package .image-container-fill{z-index:1}.image-package .image-container .image-view{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden}.image-package .image-container .image-view-error:after{content:"图片获取失败，请点击重试";position:absolute;top:50%;left:50%;width:100%;-webkit-transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);color:#888;font-size:14px}.image-package .image-mage-view img.image-loading{opacity:.3}.image-package .image-container .image-view img{-webkit-transition:all .15s linear;-o-transition:all .15s linear;transition:all .15s linear;z-index:2;opacity:1}</style><style type="text/css">fieldset[disabled] .multiselect {pointer-events: none;}.multiselect__spinner {position: absolute;right: 1px;top: 1px;width: 48px;height: 35px;background: #fff;display: block;}.multiselect__spinner:after,.multiselect__spinner:before {position: absolute;content: "";top: 50%;left: 50%;margin: -8px 0 0 -8px;width: 16px;height: 16px;border-radius: 100%;border-color: #41b883 transparent transparent;border-style: solid;border-width: 2px;box-shadow: 0 0 0 1px transparent;}.multiselect__spinner:before {animation: a 2.4s cubic-bezier(.41,.26,.2,.62);animation-iteration-count: infinite;}.multiselect__spinner:after {animation: a 2.4s cubic-bezier(.51,.09,.21,.8);animation-iteration-count: infinite;}.multiselect__loading-enter-active,.multiselect__loading-leave-active {transition: opacity .4s ease-in-out;opacity: 1;}.multiselect__loading-enter,.multiselect__loading-leave-active {opacity: 0;}.multiselect,.multiselect__input,.multiselect__single {font-family: inherit;font-size: 14px;-ms-touch-action: manipulation;touch-action: manipulation;}.multiselect {box-sizing: content-box;display: block;position: relative;width: 100%;min-height: 40px;text-align: left;color: #35495e;}.multiselect * {box-sizing: border-box;}.multiselect:focus {outline: none;}.multiselect--disabled {opacity: .6;}.multiselect--active {z-index: 1;}.multiselect--active:not(.multiselect--above) .multiselect__current,.multiselect--active:not(.multiselect--above) .multiselect__input,.multiselect--active:not(.multiselect--above) .multiselect__tags {border-bottom-left-radius: 0;border-bottom-right-radius: 0;}.multiselect--active .multiselect__select {transform: rotate(180deg);}.multiselect--above.multiselect--active .multiselect__current,.multiselect--above.multiselect--active .multiselect__input,.multiselect--above.multiselect--active .multiselect__tags {border-top-left-radius: 0;border-top-right-radius: 0;}.multiselect__input,.multiselect__single {position: relative;display: inline-block;min-height: 20px;line-height: 20px;border: none;border-radius: 5px;background: #fff;padding: 0 0 0 5px;width: 100%;transition: border .1s ease;box-sizing: border-box;margin-bottom: 8px;vertical-align: top;}.multiselect__tag~.multiselect__input,.multiselect__tag~.multiselect__single {width: auto;}.multiselect__input:hover,.multiselect__single:hover {border-color: #cfcfcf;}.multiselect__input:focus,.multiselect__single:focus {border-color: #a8a8a8;outline: none;}.multiselect__single {padding-left: 6px;margin-bottom: 8px;}.multiselect__tags-wrap {display: inline;}.multiselect__tags {min-height: 40px;display: block;padding: 8px 40px 0 8px;border-radius: 5px;border: 1px solid #e8e8e8;background: #fff;}.multiselect__tag {position: relative;display: inline-block;padding: 4px 26px 4px 10px;border-radius: 5px;margin-right: 10px;color: #fff;line-height: 1;background: #41b883;margin-bottom: 5px;white-space: nowrap;overflow: hidden;max-width: 100%;text-overflow: ellipsis;}.multiselect__tag-icon {cursor: pointer;margin-left: 7px;position: absolute;right: 0;top: 0;bottom: 0;font-weight: 700;font-style: normal;width: 22px;text-align: center;line-height: 22px;transition: all .2s ease;border-radius: 5px;}.multiselect__tag-icon:after {content: "\D7";color: #266d4d;font-size: 14px;}.multiselect__tag-icon:focus,.multiselect__tag-icon:hover {background: #369a6e;}.multiselect__tag-icon:focus:after,.multiselect__tag-icon:hover:after {color: #fff;}.multiselect__current {min-height: 40px;overflow: hidden;padding: 8px 12px 0;padding-right: 30px;white-space: nowrap;border-radius: 5px;border: 1px solid #e8e8e8;}.multiselect__current,.multiselect__select {line-height: 16px;box-sizing: border-box;display: block;margin: 0;text-decoration: none;cursor: pointer;}.multiselect__select {position: absolute;width: 40px;height: 38px;right: 1px;top: 1px;padding: 4px 8px;text-align: center;transition: transform .2s ease;}.multiselect__select:before {position: relative;right: 0;top: 65%;color: #999;margin-top: 4px;border-style: solid;border-width: 5px 5px 0;border-color: #999 transparent transparent;content: "";}.multiselect__placeholder {color: #adadad;display: inline-block;margin-bottom: 10px;padding-top: 2px;}.multiselect--active .multiselect__placeholder {display: none;}.multiselect__content-wrapper {position: absolute;display: block;background: #fff;width: 100%;max-height: 240px;overflow: auto;border: 1px solid #e8e8e8;border-top: none;border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;z-index: 1;-webkit-overflow-scrolling: touch;}.multiselect__content {list-style: none;display: inline-block;padding: 0;margin: 0;min-width: 100%;vertical-align: top;}.multiselect--above .multiselect__content-wrapper {bottom: 100%;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-top-left-radius: 5px;border-top-right-radius: 5px;border-bottom: none;border-top: 1px solid #e8e8e8;}.multiselect__content::webkit-scrollbar {display: none;}.multiselect__element {display: block;}.multiselect__option {display: block;padding: 12px;min-height: 40px;line-height: 16px;text-decoration: none;text-transform: none;vertical-align: middle;position: relative;cursor: pointer;white-space: nowrap;}.multiselect__option:after {top: 0;right: 0;position: absolute;line-height: 40px;padding-right: 12px;padding-left: 20px;}.multiselect__option--highlight {background: #41b883;outline: none;color: #fff;}.multiselect__option--highlight:after {content: attr(data-select);background: #41b883;color: #fff;}.multiselect__option--selected {background: #f3f3f3;color: #35495e;font-weight: 700;}.multiselect__option--selected:after {content: attr(data-selected);color: silver;}.multiselect__option--selected.multiselect__option--highlight {background: #ff6a6a;color: #fff;}.multiselect__option--selected.multiselect__option--highlight:after {background: #ff6a6a;content: attr(data-deselect);color: #fff;}.multiselect--disabled {background: #ededed;pointer-events: none;}.multiselect--disabled .multiselect__current,.multiselect--disabled .multiselect__select,.multiselect__option--disabled {background: #ededed;color: #a6a6a6;}.multiselect__option--disabled {cursor: text;pointer-events: none;}.multiselect__option--disabled.multiselect__option--highlight {background: #dedede!important;}.multiselect-enter-active,.multiselect-leave-active {transition: all .15s ease;}.multiselect-enter,.multiselect-leave-active {opacity: 0;}.multiselect__strong {margin-bottom: 8px;line-height: 20px;display: inline-block;vertical-align: top;}[dir=rtl] .multiselect {text-align: right;}[dir=rtl] .multiselect__select {right: auto;left: 1px;}[dir=rtl] .multiselect__tags {padding: 8px 8px 0 40px;}[dir=rtl] .multiselect__content {text-align: right;}[dir=rtl] .multiselect__option:after {right: auto;left: 0;}[dir=rtl] .multiselect__clear {right: auto;left: 12px;}[dir=rtl] .multiselect__spinner {right: auto;left: 1px;}@keyframes a {0% {transform: rotate(0);}to {transform: rotate(2turn);}}</style><style>.image-container-fill{z-index:1}</style>'
 
         content = _ + content
+
+        # 清洗
+        content = re.compile('<div class=\"image-caption\">图片发自简书App<\/div>').sub('', content)
 
         return content
 
@@ -215,16 +267,22 @@ class ArticleParser(AsyncCrawler):
         try:
             if article_url_type == 'wx':
                 return await self._get_wx_article_html(article_url=article_url)
+
             elif article_url_type == 'tt':
                 return await self._get_tt_article_html(article_url=article_url)
+
             elif article_url_type == 'js':
                 return await self._get_js_article_html(article_url=article_url)
+
             elif article_url_type == 'kd':
                 return await self._get_kd_article_html(article_url=article_url)
+
             elif article_url_type == 'kb':
                 return await self._get_kb_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
+
         except AssertionError:
             self.lg.error('遇到错误:', exc_info=True)
             return body, video_url
@@ -235,7 +293,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         '''
-        headers = await self._get_headers()
+        headers = await self._get_random_pc_headers()
         headers.update({
             'authority': 'post.mp.qq.com',
         })
@@ -332,69 +390,6 @@ class ArticleParser(AsyncCrawler):
 
         raise NotImplementedError('未找到解析对象!')
 
-    async def _parse_article(self, article_url) -> dict:
-        '''
-        解析文章内容
-        :param article_url: 待抓取文章的url
-        :return:
-        '''
-        self.obj_origin_dict = await self._get_obj_origin()    # 设置obj_origin_dict
-        child_debug = await self.is_child_can_debug(article_url)
-        if not child_debug:
-            self.lg.error('article_url未匹配到对象 or debug未开启!')
-            return {}
-
-        try:
-            article_url_type = await self._judge_url_type(article_url=article_url)
-            parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
-        except (ValueError, NotImplementedError):      # article_url未知!
-            self.lg.error(exc_info=True)
-            return {}
-
-        article_html, video_url = await self._get_article_html(
-            article_url=article_url,
-            article_url_type=article_url_type)
-        # self.lg.info(article_html)
-        try:
-            title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html)
-            author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
-            head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
-            content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html, article_url=article_url)
-            print(content)
-            create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
-            comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
-            fav_num = await self._get_fav_num(parse_obj=parse_obj, target_obj=article_html)
-            praise_num = await self._get_praise_num(parse_obj=parse_obj, target_obj=article_html)
-            tags_list = await self._get_tags_list(parse_obj=parse_obj, target_obj=article_html)
-            site_id = await self._get_site_id(article_url_type=article_url_type)
-            profile = await self._get_profile(parse_obj=parse_obj, target_obj=article_html)
-        except (AssertionError, Exception):
-            self.lg.error('遇到错误:', exc_info=True, stack_info=False)
-            return {}
-
-        _ = WellRecommendArticle()
-        _['nick_name'] = author
-        _['head_url'] = head_url
-        _['profile'] = profile
-        _['share_id'] = await self._get_share_id(article_url_type=article_url_type, article_url=article_url)
-        _['title'] = title
-        _['comment_content'] = ''
-        _['share_img_url_list'] = []
-        _['goods_id_list'] = []
-        _['div_body'] = content
-        _['gather_url'] = article_url       # wx 阅读原文跳出个验证
-        _['create_time'] = create_time
-        _['site_id'] = site_id
-        _['goods_url_list'] = []
-        _['tags'] = tags_list
-        _['share_goods_base_info'] = []     # [{'goods_id': 'xxx', 'img_url': 'xxx'}, ...]
-        _['video_url'] = video_url
-        _['likes'] = praise_num
-        _['collects'] = fav_num
-        _['comment_num'] = comment_num
-
-        return dict(_)
-
     async def _get_praise_num(self, parse_obj, target_obj):
         '''
         点赞数
@@ -403,7 +398,10 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         praise_num = 0
-        _ = await async_parse_field(parser=parse_obj['praise_num'], target_obj=target_obj, logger=self.lg)
+        _ = await async_parse_field(
+            parser=parse_obj['praise_num'],
+            target_obj=target_obj,
+            logger=self.lg)
         # self.lg.info(str(_))
         try:
             praise_num = int(_)
@@ -419,7 +417,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        fav_num = await async_parse_field(parser=parse_obj['fav_num'], target_obj=target_obj, logger=self.lg)
+        fav_num = await async_parse_field(
+            parser=parse_obj['fav_num'],
+            target_obj=target_obj,
+            logger=self.lg)
 
         return fav_num
 
@@ -430,7 +431,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        profile = await async_parse_field(parser=parse_obj['profile'], target_obj=target_obj, logger=self.lg)
+        profile = await async_parse_field(
+            parser=parse_obj['profile'],
+            target_obj=target_obj,
+            logger=self.lg)
 
         return profile
 
@@ -441,7 +445,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        author = await async_parse_field(parser=parse_obj['author'], target_obj=target_obj, logger=self.lg)
+        author = await async_parse_field(
+            parser=parse_obj['author'],
+            target_obj=target_obj,
+            logger=self.lg)
         try:
             assert author != '', '获取到的author为空值!'
         except AssertionError:
@@ -459,7 +466,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        title = await async_parse_field(parser=parse_obj['title'], target_obj=target_obj, logger=self.lg)
+        title = await async_parse_field(
+            parser=parse_obj['title'],
+            target_obj=target_obj,
+            logger=self.lg)
         try:
             assert title != '', '获取到的title为空值!'
         except AssertionError:
@@ -477,7 +487,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        head_url = await async_parse_field(parser=parse_obj['head_url'], target_obj=target_obj, logger=self.lg)
+        head_url = await async_parse_field(
+            parser=parse_obj['head_url'],
+            target_obj=target_obj,
+            logger=self.lg)
         # 天天快报存在头像为''
         if head_url != '' \
                 and not head_url.startswith('http'):
@@ -499,7 +512,10 @@ class ArticleParser(AsyncCrawler):
             return get_uuid1()
 
         article_id_selector = await self._get_article_id_selector(article_url_type=article_url_type)
-        share_id = await async_parse_field(parser=article_id_selector, target_obj=article_url, logger=self.lg)
+        share_id = await async_parse_field(
+            parser=article_id_selector,
+            target_obj=article_url,
+            logger=self.lg)
         assert share_id != '', '获取到的share_id为空值!'
 
         return share_id
@@ -525,7 +541,10 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         comment_num = 0
-        _ = await async_parse_field(parser=parse_obj['comment_num'], target_obj=target_obj, logger=self.lg)
+        _ = await async_parse_field(
+            parser=parse_obj['comment_num'],
+            target_obj=target_obj,
+            logger=self.lg)
         # self.lg.info(str(_))
         try:
             comment_num = int(_)
@@ -546,7 +565,11 @@ class ArticleParser(AsyncCrawler):
             # 取第一个str
             is_first = True
 
-        tags_list = await async_parse_field(parser=parse_obj['tags_list'], target_obj=target_obj, is_first=is_first, logger=self.lg)
+        tags_list = await async_parse_field(
+            parser=parse_obj['tags_list'],
+            target_obj=target_obj,
+            is_first=is_first,
+            logger=self.lg)
         if tags_list == '':
             return []
 
@@ -569,7 +592,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         '''
-        create_time = await async_parse_field(parser=parse_obj['create_time'], target_obj=target_obj, logger=self.lg)
+        create_time = await async_parse_field(
+            parser=parse_obj['create_time'],
+            target_obj=target_obj,
+            logger=self.lg)
         # assert create_time != '', '获取到的create_time为空值!'
 
         return create_time
@@ -579,7 +605,10 @@ class ArticleParser(AsyncCrawler):
         article content
         :return:
         '''
-        content = await async_parse_field(parser=parse_obj['content'], target_obj=target_obj, logger=self.lg)
+        content = await async_parse_field(
+            parser=parse_obj['content'],
+            target_obj=target_obj,
+            logger=self.lg)
         # TODO 先不处理QQ看点的视频
         # if content == '' \
         #         and parse_obj.get('short_name', '') == 'kd':
@@ -626,7 +655,10 @@ class ArticleParser(AsyncCrawler):
             'method': 'css',
             'selector': 'article.video-art div.video-title-container h1 ::text'
         }
-        title = await async_parse_field(parser=_, target_obj=target_obj, logger=self.lg)
+        title = await async_parse_field(
+            parser=_,
+            target_obj=target_obj,
+            logger=self.lg)
         # self.lg.info(title)
 
         return title
@@ -643,7 +675,10 @@ class ArticleParser(AsyncCrawler):
             'method': 'css',
             'selector': 'article.media-art h1 ::text',
         }
-        author = await async_parse_field(parser=_, target_obj=target_obj, logger=self.lg)
+        author = await async_parse_field(
+            parser=_,
+            target_obj=target_obj,
+            logger=self.lg)
         # self.lg.info(author)
 
         return author
@@ -661,7 +696,10 @@ class ArticleParser(AsyncCrawler):
             'selector': 'txpdiv.txp_video_container video',
         }
         # phantomjs无法获取到原视频地址
-        content = await async_parse_field(parser=_, target_obj=target_obj, logger=self.lg)
+        content = await async_parse_field(
+            parser=_,
+            target_obj=target_obj,
+            logger=self.lg)
 
         return content
 
@@ -748,6 +786,28 @@ class ArticleParser(AsyncCrawler):
 
         raise ValueError('未知的文章url!')
 
+    @staticmethod
+    async def _get_random_pc_headers():
+        return {
+            'Connection': 'keep-alive',
+            'Cache-Control': 'max-age=0',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': get_random_pc_ua(),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+        }
+
+    async def _get_phone_headers(self):
+        return {
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
+        }
+    
     def __del__(self):
         try:
             del self.lg
@@ -767,19 +827,21 @@ if __name__ == '__main__':
     # https://mp.weixin.qq.com/s?__biz=MzA4MjQxNjQzMA==&mid=2768396229&idx=1&sn=&scene=0#wechat_redirect
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1545195601&ver=1283&signature=0wD3ij5dP9cs5hAXeHqb12I6CgxVu8HmadJhszmKuGI-PSMqcIoYd66qvE4Mg5ejrxCxWTgDC-s1xMaKviWC4Noe9GjwKzZpFCXLyRt6IkTne1YF4Yc8qmDvBVgb3w5c&new=1'
-    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1556935201&ver=1585&signature=kt*F7yGAGQSUbE2uwSTjSgvS1M4HDQ6CF477J*fJWhMkRr3YjA4zmbDcc734xit0cweD1K-7Iu4fq2ZNpuv0ts5l1ntiqi51SRnQcUKe9w8AOco*jG89XzvG7cUhqBdI&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
 
     # 头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
     # url = 'https://www.toutiao.com/a6623125148088140291/'
     # url = 'https://www.toutiao.com/a6623325882381500931/'     # 含视频
     # url = 'https://www.toutiao.com/a6623270159790375438/'
+    url = 'https://www.toutiao.com/a6687366150793200135/'
 
     # 简书
     # url = 'https://www.jianshu.com/p/ec1e9f6129bd'
     # url = 'https://www.jianshu.com/p/a02313dd3875'
     # url = 'https://www.jianshu.com/p/7160ad815557'
     # url = 'https://www.jianshu.com/p/1a60bdc3098b'
+    # url = 'https://www.jianshu.com/p/cfca1ba1e44c'
 
     # QQ看点
     # url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'

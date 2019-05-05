@@ -47,7 +47,8 @@ class RequestClient(object):
         for (k, v) in _my_sorted:
             canonicalized_query_string += '{}={}&'.format(k, v)
 
-        canonicalized_query_string += self._access_key_secret   # eg: access_key_id=yiuxiu&goods_link=aHR0cHM6Ly9oNS5tLnRhb2Jhby5jb20vYXdwL2NvcmUvZGV0YWlsLmh0bT9pZD01NTEwNDc0NTQxOTg=&t=1536802300&v=v1&22879be192793e9d80289b58a451f857
+        # eg: access_key_id=yiuxiu&goods_link=aHR0cHM6Ly9oNS5tLnRhb2Jhby5jb20vYXdwL2NvcmUvZGV0YWlsLmh0bT9pZD01NTEwNDc0NTQxOTg=&t=1536802300&v=v1&22879be192793e9d80289b58a451f857
+        canonicalized_query_string += self._access_key_secret
 
         # NO.3 加密返回签名: sign(小写, md5加密)
         return self.md5(canonicalized_query_string.encode('utf-8')).lower()
@@ -69,10 +70,10 @@ class RequestClient(object):
         # goods_link = 'https://item.m.jd.com/ware/view.action?wareId=3713001'
         # goods_link = 'https://item.jd.com/5025518.html'
 
-        # article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1541727002&ver=1233&signature=vJlLhwUTzzvdbscdn*wHIm*Ic2WPK*b73CpmDbZbq0WyRZZ-Nc9rLrQRNcAwMjGZJaSAaAs8*-*Jx*KuPjiHS0omOgP1-0dMcCJVlh70XbTejnEQmdmESvVN72aBWyIw&new=1'
         # article_link = 'https://www.toutiao.com/a6623270159790375438/'
         # article_link = 'https://www.jianshu.com/p/1a60bdc3098b'
-        article_link = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
+        # article_link = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
+        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
@@ -97,8 +98,8 @@ class RequestClient(object):
 
         # article
         # url = 'http://127.0.0.1:5000/api/article'
-        url = 'http://spider.other.k85u.com/api/article'
-        # url = 'http://spider.taobao_tmall.k85u.com/api/article'
+        url = 'http://118.31.39.97/api/article'
+        # url = 'http://23.239.0.250/api/article'
 
         with get(url, params=params) as response:
             res = response.text
