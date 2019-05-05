@@ -639,7 +639,20 @@ class ArticleParser(AsyncCrawler):
             # css 处理为原生的
             content = await self._wash_kb_article_content(content=content)
 
+        if parse_obj.get('short_name', '') == 'wx':
+            content = await self._wask_wx_article_content(content=content)
+
         content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 防盗链
+
+        return content
+
+    async def _wask_wx_article_content(self, content) -> str:
+        """
+        清洗wx content
+        :param content:
+        :return:
+        """
+        content = re.compile('<p><br></p>').sub('<br>', content)
 
         return content
 
@@ -828,13 +841,14 @@ if __name__ == '__main__':
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1545195601&ver=1283&signature=0wD3ij5dP9cs5hAXeHqb12I6CgxVu8HmadJhszmKuGI-PSMqcIoYd66qvE4Mg5ejrxCxWTgDC-s1xMaKviWC4Noe9GjwKzZpFCXLyRt6IkTne1YF4Yc8qmDvBVgb3w5c&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
+    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
 
     # 头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
     # url = 'https://www.toutiao.com/a6623125148088140291/'
     # url = 'https://www.toutiao.com/a6623325882381500931/'     # 含视频
     # url = 'https://www.toutiao.com/a6623270159790375438/'
-    url = 'https://www.toutiao.com/a6687366150793200135/'
+    # url = 'https://www.toutiao.com/a6687366150793200135/'
 
     # 简书
     # url = 'https://www.jianshu.com/p/ec1e9f6129bd'

@@ -73,7 +73,7 @@ class RequestClient(object):
         # article_link = 'https://www.toutiao.com/a6623270159790375438/'
         # article_link = 'https://www.jianshu.com/p/1a60bdc3098b'
         # article_link = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
-        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
+        article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
@@ -103,6 +103,13 @@ class RequestClient(object):
 
         with get(url, params=params) as response:
             res = response.text
+            data = json_2_dict(
+                json_str=res,
+                default_res={})
+            # pprint(data)
+
+            # article
+            # print(data.get('data', {}).get('div_body', ''))
 
         return res
 
