@@ -31,7 +31,6 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     IP_POOL_TYPE,)
 
-from fzutils.spider.fz_driver import BaseDriver
 from fzutils.spider.selector import async_parse_field
 from fzutils.spider.async_always import *
 
@@ -75,7 +74,10 @@ class ArticleParser(AsyncCrawler):
             title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html)
             author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
             head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
-            content = await self._get_article_content(parse_obj=parse_obj, target_obj=article_html, article_url=article_url)
+            content = await self._get_article_content(
+                parse_obj=parse_obj,
+                target_obj=article_html,
+                article_url=article_url)
             print(content)
             create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
             comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
@@ -145,18 +147,12 @@ class ArticleParser(AsyncCrawler):
         使用driver获取异步页面
         :return:
         '''
-        driver = BaseDriver(
+        body = await unblock_request_by_driver(
+            url=url,
             executable_path=self.driver_path,
             ip_pool_type=self.ip_pool_type,
             load_images=load_images,
-            logger=self.lg)
-        body = driver.get_url_body(url=url)
-        # self.lg.info(body)
-        try:
-            del driver
-        except:
-            pass
-        collect()
+            logger=self.lg,)
 
         return body
 
@@ -165,7 +161,11 @@ class ArticleParser(AsyncCrawler):
         得到wx文章内容
         :return: body, video_url
         '''
-        body = await unblock_request(url=article_url, headers=await self._get_random_pc_headers(), ip_pool_type=self.ip_pool_type, logger=self.lg)
+        body = await unblock_request(
+            url=article_url,
+            headers=await self._get_random_pc_headers(),
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg)
         # self.lg.info(body)
         assert body != '', '获取到wx的body为空值!'
 
@@ -285,6 +285,7 @@ class ArticleParser(AsyncCrawler):
 
         except AssertionError:
             self.lg.error('遇到错误:', exc_info=True)
+
             return body, video_url
 
     async def _get_kd_article_html(self, article_url):
@@ -297,7 +298,11 @@ class ArticleParser(AsyncCrawler):
         headers.update({
             'authority': 'post.mp.qq.com',
         })
-        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg)
         # self.lg.info(body)
         assert body != '', '获取到的kd的body为空值!'
 
@@ -313,7 +318,11 @@ class ArticleParser(AsyncCrawler):
         headers.update({
             'authority': 'kuaibao.qq.com',
         })
-        body = await unblock_request(url=article_url, headers=headers, ip_pool_type=self.ip_pool_type, logger=self.lg)
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,)
         # self.lg.info(body)
         assert body != '', '获取到的kb的body为空值!'
         '''
@@ -352,22 +361,35 @@ class ArticleParser(AsyncCrawler):
         # 单独处理含视频标签的
         try:
             # videos_url_list = re.compile('<div class=\"tvp_video\"><video.*?src=\"(.*?)\"></video><div class=\"tvp_shadow\">').findall(body)
-            videos_url_list = re.compile('<iframe class=\"video_iframe\" .*? src=\"(.*?)\"></iframe>').findall(body)
+            videos_url_list = re.compile('<iframe class=\"video_iframe.*?\" .*? src=\"(.*?)\"></iframe>').findall(body)
             assert videos_url_list != []
             self.lg.info('视频list: {}'.format(videos_url_list))
             self.lg.info('此文章含视频! 正在重新获取文章html...')
 
-            tmp_body = await self._get_html_by_driver(url=videos_url_list[0], load_images=True)
+            tmp_body = await self._get_html_by_driver(
+                url=videos_url_list[0],
+                load_images=True,)
             # self.lg.info(tmp_body)
             assert tmp_body != '', 'tmp_body为空值!'
             try:
-                video_div = '<div style=\"text-align:center; width:100%; height:100%;\">' + \
-                            re.compile('(<embed.*?)</div></div>').findall(tmp_body)[0] + '</div>'
-                # self.lg.info(video_div)
+                embed_div = re.compile('(<embed.*?)</div></div>').findall(tmp_body)[0]
+                # self.lg.info(embed_div)
+                # 获取video 的width, height
+                video_width_and_height_tuple = re.compile('bgcolor=\".*?\" width=\"(\d+)px\" height=\"(\d+)px\"').findall(embed_div)[0]
+                embed_div = '<embed width="{}px" height="{}px" src="{}" />'.format(
+                    video_width_and_height_tuple[0],
+                    video_width_and_height_tuple[1],
+                    videos_url_list[0])
             except IndexError:
                 raise IndexError('获取video_div时索引异常!')
+
+            video_div = '<div style=\"text-align:center; width:100%; height:100%;\">' + embed_div + '</div>'
+            # self.lg.info(video_div)
             # (只处理第一个视频)
-            body = re.compile('<iframe class=\"video_iframe\" .*?></iframe>').sub(video_div, body, count=1)
+            body = re.compile('<iframe class=\"video_iframe.*?\" .*?></iframe>').sub(
+                repl=video_div,
+                string=body,
+                count=1,)
             video_url = videos_url_list[0]
         except AssertionError:
             pass
@@ -621,28 +643,32 @@ class ArticleParser(AsyncCrawler):
         except AssertionError:
             if parse_obj.get('short_name', '') == 'kb':
                 content = await self._get_kb_content_where_have_video(target_obj=target_obj)
-
         assert content != '', '获取到的content为空值!'
+
         if parse_obj.get('short_name', '') == 'tt':
             # html乱码纠正
             content = await self._wash_tt_article_content(content=content)
 
-        if parse_obj.get('short_name', '') == 'js':
+        elif parse_obj.get('short_name', '') == 'js':
             # 图片处理
             content = await self._wash_js_article_content(content=content)
 
-        if parse_obj.get('short_name', '') == 'kd':
+        elif parse_obj.get('short_name', '') == 'kd':
             # 图片处理
             content = await self._wash_kd_article_content(content=content)
 
-        if parse_obj.get('short_name', '') == 'kb':
+        elif parse_obj.get('short_name', '') == 'kb':
             # css 处理为原生的
             content = await self._wash_kb_article_content(content=content)
 
-        if parse_obj.get('short_name', '') == 'wx':
+        elif parse_obj.get('short_name', '') == 'wx':
             content = await self._wask_wx_article_content(content=content)
 
-        content = '<meta name=\"referrer\" content=\"never\">' + content  # hook 防盗链
+        else:
+            pass
+
+        # hook 防盗链
+        content = '<meta name=\"referrer\" content=\"never\">' + content
 
         return content
 
@@ -771,19 +797,19 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         if article_url_type == 'wx':
-            return self.obj_origin_dict['wx'].get('site_id')
+            return self.obj_origin_dict['wx'].get('site_id', '')
 
         elif article_url_type == 'tt':
-            return self.obj_origin_dict['tt'].get('site_id')
+            return self.obj_origin_dict['tt'].get('site_id', '')
 
         elif article_url_type == 'js':
-            return self.obj_origin_dict['js'].get('site_id')
+            return self.obj_origin_dict['js'].get('site_id', '')
         
         elif article_url_type == 'kd':
-            return self.obj_origin_dict['kd'].get('site_id')
+            return self.obj_origin_dict['kd'].get('site_id', '')
 
         elif article_url_type == 'kb':
-            return self.obj_origin_dict['kb'].get('site_id')
+            return self.obj_origin_dict['kb'].get('site_id', '')
 
         else:
             raise ValueError('未知的文章url!')
@@ -841,7 +867,8 @@ if __name__ == '__main__':
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1545195601&ver=1283&signature=0wD3ij5dP9cs5hAXeHqb12I6CgxVu8HmadJhszmKuGI-PSMqcIoYd66qvE4Mg5ejrxCxWTgDC-s1xMaKviWC4Noe9GjwKzZpFCXLyRt6IkTne1YF4Yc8qmDvBVgb3w5c&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
-    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
+    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557111601&ver=1589&signature=ALBo1FMtv3X*yJa8CzViSYK*FV-Cr7rHblhsr-96NCZDD5jK8ra2daIg2QWCSVnnqJ4H4KJG*n820P0PULQ6PIQblWXUf*7R69P8ObOCR7UJmpRlKU8s2FgRFiUMrR7N&new=1'
 
     # 头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
