@@ -407,10 +407,11 @@ kl_update_str_3 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s  wh
 # db拼团goods查询
 mia_select_str_1 = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan where site_id=21'
 # db拼团更新
+# and is_delete=0 下架的也进行检查更新(避免上下架状态改变)!!
 mia_select_str_2 = '''
-select top 1000 goods_id, miaosha_time, pid 
+select top 1500 goods_id, miaosha_time, pid 
 from dbo.mia_pintuan 
-where site_id=21 and is_delete=0
+where site_id=21 
 order by modfiy_time asc
 '''
 # 秒杀实时更新
