@@ -91,9 +91,9 @@ class QQMailLogin(object):
             self.crack_slider()
 
     def get_slide_captcha_img(self,
-                              bg_css_selector='bkBlock',
+                              bg_css_selector='slideBg',
                               slide_css_selector='slideBlock') -> None:
-        sleep(2)
+        sleep(60)
         '''腾讯滑动验证码比较狗, 得先切换iframe'''
         # 根据id
         self.driver.switch_to.frame('tcaptcha_iframe')

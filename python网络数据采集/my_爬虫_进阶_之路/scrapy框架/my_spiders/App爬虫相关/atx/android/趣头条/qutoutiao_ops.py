@@ -89,7 +89,7 @@ class QuTouTiaoOps(AsyncCrawler):
         阅读完单篇article并返回上一层
         :return:
         """
-        print('read {} ...'.format(article_title))
+        print('reading {} ...'.format(article_title))
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while not self.d(

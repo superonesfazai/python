@@ -34,6 +34,7 @@ from settings import (
     IP_POOL_TYPE,)
 
 from fzutils.spider.selector import async_parse_field
+from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):
@@ -328,7 +329,7 @@ class ArticleParser(AsyncCrawler):
         if '/sgs_video.php' in article_url:
             # body 为动态加载的, 需要driver
             body = await self._get_html_by_driver(
-                url=url,
+                url=article_url,
                 load_images=False,)
         else:
             # 包含视频的url容易请求出错
@@ -1074,9 +1075,9 @@ if __name__ == '__main__':
 
     # 搜狗新闻资讯
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=gNWjMh9kjpEtYgjReTdUXZS0Q2CO6DjsS87Col9-QZE=&user_type=wappage'
-    url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
+    # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
     # 含视频
-    # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
+    url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
