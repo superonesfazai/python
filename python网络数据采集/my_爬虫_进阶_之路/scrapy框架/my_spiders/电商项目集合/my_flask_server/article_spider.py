@@ -7,14 +7,16 @@
 '''
 
 """
-文章资讯爬虫
+文章资讯爬虫obj
 
 已支持:
     1. 微信文章内容爬取(https://weixin.sogou.com)
     2. 简书文章内容爬取(https://www.jianshu.com)
     3. 今日头条文章内容爬取(https://www.toutiao.com)
-    4. qq看点文章内容爬取(根据QQ看点中分享出的地址)
-    5. 天天快报(根据天天快报分享出的地址)
+    4. 搜狗头条(https://wap.sogou.com)
+    5. 东方头条文章内容爬取(https://toutiao.eastday.com)
+    6. qq看点文章内容爬取(根据QQ看点中分享出的地址)
+    7. 天天快报(根据天天快报分享出的地址)
 待实现:
     1. 网易新闻
 """
@@ -46,6 +48,7 @@ class ArticleParser(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/',
             ip_pool_type=IP_POOL_TYPE)
         self.driver_path = PHANTOMJS_DRIVER_PATH
+        self.request_num_retries = 6
 
     async def _parse_article(self, article_url) -> dict:
         '''
@@ -71,21 +74,25 @@ class ArticleParser(AsyncCrawler):
             article_url_type=article_url_type)
         # self.lg.info(article_html)
         try:
-            title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html)
-            author = await self._get_author(parse_obj=parse_obj, target_obj=article_html)
+            title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html, video_url=video_url)
+            author = await self._get_author(parse_obj=parse_obj, target_obj=article_html, video_url=video_url)
             head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
             content = await self._get_article_content(
                 parse_obj=parse_obj,
                 target_obj=article_html,
-                article_url=article_url)
+                article_url=article_url,
+                video_url=video_url,)
             print(content)
-            create_time = await self._get_article_create_time(parse_obj=parse_obj, target_obj=article_html)
+            create_time = await self._get_article_create_time(
+                parse_obj=parse_obj,
+                target_obj=article_html,
+                video_url=video_url)
             comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
             fav_num = await self._get_fav_num(parse_obj=parse_obj, target_obj=article_html)
             praise_num = await self._get_praise_num(parse_obj=parse_obj, target_obj=article_html)
             tags_list = await self._get_tags_list(parse_obj=parse_obj, target_obj=article_html)
-            site_id = await self._get_site_id(article_url_type=article_url_type)
             profile = await self._get_profile(parse_obj=parse_obj, target_obj=article_html)
+            site_id = await self._get_site_id(article_url_type=article_url_type)
         except (AssertionError, Exception):
             self.lg.error('遇到错误:', exc_info=True, stack_info=False)
             return {}
@@ -94,7 +101,10 @@ class ArticleParser(AsyncCrawler):
         _['nick_name'] = author
         _['head_url'] = head_url
         _['profile'] = profile
-        _['share_id'] = await self._get_share_id(article_url_type=article_url_type, article_url=article_url)
+        _['share_id'] = await self._get_share_id(
+            article_url_type=article_url_type,
+            article_url=article_url,
+            video_url=video_url)
         _['title'] = title
         _['comment_content'] = ''
         _['share_img_url_list'] = []
@@ -139,6 +149,14 @@ class ArticleParser(AsyncCrawler):
             'kb': {
                 'obj_origin': 'kuaibao.qq.com',
                 'site_id': 8,
+            },
+            'df': {
+                'obj_origin': 'toutiao.eastday.com',
+                'site_id': 9,
+            },
+            'sg': {
+                'obj_origin': 'sa.sogou.com',
+                'site_id': 10,
             },
         }
 
@@ -280,6 +298,12 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'kb':
                 return await self._get_kb_article_html(article_url=article_url)
 
+            elif article_url_type == 'df':
+                return await self._get_df_article_html(article_url=article_url)
+
+            elif article_url_type == 'sg':
+                return await self._get_sg_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -287,6 +311,97 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_sg_article_html(self, article_url) -> tuple:
+        """
+        获取搜狗新闻资讯article html
+        :param article_url:
+        :return:
+        """
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'Referer': 'https://wap.sogou.com/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        if '/sgs_video.php' in article_url:
+            # body 为动态加载的, 需要driver
+            body = await self._get_html_by_driver(
+                url=url,
+                load_images=False,)
+        else:
+            # 包含视频的url容易请求出错
+            body = await unblock_request(
+                url=article_url,
+                headers=headers,
+                params=None,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.request_num_retries,
+                logger=self.lg)
+
+        # self.lg.info(body)
+        assert body != '', '获取sg的body为空值!'
+
+        video_url = ''
+        if '/sgs_video.php' in article_url:
+            self.lg.info('该文章含视频!')
+            video_url_selector = {
+                'method': 'css',
+                'selector': 'video#my-video source ::attr("src")',
+            }
+            video_url = await async_parse_field(
+                parser=video_url_selector,
+                target_obj=body,
+                logger=self.lg,)
+
+        return body, video_url
+
+    async def _get_df_article_html(self, article_url) -> tuple:
+        """
+        获取东方新闻的html
+        :param article_url:
+        :return:
+        """
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Referer': 'http://toutiao.eastday.com/',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            params=None,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取df的body为空值!'
+
+        video_url = ''
+        # self.lg.info(article_url)
+        if '/video/' in article_url:
+            # 表示该文章为视频文章
+            self.lg.info('该文章包含视频!')
+            video_url = await self._get_df_video_url(body=body)
+
+        return body, video_url
+
+    async def _get_df_video_url(self, body) -> str:
+        """
+        获取df的video_url
+        :return:
+        """
+        video_selector = {
+            'method': 'css',
+            'selector': 'video#J_video ::attr("src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_selector,
+            target_obj=body,
+            logger=self.lg,)
+
+        video_url = 'https:' + video_url if video_url != '' else ''
+
+        return video_url
 
     async def _get_kd_article_html(self, article_url):
         '''
@@ -406,8 +521,10 @@ class ArticleParser(AsyncCrawler):
         '''
         for item in ARTICLE_ITEM_LIST:
             if article_url_type == item.get('short_name', ''):
-                if item.get('obj_origin', '') == self.obj_origin_dict[article_url_type].get('obj_origin'):
+                if item.get('obj_origin', '') == \
+                        self.obj_origin_dict[article_url_type].get('obj_origin'):
                     parse_obj = item
+
                     return parse_obj
 
         raise NotImplementedError('未找到解析对象!')
@@ -460,43 +577,75 @@ class ArticleParser(AsyncCrawler):
 
         return profile
 
-    async def _get_author(self, parse_obj, target_obj):
+    async def _get_author(self, parse_obj, target_obj, video_url):
         '''
         作者
         :param parse_obj:
         :param target_obj:
         :return:
         '''
+        author_selector = parse_obj['author']
+        if parse_obj['short_name'] == 'kb':
+            if video_url != '':
+                author_selector = parse_obj['video_author']
+            else:
+                pass
+
+        elif parse_obj['short_name'] == 'sg':
+            if video_url != '':
+                author_selector = parse_obj['video_author']
+            else:
+                pass
+
+        else:
+            pass
+
         author = await async_parse_field(
-            parser=parse_obj['author'],
+            parser=author_selector,
             target_obj=target_obj,
             logger=self.lg)
-        try:
-            assert author != '', '获取到的author为空值!'
-        except AssertionError:
-            if parse_obj['short_name'] == 'kb':
-                author = await self._get_kb_author_where_have_video(target_obj=target_obj)
 
-        assert author != '', '获取到的author为空值!'
+        if parse_obj['short_name'] == 'df':
+            pass
+        else:
+            assert author != '', '获取到的author为空值!'
 
         return author
 
-    async def _get_article_title(self, parse_obj, target_obj):
+    async def _get_article_title(self, parse_obj, target_obj, video_url):
         '''
         文章title
         :param parse_obj:
         :param target_obj:
         :return:
         '''
+        title_selector = parse_obj['title']
+        if parse_obj['short_name'] == 'df':
+            if video_url != '':
+                title_selector = parse_obj['video_title']
+            else:
+                pass
+
+        elif parse_obj['short_name'] == 'kb':
+            if video_url != '':
+                title_selector = parse_obj['video_title']
+            else:
+                pass
+
+        elif parse_obj['short_name'] == 'sg':
+            if video_url != '':
+                title_selector = parse_obj['video_title']
+            else:
+                pass
+
+        else:
+            pass
+
+        # self.lg.info(target_obj)
         title = await async_parse_field(
-            parser=parse_obj['title'],
+            parser=title_selector,
             target_obj=target_obj,
             logger=self.lg)
-        try:
-            assert title != '', '获取到的title为空值!'
-        except AssertionError:
-            if parse_obj['short_name'] == 'kb':
-                title = await self._get_kb_title_where_have_video(target_obj=target_obj)
 
         assert title != '', '获取到的title为空值!'
 
@@ -529,8 +678,10 @@ class ArticleParser(AsyncCrawler):
         '''
         article_url_type = kwargs.get('article_url_type', '')
         article_url = kwargs.get('article_url', '')
+        video_url = kwargs.get('video_url', '')
 
-        if article_url_type == 'wx':
+        if article_url_type == 'wx'\
+                or article_url_type == 'sg':
             return get_uuid1()
 
         article_id_selector = await self._get_article_id_selector(article_url_type=article_url_type)
@@ -607,28 +758,60 @@ class ArticleParser(AsyncCrawler):
 
         return tags_list
 
-    async def _get_article_create_time(self, parse_obj, target_obj) -> str:
+    async def _get_article_create_time(self, parse_obj, target_obj, video_url) -> str:
         '''
         文章创建时间点
         :param parse_obj:
         :param target_obj:
         :return:
         '''
+        create_time_selector = parse_obj['create_time']
+        if parse_obj['short_name'] == 'sg':
+            if video_url != '':
+                create_time_selector = parse_obj['video_create_time']
+            else:
+                pass
+
+        else:
+            pass
+
         create_time = await async_parse_field(
-            parser=parse_obj['create_time'],
+            parser=create_time_selector,
             target_obj=target_obj,
             logger=self.lg)
+
+        if parse_obj['short_name'] == 'sg':
+            if video_url != '':
+                # 原先为05-05 11:13, 替换为标准的
+                create_time = str(get_shanghai_time())[:4] + '-' + create_time \
+                    if create_time != '' else ''
+            else:
+                create_time = create_time.replace('/', '-')
+
+        else:
+            pass
+
         # assert create_time != '', '获取到的create_time为空值!'
 
         return create_time
 
-    async def _get_article_content(self, parse_obj, target_obj, article_url) -> str:
+    async def _get_article_content(self, parse_obj, target_obj, article_url, video_url) -> str:
         '''
         article content
         :return:
         '''
+        content_selector = parse_obj['content']
+        if parse_obj['short_name'] == 'kb':
+            if video_url != '':
+                content_selector = parse_obj['video_article_content']
+            else:
+                pass
+
+        else:
+            pass
+
         content = await async_parse_field(
-            parser=parse_obj['content'],
+            parser=content_selector,
             target_obj=target_obj,
             logger=self.lg)
         # TODO 先不处理QQ看点的视频
@@ -638,12 +821,15 @@ class ArticleParser(AsyncCrawler):
         #     html = await self._get_html_by_driver(url=article_url, load_images=True)
         #     print(html)
 
-        try:
+        if parse_obj['short_name'] == 'df'\
+                or parse_obj['short_name'] == 'sg':
+            if video_url != '':
+                pass
+            else:
+                assert content != '', '获取到的content为空值!'
+
+        else:
             assert content != '', '获取到的content为空值!'
-        except AssertionError:
-            if parse_obj.get('short_name', '') == 'kb':
-                content = await self._get_kb_content_where_have_video(target_obj=target_obj)
-        assert content != '', '获取到的content为空值!'
 
         if parse_obj.get('short_name', '') == 'tt':
             # html乱码纠正
@@ -664,81 +850,48 @@ class ArticleParser(AsyncCrawler):
         elif parse_obj.get('short_name', '') == 'wx':
             content = await self._wask_wx_article_content(content=content)
 
+        elif parse_obj.get('short_name', '') == 'df':
+            content = await self._wask_df_article_content(content=content)
+
+        elif parse_obj.get('short_name', '') == 'sg':
+            content = await self._wask_sg_article_content(content=content)
+
         else:
             pass
 
         # hook 防盗链
-        content = '<meta name=\"referrer\" content=\"never\">' + content
+        content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
 
         return content
 
-    async def _wask_wx_article_content(self, content) -> str:
+    @staticmethod
+    async def _wask_sg_article_content(content) -> str:
+        """
+        清洗sg的content
+        :param content:
+        :return:
+        """
+        return content
+
+    @staticmethod
+    async def _wask_df_article_content(content) -> str:
+        """
+        清洗df的content
+        :param content:
+        :return:
+        """
+        content = re.compile('<p class=\"section txt\">对此你怎么看，欢迎大家在评论区留言！</p>').sub('', content)
+
+        return content
+
+    @staticmethod
+    async def _wask_wx_article_content(content) -> str:
         """
         清洗wx content
         :param content:
         :return:
         """
         content = re.compile('<p><br></p>').sub('<br>', content)
-
-        return content
-
-    async def _get_kb_title_where_have_video(self, **kwargs) -> str:
-        '''
-        获取kb(含有视频)的title
-        :return:
-        '''
-        target_obj = kwargs['target_obj']
-
-        # 得到含视频的title
-        _ = {
-            'method': 'css',
-            'selector': 'article.video-art div.video-title-container h1 ::text'
-        }
-        title = await async_parse_field(
-            parser=_,
-            target_obj=target_obj,
-            logger=self.lg)
-        # self.lg.info(title)
-
-        return title
-
-    async def _get_kb_author_where_have_video(self, **kwargs) -> str:
-        '''
-        获取kb(含有视频)的author
-        :param kwargs:
-        :return:
-        '''
-        target_obj = kwargs['target_obj']
-
-        _ = {
-            'method': 'css',
-            'selector': 'article.media-art h1 ::text',
-        }
-        author = await async_parse_field(
-            parser=_,
-            target_obj=target_obj,
-            logger=self.lg)
-        # self.lg.info(author)
-
-        return author
-
-    async def _get_kb_content_where_have_video(self, **kwargs) -> str:
-        '''
-        获取kb(含有视频)的content
-        :param kwargs:
-        :return:
-        '''
-        target_obj = kwargs['target_obj']
-
-        _ = {
-            'method': 'css',
-            'selector': 'txpdiv.txp_video_container video',
-        }
-        # phantomjs无法获取到原视频地址
-        content = await async_parse_field(
-            parser=_,
-            target_obj=target_obj,
-            logger=self.lg)
 
         return content
 
@@ -785,9 +938,16 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         for item in ARTICLE_ITEM_LIST:
-            if item.get('obj_origin', '') in article_url:
-                if item.get('debug'):
-                    return True
+            item_debug = item.get('debug', False)
+            if item.get('short_name', '') == 'df':
+                if 'mini.eastday.com' in article_url:
+                    if item_debug:
+                        return True
+
+            else:
+                if item.get('obj_origin', '') in article_url:
+                    if item_debug:
+                        return True
 
         return False
 
@@ -811,6 +971,12 @@ class ArticleParser(AsyncCrawler):
         elif article_url_type == 'kb':
             return self.obj_origin_dict['kb'].get('site_id', '')
 
+        elif article_url_type == 'df':
+            return self.obj_origin_dict['df'].get('site_id', '')
+
+        elif article_url_type == 'sg':
+            return self.obj_origin_dict['sg'].get('site_id', '')
+
         else:
             raise ValueError('未知的文章url!')
 
@@ -820,8 +986,13 @@ class ArticleParser(AsyncCrawler):
         :return:
         '''
         for key, value in self.obj_origin_dict.items():
-            if value.get('obj_origin') in article_url:
-                return key
+            if key == 'df':
+                if 'mini.eastday.com' in article_url:
+                    return key
+
+            else:
+                if value.get('obj_origin') in article_url:
+                    return key
 
         raise ValueError('未知的文章url!')
 
@@ -868,14 +1039,13 @@ if __name__ == '__main__':
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1545195601&ver=1283&signature=0wD3ij5dP9cs5hAXeHqb12I6CgxVu8HmadJhszmKuGI-PSMqcIoYd66qvE4Mg5ejrxCxWTgDC-s1xMaKviWC4Noe9GjwKzZpFCXLyRt6IkTne1YF4Yc8qmDvBVgb3w5c&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
-    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557111601&ver=1589&signature=ALBo1FMtv3X*yJa8CzViSYK*FV-Cr7rHblhsr-96NCZDD5jK8ra2daIg2QWCSVnnqJ4H4KJG*n820P0PULQ6PIQblWXUf*7R69P8ObOCR7UJmpRlKU8s2FgRFiUMrR7N&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557111601&ver=1589&signature=ALBo1FMtv3X*yJa8CzViSYK*FV-Cr7rHblhsr-96NCZDD5jK8ra2daIg2QWCSVnnqJ4H4KJG*n820P0PULQ6PIQblWXUf*7R69P8ObOCR7UJmpRlKU8s2FgRFiUMrR7N&new=1'
 
     # 头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
     # url = 'https://www.toutiao.com/a6623125148088140291/'
-    # url = 'https://www.toutiao.com/a6623325882381500931/'     # 含视频
-    # url = 'https://www.toutiao.com/a6623270159790375438/'
-    # url = 'https://www.toutiao.com/a6687366150793200135/'
+    # 含视频
+    # url = 'https://www.toutiao.com/a6623325882381500931/'
 
     # 简书
     # url = 'https://www.jianshu.com/p/ec1e9f6129bd'
@@ -894,6 +1064,21 @@ if __name__ == '__main__':
     # url = 'https://kuaibao.qq.com/s/20181201A0VJE800?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # 含视频(不处理)
     # url = 'https://kuaibao.qq.com/s/20180906V1A30P00?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
+
+    # 东方头条新闻
+    # url = 'https://mini.eastday.com/mobile/190505214138491.html?qid=null&idx=1&recommendtype=crb_a579c9a168dd382c_1_1_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0'
+    # url = 'https://mini.eastday.com/mobile/190507061239214.html?qid=null&idx=2&recommendtype=-1_a579c9a168dd382c_1_2_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0001'
+    # 含视频
+    # url = 'https://mini.eastday.com/video/vgaoxiao/20190506/190506045241686142077.html?qid=null&idx=6&recommendtype=-1_a579c9a168dd382c_1_6_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0'
+    # url = 'https://mini.eastday.com/video/vgaoxiao/20190425/190425154440387159259.html?qid=null&idx=2&fr=https://mini.eastday.com/video/vgaoxiao/20190506/190506045241686142077.html&ishot=0&recommendtype=vs'
+
+    # 搜狗新闻资讯
+    # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=gNWjMh9kjpEtYgjReTdUXZS0Q2CO6DjsS87Col9-QZE=&user_type=wappage'
+    url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
+    # 含视频
+    # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
+    # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
+
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
-    print(dumps(article_parse_res))
+    # print(dumps(article_parse_res))

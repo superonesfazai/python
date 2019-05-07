@@ -256,6 +256,7 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'div#img-content h2 ::text',
         },
+        'video_title': None,
         'author': {
             'method': 'css',
             'selector': 'div#meta_content span a ::text',
@@ -290,6 +291,7 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': 'title: \'(.*?)\',',
         },
+        'video_title': None,
         'author': {
             'method': 're',
             'selector': 'name: \'(.*?)\',avatar:',
@@ -330,6 +332,7 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'h1.title ::text',
         },
+        'video_title': None,
         'author': {
             'method': 'css',
             'selector': 'div.author div.info span.name a ::text',
@@ -418,9 +421,17 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': '\'title\': \'(.*?)\',',
         },
+        'video_title': {
+            'method': 'css',
+            'selector': 'article.video-art div.video-title-container h1 ::text',
+        },
         'author': {
             'method': 're',
             'selector': '\'src\': \'(.*?)\'',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'article.media-art h1 ::text',
         },
         'head_url': {
             'method': 'css',
@@ -433,6 +444,85 @@ ARTICLE_ITEM_LIST = [
         'content': {
             'method': 'css',
             'selector': 'div.content-box',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'txpdiv.txp_video_container video',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
+    {
+        'short_name': 'df',
+        'debug': True,
+        'obj_origin': 'toutiao.eastday.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h1.title ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'div.video-title h1 ::text',
+        },
+        'author': {
+            'method': 're',
+            'selector': '&nbsp;来源：(.*?)</span>',
+        },
+        'head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '<div class=\"article-src-time\"><span class=\"src\">(\d+-\d+-\d+ \d+:\d+)&nbsp;&nbsp;&nbsp;&nbsp;来源',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div#content',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
+    {
+        'short_name': 'sg',
+        'debug': True,
+        'obj_origin': 'sa.sogou.com',
+        'article_id': None,
+        'title': {
+            'method': 'css',
+            'selector': 'h1#articleTitle ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'h1.trans-video-tit ::text',
+        },
+        'author': {
+            'method': 're',
+            'selector': '<p class=\"w-from\"> (.*?)<span>',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'div.trans-video-mes span:nth-child(1) ::text',
+        },
+        'head_url': None,
+        'create_time': {
+            'method': 'css',
+            'selector': 'p.w-from span ::text',
+        },
+        'video_create_time': {
+            'method': 'css',
+            'selector': 'div.trans-video-mes span:nth-child(2) ::text',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div#articleContent',
         },
         'comment_num': None,
         'tags_list': None,

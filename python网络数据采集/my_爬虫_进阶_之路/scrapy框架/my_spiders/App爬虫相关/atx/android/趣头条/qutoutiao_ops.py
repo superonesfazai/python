@@ -40,12 +40,22 @@ class QuTouTiaoOps(AsyncCrawler):
         """
         print('即将开始自动化read...')
         while True:
+            if self.d(resourceId="com.jifen.qukan:id/fr", text=u"开启 签到 提醒", className="android.widget.TextView").exists():
+                self.d(resourceId="com.jifen.qukan:id/i3", className="android.widget.ImageView").click()
+
+            if self.d(resourceId="com.jifen.qukan:id/zi", text=u"输入好友邀请码或手机号可得", className="android.widget.TextView").exists():
+                self.d(resourceId="com.jifen.qukan:id/zp", className="android.widget.ImageView").click()
+
+            if self.d(resourceId="android:id/alertTitle", text=u"趣头条无响应，要将其关闭吗？", className="android.widget.TextView").exists():
+                self.d(resourceId="android:id/button2", text=u"等待", className="android.widget.Button").click()
+
+            if self.d(resourceId="com.jifen.qukan:id/ug", text=u"您将获得以下专属权益", className="android.widget.TextView").exists():
+                self.d(resourceId="com.jifen.qukan:id/uk", className="android.widget.ImageView").click()
+
             if self.d(resourceId="com.jifen.qukan:id/a54", text=u"广告", className="android.widget.TextView").exists():
                 print('有广告, 跳过!')
                 await u2_up_swipe_some_height(d=self.d, swipe_height=.3)
                 continue
-            else:
-                pass
 
             try:
                 first_article_ele = self.d(
@@ -86,7 +96,7 @@ class QuTouTiaoOps(AsyncCrawler):
                 resourceId="com.jifen.qukan:id/nw",
                 text=u"没有更多咯~",
                 className="android.widget.TextView").exists():
-            if swipe_count > 20:
+            if swipe_count > 15:
                 # 原因: 长时间阅读评论, 收获金币有限
                 break
 
