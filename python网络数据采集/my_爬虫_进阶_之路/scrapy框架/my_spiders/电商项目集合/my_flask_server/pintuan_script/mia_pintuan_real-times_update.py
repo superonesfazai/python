@@ -96,17 +96,18 @@ class MiaPintuanRealTimeUpdate(object):
                         sleep(.4)
                         continue
 
-                    try:
-                        assert data_list != [], 'data_list不为空list!'
-                    except AssertionError as e:
-                        print(e)
-                        _handle_goods_shelves_in_auto_goods_table(
-                            goods_id=goods_id,
-                            update_sql_str=mia_update_str_7,
-                            sql_cli=self.sql_cli)
-                        sleep(.4)
-                        index += 1
-                        continue
+                    # TODO 会导致在售商品被异常下架, 不进行判断, 一律进行更新
+                    # try:
+                    #     assert data_list != [], 'data_list不为空list!'
+                    # except AssertionError as e:
+                    #     print(e)
+                    #     _handle_goods_shelves_in_auto_goods_table(
+                    #         goods_id=goods_id,
+                    #         update_sql_str=mia_update_str_7,
+                    #         sql_cli=self.sql_cli)
+                    #     sleep(.4)
+                    #     index += 1
+                    #     continue
 
                     pintuan_goods_all_goods_id = [item_1.get('goods_id', '') for item_1 in data_list]
                     # print(pintuan_goods_all_goods_id)
@@ -115,7 +116,8 @@ class MiaPintuanRealTimeUpdate(object):
                     蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
                     '''
                     mia_pt = MiaPintuanParse()
-                    if goods_id not in pintuan_goods_all_goods_id:  # 内部已经下架的
+                    if goods_id not in pintuan_goods_all_goods_id:
+                        # 内部已经下架的
                         # 一律更新
                         try:
                             goods_data = self._get_mia_pt_one_goods_info(

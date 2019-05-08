@@ -102,6 +102,8 @@ class TBUpdater(AsyncCrawler):
             result = self.tmp_sql_server._select_table(sql_str=tb_select_str_3,)
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
 
         await _print_db_old_data(logger=self.lg, result=result)
 

@@ -57,6 +57,11 @@ class QuTouTiaoOps(AsyncCrawler):
                 await u2_up_swipe_some_height(d=self.d, swipe_height=.3)
                 continue
 
+            if self.d(resourceId="com.jifen.qukan:id/v7", text=u"领取", className="android.widget.TextView").exists():
+                # 获取首页定时金币
+                print('@@@ 获取到定时金币!')
+                self.d(resourceId="com.jifen.qukan:id/v7", text=u"领取", className="android.widget.TextView").click()
+
             try:
                 first_article_ele = self.d(
                     resourceId="com.jifen.qukan:id/a2t",
@@ -89,7 +94,7 @@ class QuTouTiaoOps(AsyncCrawler):
         阅读完单篇article并返回上一层
         :return:
         """
-        print('reading {} ...'.format(article_title))
+        print('[{}] reading {} ...'.format(str(get_shanghai_time()), article_title))
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while not self.d(
@@ -103,7 +108,7 @@ class QuTouTiaoOps(AsyncCrawler):
             await u2_up_swipe_some_height(d=self.d, swipe_height=.7)
             swipe_count += 1
 
-        print('read over!')
+        print('[{}] read over!'.format(str(get_shanghai_time())))
         await u2_page_back(d=self.d, back_num=1)
 
         return

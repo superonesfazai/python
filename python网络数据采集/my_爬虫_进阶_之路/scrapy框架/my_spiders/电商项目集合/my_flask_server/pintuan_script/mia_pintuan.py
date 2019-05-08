@@ -30,6 +30,7 @@ from sql_str_controller import (
 )
 
 from fzutils.linux_utils import daemon_init
+from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
 
 class MiaPintuan(object):
@@ -43,9 +44,12 @@ class MiaPintuan(object):
         '''
         goods_list = []
         for page_num in range(1, 1000):     # 0跟1返回一样，所有从1开始遍历
-            one_page_list = get_mia_pintuan_one_page_api_goods_info(page_num=page_num)
             try:
+                one_page_list = get_mia_pintuan_one_page_api_goods_info(page_num=page_num)
                 assert one_page_list != [], 'one_page_list不为空list!'
+            except ResponseBodyIsNullStrException:
+                print('page_num: {} response body is null! pass'.format(page_num))
+                continue
             except AssertionError:
                 break
 
