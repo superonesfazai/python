@@ -29,6 +29,8 @@ class QuTouTiaoOps(AsyncCrawler):
         self.d.set_fastinput_ime(True)
         self.d.debug = False
         self.now_session = self.d.session(pkg_name="com.jifen.qukan")
+        # 清理app的基数
+        self.clear_app_base_num = 25
 
     async def _fck_run(self):
         await self._read_forever()
@@ -39,6 +41,7 @@ class QuTouTiaoOps(AsyncCrawler):
         :return:
         """
         print('即将开始自动化read...')
+        article_count = 0
         while True:
             if self.d(resourceId="com.jifen.qukan:id/fr", text=u"开启 签到 提醒", className="android.widget.TextView").exists():
                 self.d(resourceId="com.jifen.qukan:id/i3", className="android.widget.ImageView").click()
@@ -62,6 +65,8 @@ class QuTouTiaoOps(AsyncCrawler):
                 print('@@@ 获取到定时金币!')
                 self.d(resourceId="com.jifen.qukan:id/v7", text=u"领取", className="android.widget.TextView").click()
 
+            # 周期清内存
+            await self._clear_app_memory(article_count=article_count)
             try:
                 first_article_ele = self.d(
                     resourceId="com.jifen.qukan:id/a2t",
@@ -72,6 +77,7 @@ class QuTouTiaoOps(AsyncCrawler):
                 first_article_ele.click()
                 # 阅读完该文章并返回上一页
                 await self._read_one_article(article_title=article_title)
+                article_count += 1
 
                 if self.d(
                         resourceId="com.jifen.qukan:id/s_",
@@ -88,6 +94,27 @@ class QuTouTiaoOps(AsyncCrawler):
                 continue
 
             await u2_up_swipe_some_height(d=self.d, swipe_height=.3)
+
+    async def _clear_app_memory(self, article_count) -> None:
+        """
+        清理app内存
+        :return:
+        """
+        if article_count % self.clear_app_base_num == 0\
+                and article_count != 0:
+            print('article_count: {}, clear app memory...'.format(article_count))
+            self.d(resourceId="com.jifen.qukan:id/ji", text=u"我的", className="android.widget.Button").click()
+            await async_sleep(2.5)
+            self.d(resourceId="com.jifen.qukan:id/ah_", className="android.widget.ImageView", instance=1).click()
+            self.d(text=u"清除缓存", className="android.widget.TextView").click()
+            await async_sleep(3.)
+            print('clear over!')
+            await u2_page_back(d=self.d, back_num=1)
+            # 点击返回头条
+            self.d(resourceId="com.jifen.qukan:id/jc", text=u"头条", className="android.widget.Button").click()
+
+        else:
+            pass
 
     async def _read_one_article(self, article_title) -> None:
         """
