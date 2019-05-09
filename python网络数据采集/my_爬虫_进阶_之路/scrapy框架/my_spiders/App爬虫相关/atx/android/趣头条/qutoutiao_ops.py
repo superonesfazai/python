@@ -17,9 +17,9 @@ from uiautomator2 import UIAutomatorServer
 from uiautomator2.exceptions import UiObjectNotFoundError
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.app_utils import (
-    AndroidDeviceObj,
     u2_block_page_back,
-    u2_block_up_swipe_some_height,)
+    u2_block_up_swipe_some_height,
+    get_u2_init_device_list,)
 from fzutils.common_utils import _print
 from fzutils.spider.async_always import *
 
@@ -30,43 +30,24 @@ class QuTouTiaoOps(AsyncCrawler):
             ip_pool_type=tri_ip_pool,)
         # 清理app的基数
         self.clear_app_base_num = 25
+        self.pkg_name = 'com.jifen.qukan'
+        self.d_debug = False
+        self.set_fast_input_ime = True
         # device_id_list
         self.device_id_list = [
             '816QECTK24ND8',
         ]
 
     async def _fck_run(self):
-        self.device_obj_list = await self._init_device_list()
+        self.device_obj_list = await get_u2_init_device_list(
+            loop=self.loop,
+            u2=u2,
+            pkg_name=self.pkg_name,
+            device_id_list=self.device_id_list,
+            d_debug=self.d_debug,
+            set_fast_input_ime=self.set_fast_input_ime,)
         await self._every_device_start_read()
 
-    async def _init_device_list(self) -> list:
-        """
-        初始化设备对象list
-        :return:
-        """
-        device_obj_list = []
-        for device_id in self.device_id_list:
-            print('init device_id: {} ...'.format(device_id))
-            # 设置设备id
-            d:UIAutomatorServer = u2.connect(addr=device_id)
-            d_info = d.info
-            print(d_info)
-            device_product_name = d_info.get('productName', '')
-            assert device_product_name != '', 'self.device_product_name !=""'
-            d.set_fastinput_ime(True)
-            d.debug = False
-            # 启动指定包
-            now_session = d.session(pkg_name="com.jifen.qukan")
-
-            device_obj = AndroidDeviceObj(
-                d=d,
-                device_id=device_id,
-                device_product_name=device_product_name,)
-            device_obj_list.append(device_obj)
-            print('init device_id: {} over!'.format(device_id))
-
-        return device_obj_list
-        
     async def _every_device_start_read(self):
         """
         每台设备开始阅读...
@@ -119,7 +100,7 @@ class QuTouTiaoOps(AsyncCrawler):
         """
         d:UIAutomatorServer = device_obj.d
 
-        print('即将开始自动化read...')
+        print(self._get_print_base_str(device_obj=device_obj) + '即将开始自动化read...')
         article_count = 0
         while True:
             if d(resourceId="com.jifen.qukan:id/fr", text=u"锁屏看资讯每日60金币送不停", className="android.widget.TextView").exists():
@@ -138,13 +119,13 @@ class QuTouTiaoOps(AsyncCrawler):
                 d(resourceId="com.jifen.qukan:id/uk", className="android.widget.ImageView").click()
 
             if d(resourceId="com.jifen.qukan:id/a54", text=u"广告", className="android.widget.TextView").exists():
-                print('有广告, 跳过!')
+                print(self._get_print_base_str(device_obj=device_obj) + '有广告, 跳过!')
                 u2_block_up_swipe_some_height(d=d, swipe_height=.3)
                 continue
 
             if d(resourceId="com.jifen.qukan:id/v7", text=u"领取", className="android.widget.TextView").exists():
                 # 获取首页定时金币
-                print('@@@ 获取到定时金币!')
+                print(self._get_print_base_str(device_obj=device_obj) + '@@@ 获取到定时金币!')
                 d(resourceId="com.jifen.qukan:id/v7", text=u"领取", className="android.widget.TextView").click()
 
             # 周期清内存
@@ -168,8 +149,7 @@ class QuTouTiaoOps(AsyncCrawler):
                     pass
 
             except (UiObjectNotFoundError, Exception) as e:
-                print(e)
-                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id, device_obj.device_product_name))
+                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id, device_obj.device_product_name), e)
                 # 异常处理
                 if d(resourceId="com.jifen.qukan:id/acx", text=u"我来说两句...", className="android.widget.TextView").exists():
                     # 表示未退出文章, 先退出文章
@@ -191,7 +171,7 @@ class QuTouTiaoOps(AsyncCrawler):
 
         if article_count % self.clear_app_base_num == 0\
                 and article_count != 0:
-            print('article_count: {}, clear app memory...'.format(article_count))
+            print(self._get_print_base_str(device_obj=device_obj) + 'article_count: {}, clear app memory...'.format(article_count))
             d(resourceId="com.jifen.qukan:id/ji", text=u"我的", className="android.widget.Button").click()
             sleep(2.5)
 
@@ -202,7 +182,7 @@ class QuTouTiaoOps(AsyncCrawler):
             d(resourceId="com.jifen.qukan:id/ah_", className="android.widget.ImageView", instance=1).click()
             d(text=u"清除缓存", className="android.widget.TextView").click()
             sleep(3.)
-            print('clear over!')
+            print(self._get_print_base_str(device_obj=device_obj) + 'clear over!')
             u2_block_page_back(d=d, back_num=1)
             # 点击返回头条
             d(resourceId="com.jifen.qukan:id/jc", text=u"头条", className="android.widget.Button").click()
@@ -221,7 +201,7 @@ class QuTouTiaoOps(AsyncCrawler):
         """
         d:UIAutomatorServer = device_obj.d
 
-        print('[{} device_id: {}, device_product_name: {}] reading {} ...'.format(str(get_shanghai_time()), device_obj.device_id, device_obj.device_product_name, article_title))
+        print(self._get_print_base_str(device_obj=device_obj) + 'reading {} ...'.format(article_title))
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while not d(resourceId="com.jifen.qukan:id/nw", text=u"没有更多咯~", className="android.widget.TextView").exists():
@@ -232,10 +212,22 @@ class QuTouTiaoOps(AsyncCrawler):
             u2_block_up_swipe_some_height(d=d, swipe_height=.7)
             swipe_count += 1
 
-        print('[{} device_id: {}, device_product_name: {}] read over!'.format(str(get_shanghai_time()), device_obj.device_id, device_obj.device_product_name))
+        print(self._get_print_base_str(device_obj=device_obj) + 'read over!')
         u2_block_page_back(d=d, back_num=1)
 
         return
+
+    def _get_print_base_str(self, device_obj) -> str:
+        """
+        基础打印str
+        :return:
+        """
+        now_time_str_fuc = lambda : str(get_shanghai_time())
+
+        return '[{} device_id: {}, device_product_name: {}] '.format(
+            now_time_str_fuc(),
+            device_obj.device_id,
+            device_obj.device_product_name,)
 
     def __del__(self):
         try:
