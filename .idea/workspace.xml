@@ -4,10 +4,10 @@
     <bookmark url="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" line="547" mnemonic="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="&quot;新增 PyQt5相关&quot;">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment=" de">
       <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/atx/android/趣头条/qutoutiao_ops.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/atx/android/趣头条/qutoutiao_ops.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/my_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/my_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/app_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/app_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -1117,10 +1117,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/atx/android/趣头条/qutoutiao_ops.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="516">
-              <caret line="96" lean-forward="true" selection-start-line="96" selection-end-line="96" />
+            <state relative-caret-position="210">
+              <caret line="14" column="9" lean-forward="true" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
               <folding>
-                <element signature="e#3638#4325#0" />
+                <element signature="e#6457#6625#0" />
               </folding>
             </state>
           </provider>
@@ -1141,10 +1141,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>python</find>
-      <find>utils</find>
-      <find>db</find>
-      <find>dateutil</find>
       <find>date_parse</find>
       <find>setuptools</find>
       <find>elasticsearch</find>
@@ -1171,10 +1167,12 @@
       <find>&lt;p class=&quot;w-from&quot;&gt;</find>
       <find>trans-video-tit</find>
       <find>def _parse_article</find>
+      <find>'''</find>
+      <find>self.d(</find>
+      <find>d=self.d</find>
+      <find>self.device_id</find>
     </findStrings>
     <replaceStrings>
-      <replace>self.lg.info</replace>
-      <replace>ArticleParser</replace>
       <replace>'p'</replace>
       <replace>BaseSqlite3Cli</replace>
       <replace>async_parse_field</replace>
@@ -1199,10 +1197,12 @@
       <replace>self.bd_or_gd_category_list</replace>
       <replace>self.bd_or_gd_max_page_num</replace>
       <replace>self.bd_or_gd_jb_boom_filter</replace>
-      <replace>&quot;&quot;&quot;</replace>
       <replace>self.lg</replace>
       <replace>async_sleep</replace>
       <replace>_get_random_pc_headers</replace>
+      <replace>&quot;&quot;&quot;</replace>
+      <replace>d(</replace>
+      <replace>d=d</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils</dir>
@@ -1220,7 +1220,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/tri_party_agent_ip_pool/proxy_checker.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/tri_party_agent_ip_pool/utils.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/tri_party_agent_ip_pool/settings.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/selenium/webdriver/common/alert.py" />
@@ -1253,7 +1252,6 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/requires.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/time_utils.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/淘宝/淘宝联盟/tb_member.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" />
@@ -1264,13 +1262,15 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/qq邮箱/login.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script/mia_pintuan.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/taobao_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script/mia_pintuan_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/my_client.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/atx/android/趣头条/qutoutiao_ops.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/app_utils.py" />
       </list>
     </option>
   </component>
@@ -1702,10 +1702,28 @@
               <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
               <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
-              <item name="App爬虫相关" type="462c0819:PsiDirectoryNode" />
-              <item name="atx" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="趣头条" type="462c0819:PsiDirectoryNode" />
+              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
+              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
+              <item name="fzutils" type="462c0819:PsiDirectoryNode" />
+              <item name="spider" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
@@ -2222,7 +2240,7 @@
       <workItem from="1555038650671" duration="10033000" />
       <workItem from="1555147330027" duration="32872000" />
       <workItem from="1555565505501" duration="130097000" />
-      <workItem from="1556937151321" duration="49035000" />
+      <workItem from="1556937151321" duration="54775000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2274,7 +2292,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1172104000" />
+    <option name="totallyTimeSpent" value="1177844000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2418,225 +2436,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/appium/android/微信朋友圈_spider/moments.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="28" column="9" lean-forward="true" selection-start-line="28" selection-start-column="9" selection-end-line="28" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/appium/android/抖音/douyin_hot_auto_action.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="27" column="28" lean-forward="true" selection-start-line="27" selection-start-column="28" selection-end-line="27" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/data/excel_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/requires.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/log_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="170" lean-forward="true" selection-start-line="170" selection-end-line="170" />
-          <folding>
-            <element signature="e#8455#9291#0" />
-            <element signature="e#9336#9809#0" />
-            <element signature="e#9859#10567#0" />
-            <element signature="e#10643#11238#0" />
-            <element signature="e#11286#11374#0" />
-            <element signature="e#11445#12655#0" />
-            <element signature="e#12703#13279#0" />
-            <element signature="e#13339#20713#0" />
-            <element signature="e#14978#15385#0" />
-            <element signature="e#20811#23612#0" />
-            <element signature="e#23692#23881#0" />
-            <element signature="e#23957#24262#0" />
-            <element signature="e#24329#25205#0" />
-            <element signature="e#25282#25624#0" />
-            <element signature="e#25687#26455#0" />
-            <element signature="e#26497#26973#0" />
-            <element signature="e#27030#28779#0" />
-            <element signature="e#28834#33717#0" />
-            <element signature="e#33809#36375#0" />
-            <element signature="e#36417#37294#0" />
-            <element signature="e#37365#37939#0" />
-            <element signature="e#38003#42346#0" />
-            <element signature="e#42400#47173#0" />
-            <element signature="e#47273#50795#0" />
-            <element signature="e#50837#51483#0" />
-            <element signature="e#51539#52614#0" />
-            <element signature="e#52668#58736#0" />
-            <element signature="e#58828#61835#0" />
-            <element signature="e#61910#62665#0" />
-            <element signature="e#62707#63284#0" />
-            <element signature="e#63340#68352#0" />
-            <element signature="e#68406#75413#0" />
-            <element signature="e#75505#78472#0" />
-            <element signature="e#78660#81705#0" />
-            <element signature="e#81774#83672#0" />
-            <element signature="e#83714#84164#0" />
-            <element signature="e#84220#89084#0" />
-            <element signature="e#89146#93961#0" />
-            <element signature="e#94053#97016#0" />
-            <element signature="e#97058#97509#0" />
-            <element signature="e#97565#101571#0" />
-            <element signature="e#101625#104766#0" />
-            <element signature="e#104848#106829#0" />
-            <element signature="e#106929#109626#0" />
-            <element signature="e#109670#110240#0" />
-            <element signature="e#110297#112113#0" />
-            <element signature="e#112196#115012#0" />
-            <element signature="e#115099#117032#0" />
-            <element signature="e#117087#122606#0" />
-            <element signature="e#122754#123178#0" />
-            <element signature="e#123261#125254#0" />
-            <element signature="e#125347#131382#0" />
-            <element signature="e#131484#132219#0" />
-            <element signature="e#132261#133125#0" />
-            <element signature="e#133181#134685#0" />
-            <element signature="e#134742#135427#0" />
-            <element signature="e#135484#136217#0" />
-            <element signature="e#136266#137458#0" />
-            <element signature="e#137515#139392#0" />
-            <element signature="e#139449#143984#0" />
-            <element signature="e#144065#145465#0" />
-            <element signature="e#145538#145983#0" />
-            <element signature="e#146040#147530#0" />
-            <element signature="e#147612#150583#0" />
-            <element signature="e#150637#156545#0" />
-            <element signature="e#156626#156985#0" />
-            <element signature="e#157063#157355#0" />
-            <element signature="e#157447#162813#0" />
-            <element signature="e#162927#164442#0" />
-            <element signature="e#164484#165005#0" />
-            <element signature="e#165077#168025#0" />
-            <element signature="e#168100#169083#0" />
-            <element signature="e#169182#174040#0" />
-            <element signature="e#174164#175003#0" />
-            <element signature="e#175098#178057#0" />
-            <element signature="e#178126#178684#0" />
-            <element signature="e#178727#180664#0" />
-            <element signature="e#180731#181413#0" />
-            <element signature="e#181467#182005#0" />
-            <element signature="e#182071#182384#0" />
-            <element signature="e#182453#186617#0" />
-            <element signature="e#186659#186855#0" />
-            <element signature="e#186941#187590#0" />
-            <element signature="e#187654#190067#0" />
-            <element signature="e#190117#190447#0" />
-            <element signature="e#190496#191908#0" />
-            <element signature="e#191978#197055#0" />
-            <element signature="e#197106#197363#0" />
-            <element signature="e#197434#200174#0" />
-            <element signature="e#200238#203236#0" />
-            <element signature="e#203313#204468#0" />
-            <element signature="e#204533#206649#0" />
-            <element signature="e#206734#208176#0" />
-            <element signature="e#208262#209120#0" />
-            <element signature="e#209206#210230#0" />
-            <element signature="e#210330#211536#0" />
-            <element signature="e#211637#212484#0" />
-            <element signature="e#212559#214666#0" />
-            <element signature="e#214758#215450#0" />
-            <element signature="e#215523#219925#0" />
-            <element signature="e#220027#220412#0" />
-            <element signature="e#220485#220953#0" />
-            <element signature="e#221026#221494#0" />
-            <element signature="e#221570#221763#0" />
-            <element signature="e#221826#222822#0" />
-            <element signature="e#222901#225496#0" />
-            <element signature="e#225577#226721#0" />
-            <element signature="e#226801#228601#0" />
-            <element signature="e#228681#229301#0" />
-            <element signature="e#229381#230627#0" />
-            <element signature="e#230701#236490#0" />
-            <element signature="e#236572#237748#0" />
-            <element signature="e#237833#241179#0" />
-            <element signature="e#241277#242848#0" />
-            <element signature="e#242924#243627#0" />
-            <element signature="e#243702#247019#0" />
-            <element signature="e#247067#247501#0" />
-            <element signature="e#247575#251038#0" />
-            <element signature="e#251130#252587#0" />
-            <element signature="e#252694#257069#0" />
-            <element signature="e#257183#258084#0" />
-            <element signature="e#258179#262809#0" />
-            <element signature="e#262907#264072#0" />
-            <element signature="e#264176#265246#0" />
-            <element signature="e#265369#266476#0" />
-            <element signature="e#266595#268383#0" />
-            <element signature="e#295401#295866#0" />
-            <element signature="e#295907#296639#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/time_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="32" column="15" lean-forward="true" selection-start-line="32" selection-start-column="15" selection-end-line="32" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/time_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
-          <folding>
-            <element signature="e#135#146#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/淘宝/淘宝联盟/tb_member.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
-          <folding>
-            <element signature="e#121#125#0" expanded="true" />
-            <element signature="e#557#1057#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tmp/jianshu_style.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6035" />
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/common_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="165" lean-forward="true" selection-start-line="165" selection-end-line="165" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/自动化运维/fabric包/auto_code_deloy.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="359">
@@ -2892,53 +2691,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="332" column="35" lean-forward="true" selection-start-line="332" selection-start-column="35" selection-end-line="332" selection-end-column="35" />
-          <folding>
-            <element signature="e#421#442#0" expanded="true" />
-            <element signature="e#4590#5474#0" />
-            <element signature="e#5549#5850#0" />
-            <element signature="e#5924#6318#0" />
-            <element signature="e#6392#6892#0" />
-            <element signature="e#6966#7503#0" />
-            <element signature="e#7587#7868#0" />
-            <element signature="e#7952#17041#0" />
-            <element signature="e#19920#20661#0" />
-            <element signature="e#20723#21132#0" />
-            <element signature="e#21197#21677#0" />
-            <element signature="e#21742#22636#0" />
-            <element signature="e#22702#22949#0" />
-            <element signature="e#23017#25161#0" />
-            <element signature="e#25233#25640#0" />
-            <element signature="e#25710#26110#0" />
-            <element signature="e#26177#26445#0" />
-            <element signature="e#26512#26787#0" />
-            <element signature="e#26864#27682#0" />
-            <element signature="e#27766#28710#0" />
-            <element signature="e#28785#29243#0" />
-            <element signature="e#29305#29960#0" />
-            <element signature="e#30050#30345#0" />
-            <element signature="e#30423#30858#0" />
-            <element signature="e#30935#31951#0" />
-            <element signature="e#32048#33019#0" />
-            <element signature="e#33125#35317#0" />
-            <element signature="e#35401#35501#0" />
-            <element signature="e#35585#35783#0" />
-            <element signature="e#35867#36033#0" />
-            <element signature="e#36117#36889#0" />
-            <element signature="e#36973#37248#0" />
-            <element signature="e#37331#37833#0" />
-            <element signature="e#37902#38752#0" />
-            <element signature="e#38819#39184#0" />
-            <element signature="e#39252#39656#0" />
-            <element signature="e#39706#40073#0" />
-            <element signature="e#40110#40261#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script/mia_pintuan.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="491">
@@ -2991,12 +2743,223 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="555">
+          <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
+          <folding>
+            <element signature="e#421#442#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/items.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/algorithm_utils.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/aio_utils.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/celery_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-28">
+          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/common_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4692" />
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/click/decorators.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="91" column="4" selection-start-line="91" selection-start-column="4" selection-end-line="91" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/company_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="761">
+          <caret line="106" column="34" selection-start-line="106" selection-start-column="34" selection-end-line="106" selection-end-column="34" />
+          <folding>
+            <element signature="e#3074#295261#0" />
+            <element signature="e#8455#9291#0" />
+            <element signature="e#9336#9809#0" />
+            <element signature="e#9859#10567#0" />
+            <element signature="e#10643#11238#0" />
+            <element signature="e#11286#11374#0" />
+            <element signature="e#11445#12655#0" />
+            <element signature="e#12703#13279#0" />
+            <element signature="e#13339#20713#0" />
+            <element signature="e#14978#15385#0" />
+            <element signature="e#20811#23612#0" />
+            <element signature="e#23692#23881#0" />
+            <element signature="e#23957#24262#0" />
+            <element signature="e#24329#25205#0" />
+            <element signature="e#25282#25624#0" />
+            <element signature="e#25687#26455#0" />
+            <element signature="e#26497#26973#0" />
+            <element signature="e#27030#28779#0" />
+            <element signature="e#28834#33717#0" />
+            <element signature="e#33809#36375#0" />
+            <element signature="e#36417#37294#0" />
+            <element signature="e#37365#37939#0" />
+            <element signature="e#38003#42346#0" />
+            <element signature="e#42400#47173#0" />
+            <element signature="e#47273#50795#0" />
+            <element signature="e#50837#51483#0" />
+            <element signature="e#51539#52614#0" />
+            <element signature="e#52668#58736#0" />
+            <element signature="e#58828#61835#0" />
+            <element signature="e#61910#62665#0" />
+            <element signature="e#62707#63284#0" />
+            <element signature="e#63340#68352#0" />
+            <element signature="e#68406#75413#0" />
+            <element signature="e#75505#78472#0" />
+            <element signature="e#78660#81705#0" />
+            <element signature="e#81774#83672#0" />
+            <element signature="e#83714#84164#0" />
+            <element signature="e#84220#89084#0" />
+            <element signature="e#89146#93961#0" />
+            <element signature="e#94053#97016#0" />
+            <element signature="e#97058#97509#0" />
+            <element signature="e#97565#101571#0" />
+            <element signature="e#101625#104766#0" />
+            <element signature="e#104848#106829#0" />
+            <element signature="e#106929#109626#0" />
+            <element signature="e#109670#110240#0" />
+            <element signature="e#110297#112113#0" />
+            <element signature="e#112196#115012#0" />
+            <element signature="e#115099#117032#0" />
+            <element signature="e#117087#122606#0" />
+            <element signature="e#122754#123178#0" />
+            <element signature="e#123261#125254#0" />
+            <element signature="e#125347#131382#0" />
+            <element signature="e#131484#132219#0" />
+            <element signature="e#132261#133125#0" />
+            <element signature="e#133181#134685#0" />
+            <element signature="e#134742#135427#0" />
+            <element signature="e#135484#136217#0" />
+            <element signature="e#136266#137458#0" />
+            <element signature="e#137515#139392#0" />
+            <element signature="e#139449#143984#0" />
+            <element signature="e#144065#145465#0" />
+            <element signature="e#145538#145983#0" />
+            <element signature="e#146040#147530#0" />
+            <element signature="e#147612#150583#0" />
+            <element signature="e#150637#156545#0" />
+            <element signature="e#156626#156985#0" />
+            <element signature="e#157063#157355#0" />
+            <element signature="e#157447#162813#0" />
+            <element signature="e#162927#164442#0" />
+            <element signature="e#164484#165005#0" />
+            <element signature="e#165077#168025#0" />
+            <element signature="e#168100#169083#0" />
+            <element signature="e#169182#174040#0" />
+            <element signature="e#174164#175003#0" />
+            <element signature="e#175098#178057#0" />
+            <element signature="e#178126#178684#0" />
+            <element signature="e#178727#180664#0" />
+            <element signature="e#180731#181413#0" />
+            <element signature="e#181467#182005#0" />
+            <element signature="e#182071#182384#0" />
+            <element signature="e#182453#186617#0" />
+            <element signature="e#186659#186855#0" />
+            <element signature="e#186941#187590#0" />
+            <element signature="e#187654#190067#0" />
+            <element signature="e#190117#190447#0" />
+            <element signature="e#190496#191908#0" />
+            <element signature="e#191978#197055#0" />
+            <element signature="e#197106#197363#0" />
+            <element signature="e#197434#200174#0" />
+            <element signature="e#200238#203236#0" />
+            <element signature="e#203313#204468#0" />
+            <element signature="e#204533#206649#0" />
+            <element signature="e#206734#208176#0" />
+            <element signature="e#208262#209120#0" />
+            <element signature="e#209206#210230#0" />
+            <element signature="e#210330#211536#0" />
+            <element signature="e#211637#212484#0" />
+            <element signature="e#212559#214666#0" />
+            <element signature="e#214758#215450#0" />
+            <element signature="e#215523#219925#0" />
+            <element signature="e#220027#220412#0" />
+            <element signature="e#220485#220953#0" />
+            <element signature="e#221026#221494#0" />
+            <element signature="e#221570#221763#0" />
+            <element signature="e#221826#222822#0" />
+            <element signature="e#222901#225496#0" />
+            <element signature="e#225577#226721#0" />
+            <element signature="e#226801#228601#0" />
+            <element signature="e#228681#229301#0" />
+            <element signature="e#229381#230627#0" />
+            <element signature="e#230701#236490#0" />
+            <element signature="e#236572#237748#0" />
+            <element signature="e#237833#241179#0" />
+            <element signature="e#241277#242848#0" />
+            <element signature="e#242924#243627#0" />
+            <element signature="e#243702#247019#0" />
+            <element signature="e#247067#247501#0" />
+            <element signature="e#247575#251038#0" />
+            <element signature="e#251130#252587#0" />
+            <element signature="e#252694#257069#0" />
+            <element signature="e#257183#258084#0" />
+            <element signature="e#258179#262809#0" />
+            <element signature="e#262907#264072#0" />
+            <element signature="e#264176#265246#0" />
+            <element signature="e#265369#266476#0" />
+            <element signature="e#266595#268383#0" />
+            <element signature="e#295401#295866#0" />
+            <element signature="e#295907#296639#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="31" column="4" lean-forward="true" selection-start-line="31" selection-start-column="4" selection-end-line="31" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/shell_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="42" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/uiautomator2/adbutils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/spider/app_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="715">
+          <caret line="138" lean-forward="true" selection-start-line="138" selection-end-line="138" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/uiautomator2/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="1192" column="35" lean-forward="true" selection-start-line="1192" selection-start-column="35" selection-end-line="1192" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/atx/android/趣头条/qutoutiao_ops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="516">
-          <caret line="96" lean-forward="true" selection-start-line="96" selection-end-line="96" />
+        <state relative-caret-position="210">
+          <caret line="14" column="9" lean-forward="true" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
           <folding>
-            <element signature="e#3638#4325#0" />
+            <element signature="e#6457#6625#0" />
           </folding>
         </state>
       </provider>
