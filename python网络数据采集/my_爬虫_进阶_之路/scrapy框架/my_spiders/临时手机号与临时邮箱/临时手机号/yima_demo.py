@@ -16,7 +16,9 @@ with open('/Users/afa/myFiles/pwd/yima_pwd.json', 'r') as f:
 _ = YiMaSmser(username=yima_info['username'], pwd=yima_info['pwd'])
 
 # project_id = 35
-project_id = 715
+# project_id = 715
+# 趣头条
+project_id = 2674
 while True:
     phone_num = _._get_phone_num(project_id=project_id)
     print(phone_num)

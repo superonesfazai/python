@@ -2,12 +2,12 @@
 
 '''
 @author = super_fazai
-@File    : qutoutiao_ops.py
+@File    : mattress_wool_ops.py
 @connect : superonesfazai@gmail.com
 '''
 
 """
-趣头条ops
+羊毛ops
 """
 
 from gc import collect
@@ -24,22 +24,59 @@ from fzutils.spider.app_utils import (
 from fzutils.common_utils import _print
 from fzutils.exceptions import AppNoResponseException
 from fzutils.spider.async_always import *
+from fzutils.shell_utils import *
 
-class QuTouTiaoOps(AsyncCrawler):
-    """趣头条ops"""
+# 启动羊毛app的short_name
+APP_NAME = None
+# ops操作类型
+AUTO_READ = 0
+AUTO_TRY_APP = 0
+
+class MattressWoolOps(AsyncCrawler):
+    """羊毛ops"""
     def __init__(self):
         AsyncCrawler.__init__(
             self,
             ip_pool_type=tri_ip_pool,)
-        # 清理app的基数
-        self.clear_app_base_num = 25
+        self.short_name = 'qt' if APP_NAME is None else APP_NAME
+        self.auto_read = True if AUTO_READ == 1 else False              # 模式是否为自动阅读
+        self.auto_try_app = True if AUTO_TRY_APP == 1 else False        # 模式是否为自动试玩
+        self.wool_app_info = self._init_wool_app_info()                 # 羊毛app信息
+        self.pkg_name = self._get_wool_pkg_name()
+        self.clear_app_base_num = 25                                    # 清理app的基数
         self.try_app_sleep_time = 3.15 * 60
-        self.pkg_name = 'com.jifen.qukan'
         self.d_debug = False
         self.set_fast_input_ime = True
-        # device_id_list
-        self.device_id_list = [
+        self.device_id_list = [                                         # device_id_list
             '816QECTK24ND8',
+        ]
+
+    def _get_wool_pkg_name(self):
+        """
+        获取包名
+        :param short_name:
+        :return:
+        """
+        for item in self.wool_app_info:
+            if item.get('short_name', '') == self.short_name:
+                return item.get('pkg_name', '')
+
+        raise NotImplemented
+
+    def _init_wool_app_info(self):
+        """
+        初始化羊毛app信息
+        :return:
+        """
+        return [
+            {
+                'short_name': 'qt',
+                'pkg_name': 'com.jifen.qukan',
+            },
+            {
+                'short_name': 'ht',
+                'pkg_name': 'com.cashtoutiao',
+            },
         ]
 
     async def _fck_run(self):
@@ -51,15 +88,18 @@ class QuTouTiaoOps(AsyncCrawler):
             d_debug=self.d_debug,
             set_fast_input_ime=self.set_fast_input_ime,)
 
-        # auto read
-        # await self._every_device_start_read()
-        # auto try apps
-        await self._every_device_start_auto_try_apps()
+        if self.auto_read:
+            # auto read
+            await self._every_device_start_read()
+
+        if self.auto_try_app:
+            # auto try apps
+            await self._every_device_start_auto_try_apps()
 
     async def _every_device_start_read(self):
         """
         每台设备开始阅读...
-        :return: 
+        :return:
         """
         tasks = []
         for device_obj in self.device_obj_list:
@@ -150,11 +190,23 @@ class QuTouTiaoOps(AsyncCrawler):
         自动试玩app
         :return:
         """
+        if self.short_name == 'qt':
+            self._qt_auto_try_apps(device_obj=device_obj)
+
+        else:
+            raise NotImplemented
+
+    def _qt_auto_try_apps(self, device_obj):
+        """
+        qt auto try apps
+        :param device_obj:
+        :return:
+        """
         d: UIAutomatorServer = device_obj.d
 
         print(self._get_print_base_str(device_obj=device_obj) + '即将开始auto试玩app...')
         # 先处理恶意弹窗
-        self._home_window_handle(device_obj=device_obj)
+        self._qt_home_window_handle(device_obj=device_obj)
         d(resourceId="com.jifen.qukan:id/jg", text=u"任务", className="android.widget.Button").click()
         d(text=u"试玩领金币", className="android.widget.TextView").click()
         sleep(3.)
@@ -167,19 +219,25 @@ class QuTouTiaoOps(AsyncCrawler):
                 first_ele_text = first_ele.info.get('text', '')
                 print(self._get_print_base_str(device_obj=device_obj) + '安装按钮text: {}'.format(first_ele_text))
                 first_ele.click()
-                try_app_btn = d(textMatches=u"打开注册并试玩|打开激活|打开试玩|打开浏览|打开使用", className="android.widget.TextView")
+                try_app_btn = d(
+                    textMatches=u"打开注册并试玩|打开激活|打开试玩|打开浏览|打开使用|打开阅读",
+                    className="android.widget.TextView")
 
                 if not try_app_btn.exists():
                     # 先前 该app未安装的情况
                     d(text=u"立即下载", className="android.widget.TextView").click()
                     print(self._get_print_base_str(device_obj=device_obj) + 'starting download ...')
-                    while not d(resourceId="com.android.packageinstaller:id/virus_scan_done", text=u"确定要继续安装吗？", className="android.widget.TextView").exists():
+                    while not d(
+                            resourceId="com.android.packageinstaller:id/virus_scan_done",
+                            text=u"确定要继续安装吗？",
+                            className="android.widget.TextView").exists():
                         pass
 
-                    d(resourceId="com.android.packageinstaller:id/action_positive",
-                      text=u"继续",
-                      description=u"继续",
-                      className="android.widget.TextView",).click()
+                    d(
+                        resourceId="com.android.packageinstaller:id/action_positive",
+                        text=u"继续",
+                        description=u"继续",
+                        className="android.widget.TextView", ).click()
 
                     complete_installed_btn = d(
                         resourceId="com.android.packageinstaller:id/action_negative",
@@ -197,7 +255,8 @@ class QuTouTiaoOps(AsyncCrawler):
 
                 # 开始试玩
                 try_app_btn.click()
-                print(self._get_print_base_str(device_obj=device_obj) + '休眠{}s ... 等待app试玩结束!!'.format(self.try_app_sleep_time))
+                print(self._get_print_base_str(device_obj=device_obj) + '休眠{}s ... 等待app试玩结束!!'.format(
+                    self.try_app_sleep_time))
                 try:
                     self._try_someone_app(device_obj=device_obj)
                 except Exception as e:
@@ -228,7 +287,14 @@ class QuTouTiaoOps(AsyncCrawler):
                 # 试玩结束...
 
             except UiObjectNotFoundError as e:
-                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id, device_obj.device_product_name), e)
+                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id,
+                                                                        device_obj.device_product_name), e)
+                # 下滑一个高度, 用于处理试玩app列表为空的情况, 进行下滑刷新list
+                d.swipe(0., .3, 0., .3 + .5)
+                # 避免频繁请求接口
+                sleep_time = 15.
+                print(self._get_print_base_str(device_obj=device_obj) + 'sleep time: {} ...'.format(sleep_time))
+                sleep(sleep_time)
 
     def uninstall_someone_app(self, device_obj):
         """
@@ -241,6 +307,8 @@ class QuTouTiaoOps(AsyncCrawler):
             current_app_pkg_name = d.current_app().get('package', '')
             assert current_app_pkg_name != '', 'current_app_pkg_name != ""'
             print(self._get_print_base_str(device_obj=device_obj) + 'current_app_pkg_name: {}, starting uninstall ...'.format(current_app_pkg_name))
+            # 先停止app, 再进行卸载
+            d.app_stop(pkg_name=current_app_pkg_name)
             d.app_uninstall(pkg_name=current_app_pkg_name)
         except Exception as e:
             print(self._get_print_base_str(device_obj=device_obj), e)
@@ -262,13 +330,20 @@ class QuTouTiaoOps(AsyncCrawler):
             #     # 允许所有申请的权限
             #     d(text=u"允许", className="android.widget.Button").click()
 
-            if d(resourceId="com.android.packageinstaller:id/permission_message",
-                 textMatches=u"\w+申请获取定位权限|\w+申请读写手机存储权限|\w+申请拍照和录像权限",
-                 className="android.widget.TextView").exists():
+            if d(
+                    resourceId="com.android.packageinstaller:id/permission_message",
+                    textMatches=u"\w+申请获取定位权限|\w+申请读写手机存储权限|\w+申请拍照和录像权限",
+                    className="android.widget.TextView").exists():
                 # 处理权限申请相关弹窗
                 d(resourceId="com.android.packageinstaller:id/permission_allow_button", text=u"允许", className="android.widget.Button").click()
 
-            if d(resourceId="android:id/message", text=u"允许 \w+ ROOT 权限", className="android.widget.TextView").exists():
+            if d(resourceId="android:id/alertTitle", text=u"\w+申请获取定位权限", className="android.widget.TextView").exists():
+                d(resourceId="android:id/button1", text=u"允许", className="android.widget.Button").click()
+
+            if d(
+                    resourceId="android:id/message",
+                    text=u"允许 \w+ ROOT 权限|允许 \w+申请 ROOT 权限",
+                    className="android.widget.TextView").exists():
                 d(resourceId="android:id/button2", text=u"取消", className="android.widget.Button").click()
 
             sleep(record_time_long)
@@ -283,14 +358,96 @@ class QuTouTiaoOps(AsyncCrawler):
         :param device_obj:
         :return:
         """
-        d:UIAutomatorServer = device_obj.d
+        if self.short_name == 'qt':
+            self._qt_read_forever(device_obj=device_obj)
+
+        elif self.short_name == 'ht':
+            self._ht_read_forever(device_obj=device_obj)
+
+        else:
+            raise NotImplemented
+
+    def _ht_read_forever(self, device_obj) -> None:
+        """
+        ht auto read
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
 
         print(self._get_print_base_str(device_obj=device_obj) + '即将开始自动化read...')
         article_count = 0
         while True:
             try:
                 # 首页恶意弹窗处理
-                self._home_window_handle(device_obj=device_obj)
+                self._ht_home_window_handle(device_obj=device_obj)
+            except AppNoResponseException:
+                break
+
+            if d(resourceId="com.cashtoutiao:id/count_down_tv", text=u"点击领取",
+                 className="android.widget.TextView").exists():
+                # 获取首页定时金币
+                print(self._get_print_base_str(device_obj=device_obj) + '@@@ 获取到定时金币!')
+                d(resourceId="com.cashtoutiao:id/count_down_tv", text=u"点击领取",
+                  className="android.widget.TextView").click()
+                d(resourceId="com.cashtoutiao:id/tv_left", text=u"忽略", className="android.widget.TextView").click()
+
+            try:
+                first_article_ele = d(
+                    resourceId="com.cashtoutiao:id/tv_title",
+                    className="android.widget.TextView",
+                    instance=0, )
+                article_title = first_article_ele.info.get('text', '')
+                # 点击进入文章
+                first_article_ele.click()
+                # 阅读完该文章并返回上一页
+                self._ht_read_one_article(device_obj=device_obj, article_title=article_title)
+
+            except (UiObjectNotFoundError, Exception) as e:
+                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id,
+                                                                        device_obj.device_product_name), e)
+
+                u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+                continue
+
+            u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+
+    def _ht_home_window_handle(self, device_obj) -> None:
+        """
+        ht 首页弹窗处理
+        :param device_obj:
+        :return:
+        """
+        d:UIAutomatorServer = device_obj.d
+
+        if d(resourceId="com.cashtoutiao:id/img_close", className="android.widget.ImageView").exists():
+            d(resourceId="com.cashtoutiao:id/img_close", className="android.widget.ImageView").click()
+
+        return
+
+    def _ht_read_one_article(self, device_obj, article_title):
+        """
+        ht read someone article
+        :param device_obj:
+        :param article_title:
+        :return:
+        """
+        pass
+
+    def _qt_read_forever(self, device_obj) -> None:
+        """
+        qt auto read
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
+        print(self._get_print_base_str(device_obj=device_obj) + '即将开始自动化read...')
+        article_count = 0
+        while True:
+            try:
+                # 首页恶意弹窗处理
+                self._qt_home_window_handle(device_obj=device_obj)
             except AppNoResponseException:
                 break
 
@@ -305,7 +462,7 @@ class QuTouTiaoOps(AsyncCrawler):
                 d(resourceId="com.jifen.qukan:id/v7", text=u"领取", className="android.widget.TextView").click()
 
             # 周期清内存
-            self._clear_app_memory(device_obj=device_obj, article_count=article_count)
+            self._qt_clear_app_memory(device_obj=device_obj, article_count=article_count)
             try:
                 first_article_ele = d(
                     resourceId="com.jifen.qukan:id/a2t",
@@ -315,7 +472,7 @@ class QuTouTiaoOps(AsyncCrawler):
                 # 点击进入文章
                 first_article_ele.click()
                 # 阅读完该文章并返回上一页
-                self._read_one_article(device_obj=device_obj, article_title=article_title)
+                self._qt_read_one_article(device_obj=device_obj, article_title=article_title)
                 article_count += 1
 
                 if d(resourceId="com.jifen.qukan:id/s_", text=u"立即开启", className="android.widget.TextView").exists():
@@ -325,9 +482,18 @@ class QuTouTiaoOps(AsyncCrawler):
                     pass
 
             except (UiObjectNotFoundError, Exception) as e:
-                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id, device_obj.device_product_name), e)
+                print('出错device_id: {}, device_product_name: {}'.format(
+                    device_obj.device_id,
+                    device_obj.device_product_name),
+                    e)
                 # 异常处理
-                if d(resourceId="com.jifen.qukan:id/acx", text=u"我来说两句...", className="android.widget.TextView").exists():
+                if d(resourceId="com.jifen.qukan:id/sb", text=u"确认要下载此链接吗？",
+                     className="android.widget.TextView").exists():
+                    # 下载弹窗处理
+                    d(resourceId="com.jifen.qukan:id/rm", text=u"取消", className="android.widget.TextView").click()
+
+                if d(resourceId="com.jifen.qukan:id/acx", text=u"我来说两句...",
+                     className="android.widget.TextView").exists():
                     # 表示未退出文章, 先退出文章
                     u2_block_page_back(d=d, back_num=1)
 
@@ -337,7 +503,8 @@ class QuTouTiaoOps(AsyncCrawler):
             u2_block_up_swipe_some_height(d=d, swipe_height=.3)
 
         # 清除app 数据并重启
-        d.app_clear(pkg_name=self.pkg_name)
+        # d.app_clear(pkg_name=self.pkg_name)
+        d.app_stop(pkg_name=self.pkg_name)
         try:
             del d
         except:
@@ -347,13 +514,13 @@ class QuTouTiaoOps(AsyncCrawler):
             device_id=device_obj.device_id,
             pkg_name=self.pkg_name,
             d_debug=self.d_debug,
-            set_fast_input_ime=self.set_fast_input_ime,)
+            set_fast_input_ime=self.set_fast_input_ime, )
 
         return self._read_forever(device_obj=new_device_obj)
 
-    def _home_window_handle(self, device_obj) -> None:
+    def _qt_home_window_handle(self, device_obj) -> None:
         """
-        首页恶意弹窗处理
+        qt首页恶意弹窗处理
         :param device_obj:
         :return:
         """
@@ -379,12 +546,12 @@ class QuTouTiaoOps(AsyncCrawler):
 
         return
 
-    def _clear_app_memory(self, device_obj, article_count) -> None:
+    def _qt_clear_app_memory(self, device_obj, article_count) -> None:
         """
-        清理app内存并返回首页
+        qt清理app内存并返回首页
         :param device_obj:
-        :param article_count: 
-        :return: 
+        :param article_count:
+        :return:
         """
         d:UIAutomatorServer = device_obj.d
 
@@ -411,9 +578,9 @@ class QuTouTiaoOps(AsyncCrawler):
         else:
             pass
 
-    def _read_one_article(self, device_obj, article_title) -> None:
+    def _qt_read_one_article(self, device_obj, article_title) -> None:
         """
-        阅读完单篇article并返回上一层
+        qt阅读完单篇article并返回上一层
         :param d:
         :param article_title:
         :return:
@@ -453,11 +620,41 @@ class QuTouTiaoOps(AsyncCrawler):
             del self.loop
             del self.device_id_list
             del self.device_obj_list
+            del self.wool_app_info
         except:
             pass
         collect()
 
+@click_command()
+@click_option('--app_name', type=str, default=None, help='what is app_name !!')
+@click_option('--auto_read', type=int, default=0, help='what is auto_read!!')
+@click_option('--auto_try_app', type=int, default=0, help='what is auto_try_app!!')
+def init_mattress_wool_ops(app_name, auto_read:int, auto_try_app:int):
+    """
+    main
+    :param app_name:
+    :param auto_read:
+    :param auto_try_app:
+    :return:
+    """
+    global APP_NAME, AUTO_READ, AUTO_TRY_APP
+
+    APP_NAME = app_name
+    AUTO_READ = auto_read
+    AUTO_TRY_APP = auto_try_app
+    loop = None
+    try:
+        _ = MattressWoolOps()
+        loop = get_event_loop()
+        res = loop.run_until_complete(_._fck_run())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        try:
+            loop.close()
+            del loop
+        except:
+            pass
+
 if __name__ == '__main__':
-    loop = get_event_loop()
-    _ = QuTouTiaoOps()
-    loop.run_until_complete(_._fck_run())
+    init_mattress_wool_ops()
