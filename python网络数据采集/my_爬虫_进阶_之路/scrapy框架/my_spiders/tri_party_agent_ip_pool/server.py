@@ -64,7 +64,7 @@ def get_db_old_data() -> list:
         cursor = sqlite3_cli._execute(sql_str=select_sql_str)
         all = cursor.fetchall()
         cursor.close()
-    except Exception:
+    except Exception as e:
         print(e)
         return []
 

@@ -6,6 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from pprint import pprint
 from fzutils.common_utils import json_2_dict
 from fzutils.register_utils import YiMaSmser
 
@@ -18,17 +19,20 @@ _ = YiMaSmser(username=yima_info['username'], pwd=yima_info['pwd'])
 # project_id = 35
 # project_id = 715
 # 趣头条
-project_id = 2674
-while True:
-    phone_num = _._get_phone_num(project_id=project_id)
-    print(phone_num)
-    a = input('是否可用: ')
-    if a == 'y':
-        break
+# project_id = 2674
+# 惠头条
+project_id = 8080
 
-print('\n未注册的: {}'.format(phone_num))
-sms_res = _._get_sms(phone_num=phone_num, project_id=project_id)
-print(sms_res)
-res = _._get_account_info()
-from pprint import pprint
-pprint(res)
+while True:
+    while True:
+        phone_num = _._get_phone_num(project_id=project_id)
+        print(phone_num)
+        a = input('是否可用: ')
+        if a == 'y':
+            break
+
+    print('\n未注册的: {}'.format(phone_num))
+    sms_res = _._get_sms(phone_num=phone_num, project_id=project_id)
+    print(sms_res)
+    res = _._get_account_info()
+    pprint(res)
