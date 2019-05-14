@@ -25,12 +25,25 @@ from fzutils.spider.app_utils import (
 from fzutils.exceptions import AppNoResponseException
 from fzutils.spider.async_always import *
 from fzutils.shell_utils import *
+from fzutils.register_utils import YiMaSmser
+
+"""
+输入法: 搜狗输入法
+红米1s:
+    xposed安装版本: xposedinstallermiui8.apk
+"""
 
 # 启动羊毛app的short_name
 APP_NAME = None
 # ops操作类型
 AUTO_READ = 0
 AUTO_TRY_APP = 0
+AUTO_REGISTER = 0
+AUTO_GET_NOW_PKG_NAME = 0
+
+class ReadTimeOutException(Exception):
+    """阅读超时异常"""
+    pass
 
 class MattressWoolOps(AsyncCrawler):
     """羊毛ops"""
@@ -39,20 +52,42 @@ class MattressWoolOps(AsyncCrawler):
             self,
             ip_pool_type=tri_ip_pool,)
         self.short_name = 'qt' if APP_NAME is None else APP_NAME
-        self.auto_read = True if AUTO_READ == 1 else False              # 模式是否为自动阅读
-        self.auto_try_app = True if AUTO_TRY_APP == 1 else False        # 模式是否为自动试玩
-        self.wool_app_info = self._init_wool_app_info()                 # 羊毛app信息
+        self.auto_read = True if AUTO_READ == 1 else False                              # 模式是否为自动阅读
+        self.auto_try_app = True if AUTO_TRY_APP == 1 else False                        # 模式是否为自动试玩
+        self.auto_register = True if AUTO_REGISTER == 1 else False                      # 模式是否为自动注册
+        self.auto_get_now_pkg_name = True if AUTO_GET_NOW_PKG_NAME == 1 else False      # 模式为自动获取当前app pkg_name
+        self.wool_app_info = self._init_wool_app_info()                                 # 羊毛app信息
         self.pkg_name = self._get_wool_pkg_name()
-        self.clear_app_base_num = 20                                    # 清理app的基数
+        self.clear_app_base_num = 20                                                    # 清理app的基数
         self.try_app_sleep_time = 3.15 * 60
         self.d_debug = False
         self.set_fast_input_ime = True
-        self.device_id_list = [                                         # device_id_list
+        self.device_id_list = [                                                         # device_id_list
             '816QECTK24ND8',
-            '0123456789ABCDEF',
-            'de295374',
+            # '0123456789ABCDEF',
+            # 'de295374',
         ]
         self.ht_invite_code = '54419553'
+        self.change_machine_pkg_name = 'zpp.wjy.xxsq'                                   # 改机的pkg_name
+        self._init_yima_obj_info()
+
+    def _init_yima_obj_info(self):
+        """
+        获取yima obj
+        :return:
+        """
+        with open('/Users/afa/myFiles/pwd/yima_pwd.json', 'r') as f:
+            yima_info = json_2_dict(f.read())
+        self.yima_smser_obj = YiMaSmser(username=yima_info['username'], pwd=yima_info['pwd'])
+
+        if self.short_name == 'qt':
+            self.yima_project_id = 2674
+
+        elif self.short_name == 'ht':
+            self.yima_project_id = 8080
+
+        else:
+            self.yima_project_id = -1
 
     def _get_wool_pkg_name(self):
         """
@@ -83,35 +118,74 @@ class MattressWoolOps(AsyncCrawler):
         ]
 
     async def _fck_run(self):
+        pkg_name = self.pkg_name
+        if self.auto_get_now_pkg_name:
+            # 设置空, 不启动任何app
+            pkg_name = ''
+        elif self.auto_register:
+            if self.short_name == 'ht':
+                pkg_name = self.change_machine_pkg_name
+
         self.device_obj_list = await get_u2_init_device_list(
             loop=self.loop,
             u2=u2,
-            pkg_name=self.pkg_name,
+            pkg_name=pkg_name,
             device_id_list=self.device_id_list,
             d_debug=self.d_debug,
             set_fast_input_ime=self.set_fast_input_ime,)
 
+        if self.auto_get_now_pkg_name:
+            # 自动化当前包名
+            for device_obj in self.device_obj_list:
+                d: UIAutomatorServer = device_obj.d
+                print(self._get_print_base_str(device_obj=device_obj) + '当前pkg_name: {}'.format(d.current_app().get('package', '')))
+
         if self.auto_read:
             # auto read
-            await self._every_device_start_read()
+            await self._every_device_start_someone_actions(actions_name='read')
 
         if self.auto_try_app:
             # auto try apps
-            await self._every_device_start_auto_try_apps()
+            await self._every_device_start_someone_actions(actions_name='try_apps')
 
-    async def _every_device_start_read(self):
+        if self.auto_register:
+            # auto register 和继续后方相关操作
+            await self._every_device_start_someone_actions(actions_name='register')
+
+    async def _every_device_start_someone_actions(self, actions_name):
         """
-        每台设备开始阅读...
+        每台设备开始某行为链
+        :param actions_name: 行为名
         :return:
         """
+        async def get_func_name():
+            """获取func_name"""
+            nonlocal actions_name
+
+            if actions_name == 'read':
+                func_name = self._read_forever
+
+            elif actions_name == 'try_apps':
+                func_name = self._auto_try_apps
+
+            elif actions_name == 'register':
+                func_name = self._auto_register_and_other_actions
+
+            else:
+                raise ValueError('actions_name value 异常!')
+
+            return func_name
+
         tasks = []
+        func_name = await get_func_name()
+
         for device_obj in self.device_obj_list:
             print('create task[where device_id: {}]...'.format(device_obj.device_id))
             func_args = [
                 device_obj,
             ]
             tasks.append(self.loop.create_task(unblock_func(
-                func_name=self._read_forever,
+                func_name=func_name,
                 func_args=func_args,
                 default_res=None,)))
 
@@ -119,25 +193,234 @@ class MattressWoolOps(AsyncCrawler):
 
         return all_res
 
-    async def _every_device_start_auto_try_apps(self):
+    def _auto_register_and_other_actions(self, device_obj):
         """
-        每台设备开始试玩app
+        自动注册并完成后续行为
         :return:
         """
-        tasks = []
-        for device_obj in self.device_obj_list:
-            print('create task[where device_id: {}]...'.format(device_obj.device_id))
-            func_args = [
-                device_obj,
-            ]
-            tasks.append(self.loop.create_task(unblock_func(
-                func_name=self._auto_try_apps,
-                func_args=func_args,
-                default_res=None,)))
+        if self.short_name == 'ht':
+            self._ht_auto_register_and_other_actions(device_obj=device_obj)
 
-        all_res = await async_wait_tasks_finished(tasks=tasks)
+        else:
+            raise NotImplemented
 
-        return all_res
+    def _ht_auto_register_and_other_actions(self, device_obj):
+        """
+        ht 自动注册并完成后续行为
+        :return:
+        """
+        d:UIAutomatorServer = device_obj.d
+
+        print(self._get_print_base_str(device_obj=device_obj) + '即将开始auto 注册账号并绑定手机添加邀请码...')
+
+        # 重置设备id, 通过改机app启动设备
+        # self._ht_init_device_id_info(device_obj=device_obj)
+        # 测试时使用, 避免总是频繁改变设备id(前提已更改一次设备id)
+        d.app_stop(pkg_name=self.pkg_name)
+        d.app_start(pkg_name=self.pkg_name)
+
+        # while not d(text=u"恭喜您获得", className="android.widget.TextView").exists():
+        #     pass
+        # # 关闭每次新开沙盒app的弹窗
+        # d(resourceId="com.cashtoutiao:id/iv_close", className="android.widget.ImageView").click()
+
+        # 开始目标app相关操作
+        while True:
+            try:
+                self._ht_home_window_handle(device_obj=device_obj)
+                d(text=u"我的", className="android.widget.TextView").click()
+                break
+            except Exception as e:
+                print(self._get_print_base_str(device_obj=device_obj), e)
+                continue
+
+        unbound_phone_num_btn = d(
+            resourceId="com.cashtoutiao:id/text_number",
+            text=u"未绑定手机",
+            className="android.widget.TextView")
+        while not unbound_phone_num_btn.exists():
+            pass
+        unbound_phone_num_btn.click()
+
+        # 开始绑定手机号
+        d(resourceId="com.cashtoutiao:id/account_phone_layout", className="android.widget.RelativeLayout")\
+            .child_by_text(txt='手机号').click()
+
+        while True:
+            try:
+                try:
+                    # phone_num = '13451463505'
+                    phone_num = self.yima_smser_obj._get_phone_num(project_id=self.yima_project_id)
+                    assert phone_num != '', 'phone_num != ""'
+                    print(self._get_print_base_str(device_obj=device_obj) + '新获取到phone_num: {}'.format(phone_num))
+                except AssertionError as e:
+                    print(self._get_print_base_str(device_obj=device_obj), e)
+                    continue
+
+                phone_input_ele = d(resourceId="com.cashtoutiao:id/et_phone", text=u"请输入11位手机号", className="android.widget.EditText")
+                phone_input_ele.clear_text()
+                phone_input_ele.set_text(text=phone_num)
+                d(resourceId="com.cashtoutiao:id/login_button", text=u"获取短信验证码", className="android.widget.TextView").click()
+
+                # sms_res = '181338'
+                sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.yima_project_id)
+                print(self._get_print_base_str(device_obj=device_obj) + 'sms_res: {}'.format(sms_res))
+                try:
+                    sms_res = re.compile('(\d+)').findall(sms_res)[0]
+                    assert sms_res != '', 'sms_res !=""'
+                    assert len(sms_res) == 6, 'sms_res长度异常!'
+                except (AssertionError, IndexError) as e:
+                    print(self._get_print_base_str(device_obj=device_obj), e)
+                    u2_block_page_back(d=d)
+                    continue
+
+                # 输入手机验证码
+                self._ht_input_phone_verification_code(
+                    device_obj=device_obj,
+                    sms_res=sms_res,)
+
+                while not d(resourceId="com.cashtoutiao:id/tv_skip", text=u"跳过 >", className="android.widget.TextView").exists():
+                    pass
+                d(resourceId="com.cashtoutiao:id/tv_skip", text=u"跳过 >", className="android.widget.TextView").click()
+                sleep(3.)
+                u2_block_page_back(d=d)
+                human_swipe(d=d, slide_distance=.5)
+
+                d(resourceId="com.cashtoutiao:id/tv_invite_title", text=u"输入邀请码", className="android.widget.TextView").click()
+                d(resourceId="com.cashtoutiao:id/et_input", text=u"请输入邀请码", className="android.widget.EditText").set_text(text=self.ht_invite_code)
+                d(resourceId="com.cashtoutiao:id/view_get", className="android.view.View").click()
+                sleep(2.)
+                d(resourceId="com.cashtoutiao:id/tv_confirm", text=u"确认领取", className="android.widget.TextView").click()
+
+                # 进行签到
+                d(text=u"任务中心", className="android.widget.TextView").click()
+                d(resourceId="com.cashtoutiao:id/sign_btn_container", className="android.widget.RelativeLayout").click()
+                # 弹窗忽略
+                d(resourceId="com.cashtoutiao:id/tv_left", text=u"忽略", className="android.widget.TextView").click()
+
+                # 自动阅读特定时长
+                d(text=u"头条", className="android.widget.TextView").click()
+                try:
+                    self._ht_read_someone_time_duration(device_obj=device_obj)
+                except TimeoutError:
+                    break
+                # 结束进程
+                d.app_stop(pkg_name=self.pkg_name)
+
+            except Exception as e:
+                print(self._get_print_base_str(device_obj=device_obj), e)
+
+        print(self._get_print_base_str(device_obj=device_obj) + '注册phone_num: {} success!'.format(phone_num))
+
+    def _ht_input_phone_verification_code(self, device_obj, sms_res:str) -> None:
+        """
+        ht 输入手机验证码
+        :param device_obj:
+        :return:
+        """
+        d:UIAutomatorServer = device_obj.d
+
+        print(self._get_print_base_str(device_obj=device_obj) + '正在输入手机验证码 ...')
+        # 输入6位验证码
+        # 先输入某数字, 使底部弹出输入法切换框
+        d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").set_text('0')
+        # 再切换至搜狗输入法
+        d.click(0.863, 0.963)
+        sleep(2.)
+        d(resourceId="android:id/text1", text=u"搜狗输入法", className="android.widget.CheckedTextView").click()
+        # 点到第一个输入框进行后续输入(双击)
+        d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").click()
+        d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").click()
+        d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").clear_text()
+        # 等待键盘显示
+        print(self._get_print_base_str(device_obj=device_obj) + '等待搜狗键盘显示 ...')
+        sleep(12.)
+        for index, item in enumerate(sms_res):
+            # TODO 测试发现无法输入最后数字
+            # d(resourceId="com.cashtoutiao:id/et_code{}".format(index+1), className="android.widget.EditText")\
+            #     .send_keys(text=item)
+
+            # 改用搜狗数字键盘模拟点击
+            x, y = self._sg_num_keyword(num=int(item))
+            d.click(x, y)
+
+        print(self._get_print_base_str(device_obj=device_obj) + '验证码输入完成!')
+
+        return
+
+    def _ht_init_device_id_info(self, device_obj):
+        """
+        ht 通过改机app重置设备id
+        :param device_obj:
+        :return:
+        """
+        d:UIAutomatorServer = device_obj.d
+
+        print(self._get_print_base_str(device_obj=device_obj) + '正在重置 device_id ...')
+        # 先重置设备id
+        d(resourceId="zpp.wjy.xxsq:id/setting", className="android.widget.ImageView").click()
+        human_swipe(d=d, slide_distance=.6)
+        d(resourceId="zpp.wjy.xxsq:id/tv_title", text=u"重置设备id", className="android.widget.TextView").click()
+        print(self._get_print_base_str(device_obj=device_obj) + '重置设备id成功!')
+
+        # 重启改机app, 并新建环境打开目标app
+        # 必须先终止改机进程, 再重启
+        d.app_stop(pkg_name=self.change_machine_pkg_name)
+        print(self._get_print_base_str(device_obj=device_obj) + 'restarting 改机app ...')
+        d.app_start(pkg_name=self.change_machine_pkg_name)
+        new_envir_btn = d(resourceId="zpp.wjy.xxsq:id/tv_new", text=u"新建环境", className="android.widget.TextView")
+        while not new_envir_btn.exists():
+            pass
+        new_envir_btn.click()
+        sleep(5.)
+        # 去绑定子账号
+        if d(resourceId="android:id/message", text=u"未绑定子账号,请到账号管理任选一个子账号点击'绑定本机'",
+             className="android.widget.TextView").exists():
+            d(resourceId="android:id/button1", text=u"去账号管理", className="android.widget.Button").click()
+            bind_this_machine_btn = d(description=u"绑定本机", className="android.view.View")
+            while not bind_this_machine_btn.exists():
+                pass
+            bind_this_machine_btn.click()
+            sleep(3.)
+
+            u2_block_page_back(d=d, back_num=1)
+            sleep(1.5)
+        else:
+            pass
+
+        while not new_envir_btn.exists():
+            pass
+        new_envir_btn.click()
+        toast_msg = d.toast.get_message(wait_timeout=10., default='')
+        print(self._get_print_base_str(device_obj=device_obj) + 'toast_msg: {}'.format(toast_msg))
+        print(self._get_print_base_str(device_obj=device_obj) + '重置device_id success!!')
+
+        # 从改机app启动目标app
+        print(self._get_print_base_str(device_obj=device_obj) + '正在从改机app 内部启动目标程序 ...')
+        d(resourceId="zpp.wjy.xxsq:id/iv_icon", className="android.widget.ImageView", instance=0).click()
+        d(resourceId="zpp.wjy.xxsq:id/title", text=u"启动", className="android.widget.TextView").click()
+
+    def _sg_num_keyword(self, num:int) -> tuple:
+        """
+        搜狗数字键盘对应点击
+        :param num:
+        :return:
+        """
+        num_keyword = {
+            1: (0.279, 0.686),
+            2: (0.501, 0.681),
+            3: (0.723, 0.681),
+            4: (0.276, 0.773),
+            5: (0.496, 0.773),
+            6: (0.718, 0.776),
+            7: (0.273, 0.866),
+            8: (0.501, 0.863),
+            9: (0.718, 0.863),
+            0: (0.498, 0.95),
+        }
+        for key, value in num_keyword.items():
+            if num == key:
+                return value
 
     def _auto_try_apps(self, device_obj):
         """
@@ -412,6 +695,15 @@ class MattressWoolOps(AsyncCrawler):
 
         return self._read_forever(device_obj=new_device_obj)
 
+    @fz_set_timeout(seconds=2. * 60)
+    def _ht_read_someone_time_duration(self, device_obj) -> None:
+        """
+        ht 阅读指定时长
+        :param device_obj:
+        :return:
+        """
+        self._read_forever(device_obj=device_obj)
+
     def _ht_home_window_handle(self, device_obj) -> None:
         """
         ht 首页弹窗处理
@@ -425,7 +717,6 @@ class MattressWoolOps(AsyncCrawler):
 
         if d(resourceId="com.cashtoutiao:id/img_close", className="android.widget.ImageView").exists():
             d(resourceId="com.cashtoutiao:id/img_close", className="android.widget.ImageView").click()
-
 
         return
 
@@ -723,7 +1014,9 @@ def device_id_in_red_rice_1s(device_id:str) -> bool:
 @click_option('--app_name', type=str, default=None, help='what is app_name !!')
 @click_option('--auto_read', type=int, default=0, help='what is auto_read!!')
 @click_option('--auto_try_app', type=int, default=0, help='what is auto_try_app!!')
-def init_mattress_wool_ops(app_name, auto_read:int, auto_try_app:int):
+@click_option('--auto_register', type=int, default=0, help='what is auto_register!')
+@click_option('--get_now_pkg_name', type=int, default=0, help='what is get_pg_name!')
+def init_mattress_wool_ops(app_name, auto_read:int, auto_try_app:int, auto_register:int, get_now_pkg_name:int):
     """
     main
     :param app_name:
@@ -731,11 +1024,13 @@ def init_mattress_wool_ops(app_name, auto_read:int, auto_try_app:int):
     :param auto_try_app:
     :return:
     """
-    global APP_NAME, AUTO_READ, AUTO_TRY_APP
+    global APP_NAME, AUTO_READ, AUTO_TRY_APP, AUTO_REGISTER, AUTO_GET_NOW_PKG_NAME
 
     APP_NAME = app_name
     AUTO_READ = auto_read
     AUTO_TRY_APP = auto_try_app
+    AUTO_REGISTER = auto_register
+    AUTO_GET_NOW_PKG_NAME = get_now_pkg_name
     loop = None
     try:
         _ = MattressWoolOps()
