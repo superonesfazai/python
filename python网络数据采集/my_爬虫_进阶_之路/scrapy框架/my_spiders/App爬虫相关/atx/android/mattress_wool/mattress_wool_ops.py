@@ -14,7 +14,9 @@ from gc import collect
 import uiautomator2 as u2
 # d对象的基础类
 from uiautomator2 import UIAutomatorServer
-from uiautomator2.exceptions import UiObjectNotFoundError
+from uiautomator2.exceptions import (
+    UiObjectNotFoundError,
+    UiAutomationNotConnectedError,)
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.app_utils import (
     u2_block_page_back,
@@ -23,14 +25,20 @@ from fzutils.spider.app_utils import (
     u2_get_device_obj_by_device_id,
     human_swipe,)
 from fzutils.exceptions import AppNoResponseException
+from fzutils.register_utils import YiMaSmser
 from fzutils.spider.async_always import *
 from fzutils.shell_utils import *
-from fzutils.register_utils import YiMaSmser
 
 """
-输入法: 搜狗输入法
-红米1s:
+* 输入法: 搜狗输入法
+* 改机apk: 
+    版本6.3.9, 加入包解析错误, 可安装6.3.6版
+    *** 只有一个子账号, 每次使用前先手动绑定一次(切记: 先去重置下设备id, 再进行绑定)(避免自动绑定过于频繁, 被禁止一定时长[6-9分钟...]) 
+* 红米1s:
     xposed安装版本: xposedinstallermiui8.apk
+    红米1s(电信联通版) 卡刷9.7开发者版本(下载地址: http://bigota.d.miui.com/7.11.16/miui_HM1SWC_7.11.16_2787e0f1ed_4.4.zip)
+    $ adb -s de295374 push miui_HM1SWC_7.11.16_2787e0f1ed_4.4.zip /sdcard/
+    # 关于本机 -> 系统更新 -> 右上角按钮 -> 手动选择安装包 -> miui_HM1SWC_7.11.16_2787e0f1ed_4.4.zip -> 确定进行自动安装 -> 安装好后 -> 设置 -> 权限管理 -> root -> 开启root
 """
 
 # 启动羊毛app的short_name
@@ -62,12 +70,13 @@ class MattressWoolOps(AsyncCrawler):
         self.try_app_sleep_time = 3.15 * 60
         self.d_debug = False
         self.set_fast_input_ime = True
-        self.device_id_list = [                                                         # device_id_list
+        self.device_id_list = [                                                         # device_id_list(改机apk子账号只有一个, register只可单机运行, or 购买更多子账号)
             '816QECTK24ND8',
-            # '0123456789ABCDEF',
-            # 'de295374',
+            '0123456789ABCDEF',
+            'de295374',
         ]
-        self.ht_invite_code = '54419553'
+        # self.ht_invite_code = '54419553'                                              # 被冻结
+        self.ht_invite_code = '37591777'
         self.change_machine_pkg_name = 'zpp.wjy.xxsq'                                   # 改机的pkg_name
         self._init_yima_obj_info()
 
@@ -78,7 +87,8 @@ class MattressWoolOps(AsyncCrawler):
         """
         with open('/Users/afa/myFiles/pwd/yima_pwd.json', 'r') as f:
             yima_info = json_2_dict(f.read())
-        self.yima_smser_obj = YiMaSmser(username=yima_info['username'], pwd=yima_info['pwd'])
+        # self.yima_smser_obj = YiMaSmser(username=yima_info['username'], pwd=yima_info['pwd'])
+        self.ym_username, self.ym_pwd = yima_info['username'], yima_info['pwd']
 
         if self.short_name == 'qt':
             self.yima_project_id = 2674
@@ -211,106 +221,138 @@ class MattressWoolOps(AsyncCrawler):
         """
         d:UIAutomatorServer = device_obj.d
 
-        print(self._get_print_base_str(device_obj=device_obj) + '即将开始auto 注册账号并绑定手机添加邀请码...')
-
-        # 重置设备id, 通过改机app启动设备
-        # self._ht_init_device_id_info(device_obj=device_obj)
-        # 测试时使用, 避免总是频繁改变设备id(前提已更改一次设备id)
-        d.app_stop(pkg_name=self.pkg_name)
-        d.app_start(pkg_name=self.pkg_name)
-
-        # while not d(text=u"恭喜您获得", className="android.widget.TextView").exists():
-        #     pass
-        # # 关闭每次新开沙盒app的弹窗
-        # d(resourceId="com.cashtoutiao:id/iv_close", className="android.widget.ImageView").click()
-
-        # 开始目标app相关操作
         while True:
-            try:
-                self._ht_home_window_handle(device_obj=device_obj)
-                d(text=u"我的", className="android.widget.TextView").click()
-                break
-            except Exception as e:
-                print(self._get_print_base_str(device_obj=device_obj), e)
-                continue
+            print(self._get_print_base_str(device_obj=device_obj) + '即将开始auto 注册账号并绑定手机添加邀请码...')
 
-        unbound_phone_num_btn = d(
-            resourceId="com.cashtoutiao:id/text_number",
-            text=u"未绑定手机",
-            className="android.widget.TextView")
-        while not unbound_phone_num_btn.exists():
-            pass
-        unbound_phone_num_btn.click()
+            # 重置设备id, 通过改机app启动设备
+            self._ht_init_device_id_info(device_obj=device_obj)
+            # 下面是测试时使用, 避免总是频繁改变设备id(前提已更改一次设备id)
+            # d.app_stop(pkg_name=self.pkg_name)
+            # d.app_start(pkg_name=self.pkg_name)
 
-        # 开始绑定手机号
-        d(resourceId="com.cashtoutiao:id/account_phone_layout", className="android.widget.RelativeLayout")\
-            .child_by_text(txt='手机号').click()
+            while not d(text=u"恭喜您获得", className="android.widget.TextView").exists():
+                # if d(text=u"是否上传此错误报告，以帮助我们分析问题？报告可能包含您的个⼈信息，但我们会做好保密并仅⽤作问题分析。查看⽇志摘要", className="android.widget.TextView").exists():
+                if d(resourceId="miui:id/alertTitle", textMatches=u"很抱歉，\“.*?\”已停止运行。", className="android.widget.TextView").exists():
+                    print(self._get_print_base_str(device_obj=device_obj) + '目标程序启动异常! 即将开始new envir ...')
+                    # 程序启动异常
+                    d(resourceId="android:id/button2", text=u"取消", className="android.widget.Button").click()
 
-        while True:
-            try:
+                    return self._ht_auto_register_and_other_actions(device_obj=device_obj)
+                else:
+                    pass
+
+                pass
+            # 关闭每次新开沙盒app的弹窗
+            d(resourceId="com.cashtoutiao:id/iv_close", className="android.widget.ImageView").click()
+
+            # 开始目标app相关操作
+            while True:
                 try:
+                    self._ht_home_window_handle(device_obj=device_obj)
+                    d(text=u"我的", className="android.widget.TextView").click()
+                    break
+                except Exception as e:
+                    print(self._get_print_base_str(device_obj=device_obj), e)
+                    continue
+
+            unbound_phone_num_btn = d(
+                resourceId="com.cashtoutiao:id/text_number",
+                text=u"未绑定手机",
+                className="android.widget.TextView")
+            while not unbound_phone_num_btn.exists():
+                pass
+            unbound_phone_num_btn.click()
+
+            # 开始绑定手机号
+            d(resourceId="com.cashtoutiao:id/account_phone_layout", className="android.widget.RelativeLayout")\
+                .child_by_text(txt='手机号').click()
+
+            while True:
+                try:
+                    self.yima_smser_obj = YiMaSmser(username=self.ym_username, pwd=self.ym_pwd)
                     # phone_num = '13451463505'
                     phone_num = self.yima_smser_obj._get_phone_num(project_id=self.yima_project_id)
                     assert phone_num != '', 'phone_num != ""'
                     print(self._get_print_base_str(device_obj=device_obj) + '新获取到phone_num: {}'.format(phone_num))
                 except AssertionError as e:
                     print(self._get_print_base_str(device_obj=device_obj), e)
+                    sleep(8.)
                     continue
 
-                phone_input_ele = d(resourceId="com.cashtoutiao:id/et_phone", text=u"请输入11位手机号", className="android.widget.EditText")
-                phone_input_ele.clear_text()
-                phone_input_ele.set_text(text=phone_num)
-                d(resourceId="com.cashtoutiao:id/login_button", text=u"获取短信验证码", className="android.widget.TextView").click()
-
-                # sms_res = '181338'
-                sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.yima_project_id)
-                print(self._get_print_base_str(device_obj=device_obj) + 'sms_res: {}'.format(sms_res))
                 try:
-                    sms_res = re.compile('(\d+)').findall(sms_res)[0]
-                    assert sms_res != '', 'sms_res !=""'
-                    assert len(sms_res) == 6, 'sms_res长度异常!'
-                except (AssertionError, IndexError) as e:
-                    print(self._get_print_base_str(device_obj=device_obj), e)
+                    phone_input_ele = d(resourceId="com.cashtoutiao:id/et_phone", className="android.widget.EditText")
+                    phone_input_ele.clear_text()
+                    phone_input_ele.set_text(text=phone_num)
+                    sleep(2.)
+
+                    if d(resourceId="com.cashtoutiao:id/tv_change_phone", text=u"验证码绑定", className="android.widget.TextView").exists():
+                        d(resourceId="com.cashtoutiao:id/tv_change_phone", text=u"验证码绑定", className="android.widget.TextView").click()
+                        sleep(1.5)
+
+                    d(resourceId="com.cashtoutiao:id/login_button", text=u"获取短信验证码", className="android.widget.TextView").click()
+
+                    # sms_res = '181338'
+                    sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.yima_project_id)
+                    print(self._get_print_base_str(device_obj=device_obj) + 'sms_res: {}'.format(sms_res))
+                    try:
+                        sms_res = re.compile('(\d+)').findall(sms_res)[0]
+                        assert sms_res != '', 'sms_res !=""'
+                        assert len(sms_res) == 6, 'sms_res长度异常!'
+                    except (AssertionError, IndexError) as e:
+                        print(self._get_print_base_str(device_obj=device_obj), e)
+                        u2_block_page_back(d=d)
+                        continue
+
+                    # 输入手机验证码
+                    self._ht_input_phone_verification_code(
+                        device_obj=device_obj,
+                        sms_res=sms_res,)
+
+                    while not d(resourceId="com.cashtoutiao:id/tv_skip", text=u"跳过 >", className="android.widget.TextView").exists():
+                        pass
+                    d(resourceId="com.cashtoutiao:id/tv_skip", text=u"跳过 >", className="android.widget.TextView").click()
+                    sleep(3.)
                     u2_block_page_back(d=d)
-                    continue
+                    sleep(2.)
+                    u2_block_up_swipe_some_height(d=d, swipe_height=.5)
+                    sleep(3.)
 
-                # 输入手机验证码
-                self._ht_input_phone_verification_code(
-                    device_obj=device_obj,
-                    sms_res=sms_res,)
+                    # 输入邀请码
+                    d(resourceId="com.cashtoutiao:id/tv_invite_title", text=u"输入邀请码", className="android.widget.TextView").click()
+                    d(resourceId="com.cashtoutiao:id/et_input", text=u"请输入邀请码", className="android.widget.EditText").set_text(text=self.ht_invite_code)
+                    d(resourceId="com.cashtoutiao:id/view_get", className="android.view.View").click()
+                    sleep(2.)
+                    d(resourceId="com.cashtoutiao:id/tv_confirm", text=u"确认领取", className="android.widget.TextView").click()
+                    print(self._get_print_base_str(device_obj=device_obj) + '输入邀请码成功!')
 
-                while not d(resourceId="com.cashtoutiao:id/tv_skip", text=u"跳过 >", className="android.widget.TextView").exists():
-                    pass
-                d(resourceId="com.cashtoutiao:id/tv_skip", text=u"跳过 >", className="android.widget.TextView").click()
-                sleep(3.)
-                u2_block_page_back(d=d)
-                human_swipe(d=d, slide_distance=.5)
+                    # 进行签到
+                    d(text=u"任务中心", className="android.widget.TextView").click()
+                    d(resourceId="com.cashtoutiao:id/sign_btn_container", className="android.widget.RelativeLayout").click()
+                    # 弹窗忽略
+                    d(resourceId="com.cashtoutiao:id/tv_left", text=u"忽略", className="android.widget.TextView").click()
 
-                d(resourceId="com.cashtoutiao:id/tv_invite_title", text=u"输入邀请码", className="android.widget.TextView").click()
-                d(resourceId="com.cashtoutiao:id/et_input", text=u"请输入邀请码", className="android.widget.EditText").set_text(text=self.ht_invite_code)
-                d(resourceId="com.cashtoutiao:id/view_get", className="android.view.View").click()
-                sleep(2.)
-                d(resourceId="com.cashtoutiao:id/tv_confirm", text=u"确认领取", className="android.widget.TextView").click()
+                    # TODO 自动阅读特定时长(此处超时后, self._read_forever函数还在继续执行未退出!!)
+                    d(text=u"头条", className="android.widget.TextView").click()
+                    try:
+                        self._ht_read_someone_time_duration(device_obj=device_obj)
+                    except (TimeoutError, Exception) as e:
+                        print(self._get_print_base_str(device_obj=device_obj), e)
+                        # 结束进程
+                        d.app_stop(pkg_name=self.pkg_name)
 
-                # 进行签到
-                d(text=u"任务中心", className="android.widget.TextView").click()
-                d(resourceId="com.cashtoutiao:id/sign_btn_container", className="android.widget.RelativeLayout").click()
-                # 弹窗忽略
-                d(resourceId="com.cashtoutiao:id/tv_left", text=u"忽略", className="android.widget.TextView").click()
+                        break
 
-                # 自动阅读特定时长
-                d(text=u"头条", className="android.widget.TextView").click()
-                try:
-                    self._ht_read_someone_time_duration(device_obj=device_obj)
-                except TimeoutError:
-                    break
-                # 结束进程
-                d.app_stop(pkg_name=self.pkg_name)
+                except UiAutomationNotConnectedError as e:
+                    # TODO 无连接则直接抛出异常, 终止后续所有操作!!
+                    print(self._get_print_base_str(device_obj=device_obj), e)
+                    raise UiAutomationNotConnectedError
 
-            except Exception as e:
-                print(self._get_print_base_str(device_obj=device_obj), e)
+                except Exception as e:
+                    print(self._get_print_base_str(device_obj=device_obj), e)
+                    # test
+                    raise e
 
-        print(self._get_print_base_str(device_obj=device_obj) + '注册phone_num: {} success!'.format(phone_num))
+            print(self._get_print_base_str(device_obj=device_obj) + '注册phone_num: {} success!'.format(phone_num))
 
     def _ht_input_phone_verification_code(self, device_obj, sms_res:str) -> None:
         """
@@ -356,18 +398,21 @@ class MattressWoolOps(AsyncCrawler):
         """
         d:UIAutomatorServer = device_obj.d
 
-        print(self._get_print_base_str(device_obj=device_obj) + '正在重置 device_id ...')
-        # 先重置设备id
-        d(resourceId="zpp.wjy.xxsq:id/setting", className="android.widget.ImageView").click()
-        human_swipe(d=d, slide_distance=.6)
-        d(resourceId="zpp.wjy.xxsq:id/tv_title", text=u"重置设备id", className="android.widget.TextView").click()
-        print(self._get_print_base_str(device_obj=device_obj) + '重置设备id成功!')
+        # * 测试发现无需重置id, 新建envir, 就已在环境中重置设备id
+        # print(self._get_print_base_str(device_obj=device_obj) + '正在重置 device_id ...')
+        # # 先重置设备id
+        # d(resourceId="zpp.wjy.xxsq:id/setting", className="android.widget.ImageView").click()
+        # human_swipe(d=d, slide_distance=.6)
+        # d(resourceId="zpp.wjy.xxsq:id/tv_title", text=u"重置设备id", className="android.widget.TextView").click()
+        # print(self._get_print_base_str(device_obj=device_obj) + '重置设备id成功!')
 
-        # 重启改机app, 并新建环境打开目标app
-        # 必须先终止改机进程, 再重启
+        # # 重启改机app, 并新建环境打开目标app
+        # # 必须先终止改机进程, 再重启
         d.app_stop(pkg_name=self.change_machine_pkg_name)
         print(self._get_print_base_str(device_obj=device_obj) + 'restarting 改机app ...')
         d.app_start(pkg_name=self.change_machine_pkg_name)
+
+        print(self._get_print_base_str(device_obj=device_obj) + '正在new envir ...')
         new_envir_btn = d(resourceId="zpp.wjy.xxsq:id/tv_new", text=u"新建环境", className="android.widget.TextView")
         while not new_envir_btn.exists():
             pass
@@ -388,17 +433,52 @@ class MattressWoolOps(AsyncCrawler):
         else:
             pass
 
-        while not new_envir_btn.exists():
-            pass
-        new_envir_btn.click()
+        # * 新建符合目标软件正常运行的环境
+        while True:
+            while not new_envir_btn.exists():
+                pass
+            new_envir_btn.click()
+            while d(resourceId="zpp.wjy.xxsq:id/tv_title", text=u"自动保存应用数据", className="android.widget.TextView").exists():
+                # 表示在新建环境
+                pass
+
+            sleep(3.)
+            phone_info = d(resourceId="zpp.wjy.xxsq:id/tv_info", className="android.widget.TextView").info.get('text', '')
+            phone_model = ''
+            try:
+                phone_model = re.compile('手机: (.*?)\\n运营商').findall(phone_info)[0]
+            except IndexError:
+                pass
+            if d(resourceId="zpp.wjy.xxsq:id/textView5", text=u"警告", className="android.widget.TextView").exists():
+                print(self._get_print_base_str(device_obj=device_obj) + '[-] model: {}, 分辨率异常, 跳过!'.format(phone_model))
+            else:
+                print(self._get_print_base_str(device_obj=device_obj) + '[+] model: {}, 分辨率正常!! 退出新建环境!'.format(phone_model))
+                break
+
         toast_msg = d.toast.get_message(wait_timeout=10., default='')
         print(self._get_print_base_str(device_obj=device_obj) + 'toast_msg: {}'.format(toast_msg))
         print(self._get_print_base_str(device_obj=device_obj) + '重置device_id success!!')
+
+        # 随机模拟定位
+        print(self._get_print_base_str(device_obj=device_obj) + '随机模拟定位ing ...')
+        d(resourceId="zpp.wjy.xxsq:id/text", text=u"虚拟定位", className="android.widget.TextView").click()
+        d(resourceId="zpp.wjy.xxsq:id/btn", text=u"[快捷] 随机模拟定位", className="android.widget.Button").click()
+        toast_msg = d.toast.get_message(wait_timeout=10., default='')
+        print(self._get_print_base_str(device_obj=device_obj) + 'toast_msg: {}'.format(toast_msg))
 
         # 从改机app启动目标app
         print(self._get_print_base_str(device_obj=device_obj) + '正在从改机app 内部启动目标程序 ...')
         d(resourceId="zpp.wjy.xxsq:id/iv_icon", className="android.widget.ImageView", instance=0).click()
         d(resourceId="zpp.wjy.xxsq:id/title", text=u"启动", className="android.widget.TextView").click()
+        print(self._get_print_base_str(device_obj=device_obj) + '内部启动按钮已点击!')
+
+        # TODO device_id: de295374执行完上面步骤后, 可能需要手动点击目标app, 此处设置为自动启动, 存在兼容问题!!
+        if 'de295374' == device_obj.device_id:
+            d.app_start(pkg_name=self.pkg_name)
+        else:
+            pass
+
+        return
 
     def _sg_num_keyword(self, num:int) -> tuple:
         """
@@ -512,8 +592,7 @@ class MattressWoolOps(AsyncCrawler):
                         pass
                     d(resourceId="android:id/button1", textMatches=u"允许", className="android.widget.Button").click()
 
-                print(self._get_print_base_str(device_obj=device_obj) + '休眠{}s ... 等待app试玩结束!!'.format(
-                    self.try_app_sleep_time))
+                print(self._get_print_base_str(device_obj=device_obj) + '休眠{}s ... 等待app试玩结束!!'.format(self.try_app_sleep_time))
                 try:
                     self._try_someone_app(device_obj=device_obj)
                 except Exception as e:
@@ -702,6 +781,7 @@ class MattressWoolOps(AsyncCrawler):
         :param device_obj:
         :return:
         """
+        # TODO 原先超时退出后while True还在执行
         self._read_forever(device_obj=device_obj)
 
     def _ht_home_window_handle(self, device_obj) -> None:
@@ -927,7 +1007,7 @@ class MattressWoolOps(AsyncCrawler):
         if article_count % self.clear_app_base_num == 0\
                 and article_count != 0:
             print(self._get_print_base_str(device_obj=device_obj) + 'article_count: {}, clear app memory...'.format(article_count))
-            d(resourceId="com.jifen.qukan:id/ji", text=u"我的", className="android.widget.Button").click()
+            d(resourceId="com.jifen.qukan:id/jl", text=u"我的", className="android.widget.Button").click()
             sleep(3.)
 
             if d(resourceId="com.jifen.qukan:id/za", className="android.widget.ImageView").exists():

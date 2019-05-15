@@ -19,7 +19,7 @@ from asyncio import wait_for as async_wait_for
 @tenacity_retry(stop=(stop_after_delay(2) | stop_after_attempt(1)))
 def stop_after_2_s_or_1_retries():
     print("Stopping after 2 seconds or 1 retries")
-    sleep(3)
+    sleep(3.)
     print('run over!')
 
     return True
