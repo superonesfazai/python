@@ -170,3 +170,72 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 # )
 # pprint(data)
 
+# 下面是qq看点
+# headers = {
+#     'Connection': 'keep-alive',
+#     'Cache-Control': 'max-age=0',
+#     'Upgrade-Insecure-Requests': '1',
+#     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36',
+#     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+#     'Accept-Encoding': 'gzip, deflate',
+#     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+#     'If-Modified-Since': 'Wed, 15 May 2019 10:17:11 GMT',
+# }
+#
+# url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
+# body = Requests.get_url_body(
+#     url=url,
+#     headers=headers,
+#     # params=params,
+#     # cookies=cookies,
+#     ip_pool_type=tri_ip_pool,
+#     num_retries=3,)
+# print(body)
+
+# 视频信息接口
+# params = (
+#     ('callback', 'tvp_request_getinfo_callback_654434'),
+#     ('platform', '11001'),
+#     ('charge', '0'),
+#     ('otype', 'json'),
+#     ('ehost', 'http://post.mp.qq.com'),
+#     ('sphls', '0'),
+#     ('sb', '1'),
+#     ('nocache', '0'),
+#     # ('_rnd', '1557917186'),
+#     # ('guid', 'daf25a829d645f1196b61df6417e87bf'),
+#     ('appVer', 'V2.0Build9502'),
+#     ('vids', 'm0866r0q1xn'),
+#     ('defaultfmt', 'auto'),
+#     # ('_qv_rmt', 'AI5PT6eoA15978I5x='),
+#     # ('_qv_rmt2', 'Kt7fT8OE157116tsw='),
+#     ('sdtfrom', 'v3010'),
+#     ('_', '1557917186891'),
+# )
+
+# body = Requests.get_url_body(
+#     url='http://h5vv.video.qq.com/getinfo',
+#     headers=headers,
+#     params=params,
+#     ip_pool_type=tri_ip_pool,
+#     num_retries=5,)
+# print(body)
+# data = json_2_dict(
+#     json_str=re.compile('\((.*)\)').findall(body)[0],
+#     default_res={})
+# pprint(data)
+
+# 播放地址
+# http://113.215.26.159/om.tc.qq.com/ANjZg10Ke0_iV9_VA9By4pF4IVo93znyFHTnIHyajpac/uwMROfz2r5zIIaQXGdGnC2dfDmb_xYKxrIGz_bGUg2Lja6ru/m0866r0q1xn.mp4?vkey=15E55CAA003787B135EE6F1F607816A0C318B62415A29AB7F88977DCDE8FC1992A731C42DBFBBD0E3658DA14F60E31901317AA83D9B9D87CFFAEC76714FD596DCBCCCAE726F8B96C96C10BDBF45927F5619D0FD2226E56363C424C6758D731798C4D853DB9783BC66ADD5F04210AC3B3992F014FC96839D9&br=103&platform=2&fmt=auto&level=0&sdtfrom=v3010&guid=daf25a829d645f1196b61df6417e87bf
+
+# url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
+# d = BaseDriver(
+#     type=FIREFOX,
+#     executable_path=FIREFOX_DRIVER_PATH,
+#     load_images=False,
+#     headless=False,
+#     ip_pool_type=tri_ip_pool,)
+# body = d.get_url_body(url=url, timeout=25)
+# print(body)
+#
+# sleep(60)

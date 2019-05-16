@@ -411,14 +411,39 @@ class ArticleParser(AsyncCrawler):
         """
         headers = await self._get_random_pc_headers()
         headers.update({
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'authority': 'post.mp.qq.com',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'If-Modified-Since': 'Wed, 15 May 2019 10:17:11 GMT',
         })
-        body = await unblock_request(
-            url=article_url,
-            headers=headers,
-            ip_pool_type=self.ip_pool_type,
-            logger=self.lg)
-        # self.lg.info(body)
+        # self.lg.info(article_url)
+
+        if '/kan/video' in article_url:
+            self.lg.info('此链接为视频链接')
+
+            body = await self._get_html_by_driver(
+                url=article_url,
+                load_images=True,)
+
+            # TODO 用firefox可获得
+            # url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
+            # d = BaseDriver(
+            #     type=FIREFOX,
+            #     executable_path=FIREFOX_DRIVER_PATH,
+            #     load_images=False,
+            #     headless=False,
+            #     ip_pool_type=tri_ip_pool, )
+            # body = d.get_url_body(url=url, timeout=25)
+            # print(body)
+
+        else:
+            body = await unblock_request(
+                url=article_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                logger=self.lg,
+                num_retries=3,)
+        self.lg.info(body)
         assert body != '', '获取到的kd的body为空值!'
 
         return body, ''
@@ -1058,6 +1083,7 @@ if __name__ == '__main__':
     # url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
     # 含视频
     # url = 'http://post.mp.qq.com/kan/video/201271541-2525bea9bc8295ah-x07913jkmml.html?_wv=2281701505&sig=50b27393b64a188ffe7f646092dbb04f&time=1542102407&iid=Mjc3Mzg2MDk1OQ==&sourcefrom=0'
+    url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
 
     # 天天快报
     # url = 'https://kuaibao.qq.com/s/NEW2018120200710400?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
@@ -1076,7 +1102,7 @@ if __name__ == '__main__':
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=gNWjMh9kjpEtYgjReTdUXZS0Q2CO6DjsS87Col9-QZE=&user_type=wappage'
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
     # 含视频
-    url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
+    # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))

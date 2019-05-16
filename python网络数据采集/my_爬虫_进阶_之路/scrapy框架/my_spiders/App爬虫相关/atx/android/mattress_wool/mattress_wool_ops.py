@@ -66,14 +66,15 @@ class MattressWoolOps(AsyncCrawler):
         self.auto_get_now_pkg_name = True if AUTO_GET_NOW_PKG_NAME == 1 else False      # 模式为自动获取当前app pkg_name
         self.wool_app_info = self._init_wool_app_info()                                 # 羊毛app信息
         self.pkg_name = self._get_wool_pkg_name()
-        self.clear_app_base_num = 20                                                    # 清理app的基数
+        self.clear_app_base_num = 15                                                    # 清理app的基数
         self.try_app_sleep_time = 3.15 * 60
         self.d_debug = False
         self.set_fast_input_ime = True
         self.device_id_list = [                                                         # device_id_list(改机apk子账号只有一个, register只可单机运行, or 购买更多子账号)
             '816QECTK24ND8',
-            '0123456789ABCDEF',
+            # '0123456789ABCDEF',
             'de295374',
+            'JNPJJREEY5NBS88D',
         ]
         # self.ht_invite_code = '54419553'                                              # 被冻结
         self.ht_invite_code = '37591777'
@@ -190,7 +191,13 @@ class MattressWoolOps(AsyncCrawler):
         func_name = await get_func_name()
 
         for device_obj in self.device_obj_list:
-            print('create task[where device_id: {}]...'.format(device_obj.device_id))
+            try:
+                print('create task[where device_id: {}]...'.format(device_obj.device_id))
+            except AttributeError as e:
+                # 处理设备无法连接的, 导致的错误: AttributeError: 'NoneType' object has no attribute 'device_id'
+                print(e)
+                continue
+
             func_args = [
                 device_obj,
             ]
@@ -367,23 +374,41 @@ class MattressWoolOps(AsyncCrawler):
         # 先输入某数字, 使底部弹出输入法切换框
         d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").set_text('0')
         # 再切换至搜狗输入法
-        d.click(0.863, 0.963)
-        sleep(2.)
-        d(resourceId="android:id/text1", text=u"搜狗输入法", className="android.widget.CheckedTextView").click()
+        if device_id_in_red_rice_1s(device_id=device_obj.device_id):
+            # 点击切换输入法
+            d.click(0.863, 0.963)
+            sleep(2.)
+            d(resourceId="android:id/text1", text=u"搜狗输入法", className="android.widget.CheckedTextView").click()
+
+        elif device_id_in_oppo_r7s(device_id=device_obj.device_id):
+            d.click(0.896, 0.902)
+            sleep(2.)
+            d(resourceId="android:id/radio", className="android.widget.RadioButton", instance=1).click()
+
+        else:
+            raise ValueError('device_id value 异常!')
+
         # 点到第一个输入框进行后续输入(双击)
         d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").click()
         d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").click()
         d(resourceId="com.cashtoutiao:id/et_code1", className="android.widget.EditText").clear_text()
         # 等待键盘显示
         print(self._get_print_base_str(device_obj=device_obj) + '等待搜狗键盘显示 ...')
-        sleep(12.)
+
+        if device_id_in_red_rice_1s(device_id=device_obj.device_id):
+            sleep(12.)
+        elif device_id_in_oppo_r7s(device_id=device_obj.device_id):
+            sleep(5.)
+        else:
+            raise ValueError('device_id value 异常!')
+
         for index, item in enumerate(sms_res):
             # TODO 测试发现无法输入最后数字
             # d(resourceId="com.cashtoutiao:id/et_code{}".format(index+1), className="android.widget.EditText")\
             #     .send_keys(text=item)
 
             # 改用搜狗数字键盘模拟点击
-            x, y = self._sg_num_keyword(num=int(item))
+            x, y = self._sg_num_keyword(num=int(item), device_id=device_obj.device_id)
             d.click(x, y)
 
         print(self._get_print_base_str(device_obj=device_obj) + '验证码输入完成!')
@@ -442,8 +467,10 @@ class MattressWoolOps(AsyncCrawler):
                 # 表示在新建环境
                 pass
 
-            sleep(3.)
-            phone_info = d(resourceId="zpp.wjy.xxsq:id/tv_info", className="android.widget.TextView").info.get('text', '')
+            phone_info_ele = d(resourceId="zpp.wjy.xxsq:id/tv_info", className="android.widget.TextView")
+            while not phone_info_ele.exists():
+                pass
+            phone_info = phone_info_ele.info.get('text', '')
             phone_model = ''
             try:
                 phone_model = re.compile('手机: (.*?)\\n运营商').findall(phone_info)[0]
@@ -480,13 +507,14 @@ class MattressWoolOps(AsyncCrawler):
 
         return
 
-    def _sg_num_keyword(self, num:int) -> tuple:
+    def _sg_num_keyword(self, num:int, device_id:str) -> tuple:
         """
         搜狗数字键盘对应点击
+        :param device_id:
         :param num:
         :return:
         """
-        num_keyword = {
+        hm_1s_num_keyword = {
             1: (0.279, 0.686),
             2: (0.501, 0.681),
             3: (0.723, 0.681),
@@ -498,6 +526,27 @@ class MattressWoolOps(AsyncCrawler):
             9: (0.718, 0.863),
             0: (0.498, 0.95),
         }
+        oppo_r7s_num_keyword = {
+            1: (0.268, 0.6),
+            2: (0.493, 0.598),
+            3: (0.692, 0.595),
+            4: (0.255, 0.688),
+            5: (0.459, 0.688),
+            6: (0.666, 0.687),
+            7: (0.255, 0.767),
+            8: (0.496, 0.768),
+            9: (0.697, 0.77),
+            0: (0.498, 0.872),
+        }
+        if device_id_in_red_rice_1s(device_id=device_id):
+            num_keyword = hm_1s_num_keyword
+
+        elif device_id_in_oppo_r7s(device_id=device_id):
+            num_keyword = oppo_r7s_num_keyword
+
+        else:
+            raise ValueError('device_id 异常, 请检查!')
+
         for key, value in num_keyword.items():
             if num == key:
                 return value
@@ -723,9 +772,8 @@ class MattressWoolOps(AsyncCrawler):
             except AppNoResponseException:
                 break
 
-            if d(resourceId="com.cashtoutiao:id/tv_src", text=u"广告", className="android.widget.TextView").exists()\
-                    or d(resourceId="com.cashtoutiao:id/tv_reward_header_tip", text=u"浏览广告赢更多金币", className="android.widget.TextView").exists()\
-                    or d(resourceId="com.cashtoutiao:id/tv_src", text=u"红包抽奖", className="android.widget.TextView").exists():
+            if d(resourceId="com.cashtoutiao:id/tv_src", textMatches=u".*?广告|红包抽奖", className="android.widget.TextView").exists()\
+                    or d(resourceId="com.cashtoutiao:id/tv_reward_header_tip", text=u"浏览广告赢更多金币", className="android.widget.TextView").exists():
                 print(self._get_print_base_str(device_obj=device_obj) + '有广告, 跳过!')
                 u2_block_up_swipe_some_height(d=d, swipe_height=.3)
                 continue
@@ -744,6 +792,11 @@ class MattressWoolOps(AsyncCrawler):
                 article_title = first_article_ele.info.get('text', '')
                 # 点击进入文章
                 first_article_ele.click()
+
+                # 视频文章无法播放处理
+                toast_msg = d.toast.get_message(wait_timeout=.2, default='')
+                assert toast_msg != '手机系统版本过低', '手机系统版本过低, 无法播放视频, 跳过该视频文章!'
+
                 # 阅读完该文章并返回上一页
                 self._ht_read_one_article(device_obj=device_obj, article_title=article_title)
                 article_count += 1
@@ -752,6 +805,10 @@ class MattressWoolOps(AsyncCrawler):
                 print('出错device_id: {}, device_product_name: {}'.format(
                     device_obj.device_id,
                     device_obj.device_product_name), e)
+
+                if d(resourceId="com.cashtoutiao:id/up_keyboard", text=u"写评论...", className="android.widget.TextView").exists():
+                    # 表明未退回首页, 还在文章内部, 此处进行退出!
+                    u2_block_page_back(d=d, back_num=1)
 
                 u2_block_up_swipe_some_height(d=d, swipe_height=.3)
                 continue
@@ -774,7 +831,7 @@ class MattressWoolOps(AsyncCrawler):
 
         return self._read_forever(device_obj=new_device_obj)
 
-    @fz_set_timeout(seconds=2. * 60)
+    @fz_set_timeout(seconds=2.5 * 60)
     def _ht_read_someone_time_duration(self, device_obj) -> None:
         """
         ht 阅读指定时长
@@ -817,11 +874,21 @@ class MattressWoolOps(AsyncCrawler):
                 # 原因: 长时间阅读评论, 收获金币有限
                 break
 
-            u2_block_up_swipe_some_height(d=d, swipe_height=.7)
+            if d(resourceId="com.cashtoutiao:id/msg", text=u"当前为移动网络，请点击播放", className="android.widget.TextView").exists():
+                # 视频文章, 点击播放
+                try:
+                    d(resourceId="com.cashtoutiao:id/continue_play", text=u"继续播放", className="android.widget.TextView").click()
+                except UiObjectNotFoundError:
+                    pass
+
+            u2_block_up_swipe_some_height(d=d, swipe_height=.5)
             swipe_count += 1
+            # 休眠一下, 反而每次阅读收益更多
+            sleep(.1)
 
         print(self._get_print_base_str(device_obj=device_obj) + 'read over!')
-        u2_block_page_back(d=d, back_num=1)
+        while not d(text=u"我的", className="android.widget.TextView").exists():
+            u2_block_page_back(d=d, back_num=1)
 
         return
 
@@ -1086,6 +1153,22 @@ def device_id_in_red_rice_1s(device_id:str) -> bool:
         'de295374',
     ]
     if device_id in red_rice_1s_device_id_list:
+        res = True
+
+    return res
+
+def device_id_in_oppo_r7s(device_id:str) -> bool:
+    """
+    设备id 是否为oppo r7s
+    :param device_id:
+    :return:
+    """
+    res = False
+    # oppo r7s
+    oppo_r7s_device_id_list = [
+        'JNPJJREEY5NBS88D',
+    ]
+    if device_id in oppo_r7s_device_id_list:
         res = True
 
     return res
