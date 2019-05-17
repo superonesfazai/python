@@ -8,29 +8,30 @@
 
 """
 羊毛ops
+
+注: 仅供技术交流, 勿进行商业行为
 """
 
 from gc import collect
 import uiautomator2 as u2
 # d对象的基础类
 from uiautomator2 import UIAutomatorServer
+from uiautomator2.session import UiObject
+# UI选择器的参数名可从此类中获取
+from uiautomator2.session import Selector as U2Selector
 from uiautomator2.exceptions import (
     UiObjectNotFoundError,
     UiAutomationNotConnectedError,)
 from fzutils.ip_pools import tri_ip_pool
-from fzutils.spider.app_utils import (
-    u2_block_page_back,
-    u2_block_up_swipe_some_height,
-    get_u2_init_device_list,
-    u2_get_device_obj_by_device_id,
-    human_swipe,)
 from fzutils.exceptions import AppNoResponseException
 from fzutils.register_utils import YiMaSmser
 from fzutils.spider.async_always import *
+from fzutils.spider.app_utils import *
 from fzutils.shell_utils import *
 
 """
 * 输入法: 搜狗输入法
+* kingroot: 因为r7s安装软件检测, 涉及其包的相关按钮的点击
 * 改机apk: 
     版本6.3.9, 加入包解析错误, 可安装6.3.6版
     *** 只有一个子账号, 每次使用前先手动绑定一次(切记: 先去重置下设备id, 再进行绑定)(避免自动绑定过于频繁, 被禁止一定时长[6-9分钟...]) 
@@ -53,6 +54,10 @@ class ReadTimeOutException(Exception):
     """阅读超时异常"""
     pass
 
+class AppInstalledBeforeException(Exception):
+    """app曾被注入过"""
+    pass
+
 class MattressWoolOps(AsyncCrawler):
     """羊毛ops"""
     def __init__(self):
@@ -72,7 +77,7 @@ class MattressWoolOps(AsyncCrawler):
         self.set_fast_input_ime = True
         self.device_id_list = [                                                         # device_id_list(改机apk子账号只有一个, register只可单机运行, or 购买更多子账号)
             '816QECTK24ND8',
-            # '0123456789ABCDEF',
+            '0123456789ABCDEF',
             'de295374',
             'JNPJJREEY5NBS88D',
         ]
@@ -80,6 +85,17 @@ class MattressWoolOps(AsyncCrawler):
         self.ht_invite_code = '37591777'
         self.change_machine_pkg_name = 'zpp.wjy.xxsq'                                   # 改机的pkg_name
         self._init_yima_obj_info()
+        self.qt_installed_app_name_list = self._get_qt_installed_app_name_list()
+
+    def _get_qt_installed_app_name_list(self) -> list:
+        """
+        ht 已被安装过的app(先不处理, 全重新安装)
+        :return:
+        """
+        return [
+            '好运APP',
+            'QQ音乐',
+        ]
 
     def _init_yima_obj_info(self):
         """
@@ -586,7 +602,7 @@ class MattressWoolOps(AsyncCrawler):
                 print(self._get_print_base_str(device_obj=device_obj) + '安装按钮text: {}'.format(first_ele_text))
                 first_ele.click()
                 try_app_btn = d(
-                    textMatches=u"打开注册并试玩|打开激活|打开试玩|打开浏览|打开使用|打开阅读",
+                    textMatches=u"打开注册并试玩|打开激活|打开试玩|打开浏览|打开使用|打开阅读|打开注册",
                     className="android.widget.TextView")
 
                 if not try_app_btn.exists():
@@ -607,6 +623,24 @@ class MattressWoolOps(AsyncCrawler):
                         while not complete_installed_btn.exists():
                             pass
                         complete_installed_btn.click()
+
+                    elif device_id_in_oppo_r7s(device_id=device_obj.device_id):
+                        # oppo r7s
+                        ok_install_btn = d(resourceId="com.kingroot.kinguser:id/btn_install", text=u"确认安装", className="android.widget.Button")
+                        while not ok_install_btn.exists():
+                            pass
+                        ok_install_btn.click()
+
+                        complete_installed_btn = d(
+                            resourceId="com.kingroot.kinguser:id/btn_right",
+                            text=u"完成",
+                            className="android.widget.Button")
+                        while not complete_installed_btn.exists():
+                            pass
+
+                        # r7s完成按钮点击无响应的, 因此进行点击页面回退按钮
+                        # complete_installed_btn.click()
+                        d(resourceId="com.kingroot.kinguser:id/left_iv", className="android.widget.ImageView").click()
 
                     else:
                         # 魅族
@@ -655,7 +689,7 @@ class MattressWoolOps(AsyncCrawler):
                 # 返回趣头条app
                 # TODO 红米重启后到首页了...需要改下再
                 d.app_start(pkg_name=self.pkg_name)
-                sleep(3.)
+                sleep(4.)
 
                 # 领取奖励
                 d(text=u"领取奖励", className="android.widget.TextView").click()
@@ -673,8 +707,7 @@ class MattressWoolOps(AsyncCrawler):
                 # 试玩结束...
 
             except UiObjectNotFoundError as e:
-                print('出错device_id: {}, device_product_name: {}'.format(device_obj.device_id,
-                                                                        device_obj.device_product_name), e)
+                print(self._get_print_base_str(device_obj=device_obj), e)
                 # 下滑一个高度, 用于处理试玩app列表为空的情况, 进行下滑刷新list
                 d.swipe(0., .3, 0., .3 + .5)
                 # 避免频繁请求接口
@@ -881,6 +914,25 @@ class MattressWoolOps(AsyncCrawler):
                 except UiObjectNotFoundError:
                     pass
 
+            # 展开全文按钮
+            # meizu
+            unfold_full_text_btn1 = d(text=u"展开全文", className="android.view.View",)
+            # 1s or r7s
+            # unfold_full_text_btn2 = d(description=u"展开全文", className="android.view.View",)
+            unfold_full_text_btn2:UiObject = u2_get_ui_obj(
+                d=d,
+                text='',
+                description=u"展开全文",
+                className="android.view.View",
+                clickable=True,
+                enabled=True,)
+
+            if unfold_full_text_btn1.exists():
+                unfold_full_text_btn1.click()
+
+            if unfold_full_text_btn2.exists():
+                unfold_full_text_btn2.click()
+
             u2_block_up_swipe_some_height(d=d, swipe_height=.5)
             swipe_count += 1
             # 休眠一下, 反而每次阅读收益更多
@@ -1009,6 +1061,16 @@ class MattressWoolOps(AsyncCrawler):
             d(resourceId="android:id/button2", text=u"等待", className="android.widget.Button").click()
             # TODO 长期运行会卡在此处无响应
             raise AppNoResponseException
+
+        # 首次启动app, 会弹出
+        if d(resourceId="com.jifen.qukan:id/a2c", text=u"先去逛逛", className="android.widget.TextView").exists():
+            d(resourceId="com.jifen.qukan:id/a2c", text=u"先去逛逛", className="android.widget.TextView").click()
+
+        # r7s gps定位
+        if d(resourceId="oppo:id/permission_prompt", text=u"趣头条正在尝试使用GPS定位（注：软件还可以通过其他途径获取位置信息）", className="android.widget.TextView").exists():
+            # 勾选不再提醒
+            d(resourceId="oppo:id/remember_cb", text=u"不再提醒", className="android.widget.CheckBox").click()
+            d(resourceId="android:id/button2", textMatches=u"拒绝", className="android.widget.Button").click()
 
         return
 

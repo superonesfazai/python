@@ -36,6 +36,11 @@ https://www.appetizer.io/
 1. python3 -m weditor 
 2. python3 -m uiautomator2 init 
 
+获取帮助
+```bash
+python3 -m uiautomator2 --help
+```
+
 (启动atx代理，uiautomator代理 如果启动推送安装失败 则 $ cd ~/.uiautomator2 然后在该目录下 $ rm -rf * 最后重跑python3 -m uiautomator2 init)
 
 ### 检查是否安装成功
