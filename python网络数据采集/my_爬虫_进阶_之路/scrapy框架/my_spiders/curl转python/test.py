@@ -10,7 +10,10 @@ from __future__ import unicode_literals
 
 from ftfy import fix_text
 from random import randint
-from urllib.parse import urlencode
+from urllib.parse import (
+    urlparse,
+    parse_qsl,
+    urlencode,)
 from fzutils.ip_pools import (
     fz_ip_pool,
     ip_proxy_pool,

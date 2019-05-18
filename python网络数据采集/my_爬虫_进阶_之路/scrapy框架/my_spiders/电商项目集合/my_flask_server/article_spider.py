@@ -18,7 +18,8 @@
     6. qq看点文章内容爬取(根据QQ看点中分享出的地址)
     7. 天天快报(根据天天快报分享出的地址)
 待实现:
-    1. 网易新闻
+    1. 百度m站(https://m.baidu.com/)
+    2. 网易新闻
 """
 
 from os import getcwd
@@ -33,6 +34,8 @@ from settings import (
     PHANTOMJS_DRIVER_PATH,
     IP_POOL_TYPE,)
 
+from fzutils.internet_utils import _get_url_contain_params
+from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.selector import async_parse_field
 from fzutils.spider.async_always import *
 
@@ -56,7 +59,8 @@ class ArticleParser(AsyncCrawler):
         :param article_url: 待抓取文章的url
         :return:
         """
-        self.obj_origin_dict = await self._get_obj_origin()    # 设置obj_origin_dict
+        # 设置obj_origin_dict
+        self.obj_origin_dict = await self._get_obj_origin()
         child_debug = await self.is_child_can_debug(article_url)
         if not child_debug:
             self.lg.error('article_url未匹配到对象 or debug未开启!')
@@ -65,8 +69,10 @@ class ArticleParser(AsyncCrawler):
         try:
             article_url_type = await self._judge_url_type(article_url=article_url)
             parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
+            # self.lg.info(article_url_type)
+            # pprint(parse_obj)
         except (ValueError, NotImplementedError):      # article_url未知!
-            self.lg.error(exc_info=True)
+            self.lg.error('遇到错误: ', exc_info=True)
             return {}
 
         article_html, video_url = await self._get_article_html(
@@ -157,6 +163,10 @@ class ArticleParser(AsyncCrawler):
             'sg': {
                 'obj_origin': 'sa.sogou.com',
                 'site_id': 10,
+            },
+            'bd': {
+                'obj_origin': 'm.baidu.com',
+                'site_id': 11,
             },
         }
 
@@ -304,6 +314,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'sg':
                 return await self._get_sg_article_html(article_url=article_url)
 
+            elif article_url_type == 'bd':
+                return await self._get_bd_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -311,6 +324,100 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_bd_article_html(self, article_url) -> tuple:
+        """
+        获取bd article的html
+        :param article_url:
+        :return:
+        """
+        async def _get_hk_params(article_id) -> tuple:
+            """
+            获取好看视频的article_id和params
+            :param article_url:
+            :return:
+            """
+            return (
+                ('pd', 'wise'),
+                ('vid', str(article_id)),
+                ('is_invoke', '1'),
+                ('innerIframe', '1'),
+                ('type', 'share'),
+            )
+
+        video_url = ''
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            'Referer': 'https://m.baidu.com/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        is_haokan = False
+        # 只要是好看视频都可以进 https://haokan.baidu.com/videoui/page/searchresult进行搜索得到对应页面
+        if 'm.baidu.com' in article_url:
+            # 下面.com在article_url得参数里
+            if 'mbd.baidu.com' in article_url:
+                article_id = re.compile('news_(\d+)').findall(article_url)[0]
+                url = 'https://mbd.baidu.com/newspage/data/landingpage'
+                params = (
+                    ('context', dumps({
+                        'nid': 'news_{}'.format(article_id),
+                    })),
+                    ('pageType', '1'),
+                )
+
+            elif 'haokan.baidu.com' in article_url:
+                is_haokan = True
+                # 获取视频id
+                article_id = re.compile('vid%253D(\d+)').findall(article_url)[0]
+                # self.lg.info(article_id)
+                url = 'https://haokan.baidu.com/videoui/page/searchresult'
+                params = await _get_hk_params(article_id=article_id)
+
+            else:
+                raise NotImplemented
+
+        elif 'sv.baidu.com' in article_url:
+            # 在二级域名上
+            is_haokan = True
+            # 获取视频id
+            article_id = re.compile('sv_(\d+)').findall(article_url)[0]
+            url = 'https://haokan.baidu.com/videoui/page/searchresult'
+            params = await _get_hk_params(article_id=article_id)
+
+        else:
+            params = None
+            url = article_url
+
+        # if isinstance(params, tuple):
+        #     self.lg.info(_get_url_contain_params(
+        #         url=url,
+        #         params=params,))
+
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg)
+        # self.lg.info(body)
+        assert body != '', '获取sg的body为空值!'
+
+        if is_haokan:
+            video_url_selector = {
+                'method': 'css',
+                'selector': 'div.play1er-box video ::attr("src")',
+            }
+            video_url = await async_parse_field(
+                parser=video_url_selector,
+                target_obj=body,
+                logger=self.lg,)
+
+        else:
+            pass
+
+        return body, video_url
 
     async def _get_sg_article_html(self, article_url) -> tuple:
         """
@@ -622,6 +729,12 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        elif parse_obj['short_name'] == 'bd':
+            if video_url != '':
+                author_selector = parse_obj['video_author']
+            else:
+                pass
+
         else:
             pass
 
@@ -630,7 +743,8 @@ class ArticleParser(AsyncCrawler):
             target_obj=target_obj,
             logger=self.lg)
 
-        if parse_obj['short_name'] == 'df':
+        if parse_obj['short_name'] == 'df'\
+                or parse_obj['short_name'] == 'bd':
             pass
         else:
             assert author != '', '获取到的author为空值!'
@@ -645,6 +759,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         title_selector = parse_obj['title']
+        # self.lg.info(target_obj)
         if parse_obj['short_name'] == 'df':
             if video_url != '':
                 title_selector = parse_obj['video_title']
@@ -663,6 +778,12 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        elif parse_obj['short_name'] == 'bd':
+            if video_url != '':
+                title_selector = parse_obj['video_title']
+            else:
+                pass
+
         else:
             pass
 
@@ -671,7 +792,6 @@ class ArticleParser(AsyncCrawler):
             parser=title_selector,
             target_obj=target_obj,
             logger=self.lg)
-
         assert title != '', '获取到的title为空值!'
 
         return title
@@ -709,7 +829,9 @@ class ArticleParser(AsyncCrawler):
                 or article_url_type == 'sg':
             return get_uuid1()
 
-        article_id_selector = await self._get_article_id_selector(article_url_type=article_url_type)
+        article_id_selector = await self._get_article_id_selector(
+            article_url_type=article_url_type,
+            article_url=article_url,)
         share_id = await async_parse_field(
             parser=article_id_selector,
             target_obj=article_url,
@@ -718,7 +840,7 @@ class ArticleParser(AsyncCrawler):
 
         return share_id
 
-    async def _get_article_id_selector(self, article_url_type) -> (dict, None):
+    async def _get_article_id_selector(self, article_url_type, article_url) -> (dict, None):
         """
         获取article_id的selector
         :param self:
@@ -727,6 +849,18 @@ class ArticleParser(AsyncCrawler):
         """
         for item in ARTICLE_ITEM_LIST:
             if article_url_type == item.get('short_name', ''):
+                if article_url_type == 'bd':
+                    if 'haokan.baidu.com' in article_url:
+                        return item['video_id']
+
+                    elif 'sv.baidu.com' in article_url:
+                        return item['video_id2']
+
+                    else:
+                        pass
+                else:
+                    pass
+
                 return item['article_id']
 
         raise NotImplementedError
@@ -759,7 +893,8 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         is_first = False
-        if parse_obj.get('short_name', '') == 'kd':
+        if parse_obj.get('short_name', '') == 'kd'\
+                or parse_obj['short_name'] == 'bd':
             # 取第一个str
             is_first = True
 
@@ -781,6 +916,34 @@ class ArticleParser(AsyncCrawler):
                 'keyword': i,
             } for i in tags_list]
 
+        if parse_obj['short_name'] == 'bd':
+            # self.lg.info(str(tags_list))
+            if tags_list != '':
+                ori_tag_json_data = tags_list + ']'
+                tmp_tag_list = json_2_dict(
+                    json_str=ori_tag_json_data,
+                    default_res=[],
+                    logger=self.lg)
+                # pprint(tmp_tag_list)
+                tags_list = []
+                for item in tmp_tag_list:
+                    try:
+                        name = item.get('name', '')
+                        assert name != '', 'name != ""'
+                    except AssertionError:
+                        continue
+                    tags_list.append({
+                        'keyword': name,
+                    })
+                # pprint(tags_list)
+
+            else:
+                pass
+
+        tags_list = list_remove_repeat_dict_plus(
+            target=tags_list,
+            repeat_key='keyword',)
+
         return tags_list
 
     async def _get_article_create_time(self, parse_obj, target_obj, video_url) -> str:
@@ -792,6 +955,12 @@ class ArticleParser(AsyncCrawler):
         """
         create_time_selector = parse_obj['create_time']
         if parse_obj['short_name'] == 'sg':
+            if video_url != '':
+                create_time_selector = parse_obj['video_create_time']
+            else:
+                pass
+
+        elif parse_obj['short_name'] == 'bd':
             if video_url != '':
                 create_time_selector = parse_obj['video_create_time']
             else:
@@ -812,6 +981,18 @@ class ArticleParser(AsyncCrawler):
                     if create_time != '' else ''
             else:
                 create_time = create_time.replace('/', '-')
+
+        elif parse_obj['short_name'] == 'bd':
+            if video_url != '':
+                pass
+
+            else:
+                if create_time != '':
+                    try:
+                        create_time = str(timestamp_to_regulartime(create_time[:10]))
+                    except Exception:
+                        self.lg.error('遇到错误:', exc_info=True)
+                        create_time = ''
 
         else:
             pass
@@ -847,7 +1028,8 @@ class ArticleParser(AsyncCrawler):
         #     print(html)
 
         if parse_obj['short_name'] == 'df'\
-                or parse_obj['short_name'] == 'sg':
+                or parse_obj['short_name'] == 'sg'\
+                or parse_obj['short_name'] == 'bd':
             if video_url != '':
                 pass
             else:
@@ -873,13 +1055,16 @@ class ArticleParser(AsyncCrawler):
             content = await self._wash_kb_article_content(content=content)
 
         elif parse_obj.get('short_name', '') == 'wx':
-            content = await self._wask_wx_article_content(content=content)
+            content = await self._wash_wx_article_content(content=content)
 
         elif parse_obj.get('short_name', '') == 'df':
-            content = await self._wask_df_article_content(content=content)
+            content = await self._wash_df_article_content(content=content)
 
         elif parse_obj.get('short_name', '') == 'sg':
-            content = await self._wask_sg_article_content(content=content)
+            content = await self._wash_sg_article_content(content=content)
+
+        elif parse_obj.get('short_name', '') == 'bd':
+            content = await self._wash_bd_article_content(content=content)
 
         else:
             pass
@@ -890,7 +1075,25 @@ class ArticleParser(AsyncCrawler):
         return content
 
     @staticmethod
-    async def _wask_sg_article_content(content) -> str:
+    async def _wash_bd_article_content(content) -> str:
+        """
+        清洗bd content
+        :param content:
+        :return:
+        """
+        # TODO firefox正常显示, 但是chrome无图, 原因图片地址无响应!
+        # 顶部空白替换
+        content = re.compile('<div style=\"padding-top:\d+\.\d+%\">').sub('<div>', content)
+        content = re.compile('<div style=\"padding-top:\d+%\">').sub('<div>', content)
+
+        # 图片自适应
+        content = '<style type="text/css">img {height: auto;width: 100%;}</style>' + content \
+            if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_sg_article_content(content) -> str:
         """
         清洗sg的content
         :param content:
@@ -899,7 +1102,7 @@ class ArticleParser(AsyncCrawler):
         return content
 
     @staticmethod
-    async def _wask_df_article_content(content) -> str:
+    async def _wash_df_article_content(content) -> str:
         """
         清洗df的content
         :param content:
@@ -910,7 +1113,7 @@ class ArticleParser(AsyncCrawler):
         return content
 
     @staticmethod
-    async def _wask_wx_article_content(content) -> str:
+    async def _wash_wx_article_content(content) -> str:
         """
         清洗wx content
         :param content:
@@ -969,6 +1172,20 @@ class ArticleParser(AsyncCrawler):
                     if item_debug:
                         return True
 
+            elif item.get('short_name', '') == 'bd':
+                if 'mbd.baidu.com' in article_url:
+                    if item_debug:
+                        return True
+
+                elif 'sv.baidu.com' in article_url:
+                    if item_debug:
+                        return True
+
+                else:
+                    if item.get('obj_origin', '') in article_url:
+                        if item_debug:
+                            return True
+
             else:
                 if item.get('obj_origin', '') in article_url:
                     if item_debug:
@@ -1002,6 +1219,9 @@ class ArticleParser(AsyncCrawler):
         elif article_url_type == 'sg':
             return self.obj_origin_dict['sg'].get('site_id', '')
 
+        elif article_url_type == 'bd':
+            return self.obj_origin_dict['bd'].get('site_id', '')
+
         else:
             raise ValueError('未知的文章url!')
 
@@ -1014,6 +1234,17 @@ class ArticleParser(AsyncCrawler):
             if key == 'df':
                 if 'mini.eastday.com' in article_url:
                     return key
+
+            elif key == 'bd':
+                if 'mbd.baidu.com' in article_url:
+                    return key
+
+                elif 'sv.baidu.com' in article_url:
+                    return key
+
+                else:
+                    if value.get('obj_origin') in article_url:
+                        return key
 
             else:
                 if value.get('obj_origin') in article_url:
@@ -1083,7 +1314,7 @@ if __name__ == '__main__':
     # url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
     # 含视频
     # url = 'http://post.mp.qq.com/kan/video/201271541-2525bea9bc8295ah-x07913jkmml.html?_wv=2281701505&sig=50b27393b64a188ffe7f646092dbb04f&time=1542102407&iid=Mjc3Mzg2MDk1OQ==&sourcefrom=0'
-    url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
+    # url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
 
     # 天天快报
     # url = 'https://kuaibao.qq.com/s/NEW2018120200710400?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
@@ -1104,6 +1335,21 @@ if __name__ == '__main__':
     # 含视频
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
+
+    # 百度m站
+    # url = 'https://mbd.baidu.com/newspage/data/landingpage?s_type=news&dsp=wise&context=%7B%22nid%22%3A%22news_9512351987809643964%22%7D&pageType=1&n_type=1&p_from=-1'
+    # url = 'https://mbd.baidu.com/newspage/data/landingpage?s_type=news&dsp=wise&context=%7B%22nid%22%3A%22news_9423330273641956666%22%7D&pageType=1&n_type=1&p_from=-1'
+    # url = 'https://mbd.baidu.com/newspage/data/landingshare?context=%7B%22nid%22%3A%22news_8934756170017529467%22%2C%22ssid%22%3A%22%22%7D&pageType=1'
+    # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fmbd.baidu.com%252Fnewspage%252Fdata%252Flandingpage%253Fs_type%253Dnews%2526dsp%253Dwise%2526context%253D%25257B%252522nid%252522%25253A%252522news_8934756170017529467%252522%25257D%2526pageType%253D1%2526n_type%253D1%2526p_from%253D-1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fmbd.baidu.com%252Fnewspage%252Fdata%252Flandingpage%253Fs_type%253Dnews%2526dsp%253Dwise%2526context%253D%25257B%252522nid%252522%25253A%252522news_9292806054300264081%252522%25257D%2526pageType%253D1%2526n_type%253D1%2526p_from%253D-1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    # 含视频(好看视频)
+    # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fhaokan.baidu.com%252Fvideoui%252Fpage%252Fsearchresult%253Fpd%253Dwise%2526vid%253D15928130604529794109%2526is_invoke%253D1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fhaokan.baidu.com%252Fvideoui%252Fpage%252Fsearchresult%253Fpd%253Dwise%2526vid%253D12574625425386503733%2526is_invoke%253D1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fhaokan.baidu.com%252Fvideoui%252Fpage%252Fsearchresult%253Fpd%253Dwise%2526vid%253D5077289958594474520%2526is_invoke%253D1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fhaokan.baidu.com%252Fvideoui%252Fpage%252Fsearchresult%253Fpd%253Dwise%2526vid%253D8197562812859491736%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    # 推荐栏上边点击视频进入的tab, 所得的到视频地址
+    # url = 'https://sv.baidu.com/videoui/page/videoland?context=%7B%22nid%22%3A%22sv_7865563634675285012%22%7D&pd=feedtab_h5&pagepdSid='
+    # url = 'https://sv.baidu.com/videoui/page/videoland?context=%7B%22nid%22%3A%22sv_2051009680729321124%22%7D&pd=feedtab_h5&pagepdSid='
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)

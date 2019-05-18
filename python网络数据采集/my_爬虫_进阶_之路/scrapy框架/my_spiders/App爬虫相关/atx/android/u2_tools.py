@@ -9,9 +9,7 @@
 import uiautomator2 as u2
 from gc import collect
 from uiautomator2 import UIAutomatorServer
-from fzutils.spider.app_utils import (
-    get_u2_init_device_list,
-)
+from fzutils.spider.app_utils import *
 from fzutils.common_utils import _print
 from fzutils.spider.async_always import *
 
@@ -105,15 +103,42 @@ class U2AppTools(object):
             pass
         collect()
 
+def u2_uninstall_someone_app_by_device_id(device_id: str, pkg_name: str):
+    """
+    卸载设备的某个app
+    :param device_id:
+    :param pkg_name:
+    :return:
+    """
+    device_obj = u2_get_device_obj_by_device_id(
+        u2=u2,
+        device_id=device_id,
+        pkg_name=pkg_name,
+        open_someone_pkg=False,
+    )
+    # d: UIAutomatorServer = device_obj.d
+    d = device_obj.d
+
+    d.app_stop(pkg_name=pkg_name)
+    d.app_uninstall(pkg_name=pkg_name)
+
+    return
+
 if __name__ == '__main__':
-    loop = get_event_loop()
-    device_id_list = [
-        '816QECTK24ND8'
-    ]
-    _ = U2AppTools(device_id_list=device_id_list)
-    # 测试下载失败
-    res = loop.run_until_complete(_.app_install_all_devices(
-        # app_url='https://file.io/4bNiGi',
-        app_url='http://ge.tt/1uNnh2w2'
-    ))
+    # loop = get_event_loop()
+    # device_id_list = [
+    #     # '816QECTK24ND8',
+    #     'JNPJJREEY5NBS88D',
+    # ]
+    # _ = U2AppTools(device_id_list=device_id_list)
+    # # 测试下载失败
+    # res = loop.run_until_complete(_.app_install_all_devices(
+    #     # app_url='https://file.io/4bNiGi',
+    #     app_url='http://ge.tt/1uNnh2w2'
+    # ))
+
+    # 卸载atx, 避免编码时与uiautomator viewer冲突
+    u2_uninstall_someone_app_by_device_id(
+        device_id='JNPJJREEY5NBS88D',
+        pkg_name='com.github.uiautomator',)
 

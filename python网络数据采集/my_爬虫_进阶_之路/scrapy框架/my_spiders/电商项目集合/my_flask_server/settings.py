@@ -530,6 +530,60 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'bd',
+        'debug': True,
+        'obj_origin': 'm.baidu.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'news_(\d+)',
+        },
+        'video_id': {
+            'method': 're',
+            'selector': 'vid%253D(\d+)',
+        },
+        'video_id2': {
+            'method': 're',
+            'selector': 'sv_(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h1.titleSize ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'h1.c-title ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'div.extraInfo a.authorName ::text',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'span.name-text ::text'
+        },
+        'head_url': {
+            'method': 'css',
+            'selector': 'a.borderLine img ::attr("src")',
+        },
+        'create_time': {
+            'method': 're',
+            'selector': '\"updatetime\":(.*?),',
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.mainContent',
+        },
+        'comment_num': None,
+        'tags_list': {
+            'method': 're',
+            'selector': '},\"tag\":(.*?)],'
+        },
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
