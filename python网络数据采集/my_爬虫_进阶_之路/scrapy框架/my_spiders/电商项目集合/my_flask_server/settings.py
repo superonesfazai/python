@@ -584,6 +584,40 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'zq',
+        'debug': True,
+        'obj_origin': 'focus.youth.cn',
+        'article_id': {
+            'method': 're',
+            'selector': '\/detail\/id\/(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h2.rich_media_title ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div.rich_media_meta_list a.laiyuan ::text',
+        },
+        'video_author': None,
+        'head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '<em class=\"rich_media_meta text\">(.*?)<a class=\"laiyuan\"',
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.rich_media_content',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''

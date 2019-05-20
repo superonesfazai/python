@@ -81,16 +81,17 @@ class MattressWoolOps(AsyncCrawler):
         self.set_fast_input_ime = True
         # device_id_list(改机apk子账号只有一个, register只可单机运行, or 购买更多子账号)
         self.device_id_list = [
-            '816QECTK24ND8',
+            # '816QECTK24ND8',
             # '0123456789ABCDEF',
             # 'de295374',
-            'JNPJJREEY5NBS88D',
+            # 'JNPJJREEY5NBS88D',
             'KFWORWGQJNIBZPOV',
+            'USOFUK7SFUJBAQ6P',
         ]
         # self.ht_invite_code = '54419553'                                              # 被冻结
         # self.ht_invite_code = '37591777'                                              # 被冻结
         self.ht_invite_code = ''
-        self.qt_invite_code = 'A451037043'
+        self.qt_invite_code = 'A454342728'
 
         self.change_machine_pkg_name = 'zpp.wjy.xxsq'                                   # 改机的pkg_name
         self._init_yima_obj_info()
@@ -1232,7 +1233,7 @@ class MattressWoolOps(AsyncCrawler):
             if not first_article_ele.exists():
                 # 刚启动app时由于网络因素, 首页数据未加载出来, 下滑加载
                 d.swipe(0., .3, 0., .3 + .4)
-                sleep(1.5)
+                sleep(2.)
 
             if d(resourceId="com.jifen.qukan:id/a54", text=u"广告", className="android.widget.TextView").exists()\
                     or d(resourceId="com.jifen.qukan:id/a69", text=u"广告", className="android.widget.TextView").exists():
@@ -1456,6 +1457,9 @@ class MattressWoolOps(AsyncCrawler):
             if d(text=u"评论赞赏上线了", className="android.widget.TextView").exists():
                 d(resourceId="com.jifen.qukan:id/pt", text=u"去赞赏", className="android.widget.Button").click()
 
+            if d(resourceId="com.jifen.qukan:id/mx", text=u"继续观看", className="android.widget.Button").exists():
+                d(resourceId="com.jifen.qukan:id/mx", text=u"继续观看", className="android.widget.Button").click()
+
             u2_block_up_swipe_some_height(d=d, swipe_height=.7)
             swipe_count += 1
             sleep(.1)
@@ -1542,6 +1546,8 @@ def device_id_in_oppo_r7s(device_id:str) -> bool:
     # oppo r7s
     oppo_r7s_device_id_list = [
         'JNPJJREEY5NBS88D',
+        'KFWORWGQJNIBZPOV',
+        'USOFUK7SFUJBAQ6P',
     ]
     if device_id in oppo_r7s_device_id_list:
         res = True
