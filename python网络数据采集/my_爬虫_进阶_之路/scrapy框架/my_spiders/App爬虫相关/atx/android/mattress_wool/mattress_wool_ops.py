@@ -12,6 +12,24 @@
 注: 仅供技术交流, 勿进行商业行为
 """
 
+from settings import (
+    DEVICE_ID_LIST,
+    CHANGE_MACHINE_PKG_NAME,
+    APP_NAME,
+    AUTO_READ,
+    AUTO_TRY_APP,
+    AUTO_REGISTER,
+    AUTO_GET_NOW_PKG_NAME,
+    QT_INVITE_CODE,
+    HT_INVITE_CODE,)
+from wool_exceptions import (
+    ReadTimeOutException,
+    AppInstalledBeforeException,
+    NoMoreArticlesException,)
+from wool_utils import (
+    device_id_in_red_rice_1s,
+    device_id_in_oppo_r7s,)
+
 from gc import collect
 import uiautomator2 as u2
 # d对象的基础类
@@ -40,27 +58,10 @@ from fzutils.shell_utils import *
     红米1s(电信联通版) 卡刷9.7开发者版本(下载地址: http://bigota.d.miui.com/7.11.16/miui_HM1SWC_7.11.16_2787e0f1ed_4.4.zip)
     $ adb -s de295374 push miui_HM1SWC_7.11.16_2787e0f1ed_4.4.zip /sdcard/
     # 关于本机 -> 系统更新 -> 右上角按钮 -> 手动选择安装包 -> miui_HM1SWC_7.11.16_2787e0f1ed_4.4.zip -> 确定进行自动安装 -> 安装好后 -> 设置 -> 权限管理 -> root -> 开启root
+* oppo r7s:
+    xposed安装版本: xposedinstallermiui8.apk (android 4.4)
+    kingroot
 """
-
-# 启动羊毛app的short_name
-APP_NAME = None
-# ops操作类型
-AUTO_READ = 0
-AUTO_TRY_APP = 0
-AUTO_REGISTER = 0
-AUTO_GET_NOW_PKG_NAME = 0
-
-class ReadTimeOutException(Exception):
-    """
-    阅读超时异常
-    """
-    pass
-
-class AppInstalledBeforeException(Exception):
-    """
-    app曾被注入过
-    """
-    pass
 
 class MattressWoolOps(AsyncCrawler):
     """羊毛ops"""
@@ -79,21 +80,11 @@ class MattressWoolOps(AsyncCrawler):
         self.try_app_sleep_time = 3.15 * 60
         self.d_debug = False
         self.set_fast_input_ime = True
-        # device_id_list(改机apk子账号只有一个, register只可单机运行, or 购买更多子账号)
-        self.device_id_list = [
-            # '816QECTK24ND8',
-            # '0123456789ABCDEF',
-            # 'de295374',
-            # 'JNPJJREEY5NBS88D',
-            'KFWORWGQJNIBZPOV',
-            'USOFUK7SFUJBAQ6P',
-        ]
-        # self.ht_invite_code = '54419553'                                              # 被冻结
-        # self.ht_invite_code = '37591777'                                              # 被冻结
-        self.ht_invite_code = ''
-        self.qt_invite_code = 'A454342728'
+        self.device_id_list = DEVICE_ID_LIST
+        self.ht_invite_code = HT_INVITE_CODE
+        self.qt_invite_code = QT_INVITE_CODE
 
-        self.change_machine_pkg_name = 'zpp.wjy.xxsq'                                   # 改机的pkg_name
+        self.change_machine_pkg_name = CHANGE_MACHINE_PKG_NAME
         self._init_yima_obj_info()
         self.qt_installed_app_name_list = self._get_qt_installed_app_name_list()
 
@@ -1067,7 +1058,11 @@ class MattressWoolOps(AsyncCrawler):
             try:
                 # 首页恶意弹窗处理
                 self._ht_home_window_handle(device_obj=device_obj)
-            except AppNoResponseException:
+                if d(text=u"没有更多了", className="android.widget.TextView").exists():
+                    # 说明首页文章已被下滑至底部
+                    raise NoMoreArticlesException
+
+            except (AppNoResponseException, NoMoreArticlesException):
                 break
 
             if d(resourceId="com.cashtoutiao:id/tv_src", textMatches=u".*?广告|红包抽奖", className="android.widget.TextView").exists()\
@@ -1168,7 +1163,7 @@ class MattressWoolOps(AsyncCrawler):
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while True:
-            if swipe_count > 15:
+            if swipe_count > 8:
                 # 原因: 长时间阅读评论, 收获金币有限
                 break
 
@@ -1198,7 +1193,8 @@ class MattressWoolOps(AsyncCrawler):
             if unfold_full_text_btn2.exists():
                 unfold_full_text_btn2.click()
 
-            u2_block_up_swipe_some_height(d=d, swipe_height=.5)
+            # 每次少滑点, 阅读文章速度慢了, 每篇收益更高
+            u2_block_up_swipe_some_height(d=d, swipe_height=.4, base_height=.2)
             swipe_count += 1
             # 休眠一下, 反而每次阅读收益更多
             sleep(.1)
@@ -1306,6 +1302,9 @@ class MattressWoolOps(AsyncCrawler):
         :return:
         """
         d: UIAutomatorServer = device_obj.d
+
+        if d(resourceId="com.jifen.qukan:id/se", text=u"开启推送通知", className="android.widget.TextView").exists():
+            d(resourceId="com.jifen.qukan:id/sk", className="android.widget.ImageView").click()
 
         if d(resourceId="com.jifen.qukan:id/fr", text=u"版本升级", className="android.widget.TextView").exists():
             d(resourceId="com.jifen.qukan:id/ux", text=u"以后更新", className="android.widget.TextView").click()
@@ -1420,6 +1419,9 @@ class MattressWoolOps(AsyncCrawler):
             if d(resourceId="com.jifen.qukan:id/a0a", className="android.widget.ImageView").exists():
                 d(resourceId="com.jifen.qukan:id/a0a", className="android.widget.ImageView").click()
 
+            if d(resourceId="com.jifen.qukan:id/a09", className="android.widget.ImageView").exists():
+                d(resourceId="com.jifen.qukan:id/a09", className="android.widget.ImageView").click()
+
             d(resourceId="com.jifen.qukan:id/aiy", className="android.widget.ImageView", instance=1).click()
             d(text=u"清除缓存", className="android.widget.TextView").click()
             sleep(3.)
@@ -1444,15 +1446,24 @@ class MattressWoolOps(AsyncCrawler):
 
         msg = 'reading {} ...'.format(article_title)
         print(self._get_print_base_str(device_obj=device_obj) + msg)
+        sleep(.5)
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while not d(
                 resourceId="com.jifen.qukan:id/ny",
                 text=u"没有更多咯~",
                 className="android.widget.TextView").exists():
-            if swipe_count > 15:
+            if swipe_count >= 10:
                 # 原因: 长时间阅读评论, 收获金币有限
                 break
+
+            if d(resourceId="com.jifen.qukan:id/xw", className="android.widget.ImageView").exists():
+                # 表明该文章为图片文章, 即多张图片
+                # 右滑
+                d.swipe(.6, .2, .2, .2)
+                swipe_count += 1
+                sleep(.1)
+                continue
 
             if d(text=u"评论赞赏上线了", className="android.widget.TextView").exists():
                 d(resourceId="com.jifen.qukan:id/pt", text=u"去赞赏", className="android.widget.Button").click()
@@ -1519,40 +1530,6 @@ class MattressWoolOps(AsyncCrawler):
         except:
             pass
         collect()
-
-def device_id_in_red_rice_1s(device_id:str) -> bool:
-    """
-    设备id 是否是红米1s
-    :return:
-    """
-    res = False
-    # 红米1s
-    red_rice_1s_device_id_list = [
-        '0123456789ABCDEF',
-        'de295374',
-    ]
-    if device_id in red_rice_1s_device_id_list:
-        res = True
-
-    return res
-
-def device_id_in_oppo_r7s(device_id:str) -> bool:
-    """
-    设备id 是否为oppo r7s
-    :param device_id:
-    :return:
-    """
-    res = False
-    # oppo r7s
-    oppo_r7s_device_id_list = [
-        'JNPJJREEY5NBS88D',
-        'KFWORWGQJNIBZPOV',
-        'USOFUK7SFUJBAQ6P',
-    ]
-    if device_id in oppo_r7s_device_id_list:
-        res = True
-
-    return res
 
 @click_command()
 @click_option('--app_name', type=str, default=None, help='value in ("qt", "ht",)')

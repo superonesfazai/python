@@ -22,6 +22,7 @@
 待实现:
     1. 手机凤凰网(https://i.ifeng.com)
     2. 网易新闻
+    3. 阳光宽频网(短视频)(https://www.365yg.com/)
 """
 
 from os import getcwd
@@ -347,7 +348,7 @@ class ArticleParser(AsyncCrawler):
             # 'Referer': 'https://focus.youth.cn/html/articleTop/mobile.html?type=1',
         })
         body = await unblock_request(
-            url=url,
+            url=article_url,
             headers=headers,
             params=None,
             ip_pool_type=self.ip_pool_type,
@@ -1418,7 +1419,7 @@ if __name__ == '__main__':
 
     # 中青看点(左上角点击全部进行文章类型选择, 因为其只显示前2页, 下滑点击加载更多, 会被跳转到https://cpu.baidu.com, 只需要回退页面直接返回)
     # url = 'https://focus.youth.cn/mobile/detail/id/15547200#'
-    url = 'https://focus.youth.cn/mobile/detail/id/15546096#'
+    url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
