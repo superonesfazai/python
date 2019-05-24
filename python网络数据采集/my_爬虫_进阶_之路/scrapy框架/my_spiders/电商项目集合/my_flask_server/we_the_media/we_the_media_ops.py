@@ -90,6 +90,7 @@ class WeTheMediaOps(AsyncCrawler):
         获取ht x_auth_token
         :return:
         """
+        # 新token, 可从login获取
         with open(self.ht_we_the_media_x_auth_token_file_path, 'r') as f:
             x_auth_token = f.read().replace('\n', '')
 
@@ -116,18 +117,29 @@ class WeTheMediaOps(AsyncCrawler):
             pass
         collect()
 
+def wash_content(content):
+    """
+    wash content
+    :param content:
+    :return:
+    """
+    content = re.compile('<meta name=\"referrer\" content=\"never\">').sub('', content)
+    content = re.compile('<style type=\"text/css\">.*?</style>').sub('', content)
+
+    return content
+
 if __name__ == '__main__':
     loop = get_event_loop()
     we_the_media_ops_obj = WeTheMediaOps()
 
-    article_url = 'https://focus.youth.cn/mobile/detail/id/15562764#'
+    article_url = 'https://focus.youth.cn/mobile/detail/id/15609537#'
     article_parser = ArticleParser()
     article_res = loop.run_until_complete(article_parser._parse_article(
         article_url=article_url))
 
     # 待发布内容
-    title = article_res['title']
-    content = article_res['div_body']
+    title = (article_res['title'] + ' ...')[:29]
+    content = wash_content(article_res['div_body'])
     # 发布文章
     res = loop.run_until_complete(we_the_media_ops_obj._publish_article(
         publish_article_type='ht',

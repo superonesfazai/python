@@ -21,14 +21,16 @@ from settings import (
     AUTO_REGISTER,
     AUTO_GET_NOW_PKG_NAME,
     QT_INVITE_CODE,
-    HT_INVITE_CODE,)
+    HT_INVITE_CODE,
+    AUTO_LOOK_GOODS,)
 from wool_exceptions import (
     ReadTimeOutException,
     AppInstalledBeforeException,
     NoMoreArticlesException,)
 from wool_utils import (
     device_id_in_red_rice_1s,
-    device_id_in_oppo_r7s,)
+    device_id_in_oppo_r7s,
+    sleep_random_time,)
 
 from gc import collect
 import uiautomator2 as u2
@@ -50,6 +52,7 @@ from fzutils.shell_utils import *
 """
 * 输入法: 搜狗输入法
 * kingroot: 因为r7s安装软件检测, 涉及其包的相关按钮的点击
+* 金山电池医生: 运行前先使用金山电池医生关闭其他耗电服务, 可有效降低耗电量, 提高脚本稳定性!!
 * 改机apk: 
     版本6.3.9, 加入包解析错误, 可安装6.3.6版
     *** 只有一个子账号, 每次使用前先手动绑定一次(切记: 先去重置下设备id, 再进行绑定)(避免自动绑定过于频繁, 被禁止一定时长[6-9分钟...]) 
@@ -74,6 +77,7 @@ class MattressWoolOps(AsyncCrawler):
         self.auto_try_app = True if AUTO_TRY_APP == 1 else False                        # 模式是否为自动试玩
         self.auto_register = True if AUTO_REGISTER == 1 else False                      # 模式是否为自动注册
         self.auto_get_now_pkg_name = True if AUTO_GET_NOW_PKG_NAME == 1 else False      # 模式为自动获取当前app pkg_name
+        self.auto_look_goods = True if AUTO_LOOK_GOODS == 1 else False                  # 模式是否为自动逛商品
         self.wool_app_info = self._init_wool_app_info()                                 # 羊毛app信息
         self.pkg_name = self._get_wool_pkg_name()
         self.clear_app_base_num = 15                                                    # 清理app的基数
@@ -133,6 +137,10 @@ class MattressWoolOps(AsyncCrawler):
                 'short_name': 'ht',
                 'pkg_name': 'com.cashtoutiao',
             },
+            {
+                'short_name': 'sd',
+                'pkg_name': 'c.l.a',
+            },
         ]
 
     async def _fck_run(self):
@@ -174,6 +182,10 @@ class MattressWoolOps(AsyncCrawler):
             # auto register 和继续后方相关操作
             await self._every_device_start_someone_actions(actions_name='register')
 
+        if self.auto_look_goods:
+            # auto look goods
+            await self._every_device_start_someone_actions(actions_name='look_goods')
+
     async def _every_device_start_someone_actions(self, actions_name):
         """
         每台设备开始某行为链
@@ -192,6 +204,9 @@ class MattressWoolOps(AsyncCrawler):
 
             elif actions_name == 'register':
                 func_name = self._auto_register_and_other_actions
+
+            elif actions_name == 'look_goods':
+                func_name = self._auto_look_goods
 
             else:
                 raise ValueError('actions_name value 异常!')
@@ -220,6 +235,71 @@ class MattressWoolOps(AsyncCrawler):
         all_res = await async_wait_tasks_finished(tasks=tasks)
 
         return all_res
+
+    def _auto_look_goods(self, device_obj):
+        """
+        auto 逛商品
+        :param device_obj:
+        :return:
+        """
+        msg = '即将开始auto 逛商品...'
+        print(self._get_print_base_str(device_obj=device_obj) + msg)
+        if self.short_name == 'sd':
+            self._sd_auto_look_goods(device_obj=device_obj)
+
+        else:
+            raise NotImplemented
+
+    def _sd_auto_look_goods(self, device_obj):
+        """
+        sd auto look goods
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
+        # 点击进入逛逛领币
+        msg = '正在进入逛逛领币 ...'
+        print(self._get_print_base_str(device_obj=device_obj) + msg)
+        d(resourceId="c.l.a:id/tab_text", text=u"逛逛领币", className="android.widget.TextView").click()
+        while not d(text=u"逛一逛即得闪电币奖励", className="android.widget.TextView").exists():
+            pass
+        article_count = 0
+        while True:
+            try:
+                # 首页恶意弹窗处理(逛商品page也走这个统一处理)
+                self._ht_home_window_handle(device_obj=device_obj)
+            except (AppNoResponseException, NoMoreArticlesException):
+                break
+
+            try:
+                first_article_ele = d(
+                    resourceId="c.l.a:id/title",
+                    className="android.widget.TextView",
+                    instance=0,)
+                article_title = first_article_ele.info.get('text', '')
+                first_article_ele.click()
+
+                # 阅读goods info(直接采用读文章的模型)
+                self._sd_read_one_article(
+                    device_obj=device_obj,
+                    article_title=article_title,
+                    article_count=article_count, )
+                article_count += 1
+
+            except (UiObjectNotFoundError, AssertionError, Exception) as e:
+                print(self._get_print_base_str(device_obj=device_obj), e)
+                u2_block_up_swipe_some_height(d=d, swipe_height=.35,)
+                sleep_random_time(1., 1.5)
+                continue
+
+            u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+            # 避免下滑过于频繁
+            sleep_random_time(1., 1.5)
+
+        self._restart_app_and_continue_actions(
+            device_obj=device_obj,
+            actions_name='look_goods')
 
     def _auto_register_and_other_actions(self, device_obj):
         """
@@ -453,7 +533,6 @@ class MattressWoolOps(AsyncCrawler):
         print(self._get_print_base_str(device_obj=device_obj) + '验证码输入完成!')
 
         return
-
 
     def _ht_auto_register_and_other_actions(self, device_obj):
         """
@@ -1034,25 +1113,139 @@ class MattressWoolOps(AsyncCrawler):
         :param device_obj:
         :return:
         """
+        print(self._get_print_base_str(device_obj=device_obj) + '即将开始自动化read...')
+        sleep(12.)
+
         if self.short_name == 'qt':
             self._qt_read_forever(device_obj=device_obj)
 
         elif self.short_name == 'ht':
             self._ht_read_forever(device_obj=device_obj)
 
+        elif self.short_name == 'sd':
+            self._sd_read_forever(device_obj=device_obj)
+
         else:
             raise NotImplemented
 
-    def _ht_read_forever(self, device_obj) -> None:
+    def _sd_read_forever(self, device_obj) -> None:
         """
-        ht auto read
+        sd auto read(运行前先使用金山电池医生关闭其他耗电服务, 可有效降低耗电量, 提高脚本稳定性!!)
         :param device_obj:
         :return:
         """
         d: UIAutomatorServer = device_obj.d
 
-        print(self._get_print_base_str(device_obj=device_obj) + '即将开始自动化read...')
-        sleep(12.)
+        article_count = 0
+        while True:
+            try:
+                # 首页恶意弹窗处理
+                self._ht_home_window_handle(device_obj=device_obj)
+            except (AppNoResponseException, NoMoreArticlesException):
+                break
+
+            try:
+                first_article_ele = d(
+                    resourceId="c.l.a:id/title",
+                    className="android.widget.TextView",
+                    instance=0,)
+                sub_title_ele = d(
+                    resourceId="c.l.a:id/from_text",
+                    className="android.widget.TextView",
+                    instance=0,)
+                article_title = first_article_ele.info.get('text', '')
+                sub_title = sub_title_ele.info.get('text', '')
+                # instance=0时, 如果未显示出子标题, 下滑直至其显示, 再判断是否合法
+                assert sub_title != '', 'sub_title != ""'
+                assert '广告' not in sub_title, '广告 in sub_title, pass'
+                assert not d(resourceId="c.l.a:id/action", text=u"免费下载", className="android.widget.TextView").exists(), \
+                    '广告, 让你下载app, pass'
+                # 广告, 让你下载app
+                assert not d(className="com.tencent.tbs.core.webkit.WebView").exists(), \
+                    '广告, 让你下载app, pass!'
+                # 点击进入文章
+                first_article_ele.click()
+
+                # 阅读完该文章并返回上一页
+                self._sd_read_one_article(
+                    device_obj=device_obj,
+                    article_title=article_title,
+                    article_count=article_count, )
+                article_count += 1
+
+            except (UiObjectNotFoundError, AssertionError, Exception) as e:
+                print(self._get_print_base_str(device_obj=device_obj), e)
+                u2_block_up_swipe_some_height(d=d, swipe_height=.3,)
+                sleep_random_time(1., 1.5)
+                continue
+
+            u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+            # 避免下滑过于频繁
+            sleep_random_time(1., 1.5)
+
+        self._restart_app_and_continue_actions(
+            device_obj=device_obj,
+            actions_name='read')
+
+    def _sd_read_one_article(self, device_obj, article_title, article_count) -> None:
+        """
+        sd 阅读某篇文章
+        :param device_obj:
+        :param article_title:
+        :param article_count:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
+        msg = 'reading [article_count: {}] {} ...'.format(
+            article_count,
+            article_title, )
+        print(self._get_print_base_str(device_obj=device_obj) + msg)
+        swipe_count = 0
+        # 下滑直至文章被完全阅读
+        while True:
+            if swipe_count >= 8:
+                # 原因: 长时间阅读评论, 收获金币有限
+                break
+
+            if d(resourceId="c.l.a:id/tv", text=u"每个评价都能获得高额奖励", className="android.widget.TextView").exists():
+                # look goods
+                d(resourceId="c.l.a:id/confirm", text=u"确定", className="android.widget.TextView").click()
+
+            # 每次少滑点, 阅读文章速度慢了, 每篇收益更高
+            u2_block_up_swipe_some_height(d=d, swipe_height=.45, base_height=.25)
+            swipe_count += 1
+            # 休眠一下, 反而每次阅读收益更多
+            sleep_random_time(.15, .3)
+
+        print(self._get_print_base_str(device_obj=device_obj) + 'read over!')
+        while not d(
+                resourceId="c.l.a:id/tab_text",
+                text=u"我的",
+                className="android.widget.TextView",).exists():
+            u2_block_page_back(d=d, back_num=1)
+            sleep(.5)
+
+        return
+
+    def _sd_home_window_handle(self, device_obj):
+        """
+        sd 首页弹窗处理
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
+        return
+
+    def _ht_read_forever(self, device_obj) -> None:
+        """
+        ht auto read(运行前先使用金山电池医生关闭其他耗电服务, 可有效降低耗电量, 提高脚本稳定性!!)
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
         article_count = 0
         while True:
             try:
@@ -1069,6 +1262,8 @@ class MattressWoolOps(AsyncCrawler):
                     or d(resourceId="com.cashtoutiao:id/tv_reward_header_tip", text=u"浏览广告赢更多金币", className="android.widget.TextView").exists():
                 print(self._get_print_base_str(device_obj=device_obj) + '有广告, 跳过!')
                 u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+                # 避免下滑过于频繁
+                sleep_random_time(1., 1.5)
                 continue
 
             if d(resourceId="com.cashtoutiao:id/count_down_tv", text=u"点击领取", className="android.widget.TextView").exists():
@@ -1077,6 +1272,9 @@ class MattressWoolOps(AsyncCrawler):
                 d(resourceId="com.cashtoutiao:id/count_down_tv", text=u"点击领取", className="android.widget.TextView").click()
                 d(resourceId="com.cashtoutiao:id/tv_left", text=u"忽略", className="android.widget.TextView").click()
 
+            self._clear_app_memory(
+                device_obj=device_obj,
+                article_count=article_count,)
             try:
                 first_article_ele = d(
                     resourceId="com.cashtoutiao:id/tv_title",
@@ -1091,13 +1289,14 @@ class MattressWoolOps(AsyncCrawler):
                 assert toast_msg != '手机系统版本过低', '手机系统版本过低, 无法播放视频, 跳过该视频文章!'
 
                 # 阅读完该文章并返回上一页
-                self._ht_read_one_article(device_obj=device_obj, article_title=article_title)
+                self._ht_read_one_article(
+                    device_obj=device_obj,
+                    article_title=article_title,
+                    article_count=article_count,)
                 article_count += 1
 
             except (UiObjectNotFoundError, Exception) as e:
-                print('出错device_id: {}, device_product_name: {}'.format(
-                    device_obj.device_id,
-                    device_obj.device_product_name), e)
+                print(self._get_print_base_str(device_obj=device_obj), e)
 
                 if d(resourceId="com.cashtoutiao:id/up_keyboard", text=u"写评论...", className="android.widget.TextView").exists():
                     # 表明未退回首页, 还在文章内部, 此处进行退出!
@@ -1107,22 +1306,12 @@ class MattressWoolOps(AsyncCrawler):
                 continue
 
             u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+            # 避免下滑过于频繁
+            sleep_random_time(1., 1.5)
 
-        # 清除app 数据并重启
-        # d.app_clear(pkg_name=self.pkg_name)
-        d.app_stop(pkg_name=self.pkg_name)
-        try:
-            del d
-        except:
-            pass
-        new_device_obj = u2_get_device_obj_by_device_id(
-            u2=u2,
-            device_id=device_obj.device_id,
-            pkg_name=self.pkg_name,
-            d_debug=self.d_debug,
-            set_fast_input_ime=self.set_fast_input_ime, )
-
-        return self._read_forever(device_obj=new_device_obj)
+        self._restart_app_and_continue_actions(
+            device_obj=device_obj,
+            actions_name='read')
 
     @fz_set_timeout(seconds=2.5 * 60)
     def _read_someone_time_duration(self, device_obj) -> None:
@@ -1142,6 +1331,13 @@ class MattressWoolOps(AsyncCrawler):
         """
         d: UIAutomatorServer = device_obj.d
 
+        if d(resourceId="com.cashtoutiao:id/tv_reload", text=u"刷新", className="android.widget.TextView").exists():
+            d(resourceId="com.cashtoutiao:id/tv_reload", text=u"刷新", className="android.widget.TextView").click()
+            sleep(6.)
+
+        if d(resourceId="com.cashtoutiao:id/yes_update_btn", text=u"安全升级", className="android.widget.TextView").exists():
+            d(resourceId="com.cashtoutiao:id/close_update_btn", text=u"以后再说", className="android.widget.TextView").click()
+
         if d(resourceId="com.cashtoutiao:id/tv_next_see", text=u"以后再说", className="android.widget.TextView").exists():
             d(resourceId="com.cashtoutiao:id/iv_close", className="android.widget.ImageView").click()
 
@@ -1150,7 +1346,7 @@ class MattressWoolOps(AsyncCrawler):
 
         return
 
-    def _ht_read_one_article(self, device_obj, article_title):
+    def _ht_read_one_article(self, device_obj, article_title, article_count):
         """
         ht read someone article
         :param device_obj:
@@ -1159,7 +1355,10 @@ class MattressWoolOps(AsyncCrawler):
         """
         d: UIAutomatorServer = device_obj.d
 
-        print(self._get_print_base_str(device_obj=device_obj) + 'reading {} ...'.format(article_title))
+        msg = 'reading [article_count: {}] {} ...'.format(
+            article_count,
+            article_title,)
+        print(self._get_print_base_str(device_obj=device_obj) + msg)
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while True:
@@ -1179,7 +1378,7 @@ class MattressWoolOps(AsyncCrawler):
             unfold_full_text_btn1 = d(text=u"展开全文", className="android.view.View",)
             # 1s or r7s
             # unfold_full_text_btn2 = d(description=u"展开全文", className="android.view.View",)
-            unfold_full_text_btn2:UiObject = u2_get_ui_obj(
+            unfold_full_text_btn2: UiObject = u2_get_ui_obj(
                 d=d,
                 text='',
                 description=u"展开全文",
@@ -1194,10 +1393,10 @@ class MattressWoolOps(AsyncCrawler):
                 unfold_full_text_btn2.click()
 
             # 每次少滑点, 阅读文章速度慢了, 每篇收益更高
-            u2_block_up_swipe_some_height(d=d, swipe_height=.4, base_height=.2)
+            u2_block_up_swipe_some_height(d=d, swipe_height=.45, base_height=.25)
             swipe_count += 1
             # 休眠一下, 反而每次阅读收益更多
-            sleep(.1)
+            sleep_random_time(.1, .25)
 
         print(self._get_print_base_str(device_obj=device_obj) + 'read over!')
         while not d(text=u"我的", className="android.widget.TextView").exists():
@@ -1213,7 +1412,6 @@ class MattressWoolOps(AsyncCrawler):
         """
         d: UIAutomatorServer = device_obj.d
 
-        print(self._get_print_base_str(device_obj=device_obj) + '即将开始自动化read...')
         article_count = 0
         first_article_ele = d(
             resourceId="com.jifen.qukan:id/a3t",
@@ -1249,7 +1447,10 @@ class MattressWoolOps(AsyncCrawler):
                 # 点击进入文章
                 first_article_ele.click()
                 # 阅读完该文章并返回上一页
-                self._qt_read_one_article(device_obj=device_obj, article_title=article_title)
+                self._qt_read_one_article(
+                    device_obj=device_obj,
+                    article_title=article_title,
+                    article_count=article_count,)
                 article_count += 1
 
                 if d(resourceId="com.jifen.qukan:id/s_", text=u"立即开启", className="android.widget.TextView").exists():
@@ -1259,10 +1460,7 @@ class MattressWoolOps(AsyncCrawler):
                     pass
 
             except (UiObjectNotFoundError, Exception) as e:
-                print('出错device_id: {}, device_product_name: {}'.format(
-                    device_obj.device_id,
-                    device_obj.device_product_name),
-                    e)
+                print(self._get_print_base_str(device_obj=device_obj), e)
                 # 异常处理
                 if d(resourceId="com.jifen.qukan:id/sb",
                      text=u"确认要下载此链接吗？",
@@ -1279,12 +1477,24 @@ class MattressWoolOps(AsyncCrawler):
 
             u2_block_up_swipe_some_height(d=d, swipe_height=.3)
 
+        self._restart_app_and_continue_actions(
+            device_obj=device_obj,
+            actions_name='read')
+
+    def _restart_app_and_continue_actions(self, device_obj, actions_name='read'):
+        """
+        重启app, 继续read
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
         # 清除app 数据并重启
         # d.app_clear(pkg_name=self.pkg_name)
         d.app_stop(pkg_name=self.pkg_name)
         try:
             del d
-        except:
+        except Exception:
             pass
         new_device_obj = u2_get_device_obj_by_device_id(
             u2=u2,
@@ -1293,7 +1503,14 @@ class MattressWoolOps(AsyncCrawler):
             d_debug=self.d_debug,
             set_fast_input_ime=self.set_fast_input_ime, )
 
-        return self._read_forever(device_obj=new_device_obj)
+        if actions_name == 'read':
+            return self._read_forever(device_obj=new_device_obj)
+
+        elif actions_name == 'look_goods':
+            return self._auto_look_goods(device_obj=new_device_obj)
+
+        else:
+            raise NotImplemented
 
     def _qt_home_window_handle(self, device_obj) -> None:
         """
@@ -1385,7 +1602,7 @@ class MattressWoolOps(AsyncCrawler):
             u2_block_up_swipe_some_height(d=d, swipe_height=.5)
             d(resourceId="com.cashtoutiao:id/system_rl_settings", className="android.widget.RelativeLayout").click()
             d(text=u"清除缓存", className="android.widget.TextView").click()
-            sleep(6.)
+            sleep(12.)
             print(self._get_print_base_str(device_obj=device_obj) + 'clear over!')
             u2_block_page_back(d=d, back_num=1)
             # 点击返回头条
@@ -1435,18 +1652,19 @@ class MattressWoolOps(AsyncCrawler):
         else:
             pass
 
-    def _qt_read_one_article(self, device_obj, article_title) -> None:
+    def _qt_read_one_article(self, device_obj, article_title, article_count) -> None:
         """
         qt阅读完单篇article并返回上一层
-        :param d:
         :param article_title:
         :return:
         """
         d: UIAutomatorServer = device_obj.d
 
-        msg = 'reading {} ...'.format(article_title)
+        msg = 'reading [article_count: {}] {} ...'.format(
+            article_count,
+            article_title,)
         print(self._get_print_base_str(device_obj=device_obj) + msg)
-        sleep(.5)
+        sleep_random_time(1., 1.5)
         swipe_count = 0
         # 下滑直至文章被完全阅读
         while not d(
@@ -1473,14 +1691,15 @@ class MattressWoolOps(AsyncCrawler):
 
             u2_block_up_swipe_some_height(d=d, swipe_height=.7)
             swipe_count += 1
-            sleep(.1)
+            sleep_random_time(.1, .25)
 
         print(self._get_print_base_str(device_obj=device_obj) + 'read over!')
         u2_block_page_back(d=d, back_num=1)
 
         return
 
-    def _get_print_base_str(self, device_obj) -> str:
+    @staticmethod
+    def _get_print_base_str(device_obj) -> str:
         """
         基础打印str
         :return:
@@ -1532,12 +1751,18 @@ class MattressWoolOps(AsyncCrawler):
         collect()
 
 @click_command()
-@click_option('--app_name', type=str, default=None, help='value in ("qt", "ht",)')
+@click_option('--app_name', type=str, default=None, help='value in ("qt", "ht", "sd")')
 @click_option('--auto_read', type=int, default=0, help='value in (0, 1)')
 @click_option('--auto_try_app', type=int, default=0, help='value in (0, 1)')
 @click_option('--auto_register', type=int, default=0, help='value in (0, 1)')
 @click_option('--get_now_pkg_name', type=int, default=0, help='value in (0, 1)')
-def init_mattress_wool_ops(app_name, auto_read:int, auto_try_app:int, auto_register:int, get_now_pkg_name:int):
+@click_option('--auto_look_goods', type=int, default=0, help='value in (0, 1)')
+def init_mattress_wool_ops(app_name,
+                           auto_read: int,
+                           auto_try_app: int,
+                           auto_register: int,
+                           get_now_pkg_name: int,
+                           auto_look_goods: int):
     """
     main
     :param app_name:
@@ -1547,13 +1772,14 @@ def init_mattress_wool_ops(app_name, auto_read:int, auto_try_app:int, auto_regis
     :param get_now_pkg_name:
     :return:
     """
-    global APP_NAME, AUTO_READ, AUTO_TRY_APP, AUTO_REGISTER, AUTO_GET_NOW_PKG_NAME
+    global APP_NAME, AUTO_READ, AUTO_TRY_APP, AUTO_REGISTER, AUTO_GET_NOW_PKG_NAME, AUTO_LOOK_GOODS
 
     APP_NAME = app_name
     AUTO_READ = auto_read
     AUTO_TRY_APP = auto_try_app
     AUTO_REGISTER = auto_register
     AUTO_GET_NOW_PKG_NAME = get_now_pkg_name
+    AUTO_LOOK_GOODS = auto_look_goods
     loop = None
     try:
         _ = MattressWoolOps()

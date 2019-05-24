@@ -6,6 +6,9 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from time import sleep
+from random import uniform
+
 def device_id_in_red_rice_1s(device_id:str) -> bool:
     """
     设备id 是否是红米1s
@@ -39,3 +42,14 @@ def device_id_in_oppo_r7s(device_id:str) -> bool:
         res = True
 
     return res
+
+def sleep_random_time(min_time:float, max_time:float) -> None:
+    """
+    随机休眠某段时间
+    :param min_time:
+    :param max_time:
+    :return:
+    """
+    sleep(uniform(min_time, max_time))
+
+    return

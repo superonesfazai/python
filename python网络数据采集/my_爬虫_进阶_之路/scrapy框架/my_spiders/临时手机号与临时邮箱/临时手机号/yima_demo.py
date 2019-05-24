@@ -23,7 +23,9 @@ ym_cli = YiMaSmser(username=yima_info['username'], pwd=yima_info['pwd'])
 # 惠头条
 # project_id = 8080
 # 淘新闻
-project_id = 11065
+# project_id = 11065
+# Testin 云测
+project_id = 17993
 
 def get_phone_num_and_sms_res():
     """

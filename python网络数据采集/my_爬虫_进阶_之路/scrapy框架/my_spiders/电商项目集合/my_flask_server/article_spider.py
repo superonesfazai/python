@@ -1365,6 +1365,9 @@ if __name__ == '__main__':
     # 头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
     # url = 'https://www.toutiao.com/a6623125148088140291/'
+    url = 'https://www.toutiao.com/a6694437682031886852/'
+    # 问答不采集
+    # url = 'https://www.toutiao.com/a6661496988099412238/'
     # 含视频
     # url = 'https://www.toutiao.com/a6623325882381500931/'
 
@@ -1419,7 +1422,7 @@ if __name__ == '__main__':
 
     # 中青看点(左上角点击全部进行文章类型选择, 因为其只显示前2页, 下滑点击加载更多, 会被跳转到https://cpu.baidu.com, 只需要回退页面直接返回)
     # url = 'https://focus.youth.cn/mobile/detail/id/15547200#'
-    url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
+    # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
