@@ -22,7 +22,10 @@ from settings import (
     AUTO_GET_NOW_PKG_NAME,
     QT_INVITE_CODE,
     HT_INVITE_CODE,
-    AUTO_LOOK_GOODS,)
+    AUTO_LOOK_GOODS,
+    BASE_READ_PRINT_STR,
+    AUTO_PLAY_GAME,
+    GAME_NAME,)
 from wool_exceptions import (
     ReadTimeOutException,
     AppInstalledBeforeException,
@@ -78,6 +81,8 @@ class MattressWoolOps(AsyncCrawler):
         self.auto_register = True if AUTO_REGISTER == 1 else False                      # 模式是否为自动注册
         self.auto_get_now_pkg_name = True if AUTO_GET_NOW_PKG_NAME == 1 else False      # 模式为自动获取当前app pkg_name
         self.auto_look_goods = True if AUTO_LOOK_GOODS == 1 else False                  # 模式是否为自动逛商品
+        self.auto_play_game = True if AUTO_PLAY_GAME == 1 else False                    # 模式是否为自动玩游戏
+        self.game_name = '' if GAME_NAME is None else GAME_NAME
         self.wool_app_info = self._init_wool_app_info()                                 # 羊毛app信息
         self.pkg_name = self._get_wool_pkg_name()
         self.clear_app_base_num = 15                                                    # 清理app的基数
@@ -87,7 +92,7 @@ class MattressWoolOps(AsyncCrawler):
         self.device_id_list = DEVICE_ID_LIST
         self.ht_invite_code = HT_INVITE_CODE
         self.qt_invite_code = QT_INVITE_CODE
-
+        self.base_read_print_str = BASE_READ_PRINT_STR
         self.change_machine_pkg_name = CHANGE_MACHINE_PKG_NAME
         self._init_yima_obj_info()
         self.qt_installed_app_name_list = self._get_qt_installed_app_name_list()
@@ -103,13 +108,13 @@ class MattressWoolOps(AsyncCrawler):
         self.ym_username, self.ym_pwd = yima_info['username'], yima_info['pwd']
 
         if self.short_name == 'qt':
-            self.yima_project_id = 2674
+            self.ym_project_id = 2674
 
         elif self.short_name == 'ht':
-            self.yima_project_id = 8080
+            self.ym_project_id = 8080
 
         else:
-            self.yima_project_id = -1
+            self.ym_project_id = -1
 
     def _get_wool_pkg_name(self):
         """
@@ -186,6 +191,9 @@ class MattressWoolOps(AsyncCrawler):
             # auto look goods
             await self._every_device_start_someone_actions(actions_name='look_goods')
 
+        if self.auto_play_game:
+            await self._every_device_start_someone_actions(actions_name='play_game')
+
     async def _every_device_start_someone_actions(self, actions_name):
         """
         每台设备开始某行为链
@@ -193,25 +201,31 @@ class MattressWoolOps(AsyncCrawler):
         :return:
         """
         async def get_func_name():
-            """获取func_name"""
+            """
+            获取func_name
+            :return:
+            """
             nonlocal actions_name
 
             if actions_name == 'read':
-                func_name = self._read_forever
+                m_func_name = self._read_forever
 
             elif actions_name == 'try_apps':
-                func_name = self._auto_try_apps
+                m_func_name = self._auto_try_apps
 
             elif actions_name == 'register':
-                func_name = self._auto_register_and_other_actions
+                m_func_name = self._auto_register_and_other_actions
 
             elif actions_name == 'look_goods':
-                func_name = self._auto_look_goods
+                m_func_name = self._auto_look_goods
+
+            elif actions_name == 'play_game':
+                m_func_name = self._auto_play_game
 
             else:
                 raise ValueError('actions_name value 异常!')
 
-            return func_name
+            return m_func_name
 
         tasks = []
         func_name = await get_func_name()
@@ -235,6 +249,78 @@ class MattressWoolOps(AsyncCrawler):
         all_res = await async_wait_tasks_finished(tasks=tasks)
 
         return all_res
+
+    def _auto_play_game(self, device_obj):
+        """
+        auto play game
+        :param device_obj:
+        :return:
+        """
+        msg = '即将开始auto play game ...'
+        print(self._get_print_base_str(device_obj=device_obj) + msg)
+        if self.short_name == 'sd':
+            self._sd_auto_play_game(device_obj=device_obj)
+
+        else:
+            raise NotImplemented
+
+    def _sd_auto_play_game(self, device_obj):
+        """
+        sd play game
+        :param device_obj:
+        :return:
+        """
+        d: UIAutomatorServer = device_obj.d
+
+        # 点击进入逛逛领币
+        msg = '正在进入选择比赛游戏界面 ...'
+        print(self._get_print_base_str(device_obj=device_obj) + msg)
+
+        d(resourceId="c.l.a:id/text", text=u"小游戏赚钱", className="android.widget.TextView").click()
+        while not d(resourceId="c.l.a:id/title", text=u"推荐游戏", className="android.widget.TextView")\
+            .exists():
+            pass
+        u2_block_up_swipe_some_height(d=d, swipe_height=.3)
+        d(resourceId="c.l.a:id/tv_game_name", text=u"守护飞飞", className="android.widget.TextView").click()
+        d(resourceId="c.l.a:id/title_1", text=u"新手房", className="android.widget.TextView").click()
+
+        while True:
+            d(text=u"准备开始", className="android.widget.TextView", instance=1).click()
+            start_btn = d(resourceId="c.l.a:id/iv_start_game", text=u"开始游戏", className="android.widget.TextView")
+            while not start_btn.exists():
+                pass
+            start_btn.click()
+
+            msg = '正在进入游戏页面中 ...'
+            print(self._get_print_base_str(device_obj=device_obj) + msg)
+            while not d(resourceId="c.l.a:id/iv_back", className="android.widget.ImageView").exists():
+                # 游戏进入界面
+                pass
+
+            # 点击开始游戏按钮
+            d.click(0.488, 0.687)
+            sleep(5.)
+            # 把滑块上升至一定高度
+            d.drag(0.502, 0.636, 0.491, 0.636, 0.5)
+            # 中心位置x, y
+            center_x = .497
+            center_y = .452
+            try:
+                while True:
+                    # 在中心位置先左滑
+                    d.drag(center_x, center_y, 0.398, center_y, 0.0)
+                    # 再滑回中心位置
+                    d.drag(0.398, center_y, center_x, center_y, 0.0)
+                    # 再右滑
+                    d.drag(center_x, center_y, 0.596, center_y, 0.0)
+                    # 再滑回中心位置
+                    d.drag(0.596, center_y, center_x, center_y, 0.0)
+            except KeyboardInterrupt as e:
+                print(self._get_print_base_str(device_obj=device_obj), e)
+                while True:
+                    aa = input('请输入是否点击完成(y)').replace('\n', '')
+                    if aa == 'y':
+                        break
 
     def _auto_look_goods(self, device_obj):
         """
@@ -265,6 +351,7 @@ class MattressWoolOps(AsyncCrawler):
         while not d(text=u"逛一逛即得闪电币奖励", className="android.widget.TextView").exists():
             pass
         article_count = 0
+        read_goods_title_list = []
         while True:
             try:
                 # 首页恶意弹窗处理(逛商品page也走这个统一处理)
@@ -278,6 +365,8 @@ class MattressWoolOps(AsyncCrawler):
                     className="android.widget.TextView",
                     instance=0,)
                 article_title = first_article_ele.info.get('text', '')
+                assert article_title not in read_goods_title_list, \
+                    'article_title in read_goods_title_list, so pass!'
                 first_article_ele.click()
 
                 # 阅读goods info(直接采用读文章的模型)
@@ -286,6 +375,8 @@ class MattressWoolOps(AsyncCrawler):
                     article_title=article_title,
                     article_count=article_count, )
                 article_count += 1
+                if article_title not in read_goods_title_list:
+                    read_goods_title_list.append(article_title)
 
             except (UiObjectNotFoundError, AssertionError, Exception) as e:
                 print(self._get_print_base_str(device_obj=device_obj), e)
@@ -373,7 +464,7 @@ class MattressWoolOps(AsyncCrawler):
                     self.yima_smser_obj = YiMaSmser(username=self.ym_username, pwd=self.ym_pwd)
                     # phone_num = '13451463505'
                     # phone_num = '18698570079'
-                    phone_num = self.yima_smser_obj._get_phone_num(project_id=self.yima_project_id)
+                    phone_num = self.yima_smser_obj._get_phone_num(project_id=self.ym_project_id)
                     assert phone_num != '', 'phone_num != ""'
                     msg = '新获取到phone_num: {}'.format(phone_num)
                     print(self._get_print_base_str(device_obj=device_obj) + msg)
@@ -400,7 +491,7 @@ class MattressWoolOps(AsyncCrawler):
 
                     # sms_res = '1813'
                     # sms_res = input('请输入手机验证码: ').replace('\n', '')
-                    sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.yima_project_id)
+                    sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.ym_project_id)
                     print(self._get_print_base_str(device_obj=device_obj) + 'sms_res: {}'.format(sms_res))
                     try:
                         sms_res = re.compile('(\d+)').findall(sms_res)[0]
@@ -591,7 +682,7 @@ class MattressWoolOps(AsyncCrawler):
                 try:
                     self.yima_smser_obj = YiMaSmser(username=self.ym_username, pwd=self.ym_pwd)
                     # phone_num = '13451463505'
-                    phone_num = self.yima_smser_obj._get_phone_num(project_id=self.yima_project_id)
+                    phone_num = self.yima_smser_obj._get_phone_num(project_id=self.ym_project_id)
                     assert phone_num != '', 'phone_num != ""'
                     print(self._get_print_base_str(device_obj=device_obj) + '新获取到phone_num: {}'.format(phone_num))
                 except AssertionError as e:
@@ -605,14 +696,23 @@ class MattressWoolOps(AsyncCrawler):
                     phone_input_ele.set_text(text=phone_num)
                     sleep(2.)
 
-                    if d(resourceId="com.cashtoutiao:id/tv_change_phone", text=u"验证码绑定", className="android.widget.TextView").exists():
-                        d(resourceId="com.cashtoutiao:id/tv_change_phone", text=u"验证码绑定", className="android.widget.TextView").click()
+                    if d(
+                            resourceId="com.cashtoutiao:id/tv_change_phone", 
+                            text=u"验证码绑定", 
+                            className="android.widget.TextView").exists():
+                        d(
+                            resourceId="com.cashtoutiao:id/tv_change_phone", 
+                            text=u"验证码绑定", 
+                            className="android.widget.TextView").click()
                         sleep(1.5)
 
-                    d(resourceId="com.cashtoutiao:id/login_button", text=u"获取短信验证码", className="android.widget.TextView").click()
+                    d(
+                        resourceId="com.cashtoutiao:id/login_button", 
+                        text=u"获取短信验证码", 
+                        className="android.widget.TextView").click()
 
                     # sms_res = '181338'
-                    sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.yima_project_id)
+                    sms_res = self.yima_smser_obj._get_sms(phone_num=phone_num, project_id=self.ym_project_id)
                     print(self._get_print_base_str(device_obj=device_obj) + 'sms_res: {}'.format(sms_res))
                     try:
                         sms_res = re.compile('(\d+)').findall(sms_res)[0]
@@ -1137,6 +1237,7 @@ class MattressWoolOps(AsyncCrawler):
         d: UIAutomatorServer = device_obj.d
 
         article_count = 0
+        read_article_title_list = []
         while True:
             try:
                 # 首页恶意弹窗处理
@@ -1154,6 +1255,8 @@ class MattressWoolOps(AsyncCrawler):
                     className="android.widget.TextView",
                     instance=0,)
                 article_title = first_article_ele.info.get('text', '')
+                assert article_title not in read_article_title_list, \
+                    'article_title in readed_article_title_list, so pass!'
                 sub_title = sub_title_ele.info.get('text', '')
                 # instance=0时, 如果未显示出子标题, 下滑直至其显示, 再判断是否合法
                 assert sub_title != '', 'sub_title != ""'
@@ -1172,6 +1275,8 @@ class MattressWoolOps(AsyncCrawler):
                     article_title=article_title,
                     article_count=article_count, )
                 article_count += 1
+                if article_title not in read_article_title_list:
+                    read_article_title_list.append(article_title)
 
             except (UiObjectNotFoundError, AssertionError, Exception) as e:
                 print(self._get_print_base_str(device_obj=device_obj), e)
@@ -1197,7 +1302,7 @@ class MattressWoolOps(AsyncCrawler):
         """
         d: UIAutomatorServer = device_obj.d
 
-        msg = 'reading [article_count: {}] {} ...'.format(
+        msg = self.base_read_print_str.format(
             article_count,
             article_title, )
         print(self._get_print_base_str(device_obj=device_obj) + msg)
@@ -1355,7 +1460,7 @@ class MattressWoolOps(AsyncCrawler):
         """
         d: UIAutomatorServer = device_obj.d
 
-        msg = 'reading [article_count: {}] {} ...'.format(
+        msg = self.base_read_print_str.format(
             article_count,
             article_title,)
         print(self._get_print_base_str(device_obj=device_obj) + msg)
@@ -1660,7 +1765,7 @@ class MattressWoolOps(AsyncCrawler):
         """
         d: UIAutomatorServer = device_obj.d
 
-        msg = 'reading [article_count: {}] {} ...'.format(
+        msg = self.base_read_print_str.format(
             article_count,
             article_title,)
         print(self._get_print_base_str(device_obj=device_obj) + msg)
@@ -1706,7 +1811,7 @@ class MattressWoolOps(AsyncCrawler):
         """
         now_time_str_fuc = lambda : str(get_shanghai_time())
 
-        return '[{} device_id: {}, device_product_name: {}] '.format(
+        return '[{} device_id: {:16s}, device_product_name: {:14s}] '.format(
             now_time_str_fuc(),
             device_obj.device_id,
             device_obj.device_product_name,)
@@ -1757,12 +1862,16 @@ class MattressWoolOps(AsyncCrawler):
 @click_option('--auto_register', type=int, default=0, help='value in (0, 1)')
 @click_option('--get_now_pkg_name', type=int, default=0, help='value in (0, 1)')
 @click_option('--auto_look_goods', type=int, default=0, help='value in (0, 1)')
+@click_option('--auto_play_game', type=int, default=0, help='value in (0, 1)')
+@click_option('--game_name', type=str, default=None, help='value in ("shff",)')
 def init_mattress_wool_ops(app_name,
                            auto_read: int,
                            auto_try_app: int,
                            auto_register: int,
                            get_now_pkg_name: int,
-                           auto_look_goods: int):
+                           auto_look_goods: int,
+                           auto_play_game: int,
+                           game_name: str):
     """
     main
     :param app_name:
@@ -1772,7 +1881,7 @@ def init_mattress_wool_ops(app_name,
     :param get_now_pkg_name:
     :return:
     """
-    global APP_NAME, AUTO_READ, AUTO_TRY_APP, AUTO_REGISTER, AUTO_GET_NOW_PKG_NAME, AUTO_LOOK_GOODS
+    global APP_NAME, AUTO_READ, AUTO_TRY_APP, AUTO_REGISTER, AUTO_GET_NOW_PKG_NAME, AUTO_LOOK_GOODS, AUTO_PLAY_GAME, GAME_NAME
 
     APP_NAME = app_name
     AUTO_READ = auto_read
@@ -1780,6 +1889,8 @@ def init_mattress_wool_ops(app_name,
     AUTO_REGISTER = auto_register
     AUTO_GET_NOW_PKG_NAME = get_now_pkg_name
     AUTO_LOOK_GOODS = auto_look_goods
+    AUTO_PLAY_GAME = auto_play_game
+    GAME_NAME = game_name
     loop = None
     try:
         _ = MattressWoolOps()

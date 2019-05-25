@@ -19,12 +19,15 @@ CHANGE_MACHINE_PKG_NAME = 'zpp.wjy.xxsq'
 
 # 启动羊毛app的short_name
 APP_NAME = None
+# 启动游戏的名字
+GAME_NAME = None
 # ops操作类型
 AUTO_READ = 0
 AUTO_TRY_APP = 0
 AUTO_REGISTER = 0
 AUTO_GET_NOW_PKG_NAME = 0
 AUTO_LOOK_GOODS = 0
+AUTO_PLAY_GAME = 0
 
 HT_INVITE_CODE = ''
 # 这两个被冻结
@@ -32,3 +35,5 @@ HT_INVITE_CODE = ''
 # HT_INVITE_CODE = '37591777'
 QT_INVITE_CODE = 'A454342728'
 SD_INVITE_CODE = '499318642161'
+
+BASE_READ_PRINT_STR = '[article_count: {}] reading {} ...'

@@ -15,49 +15,31 @@
 import sys
 sys.path.append('..')
 
-import json
-import re
-from pprint import pprint
-from time import sleep
-import gc
-from logging import INFO, ERROR
-import asyncio
-
+from gc import collect
 from settings import (
     MY_SPIDER_LOGS_PATH,
     TAOBAO_QIANGGOU_SPIDER_HOUR_LIST,
     IS_BACKGROUND_RUNNING,
     TMALL_REAL_TIMES_SLEEP_TIME,
-    IP_POOL_TYPE,
-)
+    IP_POOL_TYPE,)
 from my_pipeline import (
-    SqlServerMyPageInfoSaveItemPipeline,
-)
+    SqlServerMyPageInfoSaveItemPipeline,)
 
 from tmall_parse_2 import TmallParse
-
 from sql_str_controller import tb_select_str_5
+from fzutils.spider.async_always import *
 
-from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,
-)
-from fzutils.cp_utils import (
-    get_miaosha_begin_time_and_miaosha_end_time,
-    get_taobao_sign_and_body,
-)
-from fzutils.internet_utils import get_random_pc_ua
-
-class TaoBaoQiangGou(object):
+class TaoBaoQiangGou(Crawler):
     def __init__(self, logger=None):
+        Crawler.__init__(
+            self,
+            ip_pool_type=IP_POOL_TYPE,
+            log_print=True,
+            logger=logger,
+            log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/淘抢购/',
+        )
         self._set_headers()
-        self._set_logger(logger)
         self.msg = ''
-        self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
         self.headers = {
@@ -69,16 +51,6 @@ class TaoBaoQiangGou(object):
             'authority': 'unszacs.m.taobao.com',
         }
 
-    def _set_logger(self, logger):
-        if logger is None:
-            self.my_lg = set_logger(
-                log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/淘抢购/' + str(get_shanghai_time())[0:10] + '.txt',
-                console_log_level=INFO,
-                file_log_level=ERROR
-            )
-        else:
-            self.my_lg = logger
-
     async def _get_all_goods_list(self):
         '''
         模拟构造得到淘抢购的所有商品的list, 并且解析存入每个
@@ -87,31 +59,31 @@ class TaoBaoQiangGou(object):
         _data = []
         _ = await self.get_crawl_time()
         for spider_time in _:
-            self.my_lg.info('### 正在抓取的时间点为 {0} ###'.format(self._get_right_str_time(spider_time)))
+            self.lg.info('### 正在抓取的时间点为 {0} ###'.format(self._get_right_str_time(spider_time)))
             for page in range(1, 100, 1):
-                self.my_lg.info('正在抓取第 {0} 页...'.format(page))
+                self.lg.info('正在抓取第 {0} 页...'.format(page))
 
                 body = await self._get_one_api_body(
                     page=page,
                     spider_time=spider_time,
                 )
-                # self.my_lg.info(str(body))
+                # self.lg.info(str(body))
                 if body == '':
                     self.msg = '获取到的body为空str! 出错spider_time: %s, page: %s' % (spider_time, str(page))
-                    self.my_lg.error(self.msg)
+                    self.lg.error(self.msg)
                     continue
 
                 try:
                     body = re.compile(r'mtopjsonp1\((.*)\)').findall(body)[0]
                 except IndexError:
                     self.msg = 're筛选body时出错, 请检查! 出错spider_time: %s, page: %s' % (spider_time, str(page))
-                    self.my_lg.error(self.msg)
+                    self.lg.error(self.msg)
                     continue
                 tmp_data = await self._get_sort_data_list(body=body)
                 if tmp_data is None or tmp_data == []:
                     break
 
-                # self.my_lg.info(str(tmp_data))
+                # self.lg.info(str(tmp_data))
                 # 加入page, spider_time
                 [_i.update({
                     'page': page,
@@ -121,10 +93,10 @@ class TaoBaoQiangGou(object):
                 _data.append({
                     'data': tmp_data,
                 })
-                await asyncio.sleep(1.5)
+                await async_sleep(1.5)
 
-        self.my_lg.info(_data)
-        gc.collect()
+        self.lg.info(_data)
+        collect()
 
         return _data
 
@@ -137,30 +109,30 @@ class TaoBaoQiangGou(object):
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         index = 1
         if my_pipeline.is_connect_success:
-            self.my_lg.info('正在获取淘抢购db原有goods_id, 请耐心等待...')
+            self.lg.info('正在获取淘抢购db原有goods_id, 请耐心等待...')
             db_ = list(my_pipeline._select_table(sql_str=tb_select_str_5))
             db_all_goods_id = [item[0] for item in db_]
-            self.my_lg.info('获取完毕!!!')
-            # self.my_lg.info(str(db_all_goods_id))
+            self.lg.info('获取完毕!!!')
+            # self.lg.info(str(db_all_goods_id))
 
             for item in _data:
                 miaosha_goods_list = await self._get_taoqianggou_goods_list(data=item.get('data', []))
-                # self.my_lg.info(str(miaosha_goods_list))
+                # self.lg.info(str(miaosha_goods_list))
                 # pprint(miaosha_goods_list)
 
                 for tmp_item in miaosha_goods_list:
                     if tmp_item.get('goods_id', '') in db_all_goods_id:    # 处理如果该goods_id已经存在于数据库中的情况
-                        self.my_lg.info('该goods_id[%s]已存在db中' % tmp_item.get('goods_id', ''))
+                        self.lg.info('该goods_id[%s]已存在db中' % tmp_item.get('goods_id', ''))
                         continue
 
                     if index % 50 == 0:  # 每50次重连一次，避免单次长连无响应报错
-                        self.my_lg.info('正在重置，并与数据库建立新连接中...')
+                        self.lg.info('正在重置，并与数据库建立新连接中...')
                         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
                         # my_pipeline = SqlPools()
-                        self.my_lg.info('与数据库的新连接成功建立...')
+                        self.lg.info('与数据库的新连接成功建立...')
 
                     if my_pipeline.is_connect_success:
-                        tmall = TmallParse(logger=self.my_lg)
+                        tmall = TmallParse(logger=self.lg)
                         tmp_url = 'https://detail.tmall.com/item.htm?id={0}'.format(tmp_item.get('goods_id'))
                         goods_id = tmall.get_goods_id_from_url(tmp_url)
 
@@ -168,7 +140,7 @@ class TaoBaoQiangGou(object):
                         goods_data = tmall.deal_with_data()
 
                         if goods_data != {}:
-                            # self.my_lg.info(str(tmp_item))
+                            # self.lg.info(str(tmp_item))
                             goods_data['goods_id'] = tmp_item.get('goods_id')
                             goods_data['spider_url'] = tmp_url
                             goods_data['miaosha_time'] = tmp_item.get('miaosha_time')
@@ -181,14 +153,14 @@ class TaoBaoQiangGou(object):
                                 if tmp_item.get('goods_id', '') not in db_all_goods_id:
                                     db_all_goods_id.append(tmp_item.get('goods_id', ''))
 
-                            await asyncio.sleep(TMALL_REAL_TIMES_SLEEP_TIME)
+                            await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
 
                         else:
-                            await asyncio.sleep(5)
+                            await async_sleep(5)
 
                         try: del tmall
                         except: pass
-                        gc.collect()
+                        collect()
 
     async def _get_one_api_body(self, **kwargs):
         '''
@@ -198,15 +170,13 @@ class TaoBaoQiangGou(object):
         '''
         page = kwargs.get('page')
         spider_time = kwargs.get('spider_time')
-
         base_url = 'https://unszacs.m.taobao.com/h5/mtop.msp.qianggou.queryitembybatchid/3.3/'
 
-        data = json.dumps({
+        data = dumps({
             "batchId": spider_time,        # '201805051000'
             "page": page,
             "pageSize":50,
         })
-
         params = {
             'api': 'mtop.msp.qianggou.queryItemByBatchId',
             'appKey': '12574478',
@@ -217,20 +187,19 @@ class TaoBaoQiangGou(object):
             'v': '3.3',
             'data': data,
         }
-
         result_1 = await get_taobao_sign_and_body(
             base_url=base_url,
             headers=self.headers,
             params=params,
             data=data,
-            logger=self.my_lg,
+            logger=self.lg,
             ip_pool_type=self.ip_pool_type
         )
         _m_h5_tk = result_1[0]
 
         if _m_h5_tk == '':
             self.msg = '获取到的_m_h5_tk为空str! 出错spider_time: %s, page: %s' % (spider_time, str(page))
-            self.my_lg.error(self.msg)
+            self.lg.error(self.msg)
             return ''
 
         # 带上_m_h5_tk, 和之前请求返回的session再次请求得到需求的api数据
@@ -241,7 +210,7 @@ class TaoBaoQiangGou(object):
             data=data,
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
-            logger=self.my_lg,
+            logger=self.lg,
             ip_pool_type=self.ip_pool_type
         )
         body = result_2[2]
@@ -254,16 +223,12 @@ class TaoBaoQiangGou(object):
         :param body:
         :return:
         '''
-        try:
-            _ = json.loads(body)
-        except Exception:
-            self.my_lg.error('json.loads转换body出错, 此处跳过!')
-            _ = {}
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg).get('data', {}).get('items', [])
 
-        # if _.get('data', {}).get('items', []) == []:
-        #     self.my_lg.info(str(_))
-
-        return _.get('data', {}).get('items', [])
+        return data
 
     async def _get_taoqianggou_goods_list(self, data):
         '''
@@ -285,7 +250,7 @@ class TaoBaoQiangGou(object):
                     },
                 } for item in data]
             except Exception as e:
-                self.my_lg.exception(e)
+                self.lg.exception(e)
 
         return _
 
@@ -294,7 +259,7 @@ class TaoBaoQiangGou(object):
         得到规范的待抓取的时间点
         :return: list   格式:['201805051300', ...]
         '''
-        return [str(get_shanghai_time())[0:10].replace('-', '')+item+'00' for item in TAOBAO_QIANGGOU_SPIDER_HOUR_LIST]
+        return [str(get_shanghai_time())[0:10].replace('-', '') + item + '00' for item in TAOBAO_QIANGGOU_SPIDER_HOUR_LIST]
 
     def _get_right_str_time(self, str_time):
         '''
@@ -309,14 +274,16 @@ class TaoBaoQiangGou(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
-        except: pass
-        gc.collect()
+        except: 
+            pass
+        collect()
 
 def just_fuck_run():
     '''由于写成守护进程无法运行, 采用tmux模式运行, 设置采集时间点用以防止采集冲突'''
     _spider_run_time = ['00', '01', '02', '03',]
+    # _spider_run_time = ['17',]
     while True:
         if str(get_shanghai_time())[11:13] in _spider_run_time:
             while True:
@@ -327,13 +294,14 @@ def just_fuck_run():
 
                 print('一次大抓取即将开始'.center(30, '-'))
                 taobao_qianggou = TaoBaoQiangGou()
-                loop = asyncio.get_event_loop()
+                loop = get_event_loop()
                 loop.run_until_complete(taobao_qianggou._deal_with_all_goods_id())
                 try:
                     del taobao_qianggou
                     loop.close()
-                except: pass
-                gc.collect()
+                except:
+                    pass
+                collect()
                 print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
                 restart_program()   # 通过这个重启环境, 避免log重复打印
                 sleep(60*30)
@@ -347,14 +315,13 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 def main_2():
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    print('========主函数开始========')
     just_fuck_run()
 
 if __name__ == '__main__':
