@@ -69,7 +69,7 @@ class WeTheMediaOps(AsyncCrawler):
             'cover': '',
             'coverType': 5,
             'fixedReleaseTime': '',
-            'tagIds': '财经',
+            'tagIds': '健康',
             'title': title,
             'weMediaState': 1,
         })
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     loop = get_event_loop()
     we_the_media_ops_obj = WeTheMediaOps()
 
-    article_url = 'https://focus.youth.cn/mobile/detail/id/15609537#'
+    article_url = 'https://focus.youth.cn/mobile/detail/id/15661153#'
     article_parser = ArticleParser()
     article_res = loop.run_until_complete(article_parser._parse_article(
         article_url=article_url))

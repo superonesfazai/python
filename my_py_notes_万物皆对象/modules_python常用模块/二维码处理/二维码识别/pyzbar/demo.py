@@ -42,4 +42,6 @@ def decode_qrcode(img_url=None, img_path=None, headers=None):
 # img_path = './images/tmp.jpg'
 # print(decode_qrcode(img_path=img_path))
 # img_url = 'https://i.loli.net/2018/11/15/5bed1adce184e.jpg'
+# 新版二维码, 类似微信小程序的二维码(qrcode无法处理, android可复制)
+# img_url = 'https://i.loli.net/2019/05/27/5cebac51260d124609.jpg'
 # print(decode_qrcode(img_url=img_url))

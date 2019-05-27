@@ -7,23 +7,21 @@
 '''
 
 """
-基于冰草的抖音web爬虫(https://www.welltool.net/douyinweb)
+基于冰草的抖音web爬虫(https://dy.kukutool.com/douyinweb)
 """
 
 from items import (
     VideoItem,
-    DouYinWeb,
-)
+    DouYinWeb,)
 
 from gc import collect
 from mongoengine import (
-    connect,
-)
+    connect,)
 from mongoengine.errors import NotUniqueError
-from fzutils.ip_pools import fz_ip_pool
+from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
-mongdb_cli = connect(db='fz_db', host='mongodb://127.0.0.1:27017/fz_db')
+# mongdb_cli = connect(db='fz_db', host='mongodb://127.0.0.1:27017/fz_db')
 
 class BCDYSpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
@@ -31,7 +29,7 @@ class BCDYSpider(AsyncCrawler):
             self,
             *params,
             **kwargs,
-            ip_pool_type=fz_ip_pool
+            ip_pool_type=tri_ip_pool
         )
         self.concurrency = 16
         # 下一个cursor, 依赖于上一个resp返回的cursor
@@ -45,48 +43,15 @@ class BCDYSpider(AsyncCrawler):
                 cursor, one_list = await self._get_one_page_info()
                 await async_sleep(1.)      # 避免请求频繁
                 index += 1
-                if cursor is None or one_list == []:
+                if cursor is None \
+                        or one_list == []:
                     continue
-                await self._insert_into_douyin(cursor=cursor, one_list=one_list)
+                # await self._insert_into_douyin(cursor=cursor, one_list=one_list)
         except KeyboardInterrupt:
             # 异常存储
             await self._record_cursor(cursor=self.next_cursor)
             print('KeyboardInterrupt')
             return None
-
-    async def _insert_into_douyin(self, **kwargs) -> bool:
-        '''
-        插入数据到douyin
-        :return:
-        '''
-        res = False
-        cursor:str = kwargs['cursor']
-        one_list:list = kwargs['one_list']
-
-        try:
-            _ = DouYinWeb(cursor=cursor, content=one_list, create_time=get_shanghai_time()).save()
-            print('[+] cursor[{}] 存入db中success!'.format(cursor))
-            res = True
-        except NotUniqueError:
-            print('[-] cursor[{}] 已存在于db中...'.format(cursor))
-        except Exception as e:
-            print(e)
-
-        return res
-
-    async def _select_douyin(self) -> list:
-        '''
-        查找所有数据
-        :return:
-        '''
-        all_res = DouYinWeb.objects.all()
-        all = []
-        for item in all_res:
-            cursor = item.cursor
-            content = item.content
-            all.append([cursor, content])
-
-        return all
 
     async def _get_one_page_info(self) -> tuple:
         '''
@@ -102,10 +67,9 @@ class BCDYSpider(AsyncCrawler):
             r = get_js_parser_res(
                 './js/hook.js',
                 'get_r',
-                *args
-            )
+                *args)
             url = "dbTest?cursor=" + cursor + "&count=" + count
-            parseTempStr = url + '@&^' + r
+            parseTempStr = url + '@&^***' + r
             e = md5_encrypt(target_str=parseTempStr)
 
             return r, e
@@ -143,7 +107,9 @@ class BCDYSpider(AsyncCrawler):
 
         # 在js找dbTest接口
         # cursor下一个值在上个请求的答复中
-        cursor = self.next_cursor if self.next_cursor is not None else await self._read_local_cursor()    # 起始值
+        cursor = self.next_cursor \
+            if self.next_cursor is not None \
+            else await self._read_local_cursor()    # 起始值
         try:
             assert cursor != '', 'cursor为空值! 异常退出!'
         except AssertionError as e:
@@ -159,8 +125,17 @@ class BCDYSpider(AsyncCrawler):
             ('e', e),
             ('r', r),
         )
-        url = 'https://www.welltool.net/dbTest'
-        data = json_2_dict(Requests.get_url_body(url=url, headers=await self._get_phone_headers(), params=params, ip_pool_type=self.ip_pool_type))
+        # 第一版
+        # url = 'https://www.welltool.net/dbTest'
+        # 第二版
+        url = 'https://dy.kukutool.com/dbTest'
+        body = await unblock_request(
+            url=url,
+            headers=await self._get_phone_headers(),
+            params=params,
+            ip_pool_type=self.ip_pool_type,)
+        # print(body)
+        data = json_2_dict(json_str=body)
         # pprint(data)
         if data == {}:
             return (self.next_cursor, [])
@@ -169,6 +144,43 @@ class BCDYSpider(AsyncCrawler):
         res = data.get('data', [])
 
         return (self.next_cursor, await _get_right_download_url(res))
+
+    async def _insert_into_douyin(self, **kwargs) -> bool:
+        '''
+        插入数据到douyin
+        :return:
+        '''
+        res = False
+        cursor:str = kwargs['cursor']
+        one_list:list = kwargs['one_list']
+
+        try:
+            _ = DouYinWeb(
+                cursor=cursor,
+                content=one_list,
+                create_time=get_shanghai_time()).save()
+            print('[+] cursor[{}] 存入db中success!'.format(cursor))
+            res = True
+        except NotUniqueError:
+            print('[-] cursor[{}] 已存在于db中...'.format(cursor))
+        except Exception as e:
+            print(e)
+
+        return res
+
+    async def _select_douyin(self) -> list:
+        '''
+        查找所有数据
+        :return:
+        '''
+        all_res = DouYinWeb.objects.all()
+        all = []
+        for item in all_res:
+            cursor = item.cursor
+            content = item.content
+            all.append([cursor, content])
+
+        return all
 
     async def _read_local_cursor(self) -> str:
         '''
