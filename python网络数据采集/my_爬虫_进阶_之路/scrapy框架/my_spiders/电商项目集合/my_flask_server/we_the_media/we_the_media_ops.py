@@ -41,7 +41,7 @@ class WeTheMediaOps(AsyncCrawler):
 
     async def _ht_publish_article(self, title='', content=''):
         """
-        ht
+        ht 惠头条自动发文
         :param article_url:
         :param title:
         :param content:
@@ -52,7 +52,6 @@ class WeTheMediaOps(AsyncCrawler):
         assert title !='', 'title != ""'
         assert content != '', 'content != ""'
 
-        # 惠头条自动发文
         headers = await self._get_random_pc_headers()
         headers.update({
             'Origin': 'null',
@@ -132,7 +131,7 @@ if __name__ == '__main__':
     loop = get_event_loop()
     we_the_media_ops_obj = WeTheMediaOps()
 
-    article_url = 'https://focus.youth.cn/mobile/detail/id/15661153#'
+    article_url = 'https://focus.youth.cn/mobile/detail/id/15711930#'
     article_parser = ArticleParser()
     article_res = loop.run_until_complete(article_parser._parse_article(
         article_url=article_url))

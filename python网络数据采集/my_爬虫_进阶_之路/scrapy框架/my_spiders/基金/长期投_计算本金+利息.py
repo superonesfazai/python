@@ -20,8 +20,9 @@ def long_invest_principal_add_interest(principal, interest, day, every_month_add
         if index % 30 == 0:     # 每月定投
             tmp_principal += every_month_add_money
 
-        if tmp_principal > 50000:
-            interest = 0.114
+        # if tmp_principal > 50000:
+        #     # 外快
+        #     interest = 0.114
 
         profit = tmp_principal * interest / 365
         tmp_principal += profit
@@ -32,7 +33,8 @@ def long_invest_principal_add_interest(principal, interest, day, every_month_add
 '''理财的重要性'''
 invest_year = 30
 principal = 10000
-interest = 0.096        # 年化收益
+# interest = 0.096        # 年化收益
+interest = 0.15        # 年化收益
 print('--->>> 例如: 1W的本金, 每月定投6000, 保证年华收益{}%'.format(interest * 100))
 for i in range(1, invest_year + 1):
     day = 365 * 1 * i
