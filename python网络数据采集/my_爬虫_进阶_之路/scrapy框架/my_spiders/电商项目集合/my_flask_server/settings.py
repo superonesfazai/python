@@ -57,7 +57,7 @@ else:
     # server
     CHROME_DRIVER_PATH = '/root/myFiles/linux_drivers/chromedriver'
     PHANTOMJS_DRIVER_PATH = '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
-    FIREFOX_DRIVER_PATH = ''
+    FIREFOX_DRIVER_PATH = '/root/myFiles/linux_drivers/geckodriver'
     IP_POOL_TYPE = tri_ip_pool
     db_info_json_path = '/root/my_company_db_info.json'
     taobao_u_and_p_path = '/root/my_username_and_passwd.json'
@@ -612,6 +612,37 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'div.rich_media_content',
         },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
+    {
+        'short_name': 'yg',
+        'debug': True,
+        'obj_origin': 'www.365yg.com',
+        'article_id': {
+            'method': 're',
+            'selector': '\.com/(\w+)/',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h2.title ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div.bui-left span.name ::text',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.bui-left i.avatar img ::attr("src")',
+        },
+        'create_time': None,
+        'video_create_time': None,
+        'content': None,
         'comment_num': None,
         'tags_list': None,
         'praise_num': None,

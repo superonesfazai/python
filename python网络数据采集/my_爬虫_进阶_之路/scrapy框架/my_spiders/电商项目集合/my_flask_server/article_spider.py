@@ -19,10 +19,10 @@
     7. 中青看点(https://focus.youth.cn/html/articleTop/mobile.html)
     8. qq看点文章内容爬取(根据QQ看点中分享出的地址)
     9. 天天快报(根据天天快报分享出的地址)
+    10. 阳光宽频网(短视频)(https://www.365yg.com/)
 待实现:
     1. 手机凤凰网(https://i.ifeng.com)
     2. 网易新闻
-    3. 阳光宽频网(短视频)(https://www.365yg.com/)
 """
 
 from os import getcwd
@@ -35,8 +35,12 @@ from settings import (
     ARTICLE_ITEM_LIST,
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
+    FIREFOX_DRIVER_PATH,
     IP_POOL_TYPE,)
 
+from fzutils.spider.fz_driver import (
+    PHANTOMJS,
+    FIREFOX,)
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.selector import async_parse_field
@@ -53,7 +57,6 @@ class ArticleParser(AsyncCrawler):
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/',
             ip_pool_type=IP_POOL_TYPE)
-        self.driver_path = PHANTOMJS_DRIVER_PATH
         self.request_num_retries = 6
 
     async def _parse_article(self, article_url) -> dict:
@@ -83,8 +86,14 @@ class ArticleParser(AsyncCrawler):
             article_url_type=article_url_type)
         # self.lg.info(article_html)
         try:
-            title = await self._get_article_title(parse_obj=parse_obj, target_obj=article_html, video_url=video_url)
-            author = await self._get_author(parse_obj=parse_obj, target_obj=article_html, video_url=video_url)
+            title = await self._get_article_title(
+                parse_obj=parse_obj,
+                target_obj=article_html,
+                video_url=video_url)
+            author = await self._get_author(
+                parse_obj=parse_obj,
+                target_obj=article_html,
+                video_url=video_url)
             head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
             content = await self._get_article_content(
                 parse_obj=parse_obj,
@@ -175,18 +184,37 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'focus.youth.cn',
                 'site_id': 12,
             },
+            'yg': {
+                'obj_origin': 'www.365yg.com',
+                'site_id': 13,
+            },
         }
 
-    async def _get_html_by_driver(self, url, load_images=False):
+    async def _get_html_by_driver(self,
+                                  url,
+                                  _type=PHANTOMJS,
+                                  load_images=False,
+                                  headless=False,
+                                  exec_code=''):
         """
         使用driver获取异步页面
         :return:
         """
+        if _type == PHANTOMJS:
+            executable_path = PHANTOMJS_DRIVER_PATH
+        elif _type == FIREFOX:
+            executable_path = FIREFOX_DRIVER_PATH
+        else:
+            raise ValueError('_type value 异常!')
+
         body = await unblock_request_by_driver(
             url=url,
-            executable_path=self.driver_path,
+            type=_type,
+            executable_path=executable_path,
             ip_pool_type=self.ip_pool_type,
             load_images=load_images,
+            headless=headless,
+            exec_code=exec_code,
             logger=self.lg,)
 
         return body
@@ -330,6 +358,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'zq':
                 return await self._get_zq_article_html(article_url=article_url)
 
+            elif article_url_type == 'yg':
+                return await self._get_yg_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -337,6 +368,37 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_yg_article_html(self, article_url) -> tuple:
+        """
+        获取yg article的html
+        :param article_url:
+        :return:
+        """
+        exec_code = '''
+        # 等待视频自动播放后, 获取网页源码
+        sleep(2.5)
+        '''
+        self.lg.info('此链接为视频链接')
+        body = await self._get_html_by_driver(
+            url=article_url,
+            _type=FIREFOX,
+            exec_code=exec_code,
+            headless=True,
+            load_images=True,)
+        # self.lg.info(str(body))
+        video_url_selector = {
+            'method': 'css',
+            'selector': 'div.index-content video ::attr("src")',
+        }
+        tmp_video_url = await async_parse_field(
+            parser=video_url_selector,
+            target_obj=body,
+            logger=self.lg,)
+        video_url = 'https:' + tmp_video_url if tmp_video_url != '' else ''
+        # self.lg.info(video_url)
+
+        return body, video_url
 
     async def _get_zq_article_html(self, article_url) -> tuple:
         """
@@ -1077,7 +1139,8 @@ class ArticleParser(AsyncCrawler):
 
         if parse_obj['short_name'] == 'df'\
                 or parse_obj['short_name'] == 'sg'\
-                or parse_obj['short_name'] == 'bd':
+                or parse_obj['short_name'] == 'bd'\
+                or parse_obj['short_name'] == 'yg':
             if video_url != '':
                 pass
             else:
@@ -1262,32 +1325,20 @@ class ArticleParser(AsyncCrawler):
         获取文章的site_id
         :return:
         """
-        if article_url_type == 'wx':
-            return self.obj_origin_dict['wx'].get('site_id', '')
-
-        elif article_url_type == 'tt':
-            return self.obj_origin_dict['tt'].get('site_id', '')
-
-        elif article_url_type == 'js':
-            return self.obj_origin_dict['js'].get('site_id', '')
-        
-        elif article_url_type == 'kd':
-            return self.obj_origin_dict['kd'].get('site_id', '')
-
-        elif article_url_type == 'kb':
-            return self.obj_origin_dict['kb'].get('site_id', '')
-
-        elif article_url_type == 'df':
-            return self.obj_origin_dict['df'].get('site_id', '')
-
-        elif article_url_type == 'sg':
-            return self.obj_origin_dict['sg'].get('site_id', '')
-
-        elif article_url_type == 'bd':
-            return self.obj_origin_dict['bd'].get('site_id', '')
-
-        elif article_url_type == 'zq':
-            return self.obj_origin_dict['zq'].get('site_id', '')
+        article_url_type_list = [
+            'wx',
+            'tt',
+            'js',
+            'kd',
+            'kb',
+            'df',
+            'sg',
+            'bd',
+            'zq',
+            'yg',
+        ]
+        if article_url_type in article_url_type_list:
+            return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
 
         else:
             raise ValueError('未知的文章url!')
@@ -1406,7 +1457,7 @@ def main():
     # 含视频
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
-    url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=open_doc_prod6562107&vl=http%3A%2F%2F1400094915.vod2.myqcloud.com%2F3df4ea08vodtransgzp1400094915%2Feb5e8f815285890789528268277%2Fv.f20.mp4'
+    # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=open_doc_prod6562107&vl=http%3A%2F%2F1400094915.vod2.myqcloud.com%2F3df4ea08vodtransgzp1400094915%2Feb5e8f815285890789528268277%2Fv.f20.mp4'
 
     # 百度m站
     # url = 'https://mbd.baidu.com/newspage/data/landingpage?s_type=news&dsp=wise&context=%7B%22nid%22%3A%22news_9512351987809643964%22%7D&pageType=1&n_type=1&p_from=-1'
@@ -1426,6 +1477,10 @@ def main():
     # 中青看点(左上角点击全部进行文章类型选择, 因为其只显示前2页, 下滑点击加载更多, 会被跳转到https://cpu.baidu.com, 只需要回退页面直接返回)
     # url = 'https://focus.youth.cn/mobile/detail/id/15547200#'
     # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
+
+    # 阳光宽频网(短视频)
+    # url = 'https://www.365yg.com/a6693050837997978126/#mid=1568175129542657'
+    url = 'https://www.365yg.com/a6689279176827994638/#mid=1607129585526787'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)

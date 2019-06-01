@@ -13,10 +13,9 @@
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
-# pc tb 目标直播室地址
 def get_tb_live_info_by_live_url(live_room_url: str) -> dict:
     """
-    通过live_url获取tb直播信息
+    通过live_url[目标直播室地址]获取tb直播信息(pc)
     :return:
     """
     try:
@@ -27,16 +26,15 @@ def get_tb_live_info_by_live_url(live_room_url: str) -> dict:
         raise e
 
     referer = 'https://taobaolive.taobao.com/room/index.htm?spm=a21tn.8216370.2278281.2.4e7e5722udgyyX&feedId={}'.format(live_id)
-    headers = {
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        'user-agent': get_random_pc_ua(),
+    headers = _get_random_pc_headers()
+    headers.update({
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'accept': 'application/json, text/javascript, */*; q=0.01',
         'referer': referer,
         'authority': 'taobaolive.taobao.com',
         'x-requested-with': 'XMLHttpRequest',
-    }
+    })
     s = Requests.get_url_body(
         url=live_room_url,
         headers=headers,
@@ -69,9 +67,21 @@ def get_tb_live_info_by_live_url(live_room_url: str) -> dict:
     data = json_2_dict(
         json_str=body,
         default_res={}).get('result', {})
-    pprint(data)
+    # pprint(data)
 
     return data
 
+def _get_random_pc_headers():
+    return {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': get_random_pc_ua(),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+
 live_room_url = 'https://taobaolive.taobao.com/room/index.htm?spm=a21tn.8216370.2278281.6.1d3e5722mwAgi8&feedId=291c2dba-36fb-45c2-954d-183f8b5e3fdb'
-get_tb_live_info_by_live_url(live_room_url=live_room_url)
+data = get_tb_live_info_by_live_url(live_room_url=live_room_url)
+pprint(data)
