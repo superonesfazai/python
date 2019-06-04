@@ -649,6 +649,58 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'fh',
+        'debug': True,
+        'obj_origin': 'news.ifeng.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/c/(\w+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div#root h1 ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'title ::text'
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'span[class^="source-"] a ::text',
+        },
+        'video_author': {
+            'method': 're',
+            'selector': '\"columnName\":\"(.*?)\",\"categoryData\"',
+        },
+        'head_url': None,
+        'create_time': {
+            'method': 'css',
+            'selector': 'span[class^="date-"] ::text',
+        },
+        'create_time2': {
+            'method': 'css',
+            'selector': 'div[class^="titleLine-"] p span ::text',
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '\"creator\":\"weMedia\",\"newsTime\":\"(.*?)\",',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div[class^="main_content-"]',      # 原先div[class^="main_content-"] div[class^="text-"], 但是遇到video在其中穿插的, 故不设置div[class^="text-"]
+        },
+        'content2': {
+            'method': 'css',
+            'selector': 'div[class^="left_articleArea-"] div[class^="text-"]',
+        },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''

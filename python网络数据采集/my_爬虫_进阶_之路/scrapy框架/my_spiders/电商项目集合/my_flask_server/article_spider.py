@@ -20,9 +20,9 @@
     8. qq看点文章内容爬取(根据QQ看点中分享出的地址)
     9. 天天快报(根据天天快报分享出的地址)
     10. 阳光宽频网(短视频)(https://www.365yg.com/)
+    11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
 待实现:
-    1. 手机凤凰网(https://i.ifeng.com)
-    2. 网易新闻
+    1. 网易新闻
 """
 
 from os import getcwd
@@ -104,7 +104,8 @@ class ArticleParser(AsyncCrawler):
             create_time = await self._get_article_create_time(
                 parse_obj=parse_obj,
                 target_obj=article_html,
-                video_url=video_url)
+                video_url=video_url,
+                article_url=article_url,)
             comment_num = await self._get_comment_num(parse_obj=parse_obj, target_obj=article_html)
             fav_num = await self._get_fav_num(parse_obj=parse_obj, target_obj=article_html)
             praise_num = await self._get_praise_num(parse_obj=parse_obj, target_obj=article_html)
@@ -187,6 +188,10 @@ class ArticleParser(AsyncCrawler):
             'yg': {
                 'obj_origin': 'www.365yg.com',
                 'site_id': 13,
+            },
+            'fh': {
+                'obj_origin': 'news.ifeng.com',
+                'site_id': 14,
             },
         }
 
@@ -361,6 +366,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'yg':
                 return await self._get_yg_article_html(article_url=article_url)
 
+            elif article_url_type == 'fh':
+                return await self._get_fh_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -368,6 +376,99 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_fh_article_html(self, article_url) -> tuple:
+        """
+        获取fh的html
+        :param article_url:
+        :return:
+        """
+        async def _get_fh_video_url(body) -> str:
+            """
+            获取video_url
+            :param article_url:
+            :param body:
+            :return:
+            """
+            vid_selector = {
+                'method': 're',
+                'selector': ',\"vid\":\"(\w+-\w+-\w+-\w+-\w+)\"',
+            }
+            m3u8_base_url_selector = {
+                'method': 're',
+                'selector': ',\"m3u8Url\":\"(.*?)\"',
+            }
+            vid = await async_parse_field(
+                parser=vid_selector,
+                target_obj=body,
+                logger=self.lg, )
+            assert vid != '', 'vid != ""'
+            m3u8_base_url = await async_parse_field(
+                parser=m3u8_base_url_selector,
+                target_obj=body,
+                logger=self.lg, )
+            assert m3u8_base_url != '', 'm3u8_base_url != ""'
+            self.lg.info('Getting auth_params ...')
+            headers = await self._get_random_pc_headers()
+            headers.update({
+                # 'Referer': 'https://v.ifeng.com/c/7n9OP680pzt',
+            })
+            url = 'https://shankapi.ifeng.com/feedflow/getVideoAuthUrl/{}/getVideoAuthPath'.format(vid)
+            params = (
+                ('callback', 'getVideoAuthPath'),
+            )
+            body = await unblock_request(
+                url=url,
+                headers=headers,
+                params=params,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.request_num_retries,
+                logger=self.lg)
+            # self.lg.info(str(body))
+            auth_params = json_2_dict(
+                json_str=re.compile('\((.*)\)').findall(body)[0],
+                logger=self.lg
+            ).get('data', {}).get('authUrl', '')
+            assert auth_params != '', 'auth_params != ""'
+            self.lg.info('获取到视频auth_params: {}'.format(auth_params))
+
+            video_url = m3u8_base_url.replace('http', 'https') + '?' + auth_params
+            self.lg.info('m3u8_url: {}'.format(video_url))
+
+            return video_url
+
+        video_url = ''
+        if 'v.ifeng.com' in article_url:
+            # 视频
+            # 用requests请求body(速度更快)
+            # TODO 不用driver, 因为失败率太高!!
+            headers = await self._get_random_pc_headers()
+            body = await unblock_request(
+                url=article_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.request_num_retries,
+                logger=self.lg,)
+
+        else:
+            # requests 无效, 无法获取article content
+            body = await self._get_html_by_driver(
+                url=article_url,
+                _type=PHANTOMJS,
+                load_images=False,)
+
+        # self.lg.info(str(body))
+        assert body != '', '获取fh的body不为空值!'
+        if 'v.ifeng.com' in article_url:
+            # 视频
+            self.lg.info('此为视频文章')
+            video_url = await _get_fh_video_url(
+                body=body,)
+
+        else:
+            pass
+
+        return body, video_url
 
     async def _get_yg_article_html(self, article_url) -> tuple:
         """
@@ -415,7 +516,6 @@ class ArticleParser(AsyncCrawler):
         body = await unblock_request(
             url=article_url,
             headers=headers,
-            params=None,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.request_num_retries,
             logger=self.lg)
@@ -827,19 +927,13 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         author_selector = parse_obj['author']
-        if parse_obj['short_name'] == 'kb':
-            if video_url != '':
-                author_selector = parse_obj['video_author']
-            else:
-                pass
-
-        elif parse_obj['short_name'] == 'sg':
-            if video_url != '':
-                author_selector = parse_obj['video_author']
-            else:
-                pass
-
-        elif parse_obj['short_name'] == 'bd':
+        short_name_list = [
+            'kb',
+            'sg',
+            'bd',
+            'fh',
+        ]
+        if parse_obj['short_name'] in short_name_list:
             if video_url != '':
                 author_selector = parse_obj['video_author']
             else:
@@ -854,7 +948,8 @@ class ArticleParser(AsyncCrawler):
             logger=self.lg)
 
         if parse_obj['short_name'] == 'df'\
-                or parse_obj['short_name'] == 'bd':
+                or parse_obj['short_name'] == 'bd'\
+                or parse_obj['short_name'] == 'fh':
             pass
         else:
             assert author != '', '获取到的author为空值!'
@@ -870,25 +965,15 @@ class ArticleParser(AsyncCrawler):
         """
         title_selector = parse_obj['title']
         # self.lg.info(target_obj)
-        if parse_obj['short_name'] == 'df':
-            if video_url != '':
-                title_selector = parse_obj['video_title']
-            else:
-                pass
 
-        elif parse_obj['short_name'] == 'kb':
-            if video_url != '':
-                title_selector = parse_obj['video_title']
-            else:
-                pass
-
-        elif parse_obj['short_name'] == 'sg':
-            if video_url != '':
-                title_selector = parse_obj['video_title']
-            else:
-                pass
-
-        elif parse_obj['short_name'] == 'bd':
+        short_name_list = [
+            'df',
+            'kb',
+            'sg',
+            'bd',
+            'fh',
+        ]
+        if parse_obj['short_name'] in short_name_list:
             if video_url != '':
                 title_selector = parse_obj['video_title']
             else:
@@ -968,6 +1053,7 @@ class ArticleParser(AsyncCrawler):
 
                     else:
                         pass
+
                 else:
                     pass
 
@@ -1050,13 +1136,16 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        else:
+            pass
+
         tags_list = list_remove_repeat_dict_plus(
             target=tags_list,
             repeat_key='keyword',)
 
         return tags_list
 
-    async def _get_article_create_time(self, parse_obj, target_obj, video_url) -> str:
+    async def _get_article_create_time(self, parse_obj, target_obj, video_url, article_url) -> str:
         """
         文章创建时间点
         :param parse_obj:
@@ -1064,17 +1153,24 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         create_time_selector = parse_obj['create_time']
-        if parse_obj['short_name'] == 'sg':
+        short_name_list = [
+            'sg',
+            'bd',
+        ]
+        if parse_obj['short_name'] in short_name_list:
             if video_url != '':
                 create_time_selector = parse_obj['video_create_time']
             else:
                 pass
 
-        elif parse_obj['short_name'] == 'bd':
+        elif parse_obj['short_name'] == 'fh':
             if video_url != '':
                 create_time_selector = parse_obj['video_create_time']
             else:
-                pass
+                if 'feng.ifeng.com' in article_url:
+                    create_time_selector = parse_obj['create_time2']
+                else:
+                    pass
 
         else:
             pass
@@ -1117,11 +1213,23 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         content_selector = parse_obj['content']
-        if parse_obj['short_name'] == 'kb':
+        short_name_list = [
+            'kb',
+        ]
+        if parse_obj['short_name'] in short_name_list:
             if video_url != '':
                 content_selector = parse_obj['video_article_content']
             else:
                 pass
+
+        elif parse_obj['short_name'] == 'fh':
+            if video_url != '':
+                content_selector = parse_obj['video_article_content']
+            else:
+                if 'feng.ifeng.com' in article_url:
+                    content_selector = parse_obj['content2']
+                else:
+                    pass
 
         else:
             pass
@@ -1140,7 +1248,8 @@ class ArticleParser(AsyncCrawler):
         if parse_obj['short_name'] == 'df'\
                 or parse_obj['short_name'] == 'sg'\
                 or parse_obj['short_name'] == 'bd'\
-                or parse_obj['short_name'] == 'yg':
+                or parse_obj['short_name'] == 'yg'\
+                or parse_obj['short_name'] == 'fh':
             if video_url != '':
                 pass
             else:
@@ -1180,11 +1289,32 @@ class ArticleParser(AsyncCrawler):
         elif parse_obj.get('short_name', '') == 'zq':
             content = await self._wash_zq_article_content(content=content)
 
+        elif parse_obj.get('short_name', '') == 'fh':
+            content = await self._wash_fh_article_content(content=content)
+
         else:
             pass
 
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_fh_article_content(content) -> str:
+        """
+        清洗fh content
+        :param content:
+        :return:
+        """
+        content = re.compile('凤凰网汽车讯').sub('', content)
+        # TODO chrome 显示content时会带上手机默认客户端的css样式, 导致显示异常, 用firefox查看是正常的!!
+        # 图片居中
+        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
+                  content if content != '' else ''
+        # p标签文字修饰(自己添加, 目的: 让其自适应phone端, 添加在后端以覆盖原有p标签属性)
+        content = '<style type="text/css">p {width: 100%; height: auto; word-wrap:break-word; word-break:break-all; overflow: hidden;}</style>' + \
+            content if content != '' else ''
 
         return content
 
@@ -1286,8 +1416,7 @@ class ArticleParser(AsyncCrawler):
 
         return content
 
-    @staticmethod
-    async def is_child_can_debug(article_url) -> bool:
+    async def is_child_can_debug(self, article_url) -> bool:
         """
         判断是否是子对象, 以及是否debug是打开
         :return:
@@ -1300,14 +1429,19 @@ class ArticleParser(AsyncCrawler):
                         return True
 
             elif item.get('short_name', '') == 'bd':
-                if 'mbd.baidu.com' in article_url:
+                if 'mbd.baidu.com' in article_url\
+                        or 'sv.baidu.com' in article_url:
                     if item_debug:
                         return True
+                else:
+                    if item.get('obj_origin', '') in article_url:
+                        if item_debug:
+                            return True
 
-                elif 'sv.baidu.com' in article_url:
+            elif item.get('short_name', '') == 'fh':
+                if await self._in_fh_two_level_domain_name(article_url):
                     if item_debug:
                         return True
-
                 else:
                     if item.get('obj_origin', '') in article_url:
                         if item_debug:
@@ -1319,6 +1453,33 @@ class ArticleParser(AsyncCrawler):
                         return True
 
         return False
+
+    async def _in_fh_two_level_domain_name(self, article_url) -> bool:
+        """
+        是否在可抓取的fh 的二级域名里
+        :param article_url:
+        :return:
+        """
+        if 'news.ifeng.com' in article_url \
+                or 'feng.ifeng.com' in article_url \
+                or 'finance.ifeng.com' in article_url \
+                or 'ent.ifeng.com' in article_url \
+                or 'sports.ifeng.com' in article_url \
+                or 'fashion.ifeng.com' in article_url \
+                or 'auto.ifeng.com' in article_url \
+                or 'tech.ifeng.com' in article_url \
+                or 'culture.ifeng.com' in article_url \
+                or 'history.ifeng.com' in article_url \
+                or 'mil.ifeng.com' in article_url\
+                or 'travel.ifeng.com' in article_url\
+                or 'fo.ifeng.com' in article_url\
+                or 'health.ifeng.com' in article_url\
+                or 'guoxue.ifeng.com' in article_url\
+                or 'v.ifeng.com' in article_url:
+            return True
+
+        else:
+            return False
 
     async def _get_site_id(self, article_url_type) -> int:
         """
@@ -1336,6 +1497,7 @@ class ArticleParser(AsyncCrawler):
             'bd',
             'zq',
             'yg',
+            'fh',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -1354,18 +1516,20 @@ class ArticleParser(AsyncCrawler):
                     return key
 
             elif key == 'bd':
-                if 'mbd.baidu.com' in article_url:
-                    return key
-
-                elif 'sv.baidu.com' in article_url:
+                if 'mbd.baidu.com' in article_url\
+                        or 'sv.baidu.com' in article_url:
                     return key
 
                 else:
                     if value.get('obj_origin') in article_url:
                         return key
 
+            elif key == 'fh':
+                if await self._in_fh_two_level_domain_name(article_url):
+                    return key
+
             else:
-                if value.get('obj_origin') in article_url:
+                if value.get('obj_origin',) in article_url:
                     return key
 
         raise ValueError('未知的文章url!')
@@ -1380,6 +1544,17 @@ class ArticleParser(AsyncCrawler):
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9',
+        }
+
+    @staticmethod
+    async def _get_random_phone_headers():
+        return {
+            'cache-control': 'max-age=0',
+            'upgrade-insecure-requests': '1',
+            'user-agent': get_random_phone_ua(),
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9',
         }
 
     async def _get_phone_headers(self):
@@ -1480,7 +1655,56 @@ def main():
 
     # 阳光宽频网(短视频)
     # url = 'https://www.365yg.com/a6693050837997978126/#mid=1568175129542657'
-    url = 'https://www.365yg.com/a6689279176827994638/#mid=1607129585526787'
+    # url = 'https://www.365yg.com/a6689279176827994638/#mid=1607129585526787'
+
+    # 凤凰网
+    # 资讯
+    # url = 'https://news.ifeng.com/c/7nDvcZ4NtW1'
+    # url = 'https://news.ifeng.com/c/7nEJ63GSOWW'
+    # url = 'https://news.ifeng.com/c/7nEFqgSjZiq'
+    # url = 'https://news.ifeng.com/c/7nE9cR3x2VH'
+    # 大风号
+    # url = 'https://feng.ifeng.com/c/7nE6wahrgJg'
+    # url = 'https://feng.ifeng.com/c/7nE8Gmm6iR4'
+    # 财经
+    # url = 'http://finance.ifeng.com/c/7nEMfALohyC'
+    # 娱乐
+    # url = 'https://ent.ifeng.com/c/7nESdTWykLm'
+    # url = 'https://ent.ifeng.com/c/7nDvPWE79UF'
+    # 体育
+    # url = 'https://sports.ifeng.com/c/7nDzc9Lrspg'
+    # 时尚
+    # url = 'https://fashion.ifeng.com/c/7nDykbExSVc'
+    # url = 'https://fashion.ifeng.com/c/7nDxh4ZgED2'
+    # 汽车
+    # url = 'https://auto.ifeng.com/c/7nE86ZB9Y3s'
+    # url = 'https://auto.ifeng.com/c/7nEFmnQAbiK'
+    # TODO 房产未实现, 页面结构完全不同
+    # 科技
+    # url = 'https://tech.ifeng.com/c/7nAhlwq9hFW'
+    # url= 'https://tech.ifeng.com/c/7nE6KwElcwq'
+    # 文化
+    # url = 'http://culture.ifeng.com/c/7nDOfYV9Ma2'
+    # 历史
+    # url = 'https://history.ifeng.com/c/7n9wJLKFkKx'
+    # 军事
+    # url = 'https://mil.ifeng.com/c/7nD84weEtS9'
+    # 旅游
+    # url = 'https://travel.ifeng.com/c/7nDM9G2yG5A'
+    # 佛教
+    # url = 'https://fo.ifeng.com/c/7nE4JqoNnIu'
+    # url = 'https://fo.ifeng.com/c/7nCq7vTkOjj'
+    # 健康
+    # url = 'https://health.ifeng.com/c/7n7k5Gc95yC'
+    # url = 'https://health.ifeng.com/c/7nD69v4BFqk'
+    # TODO 家居未实现, 页面结构非文章格式, 全是图片
+    # 国学
+    # url = 'https://guoxue.ifeng.com/c/7nCOLefbTeq'
+    # 视频
+    # url = 'https://v.ifeng.com/c/7n9OP680pzt'
+    # url = 'https://v.ifeng.com/c/7msqjIm1dUe'
+    # url = 'https://v.ifeng.com/c/7nEV3crGcwC'
+    url = 'https://v.ifeng.com/c/7nE1XJY8fL6'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)
