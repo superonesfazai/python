@@ -1460,16 +1460,16 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        if 'news.ifeng.com' in article_url \
-                or 'feng.ifeng.com' in article_url \
-                or 'finance.ifeng.com' in article_url \
-                or 'ent.ifeng.com' in article_url \
-                or 'sports.ifeng.com' in article_url \
-                or 'fashion.ifeng.com' in article_url \
-                or 'auto.ifeng.com' in article_url \
-                or 'tech.ifeng.com' in article_url \
-                or 'culture.ifeng.com' in article_url \
-                or 'history.ifeng.com' in article_url \
+        if 'news.ifeng.com' in article_url\
+                or 'feng.ifeng.com' in article_url\
+                or 'finance.ifeng.com' in article_url\
+                or 'ent.ifeng.com' in article_url\
+                or 'sports.ifeng.com' in article_url\
+                or 'fashion.ifeng.com' in article_url\
+                or 'auto.ifeng.com' in article_url\
+                or 'tech.ifeng.com' in article_url\
+                or 'culture.ifeng.com' in article_url\
+                or 'history.ifeng.com' in article_url\
                 or 'mil.ifeng.com' in article_url\
                 or 'travel.ifeng.com' in article_url\
                 or 'fo.ifeng.com' in article_url\
