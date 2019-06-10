@@ -23,6 +23,7 @@
     11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
 待实现:
     1. 网易新闻
+    2. 趣头条
 """
 
 from os import getcwd
