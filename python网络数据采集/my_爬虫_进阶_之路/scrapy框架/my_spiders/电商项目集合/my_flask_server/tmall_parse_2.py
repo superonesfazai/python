@@ -156,6 +156,7 @@ class TmallParse(Crawler):
         result_data['goods_id'] = goods_id
         self.result_data = result_data
         # pprint(self.result_data)
+
         return result_data
 
     def deal_with_data(self):

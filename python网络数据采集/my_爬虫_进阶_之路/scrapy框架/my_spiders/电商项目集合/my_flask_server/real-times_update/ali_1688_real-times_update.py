@@ -53,7 +53,8 @@ class ALUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/1688/实时更新/')
         self.sql_cli = None
         self.goods_index = 1
-        self.concurrency = 10        # 并发量
+        # 并发量
+        self.concurrency = 10
 
     async def _get_db_old_data(self) -> (list, None):
         '''
@@ -80,36 +81,33 @@ class ALUpdater(AsyncCrawler):
             collect()
             self.ali_1688 = ALi1688LoginAndParse(logger=self.lg)
 
-    async def _get_one_data(self, ali_1688, goods_id):
-        return ali_1688.get_ali_1688_data(goods_id)
-
-    async def _update_one_goods_info(self, item, index) -> list:
+    async def _update_one_goods_info(self, db_goods_info_obj, index) -> list:
         '''
         更新一个goods的信息
+        :param db_goods_info_obj:
         :param index: 索引值
         :return: ['goods_id', bool:'成功与否']
         '''
         res = False
-        goods_id = item[0]
         await self._get_new_ali_obj(index=index)
         self.sql_cli = await _get_new_db_conn(db_obj=self.sql_cli, index=index, logger=self.lg)
         if self.sql_cli.is_connect_success:
-            self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
-            # data = ali_1688.get_ali_1688_data(goods_id)
-            data = await self._get_one_data(ali_1688=self.ali_1688, goods_id=goods_id)
+            self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(
+                db_goods_info_obj.goods_id,
+                index))
+            data = self.ali_1688.get_ali_1688_data(goods_id=db_goods_info_obj.goods_id)
             if isinstance(data, int):  # 单独处理返回tt为4041
                 self.goods_index += 1
-                return [goods_id, res]
+                return [db_goods_info_obj.goods_id, res]
 
             if data.get('is_delete') == 1:
-                # self.lg.info('test')
                 # 单独处理【原先插入】就是 下架状态的商品
-                data['goods_id'] = goods_id
+                data['goods_id'] = db_goods_info_obj.goods_id
                 data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
                     tmp_data=data,
-                    is_delete=item[1],
-                    shelf_time=item[4],
-                    delete_time=item[5])
+                    is_delete=db_goods_info_obj.is_delete,
+                    shelf_time=db_goods_info_obj.shelf_time,
+                    delete_time=db_goods_info_obj.delete_time,)
                 try:
                     self.ali_1688.to_right_and_update_data(data, pipeline=self.sql_cli)
                 except Exception:
@@ -119,71 +117,13 @@ class ALUpdater(AsyncCrawler):
                 self.goods_index += 1
                 res = True
 
-                return [goods_id, res]
+                return [db_goods_info_obj.goods_id, res]
 
             data = self.ali_1688.deal_with_data()
             if data != {}:
-                data['goods_id'] = goods_id
-                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                    tmp_data=data,
-                    is_delete=item[1],
-                    shelf_time=item[4],
-                    delete_time=item[5])
-                # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
-
-                # 监控纯价格变动
-                price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
-                try:
-                    old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=2)
-                except AttributeError:  # 处理已被格式化过的
-                    pass
-                new_sku_info = format_price_info_list(data['sku_map'], site_id=2)
-                data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_price_change=item[7] if item[7] is not None else 0,
-                    db_price_change_info=json_2_dict(item[9], default_res=[]),
-                    old_price_trans_time=item[12],)
-
-                # 处理单规格的情况
-                # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
-                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                    old_price=item[2],
-                    old_taobao_price=item[3],
-                    new_price=data['price'],
-                    new_taobao_price=data['taobao_price'],
-                    is_price_change=data['_is_price_change'],
-                    price_change_info=price_change_info)
-                if data['_is_price_change'] == 1:
-                    self.lg.info('价格变动!!')
-                # self.lg.info('_is_price_change: {}, sku_info_trans_time: {}'.format(data['_is_price_change'], data['sku_info_trans_time']))
-
-                # 监控纯规格变动
-                data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_spec_change=item[8] if item[8] is not None else 0,
-                    old_spec_trans_time=item[13],)
-                if data['is_spec_change'] == 1:
-                    self.lg.info('规格属性变动!!')
-                # self.lg.info('is_spec_change: {}, spec_trans_time: {}'.format(data['is_spec_change'], data['spec_trans_time']))
-
-                # 监控纯库存变动
-                data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_stock_change=item[10] if item[10] is not None else 0,
-                    db_stock_change_info=json_2_dict(item[11], default_res=[]),
-                    old_stock_trans_time=item[14],)
-                if data['is_stock_change'] == 1:
-                    self.lg.info('规格的库存变动!!')
-                # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))
-
-                # 单独处理起批量>=1的
-                begin_greater_than_1 = await self.judge_begin_greater_than_1(price_info=data['price_info'], logger=self.lg)
-                if begin_greater_than_1:
-                    self.lg.info('该商品 起批量 大于1, 下架!!')
-                    data['is_delete'] = 1
+                data = await self._get_new_goods_data(
+                    data=data,
+                    db_goods_info_obj=db_goods_info_obj,)
 
                 res = self.ali_1688.to_right_and_update_data(data, pipeline=self.sql_cli)
                 await async_sleep(.3)
@@ -199,7 +139,96 @@ class ALUpdater(AsyncCrawler):
         collect()
         await async_sleep(2.)       # 避免被发现使用代理
 
-        return [goods_id, res]
+        return [db_goods_info_obj.goods_id, res]
+
+    async def _get_new_goods_data(self, **kwargs):
+        """
+        处理并得到新的待存储goods_data
+        :param kwargs:
+        :return:
+        """
+        data = kwargs.get('data', {})
+        db_goods_info_obj = kwargs['db_goods_info_obj']
+
+        data['goods_id'] = db_goods_info_obj.goods_id
+        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+            tmp_data=data,
+            is_delete=db_goods_info_obj.is_delete,
+            shelf_time=db_goods_info_obj.shelf_time,
+            delete_time=db_goods_info_obj.delete_time)
+        # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
+
+        # 监控纯价格变动
+        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
+        try:
+            old_sku_info = format_price_info_list(
+                price_info_list=price_info_list,
+                site_id=db_goods_info_obj.site_id)
+        except AttributeError:  # 处理已被格式化过的
+            pass
+        new_sku_info = format_price_info_list(data['sku_map'], site_id=db_goods_info_obj.site_id)
+        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_price_change=db_goods_info_obj.is_price_change,
+            db_price_change_info=db_goods_info_obj.db_price_change_info,
+            old_price_trans_time=db_goods_info_obj.old_price_trans_time, )
+
+        # 处理单规格的情况
+        # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
+        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+            old_price=db_goods_info_obj.old_price,
+            old_taobao_price=db_goods_info_obj.old_taobao_price,
+            new_price=data['price'],
+            new_taobao_price=data['taobao_price'],
+            is_price_change=data['_is_price_change'],
+            price_change_info=price_change_info)
+        if data['_is_price_change'] == 1:
+            self.lg.info('价格变动!!')
+        # self.lg.info('_is_price_change: {}, sku_info_trans_time: {}'.format(
+        #     data['_is_price_change'],
+        #     data['sku_info_trans_time']))
+
+        # 监控纯规格变动
+        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_spec_change=db_goods_info_obj.is_spec_change,
+            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time, )
+        if data['is_spec_change'] == 1:
+            self.lg.info('规格属性变动!!')
+        # self.lg.info('is_spec_change: {}, spec_trans_time: {}'.format(
+        #     data['is_spec_change'],
+        #     data['spec_trans_time']))
+
+        # 监控纯库存变动
+        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_stock_change=db_goods_info_obj.is_stock_change,
+            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
+            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time, )
+        if data['is_stock_change'] == 1:
+            self.lg.info('规格的库存变动!!')
+        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
+        #     data['is_stock_change'],
+        #     data['stock_trans_time'],
+        #     data['stock_change_info']))
+
+        # 单独处理起批量>=1的
+        begin_greater_than_1 = await self.judge_begin_greater_than_1(
+            price_info=data['price_info'],
+            logger=self.lg, )
+        if begin_greater_than_1:
+            self.lg.info('该商品 起批量 大于1, 下架!!')
+            data['is_delete'] = 1
+
+        try:
+            del db_goods_info_obj
+        except:
+            pass
+
+        return data
 
     async def judge_begin_greater_than_1(self, price_info: list, logger) -> bool:
         '''
@@ -225,8 +254,6 @@ class ALUpdater(AsyncCrawler):
         常规数据实时更新
         :return:
         '''
-        # 记录已更新的goods_id, 这样导致只进行一次更新, 下次更新必须重启脚本
-        # record_updated_goods_id_list = []
         while True:
             self.lg = await self._get_new_logger(logger_name=get_uuid1())
             result = await self._get_db_old_data()
@@ -247,14 +274,11 @@ class ALUpdater(AsyncCrawler):
                     tasks = []
                     for item in slice_params_list:
                         goods_id = item[0]
-                        # if goods_id not in record_updated_goods_id_list:
-                        #     record_updated_goods_id_list.append(goods_id)
-                        # else:
-                        #     self.lg.info('该goods_id[{}]前面loop已检测更新! 跳过!'.format(goods_id))
-                        #     continue
-
+                        db_goods_info_obj = ALDbGoodsInfoObj(item=item, logger=self.lg)
                         self.lg.info('创建 task goods_id: {}'.format(goods_id))
-                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(
+                            db_goods_info_obj=db_goods_info_obj,
+                            index=index)))
                         index += 1
                     if tasks != []:
                         await _get_async_task_result(tasks=tasks, logger=self.lg)
@@ -282,6 +306,35 @@ class ALUpdater(AsyncCrawler):
         except:
             pass
         collect()
+
+class ALDbGoodsInfoObj(object):
+    def __init__(self, item: list, logger=None):
+        assert item != [], 'item != []'
+        self.site_id = 2
+        self.goods_id = item[0]
+        self.is_delete = item[1]
+        self.old_price = item[2]
+        self.old_taobao_price = item[3]
+        self.shelf_time = item[4]
+        self.delete_time = item[5]
+        self.old_sku_info = json_2_dict(
+            json_str=item[6],
+            default_res=[],
+            logger=logger)
+        self.is_price_change = item[7] if item[7] is not None else 0
+        self.is_spec_change = item[8] if item[8] is not None else 0
+        self.db_price_change_info = json_2_dict(
+            json_str=item[9],
+            default_res=[],
+            logger=logger)
+        self.is_stock_change = item[10] if item[10] is not None else 0
+        self.db_stock_change_info = json_2_dict(
+            json_str=item[11],
+            default_res=[],
+            logger=logger, )
+        self.old_price_trans_time = item[12]
+        self.old_spec_trans_time = item[13]
+        self.old_stock_trans_time = item[14]
 
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'

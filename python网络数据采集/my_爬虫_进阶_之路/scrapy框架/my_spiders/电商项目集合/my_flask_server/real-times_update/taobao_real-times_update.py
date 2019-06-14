@@ -24,8 +24,7 @@ from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
 from gc import collect
 from settings import (
     IS_BACKGROUND_RUNNING,
-    MY_SPIDER_LOGS_PATH,
-)
+    MY_SPIDER_LOGS_PATH,)
 
 from sql_str_controller import tb_select_str_3
 from multiplex_code import (
@@ -48,9 +47,10 @@ class TBUpdater(AsyncCrawler):
             **kwargs,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/')
-        self.tmp_sql_server = None
+        self.sql_cli = None
         self.goods_index = 1
-        self.concurrency = 50  # 并发量
+        # 并发量
+        self.concurrency = 50
 
     async def _update_db(self):
         '''
@@ -75,8 +75,11 @@ class TBUpdater(AsyncCrawler):
 
                     tasks = []
                     for item in slice_params_list:
-                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
-                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
+                        self.lg.info('创建 task goods_id: {}'.format(db_goods_info_obj.goods_id))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(
+                            db_goods_info_obj=db_goods_info_obj,
+                            index=index)))
                         index += 1
 
                     res = await _get_async_task_result(tasks=tasks, logger=self.lg)
@@ -94,12 +97,12 @@ class TBUpdater(AsyncCrawler):
         获取db需求更新的数据
         :return:
         '''
-        # self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
-        self.tmp_sql_server = SqlPools()  # 使用sqlalchemy管理数据库连接池
+        # self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        self.sql_cli = SqlPools()  # 使用sqlalchemy管理数据库连接池
         result = None
         try:
-            # result = list(self.tmp_sql_server.select_taobao_all_goods_id())
-            result = self.tmp_sql_server._select_table(sql_str=tb_select_str_3,)
+            # result = list(self.sql_cli.select_taobao_all_goods_id())
+            result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
         except Exception:
@@ -118,28 +121,33 @@ class TBUpdater(AsyncCrawler):
             collect()
             self.taobao = TaoBaoLoginAndParse(logger=self.lg)
 
-    async def _update_one_goods_info(self, item, index):
+    async def _update_one_goods_info(self, db_goods_info_obj, index):
         '''
         更新单个goods
         :return:
         '''
         res = False
-        goods_id = item[0]
         await self._get_new_tb_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, db_conn_type=2, remainder=50)
-        if self.tmp_sql_server.is_connect_success:
-            self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
-            oo = self.taobao.get_goods_data(goods_id=goods_id)
+        self.sql_cli = await _get_new_db_conn(
+            db_obj=self.sql_cli,
+            index=index,
+            logger=self.lg,
+            db_conn_type=2,
+            remainder=50)
+        if self.sql_cli.is_connect_success:
+            self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (
+                db_goods_info_obj.goods_id,
+                str(index)))
+            oo = self.taobao.get_goods_data(goods_id=db_goods_info_obj.goods_id)
             oo_is_delete = oo.get('is_delete', 0)  # 避免下面解析data错误休眠
-            data = self.taobao.deal_with_data(goods_id=goods_id)
+            data = self.taobao.deal_with_data(goods_id=db_goods_info_obj.goods_id)
             if data != {}:
                 data = await self._get_new_goods_data(
                     data=data,
-                    goods_id=goods_id,
-                    item=item,)
+                    db_goods_info_obj=db_goods_info_obj,)
                 res = to_right_and_update_tb_data(
                     data=data,
-                    pipeline=self.tmp_sql_server,
+                    pipeline=self.sql_cli,
                     logger=self.lg)
 
             else:
@@ -160,7 +168,7 @@ class TBUpdater(AsyncCrawler):
         # 国外服务器上可以缩短时间, 可以设置为0s
         await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 不能太频繁，与用户请求错开尽量
 
-        return [goods_id, res]
+        return [db_goods_info_obj.goods_id, res]
 
     async def _get_new_goods_data(self, **kwargs) -> dict:
         """
@@ -169,22 +177,22 @@ class TBUpdater(AsyncCrawler):
         :return:
         """
         data = kwargs.get('data', {})
-        goods_id = kwargs.get('goods_id', '')
-        item = kwargs.get('item', [])
-        assert item != [], 'item != []'
+        db_goods_info_obj = kwargs['db_goods_info_obj']
 
-        data['goods_id'] = goods_id
+        data['goods_id'] = db_goods_info_obj.goods_id
         data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
             tmp_data=data,
-            is_delete=item[1],
-            shelf_time=item[4],
-            delete_time=item[5])
-        price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
+            is_delete=db_goods_info_obj.is_delete,
+            shelf_time=db_goods_info_obj.shelf_time,
+            delete_time=db_goods_info_obj.delete_time)
+        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
         try:
-            old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=1)
+            old_sku_info = format_price_info_list(
+                price_info_list=price_info_list,
+                site_id=db_goods_info_obj.site_id)
         except AttributeError:  # 处理已被格式化过的
             pass
-        new_sku_info = format_price_info_list(data['price_info_list'], site_id=1)
+        new_sku_info = format_price_info_list(data['price_info_list'], site_id=db_goods_info_obj.site_id)
         # if len(new_sku_info) <= 6:
         #     self.lg.info('old_sku_info:')
         #     pprint(old_sku_info)
@@ -194,12 +202,12 @@ class TBUpdater(AsyncCrawler):
         data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
             old_sku_info=old_sku_info,
             new_sku_info=new_sku_info,
-            is_price_change=item[7] if item[7] is not None else 0,
-            db_price_change_info=json_2_dict(item[9], default_res=[]),
-            old_price_trans_time=item[12])
+            is_price_change=db_goods_info_obj.is_price_change,
+            db_price_change_info=db_goods_info_obj.db_price_change_info,
+            old_price_trans_time=db_goods_info_obj.old_price_trans_time,)
         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-            old_price=item[2],
-            old_taobao_price=item[3],
+            old_price=db_goods_info_obj.old_price,
+            old_taobao_price=db_goods_info_obj.old_taobao_price,
             new_price=data['price'],
             new_taobao_price=data['taobao_price'],
             is_price_change=data['_is_price_change'],
@@ -212,8 +220,8 @@ class TBUpdater(AsyncCrawler):
         data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
             old_sku_info=old_sku_info,
             new_sku_info=new_sku_info,
-            is_spec_change=item[8] if item[8] is not None else 0,
-            old_spec_trans_time=item[13])
+            is_spec_change=db_goods_info_obj.is_spec_change,
+            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time,)
         if data['is_spec_change'] == 1:
             self.lg.info('规格属性变动!!')
 
@@ -221,12 +229,20 @@ class TBUpdater(AsyncCrawler):
         data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
             old_sku_info=old_sku_info,
             new_sku_info=new_sku_info,
-            is_stock_change=item[10] if item[10] is not None else 0,
-            db_stock_change_info=json_2_dict(item[11], default_res=[]),
-            old_stock_trans_time=item[14])
+            is_stock_change=db_goods_info_obj.is_stock_change,
+            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
+            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
         if data['is_stock_change'] == 1:
             self.lg.info('规格的库存变动!!')
-        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(data['is_stock_change'], data['stock_trans_time'], data['stock_change_info']))
+        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
+        #     data['is_stock_change'],
+        #     data['stock_trans_time'],
+        #     data['stock_change_info']))
+
+        try:
+            del db_goods_info_obj
+        except:
+            pass
 
         return data
 
@@ -269,6 +285,35 @@ class TBUpdater(AsyncCrawler):
             pass
         collect()
 
+class TBDbGoodsInfoObj(object):
+    def __init__(self, item: list, logger=None):
+        assert item != [], 'item != []'
+        self.site_id = 1
+        self.goods_id = item[0]
+        self.is_delete = item[1]
+        self.old_price = item[2]
+        self.old_taobao_price = item[3]
+        self.shelf_time= item[4]
+        self.delete_time = item[5]
+        self.old_sku_info = json_2_dict(
+            json_str=item[6],
+            default_res=[],
+            logger=logger)
+        self.is_price_change = item[7] if item[7] is not None else 0
+        self.is_spec_change = item[8] if item[8] is not None else 0
+        self.db_price_change_info = json_2_dict(
+            json_str=item[9],
+            default_res=[],
+            logger=logger,)
+        self.is_stock_change = item[10] if item[10] is not None else 0
+        self.db_stock_change_info = json_2_dict(
+            json_str=item[11],
+            default_res=[],
+            logger=logger,)
+        self.old_price_trans_time = item[12]
+        self.old_spec_trans_time = item[13]
+        self.old_stock_trans_time = item[14]
+
 def _fck_run():
     _ = TBUpdater()
     loop = get_event_loop()
@@ -283,8 +328,8 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
 

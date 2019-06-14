@@ -39,15 +39,16 @@ class JPUpdater(AsyncCrawler):
             **kwargs,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/卷皮/实时更新/')
-        self.tmp_sql_server = None
+        self.sql_cli = None
         self.goods_index = 1
-        self.concurrency = 10        # 并发量
+        # 并发量
+        self.concurrency = 10        
 
     async def _get_db_old_data(self):
-        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
-            result = list(self.tmp_sql_server._select_table(sql_str=jp_select_str_3))
+            result = list(self.sql_cli._select_table(sql_str=jp_select_str_3))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
@@ -64,73 +65,28 @@ class JPUpdater(AsyncCrawler):
             collect()
             self.juanpi = JuanPiParse()
 
-    async def _update_one_goods_info(self, item, index):
+    async def _update_one_goods_info(self, db_goods_info_obj, index):
         '''
         更新一个goods的信息
+        :param db_goods_info_obj:
         :param index: 索引值
         :return: ['goods_id', bool:'成功与否']
         '''
         res = False
-        goods_id = item[0]
         await self._get_new_jp_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg)
-        if self.tmp_sql_server.is_connect_success:
-            self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
-            self.juanpi.get_goods_data(goods_id=goods_id)
+        self.sql_cli = await _get_new_db_conn(db_obj=self.sql_cli, index=index, logger=self.lg)
+        if self.sql_cli.is_connect_success:
+            self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(
+                db_goods_info_obj.goods_id,
+                index))
+            self.juanpi.get_goods_data(goods_id=db_goods_info_obj.goods_id)
             data = self.juanpi.deal_with_data()
             if data != {}:
-                data['goods_id'] = goods_id
-                data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-                    tmp_data=data,
-                    is_delete=item[1],
-                    shelf_time=item[4],
-                    delete_time=item[5])
-                # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
+                data = await self._get_new_goods_data(
+                    data=data,
+                    db_goods_info_obj=db_goods_info_obj,)
+                res = self.juanpi.to_right_and_update_data(data, pipeline=self.sql_cli)
 
-                # 监控纯价格变动
-                price_info_list = old_sku_info = json_2_dict(item[6], default_res=[])
-                try:
-                    old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=12)
-                except AttributeError:  # 处理已被格式化过的
-                    pass
-                new_sku_info = format_price_info_list(data['price_info_list'], site_id=12)
-                data['_is_price_change'], data[
-                    'sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_price_change=item[7] if item[7] is not None else 0,
-                    db_price_change_info=json_2_dict(item[9], default_res=[]),
-                    old_price_trans_time=item[12])
-                data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-                    old_price=item[2],
-                    old_taobao_price=item[3],
-                    new_price=data['price'],
-                    new_taobao_price=data['taobao_price'],
-                    is_price_change=data['_is_price_change'],
-                    price_change_info=price_change_info)
-                if data['_is_price_change'] == 1:
-                    self.lg.info('价格变动!!')
-
-                # 监控纯规格变动
-                data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_spec_change=item[8] if item[8] is not None else 0,
-                    old_spec_trans_time=item[13])
-                if data['is_spec_change'] == 1:
-                    self.lg.info('规格属性变动!!')
-
-                # 监控纯库存变动
-                data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-                    old_sku_info=old_sku_info,
-                    new_sku_info=new_sku_info,
-                    is_stock_change=item[10] if item[10] is not None else 0,
-                    db_stock_change_info=json_2_dict(item[11], default_res=[]),
-                    old_stock_trans_time=item[14])
-                if data['is_stock_change'] == 1:
-                    self.lg.info('规格的库存变动!!')
-
-                res = self.juanpi.to_right_and_update_data(data, pipeline=self.tmp_sql_server)
             else:  # 表示返回的data值为空值
                 pass
         else:
@@ -141,7 +97,77 @@ class JPUpdater(AsyncCrawler):
         collect()
         await async_sleep(1.2)
 
-        return [goods_id, res]
+        return [db_goods_info_obj.goods_id, res]
+
+    async def _get_new_goods_data(self, **kwargs) -> dict:
+        """
+        处理并得到新的待存储goods_data
+        :param kwargs:
+        :return:
+        """
+        data = kwargs.get('data', {})
+        db_goods_info_obj = kwargs['db_goods_info_obj']
+
+        data['goods_id'] = db_goods_info_obj.goods_id
+        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+            tmp_data=data,
+            is_delete=db_goods_info_obj.is_delete,
+            shelf_time=db_goods_info_obj.shelf_time,
+            delete_time=db_goods_info_obj.delete_time)
+        # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(
+        #     data['shelf_time'],
+        #     data['delete_time']))
+
+        # 监控纯价格变动
+        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
+        try:
+            old_sku_info = format_price_info_list(
+                price_info_list=price_info_list,
+                site_id=db_goods_info_obj.site_id)
+        except AttributeError:  # 处理已被格式化过的
+            pass
+        new_sku_info = format_price_info_list(data['price_info_list'], site_id=db_goods_info_obj.site_id)
+        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_price_change=db_goods_info_obj.is_price_change,
+            db_price_change_info=db_goods_info_obj.db_price_change_info,
+            old_price_trans_time=db_goods_info_obj.old_price_trans_time)
+        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+            old_price=db_goods_info_obj.old_price,
+            old_taobao_price=db_goods_info_obj.old_taobao_price,
+            new_price=data['price'],
+            new_taobao_price=data['taobao_price'],
+            is_price_change=data['_is_price_change'],
+            price_change_info=price_change_info)
+        if data['_is_price_change'] == 1:
+            self.lg.info('价格变动!!')
+
+        # 监控纯规格变动
+        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_spec_change=db_goods_info_obj.is_spec_change,
+            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time,)
+        if data['is_spec_change'] == 1:
+            self.lg.info('规格属性变动!!')
+
+        # 监控纯库存变动
+        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_stock_change=db_goods_info_obj.is_stock_change,
+            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
+            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time, )
+        if data['is_stock_change'] == 1:
+            self.lg.info('规格的库存变动!!')
+
+        try:
+            del db_goods_info_obj
+        except:
+            pass
+
+        return data
 
     async def _update_db(self):
         while True:
@@ -163,8 +189,11 @@ class JPUpdater(AsyncCrawler):
 
                     tasks = []
                     for item in slice_params_list:
-                        self.lg.info('创建 task goods_id: {}'.format(item[0]))
-                        tasks.append(self.loop.create_task(self._update_one_goods_info(item=item, index=index)))
+                        db_goods_info_obj = JPDbGoodsInfoObj(item=item, logger=self.lg)
+                        self.lg.info('创建 task goods_id: {}'.format(db_goods_info_obj.goods_id))
+                        tasks.append(self.loop.create_task(self._update_one_goods_info(
+                            db_goods_info_obj=db_goods_info_obj,
+                            index=index,)))
                         index += 1
 
                     await _get_async_task_result(tasks=tasks, logger=self.lg)
@@ -190,6 +219,35 @@ class JPUpdater(AsyncCrawler):
         except:
             pass
         collect()
+
+class JPDbGoodsInfoObj(object):
+    def __init__(self, item: list, logger=None):
+        assert item != [], 'item != []'
+        self.site_id = 12
+        self.goods_id = item[0]
+        self.is_delete = item[1]
+        self.old_price = item[2]
+        self.old_taobao_price = item[3]
+        self.shelf_time = item[4]
+        self.delete_time = item[5]
+        self.old_sku_info = json_2_dict(
+            json_str=item[6],
+            default_res=[],
+            logger=logger, )
+        self.is_price_change = item[7] if item[7] is not None else 0
+        self.is_spec_change = item[8] if item[8] is not None else 0
+        self.db_price_change_info = json_2_dict(
+            json_str=item[9],
+            default_res=[],
+            logger=logger, )
+        self.is_stock_change = item[10] if item[10] is not None else 0
+        self.db_stock_change_info = json_2_dict(
+            json_str=item[11],
+            default_res=[],
+            logger=logger, )
+        self.old_price_trans_time = item[12]
+        self.old_spec_trans_time = item[13]
+        self.old_stock_trans_time = item[14]
 
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'

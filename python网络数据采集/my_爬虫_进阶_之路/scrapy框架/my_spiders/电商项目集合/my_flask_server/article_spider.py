@@ -22,8 +22,9 @@
     10. 阳光宽频网(短视频)(https://www.365yg.com/)
     11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
 待实现:
-    1. 网易新闻
-    2. 趣头条
+    1. 51健康养生网(http://www.51jkst.com/)
+    2. 一点资讯(http://www.yidianzixun.com/ | m站资讯只显示前几页[pass])
+    2. 网易新闻
 """
 
 from os import getcwd
