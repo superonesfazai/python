@@ -96,7 +96,10 @@ class RequestClient(object):
         # 凤凰网
         # article_link = 'https://news.ifeng.com/c/7nDvcZ4NtW1'
         # 含视频的
-        article_link = 'https://v.ifeng.com/c/7nE1XJY8fL6'
+        # article_link = 'https://v.ifeng.com/c/7nE1XJY8fL6'
+
+        # 51健康养生网
+        article_link = 'http://www.51jkst.com/article/275325/index.html'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))

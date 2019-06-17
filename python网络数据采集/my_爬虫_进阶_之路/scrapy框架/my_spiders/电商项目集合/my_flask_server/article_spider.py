@@ -46,6 +46,7 @@ from fzutils.spider.fz_driver import (
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.selector import async_parse_field
+from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):
@@ -194,6 +195,10 @@ class ArticleParser(AsyncCrawler):
             'fh': {
                 'obj_origin': 'news.ifeng.com',
                 'site_id': 14,
+            },
+            'ys': {
+                'obj_origin': 'www.51jkst.com',
+                'site_id': 15,
             },
         }
 
@@ -371,6 +376,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'fh':
                 return await self._get_fh_article_html(article_url=article_url)
 
+            elif article_url_type == 'ys':
+                return await self._get_ys_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -378,6 +386,30 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_ys_article_html(self, article_url) -> tuple:
+        """
+        获取51ys的html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_random_pc_headers()
+        headers.update({
+            'Referer': 'http://www.51jkst.com/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取的ys的body为空值!'
+
+        return body, video_url
 
     async def _get_fh_article_html(self, article_url) -> tuple:
         """
@@ -762,7 +794,7 @@ class ArticleParser(AsyncCrawler):
                 ip_pool_type=self.ip_pool_type,
                 logger=self.lg,
                 num_retries=3,)
-        self.lg.info(body)
+        # self.lg.info(body)
         assert body != '', '获取到的kd的body为空值!'
 
         return body, ''
@@ -951,7 +983,8 @@ class ArticleParser(AsyncCrawler):
 
         if parse_obj['short_name'] == 'df'\
                 or parse_obj['short_name'] == 'bd'\
-                or parse_obj['short_name'] == 'fh':
+                or parse_obj['short_name'] == 'fh'\
+                or parse_obj['short_name'] == 'ys':
             pass
         else:
             assert author != '', '获取到的author为空值!'
@@ -1294,11 +1327,27 @@ class ArticleParser(AsyncCrawler):
         elif parse_obj.get('short_name', '') == 'fh':
             content = await self._wash_fh_article_content(content=content)
 
+        elif parse_obj.get('short_name', '') == 'ys':
+            content = await self._wash_ys_article_content(content=content)
+
         else:
             pass
 
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_ys_article_content(content) -> str:
+        """
+        清洗ys content
+        :param content:
+        :return:
+        """
+        # 图片居中
+        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
+                  content if content != '' else ''
 
         return content
 
@@ -1500,6 +1549,7 @@ class ArticleParser(AsyncCrawler):
             'zq',
             'yg',
             'fh',
+            'ys',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -1576,6 +1626,10 @@ class ArticleParser(AsyncCrawler):
             pass
         try:
             del self.loop
+        except:
+            pass
+        try:
+            self.obj_origin_dict
         except:
             pass
         collect()
@@ -1706,7 +1760,12 @@ def main():
     # url = 'https://v.ifeng.com/c/7n9OP680pzt'
     # url = 'https://v.ifeng.com/c/7msqjIm1dUe'
     # url = 'https://v.ifeng.com/c/7nEV3crGcwC'
-    url = 'https://v.ifeng.com/c/7nE1XJY8fL6'
+    # url = 'https://v.ifeng.com/c/7nE1XJY8fL6'
+
+    # 51健康养生网
+    # url = 'http://www.51jkst.com/article/275371/index.html'
+    # url = 'http://www.51jkst.com/article/275373/index.html'
+    url = 'http://www.51jkst.com/article/252943/index.html'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)

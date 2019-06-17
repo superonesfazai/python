@@ -701,6 +701,35 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'ys',
+        'debug': True,
+        'obj_origin': 'www.51jkst.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/article/(\d+)/',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div.content h1 ::text',
+        },
+        'video_title': None,
+        'author': None,
+        'video_author': None,
+        'head_url': None,
+        'create_time': None,
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.art_content',
+        },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
