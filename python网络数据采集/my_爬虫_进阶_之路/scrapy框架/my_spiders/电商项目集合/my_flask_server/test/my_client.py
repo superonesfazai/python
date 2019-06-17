@@ -99,7 +99,13 @@ class RequestClient(object):
         # article_link = 'https://v.ifeng.com/c/7nE1XJY8fL6'
 
         # 51健康养生网
-        article_link = 'http://www.51jkst.com/article/275325/index.html'
+        # article_link = 'http://www.51jkst.com/article/275325/index.html'
+
+        # 彩牛养生网
+        # 视频
+        # article_link = 'http://m.cnys.com/yiliao/1784.html'
+        # 文章
+        article_link = 'http://m.cnys.com/yangshengzixun/2158.html'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))

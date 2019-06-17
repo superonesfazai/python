@@ -21,9 +21,11 @@
     9. 天天快报(根据天天快报分享出的地址)
     10. 阳光宽频网(短视频)(https://www.365yg.com/)
     11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
+    12. 51健康养生网(http://www.51jkst.com/)
+    13. 彩牛养生网(权威医生: 对养生的见解, 短视频为主, 包含部分文章)(http://m.cnys.com/)
+    
 待实现:
-    1. 51健康养生网(http://www.51jkst.com/)
-    2. 一点资讯(http://www.yidianzixun.com/ | m站资讯只显示前几页[pass])
+    1. 一点资讯(http://www.yidianzixun.com/ | m站资讯只显示前几页[pass])
     2. 网易新闻
 """
 
@@ -199,6 +201,10 @@ class ArticleParser(AsyncCrawler):
             'ys': {
                 'obj_origin': 'www.51jkst.com',
                 'site_id': 15,
+            },
+            'cn': {
+                'obj_origin': 'm.cnys.com',
+                'site_id': 16,
             },
         }
 
@@ -379,6 +385,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'ys':
                 return await self._get_ys_article_html(article_url=article_url)
 
+            elif article_url_type == 'cn':
+                return await self._get_cn_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -386,6 +395,41 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_cn_article_html(self, article_url) -> tuple:
+        """
+        获取cn的html
+        :param article_url:
+        :return:
+        """
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            'Referer': 'http://m.cnys.com/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取cn的body为空值!'
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div.video-play-wrap mip-search-video ::attr("video-src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        if video_url != '':
+            self.lg.info('此为视频文章')
+            self.lg.info('cn_video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_ys_article_html(self, article_url) -> tuple:
         """
@@ -966,6 +1010,7 @@ class ArticleParser(AsyncCrawler):
             'sg',
             'bd',
             'fh',
+            'cn',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -984,7 +1029,8 @@ class ArticleParser(AsyncCrawler):
         if parse_obj['short_name'] == 'df'\
                 or parse_obj['short_name'] == 'bd'\
                 or parse_obj['short_name'] == 'fh'\
-                or parse_obj['short_name'] == 'ys':
+                or parse_obj['short_name'] == 'ys'\
+                or parse_obj['short_name'] == 'cn':
             pass
         else:
             assert author != '', '获取到的author为空值!'
@@ -1007,6 +1053,7 @@ class ArticleParser(AsyncCrawler):
             'sg',
             'bd',
             'fh',
+            'cn',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1191,6 +1238,7 @@ class ArticleParser(AsyncCrawler):
         short_name_list = [
             'sg',
             'bd',
+            'cn',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1235,6 +1283,10 @@ class ArticleParser(AsyncCrawler):
                         self.lg.error('遇到错误:', exc_info=True)
                         create_time = ''
 
+        elif parse_obj['short_name'] == 'cn':
+            if create_time != '':
+                create_time = str(date_parse(create_time))
+
         else:
             pass
 
@@ -1250,6 +1302,7 @@ class ArticleParser(AsyncCrawler):
         content_selector = parse_obj['content']
         short_name_list = [
             'kb',
+            'cn',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1284,7 +1337,8 @@ class ArticleParser(AsyncCrawler):
                 or parse_obj['short_name'] == 'sg'\
                 or parse_obj['short_name'] == 'bd'\
                 or parse_obj['short_name'] == 'yg'\
-                or parse_obj['short_name'] == 'fh':
+                or parse_obj['short_name'] == 'fh'\
+                or parse_obj['short_name'] == 'cn':
             if video_url != '':
                 pass
             else:
@@ -1330,11 +1384,30 @@ class ArticleParser(AsyncCrawler):
         elif parse_obj.get('short_name', '') == 'ys':
             content = await self._wash_ys_article_content(content=content)
 
+        elif parse_obj.get('short_name', '') == 'cn':
+            content = await self._wash_cn_article_content(content=content)
+
         else:
             pass
 
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_cn_article_content(content) -> str:
+        """
+        清洗cn content
+        :param content:
+        :return:
+        """
+        content = re.compile('<mip-img').sub('<img', content)
+        content = re.compile('</mip-img>').sub('</img>', content)
+
+        # 图片居中
+        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
+                  content if content != '' else ''
 
         return content
 
@@ -1550,6 +1623,7 @@ class ArticleParser(AsyncCrawler):
             'yg',
             'fh',
             'ys',
+            'cn',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -1765,7 +1839,19 @@ def main():
     # 51健康养生网
     # url = 'http://www.51jkst.com/article/275371/index.html'
     # url = 'http://www.51jkst.com/article/275373/index.html'
-    url = 'http://www.51jkst.com/article/252943/index.html'
+    # url = 'http://www.51jkst.com/article/252943/index.html'
+
+    # 彩牛养生网(权威医生解说的短视频)
+    # 视频
+    # url = 'http://m.cnys.com/yiliao/1784.html'
+    # url = 'http://m.cnys.com/yiliao/1783.html'
+    # url = 'http://m.cnys.com/yiliao/1376.html'
+    # url = 'http://m.cnys.com/yiliao/1202.html'
+    # 文章
+    # url = 'http://m.cnys.com/yangshengzixun/2178.html'
+    # url = 'http://m.cnys.com/yangshengzixun/2167.html'
+    # url = 'http://m.cnys.com/yangshengzixun/2157.html'
+    url = 'http://m.cnys.com/yangshengzixun/2158.html'
 
     article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
     pprint(article_parse_res)

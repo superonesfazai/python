@@ -730,6 +730,53 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'cn',
+        'debug': True,
+        'obj_origin': 'm.cnys.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div.title h2 ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'div.title h2 ::text',
+        },
+        'author': {
+            'method': 're',
+            'selector': '\"fromSrc\": \"(.*?)\"',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'div.daren-title ::text',
+        },
+        'head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '\"upDate\": \"(.*?)\",'
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '\"upDate\": \"(.*?)\",'
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.article-content',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'div.content-text ::text',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
