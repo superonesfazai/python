@@ -25,7 +25,7 @@ class CarHomeSpider(AsyncCrawler):
             self,
             ip_pool_type=tri_ip_pool,
         )
-        self.num_retries = 3
+        self.num_retries = 6
         self.font_base_save_path = '/Users/afa/myFiles/tmp/字体反爬/汽车之家/'
 
     async def _fck_run(self):
@@ -33,7 +33,10 @@ class CarHomeSpider(AsyncCrawler):
         # await self._get_one_page_info()
 
         # 获取所有品牌的所有车型的价格
-        await self._get_all_brand_all_car_price()
+        res = await self._get_all_brand_all_car_price()
+        # print(dumps({
+        #     'cars_info': res,
+        # }))
 
     async def _get_all_brand_all_car_price(self) -> list:
         """
@@ -71,7 +74,7 @@ class CarHomeSpider(AsyncCrawler):
         except:
             pass
 
-        return []
+        return all_res
 
     def _get_all_car_info_by_brand_id(self, brand_id: str, brand_name: str) -> list:
         """
