@@ -239,6 +239,10 @@ class TBUpdater(AsyncCrawler):
         #     data['stock_trans_time'],
         #     data['stock_change_info']))
 
+        self.lg.info('上架时间:{0}, 下架时间:{1}'.format(
+            data['shelf_time'],
+            data['delete_time']))
+
         try:
             del db_goods_info_obj
         except:

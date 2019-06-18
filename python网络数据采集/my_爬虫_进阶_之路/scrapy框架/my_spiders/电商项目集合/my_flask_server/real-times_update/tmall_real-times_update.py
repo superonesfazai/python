@@ -348,6 +348,7 @@ class TMUpdater(AsyncCrawler):
             is_delete=db_goods_info_obj.is_delete,
             shelf_time=db_goods_info_obj.shelf_time,
             delete_time=db_goods_info_obj.delete_time)
+
         site_id = from_tmall_type_get_site_id(type=data['type'])
         price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
         try:
@@ -394,6 +395,10 @@ class TMUpdater(AsyncCrawler):
         #     data['is_stock_change'],
         #     data['stock_trans_time'],
         #     data['stock_change_info']))
+
+        self.lg.info('上架时间:{0}, 下架时间:{1}'.format(
+            data['shelf_time'],
+            data['delete_time']))
 
         try:
             del db_goods_info_obj

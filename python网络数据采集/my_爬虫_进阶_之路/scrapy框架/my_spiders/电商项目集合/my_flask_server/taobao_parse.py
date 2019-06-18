@@ -36,6 +36,9 @@ from sql_str_controller import (
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from multiplex_code import _handle_goods_shelves_in_auto_goods_table
+from my_exceptions import (
+    GoodsShelvesException,
+)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
@@ -45,15 +48,15 @@ from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import (
     get_random_pc_ua,
     get_random_phone_ua,)
-from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_requests import (
+    Requests,
+    PROXY_TYPE_HTTPS,
+    PROXY_TYPE_HTTP,)
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
-
-# chrome驱动地址
-my_chrome_driver_path = CHROME_DRIVER_PATH
 
 class TaoBaoLoginAndParse(Crawler):
     def __init__(self, logger=None):
@@ -66,6 +69,7 @@ class TaoBaoLoginAndParse(Crawler):
         self._set_headers()
         self.result_data = {}
         self.msg = ''
+        self.proxy_type = PROXY_TYPE_HTTP
 
     def _set_headers(self):
         self.headers = {
@@ -91,7 +95,8 @@ class TaoBaoLoginAndParse(Crawler):
             headers=self.headers,
             params=None,
             timeout=14,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,)
 
         try:
             data = json_2_dict(
@@ -101,25 +106,24 @@ class TaoBaoLoginAndParse(Crawler):
             # self.lg.info(str(data))
             assert data != {}, '获取到的data为空dict!'
             # pprint(data)
+            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
+                    and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+                raise GoodsShelvesException
+
+        except GoodsShelvesException:
+            ## 表示该商品已经下架, 原地址被重定向到新页面
+            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
+            tmp_data_s = self.init_pull_off_shelves_goods()
+            self.result_data = {}
+            return tmp_data_s
+
         except (IndexError, AssertionError):
             self.lg.error('data为空! 出错goods_id: {0}'.format(goods_id), exc_info=True)
             return self._data_error_init()
 
-        if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
-                and data.get('data', {}).get('seller', {}).get('evaluates') is None:
-            '''
-            ## 表示该商品已经下架, 原地址被重定向到新页面
-            '''
-            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
-            tmp_data_s = self.init_pull_off_shelves_goods()
-            self.result_data = {}
-
-            return tmp_data_s
-
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data').get('seller', {}).get('evaluates') is None:
             self.lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
-
             return self._data_error_init()
 
         data['data']['rate'] = ''           # 这是宝贝评价
@@ -948,7 +952,8 @@ class TaoBaoLoginAndParse(Crawler):
             params=None,
             timeout=14,
             num_retries=3,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,)
         # self.lg.info(data)
         if data == '':
             self.lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
@@ -1011,7 +1016,8 @@ class TaoBaoLoginAndParse(Crawler):
             url=url,
             headers=headers,
             params=params,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type)
         # self.lg.info(body)
         try:
             data = json_2_dict(

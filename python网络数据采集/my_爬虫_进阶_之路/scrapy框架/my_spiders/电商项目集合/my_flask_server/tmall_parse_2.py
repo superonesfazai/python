@@ -32,6 +32,9 @@ from sql_str_controller import (
 from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
     from_tmall_type_get_site_id,)
+from my_exceptions import (
+    GoodsShelvesException,
+)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.time_utils import (
@@ -39,7 +42,10 @@ from fzutils.time_utils import (
     datetime_to_timestamp,)
 from fzutils.internet_utils import tuple_or_list_params_2_dict_params
 from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
+from fzutils.spider.fz_requests import (
+    Requests,
+    PROXY_TYPE_HTTPS,
+    PROXY_TYPE_HTTP,)
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
 
@@ -54,6 +60,7 @@ class TmallParse(Crawler):
         self._set_headers()
         self.result_data = {}
         self.msg = ''
+        self.proxy_type = PROXY_TYPE_HTTP
 
     def _set_headers(self):
         self.headers = {
@@ -80,14 +87,16 @@ class TmallParse(Crawler):
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         self.lg.info('------>>>| 得到的移动端地址为: %s' % tmp_url)
 
-        self.headers.update({'Referer': tmp_url})
+        self.headers.update({
+            'Referer': tmp_url
+        })
         last_url = self._get_last_url(goods_id=goods_id)
         body = Requests.get_url_body(
             url=last_url,
             headers=self.headers,
-            params=None,
             timeout=14,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,)
 
         try:
             assert body != '', '获取到的body为空值, 此处跳过! 出错type %s: , goods_id: %s' % (str(type), goods_id)
@@ -97,24 +106,29 @@ class TmallParse(Crawler):
                 logger=self.lg)
             assert data != {}, 'data为空dict, 出错type: {}, goods_id: {}'.format(str(type), str(goods_id))
             # pprint(data)
-        except (AssertionError, IndexError) as e:
-            self.lg.error('遇到错误:', exc_info=True)
-            return self._data_error_init()
+            if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
+                    and data.get('data', {}).get('seller', {}).get('evaluates') is None:
+                raise GoodsShelvesException
 
-        if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
-                and data.get('data', {}).get('seller', {}).get('evaluates') is None:
-            '''
+        except GoodsShelvesException:
             ## 表示该商品已经下架, 原地址被重定向到新页面
-            '''
             self.lg.info('@@@@@@ 该商品已经下架...')
-            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
+            _handle_goods_shelves_in_auto_goods_table(
+                goods_id=goods_id,
+                logger=self.lg)
             tmp_data_s = self.init_pull_off_shelves_goods(type)
             self.result_data = {}
             return tmp_data_s
 
+        except (AssertionError, IndexError):
+            self.lg.error('遇到错误:', exc_info=True)
+            return self._data_error_init()
+
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data', {}).get('seller', {}).get('evaluates') is None:
-            self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: %s, goods_id: %s' % (str(type), str(goods_id)))
+            self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: {}, goods_id: {}'.format(
+                type,
+                goods_id))
             return self._data_error_init()
 
         data['data']['rate'] = ''  # 这是宝贝评价
@@ -134,7 +148,9 @@ class TmallParse(Crawler):
 
         # 处理mockData
         mock_data = result_data['mockData']
-        mock_data = json_2_dict(json_str=mock_data, logger=self.lg)
+        mock_data = json_2_dict(
+            json_str=mock_data,
+            logger=self.lg)
         if mock_data == {}:
             self.lg.error('出错type: {0}, goods_id: {1}'.format(type, goods_id))
             return self._data_error_init()
@@ -145,7 +161,9 @@ class TmallParse(Crawler):
 
         # self.lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
         if result_data.get('apiStack', [])[0].get('value', '') == '':
-            self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错type: %s, goods_id: %s" % (str(type), goods_id))
+            self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错type: {}, goods_id: {}".format(
+                str(type),
+                goods_id))
             result_data['trade'] = {}
             return self._data_error_init()
         else:
