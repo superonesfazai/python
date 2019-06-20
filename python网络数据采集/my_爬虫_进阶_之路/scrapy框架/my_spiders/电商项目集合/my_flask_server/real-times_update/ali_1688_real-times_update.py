@@ -27,14 +27,11 @@ from settings import (
 
 from sql_str_controller import al_select_str_6
 from multiplex_code import (
-    _get_sku_price_trans_record,
-    _get_spec_trans_record,
-    _get_stock_trans_record,
     _get_new_db_conn,
     _get_async_task_result,
-    _print_db_old_data,)
+    _print_db_old_data,
+    get_goods_info_change_data,)
 
-from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
 
 """
@@ -73,7 +70,8 @@ class ALUpdater(AsyncCrawler):
         return result
 
     async def _get_new_ali_obj(self, index) -> None:
-        if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
+        if index % 10 == 0:
+            # 不能共享一个对象了, 否则驱动访问会异常!
             try:
                 del self.ali_1688
             except:
@@ -90,7 +88,10 @@ class ALUpdater(AsyncCrawler):
         '''
         res = False
         await self._get_new_ali_obj(index=index)
-        self.sql_cli = await _get_new_db_conn(db_obj=self.sql_cli, index=index, logger=self.lg)
+        self.sql_cli = await _get_new_db_conn(
+            db_obj=self.sql_cli,
+            index=index,
+            logger=self.lg)
         if self.sql_cli.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(
                 db_goods_info_obj.goods_id,
@@ -121,7 +122,9 @@ class ALUpdater(AsyncCrawler):
 
             data = self.ali_1688.deal_with_data()
             if data != {}:
-                data = await self._get_new_goods_data(
+                data = get_goods_info_change_data(
+                    target_short_name='al',
+                    logger=self.lg,
                     data=data,
                     db_goods_info_obj=db_goods_info_obj,)
 
@@ -140,114 +143,6 @@ class ALUpdater(AsyncCrawler):
         await async_sleep(2.)       # 避免被发现使用代理
 
         return [db_goods_info_obj.goods_id, res]
-
-    async def _get_new_goods_data(self, **kwargs):
-        """
-        处理并得到新的待存储goods_data
-        :param kwargs:
-        :return:
-        """
-        data = kwargs.get('data', {})
-        db_goods_info_obj = kwargs['db_goods_info_obj']
-
-        data['goods_id'] = db_goods_info_obj.goods_id
-        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-            tmp_data=data,
-            is_delete=db_goods_info_obj.is_delete,
-            shelf_time=db_goods_info_obj.shelf_time,
-            delete_time=db_goods_info_obj.delete_time)
-        # self.lg.info('上架时间:{0}, 下架时间:{1}'.format(data['shelf_time'], data['delete_time']))
-
-        # 监控纯价格变动
-        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
-        try:
-            old_sku_info = format_price_info_list(
-                price_info_list=price_info_list,
-                site_id=db_goods_info_obj.site_id)
-        except AttributeError:  # 处理已被格式化过的
-            pass
-        new_sku_info = format_price_info_list(data['sku_map'], site_id=db_goods_info_obj.site_id)
-        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_price_change=db_goods_info_obj.is_price_change,
-            db_price_change_info=db_goods_info_obj.db_price_change_info,
-            old_price_trans_time=db_goods_info_obj.old_price_trans_time, )
-
-        # 处理单规格的情况
-        # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
-        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-            old_price=db_goods_info_obj.old_price,
-            old_taobao_price=db_goods_info_obj.old_taobao_price,
-            new_price=data['price'],
-            new_taobao_price=data['taobao_price'],
-            is_price_change=data['_is_price_change'],
-            price_change_info=price_change_info)
-        if data['_is_price_change'] == 1:
-            self.lg.info('价格变动!!')
-        # self.lg.info('_is_price_change: {}, sku_info_trans_time: {}'.format(
-        #     data['_is_price_change'],
-        #     data['sku_info_trans_time']))
-
-        # 监控纯规格变动
-        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_spec_change=db_goods_info_obj.is_spec_change,
-            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time, )
-        if data['is_spec_change'] == 1:
-            self.lg.info('规格属性变动!!')
-        # self.lg.info('is_spec_change: {}, spec_trans_time: {}'.format(
-        #     data['is_spec_change'],
-        #     data['spec_trans_time']))
-
-        # 监控纯库存变动
-        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_stock_change=db_goods_info_obj.is_stock_change,
-            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
-            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time, )
-        if data['is_stock_change'] == 1:
-            self.lg.info('规格的库存变动!!')
-        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
-        #     data['is_stock_change'],
-        #     data['stock_trans_time'],
-        #     data['stock_change_info']))
-
-        # 单独处理起批量>=1的
-        begin_greater_than_1 = await self.judge_begin_greater_than_1(
-            price_info=data['price_info'],
-            logger=self.lg, )
-        if begin_greater_than_1:
-            self.lg.info('该商品 起批量 大于1, 下架!!')
-            data['is_delete'] = 1
-
-        try:
-            del db_goods_info_obj
-        except:
-            pass
-
-        return data
-
-    async def judge_begin_greater_than_1(self, price_info: list, logger) -> bool:
-        '''
-        判断起批量是否大于1, 大于1则返回True, <=1 返回False
-        :return:
-        '''
-        if price_info == []:
-            return False
-
-        try:
-            price_info.sort(key=lambda item: int(item.get('begin')))
-            # pprint(price_info)
-            if int(price_info[0]['begin']) > 1:
-                return True
-            else:
-                return False
-        except Exception:
-            logger.error('遇到错误:', exc_info=True)
-            return True
 
     async def _update_db(self):
         '''

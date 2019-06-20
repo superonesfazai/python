@@ -25,8 +25,9 @@
     13. 彩牛养生网(权威医生: 对养生的见解, 短视频为主, 包含部分文章)(http://m.cnys.com/)
     
 待实现:
-    1. 一点资讯(http://www.yidianzixun.com/ | m站资讯只显示前几页[pass])
-    2. 网易新闻
+    1. 每次网(https://www.mcilife.com/)
+    2. 一点资讯(http://www.yidianzixun.com/ | m站资讯只显示前几页[pass])
+    3. 网易新闻
 """
 
 from os import getcwd

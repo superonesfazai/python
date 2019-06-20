@@ -69,6 +69,11 @@ from fzutils.common_utils import wash_sensitive_info
 from fzutils.aio_utils import async_wait_tasks_finished
 from fzutils.safe_utils import get_uuid1
 from fzutils.celery_utils import _get_celery_async_results
+from fzutils.cp_utils import (
+    get_shelf_time_and_delete_time,
+    format_price_info_list,
+    _get_price_change_info,
+)
 from fzutils.exceptions import ResponseBodyIsNullStrException
 
 def _z8_get_parent_dir(goods_id) -> str:
@@ -471,6 +476,155 @@ def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_chang
     new_stock_trans_time = now_time if is_stock_change == 1 else old_stock_trans_time
 
     return is_stock_change, new_stock_trans_time, _
+
+def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict:
+    """
+    获取goods要被记录的商品信息
+    :param target_short_name:
+    :param logger:
+    :param kwargs:
+    :return:
+    """
+    data = kwargs.get('data', {})
+    db_goods_info_obj = kwargs['db_goods_info_obj']
+
+    data['goods_id'] = db_goods_info_obj.goods_id
+    data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
+        tmp_data=data,
+        is_delete=db_goods_info_obj.is_delete,
+        shelf_time=db_goods_info_obj.shelf_time,
+        delete_time=db_goods_info_obj.delete_time)
+
+    # 获取site_id
+    if target_short_name == 'tm':
+        site_id = from_tmall_type_get_site_id(type=data['type'])
+    elif target_short_name == 'jd':
+        site_id = get_site_id_by_jd_type(jd_type=data['jd_type'])
+    else:
+        site_id = db_goods_info_obj.site_id
+
+    price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
+    try:
+        old_sku_info = format_price_info_list(
+            price_info_list=price_info_list,
+            site_id=site_id)
+    except AttributeError:
+        # 处理已被格式化过的
+        pass
+
+    # 获取新goods的规格list
+    if target_short_name == 'al':
+        tmp_price_info_list = data['sku_map']
+    else:
+        tmp_price_info_list = data['price_info_list']
+    new_sku_info = format_price_info_list(
+        price_info_list=tmp_price_info_list,
+        site_id=site_id,)
+
+    data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
+        old_sku_info=old_sku_info,
+        new_sku_info=new_sku_info,
+        is_price_change=db_goods_info_obj.is_price_change,
+        db_price_change_info=db_goods_info_obj.db_price_change_info,
+        old_price_trans_time=db_goods_info_obj.old_price_trans_time)
+
+    # 处理单规格的情况
+    # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
+    data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+        old_price=db_goods_info_obj.old_price,
+        old_taobao_price=db_goods_info_obj.old_taobao_price,
+        new_price=data['price'],
+        new_taobao_price=data['taobao_price'],
+        is_price_change=data['_is_price_change'],
+        price_change_info=price_change_info)
+    if data['_is_price_change'] == 1:
+        logger.info('价格变动!! [{}]'.format(db_goods_info_obj.goods_id))
+        # pprint(data['_price_change_info'])
+
+    # 监控纯规格变动
+    data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+        old_sku_info=old_sku_info,
+        new_sku_info=new_sku_info,
+        is_spec_change=db_goods_info_obj.is_spec_change,
+        old_spec_trans_time=db_goods_info_obj.old_spec_trans_time, )
+    if data['is_spec_change'] == 1:
+        logger.info('规格属性变动!! [{}]'.format(db_goods_info_obj.goods_id))
+
+    # 监控纯库存变动
+    data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+        old_sku_info=old_sku_info,
+        new_sku_info=new_sku_info,
+        is_stock_change=db_goods_info_obj.is_stock_change,
+        db_stock_change_info=db_goods_info_obj.db_stock_change_info,
+        old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
+    if data['is_stock_change'] == 1:
+        logger.info('规格的库存变动!! [{}]'.format(db_goods_info_obj.goods_id))
+    # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
+    #     data['is_stock_change'],
+    #     data['stock_trans_time'],
+    #     data['stock_change_info']))
+
+    # 单独处理起批量>=1的
+    if target_short_name == 'al':
+        begin_greater_than_1 = al_judge_begin_greater_than_1(
+            price_info=data['price_info'],
+            logger=logger,)
+        if begin_greater_than_1:
+            logger.info('该商品 起批量 大于1, 下架!!')
+            data['is_delete'] = 1
+    else:
+        pass
+
+    logger.info('上架时间:{0}, 下架时间:{1}'.format(
+        data['shelf_time'],
+        data['delete_time']))
+
+    try:
+        del db_goods_info_obj
+    except:
+        pass
+
+    return data
+
+def get_site_id_by_jd_type(jd_type) -> int:
+    '''
+    根据jd_type来获取对应的site_id的值
+    :param jd_type:
+    :return:
+    '''
+    # 采集的来源地
+    if jd_type == 7:
+        site_id = 7     # 采集来源地(京东)
+    elif jd_type == 8:
+        site_id = 8     # 采集来源地(京东超市)
+    elif jd_type == 9:
+        site_id = 9     # 采集来源地(京东全球购)
+    elif jd_type == 10:
+        site_id = 10    # 采集来源地(京东大药房)
+    else:
+        site_id = 0     # 表示错误
+
+    return site_id
+
+def al_judge_begin_greater_than_1(price_info: list, logger) -> bool:
+    '''
+    al判断起批量是否大于1, 大于1则返回True, <=1 返回False
+    :return:
+    '''
+    if price_info == []:
+        return False
+
+    try:
+        price_info.sort(key=lambda item: int(item.get('begin')))
+        # pprint(price_info)
+        if int(price_info[0]['begin']) > 1:
+            return True
+        else:
+            return False
+
+    except Exception:
+        logger.error('遇到错误:', exc_info=True)
+        return True
 
 def _get_one_item_by_unique_id(unique_id, target_list) -> dict:
     """

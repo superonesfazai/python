@@ -26,14 +26,10 @@ from sql_str_controller import tm_select_str_3
 from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
-    _get_sku_price_trans_record,
-    _get_spec_trans_record,
-    _get_stock_trans_record,
     _print_db_old_data,
-    from_tmall_type_get_site_id,
-    to_right_and_update_tm_data,)
+    to_right_and_update_tm_data,
+    get_goods_info_change_data,)
 
-from fzutils.cp_utils import _get_price_change_info
 from fzutils.celery_utils import _get_celery_async_results
 from fzutils.spider.async_always import *
 
@@ -233,7 +229,9 @@ class TMUpdater(AsyncCrawler):
             # 避免下面解析data错误休眠
             before_goods_data_is_delete = before_goods_data.get('is_delete', 0)
             if end_goods_data != {}:
-                data = await self._get_new_goods_data(
+                data = get_goods_info_change_data(
+                    target_short_name='tm',
+                    logger=self.lg,
                     data=end_goods_data,
                     db_goods_info_obj=db_goods_info_obj,)
                 res = to_right_and_update_tm_data(
@@ -303,10 +301,15 @@ class TMUpdater(AsyncCrawler):
             # 阻塞方式
             data = tmall.deal_with_data()
             if data != {}:
-                data = await self._get_new_goods_data(
+                data = get_goods_info_change_data(
+                    target_short_name='tm',
+                    logger=self.lg,
                     data=data,
-                    db_goods_info_obj=db_goods_info_obj,)
-                res = to_right_and_update_tm_data(data=data, pipeline=self.sql_cli, logger=self.lg)
+                    db_goods_info_obj=db_goods_info_obj, )
+                res = to_right_and_update_tm_data(
+                    data=data,
+                    pipeline=self.sql_cli,
+                    logger=self.lg)
                 
             else:
                 if before_goods_data_is_delete == 1:
@@ -332,80 +335,6 @@ class TMUpdater(AsyncCrawler):
         await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)
         
         return [db_goods_info_obj.goods_id, res,]
-
-    async def _get_new_goods_data(self, **kwargs) -> dict:
-        """
-        处理并得到新的待存储goods_data
-        :param item:
-        :return:
-        """
-        data = kwargs.get('data', {})
-        db_goods_info_obj = kwargs['db_goods_info_obj']
-
-        data['goods_id'] = db_goods_info_obj.goods_id
-        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-            tmp_data=data,
-            is_delete=db_goods_info_obj.is_delete,
-            shelf_time=db_goods_info_obj.shelf_time,
-            delete_time=db_goods_info_obj.delete_time)
-
-        site_id = from_tmall_type_get_site_id(type=data['type'])
-        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
-        try:
-            old_sku_info = format_price_info_list(price_info_list=price_info_list, site_id=site_id)
-        except AttributeError:  # 处理已被格式化过的
-            pass
-        new_sku_info = format_price_info_list(data['price_info_list'], site_id=site_id)
-        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_price_change=db_goods_info_obj.is_price_change,
-            db_price_change_info=db_goods_info_obj.db_price_change_info,
-            old_price_trans_time=db_goods_info_obj.old_price_trans_time)
-        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-            old_price=db_goods_info_obj.old_price,
-            old_taobao_price=db_goods_info_obj.old_taobao_price,
-            new_price=data['price'],
-            new_taobao_price=data['taobao_price'],
-            is_price_change=data['_is_price_change'],
-            price_change_info=price_change_info)
-        if data['_is_price_change'] == 1:
-            self.lg.info('价格变动!! [{}]'.format(db_goods_info_obj.goods_id))
-            # pprint(data['_price_change_info'])
-
-        # 监控纯规格变动
-        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_spec_change=db_goods_info_obj.is_spec_change,
-            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time)
-        if data['is_spec_change'] == 1:
-            self.lg.info('规格属性变动!! [{}]'.format(db_goods_info_obj.goods_id))
-
-        # 监控纯库存变动
-        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_stock_change=db_goods_info_obj.is_stock_change,
-            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
-            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
-        if data['is_stock_change'] == 1:
-            self.lg.info('规格的库存变动!! [{}]'.format(db_goods_info_obj.goods_id))
-        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
-        #     data['is_stock_change'],
-        #     data['stock_trans_time'],
-        #     data['stock_change_info']))
-
-        self.lg.info('上架时间:{0}, 下架时间:{1}'.format(
-            data['shelf_time'],
-            data['delete_time']))
-
-        try:
-            del db_goods_info_obj
-        except:
-            pass
-
-        return data
 
     async def _except_sleep(self, res):
         """

@@ -22,14 +22,11 @@ from sql_str_controller import (
     jd_select_str_1,
     jd_update_str_2,)
 from multiplex_code import (
-    _get_sku_price_trans_record,
-    _get_stock_trans_record,
-    _get_spec_trans_record,
     _get_async_task_result,
     _get_new_db_conn,
-    _print_db_old_data,)
+    _print_db_old_data,
+    get_goods_info_change_data,)
 
-from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
 
 class JDUpdater(AsyncCrawler):
@@ -113,7 +110,9 @@ class JDUpdater(AsyncCrawler):
 
             data = self.jd.deal_with_data(goods_id=tmp_item)
             if data != {}:
-                data = await self._get_new_goods_data(
+                data = get_goods_info_change_data(
+                    target_short_name='jd',
+                    logger=self.lg,
                     data=data,
                     db_goods_info_obj=db_goods_info_obj,)
                 self.jd.to_right_and_update_data(data, pipeline=self.sql_cli)
@@ -130,73 +129,6 @@ class JDUpdater(AsyncCrawler):
         await async_sleep(1.2)       # 避免被发现使用代理
 
         return db_goods_info_obj.goods_id, index
-
-    async def _get_new_goods_data(self, **kwargs) -> dict:
-        """
-        处理并得到新的待存储goods_data
-        :param kwargs:
-        :return:
-        """
-        data = kwargs.get('data', {})
-        db_goods_info_obj = kwargs['db_goods_info_obj']
-
-        data['goods_id'] = db_goods_info_obj.goods_id
-        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-            tmp_data=data,
-            is_delete=db_goods_info_obj.is_delete,
-            shelf_time=db_goods_info_obj.shelf_time,
-            delete_time=db_goods_info_obj.delete_time, )
-        self.lg.info('上架时间: {0}, 下架时间: {1}'.format(
-            data['shelf_time'],
-            data['delete_time']))
-
-        site_id = self.jd._from_jd_type_get_site_id_value(jd_type=data['jd_type'])
-        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
-        try:
-            old_sku_info = format_price_info_list(
-                price_info_list=price_info_list,
-                site_id=site_id)
-        except AttributeError:  # 处理已被格式化过的
-            pass
-        new_sku_info = format_price_info_list(data['price_info_list'], site_id=site_id)
-        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_price_change=db_goods_info_obj.is_price_change,
-            db_price_change_info=db_goods_info_obj.db_price_change_info,
-            old_price_trans_time=db_goods_info_obj.old_price_trans_time)
-
-        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-            old_price=db_goods_info_obj.old_price,
-            old_taobao_price=db_goods_info_obj.old_taobao_price,
-            new_price=data['price'],
-            new_taobao_price=data['taobao_price'],
-            is_price_change=data['_is_price_change'],
-            price_change_info=price_change_info)
-
-        # 监控纯规格变动
-        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_spec_change=db_goods_info_obj.is_spec_change,
-            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time)
-
-        # 监控纯库存变动
-        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_stock_change=db_goods_info_obj.is_stock_change,
-            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
-            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
-        if data['is_stock_change'] == 1:
-            self.lg.info('规格的库存变动!!')
-
-        try:
-            del db_goods_info_obj
-        except:
-            pass
-
-        return data
 
     async def _update_db(self):
         while True:
@@ -292,8 +224,8 @@ def main():
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
     '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
 

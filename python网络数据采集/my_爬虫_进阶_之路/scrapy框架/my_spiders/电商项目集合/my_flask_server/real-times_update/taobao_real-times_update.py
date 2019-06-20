@@ -28,15 +28,12 @@ from settings import (
 
 from sql_str_controller import tb_select_str_3
 from multiplex_code import (
-    _get_sku_price_trans_record,
-    _get_spec_trans_record,
     _get_async_task_result,
     _get_new_db_conn,
-    _get_stock_trans_record,
     _print_db_old_data,
-    to_right_and_update_tb_data,)
+    to_right_and_update_tb_data,
+    get_goods_info_change_data,)
 
-from fzutils.cp_utils import _get_price_change_info
 from fzutils.spider.async_always import *
 
 class TBUpdater(AsyncCrawler):
@@ -142,8 +139,10 @@ class TBUpdater(AsyncCrawler):
             oo_is_delete = oo.get('is_delete', 0)  # 避免下面解析data错误休眠
             data = self.taobao.deal_with_data(goods_id=db_goods_info_obj.goods_id)
             if data != {}:
-                data = await self._get_new_goods_data(
-                    data=data,
+                data = get_goods_info_change_data(
+                    target_short_name='tb',
+                    logger=self.lg,
+                    data = data,
                     db_goods_info_obj=db_goods_info_obj,)
                 res = to_right_and_update_tb_data(
                     data=data,
@@ -169,86 +168,6 @@ class TBUpdater(AsyncCrawler):
         await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 不能太频繁，与用户请求错开尽量
 
         return [db_goods_info_obj.goods_id, res]
-
-    async def _get_new_goods_data(self, **kwargs) -> dict:
-        """
-        处理并得到新的待存储的goods_data
-        :param kwargs:
-        :return:
-        """
-        data = kwargs.get('data', {})
-        db_goods_info_obj = kwargs['db_goods_info_obj']
-
-        data['goods_id'] = db_goods_info_obj.goods_id
-        data['shelf_time'], data['delete_time'] = get_shelf_time_and_delete_time(
-            tmp_data=data,
-            is_delete=db_goods_info_obj.is_delete,
-            shelf_time=db_goods_info_obj.shelf_time,
-            delete_time=db_goods_info_obj.delete_time)
-        price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
-        try:
-            old_sku_info = format_price_info_list(
-                price_info_list=price_info_list,
-                site_id=db_goods_info_obj.site_id)
-        except AttributeError:  # 处理已被格式化过的
-            pass
-        new_sku_info = format_price_info_list(data['price_info_list'], site_id=db_goods_info_obj.site_id)
-        # if len(new_sku_info) <= 6:
-        #     self.lg.info('old_sku_info:')
-        #     pprint(old_sku_info)
-        #     self.lg.info('new_sku_info:')
-        #     pprint(new_sku_info)
-
-        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_price_change=db_goods_info_obj.is_price_change,
-            db_price_change_info=db_goods_info_obj.db_price_change_info,
-            old_price_trans_time=db_goods_info_obj.old_price_trans_time,)
-        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-            old_price=db_goods_info_obj.old_price,
-            old_taobao_price=db_goods_info_obj.old_taobao_price,
-            new_price=data['price'],
-            new_taobao_price=data['taobao_price'],
-            is_price_change=data['_is_price_change'],
-            price_change_info=price_change_info)
-        if data['_is_price_change'] == 1:
-            self.lg.info('价格变动!!')
-            # pprint(data['_price_change_info'])
-
-        # 监控纯规格变动
-        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_spec_change=db_goods_info_obj.is_spec_change,
-            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time,)
-        if data['is_spec_change'] == 1:
-            self.lg.info('规格属性变动!!')
-
-        # 监控纯库存变动
-        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-            old_sku_info=old_sku_info,
-            new_sku_info=new_sku_info,
-            is_stock_change=db_goods_info_obj.is_stock_change,
-            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
-            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
-        if data['is_stock_change'] == 1:
-            self.lg.info('规格的库存变动!!')
-        # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
-        #     data['is_stock_change'],
-        #     data['stock_trans_time'],
-        #     data['stock_change_info']))
-
-        self.lg.info('上架时间:{0}, 下架时间:{1}'.format(
-            data['shelf_time'],
-            data['delete_time']))
-
-        try:
-            del db_goods_info_obj
-        except:
-            pass
-
-        return data
 
     async def _except_sleep(self, res):
         '''
