@@ -25,7 +25,8 @@ from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
     _print_db_old_data,
-    get_goods_info_change_data,)
+    get_goods_info_change_data,
+    BaseDbCommomGoodsInfoParamsObj,)
 
 from fzutils.spider.async_always import *
 
@@ -179,34 +180,13 @@ class JDUpdater(AsyncCrawler):
         except:pass
         collect()
 
-class JDDbGoodsInfoObj(object):
+class JDDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
-        assert item != [], 'item != []'
-        self.site_id = item[0]
-        self.goods_id = item[1]
-        self.is_delete = item[2]
-        self.old_price = item[3]
-        self.old_taobao_price = item[4]
-        self.shelf_time = item[5]
-        self.delete_time = item[6]
-        self.old_sku_info = json_2_dict(
-            json_str=item[7],
-            default_res=[],
-            logger=logger, )
-        self.is_price_change = item[8] if item[8] is not None else 0
-        self.is_spec_change = item[9] if item[9] is not None else 0
-        self.db_price_change_info = json_2_dict(
-            json_str=item[10],
-            default_res=[],
-            logger=logger, )
-        self.is_stock_change = item[11] if item[11] is not None else 0
-        self.db_stock_change_info = json_2_dict(
-            json_str=item[12],
-            default_res=[],
-            logger=logger, )
-        self.old_price_trans_time = item[13]
-        self.old_spec_trans_time = item[14]
-        self.old_stock_trans_time = item[15]
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
 
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'

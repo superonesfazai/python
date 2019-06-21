@@ -1,11 +1,11 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : ali_1688_real-times_update.py
 @Time    : 2017/10/28 07:24
 @connect : superonesfazai@gmail.com
-'''
+"""
 
 """
 本地长期更新(server可更新!), 部分goods_id采集会被强制登录(ip被封), 但是不是所有!
@@ -30,7 +30,8 @@ from multiplex_code import (
     _get_new_db_conn,
     _get_async_task_result,
     _print_db_old_data,
-    get_goods_info_change_data,)
+    get_goods_info_change_data,
+    BaseDbCommomGoodsInfoParamsObj,)
 
 from fzutils.spider.async_always import *
 
@@ -54,10 +55,10 @@ class ALUpdater(AsyncCrawler):
         self.concurrency = 10
 
     async def _get_db_old_data(self) -> (list, None):
-        '''
+        """
         获取db需求更新的数据
         :return:
-        '''
+        """
         self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
@@ -80,12 +81,12 @@ class ALUpdater(AsyncCrawler):
             self.ali_1688 = ALi1688LoginAndParse(logger=self.lg)
 
     async def _update_one_goods_info(self, db_goods_info_obj, index) -> list:
-        '''
+        """
         更新一个goods的信息
         :param db_goods_info_obj:
         :param index: 索引值
         :return: ['goods_id', bool:'成功与否']
-        '''
+        """
         res = False
         await self._get_new_ali_obj(index=index)
         self.sql_cli = await _get_new_db_conn(
@@ -145,10 +146,10 @@ class ALUpdater(AsyncCrawler):
         return [db_goods_info_obj.goods_id, res]
 
     async def _update_db(self):
-        '''
+        """
         常规数据实时更新
         :return:
-        '''
+        """
         while True:
             self.lg = await self._get_new_logger(logger_name=get_uuid1())
             result = await self._get_db_old_data()
@@ -202,34 +203,13 @@ class ALUpdater(AsyncCrawler):
             pass
         collect()
 
-class ALDbGoodsInfoObj(object):
+class ALDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
-        assert item != [], 'item != []'
-        self.site_id = 2
-        self.goods_id = item[0]
-        self.is_delete = item[1]
-        self.old_price = item[2]
-        self.old_taobao_price = item[3]
-        self.shelf_time = item[4]
-        self.delete_time = item[5]
-        self.old_sku_info = json_2_dict(
-            json_str=item[6],
-            default_res=[],
-            logger=logger)
-        self.is_price_change = item[7] if item[7] is not None else 0
-        self.is_spec_change = item[8] if item[8] is not None else 0
-        self.db_price_change_info = json_2_dict(
-            json_str=item[9],
-            default_res=[],
-            logger=logger)
-        self.is_stock_change = item[10] if item[10] is not None else 0
-        self.db_stock_change_info = json_2_dict(
-            json_str=item[11],
-            default_res=[],
-            logger=logger, )
-        self.old_price_trans_time = item[12]
-        self.old_spec_trans_time = item[13]
-        self.old_stock_trans_time = item[14]
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
 
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'
@@ -243,10 +223,10 @@ def _fck_run():
         pass
 
 def main():
-    '''
+    """
     这里的思想是将其转换为孤儿进程，然后在后台运行
     :return:
-    '''
+    """
     print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')

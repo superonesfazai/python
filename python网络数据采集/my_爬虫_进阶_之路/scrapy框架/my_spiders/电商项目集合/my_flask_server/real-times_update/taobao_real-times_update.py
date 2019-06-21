@@ -32,7 +32,8 @@ from multiplex_code import (
     _get_new_db_conn,
     _print_db_old_data,
     to_right_and_update_tb_data,
-    get_goods_info_change_data,)
+    get_goods_info_change_data,
+    BaseDbCommomGoodsInfoParamsObj,)
 
 from fzutils.spider.async_always import *
 
@@ -208,34 +209,13 @@ class TBUpdater(AsyncCrawler):
             pass
         collect()
 
-class TBDbGoodsInfoObj(object):
+class TBDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
-        assert item != [], 'item != []'
-        self.site_id = 1
-        self.goods_id = item[0]
-        self.is_delete = item[1]
-        self.old_price = item[2]
-        self.old_taobao_price = item[3]
-        self.shelf_time= item[4]
-        self.delete_time = item[5]
-        self.old_sku_info = json_2_dict(
-            json_str=item[6],
-            default_res=[],
-            logger=logger)
-        self.is_price_change = item[7] if item[7] is not None else 0
-        self.is_spec_change = item[8] if item[8] is not None else 0
-        self.db_price_change_info = json_2_dict(
-            json_str=item[9],
-            default_res=[],
-            logger=logger,)
-        self.is_stock_change = item[10] if item[10] is not None else 0
-        self.db_stock_change_info = json_2_dict(
-            json_str=item[11],
-            default_res=[],
-            logger=logger,)
-        self.old_price_trans_time = item[12]
-        self.old_spec_trans_time = item[13]
-        self.old_stock_trans_time = item[14]
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
 
 def _fck_run():
     _ = TBUpdater()

@@ -17,14 +17,9 @@ from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
     SqlPools,)
 
-from json import dumps
-from scrapy.selector import Selector
-import re
 from time import (
-    time,
-    sleep,)
+    time,)
 from datetime import datetime
-from pprint import pprint
 from threading import Thread
 # cpu密集型
 # from multiprocessing import Pool, cpu_count
@@ -32,9 +27,6 @@ from threading import Thread
 from multiprocessing.dummy import Pool as ThreadPool
 from multiprocessing import cpu_count
 from gc import collect
-from asyncio import (
-    wait,
-    get_event_loop,)
 from my_exceptions import (
     SqlServerConnectionException,
     DBGetGoodsSkuInfoErrorException,)
@@ -46,35 +38,16 @@ from sql_str_controller import (
     tb_update_str_1,
 )
 
-from fzutils.spider.fz_requests import Requests
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    tuple_or_list_params_2_dict_params,
-    get_random_phone_ua,
-    get_base_headers,)
 from fzutils.common_utils import (
-    _print,
-    json_2_dict,)
-from fzutils.cp_utils import (
-    block_get_tb_sign_and_body,
-    _get_right_model_data,)
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,
-    timestamp_to_regulartime,
-    string_to_datetime,)
+    _print,)
 from fzutils.spider.selector import parse_field
-from fzutils.common_utils import wash_sensitive_info
-from fzutils.aio_utils import async_wait_tasks_finished
-from fzutils.safe_utils import get_uuid1
 from fzutils.celery_utils import _get_celery_async_results
 from fzutils.cp_utils import (
-    get_shelf_time_and_delete_time,
-    format_price_info_list,
-    _get_price_change_info,
-)
+    _get_right_model_data,
+    _get_price_change_info,)
 from fzutils.exceptions import ResponseBodyIsNullStrException
+from fzutils.spider.async_always import *
 
 def _z8_get_parent_dir(goods_id) -> str:
     '''
@@ -477,7 +450,7 @@ def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_chang
 
     return is_stock_change, new_stock_trans_time, _
 
-def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict:
+def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) -> dict:
     """
     获取goods要被记录的商品信息
     :param target_short_name:
@@ -493,7 +466,7 @@ def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict
         tmp_data=data,
         is_delete=db_goods_info_obj.is_delete,
         shelf_time=db_goods_info_obj.shelf_time,
-        delete_time=db_goods_info_obj.delete_time)
+        delete_time=db_goods_info_obj.delete_time,)
 
     # 获取site_id
     if target_short_name == 'tm':
@@ -538,7 +511,9 @@ def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict
         is_price_change=data['_is_price_change'],
         price_change_info=price_change_info)
     if data['_is_price_change'] == 1:
-        logger.info('价格变动!! [{}]'.format(db_goods_info_obj.goods_id))
+        _print(
+            msg='价格变动!! [{}]'.format(db_goods_info_obj.goods_id),
+            logger=logger,)
         # pprint(data['_price_change_info'])
 
     # 监控纯规格变动
@@ -546,9 +521,11 @@ def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict
         old_sku_info=old_sku_info,
         new_sku_info=new_sku_info,
         is_spec_change=db_goods_info_obj.is_spec_change,
-        old_spec_trans_time=db_goods_info_obj.old_spec_trans_time, )
+        old_spec_trans_time=db_goods_info_obj.old_spec_trans_time,)
     if data['is_spec_change'] == 1:
-        logger.info('规格属性变动!! [{}]'.format(db_goods_info_obj.goods_id))
+        _print(
+            msg='规格属性变动!! [{}]'.format(db_goods_info_obj.goods_id),
+            logger=logger,)
 
     # 监控纯库存变动
     data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
@@ -558,11 +535,9 @@ def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict
         db_stock_change_info=db_goods_info_obj.db_stock_change_info,
         old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
     if data['is_stock_change'] == 1:
-        logger.info('规格的库存变动!! [{}]'.format(db_goods_info_obj.goods_id))
-    # self.lg.info('is_stock_change: {}, stock_trans_time: {}, stock_change_info: {}'.format(
-    #     data['is_stock_change'],
-    #     data['stock_trans_time'],
-    #     data['stock_change_info']))
+        _print(
+            msg='规格的库存变动!! [{}]'.format(db_goods_info_obj.goods_id),
+            logger=logger,)
 
     # 单独处理起批量>=1的
     if target_short_name == 'al':
@@ -570,14 +545,18 @@ def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict
             price_info=data['price_info'],
             logger=logger,)
         if begin_greater_than_1:
-            logger.info('该商品 起批量 大于1, 下架!!')
+            _print(
+                msg='该商品 起批量 大于1, 下架!!',
+                logger=logger,)
             data['is_delete'] = 1
     else:
         pass
 
-    logger.info('上架时间:{0}, 下架时间:{1}'.format(
-        data['shelf_time'],
-        data['delete_time']))
+    _print(
+        msg='上架时间:{0}, 下架时间:{1}'.format(
+            data['shelf_time'],
+            data['delete_time']),
+        logger=logger,)
 
     try:
         del db_goods_info_obj
@@ -585,6 +564,40 @@ def get_goods_info_change_data(target_short_name: str, logger, **kwargs) -> dict
         pass
 
     return data
+
+class BaseDbCommomGoodsInfoParamsObj(object):
+    """
+    常规goods更新db需求参数对象
+        适用: ('tm', ...)
+    """
+    def __init__(self, item: list, logger=None):
+        assert item != [], 'item != []'
+        # default value, 取第一个
+        self.site_id = item[0]
+        self.goods_id = item[1]
+        self.is_delete = item[2]
+        self.old_price = item[3]
+        self.old_taobao_price = item[4]
+        self.shelf_time = item[5]
+        self.delete_time = item[6]
+        self.old_sku_info = json_2_dict(
+            json_str=item[7],
+            default_res=[],
+            logger=logger,)
+        self.is_price_change = item[8] if item[8] is not None else 0
+        self.is_spec_change = item[9] if item[9] is not None else 0
+        self.db_price_change_info = json_2_dict(
+            json_str=item[10],
+            default_res=[],
+            logger=logger, )
+        self.is_stock_change = item[11] if item[11] is not None else 0
+        self.db_stock_change_info = json_2_dict(
+            json_str=item[12],
+            default_res=[],
+            logger=logger)
+        self.old_price_trans_time = item[13]
+        self.old_spec_trans_time = item[14]
+        self.old_stock_trans_time = item[15]
 
 def get_site_id_by_jd_type(jd_type) -> int:
     '''
@@ -1734,4 +1747,3 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
     res = pipeline._update_table(sql_str=sql_str, params=params, logger=logger)
 
     return res
-
