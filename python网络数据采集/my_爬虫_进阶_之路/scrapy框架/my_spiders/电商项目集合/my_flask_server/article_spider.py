@@ -23,12 +23,12 @@
     11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
     12. 51健康养生网(http://www.51jkst.com/)
     13. 彩牛养生网(权威医生: 对养生的见解, 短视频为主, 包含部分文章)(http://m.cnys.com/)
+    14. 爱范儿(pc: https://www.ifanr.com/)
     
 待实现:
-    1. 爱范儿(pc: https://www.ifanr.com/)
-    2. 虎嗅网(https://www.huxiu.com/)
-    3. 36氪(https://36kr.com)
-    4. 网易新闻
+    1. 虎嗅网(https://www.huxiu.com/)
+    2. 36氪(https://36kr.com)
+    3. 网易新闻
 """
 
 from os import getcwd
