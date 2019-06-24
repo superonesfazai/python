@@ -425,6 +425,14 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'article.video-art div.video-title-container h1 ::text',
         },
+        'video_title2': {
+            'method': 'css',
+            'selector': 'div.main-title ::text',
+        },
+        'video_title3': {
+            'method': 'css',
+            'selector': 'h1.video-title ::text',
+        },
         'author': {
             'method': 're',
             'selector': '\'src\': \'(.*?)\'',
@@ -433,9 +441,25 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'article.media-art h1 ::text',
         },
+        'video_author2': {
+            'method': 'css',
+            'selector': 'div.media-name ::text',
+        },
+        'video_author3': {
+            'method': 'css',
+            'selector': 'h1.channel-name ::text',
+        },
         'head_url': {
             'method': 'css',
             'selector': 'div.artinfo div.img-wrap img ::attr("src")',               # 'https:' + xxx
+        },
+        'video_head_url': {
+            'method': 'css',
+            'selector': 'div.media-img img ::attr("src")',
+        },
+        'video_head_url2': {
+            'method': 'css',
+            'selector': 'div.media-icon-wrapper img ::attr("src")',
         },
         'create_time': {
             'method': 'css',
