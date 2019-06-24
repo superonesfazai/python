@@ -15,19 +15,20 @@
     3. 今日头条文章内容爬取(https://www.toutiao.com)
     4. 搜狗头条(https://wap.sogou.com)
     5. 百度m站(https://m.baidu.com/)
-    6. 东方头条文章内容爬取(https://toutiao.eastday.com)
-    7. 中青看点(https://focus.youth.cn/html/articleTop/mobile.html)
-    8. qq看点文章内容爬取(根据QQ看点中分享出的地址)
-    9. 天天快报(根据天天快报分享出的地址)
+    6. qq看点文章内容爬取(根据QQ看点中分享出的地址)
+    7. 天天快报(根据天天快报分享出的地址)
+    8. 东方头条文章内容爬取(https://toutiao.eastday.com)
+    9. 中青看点(https://focus.youth.cn/html/articleTop/mobile.html)
     10. 阳光宽频网(短视频)(https://www.365yg.com/)
     11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
     12. 51健康养生网(http://www.51jkst.com/)
     13. 彩牛养生网(权威医生: 对养生的见解, 短视频为主, 包含部分文章)(http://m.cnys.com/)
     
 待实现:
-    1. 每次网(https://www.mcilife.com/)
-    2. 一点资讯(http://www.yidianzixun.com/ | m站资讯只显示前几页[pass])
-    3. 网易新闻
+    1. 爱范儿(pc: https://www.ifanr.com/)
+    2. 虎嗅网(https://www.huxiu.com/)
+    3. 36氪(https://36kr.com)
+    4. 网易新闻
 """
 
 from os import getcwd
@@ -100,7 +101,9 @@ class ArticleParser(AsyncCrawler):
                 parse_obj=parse_obj,
                 target_obj=article_html,
                 video_url=video_url)
-            head_url = await self._get_head_url(parse_obj=parse_obj, target_obj=article_html)
+            head_url = await self._get_head_url(
+                parse_obj=parse_obj,
+                target_obj=article_html)
             content = await self._get_article_content(
                 parse_obj=parse_obj,
                 target_obj=article_html,
@@ -206,6 +209,10 @@ class ArticleParser(AsyncCrawler):
             'cn': {
                 'obj_origin': 'm.cnys.com',
                 'site_id': 16,
+            },
+            'if': {
+                'obj_origin': 'www.ifanr.com',
+                'site_id': 17,
             },
         }
 
@@ -389,6 +396,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'cn':
                 return await self._get_cn_article_html(article_url=article_url)
 
+            elif article_url_type == 'if':
+                return await self._get_if_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -396,6 +406,42 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_if_article_html(self, article_url) -> tuple:
+        """
+        获取if的html
+        :param article_url:
+        :return:
+        """
+        headers = await self._get_random_pc_headers()
+        headers.update({
+            'authority': 'www.ifanr.com',
+            'referer': 'https://www.ifanr.com/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            # 'if-none-match': '"5d101f41-e0ce"',
+            # 'if-modified-since': 'Mon, 24 Jun 2019 00:54:25 GMT',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取if的body为空值!'
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'iframe.js-video-src',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        if video_url != '':
+            self.lg.info('此为视频文章')
+            self.lg.info('cn_video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_cn_article_html(self, article_url) -> tuple:
         """
@@ -1012,6 +1058,7 @@ class ArticleParser(AsyncCrawler):
             'bd',
             'fh',
             'cn',
+            'if',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1031,7 +1078,8 @@ class ArticleParser(AsyncCrawler):
                 or parse_obj['short_name'] == 'bd'\
                 or parse_obj['short_name'] == 'fh'\
                 or parse_obj['short_name'] == 'ys'\
-                or parse_obj['short_name'] == 'cn':
+                or parse_obj['short_name'] == 'cn'\
+                or parse_obj['short_name'] == 'if':
             pass
         else:
             assert author != '', '获取到的author为空值!'
@@ -1055,6 +1103,7 @@ class ArticleParser(AsyncCrawler):
             'bd',
             'fh',
             'cn',
+            'if',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1188,9 +1237,10 @@ class ArticleParser(AsyncCrawler):
         if parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin'):
             tags_list = tags_list.split(',')
 
-        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin')\
-                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin')\
-                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin'):
+        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin', '')\
+                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin', '')\
+                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin', '') \
+                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['if'].get('obj_origin', ''):
             tags_list = [{
                 'keyword': i,
             } for i in tags_list]
@@ -1240,6 +1290,7 @@ class ArticleParser(AsyncCrawler):
             'sg',
             'bd',
             'cn',
+            'if',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1264,6 +1315,10 @@ class ArticleParser(AsyncCrawler):
             target_obj=target_obj,
             logger=self.lg)
 
+        short_name_list2 = [
+            'cn',
+            'if',
+        ]
         if parse_obj['short_name'] == 'sg':
             if video_url != '':
                 # 原先为05-05 11:13, 替换为标准的
@@ -1284,7 +1339,7 @@ class ArticleParser(AsyncCrawler):
                         self.lg.error('遇到错误:', exc_info=True)
                         create_time = ''
 
-        elif parse_obj['short_name'] == 'cn':
+        elif parse_obj['short_name'] in short_name_list2:
             if create_time != '':
                 create_time = str(date_parse(create_time))
 
@@ -1304,6 +1359,7 @@ class ArticleParser(AsyncCrawler):
         short_name_list = [
             'kb',
             'cn',
+            'if',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1339,7 +1395,8 @@ class ArticleParser(AsyncCrawler):
                 or parse_obj['short_name'] == 'bd'\
                 or parse_obj['short_name'] == 'yg'\
                 or parse_obj['short_name'] == 'fh'\
-                or parse_obj['short_name'] == 'cn':
+                or parse_obj['short_name'] == 'cn'\
+                or parse_obj['short_name'] == 'if':
             if video_url != '':
                 pass
             else:
@@ -1388,11 +1445,28 @@ class ArticleParser(AsyncCrawler):
         elif parse_obj.get('short_name', '') == 'cn':
             content = await self._wash_cn_article_content(content=content)
 
+        elif parse_obj.get('short_name', '') == 'if':
+            content = await self._wash_if_article_content(content=content)
+
         else:
             pass
 
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_if_article_content(content) -> str:
+        """
+        清洗if content
+        :param content:
+        :return:
+        """
+        # 避免a标签调转
+        content = re.compile('<a href=\".*?\">').sub('<a href=\"\">', content)
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -1405,10 +1479,7 @@ class ArticleParser(AsyncCrawler):
         """
         content = re.compile('<mip-img').sub('<img', content)
         content = re.compile('</mip-img>').sub('</img>', content)
-
-        # 图片居中
-        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
-                  content if content != '' else ''
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -1419,9 +1490,7 @@ class ArticleParser(AsyncCrawler):
         :param content:
         :return:
         """
-        # 图片居中
-        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
-                  content if content != '' else ''
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -1434,12 +1503,8 @@ class ArticleParser(AsyncCrawler):
         """
         content = re.compile('凤凰网汽车讯').sub('', content)
         # TODO chrome 显示content时会带上手机默认客户端的css样式, 导致显示异常, 用firefox查看是正常的!!
-        # 图片居中
-        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
-                  content if content != '' else ''
-        # p标签文字修饰(自己添加, 目的: 让其自适应phone端, 添加在后端以覆盖原有p标签属性)
-        content = '<style type="text/css">p {width: 100%; height: auto; word-wrap:break-word; word-break:break-all; overflow: hidden;}</style>' + \
-            content if content != '' else ''
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -1451,8 +1516,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         content = re.compile('<img data-src=').sub('<img src=', content)
-        content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
-            content if content != '' else ''
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -1467,10 +1531,7 @@ class ArticleParser(AsyncCrawler):
         # 顶部空白替换
         content = re.compile('<div style=\"padding-top:\d+\.\d+%\">').sub('<div>', content)
         content = re.compile('<div style=\"padding-top:\d+%\">').sub('<div>', content)
-
-        # 图片自适应
-        content = '<style type="text/css">img {height: auto;width: 100%;}</style>' + content \
-            if content != '' else ''
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -1625,6 +1686,7 @@ class ArticleParser(AsyncCrawler):
             'fh',
             'ys',
             'cn',
+            'if',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -1708,6 +1770,30 @@ class ArticleParser(AsyncCrawler):
         except:
             pass
         collect()
+
+def modify_body_img_centering(content: str) -> str:
+    """
+    修改body图片居中
+    :param content:
+    :return:
+    """
+    # 图片居中
+    content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
+              content if content != '' else ''
+
+    return content
+
+def modify_body_p_typesetting(content: str) -> str:
+    """
+    修改body p标签的排版
+    :param content:
+    :return:
+    """
+    # p标签文字修饰(自己添加, 目的: 让其自适应phone端, 添加在后端以覆盖原有p标签属性)
+    content = '<style type="text/css">p {width: 100%; height: auto; word-wrap:break-word; word-break:break-all; overflow: hidden;}</style>' + \
+              content if content != '' else ''
+
+    return content
 
 def main():
     _ = ArticleParser()
@@ -1852,9 +1938,43 @@ def main():
     # url = 'http://m.cnys.com/yangshengzixun/2178.html'
     # url = 'http://m.cnys.com/yangshengzixun/2167.html'
     # url = 'http://m.cnys.com/yangshengzixun/2157.html'
-    url = 'http://m.cnys.com/yangshengzixun/2158.html'
+    # url = 'http://m.cnys.com/yangshengzixun/2158.html'
 
-    article_parse_res = loop.run_until_complete(_._parse_article(article_url=url))
+    # 爱范儿
+    # url = 'https://www.ifanr.com/1226698'
+    # url = 'https://www.ifanr.com/1226793'
+    # 生活
+    # url = 'https://www.ifanr.com/1226718'
+    # 早报
+    # url = 'https://www.ifanr.com/1227727'
+    # 公司(行业)
+    # url = 'https://www.ifanr.com/1227626'
+    # 评测
+    # url = 'https://www.ifanr.com/1227452'
+    # 董车会
+    # url = 'https://www.ifanr.com/1227475'
+    # appSo
+    # url = 'https://www.ifanr.com/app/1216511'
+    # 人物
+    # url = 'https://www.ifanr.com/1227137'
+    # url = 'https://www.ifanr.com/1227137'
+    # 小程序
+    # url = 'https://www.ifanr.com/minapp/1225964'
+    # 汽车
+    # url = 'https://www.ifanr.com/1226588'
+    # 产品(新锐产品)
+    # url = 'https://www.ifanr.com/1227642'
+    # 玩物志
+    # url = 'https://www.ifanr.com/coolbuy/1227328'
+    # 游戏
+    # url = 'https://www.ifanr.com/1223605'
+    # 视频(其视频都为内切的bilibili页面, 拿到iframe其中的代码即可, 但是原始video_url还存在问题, 先不处理)
+    # url = 'https://www.ifanr.com/video/1227199'
+    # url = 'https://www.ifanr.com/video/1201702'
+    url = 'https://www.ifanr.com/video/1195120'
+
+    article_parse_res = loop.run_until_complete(
+        future=_._parse_article(article_url=url))
     pprint(article_parse_res)
     # print(dumps(article_parse_res))
 

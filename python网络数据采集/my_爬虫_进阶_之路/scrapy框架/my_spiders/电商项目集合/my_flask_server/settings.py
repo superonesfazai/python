@@ -777,6 +777,59 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'if',
+        'debug': True,
+        'obj_origin': 'www.ifanr.com',
+        'article_id': {
+            'method': 're',
+            'selector': '\.com/.*?(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h1.c-single-normal__title ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'h1.c-single-video-title ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'p.c-card-author__name ::text',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'p.c-article-header-meta__category ::text',
+        },
+        'head_url': {
+            'method': 'css',
+            'selector': 'a.c-card-author__info__avatar img ::attr("src")'
+        },
+        'create_time': {
+            'method': 're',
+            'selector': '\"datePublished\": \"(.*?)\",'
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '\"datePublished\": \"(.*?)\",'
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'article.c-article-content',
+        },
+        'video_article_content': None,
+        'comment_num': {
+            'method': 'css',
+            'selector': 'p.js-placeholder-comments-counter ::text',
+        },
+        'tags_list': {
+            'method': 'css',
+            'selector': 'div.c-article-tags a ::text',
+        },
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
