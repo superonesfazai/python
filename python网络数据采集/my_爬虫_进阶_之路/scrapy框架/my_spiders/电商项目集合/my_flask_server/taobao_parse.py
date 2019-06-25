@@ -13,10 +13,6 @@
 
 import time
 from random import randint
-import json
-import re
-from pprint import pprint
-from json import dumps
 from gc import collect
 
 from settings import (
@@ -41,19 +37,10 @@ from my_exceptions import (
 )
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,)
-from fzutils.internet_utils import tuple_or_list_params_2_dict_params
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,)
 from fzutils.spider.fz_requests import (
-    Requests,
     PROXY_TYPE_HTTPS,
     PROXY_TYPE_HTTP,)
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
@@ -126,10 +113,7 @@ class TaoBaoLoginAndParse(Crawler):
             self.lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
             return self._data_error_init()
 
-        data['data']['rate'] = ''           # 这是宝贝评价
-        data['data']['resource'] = ''       # 买家询问别人
-        data['data']['vertical'] = ''       # 也是问和回答
-        data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
+        data = self._wash_tb_origin_data(data=data)
         result_data = data['data']
 
         # 处理result_data['apiStack'][0]['value']
@@ -143,10 +127,13 @@ class TaoBaoLoginAndParse(Crawler):
 
         # 处理mockData
         mock_data = result_data['mockData']
-        mock_data = json_2_dict(json_str=mock_data, logger=self.lg)
+        mock_data = json_2_dict(
+            json_str=mock_data,
+            logger=self.lg,)
         if mock_data == {}:
             self.lg.error('出错goods_id: {0}'.format(goods_id))
             return self._data_error_init()
+
         mock_data['feature'] = ''
         # pprint(mock_data)
         result_data['mockData'] = mock_data
@@ -262,12 +249,33 @@ class TaoBaoLoginAndParse(Crawler):
             #     'data': result,
             #     'code': 1
             # }
-            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # json_data = dumps(wait_to_send_data, ensure_ascii=False)
             # self.lg.info(json_data)
             return result
         else:
             self.lg.info('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    @staticmethod
+    def _wash_tb_origin_data(data) -> dict:
+        """
+        清洗ori data
+        :param data:
+        :return:
+        """
+        try:
+            # 这是宝贝评价
+            data['data']['rate'] = ''
+            # 买家询问别人
+            data['data']['resource'] = ''
+            # 也是问和回答
+            data['data']['vertical'] = ''
+            # 宝贝描述, 卖家服务, 物流服务的评价值...
+            data['data']['seller']['evaluates'] = ''
+        except:
+            pass
+
+        return data
 
     def _get_new_price_and_taobao_price_when_price_info_list_not_null_list(self, price_info_list, price, taobao_price) -> tuple:
         '''
@@ -298,7 +306,7 @@ class TaoBaoLoginAndParse(Crawler):
         :param pipeline:
         :return:
         '''
-        goods_id = data.get('goods_id')
+        goods_id = data.get('goods_id', '')
         try:
             tmp = _get_right_model_data(data=data, site_id=1, logger=self.lg)
         except:
@@ -444,7 +452,7 @@ class TaoBaoLoginAndParse(Crawler):
             'id': goods_id
         }
         params_data_2 = {
-            'exParams': json.dumps(params_data_1),  # 每层里面的字典都要先转换成json
+            'exParams': dumps(params_data_1),  # 每层里面的字典都要先转换成json
             'itemNumId': goods_id
         }
         # self.lg.info(str(params_data_2))
@@ -470,7 +478,7 @@ class TaoBaoLoginAndParse(Crawler):
             ('type', 'jsonp'),
             ('dataType', 'jsonp'),
             ('callback', 'mtopjsonp1'),
-            ('data', json.dumps(params_data_2)),    # 每层里面的字典都要先转换成json
+            ('data', dumps(params_data_2)),    # 每层里面的字典都要先转换成json
         )
 
         return params
@@ -500,8 +508,9 @@ class TaoBaoLoginAndParse(Crawler):
         :return:
         '''
         try:
-            result_data_apiStack_value = json.loads(result_data_apiStack_value)
-
+            result_data_apiStack_value = json_2_dict(
+                json_str=result_data_apiStack_value,
+                logger=self.lg,)
             result_data_apiStack_value['vertical'] = ''
             result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
             result_data_apiStack_value['feature'] = ''
@@ -511,7 +520,7 @@ class TaoBaoLoginAndParse(Crawler):
             # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
             # pprint(result_data_apiStack_value)
         except Exception:
-            self.lg.error("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过" + ' 出错goods_id: ' + str(goods_id))
+            self.lg.error("json转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过" + ' 出错goods_id: ' + str(goods_id))
             result_data_apiStack_value = ''
             pass
 
@@ -940,7 +949,7 @@ class TaoBaoLoginAndParse(Crawler):
             ('dataType', 'jsonp'),
             ('timeout', '20000'),
             ('callback', 'mtopjsonp1'),
-            ('data', json.dumps(params_data_1)),
+            ('data', dumps(params_data_1)),
         )
         url = tmp_url + '?' + urlencode(_params)
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
@@ -1075,20 +1084,21 @@ class TaoBaoLoginAndParse(Crawler):
         body = re.compile(r'src="').sub('src=\"https:', body)
         body = re.compile(r'&nbsp;').sub(' ', body)
 
-        # self.lg.info(str(body))
-        # 天猫洗广告
-        ad = r'<p style="margin:0;width:0;height:0;overflow:hidden;">.*?<table align="center" style="margin:0 auto;">.*?</table> <p style="margin:0 0 5.0px 0;width:0;height:0;overflow:hidden;">.*?</p>'
-        body = re.compile(ad).sub('', body, count=1)     # count=0 表示全部匹配，count=1 表示只匹配第一个
+        # 防止外链跳转
+        body = re.compile('<a href=\".*?\" target').sub('<a href="" target', body)
         # self.lg.info(str(body))
 
-        body = re.compile('<a href=\".*?\" target').sub('<a href="" target', body)     # 防止外链跳转
+        # 天猫洗广告
+        ad = r'<p style="margin:0;width:0;height:0;overflow:hidden;">.*?<table align="center" style="margin:0 auto;">.*?</table> <p style="margin:0 0 5.0px 0;width:0;height:0;overflow:hidden;">.*?</p>'
+        # count=0 表示全部匹配，count=1 表示只匹配第一个
+        body = re.compile(ad).sub('', body, count=1)
+        # self.lg.info(str(body))
 
         return body
 
     def get_goods_id_from_url(self, taobao_url):
-        # https://item.taobao.com/item.htm?id=546756179626&ali_trackid=2:mm_110421961_12506094_47316135:1508678840_202_1930444423&spm=a21bo.7925826.192013.3.57586cc65hdN2V
-        is_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(taobao_url)
-        if is_taobao_url != []:
+        is_tb_url = re.compile(r'https://item.taobao.com/item.htm.*?').findall(taobao_url)
+        if is_tb_url != []:
             if re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url) != []:
                 tmp_taobao_url = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
                 # self.lg.info(tmp_taobao_url)
@@ -1098,12 +1108,14 @@ class TaoBaoLoginAndParse(Crawler):
                     taobao_url = re.compile(r';').sub('', taobao_url)
                     goods_id = re.compile(r'https://item.taobao.com/item.htm.*?id=(\d+)').findall(taobao_url)[0]
                     self.lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
+
                 return goods_id
             else:       # 处理存数据库中取出的如: https://item.taobao.com/item.htm?id=560164926470
                 # self.lg.info('9999')
                 taobao_url = re.compile(r';').sub('', taobao_url)
                 goods_id = re.compile(r'https://item.taobao.com/item.htm\?id=(\d+)&{0,20}.*?').findall(taobao_url)[0]
                 self.lg.info('------>>>| 得到的淘宝商品id为:' + goods_id)
+
                 return goods_id
         else:
             self.lg.info('淘宝商品url错误, 非正规的url, 请参照格式(https://item.taobao.com/item.htm)开头的...')

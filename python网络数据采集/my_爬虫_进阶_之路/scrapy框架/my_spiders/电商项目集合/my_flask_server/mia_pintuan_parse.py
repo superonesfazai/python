@@ -11,12 +11,7 @@
 蜜芽拼团页面解析系统
 '''
 
-import time
-from pprint import pprint
-from time import sleep
 import gc
-from scrapy import Selector
-from json import dumps
 
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -32,16 +27,7 @@ from multiplex_code import (
 from my_exceptions import MiaSkusIsNullListException
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,)
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import (
-    timestamp_to_regulartime,
-    get_shanghai_time,
-    date_parse,)
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class MiaPintuanParse(MiaParse, Crawler):
     def __init__(self):

@@ -15,11 +15,7 @@
 
 from random import randint
 import requests
-from pprint import pprint
-from time import sleep
-import re
 import gc
-from json import dumps
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
@@ -31,11 +27,7 @@ from sql_str_controller import (
     pd_update_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.ip_pools import IpPools
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import timestamp_to_regulartime
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

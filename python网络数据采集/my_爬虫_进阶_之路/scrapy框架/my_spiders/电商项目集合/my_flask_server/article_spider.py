@@ -28,6 +28,7 @@
 待实现:
     1. 虎嗅网(https://www.huxiu.com/)
     2. 36氪(https://36kr.com)
+    3. 太平洋时尚网(https://www.pclady.com.cn/)
     3. 网易新闻
 """
 
@@ -86,7 +87,8 @@ class ArticleParser(AsyncCrawler):
             parse_obj = await self._get_parse_obj(article_url_type=article_url_type)
             # self.lg.info(article_url_type)
             # pprint(parse_obj)
-        except (ValueError, NotImplementedError):      # article_url未知!
+        except (ValueError, NotImplementedError):
+            # NotImplementedError: article_url未知!
             self.lg.error('遇到错误: ', exc_info=True)
             return {}
 

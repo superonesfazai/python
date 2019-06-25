@@ -11,9 +11,6 @@
 聚美优品常规商品页面解析系统
 """
 
-import re
-from pprint import pprint
-from json import dumps
 from gc import collect
 
 from settings import IP_POOL_TYPE
@@ -22,13 +19,7 @@ from sql_str_controller import (
     jm_update_str_1,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.spider.crawler import Crawler
-from fzutils.common_utils import (
-    json_2_dict,
-    wash_sensitive_info,)
-from fzutils.time_utils import *
+from fzutils.spider.async_always import *
 
 class JuMeiYouPinParse(Crawler):
     def __init__(self):

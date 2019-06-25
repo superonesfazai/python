@@ -12,9 +12,6 @@
 """
 
 import gc
-import re
-from pprint import pprint
-from json import dumps
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
@@ -24,24 +21,13 @@ from sql_str_controller import (
     yx_update_str_1,
 )
 
-# from fzutils.spider.fz_requests import MyRequests
-from fzutils.common_utils import (
-    json_2_dict,
-    wash_sensitive_info,)
 from fzutils.data.json_utils import nonstandard_json_str_handle
 from fzutils.internet_utils import (
     get_random_phone_ua,
     _get_url_contain_params,)
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,
-    timestamp_to_regulartime,
-    string_to_datetime,)
 from fzutils.data.list_utils import unique_list_and_keep_original_order
-from fzutils.spider.crawler import Crawler
-from fzutils.spider.fz_driver import BaseDriver
-from fzutils.spider.selector import parse_field
+from fzutils.spider.async_always import *
 
 class YanXuanParse(Crawler):
     def __init__(self, logger=None):

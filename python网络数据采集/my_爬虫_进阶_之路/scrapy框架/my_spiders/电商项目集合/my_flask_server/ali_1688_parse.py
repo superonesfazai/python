@@ -13,20 +13,15 @@
 本地ip被封时, 可通过重启路由器来获取新ip
 """
 
-from pprint import pprint
-import re
 from gc import collect
 from decimal import Decimal
-from json import dumps
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from scrapy.selector import Selector
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     FIREFOX_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
-    IP_POOL_TYPE,
-)
+    IP_POOL_TYPE,)
 from sql_str_controller import (
     al_select_str_1,
     al_update_str_1,
@@ -36,23 +31,13 @@ from sql_str_controller import (
 from multiplex_code import _handle_goods_shelves_in_auto_goods_table
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,
-    str_cookies_2_dict,
-    _get_url_contain_params,
-    html_entities_2_standard_html,
-    dict_cookies_2_str,)
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
 from fzutils.spider.fz_driver import (
     PHONE,
     CHROME,
     PHANTOMJS,
     FIREFOX,)
-from fzutils.time_utils import get_shanghai_time
 from fzutils.spider.selector import parse_field
-from fzutils.spider.fz_requests import Requests
+from fzutils.spider.async_always import *
 
 class ALi1688LoginAndParse(Crawler):
     def __init__(self, logger=None):

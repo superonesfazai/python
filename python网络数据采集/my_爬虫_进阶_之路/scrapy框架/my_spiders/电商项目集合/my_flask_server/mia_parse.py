@@ -11,12 +11,7 @@
 蜜芽页面采集系统
 """
 
-from pprint import pprint
-from time import sleep
-import re
 from gc import collect
-from scrapy import Selector
-from json import dumps
 
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
@@ -28,18 +23,7 @@ from multiplex_code import _mia_get_parent_dir
 from my_exceptions import MiaSkusIsNullListException
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,)
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import (
-    json_2_dict,
-    wash_sensitive_info,
-    get_random_int_number,)
-from fzutils.time_utils import (
-    datetime_to_timestamp,
-    get_shanghai_time,)
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class MiaParse(Crawler):
     def __init__(self):

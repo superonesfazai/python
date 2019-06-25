@@ -9,9 +9,6 @@
 
 from random import randint
 import json
-import re
-from pprint import pprint
-from json import dumps
 from gc import collect
 
 from settings import (
@@ -37,17 +34,10 @@ from my_exceptions import (
 )
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,)
-from fzutils.internet_utils import tuple_or_list_params_2_dict_params
-from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_requests import (
-    Requests,
     PROXY_TYPE_HTTPS,
     PROXY_TYPE_HTTP,)
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class TmallParse(Crawler):
     def __init__(self, logger=None):
@@ -311,7 +301,7 @@ class TmallParse(Crawler):
             #     'data': result,
             #     'code': 1
             # }
-            # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
+            # json_data = dumps(wait_to_send_data, ensure_ascii=False)
             # print(json_data)
             collect()
 
@@ -562,7 +552,9 @@ class TmallParse(Crawler):
         :return:
         '''
         try:
-            result_data_apiStack_value = json.loads(result_data_apiStack_value)
+            result_data_apiStack_value = json_2_dict(
+                json_str=result_data_apiStack_value,
+                logger=self.lg,)
 
             result_data_apiStack_value['vertical'] = ''
             result_data_apiStack_value['consumerProtection'] = ''  # 7天无理由退货
@@ -573,7 +565,7 @@ class TmallParse(Crawler):
             # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
             # pprint(result_data_apiStack_value)
         except Exception:
-            self.lg.error("json.loads转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过 出错goods_id: %s" % str(goods_id))
+            self.lg.error("json转换出错，得到result_data['apiStack'][0]['value']值可能为空，此处跳过 出错goods_id: %s" % str(goods_id))
             result_data_apiStack_value = ''
             pass
 
@@ -597,7 +589,7 @@ class TmallParse(Crawler):
             ('AntiCreep', 'true'),
             ('type', 'jsonp'),
             ('callback', 'mtopjsonp3'),
-            ('data', json.dumps({'itemNumId': goods_id})),
+            ('data', dumps({'itemNumId': goods_id})),
         )
 
         return params

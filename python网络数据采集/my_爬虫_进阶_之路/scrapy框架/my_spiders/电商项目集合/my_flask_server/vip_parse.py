@@ -13,11 +13,7 @@
 
 import time
 from random import randint
-from pprint import pprint
-from time import sleep
-import re
 import gc
-from json import dumps
 
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
@@ -25,15 +21,7 @@ from sql_str_controller import (
 )
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.time_utils import (
-    timestamp_to_regulartime,
-    get_shanghai_time,
-    datetime_to_timestamp,
-)
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 '''
 改版抓包微信唯品会商品数据接口

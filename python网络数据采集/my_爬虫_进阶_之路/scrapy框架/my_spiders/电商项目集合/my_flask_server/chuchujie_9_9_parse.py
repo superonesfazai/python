@@ -11,14 +11,8 @@
 楚楚街9.9, 29.9, 49.9元商品页面解析系统
 """
 
-import re
-from pprint import pprint
 from decimal import Decimal
-
-from time import sleep
 import gc
-from scrapy.selector import Selector
-from json import dumps
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
@@ -29,8 +23,7 @@ from sql_str_controller import (
     cc_update_str_1,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class ChuChuJie_9_9_Parse(Crawler):
     def __init__(self):

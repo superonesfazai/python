@@ -7,12 +7,8 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import re
-from pprint import pprint
 from decimal import Decimal
-from json import dumps
 
-from time import sleep
 from gc import collect
 
 from mogujie_parse import MoGuJieParse
@@ -25,9 +21,7 @@ from sql_str_controller import (
     mg_update_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):
     def __init__(self):

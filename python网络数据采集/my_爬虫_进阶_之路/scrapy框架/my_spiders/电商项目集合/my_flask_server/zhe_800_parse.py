@@ -10,9 +10,6 @@
 折800页面采集系统
 """
 
-from pprint import pprint
-from json import dumps
-import re
 from gc import collect
 
 from settings import (
@@ -30,10 +27,7 @@ from multiplex_code import (
 from my_exceptions import GoodsShelvesException
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class Zhe800Parse(Crawler):
     def __init__(self):

@@ -12,9 +12,6 @@
 """
 
 import gc
-import re
-from pprint import pprint
-from json import dumps
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -25,17 +22,8 @@ from sql_str_controller import (
     yp_update_str_1,
 )
 
-from fzutils.internet_utils import get_random_phone_ua
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import Requests
-from fzutils.spider.crawler import Crawler
-from fzutils.common_utils import (
-    json_2_dict,
-    wash_sensitive_info,)
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,
-    string_to_datetime,)
+from fzutils.spider.async_always import *
 
 class YouPinParse(Crawler):
     def __init__(self, logger=None):

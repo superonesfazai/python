@@ -11,12 +11,7 @@
 聚美优品拼团页面解析类
 """
 
-from pprint import pprint
-from json import dumps
-import re
 from gc import collect
-import asyncio
-from scrapy.selector import Selector
 from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
@@ -28,10 +23,8 @@ from sql_str_controller import (
     jm_update_str_3,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_aiohttp import AioHttp
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class JuMeiYouPinPinTuanParse(Crawler):
     def __init__(self, logger=None):
@@ -613,7 +606,7 @@ if __name__ == '__main__':
         try:
             jumei_url = input('请输入待爬取的聚美优品商品地址: ')
             jumei_url.strip('\n').strip(';')
-            loop = asyncio.get_event_loop()
+            loop = get_event_loop()
             result = loop.run_until_complete(jumei_pintuan.deal_with_data(jumei_url))
             pprint(result)
         except KeyboardInterrupt:

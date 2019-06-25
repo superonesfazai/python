@@ -12,10 +12,6 @@
 """
 
 import time
-from pprint import pprint
-from json import dumps
-from time import sleep
-import re
 import gc
 
 from settings import (
@@ -34,13 +30,7 @@ from sql_str_controller import (
 from multiplex_code import _jp_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.time_utils import (
-    timestamp_to_regulartime,
-)
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 # phantomjs驱动地址
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH

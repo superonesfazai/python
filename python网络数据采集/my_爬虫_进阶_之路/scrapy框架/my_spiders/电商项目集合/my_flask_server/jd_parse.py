@@ -18,12 +18,8 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 
-import re
 from gc import collect
-from pprint import pprint
-from json import dumps
 from random import randint
-from scrapy.selector import Selector
 
 from sql_str_controller import (
     jd_update_str_1,
@@ -31,16 +27,7 @@ from sql_str_controller import (
     jd_insert_str_2,)
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,)
-from fzutils.common_utils import (
-    json_2_dict,
-    delete_list_null_str,
-    wash_sensitive_info,)
-from fzutils.spider.crawler import Crawler
-from fzutils.spider.fz_requests import Requests
-from fzutils.safe_utils import get_uuid3
+from fzutils.spider.async_always import *
 
 class JdParse(Crawler):
     def __init__(self, logger=None):
