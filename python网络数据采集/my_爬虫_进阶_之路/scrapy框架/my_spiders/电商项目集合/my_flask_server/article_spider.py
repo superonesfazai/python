@@ -24,12 +24,15 @@
     12. 51健康养生网(http://www.51jkst.com/)
     13. 彩牛养生网(权威医生: 对养生的见解, 短视频为主, 包含部分文章)(http://m.cnys.com/)
     14. 爱范儿(pc: https://www.ifanr.com/)
+    15. 科学松鼠会(https://songshuhui.net/)
     
 待实现:
-    1. 虎嗅网(https://www.huxiu.com/)
-    2. 36氪(https://36kr.com)
-    3. 太平洋时尚网(https://www.pclady.com.cn/)
-    3. 网易新闻
+    1. 澎湃网(https://www.thepaper.cn/)
+    2. 界面新闻(https://www.jiemian.com/)
+    3. 虎嗅网(https://www.huxiu.com/)
+    4. 36氪(https://36kr.com)
+    5. 太平洋时尚网(https://www.pclady.com.cn/)
+    6. 网易新闻
 """
 
 from os import getcwd
@@ -218,6 +221,10 @@ class ArticleParser(AsyncCrawler):
             'if': {
                 'obj_origin': 'www.ifanr.com',
                 'site_id': 17,
+            },
+            'ss': {
+                'obj_origin': 'songshuhui.net',
+                'site_id': 18,
             },
         }
 
@@ -410,6 +417,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'if':
                 return await self._get_if_article_html(article_url=article_url)
 
+            elif article_url_type == 'ss':
+                return await self._get_ss_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -417,6 +427,29 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_ss_article_html(self, article_url) -> tuple:
+        """
+        获取ss的html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_random_pc_headers()
+        headers.update({
+            'Referer': 'https://songshuhui.net/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取if的body为空值!'
+
+        return body, video_url
 
     async def _get_if_article_html(self, article_url) -> tuple:
         """
@@ -1079,7 +1112,9 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
         author_selector = parse_obj['author']
+
         short_name_list = [
             'kb',
             'sg',
@@ -1087,8 +1122,9 @@ class ArticleParser(AsyncCrawler):
             'fh',
             'cn',
             'if',
+            'ss',
         ]
-        if parse_obj['short_name'] in short_name_list:
+        if short_name in short_name_list:
             if video_url != '':
                 author_selector = parse_obj['video_author']
             else:
@@ -1102,7 +1138,7 @@ class ArticleParser(AsyncCrawler):
             target_obj=target_obj,
             logger=self.lg)
 
-        if parse_obj['short_name'] == 'kb':
+        if short_name == 'kb':
             if video_url != '':
                 if author == '':
                     author_selector2 = parse_obj['video_author2']
@@ -1117,12 +1153,16 @@ class ArticleParser(AsyncCrawler):
                             target_obj=target_obj,
                             logger=self.lg, )
 
-        if parse_obj['short_name'] == 'df'\
-                or parse_obj['short_name'] == 'bd'\
-                or parse_obj['short_name'] == 'fh'\
-                or parse_obj['short_name'] == 'ys'\
-                or parse_obj['short_name'] == 'cn'\
-                or parse_obj['short_name'] == 'if':
+        short_name_list2 = [
+            'df',
+            'bd',
+            'fh',
+            'ys',
+            'cn',
+            'if',
+            'ss',
+        ]
+        if short_name in short_name_list2:
             pass
         else:
             assert author != '', '获取到的author为空值!'
@@ -1147,6 +1187,7 @@ class ArticleParser(AsyncCrawler):
             'fh',
             'cn',
             'if',
+            'ss',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1193,12 +1234,13 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
         head_url_sel = parse_obj['head_url']
 
         short_name_list = [
             'kb',
         ]
-        if parse_obj['short_name'] in short_name_list:
+        if short_name in short_name_list:
             if video_url != '':
                 head_url_sel = parse_obj['video_head_url']
             else:
@@ -1211,7 +1253,7 @@ class ArticleParser(AsyncCrawler):
             target_obj=target_obj,
             logger=self.lg)
 
-        if parse_obj['short_name'] == 'kb':
+        if short_name == 'kb':
             if video_url != '':
                 if head_url == '':
                     head_url_sel2 = parse_obj['video_head_url2']
@@ -1310,9 +1352,11 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
+
         is_first = False
-        if parse_obj.get('short_name', '') == 'kd'\
-                or parse_obj['short_name'] == 'bd':
+        if short_name == 'kd'\
+                or short_name == 'bd':
             # 取第一个str
             is_first = True
 
@@ -1327,15 +1371,19 @@ class ArticleParser(AsyncCrawler):
         if parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin'):
             tags_list = tags_list.split(',')
 
-        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['tt'].get('obj_origin', '')\
-                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['js'].get('obj_origin', '')\
-                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin', '') \
-                or parse_obj.get('obj_origin', '') == self.obj_origin_dict['if'].get('obj_origin', ''):
+        short_name_list = [
+            'tt',
+            'js',
+            'kd',
+            'if',
+            'ss',
+        ]
+        if short_name in short_name_list:
             tags_list = [{
                 'keyword': i,
             } for i in tags_list]
 
-        if parse_obj['short_name'] == 'bd':
+        elif short_name == 'bd':
             # self.lg.info(str(tags_list))
             if tags_list != '':
                 ori_tag_json_data = tags_list + ']'
@@ -1375,20 +1423,23 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
         create_time_selector = parse_obj['create_time']
+
         short_name_list = [
             'sg',
             'bd',
             'cn',
             'if',
+            'ss',
         ]
-        if parse_obj['short_name'] in short_name_list:
+        if short_name in short_name_list:
             if video_url != '':
                 create_time_selector = parse_obj['video_create_time']
             else:
                 pass
 
-        elif parse_obj['short_name'] == 'fh':
+        elif short_name == 'fh':
             if video_url != '':
                 create_time_selector = parse_obj['video_create_time']
             else:
@@ -1408,8 +1459,9 @@ class ArticleParser(AsyncCrawler):
         short_name_list2 = [
             'cn',
             'if',
+            'ss',
         ]
-        if parse_obj['short_name'] == 'sg':
+        if short_name == 'sg':
             if video_url != '':
                 # 原先为05-05 11:13, 替换为标准的
                 create_time = str(get_shanghai_time())[:4] + '-' + create_time \
@@ -1417,7 +1469,7 @@ class ArticleParser(AsyncCrawler):
             else:
                 create_time = create_time.replace('/', '-')
 
-        elif parse_obj['short_name'] == 'bd':
+        elif short_name == 'bd':
             if video_url != '':
                 pass
 
@@ -1429,7 +1481,7 @@ class ArticleParser(AsyncCrawler):
                         self.lg.error('遇到错误:', exc_info=True)
                         create_time = ''
 
-        elif parse_obj['short_name'] in short_name_list2:
+        elif short_name in short_name_list2:
             if create_time != '':
                 create_time = str(date_parse(create_time))
 
@@ -1445,19 +1497,22 @@ class ArticleParser(AsyncCrawler):
         article content
         :return:
         """
+        short_name = parse_obj.get('short_name', '')
         content_selector = parse_obj['content']
+
         short_name_list = [
             'kb',
             'cn',
             'if',
+            'ss',
         ]
-        if parse_obj['short_name'] in short_name_list:
+        if short_name in short_name_list:
             if video_url != '':
                 content_selector = parse_obj['video_article_content']
             else:
                 pass
 
-        elif parse_obj['short_name'] == 'fh':
+        elif short_name == 'fh':
             if video_url != '':
                 content_selector = parse_obj['video_article_content']
             else:
@@ -1480,13 +1535,17 @@ class ArticleParser(AsyncCrawler):
         #     html = await self._get_html_by_driver(url=article_url, load_images=True)
         #     print(html)
 
-        if parse_obj['short_name'] == 'df'\
-                or parse_obj['short_name'] == 'sg'\
-                or parse_obj['short_name'] == 'bd'\
-                or parse_obj['short_name'] == 'yg'\
-                or parse_obj['short_name'] == 'fh'\
-                or parse_obj['short_name'] == 'cn'\
-                or parse_obj['short_name'] == 'if':
+        short_name_list2 = [
+            'df',
+            'sg',
+            'bd',
+            'yg',
+            'fh',
+            'cn',
+            'if',
+            'ss',
+        ]
+        if short_name in short_name_list2:
             if video_url != '':
                 pass
             else:
@@ -1495,54 +1554,85 @@ class ArticleParser(AsyncCrawler):
         else:
             assert content != '', '获取到的content为空值!'
 
-        if parse_obj.get('short_name', '') == 'tt':
+        if short_name == 'tt':
             # html乱码纠正
             content = await self._wash_tt_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'js':
+        elif short_name == 'js':
             # 图片处理
             content = await self._wash_js_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'kd':
+        elif short_name == 'kd':
             # 图片处理
             content = await self._wash_kd_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'kb':
+        elif short_name == 'kb':
             # css 处理为原生的
             content = await self._wash_kb_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'wx':
+        elif short_name == 'wx':
             content = await self._wash_wx_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'df':
+        elif short_name == 'df':
             content = await self._wash_df_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'sg':
+        elif short_name == 'sg':
             content = await self._wash_sg_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'bd':
+        elif short_name == 'bd':
             content = await self._wash_bd_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'zq':
+        elif short_name == 'zq':
             content = await self._wash_zq_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'fh':
+        elif short_name == 'fh':
             content = await self._wash_fh_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'ys':
+        elif short_name == 'ys':
             content = await self._wash_ys_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'cn':
+        elif short_name == 'cn':
             content = await self._wash_cn_article_content(content=content)
 
-        elif parse_obj.get('short_name', '') == 'if':
+        elif short_name == 'if':
             content = await self._wash_if_article_content(content=content)
+
+        elif short_name == 'ss':
+            content = await self._wash_ss_article_content(content=content)
 
         else:
             pass
 
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_ss_article_content(content) -> str:
+        """
+        清洗ss content
+        :param content:
+        :return:
+        """
+        # 洗掉本文禁止商业转载
+        content = re.compile('<blockquote>.*?</blockquote>').sub('', content)
+        content = re.compile('<strong>为您推荐</strong>').sub('', content)
+        # 洗掉推荐文章
+        content = re.compile('<div class=\"my-related-posts-box\".*?>.*?</div>').sub('', content)
+        # 洗掉图片来源
+        content = re.compile('<p class=\"wp-caption-text\">图片来源：.*?</p>').sub('', content)
+        # 把img标签原先的固定大小置空
+        content = re.compile('width=\"\d+\" height=\"\d+\" class=\"size-large wp-image-')\
+            .sub('class=\"size-large wp-image-', content)
+        # 并且把img src的url, 改成非固定大小(测试发现没用, pass)
+        # content = re.compile('-\d+x\d+\.jpg')\
+        #     .sub('.jpg', content)
+        # 洗掉分享标签
+        content = re.compile('<div class=\"bshare-custom icon-medium\">.*?</div>')\
+            .sub('', content)
+
+        content = modify_body_img_centering(content=content,)
 
         return content
 
@@ -1777,6 +1867,7 @@ class ArticleParser(AsyncCrawler):
             'ys',
             'cn',
             'if',
+            'ss',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -1861,13 +1952,13 @@ class ArticleParser(AsyncCrawler):
             pass
         collect()
 
-def modify_body_img_centering(content: str) -> str:
+def modify_body_img_centering(content: str,) -> str:
     """
     修改body图片居中
     :param content:
     :return:
     """
-    # 图片居中
+    # 图片居中, 放前后作用一样, img里面的实际值还是会被加载, 故统一放最前面
     content = '<style type="text/css">img {visibility: visible !important;height: auto !important;width: 100% !important;}</style>' + \
               content if content != '' else ''
 
@@ -2065,7 +2156,39 @@ def main():
     # 视频(其视频都为内切的bilibili页面, 拿到iframe其中的代码即可, 但是原始video_url还存在问题, 先不处理)
     # url = 'https://www.ifanr.com/video/1227199'
     # url = 'https://www.ifanr.com/video/1201702'
-    url = 'https://www.ifanr.com/video/1195120'
+    # url = 'https://www.ifanr.com/video/1195120'
+
+    # 科学松鼠会
+    # 工程
+    # url = 'https://songshuhui.net/archives/105917'
+    # 心理
+    # url = 'https://songshuhui.net/archives/105965'
+    # 健康
+    # url = 'https://songshuhui.net/archives/105900'
+    # 生物
+    # url = 'https://songshuhui.net/archives/105950'
+    # 医学
+    # url = 'https://songshuhui.net/archives/105960'
+    # 化学
+    # url = 'https://songshuhui.net/archives/105163'
+    # 天文
+    # url = 'https://songshuhui.net/archives/105581'
+    # 数学
+    # url = 'https://songshuhui.net/archives/102949'
+    # 环境
+    # url = 'https://songshuhui.net/archives/104506'
+    # 计算机
+    # url = 'https://songshuhui.net/archives/104767'
+    # 松鼠快评
+    # url = 'https://songshuhui.net/archives/82224'
+    # 少儿科普
+    # url = 'https://songshuhui.net/archives/88788'
+    # 媒体导读
+    # url = 'https://songshuhui.net/archives/56553'
+    # 活动
+    # url = 'https://songshuhui.net/archives/103225'
+    # 其他
+    url = 'https://songshuhui.net/archives/101270'
 
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))

@@ -121,6 +121,9 @@ class RequestClient(object):
         # 图文
         # article_link = 'https://www.ifanr.com/1227137'
 
+        # 科学松鼠会
+        article_link = 'https://songshuhui.net/archives/101270'
+
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
         params = {

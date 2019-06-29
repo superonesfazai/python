@@ -169,7 +169,7 @@ class ALUpdater(AsyncCrawler):
 
                     tasks = []
                     for item in slice_params_list:
-                        goods_id = item[0]
+                        goods_id = item[1]
                         db_goods_info_obj = ALDbGoodsInfoObj(item=item, logger=self.lg)
                         self.lg.info('创建 task goods_id: {}'.format(goods_id))
                         tasks.append(self.loop.create_task(self._update_one_goods_info(

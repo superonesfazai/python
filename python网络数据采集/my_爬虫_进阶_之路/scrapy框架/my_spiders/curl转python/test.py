@@ -247,3 +247,4 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 # sleep(60)
 
 
+

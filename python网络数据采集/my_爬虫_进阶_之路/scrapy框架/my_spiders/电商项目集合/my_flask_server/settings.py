@@ -854,6 +854,44 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'ss',
+        'debug': True,
+        'obj_origin': 'songshuhui.net',
+        'article_id': {
+            'method': 're',
+            'selector': '/archives/(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div.atrctitle h2 a ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div.atrctitle div.metax_single a:nth-child(1) ::text',
+        },
+        'video_author': None,
+        'head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '发表于 (.*?)<em> \| Tags',
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.entry',
+        },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': {
+            'method': 'css',
+            'selector': 'div.metax_single em a ::text',
+        },
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
