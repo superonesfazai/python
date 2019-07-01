@@ -1090,8 +1090,14 @@ class TaoBaoLoginAndParse(Crawler):
 
         # 天猫洗广告
         ad = r'<p style="margin:0;width:0;height:0;overflow:hidden;">.*?<table align="center" style="margin:0 auto;">.*?</table> <p style="margin:0 0 5.0px 0;width:0;height:0;overflow:hidden;">.*?</p>'
+        had_ad = True if re.compile(ad).findall(body) != [] else False
         # count=0 表示全部匹配，count=1 表示只匹配第一个
         body = re.compile(ad).sub('', body, count=1)
+        if had_ad and body == '':
+            # 处理body在ad中被洗掉的
+            body = '<div></div>'
+        else:
+            pass
         # self.lg.info(str(body))
 
         return body

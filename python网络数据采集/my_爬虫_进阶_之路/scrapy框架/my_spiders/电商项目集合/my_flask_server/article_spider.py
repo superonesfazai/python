@@ -27,8 +27,8 @@
     15. 科学松鼠会(https://songshuhui.net/)
     
 待实现:
-    1. 澎湃网(https://www.thepaper.cn/)
-    2. 界面新闻(https://www.jiemian.com/)
+    1. 界面新闻(https://www.jiemian.com/)
+    2. 澎湃网(https://www.thepaper.cn/)
     3. 虎嗅网(https://www.huxiu.com/)
     4. 36氪(https://36kr.com)
     5. 太平洋时尚网(https://www.pclady.com.cn/)
@@ -226,6 +226,10 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'songshuhui.net',
                 'site_id': 18,
             },
+            'jm': {
+                'obj_origin': 'www.jiemian.com',
+                'site_id': 19,
+            },
         }
 
     async def _get_html_by_driver(self,
@@ -363,7 +367,7 @@ class ArticleParser(AsyncCrawler):
 
         content = _ + content
         # 清洗
-        content = re.compile('<div class=\"image-caption\">图片发自简书App<\/div>').sub('', content)
+        content = re.compile('<div class=\"image-caption\">图片发自简书App</div>').sub('', content)
 
         return content
 
@@ -420,6 +424,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'ss':
                 return await self._get_ss_article_html(article_url=article_url)
 
+            elif article_url_type == 'jm':
+                return await self._get_jm_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -427,6 +434,41 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jm_article_html(self, article_url) -> tuple:
+        """
+        get jm html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_random_pc_headers()
+        headers.update({
+            'Referer': 'https://www.jiemian.com/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg, )
+        # self.lg.info(body)
+        assert body != '', '获取if的body为空值!'
+
+        if '/video/' in article_url:
+            self.lg.info('此为视频文章')
+            video_url_sel = {
+                'method': 'css',
+                'selector': 'div.video-main video ::attr("src")',
+            }
+            video_url = await async_parse_field(
+                parser=video_url_sel,
+                target_obj=body,
+                logger=self.lg, )
+            self.lg.info('jm_video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_ss_article_html(self, article_url) -> tuple:
         """
@@ -1123,6 +1165,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1161,6 +1204,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if short_name in short_name_list2:
             pass
@@ -1188,6 +1232,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1318,6 +1363,10 @@ class ArticleParser(AsyncCrawler):
                     else:
                         pass
 
+                elif article_url_type == 'jm':
+                    if '/video/' in article_url:
+                        return item['video_id']
+
                 else:
                     pass
 
@@ -1432,6 +1481,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1460,6 +1510,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -1483,7 +1534,12 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name in short_name_list2:
             if create_time != '':
-                create_time = str(date_parse(create_time))
+                try:
+                    create_time = str(date_parse(create_time))
+                except ValueError:
+                    self.lg.error('获取article create_time时, 遇到错误:', exc_info=True)
+                    self.lg.info('默认设置当前时间为文章创建时间点!')
+                    create_time = str(get_shanghai_time())
 
         else:
             pass
@@ -1505,6 +1561,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1544,6 +1601,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -1600,11 +1658,42 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ss':
             content = await self._wash_ss_article_content(content=content)
 
+        elif short_name == 'jm':
+            content = await self._wash_jm_article_content(content=content)
+
         else:
             pass
 
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    @staticmethod
+    async def _wash_jm_article_content(content) -> str:
+        """
+        清洗jm content
+        :param content:
+        :return:
+        """
+        # 洗掉末尾广告
+        content = re.compile('<div id=\"ad_content\">.*?</div>').sub('', content)
+        content = re.compile('<div class=\"article-source\">.*?</div>').sub('', content)
+        # 洗掉图片来源
+        content = re.compile('<span>图片来源：.*?</span>').sub('', content)
+        content = re.compile('<p>图片来源：.*?</p>').sub('', content)
+        content = re.compile('<figcaption>图片来源：.*?</figcaption>').sub('', content)
+        # 洗掉摄影
+        content = re.compile('<span>摄影：.*?</span>').sub('', content)
+        # 洗掉记者
+        content = re.compile('<p>记者 \| .*?</p>').sub('', content)
+        # 洗掉撰文
+        content = re.compile('<p>撰文 \| .*?</p>').sub('', content)
+        # 替换
+        content = re.compile('界面新闻').sub('优秀网', content)
+
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -1868,6 +1957,7 @@ class ArticleParser(AsyncCrawler):
             'cn',
             'if',
             'ss',
+            'jm',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2188,7 +2278,70 @@ def main():
     # 活动
     # url = 'https://songshuhui.net/archives/103225'
     # 其他
-    url = 'https://songshuhui.net/archives/101270'
+    # url = 'https://songshuhui.net/archives/101270'
+
+    # 界面新闻
+    # url = 'https://www.jiemian.com/article/3265195.html'
+    # url = 'https://www.jiemian.com/article/3267594.html'
+    # 天下
+    # url = 'https://www.jiemian.com/article/3267499.html'
+    # url = 'https://www.jiemian.com/article/3262717.html'
+    # 中国
+    # url = 'https://www.jiemian.com/article/3266951.html'
+    # 地方
+    # url = 'https://www.jiemian.com/article/3267357.html'
+    # 宏观
+    # url = 'https://www.jiemian.com/article/3267391.html'
+    # 数据
+    # url = 'https://www.jiemian.com/article/3264008.html'
+    # url = 'https://www.jiemian.com/article/3252963.html'
+    # url = 'https://www.jiemian.com/article/3227712.html'
+    # 评论
+    # url = 'https://www.jiemian.com/article/3265615.html'
+    # 文娱
+    # url = 'https://www.jiemian.com/article/3265618.html'
+    # 体育
+    # url = 'https://www.jiemian.com/article/3267782.html'
+    # 时尚
+    # url = 'https://www.jiemian.com/article/3267630.html'
+    # 文化
+    # url = 'https://www.jiemian.com/article/3263646.html'
+    # 旅行
+    # url = 'https://www.jiemian.com/article/3264141.html'
+    # 生活
+    # url = 'https://www.jiemian.com/article/3263390.html'
+    # 游戏
+    # url = 'https://www.jiemian.com/article/3263543.html'
+    # 歪楼
+    # url= 'https://www.jiemian.com/article/3263035.html'
+    # 影像
+    # url = 'https://www.jiemian.com/article/3259950.html'
+    # 商业
+    # url = 'https://www.jiemian.com/article/3267974.html'
+    # 科技
+    # url = 'https://www.jiemian.com/article/3267974.html'
+    # 交通
+    # url = 'https://www.jiemian.com/article/3266169.html'
+    # 投资
+    # url = 'https://www.jiemian.com/article/3267363.html'
+    # 管理
+    # url = 'https://www.jiemian.com/article/3265243.html'
+    # 健康
+    # url = 'https://www.jiemian.com/article/3266728.html'
+    # 视频
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB24BP1Vq.html'
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB24BPlVi.html'
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB24BPFVq.html'
+    # 箭厂视频
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB2ABOVVi.html'
+    # 面谈视频
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB2MBPVVk.html'
+    # 歪楼小分队
+    # url = 'https://www.jiemian.com/video/AGQCNwhnB2YBPFVn.html'
+    # 番茄社视频
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB2EBMFVk.html'
+    # 观见直播
+    url = 'https://www.jiemian.com/video/AGQCNwhhB24BP1Vh.html'
 
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))

@@ -152,11 +152,11 @@ class CompanySpider(AsyncCrawler):
         self.driver_timeout = 20                                                        # driver timeout
         self.tb_jb_hot_keyword_file_path = '/Users/afa/Desktop/tb_jb_hot_keyword.txt'   # 结巴分词后已检索的hot keyword写入处
         self.tb_20w_path = '/Users/afa/Desktop/tb_top20w'                               # 待读取的tb20w xlsx文件目录
-        self.jb_max_num = 10000                                                         # 待检索的key 最大截止个数
+        self.jb_max_num = 50000                                                         # 待检索的key 最大截止个数
         self.bd_key_list_file_path = '/Users/afa/Desktop/bd_key_list.txt'               # 已检索的key 存储
         self.bd_map_pwd_file_path = '/Users/afa/myFiles/pwd/baidu_map_pwd.json'
         self.gd_map_pwd_file_path = '/Users/afa/myFiles/pwd/gaode_map_pwd.json'
-        self.bloom_filter = BloomFilter(capacity=3000000, error_rate=0.000001)
+        self.bloom_filter = BloomFilter(capacity=4000000, error_rate=0.000001)
         self.celery_task_res_expires_time = 10 * 60                                     # 过期时间
         self._init_tb_jb_boom_filter()
         self._init_bd_ak()
@@ -191,6 +191,7 @@ class CompanySpider(AsyncCrawler):
             raise e
 
         self.lg.info('初始化完毕! len: {}'.format(self.tb_jb_boom_filter.__len__()))
+        sleep(2.)
 
         return None
 
@@ -316,7 +317,7 @@ class CompanySpider(AsyncCrawler):
         # 根据key抓取
         self.bd_or_gd_category_list = await self._get_tb_jb_hot_key_list()
         pprint(self.bd_or_gd_category_list)
-        self.lg.info('bd所有子分类总个数: {}'.format(len(self.bd_or_gd_category_list)))
+        self.lg.info('bd or gd所有子分类总个数: {}'.format(len(self.bd_or_gd_category_list)))
         assert self.bd_or_gd_category_list != [], '获取到的self.bd_or_gd_category_list为空list!异常退出'
 
         await self._crawl_bd_or_gd_company_info()
@@ -619,7 +620,8 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         self.lg.info('初始化ing self.bd_jb_bloom_filter ...')
-        self.bd_or_gd_jb_boom_filter = BloomFilter(capacity=500000, error_rate=.00001)  # 结巴分词后已检索的hot keyword存储
+        # 结巴分词后已检索的hot keyword存储
+        self.bd_or_gd_jb_boom_filter = BloomFilter(capacity=1000000, error_rate=.00001)
         try:
             with open(self.bd_key_list_file_path, 'r') as f:
                 try:
@@ -676,6 +678,7 @@ class CompanySpider(AsyncCrawler):
                 self.lg.error('遇到错误: {}'.format(e))
 
         self.lg.info('初始化完毕! len: {}'.format(key_list.__len__()))
+        await async_sleep(2.)
 
         return key_list
 

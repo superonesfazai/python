@@ -176,28 +176,6 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 # )
 # pprint(data)
 
-# 下面是qq看点
-# headers = {
-#     'Connection': 'keep-alive',
-#     'Cache-Control': 'max-age=0',
-#     'Upgrade-Insecure-Requests': '1',
-#     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36',
-#     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-#     'Accept-Encoding': 'gzip, deflate',
-#     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-#     'If-Modified-Since': 'Wed, 15 May 2019 10:17:11 GMT',
-# }
-#
-# url = 'http://post.mp.qq.com/kan/video/200553568-3955cc7c7ca772bk-m0866r0q1xn.html?_wv=2281701505&sig=b6e3ce15444e66d4fa4d6b40814b6858&time=1557141250&iid=MTY3MTk0MzU2Mw=='
-# body = Requests.get_url_body(
-#     url=url,
-#     headers=headers,
-#     # params=params,
-#     # cookies=cookies,
-#     ip_pool_type=tri_ip_pool,
-#     num_retries=3,)
-# print(body)
-
 # 视频信息接口
 # params = (
 #     ('callback', 'tvp_request_getinfo_callback_654434'),
@@ -245,6 +223,5 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 # print(body)
 #
 # sleep(60)
-
 
 

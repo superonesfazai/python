@@ -892,6 +892,57 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'jm',
+        'debug': True,
+        'obj_origin': 'www.jiemian.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/article/(\d+)\.html',
+        },
+        'video_id': {
+            'method': 're',
+            'selector': '/video/(\w+).html',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div.article-header h1 ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'div.article-header h1 ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'div.article-info span.author a ::text',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'div.author-name span.name ::text',
+        },
+        'head_url': None,
+        'create_time': {
+            'method': 'css',
+            'selector': 'div.article-info span:not(.author):nth-child(2) ::text',
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '<p>发布时间：(.*?)</p>',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.article-main',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'div.article-main',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
