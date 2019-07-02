@@ -1,11 +1,11 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : my_server.py
 @Time    : 2017/10/13 09:30
 @connect : superonesfazai@gmail.com
-'''
+"""
 
 import sys
 import os
@@ -274,10 +274,10 @@ def select():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    '''
+    """
     管理员页面
     :return:
-    '''
+    """
     # my_lg.info('正在获取登录界面...')
     if request.cookies.get('super_name', '') == encrypt(key, ADMIN_NAME) and request.cookies.get('super_passwd', '') == encrypt(key, ADMIN_PASSWD):   # 判断是否为非法登录
         if request.method == 'POST':
@@ -319,10 +319,10 @@ def admin():
 
 @app.route('/Reg', methods=['GET', 'POST'])
 def register():
-    '''
+    """
     注册新用户页面
     :return:
-    '''
+    """
     if request.method == 'POST':
         username = request.form.get('username', '')
         passwd = request.form.get('passwd', '')
@@ -363,173 +363,121 @@ def register():
         return render_template('Reg.html')
 
 ######################################################
-@app.route('/show_ali', methods=['GET', 'POST'])
-def show_ali_info():
-    '''
-    点击后成功后显示的爬取页面
+def handle_someone_show_page_res(short_name: str, request):
+    """
+    处理路由'/show_xxx'的结果
+    :param short_name:
+    :param request:
     :return:
-    '''
+    """
+    if short_name == 'al':
+        show_path = ALi_SPIDER_TO_SHOW_PATH
+    elif short_name == 'tb':
+        show_path = TAOBAO_SPIDER_TO_SHWO_PATH
+    elif short_name == 'tm':
+        show_path = TMALL_SPIDER_TO_SHOW_PATH
+    elif short_name == 'jd':
+        show_path = JD_SPIDER_TO_SHOW_PATH
+    elif short_name == 'z8':
+        show_path = ZHE_800_SPIDER_TO_SHOW_PATH
+    elif short_name == 'jp':
+        show_path = JUANPI_SPIDER_TO_SHOW_PATH
+    elif short_name == 'pd':
+        show_path = PINDUODUO_SPIDER_TO_SHOW_PATH
+    elif short_name == 'vip':
+        show_path = VIP_SPIDER_TO_SHOW_PATH
+    elif short_name == 'kl':
+        show_path = KAOLA_SPIDER_2_SHOW_PATH
+    elif short_name == 'yx':
+        show_path = YANXUAN_SPIDER_2_SHOW_PATH
+    elif short_name == 'yp':
+        show_path = YOUPIN_SPIDER_2_SHOW_PATH
+    elif short_name == 'mia':
+        show_path = MIA_SPIDER_2_SHOW_PATH
+    else:
+        raise ValueError('short_name value 异常!')
+
     if not is_login(request=request):
         return ERROR_HTML_CODE
     else:
-        my_lg.info('正在获取爬取页面...')
+        my_lg.info('正在获取{}爬取页面...'.format(short_name))
         if request.method == 'POST':
-            pass        # 让前端发个post请求, 重置页面
+            # 让前端发个post请求, 重置页面
+            pass
         else:
-            # return send_file('templates/spider_to_show.html')       
             return send_file(ALi_SPIDER_TO_SHOW_PATH)
 
-@app.route('/show_taobao', methods=['GET', 'POST'])
-def show_taobao_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):
-        return ERROR_HTML_CODE
+@app.route('/show_ali', methods=['GET', 'POST'])
+def show_al_info():
+    return handle_someone_show_page_res(
+        short_name='al',
+        request=request,)
 
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            # return send_file('templates/spider_to_show.html')       
-            return send_file(TAOBAO_SPIDER_TO_SHWO_PATH)
+@app.route('/show_taobao', methods=['GET', 'POST'])
+def show_tb_info():
+    return handle_someone_show_page_res(
+        short_name='tb',
+        request=request, )
 
 @app.route('/show_tmall', methods=['GET', 'POST'])
-def show_tmall_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):  # request.cookies -> return a dict
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            # return send_file('templates/spider_to_show.html')       
-            return send_file(TMALL_SPIDER_TO_SHOW_PATH)
+def show_tm_info():
+    return handle_someone_show_page_res(
+        short_name='tm',
+        request=request, )
 
 @app.route('/show_jd', methods=['GET', 'POST'])
 def show_jd_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):  # request.cookies -> return a dict
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(JD_SPIDER_TO_SHOW_PATH)
+    return handle_someone_show_page_res(
+        short_name='jd',
+        request=request, )
 
 @app.route('/show_zhe_800', methods=['GET', 'POST'])
-def show_zhe_800_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):  # request.cookies -> return a dict
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(ZHE_800_SPIDER_TO_SHOW_PATH)
+def show_z8_info():
+    return handle_someone_show_page_res(
+        short_name='z8',
+        request=request, )
 
 @app.route('/show_juanpi', methods=['GET', 'POST'])
-def show_juanpi_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):  # request.cookies -> return a dict
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(JUANPI_SPIDER_TO_SHOW_PATH)
+def show_jp_info():
+    return handle_someone_show_page_res(
+        short_name='jp',
+        request=request, )
 
 @app.route('/show_pinduoduo', methods=['GET', 'POST'])
-def show_pinduoduo_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):  # request.cookies -> return a dict
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(PINDUODUO_SPIDER_TO_SHOW_PATH)
+def show_pd_info():
+    return handle_someone_show_page_res(
+        short_name='pd',
+        request=request, )
 
 @app.route('/show_vip', methods=['GET', 'POST'])
 def show_vip_info():
-    '''
-    点击后成功后显示的爬取页面
-    :return:
-    '''
-    if not is_login(request=request):  # request.cookies -> return a dict
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取爬取页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(VIP_SPIDER_TO_SHOW_PATH)
+    return handle_someone_show_page_res(
+        short_name='vip',
+        request=request, )
 
 @app.route('/show_kaola', methods=['GET', 'POST'])
-def show_kaola_info():
-    if not is_login(request=request):
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取考拉页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(KAOLA_SPIDER_2_SHOW_PATH)
+def show_kl_info():
+    return handle_someone_show_page_res(
+        short_name='kl',
+        request=request, )
 
 @app.route('/show_yanxuan', methods=['GET', 'POST'])
-def show_yanxuan_info():
-    if not is_login(request=request):
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取严选页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(YANXUAN_SPIDER_2_SHOW_PATH)
+def show_yx_info():
+    return handle_someone_show_page_res(
+        short_name='yx',
+        request=request, )
 
 @app.route('/show_youpin', methods=['GET', 'POST'])
-def show_youpin_info():
-    if not is_login(request=request):
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取小米有品页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(YOUPIN_SPIDER_2_SHOW_PATH)
+def show_yp_info():
+    return handle_someone_show_page_res(
+        short_name='yp',
+        request=request, )
 
 @app.route('/show_mia', methods=['GET', 'POST'])
 def show_mia_info():
-    if not is_login(request=request):
-        return ERROR_HTML_CODE
-    else:
-        my_lg.info('正在获取蜜芽页面...')
-        if request.method == 'POST':
-            pass
-        else:
-            return send_file(MIA_SPIDER_2_SHOW_PATH)
+    return handle_someone_show_page_res(
+        short_name='mia',
+        request=request, )
 
 ######################################################
 # 阿里1688
@@ -592,10 +540,10 @@ def get_all_data():
 
 @app.route('/to_save_data', methods=['POST'])
 def to_save_data():
-    '''
+    """
     存储请求存入的每个url对应的信息
     :return:
-    '''
+    """
     global tmp_wait_to_save_data_list
     if is_login(request=request):  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):      # 切记：从客户端获取list数据的方式
@@ -647,7 +595,10 @@ def get_taobao_data():
                 my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
 
-            wait_to_save_data = get_one_tb_data(username=username, tb_url=wait_to_deal_with_url, my_lg=my_lg)
+            wait_to_save_data = get_one_tb_data(
+                username=username,
+                tb_url=wait_to_deal_with_url,
+                my_lg=my_lg)
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
             elif wait_to_save_data.get('msg', '') == 'data为空!':
@@ -665,7 +616,8 @@ def get_taobao_data():
 
             return _success_data(data=wait_to_save_data, msg=msg)
 
-        else:       # 直接把空值给pass，不打印信息
+        else:
+            # 直接把空值给pass，不打印信息
             # my_lg.info('goodsLink为空值...')
             return _null_goods_link()
     else:
@@ -737,10 +689,8 @@ def get_tmall_data():
             )
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
-
             elif wait_to_save_data.get('msg', '') == 'data为空!':
                 return _null_goods_data()
-
             else:
                 pass
 
@@ -768,10 +718,10 @@ def get_tmall_data():
 
 @app.route('/tmall_to_save_data', methods=['POST'])
 def tmall_to_save_data():
-    '''
+    """
     ## 此处注意保存的类型是天猫(3)，还是天猫超市(4)，还是天猫国际(6)
     :return:
-    '''
+    """
     global tmp_wait_to_save_data_list
     if is_login(request=request):
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
@@ -826,15 +776,12 @@ def get_jd_data():
             wait_to_save_data = get_one_jd_data(
                 username=username,
                 wait_to_deal_with_url=wait_to_deal_with_url,
-                my_lg=my_lg
-            )
+                my_lg=my_lg,)
             # pprint(wait_to_save_data)
             if wait_to_save_data.get('goods_id', '') == '':
                 return _null_goods_id()
-
             elif wait_to_save_data.get('msg', '') == 'data为空!':
                 return _null_goods_data()
-
             else:
                 pass
 
@@ -859,14 +806,15 @@ def get_jd_data():
             'error_code': 0,
         }
         result = dumps(result)
+
         return result
 
 @app.route('/jd_to_save_data', methods=['POST'])
 def jd_to_save_data():
-    '''
+    """
     ## 此处注意保存的类型是京东(7)，还是京东超市(8)，还是京东全球购(9)，还是京东大药房(10)
     :return:
-    '''
+    """
     global tmp_wait_to_save_data_list
     if is_login(request=request):  # request.cookies -> return a dict
         if request.form.getlist('saveData[]'):  # 切记：从客户端获取list数据的方式
@@ -1696,10 +1644,10 @@ def mia_to_save_data():
 ######################################################
 @app.route('/basic_data', methods=['POST'])
 def get_basic_data():
-    '''
+    """
     返回一个商品地址的基本信息
     :return: 一个json
-    '''
+    """
     if request.form.get('basic_app_key') is not None and request.form.get('basic_app_key') == BASIC_APP_KEY:  # request.cookies -> return a dict
         if request.form.get('goodsLink'):
             my_lg.info('正在获取相应数据中...')
@@ -1895,9 +1843,9 @@ def _get_basic_data_2():
     return dumps({'ping':"pong"})
 
 ######################################################
-'''
+"""
 /api/goods
-'''
+"""
 @app.route('/api/goods', methods=['GET'])
 @Sign.signature_required
 def _goods():
@@ -1930,11 +1878,11 @@ def _goods():
         return _null_goods_link()
 
 def get_goods_link(**kwargs):
-    '''
+    """
     从cli得到goods_link(只支持get, post)
     :param kwargs:
     :return:
-    '''
+    """
     request = kwargs.get('request')
 
     # my_lg.info(dict(request.args))
@@ -1951,16 +1899,16 @@ def get_goods_link(**kwargs):
     return _
 
 ######################################################
-'''
+"""
 /api/article
-'''
+"""
 @app.route('/api/article', methods=['GET'])
 @Sign.signature_required
 def _article():
-    '''
+    """
     文章接口
     :return: json
-    '''
+    """
     _ = get_article_link(request=request)
     article_url = b64decode(s=_.encode('utf-8')).decode('utf-8')     # _ 传来的起初是str, 先str->byte, 再b64decode解码
     my_lg.info('获取到的article_url: {}'.format(str(article_url)))
@@ -1980,11 +1928,11 @@ def _article():
     return _success_data(msg='文章抓取成功!', data=article_res)
 
 def get_article_link(**kwargs):
-    '''
+    """
     从cli得到article_link
     :param kwargs:
     :return:
-    '''
+    """
     request = kwargs.get('request')
 
     _ = ''
@@ -2026,21 +1974,21 @@ def search():
 # error page handler
 @app.errorhandler(404)
 def page_not_found(error):
-    '''
+    """
     404页面
     :param error:
     :return:
-    '''
+    """
     return send_file('templates/404.html'), 404
 
 ######################################################
 # 从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
 def get_tmp_list_and_goods_2_delete_list(**kwargs):
-    '''
+    """
     从tmp_wait_to_save_data_list对应筛选出待存储的缓存数据[tmp_list]和待删除的goods缓存[goods_to_delete]
     :param kwargs:
     :return:
-    '''
+    """
     global tmp_wait_to_save_data_list
 
     # 三方商品类型
@@ -2092,11 +2040,11 @@ def get_tmp_list_and_goods_2_delete_list(**kwargs):
 ######################################################
 # save every url's right data
 def save_every_url_right_data(**kwargs):
-    '''
+    """
     存储处理后的每一个url的数据
     :param kwargs:
     :return: a json msg
-    '''
+    """
     global tmp_wait_to_save_data_list
 
     tmp_list = kwargs.get('tmp_list')
@@ -2137,7 +2085,7 @@ def just_fuck_run():
 
 def main():
     my_lg.info('========主函数开始========')
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    daemon_init()
     my_lg.info('--->>>| 孤儿进程成功被init回收成为单独进程!')
     just_fuck_run()
 

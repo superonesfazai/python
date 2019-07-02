@@ -225,7 +225,7 @@ class SqlPools(object):
             self.conn.execute(sql_str, params)
 
             # self.engine.commit()
-            logger.info('-' * 9 + '| ***该页面信息成功存入sqlserver中*** ')
+            logger.info('[+] add to db!')
             _ = True
 
         except Exception as e:
