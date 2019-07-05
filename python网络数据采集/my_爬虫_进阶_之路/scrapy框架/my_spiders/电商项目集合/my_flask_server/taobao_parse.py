@@ -72,8 +72,9 @@ class TaoBaoLoginAndParse(Crawler):
         :param goods_id:
         :return: data   类型dict
         '''
-        self.msg = '------>>>| 对应的手机端地址为: https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(goods_id)
-        self.lg.info(self.msg)
+        phone_url = 'https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(goods_id)
+        self.msg = '------>>>| phone_url: {}'
+        # self.lg.info(self.msg)
 
         # 获取主接口的body
         last_url = self._get_last_url(goods_id=goods_id)
@@ -132,19 +133,27 @@ class TaoBaoLoginAndParse(Crawler):
             logger=self.lg,)
         if mock_data == {}:
             self.lg.error('出错goods_id: {0}'.format(goods_id))
+
             return self._data_error_init()
 
         mock_data['feature'] = ''
         # pprint(mock_data)
         result_data['mockData'] = mock_data
 
-        # self.lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
+        # 可能会有{'name': 'esi', 'value': ''}的情况
+        # self.lg.info(str(result_data.get('apiStack', [])[0]))
         if result_data.get('apiStack', [])[0].get('value', '') == '':
             self.lg.info("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
             result_data['trade'] = {}
+
             return self._data_error_init()
+
         else:
-            result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
+            # 用于判断该商品是否已经下架的参数
+            result_data['trade'] = result_data\
+                .get('apiStack', [])[0]\
+                .get('value', {})\
+                .get('trade', {})
             # pprint(result_data['trade'])
 
         self.result_data = result_data

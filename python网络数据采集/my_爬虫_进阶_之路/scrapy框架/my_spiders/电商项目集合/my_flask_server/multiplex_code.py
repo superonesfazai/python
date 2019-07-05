@@ -512,7 +512,9 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         price_change_info=price_change_info)
     if data['_is_price_change'] == 1:
         _print(
-            msg='价格变动!! [{}]'.format(db_goods_info_obj.goods_id),
+            msg='{:10s} [{}]'.format(
+                'price changed!',
+                db_goods_info_obj.goods_id),
             logger=logger,)
         # pprint(data['_price_change_info'])
 
@@ -524,7 +526,9 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         old_spec_trans_time=db_goods_info_obj.old_spec_trans_time,)
     if data['is_spec_change'] == 1:
         _print(
-            msg='规格属性变动!! [{}]'.format(db_goods_info_obj.goods_id),
+            msg='{:10s} [{}]'.format(
+                'specs changed!',
+                db_goods_info_obj.goods_id),
             logger=logger,)
 
     # 监控纯库存变动
@@ -536,7 +540,9 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
     if data['is_stock_change'] == 1:
         _print(
-            msg='规格的库存变动!! [{}]'.format(db_goods_info_obj.goods_id),
+            msg='{:10s} [{}]'.format(
+                'stock changed!',
+                db_goods_info_obj.goods_id),
             logger=logger,)
 
     # 单独处理起批量>=1的
@@ -553,7 +559,7 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         pass
 
     _print(
-        msg='上架时间:{0}, 下架时间:{1}'.format(
+        msg='upper_shelf_time: {0}, off_shelf_time: {1}'.format(
             data['shelf_time'],
             data['delete_time']),
         logger=logger,)

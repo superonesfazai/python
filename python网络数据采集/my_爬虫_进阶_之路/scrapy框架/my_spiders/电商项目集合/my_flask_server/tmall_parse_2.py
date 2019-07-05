@@ -75,7 +75,7 @@ class TmallParse(Crawler):
         # self.lg.info(str(type))
         goods_id = goods_id[1]  # 天猫goods_id
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
-        self.lg.info('------>>>| 得到的移动端地址为: %s' % tmp_url)
+        # self.lg.info('------>>>| phone_url: {}'.format(tmp_url))
 
         self.headers.update({
             'Referer': tmp_url

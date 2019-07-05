@@ -9,7 +9,7 @@
 """
 文章资讯爬虫obj
 
-已支持:
+supported:
     1. 微信文章内容爬取(https://weixin.sogou.com)
     2. 简书文章内容爬取(https://www.jianshu.com)
     3. 今日头条文章内容爬取(https://www.toutiao.com)
@@ -28,7 +28,7 @@
     16. 界面新闻(https://www.jiemian.com/)
     17. 澎湃网(https://m.thepaper.cn/)
     
-待实现:
+not supported:
     1. 虎嗅网(https://www.huxiu.com/)
     2. 36氪(https://36kr.com)
     3. 太平洋时尚网(https://www.pclady.com.cn/)
