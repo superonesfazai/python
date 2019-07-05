@@ -13,7 +13,7 @@ from fzutils.ocr_utils import crack_wy_point_select_captcha
 from fzutils.url_utils import unquote_plus
 
 id = '1f6f8f8dc15b4f378c3134eec0c5f564'     # id是固定的值
-referer = 'http://120.26.119.135/Login.aspx'
+referer = 'http://admin.k85u.com/index.aspx'
 with open('/Users/afa/myFiles/pwd/act_captcha_helper_pwd.json', 'r') as f:
     helper_info = json_2_dict(f.read())
 
@@ -66,7 +66,7 @@ def bg_login(bg_username, bg_pwd):
         'NECaptchaValidate': validate,
         'btnLogin': '登    录',
     }
-    url = 'http://120.26.119.135/Login.aspx'
+    url = 'http://admin.k85u.com/index.aspx'
     body = Requests.get_url_body(method='post', url=url, headers=headers, cookies=cookies, data=data, use_proxy=False)
     print(body)
 

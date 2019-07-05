@@ -116,8 +116,8 @@ TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 23996             # 起始session_id
-MAX_SESSION_ID = 27000              # 截止的session_id
+BASE_SESSION_ID = 24666             # 起始session_id
+MAX_SESSION_ID = 29000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
 ZHE_800_SPIKE_SLEEP_TIME = 1.8       # 没抓取一个sleep time的时间,用于避免返回为空的情况
@@ -936,6 +936,52 @@ ARTICLE_ITEM_LIST = [
         'video_article_content': {
             'method': 'css',
             'selector': 'div.article-main',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
+    {
+        'short_name': 'pp',
+        'debug': True,
+        'obj_origin': 'm.thepaper.cn',
+        'article_id': {
+            'method': 're',
+            'selector': '/newsDetail_forward_(\d+)',
+        },
+        'video_id': None,
+        'title': {
+            'method': 'css',
+            'selector': 'h1.t_newsinfo ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'div.news_video_name ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'p.about_news:nth-child(2) ::text',
+        },
+        'author2': {
+            'method': 'css',
+            'selector': 'div.name a ::text',
+        },
+        'video_author': None,                               # 默认都为空值
+        'head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '<p class=\"about_news\" style=\"padding-bottom:15px;\">(.*?)&nbsp;.*?</p>',
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.news_part',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'p#vdetail_sum_p',
         },
         'comment_num': None,
         'tags_list': None,

@@ -26,13 +26,13 @@
     14. 爱范儿(pc: https://www.ifanr.com/)
     15. 科学松鼠会(https://songshuhui.net/)
     16. 界面新闻(https://www.jiemian.com/)
+    17. 澎湃网(https://m.thepaper.cn/)
     
 待实现:
-    1. 澎湃网(https://www.thepaper.cn/)
-    2. 虎嗅网(https://www.huxiu.com/)
-    3. 36氪(https://36kr.com)
-    4. 太平洋时尚网(https://www.pclady.com.cn/)
-    5. 网易新闻
+    1. 虎嗅网(https://www.huxiu.com/)
+    2. 36氪(https://36kr.com)
+    3. 太平洋时尚网(https://www.pclady.com.cn/)
+    4. 网易新闻
 """
 
 from os import getcwd
@@ -229,6 +229,10 @@ class ArticleParser(AsyncCrawler):
             'jm': {
                 'obj_origin': 'www.jiemian.com',
                 'site_id': 19,
+            },
+            'pp': {
+                'obj_origin': 'm.thepaper.cn',
+                'site_id': 20,
             },
         }
 
@@ -427,6 +431,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jm':
                 return await self._get_jm_article_html(article_url=article_url)
 
+            elif article_url_type == 'pp':
+                return await self._get_pp_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -434,6 +441,41 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_pp_article_html(self, article_url) -> tuple:
+        """
+        get pp html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_phone_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg, )
+        # self.lg.info(body)
+        assert body != '', '获取if的body为空值!'
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div.news_content video source ::attr("src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg, )
+        if video_url != '':
+            self.lg.info('此为视频文章')
+            self.lg.info('pp_video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_jm_article_html(self, article_url) -> tuple:
         """
@@ -1166,6 +1208,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1196,6 +1239,18 @@ class ArticleParser(AsyncCrawler):
                             target_obj=target_obj,
                             logger=self.lg, )
 
+        elif short_name == 'pp':
+            if author == '':
+                # 湃客发的文章
+                author_selector2 = parse_obj['author2']
+                author = await async_parse_field(
+                    parser=author_selector2,
+                    target_obj=target_obj,
+                    logger=self.lg, )
+
+        else:
+            pass
+
         short_name_list2 = [
             'df',
             'bd',
@@ -1205,6 +1260,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if short_name in short_name_list2:
             pass
@@ -1233,6 +1289,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1482,6 +1539,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1511,6 +1569,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -1562,6 +1621,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1602,6 +1662,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -1612,6 +1673,21 @@ class ArticleParser(AsyncCrawler):
         else:
             assert content != '', '获取到的content为空值!'
 
+        content = await self._wash_article_content(
+            short_name=short_name,
+            content=content,)
+        # hook 防盗链
+        content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+
+        return content
+
+    async def _wash_article_content(self, short_name: str, content: str) -> str:
+        """
+        清洗content
+        :param short_name:
+        :param content:
+        :return:
+        """
         if short_name == 'tt':
             # html乱码纠正
             content = await self._wash_tt_article_content(content=content)
@@ -1661,11 +1737,32 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jm':
             content = await self._wash_jm_article_content(content=content)
 
+        elif short_name == 'pp':
+            content = await self._wash_pp_article_content(content=content)
+
         else:
             pass
 
-        # hook 防盗链
-        content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+        return content
+
+    @staticmethod
+    async def _wash_pp_article_content(content) -> str:
+        """
+        清洗pp content
+        :param content:
+        :return:
+        """
+        # 清洗末尾额外补充说明
+        content = re.compile('<div class=\"news_infor_extra\">.*</div> <div class=\"relations_div\">')\
+            .sub('<div class="relations_div">', content)
+        content = re.compile('<strong>“湃客·镜相”栏目首发独家非虚构作品，版权所有，任何媒体或平台不得未经许可转载。</strong>')\
+            .sub('', content)
+        content = re.compile('<a href=\".*?\" target=\"_blank\">阅读原文</a>')\
+            .sub('', content)
+        content = re.compile('澎湃新闻').sub('优秀网', content)
+        content = re.compile('湃客').sub('秀客', content)
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -1958,6 +2055,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'jm',
+            'pp',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2030,6 +2128,9 @@ class ArticleParser(AsyncCrawler):
     def __del__(self):
         try:
             del self.lg
+            del self.user_agent_type
+            del self.ip_pool_type
+            del self.request_num_retries
         except:
             pass
         try:
@@ -2111,6 +2212,7 @@ def main():
     # url = 'https://kuaibao.qq.com/s/20190322V0DCSY00?refer=kb_news&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;chlid=daily_timeline&amp;atype=4&from=groupmessage&isappinstalled=0'
     # 第二种类型
     # url = 'https://kuaibao.qq.com/s/20190221V170RM00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
+    # url = 'https://kuaibao.qq.com/s/20190505V0FMTX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
 
     # 东方头条新闻
     # url = 'https://mini.eastday.com/mobile/190505214138491.html?qid=null&idx=1&recommendtype=crb_a579c9a168dd382c_1_1_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0'
@@ -2342,7 +2444,64 @@ def main():
     # 番茄社视频
     # url = 'https://www.jiemian.com/video/AGQCNwhhB2EBMFVk.html'
     # 观见直播
-    url = 'https://www.jiemian.com/video/AGQCNwhhB24BP1Vh.html'
+    # url = 'https://www.jiemian.com/video/AGQCNwhhB24BP1Vh.html'
+
+    # 澎湃网
+    # 财经
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3839103'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3839853'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3846838'
+    # 时事
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3840446'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3838988'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3846825'
+    # TODO 时事中的这个不支持
+    # url = 'http://news.cctv.com/2019/07/04/ARTIF52wrNXdxkXpjQYgWUp7190704.shtml'
+    # 湃客
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3838888'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3840135'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3783807'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3840119'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3839964'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3835189'
+    # 思想
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3817762'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3846862'
+    # 问政
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3842458'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3845652'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3845265'
+    # 生活
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3846718'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3838792'
+    # 问吧
+    # TODO 问吧不支持
+    # url = 'https://m.thepaper.cn/asktopic_detail_10016331'
+    # 媒体
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3846513'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3847138'
+    # 视频
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3771975'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3846917'
+    # 七环视频
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3847170'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3844360'
+    # 一级视场
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3840047'
+    # 温度计
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3838786'
+    # world湃
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3844360'
+    # 澎湃科技
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3840018'
+    # 健寻记
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3829764'
+    # 城市漫步
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3778088'
+    # 大都会
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3790389'
+    # @所有人
+    url = 'https://m.thepaper.cn/newsDetail_forward_3839854'
 
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))

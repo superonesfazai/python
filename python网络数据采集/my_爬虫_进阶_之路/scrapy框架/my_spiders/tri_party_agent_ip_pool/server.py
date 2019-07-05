@@ -8,6 +8,21 @@
 
 """
 server端
+
+use: 
+    python3 server.py --wsgi-disable-file-wrapper
+
+(为避免)
+1. In python3, uwsgi fails to respond a stream from BytesIO object.
+解释: uWSGI中的wsgi.file_wrapper是使用sendfile（）或offloading的真正优化。BytesIO不基于文件描述符，因此无法进行优化。最好的（或唯一的）解决方案是禁用wsgi.file_wrapper：
+
+2. OSError: [Errno 24] Too many open files <WSGIServer at 0x10e17d438 fileno=7 address=0.0.0.0:8001> failed with OSError
+解释: 出现这句提示的原因是程序打开的文件/socket连接数量超过系统设定值。
+查看每个用户最大允许打开文件数量
+$ ulimit -a
+# 修改最大可打开文件数(2048工作良好)(非永久)
+$ ulimit -n 2048
+[stack overflow: mac]: https://stackoverflow.com/questions/34821014/python-oserror-errno-24-too-many-open-files
 """
 
 from flask import (
