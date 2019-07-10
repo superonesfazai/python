@@ -28,7 +28,9 @@ from sql_str_controller import (
     al_update_str_2,
     al_insert_str_1,
     al_insert_str_2,)
-from multiplex_code import _handle_goods_shelves_in_auto_goods_table
+from multiplex_code import (
+    _handle_goods_shelves_in_auto_goods_table,
+    al_judge_begin_greater_than_1,)
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_driver import (
@@ -379,7 +381,7 @@ class ALi1688LoginAndParse(Crawler):
         detail_info_url = data.get('detailUrl', '')
         detail_info = self._get_div_desc(detail_info_url) if detail_info_url != '' else ''
         # self.lg.info(str(detail_info))
-        is_delete = self._get_is_delete(title=title)
+        is_delete = self._get_is_delete(title=title, price_info=price_info)
 
         result = {
             'company_name': company_name,               # 公司名称
@@ -652,6 +654,7 @@ class ALi1688LoginAndParse(Crawler):
         :return:
         '''
         title = kwargs.get('title')
+        price_info = kwargs.get('price_info', [])
 
         is_delete = 0
         if re.compile(r'下架').findall(title) != []:
@@ -661,6 +664,12 @@ class ALi1688LoginAndParse(Crawler):
                 is_delete = 1
         else:
             pass
+
+        begin_greater_than_1 = al_judge_begin_greater_than_1(
+            price_info=price_info,
+            logger=self.lg,)
+        if begin_greater_than_1:
+            is_delete = 1
 
         return is_delete
 

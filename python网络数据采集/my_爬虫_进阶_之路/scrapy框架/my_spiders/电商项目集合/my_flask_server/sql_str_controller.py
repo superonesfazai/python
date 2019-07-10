@@ -101,6 +101,7 @@ al_select_str_4 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 # goods_id是否已存在于db
 al_select_str_5 = al_select_str_1
 # 常规goods待更新数据获取(用asc, 使未被更新的优先更新)
+# and IsDelete=0
 al_select_str_6 = '''
 select top 1200 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 

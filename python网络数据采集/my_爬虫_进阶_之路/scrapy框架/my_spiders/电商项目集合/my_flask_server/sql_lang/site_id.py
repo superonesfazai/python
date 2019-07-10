@@ -248,6 +248,29 @@ sql_str_13 = '''
 -- where MainGoodsID is not NUll and IsDelete=0
 '''
 
+# 批量更改下架状态但是delete_time<shelf_time的商品(原因后台无法更新上架变下架)
+sql_str_18 = '''
+update dbo.GoodsInfoAutoGet set delete_time=GETDATE()
+-- select top 10 MainGoodsID, SiteID, shelf_time, delete_time, IsDelete
+-- select count(MainGoodsID)
+-- from dbo.GoodsInfoAutoGet
+where 
+IsDelete=1
+and MainGoodsID is not NUll
+and shelf_time>delete_time
+'''
+# 批量更改上架状态但是delete_time>shelf_time的商品(原因后台无法更新下架变上架)
+sql_str_19 = '''
+update dbo.GoodsInfoAutoGet set shelf_time=GETDATE()
+-- select top 10 MainGoodsID, SiteID, shelf_time, delete_time, IsDelete
+-- select count(MainGoodsID)
+-- from dbo.GoodsInfoAutoGet
+where 
+IsDelete=0
+and MainGoodsID is not NUll
+and shelf_time<delete_time
+'''
+
 """
 comment
 """
