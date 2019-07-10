@@ -948,13 +948,40 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
     sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s' \
         if update_sql_str is None \
         else update_sql_str
+    sql_str_2 = 'select top 1 delete_time from dbo.GoodsInfoAutoGet where GoodsID=%s'
+    sql_str_3 = 'update dbo.GoodsInfoAutoGet set delete_time=%s where GoodsID=%s'
     now_time = str(get_shanghai_time())
     try:
         sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+        if 'GoodsInfoAutoGet' in sql_str:
+            # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
+            res2 = sql_cli._select_table(
+                sql_str=sql_str_2,
+                params=(goods_id,),
+                logger=logger,)[0][0]
+            # pprint(res2)
+            if res2 is None:
+                # 更新下架时间
+                # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
+                _print(
+                    msg='@@@原先delete_time为空值, 此处赋值now_time [{}]'.format(goods_id),
+                    logger=logger)
+                sql_cli._update_table_2(
+                    sql_str=sql_str_3,
+                    params=(now_time, goods_id),
+                    logger=logger)
+            else:
+                pass
+
         if logger is None:
-            res = sql_cli._update_table(sql_str=sql_str, params=(now_time, goods_id))
+            res = sql_cli._update_table(
+                sql_str=sql_str,
+                params=(now_time, goods_id))
         else:
-            res = sql_cli._update_table_2(sql_str=sql_str, params=(now_time, goods_id), logger=logger)
+            res = sql_cli._update_table_2(
+                sql_str=sql_str,
+                params=(now_time, goods_id),
+                logger=logger)
 
         try:
             del sql_cli

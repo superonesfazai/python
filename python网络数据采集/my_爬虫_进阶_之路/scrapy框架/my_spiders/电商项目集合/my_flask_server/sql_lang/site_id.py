@@ -271,6 +271,14 @@ and MainGoodsID is not NUll
 and shelf_time<delete_time
 '''
 
+# 批量更改原先下架但是delete_time为空的商品(原因后台无法由上架变下架)
+sql_str_20 = '''
+update dbo.GoodsInfoAutoGet set delete_time=GETDATE()
+where MainGoodsID is not null
+and IsDelete=1
+and delete_time is null
+'''
+
 """
 comment
 """
