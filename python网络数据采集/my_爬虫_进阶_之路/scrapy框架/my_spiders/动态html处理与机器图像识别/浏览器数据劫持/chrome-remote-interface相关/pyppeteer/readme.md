@@ -59,3 +59,8 @@ async def main():
 
 asyncio.get_event_loop().run_until_complete(main())
 ```
+
+## puppeteer脚本自动生成
+chrome安装扩展puppeteer recorder
+
+[github](https://github.com/checkly/puppeteer-recorder)
