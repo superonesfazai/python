@@ -237,7 +237,7 @@ order by modfiy_time asc
 '''
 # 常规goods实时更新
 z8_select_str_3 = '''
-select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
+select top 500 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
 where SiteID=11 
 and MainGoodsID is not null

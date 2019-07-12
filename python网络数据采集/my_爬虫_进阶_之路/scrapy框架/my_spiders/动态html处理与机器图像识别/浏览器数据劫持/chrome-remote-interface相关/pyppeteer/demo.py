@@ -6,23 +6,31 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from termcolor import colored
 from os import system
+from websockets.exceptions import ConnectionClosed as WebsocketsConnectionClosed
+from asyncio.futures import InvalidStateError
+
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.fz_driver import (
     PHONE,
     PC,)
 from fzutils.spider.chrome_remote_interface import ChromiumPuppeteer
+from fzutils.spider.fz_requests import Requests
 from fzutils.spider.pyppeteer_always import *
 from fzutils.spider.async_always import *
+
+LOAD_IMAGES = False
 
 async def do_something(target_url: str):
     chromium_puppeteer = ChromiumPuppeteer(
         ip_pool_type=tri_ip_pool,
         headless=True,
+        load_images=LOAD_IMAGES,
         user_agent_type=PHONE,)
     driver = await chromium_puppeteer.create_chromium_puppeteer_browser()
     # print('chromium version: {}'.format(await driver.version()))
-    print('初始user_agent: {}'.format(await driver.userAgent()))
+    # print('初始user_agent: {}'.format(await driver.userAgent()))
     page = await driver.newPage()
     # 注意: 避免反爬检测window.navigator.webdriver为true, 认为非正常浏览器
     await page.evaluate("""
@@ -52,23 +60,84 @@ async def do_something(target_url: str):
     page.on(event='response', f=intercept_response)
     # page.on(event='requestfinished', f=request_finished)
 
+    # await page.setCookie({})
+
+    res = False
     try:
-        await page.goto(
+        # await page.goto(
+        #     url=target_url,
+        #     options={
+        #         'timeout': 1000 * 30,   # unit: ms
+        #     })
+        await goto_plus(
+            page=page,
             url=target_url,
             options={
-                'timeout': 1000 * 60,   # unit: ms
+                'timeout': 1000 * 30,   # unit: ms
             })
+        body = Requests._wash_html(await page.content())
+        print('[{:8s}] {}'.format(
+            colored('body', 'red'),
+            body,))
+        res = True if body != '' else res
+        # await page.pdf({
+        #     'path': 'screen.pdf',
+        # })
         await page.screenshot({
-            'path': 'screen.png'
+            'path': 'screen.png',
         })
-        await driver.close()
+
+    except (WebsocketsConnectionClosed, InvalidStateError) as e:
+        pass
+
     except Exception as e:
         print(e)
+
+    try:
+        del chromium_puppeteer
+        del page
+    except:
+        pass
+    try:
+        await driver.close()
+    except:
+        pass
 
     # 结束删除proxy扩展
     # system('rm -rf ./extensions')
 
-    return
+    return res
+
+async def goto_plus(page: PyppeteerPage,
+                    url: str,
+                    options: dict,
+                    num_retries: int=6,
+                    sleep_time: (float, int)=2.):
+    """
+    goto_plus(增加请求成功率!)
+    :param page:
+    :param url:
+    :param options:
+    :param num_retries: 避免无限循环
+    :param sleep_time: 合理的num_retries跟sleep_time能提高成功率!
+    :return:
+    """
+    while True:
+        try:
+            await page.goto(
+                url=url,
+                options=options,)
+            break
+        except (PyppeteerNetworkError, PyppeteerPageError) as e:
+            # 无网络 'net::ERR_INTERNET_DISCONNECTED','net::ERR_TUNNEL_CONNECTION_FAILED'
+            if num_retries > 0:
+                if 'net::' in str(e):
+                    num_retries -= 1
+                    await async_sleep(sleep_time)
+                else:
+                    raise e
+            else:
+                raise e
 
 async def intercept_request(request: PyppeteerRequest):
     """
@@ -79,6 +148,7 @@ async def intercept_request(request: PyppeteerRequest):
     url = request.url
     headers = request.headers
     post_data = request.postData
+    request_resource_type = request.resourceType
 
     print('[{:8s}] url: {}, post_data: {}'.format(
         'request',
@@ -90,8 +160,11 @@ async def intercept_request(request: PyppeteerRequest):
     # else:
     #     await request.continue_()
 
-    # 放行请求
-    await request.continue_()
+    if not LOAD_IMAGES and request_resource_type in ['image', 'media']:
+        await request.abort()
+    else:
+        # 放行请求
+        await request.continue_()
 
 async def intercept_response(response: PyppeteerResponse):
     """
@@ -118,9 +191,14 @@ async def intercept_response(response: PyppeteerResponse):
         try:
             body = await response.text()
             intercept_body = body[0:1500].replace('\n', '').replace('\t', '').replace('  ', '')
-            print('[{:8s}] {}'.format('@-data-@', intercept_body))
+            print('[{:8s}] {}'.format(
+                colored('@-data-@', 'green'),
+                intercept_body))
         except (PyppeteerNetworkError, IndexError) as e:
             print('遇到错误:', e)
+
+    else:
+        pass
 
 async def request_finished(request: PyppeteerRequest):
     """
@@ -137,6 +215,7 @@ async def main():
     # target_url = 'https://jinbao.pinduoduo.com/promotion/single-promotion'
     # target_url = 'https://music.163.com'
     # target_url = 'https://www.baidu.com'
+    # target_url = 'https://m.yiuxiu.com'
     # target_url = 'https://www.taobao.com'
     # target_url = 'https://g.zhe800.com/xianshiqiang/index'
     # 书旗m站
@@ -144,9 +223,8 @@ async def main():
     # 斗鱼m站
     # target_url = 'https://m.douyu.com/3605965'
 
-    url_list = []
-    for num in range(5):
-        url_list.append(target_url)
+    concurrent_num = 50
+    url_list = [target_url for num in range(concurrent_num)]
 
     tasks = []
     for url in url_list:
@@ -155,6 +233,15 @@ async def main():
         )))
 
     all_res = await async_wait_tasks_finished(tasks=tasks)
+    # pprint(all_res)
+
+    # 成功总数
+    success_count = 0
+    for item in all_res:
+        if item:
+            success_count += 1
+
+    print('成功个数: {}, 成功概率: {:.3f}'.format(success_count, success_count/concurrent_num))
 
 loop = get_event_loop()
 loop.run_until_complete(main())

@@ -60,7 +60,10 @@ class Z8Updater(AsyncCrawler):
             try:
                 del self.zhe_800
             except:
-                pass
+                try:
+                    del self.zhe_800
+                except:
+                    pass
             collect()
             self.zhe_800 = Zhe800Parse()
 
@@ -89,7 +92,9 @@ class Z8Updater(AsyncCrawler):
                     logger=self.lg,
                     data=data,
                     db_goods_info_obj=db_goods_info_obj,)
-                res = self.zhe_800.to_right_and_update_data(data, pipeline=self.sql_cli)
+                res = self.zhe_800.to_right_and_update_data(
+                    data=data,
+                    pipeline=self.sql_cli)
 
             else:  # 表示返回的data值为空值
                 pass
@@ -131,6 +136,10 @@ class Z8Updater(AsyncCrawler):
                         index += 1
 
                     await _get_async_task_result(tasks=tasks, logger=self.lg)
+                    try:
+                        del tasks
+                    except:
+                        pass
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))
             if get_shanghai_time().hour == 0:  # 0点以后不更新
