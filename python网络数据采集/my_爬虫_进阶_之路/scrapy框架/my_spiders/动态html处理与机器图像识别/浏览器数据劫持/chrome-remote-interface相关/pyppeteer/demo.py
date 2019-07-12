@@ -8,7 +8,6 @@
 
 from termcolor import colored
 from os import system
-from gc import collect
 from websockets.exceptions import ConnectionClosed as WebsocketsConnectionClosed
 from asyncio.futures import InvalidStateError
 
@@ -16,8 +15,10 @@ from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.fz_driver import (
     PHONE,
     PC,)
-from fzutils.common_utils import _print
-from fzutils.spider.chrome_remote_interface import ChromiumPuppeteer
+from fzutils.spider.chrome_remote_interface import (
+    ChromiumPuppeteer,
+    NetworkInterceptor,
+    goto_plus,)
 from fzutils.spider.pyppeteer_always import *
 from fzutils.spider.async_always import *
 
@@ -59,7 +60,7 @@ async def do_something(target_url: str):
     # ** puppeteer官网事件api: https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md
     # 搜索class: Page, 找到需求事件进行重写
     await page.setRequestInterception(True)
-    network_interceptor = NetworkInterceptor(load_images=LOAD_IMAGES)
+    network_interceptor = TestNetworkInterceptor()
     page.on(event='request', f=network_interceptor.intercept_request)
     page.on(event='response', f=network_interceptor.intercept_response)
     # page.on(event='requestfinished', f=network_interceptor.request_finished)
@@ -140,6 +141,12 @@ async def do_something(target_url: str):
 
     return res
 
+class TestNetworkInterceptor(NetworkInterceptor):
+    def __init__(self):
+        NetworkInterceptor.__init__(
+            self,
+            load_images=LOAD_IMAGES,)
+
 async def auto_scroll_to_bottom(page: PyppeteerPage):
     """
     自动下滑至底部
@@ -201,7 +208,6 @@ async def main():
         tasks.append(loop.create_task(do_something(
             target_url=url,
         )))
-
     all_res = await async_wait_tasks_finished(tasks=tasks)
     # pprint(all_res)
 
