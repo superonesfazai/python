@@ -193,9 +193,11 @@ async def main():
     # target_url = 'https://www.jianshu.com'
     # 唯品会
     # m
-    target_url = 'https://m.vip.com/product-1710617992-6918185219909833864.html'
+    # target_url = 'https://m.vip.com/product-1710617992-6918185219909833864.html'
     # pc
     # target_url = 'https://detail.vip.com/detail-100170974-806750333981150.html?f=ad'
+    # 马蜂窝
+    target_url = 'https://m.mafengwo.cn/mtraffic/flightinter/list.html?departCity=%E5%8C%97%E4%BA%AC&departCode=BJS&destCity=%E6%9B%BC%E8%B0%B7&destCode=BKK&departDate=2019-07-21&destDate=&status=0&adult_nums=1&child_nums=0&baby_nums=0&followId=d17df66e43ce9f6bec3b4648f61f3394'
 
     concurrent_num = 3
     url_list = [target_url for num in range(concurrent_num)]

@@ -989,6 +989,65 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'hx',
+        'debug': True,
+        'obj_origin': 'm.huxiu.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/article/(\d+)\.',
+        },
+        'video_id': None,
+        'title': {
+            'method': 'css',
+            'selector': 'div#article div.title ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'div#article div.title ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'div#article span.username ::text',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'div#article span.username ::text',
+        },
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.face-box.fl img ::attr("data-original")',
+        },
+        'video_head_url': {
+            'method': 'css',
+            'selector': 'div.face-box.fl img ::attr("data-original")',
+        },
+        'create_time': {
+            'method': 'css',
+            'selector': 'span.m-article-time ::text',
+        },
+        'video_create_time': {
+            'method': 'css',
+            'selector': 'span.m-article-time ::text',
+        },
+        'article_main_img': {                               # 文章最上方主图
+            'method': 'css',
+            'selector': 'div.article-content-img',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.article-content',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'div.article-content',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''

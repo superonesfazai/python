@@ -131,7 +131,10 @@ class RequestClient(object):
         # article_link = 'https://www.jiemian.com/video/AGQCNwhhB24BP1Vh.html'
 
         # 澎湃网
-        article_link = 'https://m.thepaper.cn/newsDetail_forward_3839854'
+        # article_link = 'https://m.thepaper.cn/newsDetail_forward_3839854'
+
+        # 虎嗅网
+        article_link = 'https://m.huxiu.com/article/308402.html'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))

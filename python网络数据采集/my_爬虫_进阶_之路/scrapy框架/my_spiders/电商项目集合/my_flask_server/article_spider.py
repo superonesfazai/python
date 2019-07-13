@@ -27,12 +27,12 @@ supported:
     15. 科学松鼠会(https://songshuhui.net/)
     16. 界面新闻(https://www.jiemian.com/)
     17. 澎湃网(https://m.thepaper.cn/)
+    18. 虎嗅网(https://m.huxiu.com)
     
 not supported:
-    1. 虎嗅网(https://www.huxiu.com/)
-    2. 36氪(https://36kr.com)
-    3. 太平洋时尚网(https://www.pclady.com.cn/)
-    4. 网易新闻
+    1. 36氪(https://36kr.com)
+    2. 太平洋时尚网(https://www.pclady.com.cn/)
+    3. 网易新闻
 """
 
 from os import getcwd
@@ -234,6 +234,10 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.thepaper.cn',
                 'site_id': 20,
             },
+            'hx': {
+                'obj_origin': 'm.huxiu.com',
+                'site_id': 21,
+            },
         }
 
     async def _get_html_by_driver(self,
@@ -434,6 +438,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'pp':
                 return await self._get_pp_article_html(article_url=article_url)
 
+            elif article_url_type == 'hx':
+                return await self._get_hx_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -441,6 +448,51 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_hx_article_html(self, article_url) -> tuple:
+        """
+        get hx html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_random_phone_headers()
+        headers.update({
+            'authority': 'm.huxiu.com',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取if的body为空值!'
+        has_video_url_sel = {
+            'method': 'css',
+            'selector': 'div#article-video-head',
+        }
+        has_video_url = await async_parse_field(
+            parser=has_video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        if has_video_url != '':
+            # 视频文章
+            self.lg.info('此为视频文章')
+            video_url_sel = {
+                'method': 're',
+                'selector': ",file: '(.*?)',ak:",
+            }
+            video_url = await async_parse_field(
+                parser=video_url_sel,
+                target_obj=body,
+                logger=self.lg,)
+            self.lg.info('video_url: {}'.format(video_url))
+        else:
+            pass
+
+        return body, video_url
 
     async def _get_pp_article_html(self, article_url) -> tuple:
         """
@@ -1209,6 +1261,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1261,6 +1314,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if short_name in short_name_list2:
             pass
@@ -1290,6 +1344,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if parse_obj['short_name'] in short_name_list:
             if video_url != '':
@@ -1341,6 +1396,7 @@ class ArticleParser(AsyncCrawler):
 
         short_name_list = [
             'kb',
+            'hx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1540,6 +1596,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1570,6 +1627,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -1622,6 +1680,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1652,6 +1711,19 @@ class ArticleParser(AsyncCrawler):
         #     html = await self._get_html_by_driver(url=article_url, load_images=True)
         #     print(html)
 
+        if short_name == 'hx':
+            if video_url == '' and content != '':
+                # 加上主图
+                article_main_img_div = await async_parse_field(
+                    parser=parse_obj['article_main_img'],
+                    target_obj=target_obj,
+                    logger=self.lg)
+                content = article_main_img_div + content
+            else:
+                pass
+        else:
+            pass
+
         short_name_list2 = [
             'df',
             'sg',
@@ -1663,6 +1735,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -1740,8 +1813,49 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'pp':
             content = await self._wash_pp_article_content(content=content)
 
+        elif short_name == 'hx':
+            content = await self._wash_hx_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_hx_article_content(content) -> str:
+        """
+        清洗hx content
+        :param content:
+        :return:
+        """
+        # 去除段落空行
+        content = re.compile('<p><br></p>').sub('', content)
+        content = re.compile('<p></p>').sub('', content)
+        content = re.compile('<p class=\"img-center-box\"><br></p>').sub('', content)
+        content = re.compile('<p label=\"正文\" class=\"text-normal\"><br></p>').sub('', content)
+        # 立场去除
+        content = re.compile('<div class=\"neirong-shouquan\">.*?</div>').sub('', content)
+        # 引用去除
+        content = re.compile('<span class=\"text-remarks\" label=\"备注\">.*?</span>').sub('', content)
+        content = re.compile('<span class=\"text-remarks\">.*?</span>').sub('', content)
+        # 去除图片惰性加载
+        content = re.compile('<img class=\"lazy\" data-original=').sub('<img class=\"lazy\" src=', content)
+        # 去除点击展开全文
+        content = re.compile('<divclass js-hmt-detection data-detection=\"文章详情页,展开全文,点击\">.*?</divclass>')\
+            .sub('', content)
+        # 去除尾部作者盒子图片
+        content = re.compile('<img src=\"https://img.huxiucdn.com/authorCard/\d+.jpg\?\d+\">')\
+            .sub('', content)
+        # 去除不让转载
+        content = re.compile('<span style=\".*?\">本文首发于腾讯科技，未经授权，不得转载。</span>')\
+            .sub('', content)
+
+        # 替换
+        content = re.compile('虎嗅网').sub('优秀网', content)
+        content = re.compile('虎嗅').sub('优秀', content)
+
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -2056,6 +2170,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'jm',
             'pp',
+            'hx',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2502,7 +2617,47 @@ def main():
     # 大都会
     # url = 'https://m.thepaper.cn/newsDetail_forward_3790389'
     # @所有人
-    url = 'https://m.thepaper.cn/newsDetail_forward_3839854'
+    # url = 'https://m.thepaper.cn/newsDetail_forward_3839854'
+
+    # 虎嗅网
+    # 医疗健康
+    # url = 'https://m.huxiu.com/article/308324.html'
+    # url = 'https://m.huxiu.com/article/308204.html'
+    # url = 'https://m.huxiu.com/article/307905.html'
+    # url = 'https://m.huxiu.com/article/307743.html'
+    # 电商消费
+    # url = 'https://m.huxiu.com/article/308473.html'
+    # url = 'https://m.huxiu.com/article/308467.html'
+    # url = 'https://m.huxiu.com/article/308442.html'
+    # 娱乐淘金
+    # url = 'https://m.huxiu.com/article/308523.html'
+    # url = 'https://m.huxiu.com/article/308340.html'
+    # 车与出行
+    # url = 'https://m.huxiu.com/article/308465.html'
+    # url = 'https://m.huxiu.com/article/308022.html'
+    # 人工智能
+    # url = 'https://m.huxiu.com/article/307650.html'
+    # 年轻一代
+    # url = 'https://m.huxiu.com/article/308441.html'
+    # 智能终端
+    # url = 'https://m.huxiu.com/article/308527.html'
+    # 文化教育
+    # url = 'https://m.huxiu.com/article/308471.html'
+    # 金融地产
+    # url = 'https://m.huxiu.com/article/308425.html'
+    # 企业服务
+    # url = 'https://m.huxiu.com/article/308152.html'
+    # 创业维艰
+    # url = 'https://m.huxiu.com/article/308496.html'
+    # 社交通讯
+    # url = 'https://m.huxiu.com/article/308505.html'
+    # 全球热点
+    # url = 'https://m.huxiu.com/article/308509.html'
+    # 生活腔调
+    url = 'https://m.huxiu.com/article/308510.html'
+    # 视频
+    # url = 'https://m.huxiu.com/article/308402.html'
+    # url = 'https://m.huxiu.com/article/307339.html'
 
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))
