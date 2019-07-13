@@ -15,11 +15,8 @@ from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.fz_driver import (
     PHONE,
     PC,)
-from fzutils.spider.chrome_remote_interface import (
-    ChromiumPuppeteer,
-    NetworkInterceptor,
-    goto_plus,)
 from fzutils.spider.pyppeteer_always import *
+from fzutils.spider.chrome_remote_interface import *
 from fzutils.spider.async_always import *
 
 HEADLESS = True
@@ -36,16 +33,7 @@ async def do_something(target_url: str):
     # print('chromium version: {}'.format(await driver.version()))
     # print('初始user_agent: {}'.format(await driver.userAgent()))
     page = await driver.newPage()
-    # 注意: 避免反爬检测window.navigator.webdriver为true, 认为非正常浏览器
-    await page.evaluate("""
-    () =>{
-        Object.defineProperties(navigator, {
-        webdriver:{
-               get: () => false
-            }
-        })
-    }
-    """)
+    await bypass_chrome_spiders_detection(page=page)
 
     # 测试发现此处修改无效!
     # await page.setUserAgent(userAgent=get_random_pc_ua())
@@ -60,9 +48,10 @@ async def do_something(target_url: str):
     # ** puppeteer官网事件api: https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md
     # 搜索class: Page, 找到需求事件进行重写
     await page.setRequestInterception(True)
-    network_interceptor = TestNetworkInterceptor()
+    network_interceptor = NetworkInterceptorTest()
     page.on(event='request', f=network_interceptor.intercept_request)
     page.on(event='response', f=network_interceptor.intercept_response)
+    page.on(event='requestfailed', f=network_interceptor.request_failed)
     # page.on(event='requestfinished', f=network_interceptor.request_finished)
 
     # await page.setCookie({})
@@ -81,7 +70,7 @@ async def do_something(target_url: str):
             page=page,
             url=target_url,
             options={
-                'timeout': 1000 * 30,           # unit: ms
+                'timeout': 1000 * 35,           # unit: ms
                 'waitUntil': [                  # 页面加载完成 or 不再有网络连接
                     'domcontentloaded',
                     'networkidle0',
@@ -141,7 +130,7 @@ async def do_something(target_url: str):
 
     return res
 
-class TestNetworkInterceptor(NetworkInterceptor):
+class NetworkInterceptorTest(NetworkInterceptor):
     def __init__(self):
         NetworkInterceptor.__init__(
             self,
@@ -183,6 +172,9 @@ async def auto_scroll_to_bottom(page: PyppeteerPage):
     # do what you like ...
 
 async def main():
+    global USER_AGENT_TYPE
+
+    USER_AGENT_TYPE = PHONE
     # target_url = 'https://www.github.com'
     # target_url = 'https://httpbin.org/get'
     # 多多进宝
@@ -193,14 +185,19 @@ async def main():
     # target_url = 'https://www.taobao.com'
     # target_url = 'https://g.zhe800.com/xianshiqiang/index'
     # 书旗m站
-    target_url = 'http://t.shuqi.com'
+    # target_url = 'http://t.shuqi.com'
     # 斗鱼m站
     # target_url = 'https://m.douyu.com/3605965'
     # 简书
     # target_url = 'https://www.jianshu.com/u/40909ea33e50'
     # target_url = 'https://www.jianshu.com'
+    # 唯品会
+    # m
+    target_url = 'https://m.vip.com/product-1710617992-6918185219909833864.html'
+    # pc
+    # target_url = 'https://detail.vip.com/detail-100170974-806750333981150.html?f=ad'
 
-    concurrent_num = 20
+    concurrent_num = 3
     url_list = [target_url for num in range(concurrent_num)]
 
     tasks = []

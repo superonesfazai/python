@@ -3,6 +3,10 @@
 
 [doc](https://miyakogi.github.io/pyppeteer/reference.html)
 
+[api](https://pptr.dev)
+
+![](https://user-images.githubusercontent.com/746130/40333229-5df5480c-5d0c-11e8-83cb-c3e371de7374.png)
+
 ## DevTools Protocol
 与无头浏览器交互的协议，可以直接使用websocket与开启的chrome进行通信。 所有的控制指令都以json通信
 
