@@ -30,9 +30,13 @@ supported:
     18. 虎嗅网(https://m.huxiu.com)
     
 not supported:
-    1. 36氪(https://36kr.com)
-    2. 太平洋时尚网(https://www.pclady.com.cn/)
-    3. 网易新闻
+    1. 南方周末(http://www.infzm.com/wap/#/)
+    2. 新华网(http://m.xinhuanet.com)
+    3. 36氪(https://36kr.com)
+    4. 太平洋时尚网(https://www.pclady.com.cn/)
+    5. 网易新闻
+    
+news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
 
 from os import getcwd

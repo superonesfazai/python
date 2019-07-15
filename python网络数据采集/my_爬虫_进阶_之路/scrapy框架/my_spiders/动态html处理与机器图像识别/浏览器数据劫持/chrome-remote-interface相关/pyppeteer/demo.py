@@ -15,6 +15,7 @@ from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.fz_driver import (
     PHONE,
     PC,)
+from fzutils.aio_utils import unblock_request
 from fzutils.spider.pyppeteer_always import *
 from fzutils.spider.chrome_remote_interface import *
 from fzutils.spider.async_always import *
@@ -66,11 +67,15 @@ async def do_something(target_url: str):
         # await page.waitForSelector(
         #     selector='css_xxxx',
         #     timeout=1000 * 30,)
+
+        await page_get_m_vip_com_cookies(
+            target_url=target_url,
+            page=page,)
         await goto_plus(
             page=page,
             url=target_url,
             options={
-                'timeout': 1000 * 35,           # unit: ms
+                'timeout': 1000 * 50,           # unit: ms
                 'waitUntil': [                  # 页面加载完成 or 不再有网络连接
                     'domcontentloaded',
                     'networkidle0',
@@ -171,10 +176,35 @@ async def auto_scroll_to_bottom(page: PyppeteerPage):
     # 完成懒加载后可以完整截图或者爬取数据...
     # do what you like ...
 
+async def page_get_m_vip_com_cookies(target_url: str, page: PyppeteerPage) -> PyppeteerPage:
+    """
+    单独处理m.vip.com无法截获v5接口
+    :param page:
+    :return:
+    """
+    if 'm.vip.com' in target_url:
+        # page先获取主站cookie, 再进行下步请求, 才能截获v5 api
+        await goto_plus(
+            page=page,
+            url='https://m.vip.com',
+            options={
+                'timeout': 1000 * 40,   # unit: ms
+                'waitUntil': [          # 页面加载完成 or 不再有网络连接
+                    'domcontentloaded',
+                    'networkidle0',
+                ]
+            })
+    else:
+        pass
+
+    return page
+
 async def main():
-    global USER_AGENT_TYPE
+    global USER_AGENT_TYPE, LOAD_IMAGES, HEADLESS
 
     USER_AGENT_TYPE = PHONE
+    LOAD_IMAGES = False
+    HEADLESS = False
     # target_url = 'https://www.github.com'
     # target_url = 'https://httpbin.org/get'
     # 多多进宝
@@ -192,14 +222,16 @@ async def main():
     # target_url = 'https://www.jianshu.com/u/40909ea33e50'
     # target_url = 'https://www.jianshu.com'
     # 唯品会
-    # m
+    # m, 一定概率拦截v5 api
     # target_url = 'https://m.vip.com/product-1710617992-6918185219909833864.html'
     # pc
     # target_url = 'https://detail.vip.com/detail-100170974-806750333981150.html?f=ad'
     # 马蜂窝
-    target_url = 'https://m.mafengwo.cn/mtraffic/flightinter/list.html?departCity=%E5%8C%97%E4%BA%AC&departCode=BJS&destCity=%E6%9B%BC%E8%B0%B7&destCode=BKK&departDate=2019-07-21&destDate=&status=0&adult_nums=1&child_nums=0&baby_nums=0&followId=d17df66e43ce9f6bec3b4648f61f3394'
+    # target_url = 'https://m.mafengwo.cn/mtraffic/flightinter/list.html?departCity=%E5%8C%97%E4%BA%AC&departCode=BJS&destCity=%E6%9B%BC%E8%B0%B7&destCode=BKK&departDate=2019-07-21&destDate=&status=0&adult_nums=1&child_nums=0&baby_nums=0&followId=d17df66e43ce9f6bec3b4648f61f3394'
+    # 七麦数据
+    target_url = 'https://www.qimai.cn/rank'
 
-    concurrent_num = 3
+    concurrent_num = 1
     url_list = [target_url for num in range(concurrent_num)]
 
     tasks = []
