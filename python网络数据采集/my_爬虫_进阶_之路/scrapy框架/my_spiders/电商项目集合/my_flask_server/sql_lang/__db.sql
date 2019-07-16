@@ -501,3 +501,22 @@ create table goods_comment_new(
   append_comment_date datetime,
   append_comment_img_url_list nvarchar(max),
 );
+
+-- 创建zwm_buss_settle_records表
+create table zwm_buss_settle_records(
+  id int identity(1, 1) primary key,
+  unique_id nvarchar(100) not null,
+  create_time datetime,
+  shop_name nvarchar(200) not null,
+  shop_id varchar(100) not null,
+  agent_name nvarchar(150) not null,
+  top_agent_name nvarchar(100) not null,
+  date_settle_type nvarchar(50) not null,
+  trans_amount decimal(18, 2) not null,
+  service_charge decimal(18, 2) default 0,
+  accounting_amount decimal(18, 2) not null,
+  trans_date datetime not null,
+  trans_status int not null ,
+  settle_type nvarchar(50) not null,
+  settle_date datetime,
+);

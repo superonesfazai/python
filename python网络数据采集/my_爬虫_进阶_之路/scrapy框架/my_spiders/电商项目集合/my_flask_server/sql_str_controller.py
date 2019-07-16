@@ -570,3 +570,9 @@ yp_update_str_2 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 gs_select_str_1 = '''select unique_id from dbo.company_info where site_id=%s'''
 '''insert'''
 gs_insert_str_1 = '''insert into dbo.company_info(province_id, city_id, unique_id, company_url, company_link, company_name, legal_person, phone, email_address, address, brief_introduction, business_range, founding_time, create_time, site_id, employees_num, type_code, lng, lat) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+
+"""
+zwm
+"""
+zwm_select_str_1 = '''select unique_id from dbo.zwm_buss_settle_records'''
+zwm_insert_str_1 = 'insert into dbo.zwm_buss_settle_records(unique_id, create_time, shop_name, shop_id, agent_name, top_agent_name, date_settle_type, trans_amount, service_charge, accounting_amount, trans_date, trans_status, settle_type, settle_date) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'

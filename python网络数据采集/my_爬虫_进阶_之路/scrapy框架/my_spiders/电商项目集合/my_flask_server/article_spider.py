@@ -28,13 +28,13 @@ supported:
     16. 界面新闻(https://www.jiemian.com/)
     17. 澎湃网(https://m.thepaper.cn/)
     18. 虎嗅网(https://m.huxiu.com)
+    19. 南方周末(http://www.infzm.com/wap/#/)
     
 not supported:
-    1. 南方周末(http://www.infzm.com/wap/#/)
-    2. 新华网(http://m.xinhuanet.com)
-    3. 36氪(https://36kr.com)
-    4. 太平洋时尚网(https://www.pclady.com.cn/)
-    5. 网易新闻
+    1. 新华网(http://m.xinhuanet.com)
+    2. 36氪(https://36kr.com)
+    3. 太平洋时尚网(https://www.pclady.com.cn/)
+    4. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -75,6 +75,8 @@ class ArticleParser(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/',
             ip_pool_type=IP_POOL_TYPE)
         self.request_num_retries = 6
+        # api data
+        self.hook_target_api_data = None
 
     async def _parse_article(self, article_url) -> dict:
         """
@@ -241,6 +243,10 @@ class ArticleParser(AsyncCrawler):
             'hx': {
                 'obj_origin': 'm.huxiu.com',
                 'site_id': 21,
+            },
+            'nfzm': {
+                'obj_origin': 'www.infzm.com',
+                'site_id': 22,
             },
         }
 
@@ -445,6 +451,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'hx':
                 return await self._get_hx_article_html(article_url=article_url)
 
+            elif article_url_type == 'nfzm':
+                return await self._get_nfzm_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -452,6 +461,52 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_nfzm_article_html(self, article_url) -> tuple:
+        """
+        get nfzm html
+        :param article_url:
+        :return:
+        """
+        # 走api
+        video_url = ''
+        headers = await self._get_random_phone_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        params = (
+            ('version', '1.1.15'),
+            ('platform', 'wap'),
+            ('user_id', ''),
+            ('token', ''),
+        )
+        # 获取article_id
+        parser_obj = await self._get_parse_obj(article_url_type='nfzm')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg, )
+        assert article_id != '', 'nfzm的article_id != ""'
+        api_url = 'http://api.infzm.com/mobile/contents/{}'.format(article_id)
+        body = await unblock_request(
+            url=api_url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            verify=False,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取hx的body为空值!'
+        self.hook_target_api_data = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={},).get('data', {})
+        assert self.hook_target_api_data != {}, 'nfzm的api data为空dict!'
+        # pprint(self.hook_target_api_data)
+
+        return body, video_url
 
     async def _get_hx_article_html(self, article_url) -> tuple:
         """
@@ -472,7 +527,7 @@ class ArticleParser(AsyncCrawler):
             num_retries=self.request_num_retries,
             logger=self.lg,)
         # self.lg.info(body)
-        assert body != '', '获取if的body为空值!'
+        assert body != '', '获取hx的body为空值!'
         has_video_url_sel = {
             'method': 'css',
             'selector': 'div#article-video-head',
@@ -1280,7 +1335,6 @@ class ArticleParser(AsyncCrawler):
             parser=author_selector,
             target_obj=target_obj,
             logger=self.lg)
-
         if short_name == 'kb':
             if video_url != '':
                 if author == '':
@@ -1305,6 +1359,9 @@ class ArticleParser(AsyncCrawler):
                     target_obj=target_obj,
                     logger=self.lg, )
 
+        elif short_name == 'nfzm':
+            author = self.hook_target_api_data['content']['author']
+
         else:
             pass
 
@@ -1319,6 +1376,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'nfzm',
         ]
         if short_name in short_name_list2:
             pass
@@ -1334,6 +1392,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
         title_selector = parse_obj['title']
         # self.lg.info(target_obj)
 
@@ -1350,7 +1409,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
         ]
-        if parse_obj['short_name'] in short_name_list:
+        if short_name in short_name_list:
             if video_url != '':
                 title_selector = parse_obj['video_title']
             else:
@@ -1365,7 +1424,7 @@ class ArticleParser(AsyncCrawler):
             target_obj=target_obj,
             logger=self.lg)
 
-        if parse_obj['short_name'] == 'kb':
+        if short_name == 'kb':
             if video_url != '':
                 if title == '':
                     # 第一种情况
@@ -1384,7 +1443,15 @@ class ArticleParser(AsyncCrawler):
                             target_obj=target_obj,
                             logger=self.lg, )
 
+        elif short_name == 'nfzm':
+            # pprint(self.hook_target_api_data)
+            title = self.hook_target_api_data['content']['subject']
+
+        else:
+            pass
+
         assert title != '', '获取到的title为空值!'
+        # self.lg.info(title)
 
         return title
 
@@ -1499,11 +1566,20 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         comment_num = 0
+        short_name = parse_obj['short_name']
+
         _ = await async_parse_field(
             parser=parse_obj['comment_num'],
             target_obj=target_obj,
             logger=self.lg)
         # self.lg.info(str(_))
+
+        if short_name == 'nfzm':
+            comment_num = self.hook_target_api_data['content']['comment_count']
+
+        else:
+            pass
+
         try:
             comment_num = int(_)
         except ValueError:      # 未提取到评论默认为0
@@ -1573,6 +1649,19 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        elif short_name == 'nfzm':
+            tags_list = []
+            ori_tags_list = self.hook_target_api_data['content']['tags']
+            for item in ori_tags_list:
+                try:
+                    tag_name = item.get('title', '')
+                    assert tag_name != ''
+                except AssertionError:
+                    continue
+                tags_list.append({
+                    'keyword': tag_name,
+                })
+
         else:
             pass
 
@@ -1589,6 +1678,21 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        async def parse_create_time(create_time) -> str:
+            """
+            解析create_time
+            :param create_time:
+            :return:
+            """
+            try:
+                create_time = str(date_parse(create_time))
+            except ValueError:
+                self.lg.error('获取article create_time时, 遇到错误:', exc_info=True)
+                self.lg.info('默认设置当前时间为文章创建时间点!')
+                create_time = str(get_shanghai_time())
+
+            return create_time
+
         short_name = parse_obj['short_name']
         create_time_selector = parse_obj['create_time']
 
@@ -1655,12 +1759,11 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name in short_name_list2:
             if create_time != '':
-                try:
-                    create_time = str(date_parse(create_time))
-                except ValueError:
-                    self.lg.error('获取article create_time时, 遇到错误:', exc_info=True)
-                    self.lg.info('默认设置当前时间为文章创建时间点!')
-                    create_time = str(get_shanghai_time())
+                create_time = await parse_create_time(create_time=create_time)
+
+        elif short_name == 'nfzm':
+            create_time = await parse_create_time(
+                create_time=self.hook_target_api_data['content']['publish_time'])
 
         else:
             pass
@@ -1725,6 +1828,10 @@ class ArticleParser(AsyncCrawler):
                 content = article_main_img_div + content
             else:
                 pass
+
+        elif short_name == 'nfzm':
+            content = self.hook_target_api_data['content']['fulltext']
+
         else:
             pass
 
@@ -1740,6 +1847,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'nfzm',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -1820,8 +1928,25 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'hx':
             content = await self._wash_hx_article_content(content=content)
 
+        elif short_name == 'nfzm':
+            content = await self._wash_nfzm_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_nfzm_article_content(content) -> str:
+        """
+        清洗nfzm content
+        :param content:
+        :return:
+        """
+        content = re.compile('\n').sub('', content)
+
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -2175,6 +2300,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'nfzm',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2658,10 +2784,35 @@ def main():
     # 全球热点
     # url = 'https://m.huxiu.com/article/308509.html'
     # 生活腔调
-    url = 'https://m.huxiu.com/article/308510.html'
+    # url = 'https://m.huxiu.com/article/308510.html'
     # 视频
     # url = 'https://m.huxiu.com/article/308402.html'
     # url = 'https://m.huxiu.com/article/307339.html'
+
+    # 南方周末(其中只有部分文章可用, 不推荐使用)
+    # url = 'http://www.infzm.com/wap/#/content/153845'
+    # url = 'http://www.infzm.com/wap/#/content/153862'
+    # TODO 无法查看文章内容:
+    #  1. 含有redirect为非正常url
+    #  2. or 包括部分文章只能在app内打开(即标题边上有南方周末小img的，即会员才能查看), 这部分url无法处理
+    # url = 'http://www.infzm.com/wap/#/content/153536?redirect=%2Fcontent%2F153500'
+    # 新闻
+    # url = 'http://www.infzm.com/wap/#/content/153500'
+    # url = 'http://www.infzm.com/wap/#/content/153849'
+    # url = 'http://www.infzm.com/wap/#/content/153851'
+    # url = 'http://www.infzm.com/wap/#/content/153760'
+    # 文化
+    # url = 'http://www.infzm.com/wap/#/content/153854'
+    # 人物
+    # url = 'http://www.infzm.com/wap/#/content/153334'
+    # 生活
+    # url = 'http://www.infzm.com/wap/#/content/152879'
+    # 社会
+    # url = 'http://www.infzm.com/wap/#/content/153416'
+    # 教育
+    # url = 'http://www.infzm.com/wap/#/content/152819'
+    # 财富
+    url = 'http://www.infzm.com/wap/#/content/147544'
 
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))

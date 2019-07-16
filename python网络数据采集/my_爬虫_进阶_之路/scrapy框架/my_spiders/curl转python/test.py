@@ -18,7 +18,8 @@ from fzutils.ip_pools import (
     fz_ip_pool,
     ip_proxy_pool,
     sesame_ip_pool,
-    tri_ip_pool,)
+    tri_ip_pool,
+    get_random_proxy_ip_from_ip_pool,)
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.fz_driver import (
     BaseDriver, 
@@ -223,3 +224,5 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 # print(body)
 #
 # sleep(60)
+
+

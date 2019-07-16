@@ -122,3 +122,22 @@ class CompanyItem(Item):
     type_code = Field()             # 公司 or 商品分类的code
     lng = Field()                   # 经度
     lat = Field()                   # 纬度
+
+class ZWMBusinessSettlementRecordItem(Item):
+    """
+    zwm 商户结算记录
+    """
+    unique_id = Field()             # 用于区别每条交易记录, 唯一
+    create_time = Field()           # 该记录存储时间点
+    shop_name = Field()             # 商户名称
+    shop_id = Field()               # 商户编号
+    agent_name = Field()            # 代理商名称
+    top_agent_name = Field()        # 顶级代理商名称
+    date_settle_type = Field()      # 结算类型
+    trans_amount = Field()          # 交易金额
+    service_charge = Field()        # 手续费
+    accounting_amount = Field()     # 入账金额
+    trans_date = Field()            # 交易日期
+    trans_status = Field()          # 交易状态
+    settle_type = Field()           # 结算类型
+    settle_date = Field()           # 结算日期
