@@ -38,19 +38,27 @@ class BuYiJuSpider(AsyncCrawler):
         """
         # ** 姓名打分
         # res = await self.name_scoring(surname='吕', name='布')
-        # pprint(res)
 
         # ** 测字算命
         # res = await self.word_and_fortune_telling(two_words='你好')
-        # pprint(res)
 
         # ** 生日算命
         # res = await self.birthday_fortune_telling(month=12, day=25)
-        # pprint(res)
 
         # ** 手机号码测吉凶
-        res = await self.phone_number_for_good_or_bad_luck(phone_num=18796571279)
-        pprint(res)
+        # res = await self.phone_number_for_good_or_bad_luck(phone_num=18796571279)
+
+        # ** 车牌号码测吉凶
+        # res = await self.license_plate_num_for_good_or_bad(
+        #     province='京',
+        #     city_num='A',
+        #     num='66666')
+
+        # ** 姓名缘分配对
+        # res = await self.distribution_pairs_of_names(name1='吕布', name2='貂蝉')
+
+        # ** 星座配对
+        res = await self.constellation_pairing(constellation_name1='处女座', constellation_name2='摩羯座')
 
         # ** 抽签算命
         # 观音灵签
@@ -75,7 +83,148 @@ class BuYiJuSpider(AsyncCrawler):
         # res = await self.fortune_telling_by_lot(lot_type='yj')
         # 太上老君灵签
         # res = await self.fortune_telling_by_lot(lot_type='tslj')
-        # pprint(res)
+
+        pprint(res)
+
+    async def constellation_pairing(self, constellation_name1: str, constellation_name2: str) -> dict:
+        """
+        星座配对
+        :param constellation_name1:
+        :param constellation_name2:
+        :return:
+        """
+        headers = await self.get_random_phone_headers()
+        headers.update({
+            'Origin': 'https://m.buyiju.com',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Referer': 'https://m.buyiju.com/peidui/xzpd.php',
+        })
+        data = {
+            'xz1': constellation_name1,
+            'xz2': constellation_name2,
+            'submit': '开始测试',
+        }
+        body = await unblock_request(
+            method='post',
+            url='https://m.buyiju.com/peidui/xzpd.php',
+            headers=headers,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,
+            logger=self.lg, )
+        # self.lg.info(body)
+
+        try:
+            assert body != ''
+            content = await async_parse_field(
+                parser=self.parser_obj_dict['byj']['constellation_pairing']['content'],
+                target_obj=body,
+                logger=self.lg, )
+            assert content != '', 'content != ""'
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return {}
+
+        content = await self._wash_constellation_pairing_content(content=content)
+        print(content)
+
+        return {
+            'res': content,
+        }
+
+    async def distribution_pairs_of_names(self, name1: str, name2: str) -> dict:
+        """
+        姓名缘分配对
+        :param name1:
+        :param name2:
+        :return:
+        """
+        headers = await self.get_random_phone_headers()
+        headers.update({
+            'Origin': 'https://m.buyiju.com',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Referer': 'https://m.buyiju.com/peidui/xmyf.php',
+        })
+        data = {
+            'cname1': name1,
+            'cname2': name2,
+            'submit': '开始测试',
+        }
+        body = await unblock_request(
+            method='post',
+            url='https://m.buyiju.com/peidui/xmyf.php',
+            headers=headers,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,
+            logger=self.lg, )
+        # self.lg.info(body)
+
+        try:
+            assert body != ''
+            content = await async_parse_field(
+                parser=self.parser_obj_dict['byj']['distribution_pairs_of_names']['content'],
+                target_obj=body,
+                logger=self.lg, )
+            assert content != '', 'content != ""'
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return {}
+
+        content = await self._wash_distribution_pairs_of_names_content(content=content)
+        print(content)
+
+        return {
+            'res': content,
+        }
+
+    async def license_plate_num_for_good_or_bad(self, province: str, city_num: str, num :str):
+        """
+        车牌测吉凶
+        :param province:
+        :param city_num:
+        :param num:
+        :return:
+        """
+        headers = await self.get_random_phone_headers()
+        headers.update({
+            'Origin': 'https://m.buyiju.com',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Referer': 'https://m.buyiju.com/cm/chepai/',
+        })
+        data = {
+            'sheng': province,
+            'shi': city_num,
+            'czsm': num,
+            'action': 'test'
+        }
+        body = await unblock_request(
+            method='post',
+            url='https://m.buyiju.com/cm/chepai/',
+            headers=headers,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,
+            logger=self.lg, )
+        # self.lg.info(body)
+
+        try:
+            assert body != ''
+            content = await async_parse_field(
+                parser=self.parser_obj_dict['byj']['license_plate_num_for_good_or_bad']['content'],
+                target_obj=body,
+                logger=self.lg, )
+            assert content != '', 'content != ""'
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return {}
+
+        content = await self._wash_license_plate_num_for_good_or_bad_content(content=content)
+        print(content)
+
+        return {
+            'res': content,
+        }
 
     async def phone_number_for_good_or_bad_luck(self, phone_num: int):
         """
@@ -372,6 +521,77 @@ class BuYiJuSpider(AsyncCrawler):
         }
 
     @staticmethod
+    async def _wash_constellation_pairing_content(content) -> str:
+        """
+        清洗星座配对
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('卜易居士|卜易居', '优秀网'),
+                # 避免过度清洗
+                ('<div class=\"yunshi\">.*</div>', '</div>'),
+            ],
+            add_sensitive_str_list=None,
+            is_default_filter=False, )
+
+        content = modify_body_p_typesetting(content=content)
+
+        return content
+
+    @staticmethod
+    async def _wash_distribution_pairs_of_names_content(content) -> str:
+        """
+        姓名缘分测试
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('卜易居士|卜易居', '优秀网'),
+                # 避免过度清洗
+                ('<div class=\"yunshi\">.*</div>', '</div>'),
+            ],
+            add_sensitive_str_list=None,
+            is_default_filter=False, )
+
+        content = modify_body_p_typesetting(content=content)
+
+        return content
+
+    @staticmethod
+    async def _wash_license_plate_num_for_good_or_bad_content(content) -> str:
+        """
+        清洗车牌测吉凶
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('卜易居士|卜易居', '优秀网'),
+                ('<div class=\"inform\">.*</div>', '</div>')
+            ],
+            add_sensitive_str_list=[
+                '<p><strong>优秀网车牌祥批</strong></p>',
+                '<p>以上结果为通用数理分析，如需全面掌握车牌号 <span class=\"red\">.*?</span> 带给你的机缘，可请优秀网结合 <strong>生辰八字</strong>进行测算，让你全面掌握车牌号带给你的机缘！可以为选车牌号提供参考。</p>'
+            ],
+            is_default_filter=False,)
+
+        content = modify_body_p_typesetting(content=content)
+        if content != '':
+            # 牌照底纹蓝色
+            content = '<style>.cp{width:180px;margin:auto;}  .cp ul{color:white;font-weight:bold;letter-spacing:2px;background-color:blue;padding:2px;}  .cp ul li{border:2px solid #fff;text-transform:uppercase;font:normal normal 26px/30px Arial, Helvetica, sans-serif;list-style-type: none;padding-top:2px;}  .zmdx{text-transform:uppercase;}</style>' + \
+                content
+        else:
+            pass
+
+        return content
+
+    @staticmethod
     async def _wash_phone_number_for_good_or_bad_luck_content(content) -> str:
         """
         清洗手机号码测吉凶
@@ -516,6 +736,24 @@ class BuYiJuSpider(AsyncCrawler):
                     }
                 },
                 'phone_number_for_good_or_bad_luck': {
+                    'content': {
+                        'method': 'css',
+                        'selector': 'div.content',
+                    }
+                },
+                'license_plate_num_for_good_or_bad': {
+                    'content': {
+                        'method': 'css',
+                        'selector': 'div.content',
+                    }
+                },
+                'distribution_pairs_of_names': {
+                    'content': {
+                        'method': 'css',
+                        'selector': 'div.content',
+                    }
+                },
+                'constellation_pairing': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
