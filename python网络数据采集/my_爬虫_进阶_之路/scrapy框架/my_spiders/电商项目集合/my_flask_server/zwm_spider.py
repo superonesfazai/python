@@ -6,10 +6,16 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+zwm spider
+"""
+
 from gc import collect
-from settings import MY_SPIDER_LOGS_PATH
 from decimal import Decimal
 
+from settings import (
+    MY_SPIDER_LOGS_PATH,
+    IP_POOL_TYPE,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_items import ZWMBusinessSettlementRecordItem
 from sql_str_controller import (
@@ -19,7 +25,6 @@ from sql_str_controller import (
 from requests import session
 from datetime import datetime
 from requests_toolbelt import MultipartEncoder
-from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.async_always import *
 
 ZWM_PWD_PATH = '/Users/afa/myFiles/pwd/zwm_pwd.json'
@@ -28,7 +33,7 @@ class ZWMSpider(AsyncCrawler):
     def __init__(self):
         AsyncCrawler.__init__(
             self,
-            ip_pool_type=tri_ip_pool,
+            ip_pool_type=IP_POOL_TYPE,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/zwm/_/',
         )
