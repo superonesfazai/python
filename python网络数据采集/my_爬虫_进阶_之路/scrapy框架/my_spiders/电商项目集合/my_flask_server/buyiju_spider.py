@@ -10,7 +10,6 @@
 卜易居 spider(https://m.buyiju.com)
 """
 
-from gc import collect
 from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
@@ -22,11 +21,12 @@ from fzutils.exceptions import catch_exceptions_with_class_logger
 from fzutils.spider.async_always import *
 
 class BuYiJuSpider(AsyncCrawler):
-    def __init__(self):
+    def __init__(self, logger=None):
         AsyncCrawler.__init__(
             self,
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
+            logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/buyiju/_/',)
         self.num_retries = 6
         self.parser_obj_dict = self.get_parser_obj_dict()
@@ -36,6 +36,8 @@ class BuYiJuSpider(AsyncCrawler):
         main
         :return:
         """
+        # self.test()
+
         # ** 姓名打分
         # res = await self.name_scoring(surname='吕', name='布')
 
@@ -58,7 +60,9 @@ class BuYiJuSpider(AsyncCrawler):
         # res = await self.distribution_pairs_of_names(name1='吕布', name2='貂蝉')
 
         # ** 星座配对
-        res = await self.constellation_pairing(constellation_name1='处女座', constellation_name2='摩羯座')
+        res = await self.constellation_pairing(
+            name1='处女座',
+            name2='摩羯座')
 
         # ** 抽签算命
         # 观音灵签
@@ -84,15 +88,17 @@ class BuYiJuSpider(AsyncCrawler):
         # 太上老君灵签
         # res = await self.fortune_telling_by_lot(lot_type='tslj')
 
-        pprint(res)
+        # pprint(res)
 
-    async def constellation_pairing(self, constellation_name1: str, constellation_name2: str) -> dict:
+    async def constellation_pairing(self, name1: str, name2: str) -> dict:
         """
         星座配对
-        :param constellation_name1:
-        :param constellation_name2:
+        :param name1:
+        :param name2:
         :return:
         """
+        assert name1 != '' and name2 != '', 'name1 or name2其一为空值'
+
         headers = await self.get_random_phone_headers()
         headers.update({
             'Origin': 'https://m.buyiju.com',
@@ -100,8 +106,8 @@ class BuYiJuSpider(AsyncCrawler):
             'Referer': 'https://m.buyiju.com/peidui/xzpd.php',
         })
         data = {
-            'xz1': constellation_name1,
-            'xz2': constellation_name2,
+            'xz1': name1,
+            'xz2': name2,
             'submit': '开始测试',
         }
         body = await unblock_request(
@@ -139,6 +145,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param name2:
         :return:
         """
+        assert name1 != '' and name2 != '', 'name1 or name2其一为空值'
+
         headers = await self.get_random_phone_headers()
         headers.update({
             'Origin': 'https://m.buyiju.com',
@@ -186,6 +194,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param num:
         :return:
         """
+        assert province != '' and city_num != '' and num != '',\
+            'province or city_num or num 其一为空值'
         headers = await self.get_random_phone_headers()
         headers.update({
             'Origin': 'https://m.buyiju.com',
@@ -392,6 +402,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param lot_type:
         :return:
         """
+        assert lot_type != '', 'lot_type != ""'
+
         referer, qid, url = await self.get_lot_some_params(lot_type=lot_type)
         headers = await self.get_random_phone_headers()
         headers.update({
@@ -436,6 +448,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param two_words: 2字
         :return:
         """
+        assert two_words != '', 'two_words != ""'
+
         headers = await self.get_random_phone_headers()
         headers.update({
             'Origin': 'https://m.buyiju.com',
@@ -481,6 +495,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param name: 名字
         :return:
         """
+        assert surname != '' and name != '', 'surname or name 为空值!'
+
         headers = await self.get_random_phone_headers()
         headers.update({
             'Origin': 'https://m.buyiju.com',
@@ -555,7 +571,9 @@ class BuYiJuSpider(AsyncCrawler):
                 # 避免过度清洗
                 ('<div class=\"yunshi\">.*</div>', '</div>'),
             ],
-            add_sensitive_str_list=None,
+            add_sensitive_str_list=[
+                '<small>www.buyiju.com/peidui/xmyf.php</small>'
+            ],
             is_default_filter=False, )
 
         content = modify_body_p_typesetting(content=content)
@@ -703,7 +721,8 @@ class BuYiJuSpider(AsyncCrawler):
 
     @catch_exceptions_with_class_logger(default_res='aa')
     def test(self) -> str:
-        assert '' != ''
+        a = 'test test'
+        b, c, d = a.split()
 
         return ''
 

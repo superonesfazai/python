@@ -67,10 +67,11 @@ def total():
             continue
 
         total += value
-        # if total >= 160:
-        #     # 160h是2018.12->2019.5月total调休时长, 2019.5 用到2019.4.30号
-        #     print('当前total: {}, 当前调休到day: {}'.format(total, key))
-        #     break
+        if total >= 184:
+            # 160h是2018.12->2019.5月total调休时长, 2019.5 用到2019.4.30号
+            # 184h是2018.12->2019.6月total调休时长, 2019.6 用到2019.5.24号
+            print('当前total: {}, 当前调休到day: {}'.format(total, key))
+            break
 
     print('总计hours: {}h\n能调days: {}day'.format(total, total/8))
 

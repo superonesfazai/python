@@ -13,7 +13,7 @@ $ source ~/.zshrc
 $ setx BETTER_EXCEPTIONS 1    # Windows
 ```
 
-如果要允许输出整个值而不是截断为一定数量的字符：
+如果要允许输出整个值而不是截断为一定数量的字符： 
 ```python
 import better_exceptions
 better_exceptions.MAX_LENGTH = None

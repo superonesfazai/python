@@ -114,6 +114,7 @@ from sql_str_controller import (
     fz_mi_insert_str,)
 
 from article_spider import ArticleParser
+from buyiju_spider import BuYiJuSpider
 from asyncio import get_event_loop
 
 from fzutils.log_utils import set_logger
@@ -125,6 +126,7 @@ from fzutils.safe_utils import (
     encrypt,
     decrypt,
     get_uuid1,)
+from fzutils.exceptions import catch_exceptions
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -1919,7 +1921,7 @@ def _article():
     try:
         article_res = loop.run_until_complete(_._parse_article(article_url=article_url))
     except Exception:
-        my_lg.error(exc_info=True)
+        my_lg.error('遇到错误:', exc_info=True)
 
     collect()
     if article_res == {}:
@@ -1946,6 +1948,112 @@ def get_article_link(**kwargs):
         _ = request.form.get('article_link', '')
 
     return _
+
+######################################################
+"""
+/api/fortune_telling
+"""
+@app.route('/api/fortune_telling', methods=['GET'])
+def fortune_telling():
+    """
+    算命接口
+    :return: json
+    """
+    @catch_exceptions(logger=my_lg, default_res={})
+    def _get_fortune_telling_res(req_args_dict: dict) -> dict:
+        """
+        获取接口请求res
+        :param req_args_dict:
+        :return:
+        """
+        fortune_telling_type = int(req_args_dict.get('type', '0'))
+
+        byj_spider = BuYiJuSpider(logger=my_lg)
+        loop = get_event_loop()
+        if fortune_telling_type == 0:
+            # 姓名打分
+            res = loop.run_until_complete(byj_spider.name_scoring(
+                surname=req_args_dict.get('surname', '吕'),
+                name=req_args_dict.get('name', '布'),))
+
+        elif fortune_telling_type == 1:
+            # 测字算命
+            res = loop.run_until_complete(byj_spider.word_and_fortune_telling(
+                two_words=req_args_dict.get('two_words', '你好')))
+
+        elif fortune_telling_type == 2:
+            # 生日算命
+            res = loop.run_until_complete(byj_spider.birthday_fortune_telling(
+                month=int(req_args_dict.get('month', 1)),
+                day=int(req_args_dict.get('day', 1)),))
+
+        elif fortune_telling_type == 3:
+            # 手机号码测吉凶
+            res = loop.run_until_complete(byj_spider.phone_number_for_good_or_bad_luck(
+                phone_num=int(req_args_dict.get('phone_num', '18796571279')),))
+
+        elif fortune_telling_type == 4:
+            # 车牌号码测吉凶
+            res = loop.run_until_complete(byj_spider.license_plate_num_for_good_or_bad(
+                province=req_args_dict.get('province', '京'),
+                city_num=req_args_dict.get('city_num', 'A'),
+                num=req_args_dict.get('num', '66666'),))
+
+        elif fortune_telling_type == 5:
+            # 姓名缘分配对
+            res = loop.run_until_complete(byj_spider.distribution_pairs_of_names(
+                name1=req_args_dict.get('name1', '吕布'),
+                name2=req_args_dict.get('name2', '貂蝉'),))
+
+        elif fortune_telling_type == 6:
+            # 星座配对
+            res = loop.run_until_complete(byj_spider.constellation_pairing(
+                name1=req_args_dict.get('name1', '处女座'),
+                name2=req_args_dict.get('name2', '摩羯座'),))
+
+        elif fortune_telling_type == 7:
+            # 抽签算命
+            TIPS = {
+                '观音灵签': 'gy',
+                '佛祖灵签': 'fz',
+                '月老灵签': 'yl',
+                '关帝灵签': 'gd',
+                '黄大仙灵签': 'hdx',
+                '吕祖灵签': 'lv',
+                '天后妈祖灵签': 'mz',
+                '财神灵签': 'cs',
+                '地藏王灵签': 'dzw',
+                '易经64卦灵签': 'yj',
+                '太上老君灵签': 'tslj',
+            }
+            res = loop.run_until_complete(byj_spider.fortune_telling_by_lot(
+                lot_type=req_args_dict.get('lot_type', 'gy'),))
+
+        else:
+            raise NotImplemented('未实现fortune_telling_type值!')
+
+        try:
+            del loop
+            del byj_spider
+        except:
+            pass
+
+        return res
+
+    req_args_dict = request.args
+    my_lg.info(str(req_args_dict))
+
+    try:
+        res = _get_fortune_telling_res(req_args_dict=req_args_dict)
+        assert res != {}
+    except Exception:
+        my_lg.error('遇到错误:', exc_info=True)
+        return _error_msg(msg='抓取失败')
+
+    return _success_data(
+        msg='抓取成功',
+        data=res,
+    )
 
 ######################################################
 # wechat

@@ -9,7 +9,8 @@
 import better_exceptions
 
 better_exceptions.MAX_LENGTH = None
+# 手动激活挂钩, 不激活也生效
+# better_exceptions.hook()
 
-request = "test test test"      # 从request中获取到数据
-a, b, c, d = request.split()    # 处理数据
-
+request = "test test test"
+a, b, c, d = request.split()

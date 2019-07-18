@@ -72,7 +72,7 @@ class ZWMSpider(AsyncCrawler):
                 # 获取所有商户结算记录
                 all_business_settlement_records = await self._get_all_business_settlement_records_by_something()
                 # pprint(all_business_settlement_records)
-                self.lg.info('len_all_business_settlement_records: {}'.format(len(all_business_settlement_records)))
+                self.lg.info('len_now_business_settlement_records: {}'.format(len(all_business_settlement_records)))
                 await self._wash_save_all_business_settlement_records(target_list=all_business_settlement_records)
 
             except Exception:
@@ -551,11 +551,20 @@ class ZWMSpider(AsyncCrawler):
         :return:
         """
         now_time = get_shanghai_time()
+        # 避免月底流水无法获取
+        day = 27
+
+        now_month = now_time.month
+        if now_month > 1:
+            now_month -= 1
+        else:
+            # now_month为1月份
+            now_month = 12
 
         return str(datetime(
             year=now_time.year,
-            month=now_time.month,
-            day=1,))
+            month=now_month,
+            day=day,))
 
     def _get_proxies(self) -> dict:
         """
