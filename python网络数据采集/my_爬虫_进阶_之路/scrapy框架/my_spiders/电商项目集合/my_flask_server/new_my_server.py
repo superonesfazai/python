@@ -1967,9 +1967,9 @@ def fortune_telling():
         :return:
         """
         fortune_telling_type = int(req_args_dict.get('type', '0'))
-
         byj_spider = BuYiJuSpider(logger=my_lg)
         loop = get_event_loop()
+
         if fortune_telling_type == 0:
             # 姓名打分
             res = loop.run_until_complete(byj_spider.name_scoring(

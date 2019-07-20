@@ -520,3 +520,28 @@ create table zwm_buss_settle_records(
   settle_type nvarchar(50) not null,
   settle_date datetime,
 );
+
+-- 创建zwm_buss_manage_records表
+create table zwm_buss_manage_records(
+  id int identity(1, 1) primary key,
+  unique_id nvarchar(100) not null,
+  create_time datetime,
+  modify_time datetime,
+  agent_name nvarchar(150) not null,
+  top_agent_name nvarchar(100) not null,
+  shop_type nvarchar(100) not null,
+  is_high_quality_shop int not null,      -- 0 否 1是
+  shop_id varchar(100) not null,
+  shop_chat_name nvarchar(200) not null,
+  phone_num nvarchar(100) not null,
+  shop_chant_num int not null,
+  sale nvarchar(150) not null,
+  is_real_time int not null,              -- 0 否 1是
+  approve_date datetime,
+  rate decimal(18, 4) not null,
+  account_type nvarchar(100) not null,
+  apply_time datetime,
+  process_context nvarchar(2000),         --可为空
+  is_non_contact int not null,            -- 0 否 1是
+  approval_status int not null,           -- 审核通过0, 待审核1, 退回2
+);

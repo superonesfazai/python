@@ -141,3 +141,30 @@ class ZWMBusinessSettlementRecordItem(Item):
     trans_status = Field()          # 交易状态
     settle_type = Field()           # 结算类型
     settle_date = Field()           # 结算日期
+
+class ZWMBusinessManageRecordItem(Item):
+    """
+    zwm 商户及门店记录
+    """
+    unique_id = Field()             # 用于区别每条交易记录, 唯一, 用后台自身的id, item.get('id', '')
+    create_time = Field()           # 该记录存储时间点
+    modify_time = Field()           # 该记录更新时间点, 因为人工会改动
+    agent_name = Field()            # 代理商名称
+    top_agent_name = Field()        # 顶级代理商名称
+    shop_type = Field()             # 商户类型
+    is_high_quality_shop = Field()  # 是否为高质量商户
+    shop_id = Field()               # 商户编号
+    shop_chat_name = Field()        # 商户注册名称
+    phone_num = Field()             # 手机号
+    shop_chant_num = Field()        # 门店数量
+    sale = Field()                  # 销售
+    is_real_time = Field()          # 是否开通实时到账
+    approve_date = Field()          # 审核通过日期
+    rate = Field()                  # 费率
+    account_type = Field()          # 账户性质
+    apply_time = Field()            # 申请时间
+    process_context = Field()       # 受理描述
+    is_non_contact = Field()        # 是否开通非接
+    approval_status = Field()       # 审核状态
+
+

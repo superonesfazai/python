@@ -10,17 +10,22 @@
 zwm spider
 """
 
-from gc import collect
 from decimal import Decimal
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_items import ZWMBusinessSettlementRecordItem
+from my_items import (
+    ZWMBusinessSettlementRecordItem,
+    ZWMBusinessManageRecordItem,
+)
 from sql_str_controller import (
     zwm_select_str_1,
     zwm_insert_str_1,
+    zwm_select_str_2,
+    zwm_insert_str_2,
+    zwm_update_str_1,
 )
 from requests import session
 from datetime import datetime
@@ -42,6 +47,7 @@ class ZWMSpider(AsyncCrawler):
         self.num_retries = 6
         self.max_transaction_details_page_num = 20              # 交易截止抓取页
         self.max_business_settlement_records_page_num = 20      # 商户结算记录截止抓取页
+        self.max_business_manage_page_num = 20                  # 商户及门店管理截止抓取页
         self.login_cookies_dict = {}
         self.sleep_time = 5
 
@@ -70,10 +76,20 @@ class ZWMSpider(AsyncCrawler):
                 # await self._wash_and_save_all_transaction_details(target_list=all_transaction_details)
 
                 # 获取所有商户结算记录
+                self.lg.info('获取所有商户结算记录...')
                 all_business_settlement_records = await self._get_all_business_settlement_records_by_something()
                 # pprint(all_business_settlement_records)
                 self.lg.info('len_now_business_settlement_records: {}'.format(len(all_business_settlement_records)))
                 await self._wash_save_all_business_settlement_records(target_list=all_business_settlement_records)
+                self.lg.info('\n')
+
+                # 获取所有商户及门店管理记录
+                self.lg.info('获取所有商户及门店管理记录 ...')
+                all_business_manage_records = await self._get_all_business_manage_records_by_something()
+                # pprint(all_business_manage_records)
+                self.lg.info('len_all_business_manage_records: {}'.format(len(all_business_manage_records)))
+                await self._wash_save_all_business_manage_records(target_list=all_business_manage_records)
+                self.lg.info('\n')
 
             except Exception:
                 self.lg.error('遇到错误:', exc_info=True)
@@ -125,6 +141,269 @@ class ZWMSpider(AsyncCrawler):
                 return False
 
         return True
+
+    async def _wash_save_all_business_manage_records(self, target_list: list):
+        """
+        清洗并存储所有未存储的 or 更新所有已存储的business manage records
+        :param target_list:
+        :return:
+        """
+        all_res = []
+        for item in target_list:
+            try:
+                now_time = get_shanghai_time()
+                create_time, modify_time = now_time, now_time
+                agent_name = item['agentName']
+                top_agent_name = item['topAgentName']
+                shop_type = item['merType']
+
+                is_high_quality_shop = item['isHighQualityMer']
+                if is_high_quality_shop == '否':
+                    is_high_quality_shop = 0
+                elif is_high_quality_shop == '是':
+                    is_high_quality_shop = 1
+                else:
+                    raise ValueError('is_high_quality_shop value: {} 异常!'.format(is_high_quality_shop))
+
+                shop_id = item.get('jhmid', '')
+                assert shop_id != ''
+                shop_chat_name = item.get('merchantName', '')
+                assert shop_chat_name != ''
+                phone_num = item.get('phone', '')
+                assert phone_num != ''
+                shop_chant_num = int(item['merchantNum'])
+                sale = item['sale']
+                is_real_time = 0 if item['isRealTime'] == '未开通' else 1
+                approve_date = date_parse(item['approveDate'])
+                rate = Decimal(item['rate']).__round__(4)
+                account_type = item['accType']
+                apply_time = date_parse(item['applyTime'])
+                # 可为空值
+                process_context = item.get('processContext', '')
+                is_non_contact = 0 if item['isNonContact'] == '未开通' else 1
+
+                approval_status = item['approvalStatus']
+                if approval_status == '待审核':
+                    approval_status = 1
+                elif approval_status == '审核通过':
+                    approval_status = 0
+                elif approval_status == '退回':
+                    approval_status = 2
+                else:
+                    raise ValueError('approval_status value: {} 异常'.format(approval_status))
+
+                # 用其原值为定值不变, 且唯一
+                unique_id = item['id']
+
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+
+            zwm_item = ZWMBusinessManageRecordItem()
+            zwm_item['unique_id'] = unique_id
+            zwm_item['create_time'] = create_time
+            zwm_item['modify_time'] = modify_time
+            zwm_item['agent_name'] = agent_name
+            zwm_item['top_agent_name'] = top_agent_name
+            zwm_item['shop_type'] = shop_type
+            zwm_item['is_high_quality_shop'] = is_high_quality_shop
+            zwm_item['shop_id'] = shop_id
+            zwm_item['shop_chat_name'] = shop_chat_name
+            zwm_item['phone_num'] = phone_num
+            zwm_item['shop_chant_num'] = shop_chant_num
+            zwm_item['sale'] = sale
+            zwm_item['is_real_time'] = is_real_time
+            zwm_item['approve_date'] = approve_date
+            zwm_item['rate'] = rate
+            zwm_item['account_type'] = account_type
+            zwm_item['apply_time'] = apply_time
+            zwm_item['process_context'] = process_context
+            zwm_item['is_non_contact'] = is_non_contact
+            zwm_item['approval_status'] = approval_status
+            all_res.append(dict(zwm_item))
+
+        # pprint(all_res)
+        await self._insert_or_update_shop_manage_records_table(all_res=all_res)
+        try:
+            del all_res
+        except:
+            pass
+
+        return None
+
+    async def _insert_or_update_shop_manage_records_table(self, all_res: list):
+        """
+        插入or update原数据
+        :param all_res:
+        :return:
+        """
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        try:
+            db_data = self.sql_cli._select_table(
+                sql_str=zwm_select_str_2,
+                params=None,
+                logger=self.lg, )
+            # pprint(db_data)
+            db_unique_id_list = [item[0] for item in db_data]
+            # assert db_unique_id_list != [], 'db_unique_id_list != []'
+            self.lg.info('len_db_unique_id_list: {}'.format(len(db_unique_id_list)))
+        except Exception:
+            self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            self.lg.error('遇到错误:', exc_info=True)
+            return None
+
+        new_add_count = 0
+        for item in all_res:
+            unique_id = item['unique_id']
+            if unique_id not in db_unique_id_list:
+                # 插入
+                self.lg.info('inserting unique_id: {} ...'.format(unique_id))
+                params = await self._get_insert_item_params2(item=item)
+                try:
+                    res = self.sql_cli._insert_into_table_2(
+                        sql_str=zwm_insert_str_2,
+                        params=params,
+                        logger=self.lg)
+                    if res:
+                        new_add_count += 1
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+            else:
+                # 更新
+                self.lg.info('updating unique_id: {} ...'.format(unique_id))
+                params = await self._get_update_item_params(item=item)
+                try:
+                    res = self.sql_cli._update_table_2(
+                        sql_str=zwm_update_str_1,
+                        params=params,
+                        logger=self.lg)
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+
+    async def _get_all_business_manage_records_by_something(self,):
+        """
+        获取所有商户及门店管理记录
+        :return:
+        """
+        async def _get_tasks_params_list() -> list:
+            """获取tasks_params_list"""
+            tasks_params_list = []
+            for page_num in range(1, self.max_business_manage_page_num):
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        tasks_params_list = await _get_tasks_params_list()
+        tasks_params_list_obj = TasksParamsListObj(
+            tasks_params_list=tasks_params_list,
+            step=self.concurrency,)
+
+        all_res = []
+        while True:
+            try:
+                slice_params_list = tasks_params_list_obj.__next__()
+            except AssertionError:
+                break
+
+            tasks = []
+            for k in slice_params_list:
+                page_num = k['page_num']
+                self.lg.info('create task[where page_num: {}]...'.format(page_num))
+                func_args = [
+                    page_num,
+                ]
+                tasks.append(self.loop.create_task(unblock_func(
+                        func_name=self._get_one_page_business_manage_records_by_something,
+                        func_args=func_args,
+                        logger=self.lg,)))
+
+            one_res = await async_wait_tasks_finished(tasks=tasks)
+            # pprint(one_res)
+            try:
+                del tasks
+            except:
+                pass
+            for i in one_res:
+                for j in i:
+                    all_res.append(j)
+
+        return all_res
+
+    def _get_one_page_business_manage_records_by_something(self,
+                                                           page_num: int,
+                                                           start_date: str = None,
+                                                           end_date: str = None,):
+        """
+        获取单页商户及门店管理记录
+        :param page_num:
+        :param start_date: 默认设置前一个月27号, eg: '2019-01-27 00:00'
+        :param end_date: eg: '2019-07-20 09:39'
+        :return:
+        """
+        res = []
+        try:
+            start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0] + ' 00:00'
+            # start_date = '2018-01-01 00:00'
+            end_date = (str(get_shanghai_time()) if end_date is None else end_date)[0:16]
+            self.lg.info('start_date: {}, end_date: {}'.format(start_date, end_date))
+        except (IndexError, Exception):
+            self.lg.error('遇到错误:', exc_info=True)
+            return res
+
+        headers = self.get_random_pc_headers()
+        headers.update({
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Referer': 'https://agent.yrmpay.com/JHAdminConsole/merchantMaterial/page.do',
+            'X-Requested-With': 'XMLHttpRequest',
+        })
+        params = (
+            ('_dc', get_now_13_bit_timestamp()),
+        )
+        data = {
+            'merchantCode': '',
+            'accType': '',
+            'phone': '',
+            'approveDate': '',
+            'merchantName': '',
+            'processStatus': '',
+            'startTime': start_date,
+            'endTime': end_date,
+            'agentName': '',
+            'page': str(page_num),
+            'start': str((page_num - 1) * 100),     # 开始位置0, 100, 200
+            'limit': '100',
+        }
+        url = 'https://agent.yrmpay.com/JHAdminConsole/merchantMaterial/materialList.do'
+        try:
+            body = Requests.get_url_body(
+                method='post',
+                url=url,
+                headers=headers,
+                params=params,
+                cookies=self.login_cookies_dict,
+                data=data,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.num_retries,)
+            assert body != '', 'body不为空值!'
+            res = json_2_dict(
+                json_str=body,
+                logger=self.lg,
+                default_res={}).get('materialList', [])
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return res
+
+        self.lg.info('[{}] page_num: {}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def _wash_save_all_business_settlement_records(self, target_list):
         """
@@ -267,6 +546,64 @@ class ZWMSpider(AsyncCrawler):
             item['settle_date'],
         ])
 
+    async def _get_insert_item_params2(self, item) -> tuple:
+        """
+        待插入对象, zwm_buss_manage_records table
+        :param item:
+        :return:
+        """
+        return tuple([
+            item['unique_id'],
+            item['create_time'],
+            item['modify_time'],
+            item['agent_name'],
+            item['top_agent_name'],
+            item['shop_type'],
+            item['is_high_quality_shop'],
+            item['shop_id'],
+            item['shop_chat_name'],
+            item['phone_num'],
+            item['shop_chant_num'],
+            item['sale'],
+            item['is_real_time'],
+            item['approve_date'],
+            item['rate'],
+            item['account_type'],
+            item['apply_time'],
+            item['process_context'],
+            item['is_non_contact'],
+            item['approval_status'],
+        ])
+
+    async def _get_update_item_params(self, item: dict) -> tuple:
+        """
+        更新对象, zwm_buss_manage_records table
+        :param item:
+        :return:
+        """
+        return tuple([
+            item['modify_time'],
+            item['agent_name'],
+            item['top_agent_name'],
+            item['shop_type'],
+            item['is_high_quality_shop'],
+            item['shop_id'],
+            item['shop_chat_name'],
+            item['phone_num'],
+            item['shop_chant_num'],
+            item['sale'],
+            item['is_real_time'],
+            item['approve_date'],
+            item['rate'],
+            item['account_type'],
+            item['apply_time'],
+            item['process_context'],
+            item['is_non_contact'],
+            item['approval_status'],
+
+            item['unique_id'],
+        ])
+
     async def _wash_and_save_all_transaction_details(self, target_list: list):
         """
         清洗并存储所有交易明细
@@ -335,7 +672,7 @@ class ZWMSpider(AsyncCrawler):
         """
         得到单页商户结算记录
         :param page_num:
-        :param start_date:              默认设置当月第一天, eg: '2019-07-01'
+        :param start_date:              默认设置前一个月27号, eg: '2019-07-01'
         :param end_date:                eg: '2019-07-16'
         :param mid:                     商户编号
         :param agent_name:              顶级机构名称

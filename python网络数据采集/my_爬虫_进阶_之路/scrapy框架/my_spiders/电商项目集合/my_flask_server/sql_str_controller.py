@@ -574,5 +574,11 @@ gs_insert_str_1 = '''insert into dbo.company_info(province_id, city_id, unique_i
 """
 zwm
 """
+'''select'''
 zwm_select_str_1 = '''select unique_id from dbo.zwm_buss_settle_records'''
+zwm_select_str_2 = '''select unique_id from dbo.zwm_buss_manage_records'''
+'''insert'''
 zwm_insert_str_1 = 'insert into dbo.zwm_buss_settle_records(unique_id, create_time, shop_name, shop_id, agent_name, top_agent_name, date_settle_type, trans_amount, service_charge, accounting_amount, trans_date, trans_status, settle_type, settle_date) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+zwm_insert_str_2 = 'insert into dbo.zwm_buss_manage_records(unique_id, create_time, modify_time, agent_name, top_agent_name, shop_type, is_high_quality_shop, shop_id, shop_chat_name, phone_num, shop_chant_num, sale, is_real_time, approve_date, rate, account_type, apply_time, process_context, is_non_contact, approval_status) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+'''update'''
+zwm_update_str_1 = 'update dbo.zwm_buss_manage_records set modify_time=%s, agent_name=%s, top_agent_name=%s, shop_type=%s, is_high_quality_shop=%s, shop_id=%s, shop_chat_name=%s, phone_num=%s, shop_chant_num=%s, sale=%s, is_real_time=%s, approve_date=%s, rate=%s, account_type=%s, apply_time=%s, process_context=%s, is_non_contact=%s, approval_status=%s where unique_id=%s'
