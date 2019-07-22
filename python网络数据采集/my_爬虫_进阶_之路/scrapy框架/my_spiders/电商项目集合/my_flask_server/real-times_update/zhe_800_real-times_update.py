@@ -37,7 +37,7 @@ class Z8Updater(AsyncCrawler):
             *params,
             **kwargs,
             log_print=True,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/折800/实时更新')
+            log_save_path=MY_SPIDER_LOGS_PATH + '/折800/实时更新/')
         self.sql_cli = None
         self.goods_index = 1
         # 并发量

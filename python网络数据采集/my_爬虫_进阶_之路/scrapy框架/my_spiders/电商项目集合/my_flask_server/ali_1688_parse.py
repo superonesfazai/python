@@ -346,36 +346,33 @@ class ALi1688LoginAndParse(Crawler):
         '''
         data = self.result_data
         # pprint(data)
-        if data == {}:
-            self.lg.error('待处理的data为空值!' + self.error_base_record)
-            self.is_activity_goods = False
-
-            return self._data_error_init()
-
-        company_name = data.get('companyName', '')
-        title = self._wash_sensitive_words(data.get('subject', ''))
-        link_name = ''
-
-        price_info = self._get_price_info(data=data)
-        # self.lg.info(str(price_info))
-
-        # 标签属性名称及其对应的值
-        # (可能有图片(url), 无图(imageUrl=None))    [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
-        sku_props = self._get_detail_name_list(data=data)
-        # self.lg.info(str(sku_props))
-
-        # 每个规格对应价格, 及其库存量
         try:
+            assert data != {}, '待处理的data为空dict!'
+            company_name = data.get('companyName', '')
+            title = self._wash_sensitive_words(data.get('subject', ''))
+            link_name = ''
+
+            price_info = self._get_price_info(data=data)
+            # self.lg.info(str(price_info))
+
+            # 标签属性名称及其对应的值
+            # (可能有图片(url), 无图(imageUrl=None))
+            # eg: [{'value': [{'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/520/684/4707486025_608602289.jpg', 'name': '白色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/554/084/4707480455_608602289.jpg', 'name': '卡其色'}, {'imageUrl': 'https://cbu01.alicdn.com/img/ibank/2017/539/381/4705183935_608602289.jpg', 'name': '黑色'}], 'prop': '颜色'}, {'value': [{'imageUrl': None, 'name': 'L'}, {'imageUrl': None, 'name': 'XL'}, {'imageUrl': None, 'name': '2XL'}], 'prop': '尺码'}]
+            sku_props = self._get_detail_name_list(data=data)
+            # self.lg.info(str(sku_props))
+
+            # 每个规格对应价格, 及其库存量
             sku_map = self._get_sku_info(data=data, price_info=price_info, detail_name_list=sku_props)
             # pprint(sku_map)
         except Exception:
-            self.lg.error('获取sku_map时, 遇到错误!'+self.error_base_record, exc_info=True)
+            self.lg.error('遇到错误:'+self.error_base_record, exc_info=True)
             self.is_activity_goods = False
             return self._data_error_init()
 
         price, taobao_price = self._get_price_and_taobao_price(price_info=price_info)
         all_img_url = self._get_all_img_url(data=data)
-        property_info = self._get_p_info(data=data)     # 即: p_info
+        # 即: p_info
+        property_info = self._get_p_info(data=data)
 
         # 即: div_desc
         detail_info_url = data.get('detailUrl', '')
@@ -576,8 +573,8 @@ class ALi1688LoginAndParse(Crawler):
         else:
             sku_map = []  # 存在没有规格时的情况
 
-        # 添加示例图
         if sku_map != []:
+            # 添加示例图
             img_url_list = []
             for i in detail_name_list:
                 if i.get('img_here', 0) == 1:
@@ -706,7 +703,6 @@ class ALi1688LoginAndParse(Crawler):
         try:
             value.pop('standardPrice')
         except KeyError:
-            # self.lg.info('KeyError, [skuId, specId, saleCount]错误, 此处跳过')
             pass
 
         return value
@@ -717,7 +713,13 @@ class ALi1688LoginAndParse(Crawler):
         :param word:
         :return:
         '''
-        word = re.compile(r'淘宝网').sub('', word)
+        word = wash_sensitive_info(
+            data=word,
+            add_sensitive_str_list=[
+                '淘宝网',
+            ],
+            is_default_filter=True,
+            is_lower=False,)
 
         return word
 
@@ -736,7 +738,6 @@ class ALi1688LoginAndParse(Crawler):
             body.pop('wirelessVideoInfo')
             body.pop('freightCost')
         except KeyError:
-            # self.lg.info('KeyError错误, 此处跳过!')
             pass
 
         return body
@@ -788,8 +789,8 @@ class ALi1688LoginAndParse(Crawler):
         :param price_info:
         :return: price, taobao_price type float
         '''
-        # 设置最高价price， 最低价taobao_price
         if len(price_info) > 1:
+            # 设置最高价price， 最低价taobao_price
             tmp_ali_price = []
             for item in price_info:
                 tmp_ali_price.append(float(item.get('price')))
@@ -799,10 +800,12 @@ class ALi1688LoginAndParse(Crawler):
                 taobao_price = Decimal(0).__round__(2)
 
             else:
-                price = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                # 得到最大值并转换为精度为2的decimal类型
+                price = Decimal(sorted(tmp_ali_price)[-1]).__round__(2)
                 taobao_price = Decimal(sorted(tmp_ali_price)[0]).__round__(2)
 
-        elif len(price_info) == 1:  # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
+        elif len(price_info) == 1:
+            # 由于可能是促销价, 只有一组然后价格 类似[{'begin': '1', 'price': '485.46-555.06'}]
             if re.compile(r'-').findall(price_info[0].get('price')) != []:
                 tmp_price_range = price_info[0].get('price')
                 tmp_price_range = tmp_price_range.split('-')
@@ -810,7 +813,8 @@ class ALi1688LoginAndParse(Crawler):
                 taobao_price = tmp_price_range[0]
 
             else:
-                price = Decimal(price_info[0].get('price')).__round__(2)  # 得到最大值并转换为精度为2的decimal类型
+                # 得到最大值并转换为精度为2的decimal类型
+                price = Decimal(price_info[0].get('price')).__round__(2)
                 taobao_price = price
 
         else:  # 少于1
@@ -889,16 +893,13 @@ class ALi1688LoginAndParse(Crawler):
         :return:
         '''
         # self.lg.info(str(detail_info_url))
-        if re.compile(r'https').findall(detail_info_url) == []:
-            detail_info_url = 'https:' + detail_info_url
-            # self.lg.info(str(detail_info_url))
-        else:
-            pass
+        detail_info_url = 'https:' + detail_info_url \
+            if re.compile(r'https').findall(detail_info_url) == []\
+            else detail_info_url
 
         data_tfs_url_body = self.driver.get_url_body(url=detail_info_url)
         is_offer_details = re.compile(r'offer_details').findall(data_tfs_url_body)
         detail_info = ''
-
         if is_offer_details != []:
             data_tfs_url_body = re.compile(r'.*?{"content":"(.*?)"};').findall(data_tfs_url_body)
             # self.lg.info(str(body))

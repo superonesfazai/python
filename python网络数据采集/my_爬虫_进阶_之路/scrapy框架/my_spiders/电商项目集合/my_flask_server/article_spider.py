@@ -1805,6 +1805,7 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'nfzm':
             create_time = await parse_create_time(
+                short_name=short_name,
                 create_time=self.hook_target_api_data['content']['publish_time'])
 
         else:
@@ -2900,7 +2901,7 @@ def main():
     # url = 'http://www.infzm.com/wap/#/content/153851'
     # url = 'http://www.infzm.com/wap/#/content/153760'
     # 文化
-    # url = 'http://www.infzm.com/wap/#/content/153854'
+    url = 'http://www.infzm.com/wap/#/content/153854'
     # 人物
     # url = 'http://www.infzm.com/wap/#/content/153334'
     # 生活
@@ -2926,7 +2927,7 @@ def main():
     # url = 'http://m.qdaily.com/mobile/articles/64072.html'
     # 文化
     # url = 'http://m.qdaily.com/mobile/articles/64060.html'
-    url = 'http://m.qdaily.com/mobile/articles/63484.html'
+    # url = 'http://m.qdaily.com/mobile/articles/63484.html'
     # 文化长文章
     # url = 'http://m.qdaily.com/mobile/articles/63974.html'
     # 设计
