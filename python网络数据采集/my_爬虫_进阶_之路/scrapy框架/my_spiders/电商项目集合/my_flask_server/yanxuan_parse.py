@@ -287,7 +287,12 @@ class YanXuanParse(Crawler):
             '严选',
             '云音乐',
         ]
-        target_str = wash_sensitive_info(data=target_str, replace_str_list=[], add_sensitive_str_list=add_sensitive_str_list)
+        target_str = wash_sensitive_info(
+            data=target_str,
+            replace_str_list=None,
+            add_sensitive_str_list=add_sensitive_str_list,
+            is_default_filter=True,
+            is_lower=False,)
 
         return target_str
 

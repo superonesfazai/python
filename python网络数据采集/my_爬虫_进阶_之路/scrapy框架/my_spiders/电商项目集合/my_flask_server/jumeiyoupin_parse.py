@@ -256,7 +256,7 @@ class JuMeiYouPinParse(Crawler):
         return wash_sensitive_info(
             data,
             add_sensitive_str_list=add_sensitive_str_list,
-        )
+            is_default_filter=True,)
 
     def _set_detail_price_to_miaosha_price(self, tmp):
         '''

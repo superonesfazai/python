@@ -536,8 +536,9 @@ class XiaoHongShuParse(Crawler):
         return wash_sensitive_info(
             data=data,
             replace_str_list=replace_str_list,
-            add_sensitive_str_list=add_sensitive_str_list
-        )
+            add_sensitive_str_list=add_sensitive_str_list,
+            is_default_filter=True,
+            is_lower=False,)
 
     def __del__(self):
         try:

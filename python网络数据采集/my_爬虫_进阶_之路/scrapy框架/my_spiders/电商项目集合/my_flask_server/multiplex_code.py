@@ -1319,7 +1319,9 @@ def wash_goods_comment(comment_content:str) -> str:
     comment_content = wash_sensitive_info(
         data=comment_content,
         replace_str_list=replace_str_list,
-        add_sensitive_str_list=add_sensitive_str_list,)
+        add_sensitive_str_list=add_sensitive_str_list,
+        is_default_filter=True,
+        is_lower=True,)
 
     return comment_content
 

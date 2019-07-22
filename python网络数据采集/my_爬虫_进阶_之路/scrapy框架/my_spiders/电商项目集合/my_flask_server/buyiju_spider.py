@@ -551,7 +551,8 @@ class BuYiJuSpider(AsyncCrawler):
                 ('<div class=\"yunshi\">.*</div>', '</div>'),
             ],
             add_sensitive_str_list=None,
-            is_default_filter=False, )
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_p_typesetting(content=content)
 
@@ -574,7 +575,8 @@ class BuYiJuSpider(AsyncCrawler):
             add_sensitive_str_list=[
                 '<small>www.buyiju.com/peidui/xmyf.php</small>'
             ],
-            is_default_filter=False, )
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_p_typesetting(content=content)
 
@@ -597,7 +599,8 @@ class BuYiJuSpider(AsyncCrawler):
                 '<p><strong>优秀网车牌祥批</strong></p>',
                 '<p>以上结果为通用数理分析，如需全面掌握车牌号 <span class=\"red\">.*?</span> 带给你的机缘，可请优秀网结合 <strong>生辰八字</strong>进行测算，让你全面掌握车牌号带给你的机缘！可以为选车牌号提供参考。</p>'
             ],
-            is_default_filter=False,)
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_p_typesetting(content=content)
         if content != '':
@@ -626,7 +629,8 @@ class BuYiJuSpider(AsyncCrawler):
                 '<p><strong>优秀网手机号吉凶祥批</strong></p>',
                 '<p>以上结果为通用数理分析，如需全面掌握手机号码 <span class=\"red\">\d+</span> 带给您的机缘，可请优秀网结合您的 <strong>生辰八字</strong> 进行测算，可以为选手机号提供参考。</p>'
             ],
-            is_default_filter=False, )
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_p_typesetting(content=content)
 
@@ -650,7 +654,8 @@ class BuYiJuSpider(AsyncCrawler):
                 '<a href=\"/sm/cx.php\">点此进行精确的星座查询</a>',
                 '如果您的生日刚好处于起止点日期前后，您可能需要进行精确的星座查询，。',
             ],
-            is_default_filter=False,)
+            is_default_filter=False,
+            is_lower=False,)
 
         return content
 
@@ -671,7 +676,8 @@ class BuYiJuSpider(AsyncCrawler):
                 '<p><strong>大师解签</strong></p>',
                 '<p>以上解签为通用解释，如需知晓具体事宜，可请大师结合您的生辰八字解签：</p>',
             ],
-            is_default_filter=False, )
+            is_default_filter=False,
+            is_lower=False,)
 
         return content
 
@@ -688,7 +694,8 @@ class BuYiJuSpider(AsyncCrawler):
                 # 避免过度清洗
                 ('<div class=\"yunshi\">.*</div>', '</div>')
             ],
-        )
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_p_typesetting(content=content)
 
@@ -709,7 +716,8 @@ class BuYiJuSpider(AsyncCrawler):
                 ('<table>', '<table border=\"1\" width=\"100%\" bgcolor=\"white\" cellpadding=\"2\">')
             ],
             add_sensitive_str_list=None,
-            is_default_filter=False,)
+            is_default_filter=False,
+            is_lower=False,)
 
         if content != '':
             content = '<link href="//i.buyiju.com/css/mobile.css?v0616" rel="stylesheet" media="screen" type="text/css" />' \

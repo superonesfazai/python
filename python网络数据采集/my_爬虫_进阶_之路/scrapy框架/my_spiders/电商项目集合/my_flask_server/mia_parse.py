@@ -493,7 +493,8 @@ class MiaParse(Crawler):
 
         return wash_sensitive_info(
             data=target,
-            replace_str_list=replace_str_list)
+            replace_str_list=replace_str_list,
+            is_default_filter=True,)
 
     def get_all_img_url(self) -> list:
         '''

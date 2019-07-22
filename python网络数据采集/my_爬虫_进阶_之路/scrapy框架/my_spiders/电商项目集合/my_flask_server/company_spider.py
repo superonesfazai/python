@@ -6607,7 +6607,9 @@ class CompanySpider(AsyncCrawler):
         return wash_sensitive_info(
             data=data,
             replace_str_list=replace_str_list,
-            add_sensitive_str_list=add_sensitive_str_list)
+            add_sensitive_str_list=add_sensitive_str_list,
+            is_default_filter=False,
+            is_lower=False,)
 
     async def _get_founding_time(self, parser_obj, target_obj):
         """
