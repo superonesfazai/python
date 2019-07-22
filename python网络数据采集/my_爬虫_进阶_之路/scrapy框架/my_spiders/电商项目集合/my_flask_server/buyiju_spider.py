@@ -48,7 +48,7 @@ class BuYiJuSpider(AsyncCrawler):
         # res = await self.birthday_fortune_telling(month=12, day=25)
 
         # ** 手机号码测吉凶
-        # res = await self.phone_number_for_good_or_bad_luck(phone_num=18796571279)
+        res = await self.phone_number_for_good_or_bad_luck(phone_num=18796571279)
 
         # ** 车牌号码测吉凶
         # res = await self.license_plate_num_for_good_or_bad(
@@ -60,9 +60,9 @@ class BuYiJuSpider(AsyncCrawler):
         # res = await self.distribution_pairs_of_names(name1='吕布', name2='貂蝉')
 
         # ** 星座配对
-        res = await self.constellation_pairing(
-            name1='处女座',
-            name2='摩羯座')
+        # res = await self.constellation_pairing(
+        #     name1='处女座',
+        #     name2='摩羯座')
 
         # ** 抽签算命
         # 观音灵签

@@ -1073,6 +1073,50 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'hqx',
+        'debug': True,
+        'obj_origin': 'm.qdaily.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/articles/(\d+)\.html',
+        },
+        'video_id': None,
+        'title': {
+            'method': 'css',
+            'selector': 'h1.title ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div.author span.name ::text',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.author span.avatar img ::attr("src")',
+        },
+        'video_head_url': None,
+        'create_time': {
+            'method': 'css',
+            'selector': 'span.date ::attr("data-origindate")',
+        },
+        'video_create_time': None,
+        'article_main_img': {                               # 文章最上方主图
+            'method': 'css',
+            'selector': 'div.banner',
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.detail',
+        },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''

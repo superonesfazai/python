@@ -29,6 +29,7 @@ supported:
     17. 澎湃网(https://m.thepaper.cn/)
     18. 虎嗅网(https://m.huxiu.com)
     19. 南方周末(http://www.infzm.com/wap/#/)
+    20. 好奇心日报(http://m.qdaily.com/mobile/homes.html)
     
 not supported:
     1. 新华网(http://m.xinhuanet.com)
@@ -248,6 +249,10 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.infzm.com',
                 'site_id': 22,
             },
+            'hqx': {
+                'obj_origin': 'm.qdaily.com',
+                'site_id': 23,
+            },
         }
 
     async def _get_html_by_driver(self,
@@ -454,6 +459,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'nfzm':
                 return await self._get_nfzm_article_html(article_url=article_url)
 
+            elif article_url_type == 'hqx':
+                return await self._get_hqx_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -461,6 +469,32 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_hqx_article_html(self, article_url) -> tuple:
+        """
+        get hqx html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_random_phone_headers()
+        headers.update({
+            'Connection': 'keep-alive',
+            # 'Referer': 'http://m.qdaily.com/mobile/homes.html',
+            'Referer': article_url,
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取hqx的body为空值!'
+
+        return body, video_url
 
     async def _get_nfzm_article_html(self, article_url) -> tuple:
         """
@@ -1321,6 +1355,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'hqx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1377,6 +1412,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'nfzm',
+            'hqx',
         ]
         if short_name in short_name_list2:
             pass
@@ -1408,6 +1444,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'hqx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1468,6 +1505,7 @@ class ArticleParser(AsyncCrawler):
         short_name_list = [
             'kb',
             'hx',
+            'hqx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1678,7 +1716,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        async def parse_create_time(create_time) -> str:
+        async def parse_create_time(short_name, create_time) -> str:
             """
             解析create_time
             :param create_time:
@@ -1705,6 +1743,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'hqx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1736,6 +1775,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'hqx',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -1759,7 +1799,9 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name in short_name_list2:
             if create_time != '':
-                create_time = await parse_create_time(create_time=create_time)
+                create_time = await parse_create_time(
+                    short_name=short_name,
+                    create_time=create_time)
 
         elif short_name == 'nfzm':
             create_time = await parse_create_time(
@@ -1788,6 +1830,7 @@ class ArticleParser(AsyncCrawler):
             'jm',
             'pp',
             'hx',
+            'hqx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1818,7 +1861,11 @@ class ArticleParser(AsyncCrawler):
         #     html = await self._get_html_by_driver(url=article_url, load_images=True)
         #     print(html)
 
-        if short_name == 'hx':
+        short_name_list3 = [
+            'hx',
+            'hqx',
+        ]
+        if short_name in short_name_list3:
             if video_url == '' and content != '':
                 # 加上主图
                 article_main_img_div = await async_parse_field(
@@ -1848,6 +1895,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'nfzm',
+            'hqx',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -1931,8 +1979,42 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'nfzm':
             content = await self._wash_nfzm_article_content(content=content)
 
+        elif short_name == 'hqx':
+            content = await self._wash_hqx_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_hqx_article_content(content) -> str:
+        """
+        清洗hqx content
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('好奇心日报', '优秀网'),
+                # figure 里面img src处理
+                ('data-format=\"jpeg\" class=\"lazyload\" data-src=', 'data-format=\"jpeg\" class=\"lazyload\" src='),
+                # a标签跳转处理
+                ('<a href=\".*?\">', '<a href=\"\">'),
+            ],
+            add_sensitive_str_list=[
+                '<p class=\"\"><br></p>',
+                '<p>题图来源：<a href=\".*?\" rel=\"nofollow\">pixabay</a></p>',
+                '<p>题图来自.*?</p>',
+                '<p class=\"\">题图：<a href=\"\">.*?</a>.*?<a href=\"\">.*?</a>  <br></p>',
+                '<p>翻译：.*?</p>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
+
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -1957,31 +2039,34 @@ class ArticleParser(AsyncCrawler):
         :param content:
         :return:
         """
-        # 去除段落空行
-        content = re.compile('<p><br></p>').sub('', content)
-        content = re.compile('<p></p>').sub('', content)
-        content = re.compile('<p class=\"img-center-box\"><br></p>').sub('', content)
-        content = re.compile('<p label=\"正文\" class=\"text-normal\"><br></p>').sub('', content)
-        # 立场去除
-        content = re.compile('<div class=\"neirong-shouquan\">.*?</div>').sub('', content)
-        # 引用去除
-        content = re.compile('<span class=\"text-remarks\" label=\"备注\">.*?</span>').sub('', content)
-        content = re.compile('<span class=\"text-remarks\">.*?</span>').sub('', content)
-        # 去除图片惰性加载
-        content = re.compile('<img class=\"lazy\" data-original=').sub('<img class=\"lazy\" src=', content)
-        # 去除点击展开全文
-        content = re.compile('<divclass js-hmt-detection data-detection=\"文章详情页,展开全文,点击\">.*?</divclass>')\
-            .sub('', content)
-        # 去除尾部作者盒子图片
-        content = re.compile('<img src=\"https://img.huxiucdn.com/authorCard/\d+.jpg\?\d+\">')\
-            .sub('', content)
-        # 去除不让转载
-        content = re.compile('<span style=\".*?\">本文首发于腾讯科技，未经授权，不得转载。</span>')\
-            .sub('', content)
-
-        # 替换
-        content = re.compile('虎嗅网').sub('优秀网', content)
-        content = re.compile('虎嗅').sub('优秀', content)
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                # 去除图片惰性加载
+                ('<img class=\"lazy\" data-original=', '<img class=\"lazy\" src='),
+                ('虎嗅网', '优秀网'),
+                ('虎嗅', '优秀'),
+            ],
+            add_sensitive_str_list=[
+                # 去除段落空行
+                '<p><br></p>',
+                '<p></p>',
+                '<p class=\"img-center-box\"><br></p>',
+                '<p label=\"正文\" class=\"text-normal\"><br></p>',
+                # 立场去除
+                '<div class=\"neirong-shouquan\">.*?</div>',
+                # 引用去除
+                '<span class=\"text-remarks\" label=\"备注\">.*?</span>',
+                '<span class=\"text-remarks\">.*?</span>',
+                # 去除点击展开全文
+                '<divclass js-hmt-detection data-detection=\"文章详情页,展开全文,点击\">.*?</divclass>',
+                # 去除尾部作者盒子图片
+                '<img src=\"https://img.huxiucdn.com/authorCard/\d+.jpg\?\d+\">',
+                # 去除不让转载
+                '<span style=\".*?\">本文首发于腾讯科技，未经授权，不得转载。</span>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_img_centering(content=content)
         content = modify_body_p_typesetting(content=content)
@@ -1995,15 +2080,20 @@ class ArticleParser(AsyncCrawler):
         :param content:
         :return:
         """
-        # 清洗末尾额外补充说明
-        content = re.compile('<div class=\"news_infor_extra\">.*</div> <div class=\"relations_div\">')\
-            .sub('<div class="relations_div">', content)
-        content = re.compile('<strong>“湃客·镜相”栏目首发独家非虚构作品，版权所有，任何媒体或平台不得未经许可转载。</strong>')\
-            .sub('', content)
-        content = re.compile('<a href=\".*?\" target=\"_blank\">阅读原文</a>')\
-            .sub('', content)
-        content = re.compile('澎湃新闻').sub('优秀网', content)
-        content = re.compile('湃客').sub('秀客', content)
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                # 清洗末尾额外补充说明
+                ('<div class=\"news_infor_extra\">.*</div> <div class=\"relations_div\">', '<div class="relations_div">'),
+                ('澎湃新闻', '优秀网'),
+                ('湃客', '秀客'),
+            ],
+            add_sensitive_str_list=[
+                '<strong>“湃客·镜相”栏目首发独家非虚构作品，版权所有，任何媒体或平台不得未经许可转载。</strong>',
+                '<a href=\".*?\" target=\"_blank\">阅读原文</a>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_img_centering(content=content)
 
@@ -2016,21 +2106,28 @@ class ArticleParser(AsyncCrawler):
         :param content:
         :return:
         """
-        # 洗掉末尾广告
-        content = re.compile('<div id=\"ad_content\">.*?</div>').sub('', content)
-        content = re.compile('<div class=\"article-source\">.*?</div>').sub('', content)
-        # 洗掉图片来源
-        content = re.compile('<span>图片来源：.*?</span>').sub('', content)
-        content = re.compile('<p>图片来源：.*?</p>').sub('', content)
-        content = re.compile('<figcaption>图片来源：.*?</figcaption>').sub('', content)
-        # 洗掉摄影
-        content = re.compile('<span>摄影：.*?</span>').sub('', content)
-        # 洗掉记者
-        content = re.compile('<p>记者 \| .*?</p>').sub('', content)
-        # 洗掉撰文
-        content = re.compile('<p>撰文 \| .*?</p>').sub('', content)
-        # 替换
-        content = re.compile('界面新闻').sub('优秀网', content)
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('界面新闻', '优秀网'),
+            ],
+            add_sensitive_str_list=[
+                # 洗掉末尾广告
+                '<div id=\"ad_content\">.*?</div>',
+                '<div class=\"article-source\">.*?</div>',
+                # 洗掉图片来源
+                '<span>图片来源：.*?</span>',
+                '<p>图片来源：.*?</p>',
+                '<figcaption>图片来源：.*?</figcaption>',
+                # 洗掉摄影
+                '<span>摄影：.*?</span>',
+                # 洗掉记者
+                '<p>记者 \| .*?</p>',
+                # 洗掉撰文
+                '<p>撰文 \| .*?</p>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
 
         content = modify_body_img_centering(content=content)
         content = modify_body_p_typesetting(content=content)
@@ -2301,6 +2398,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'nfzm',
+            'hqx',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2812,7 +2910,29 @@ def main():
     # 教育
     # url = 'http://www.infzm.com/wap/#/content/152819'
     # 财富
-    url = 'http://www.infzm.com/wap/#/content/147544'
+    # url = 'http://www.infzm.com/wap/#/content/147544'
+
+    # 好奇心日报
+    # todo 文章为书的介绍的不做采集
+    # 商业
+    # url = 'http://m.qdaily.com/mobile/articles/64092.html'
+    # url = 'http://m.qdaily.com/mobile/articles/64087.html'
+    # url = 'http://m.qdaily.com/mobile/articles/64084.html'
+    # 时尚
+    # url = 'http://m.qdaily.com/mobile/articles/64089.html'
+    # 智能
+    # url = 'http://m.qdaily.com/mobile/articles/64078.html'
+    # 娱乐
+    # url = 'http://m.qdaily.com/mobile/articles/64072.html'
+    # 文化
+    # url = 'http://m.qdaily.com/mobile/articles/64060.html'
+    url = 'http://m.qdaily.com/mobile/articles/63484.html'
+    # 文化长文章
+    # url = 'http://m.qdaily.com/mobile/articles/63974.html'
+    # 设计
+    # url = 'http://m.qdaily.com/mobile/articles/64056.html'
+    # 游戏
+    # url = 'http://m.qdaily.com/mobile/articles/64050.html'
 
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))

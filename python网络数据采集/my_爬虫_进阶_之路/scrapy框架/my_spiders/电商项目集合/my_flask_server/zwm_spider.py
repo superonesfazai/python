@@ -245,7 +245,7 @@ class ZWMSpider(AsyncCrawler):
                 logger=self.lg, )
             # pprint(db_data)
             db_unique_id_list = [item[0] for item in db_data]
-            # assert db_unique_id_list != [], 'db_unique_id_list != []'
+            assert db_unique_id_list != [], 'db_unique_id_list != []'
             self.lg.info('len_db_unique_id_list: {}'.format(len(db_unique_id_list)))
         except Exception:
             self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
@@ -281,6 +281,13 @@ class ZWMSpider(AsyncCrawler):
                 except Exception:
                     self.lg.error('遇到错误:', exc_info=True)
                     continue
+
+        if not self.sql_cli.is_connect_success:
+            self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        else:
+            pass
+
+        self.lg.info('table.zwm_buss_manage_records新增个数: {}'.format(new_add_count))
 
     async def _get_all_business_manage_records_by_something(self,):
         """
