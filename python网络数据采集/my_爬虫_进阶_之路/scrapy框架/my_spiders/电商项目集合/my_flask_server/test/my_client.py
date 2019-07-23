@@ -51,7 +51,10 @@ class RequestClient(object):
         canonicalized_query_string += self._access_key_secret
 
         # NO.3 加密返回签名: sign(小写, md5加密)
-        return self.md5(canonicalized_query_string.encode('utf-8')).lower()
+        sign = self.md5(canonicalized_query_string.encode('utf-8')).lower()
+        # print('sign:{}'.format(sign))
+
+        return sign
 
     def _request(self) -> str:
         '''
@@ -73,7 +76,10 @@ class RequestClient(object):
         # article_link = 'https://www.toutiao.com/a6623270159790375438/'
         # article_link = 'https://www.jianshu.com/p/1a60bdc3098b'
         # article_link = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
+
+        # 微信
         # article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557111601&ver=1589&signature=ALBo1FMtv3X*yJa8CzViSYK*FV-Cr7rHblhsr-96NCZDD5jK8ra2daIg2QWCSVnnqJ4H4KJG*n820P0PULQ6PIQblWXUf*7R69P8ObOCR7UJmpRlKU8s2FgRFiUMrR7N&new=1'
+        # article_link = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=kF7BFCtTqr9OlfBzqLSgUfnD413Ig9JfMVKCc1ew8YQ8maPdhL8zFXgrctDdl5Z3HfI0ZOb7yThhKR1QHrtuUjVQE*gTTPBvBOTagAA5wN*bylpMTtwBqwv7ctFh-j5P&new=1'
 
         # kb
         # 视频
@@ -134,26 +140,33 @@ class RequestClient(object):
         # article_link = 'https://m.thepaper.cn/newsDetail_forward_3839854'
 
         # 虎嗅网
-        # article_link = 'https://m.huxiu.com/article/308402.html'
+        article_link = 'https://m.huxiu.com/article/308402.html'
 
         # 南方周末
         # article_link = 'http://www.infzm.com/wap/#/content/153854'
 
         # 好奇心日报
-        article_link = 'http://m.qdaily.com/mobile/articles/63484.html'
+        # article_link = 'http://m.qdaily.com/mobile/articles/63484.html'
+
+        # 西瓜视频
+        # article_link = 'https://www.ixigua.com/i6623552886510977540/'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
+        new_url = b64encode(s=article_link.encode('utf-8')).decode('utf-8')
+        print('b64编码后的article_link: {}'.format(new_url))
         params = {
             'access_key_id': self._access_key_id,
             'v': self._version,
             't': now_timestamp,                                                         # 10位
-            # 'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte, pc地址或m地址都可, server会识别
-            'article_link': b64encode(s=article_link.encode('utf-8')).decode('utf-8'),
+            # 'goods_link': b64encode(s=goods_link.encode('utf-8')).decode('utf-8'),  # 传str, 不传byte, server会识别
+            'article_link': new_url,
         }
-        params.update({
-            'sign': self._sign(params)
-        })
+        # params.update({
+        #     'sign': self._sign(params)
+        # })
+        # print('params如下:')
+        # pprint(params)
 
         # url = 'http://127.0.0.1:5000/api/goods'
 

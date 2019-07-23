@@ -30,6 +30,7 @@ supported:
     18. 虎嗅网(https://m.huxiu.com)
     19. 南方周末(http://www.infzm.com/wap/#/)
     20. 好奇心日报(http://m.qdaily.com/mobile/homes.html)
+    21. 西瓜视频(短视频)(https://www.ixigua.com)
     
 not supported:
     1. 新华网(http://m.xinhuanet.com)
@@ -253,6 +254,10 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.qdaily.com',
                 'site_id': 23,
             },
+            'xg': {
+                'obj_origin': 'www.ixigua.com',
+                'site_id': 24,
+            },
         }
 
     async def _get_html_by_driver(self,
@@ -353,10 +358,41 @@ class ArticleParser(AsyncCrawler):
         清洗头条文章的content内容
         :return: body, video_url
         """
-        content = fix_text(content)
-        # self.lg.info(content)
+        content = content[6:-6]
+        # print(content)
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('\\\\u003C', '<'),
+                ('\\\\u003E', '>'),
+                ('\\\\u002F', '/'),
+                # 下面2个过滤顺序不能调换
+                ('&quot;', '"'),
+                ('\\\\"', '"'),
+
+                ('&#x3D;', '='),
+                ('&nbsp;', ' '),
+                ('&#160;', ' '),
+                ('&lt;', '<'),
+                ('&#60;', '<'),
+                ('&gt;', '>'),
+                ('&#62;', '>'),
+                ('&amp;', '&'),
+                ('&#38;', '&'),
+                ('&#34;', '"'),
+            ],
+            add_sensitive_str_list=None,
+            is_default_filter=False,
+            is_lower=False,)
+
+        # print(content)
+        # 最初有效, 后面无效
+        # content = fix_text(text=content[6:-6])
+        # print(content)
         # 图片设置居中
         content = re.compile(' inline=\"0\">').sub(' style=\"height:auto;width:100%;\">', content)
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -431,6 +467,9 @@ class ArticleParser(AsyncCrawler):
 
             elif article_url_type == 'yg':
                 return await self._get_yg_article_html(article_url=article_url)
+
+            elif article_url_type == 'xg':
+                return await self._get_xg_article_html(article_url=article_url)
 
             elif article_url_type == 'fh':
                 return await self._get_fh_article_html(article_url=article_url)
@@ -899,6 +938,37 @@ class ArticleParser(AsyncCrawler):
 
         return body, video_url
 
+    async def _get_xg_article_html(self, article_url) -> tuple:
+        """
+        获取xg article的html
+        :param article_url:
+        :return:
+        """
+        exec_code = '''
+        # 等待视频自动播放后, 获取网页源码
+        sleep(2.5)
+        '''
+        self.lg.info('此链接为视频链接')
+        body = await self._get_html_by_driver(
+            url=article_url,
+            _type=FIREFOX,
+            exec_code=exec_code,
+            headless=True,
+            load_images=True,)
+        # self.lg.info(str(body))
+        video_url_selector = {
+            'method': 'css',
+            'selector': 'div video ::attr("src")',
+        }
+        tmp_video_url = await async_parse_field(
+            parser=video_url_selector,
+            target_obj=body,
+            logger=self.lg, )
+        video_url = 'https:' + tmp_video_url if tmp_video_url != '' else ''
+        # self.lg.info(video_url)
+
+        return body, video_url
+
     async def _get_zq_article_html(self, article_url) -> tuple:
         """
         获取zq article的html
@@ -1356,6 +1426,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'hqx',
+            'xg',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1413,6 +1484,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'nfzm',
             'hqx',
+            'xg',
         ]
         if short_name in short_name_list2:
             pass
@@ -1445,6 +1517,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'hqx',
+            'xg',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1487,8 +1560,33 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
+        title = await self._wash_title(short_name=short_name, title=title)
         assert title != '', '获取到的title为空值!'
         # self.lg.info(title)
+
+        return title
+
+    async def _wash_title(self, short_name, title) -> str:
+        """
+        清洗title
+        :param short_name:
+        :param title:
+        :return:
+        """
+        if short_name == 'tt':
+            title = await self._wash_tt_title(title=title)
+        else:
+            pass
+
+        return title
+
+    @staticmethod
+    async def _wash_tt_title(title: str) -> str:
+        """
+        :param title:
+        :return:
+        """
+        title = fix_text(text=title[6:-6])
 
         return title
 
@@ -1744,6 +1842,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'hqx',
+            'xg',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1811,6 +1910,10 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
+        if create_time == '':
+            create_time = str(get_shanghai_time())
+        else:
+            pass
         # assert create_time != '', '获取到的create_time为空值!'
 
         return create_time
@@ -1832,6 +1935,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'hqx',
+            'xg',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1851,6 +1955,8 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
+        # self.lg.info(str(target_obj))
+        # pprint(content_selector)
         content = await async_parse_field(
             parser=content_selector,
             target_obj=target_obj,
@@ -1897,6 +2003,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'nfzm',
             'hqx',
+            'xg',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -2249,6 +2356,8 @@ class ArticleParser(AsyncCrawler):
         :param content:
         :return:
         """
+        content = modify_body_img_centering(content=content)
+
         return content
 
     @staticmethod
@@ -2400,6 +2509,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'nfzm',
             'hqx',
+            'xg',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2514,7 +2624,7 @@ def modify_body_p_typesetting(content: str) -> str:
 def main():
     _ = ArticleParser()
     loop = get_event_loop()
-    # wx
+    # wx公众号
     # 存在链接过期的情况
     # https://mp.weixin.qq.com/s?__biz=MzA4MjQxNjQzMA==&mid=2768396229&idx=1&sn=&scene=0#wechat_redirect
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
@@ -2522,12 +2632,19 @@ def main():
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557111601&ver=1589&signature=ALBo1FMtv3X*yJa8CzViSYK*FV-Cr7rHblhsr-96NCZDD5jK8ra2daIg2QWCSVnnqJ4H4KJG*n820P0PULQ6PIQblWXUf*7R69P8ObOCR7UJmpRlKU8s2FgRFiUMrR7N&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=3-AY5oIX1fgkA7pyqxT2rcYtdtBH*8zx0AmORHLICAIH5GaAl6K6omx5qrLStNbXXLoMGm7i9O8KFuJdA4hRjN4yFadybiTCiT13AKSipinfc5IvHbGS5xraz3qvduhe&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=3-AY5oIX1fgkA7pyqxT2rcYtdtBH*8zx0AmORHLICAJWtC2d6WpK9-7eXo8niLCVfbsKlVmU1gvrp1eoRxXK-TCKkqDRLlgytD-w2Lq-SmsjWqXRbHZxWqrqOPE9D6il&new=1'
+    # 含视频
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=kF7BFCtTqr9OlfBzqLSgUfnD413Ig9JfMVKCc1ew8YQ8maPdhL8zFXgrctDdl5Z3HfI0ZOb7yThhKR1QHrtuUjVQE*gTTPBvBOTagAA5wN*bylpMTtwBqwv7ctFh-j5P&new=1'
 
-    # 头条(视频切入到content中了)    [https://www.toutiao.com/]
+    # 今日头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
     # url = 'https://www.toutiao.com/a6623125148088140291/'
     # url = 'https://www.toutiao.com/a6694437682031886852/'
     # url = 'https://www.toutiao.com/a6707502560892158468/'
+    # url = 'https://www.toutiao.com/a6714969589630894605/'
+    # url = 'https://www.toutiao.com/a6716696808971567630/'
+    # url = 'https://www.toutiao.com/a6716489299614761484/'
     # 问答不采集
     # url = 'https://www.toutiao.com/a6661496988099412238/'
     # 含视频
@@ -2539,6 +2656,8 @@ def main():
     # url = 'https://www.jianshu.com/p/7160ad815557'
     # url = 'https://www.jianshu.com/p/1a60bdc3098b'
     # url = 'https://www.jianshu.com/p/cfca1ba1e44c'
+    # url = 'https://www.jianshu.com/p/2876ca9e3ae7'
+    # url = 'https://www.jianshu.com/p/9ba3eb7bc524'
 
     # QQ看点
     # url = 'https://post.mp.qq.com/kan/article/2184322959-232584629.html?_wv=2147483777&sig=24532a42429f095b9487a2754e6c6f95&article_id=232584629&time=1542933534&_pflag=1&x5PreFetch=1&web_ch_id=0&s_id=gnelfa_3uh3g5&share_source=0'
@@ -2569,6 +2688,7 @@ def main():
     # 搜狗新闻资讯
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=gNWjMh9kjpEtYgjReTdUXZS0Q2CO6DjsS87Col9-QZE=&user_type=wappage'
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
+    # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=SKbJyHwsObNfXcwSUF_VoWrnmpkThJtfiHZ54FsQFNk=&user_type=wappage'
     # 含视频
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
@@ -2594,8 +2714,17 @@ def main():
     # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
 
     # 阳光宽频网(短视频)
+    # 旧版
     # url = 'https://www.365yg.com/a6693050837997978126/#mid=1568175129542657'
     # url = 'https://www.365yg.com/a6689279176827994638/#mid=1607129585526787'
+    # 新版(即西瓜视频)
+    # url = 'https://www.ixigua.com/i6711509850636943876/'
+
+    # 西瓜视频(短视频)
+    # url = 'https://www.ixigua.com/i6711509850636943876/'
+    # url = 'https://www.ixigua.com/i6693050837997978126/#mid=1568175129542657'
+    # url = 'https://www.ixigua.com/i6689557180368028173/'
+    # url = 'https://www.ixigua.com/i6623552886510977540/'
 
     # 凤凰网
     # 资讯
@@ -2901,7 +3030,7 @@ def main():
     # url = 'http://www.infzm.com/wap/#/content/153851'
     # url = 'http://www.infzm.com/wap/#/content/153760'
     # 文化
-    url = 'http://www.infzm.com/wap/#/content/153854'
+    # url = 'http://www.infzm.com/wap/#/content/153854'
     # 人物
     # url = 'http://www.infzm.com/wap/#/content/153334'
     # 生活
@@ -2933,8 +3062,9 @@ def main():
     # 设计
     # url = 'http://m.qdaily.com/mobile/articles/64056.html'
     # 游戏
-    # url = 'http://m.qdaily.com/mobile/articles/64050.html'
+    url = 'http://m.qdaily.com/mobile/articles/64050.html'
 
+    print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))
     pprint(article_parse_res)

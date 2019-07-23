@@ -230,6 +230,7 @@ def select():
     if is_login(request=request):   # 判断是否为非法登录
         if request.form.get('confirm_login'):       # 根据ajax请求类型的分别处理
             ajax_request = request.form.get('confirm_login')
+            my_lg.info(ajax_request)
             if ajax_request == 'ali_login':
                 return make_response(redirect('show_ali'))
 
@@ -407,7 +408,7 @@ def handle_someone_show_page_res(short_name: str, request):
             # 让前端发个post请求, 重置页面
             pass
         else:
-            return send_file(ALi_SPIDER_TO_SHOW_PATH)
+            return send_file(show_path)
 
 @app.route('/show_ali', methods=['GET', 'POST'])
 def show_al_info():
@@ -1905,7 +1906,7 @@ def get_goods_link(**kwargs):
 /api/article
 """
 @app.route('/api/article', methods=['GET'])
-@Sign.signature_required
+# @Sign.signature_required
 def _article():
     """
     文章接口

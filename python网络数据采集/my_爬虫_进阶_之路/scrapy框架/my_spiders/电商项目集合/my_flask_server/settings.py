@@ -289,7 +289,7 @@ ARTICLE_ITEM_LIST = [
         },
         'title': {
             'method': 're',
-            'selector': 'title: \'(.*?)\',',
+            'selector': 'title: \'(.*?)\'\.slice\(6, -6\),',
         },
         'video_title': None,
         'author': {
@@ -306,7 +306,7 @@ ARTICLE_ITEM_LIST = [
         },
         'content': {
             'method': 're',
-            'selector': 'content: \'(.*?)\',groupId:',
+            'selector': 'content: \'(.*)\'\.slice\(6, -6\),groupId',
         },
         'comment_num': {
             'method': 're',
@@ -528,8 +528,8 @@ ARTICLE_ITEM_LIST = [
             'selector': 'h1.trans-video-tit ::text',
         },
         'author': {
-            'method': 're',
-            'selector': '<p class=\"w-from\"> (.*?)<span>',
+            'method': 'css',
+            'selector': 'p.w-from span:nth-child(1) ::text',
         },
         'video_author': {
             'method': 'css',
@@ -1110,6 +1110,41 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'div.detail',
         },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
+    {
+        'short_name': 'xg',
+        'debug': True,
+        'obj_origin': 'www.ixigua.com',
+        'article_id': {
+            'method': 're',
+            'selector': '\.com/(\w+)/',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div h1 ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'div h1 ::text',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'a.videoDesc__userName ::text',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'a.videoDesc__userName ::text',
+        },
+        'head_url': None,
+        'create_time': None,
+        'video_create_time': None,
+        'content': None,
         'video_article_content': None,
         'comment_num': None,
         'tags_list': None,
