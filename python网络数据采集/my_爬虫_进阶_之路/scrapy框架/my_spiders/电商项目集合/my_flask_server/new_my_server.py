@@ -1645,99 +1645,101 @@ def mia_to_save_data():
         return _error_msg(msg='')
 
 ######################################################
+"""
+/basic_data
+"""
 @app.route('/basic_data', methods=['POST'])
 def get_basic_data():
     """
     返回一个商品地址的基本信息
     :return: 一个json
     """
-    if request.form.get('basic_app_key') is not None and request.form.get('basic_app_key') == BASIC_APP_KEY:  # request.cookies -> return a dict
+    if request.form.get('basic_app_key') is not None \
+            and request.form.get('basic_app_key') == BASIC_APP_KEY:
         if request.form.get('goodsLink'):
             my_lg.info('正在获取相应数据中...')
-
-            goodsLink = request.form.get('goodsLink')
-            wait_to_deal_with_url = goodsLink
+            wait_to_deal_with_url = request.form.get('goodsLink',)
 
             if _is_taobao_url_plus(wait_to_deal_with_url):
-                basic_taobao = TaoBaoLoginAndParse(logger=my_lg)
-
-                goods_id = basic_taobao.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
-                if goods_id == '':  # 如果得不到goods_id, 则return error
-                    my_lg.info('获取到的goods_id为空!')
-                    del basic_taobao  # 每次都回收一下
-                    collect()
-
+                tb = TaoBaoLoginAndParse(logger=my_lg)
+                try:
+                    goods_id = tb.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id
+                    assert goods_id != '', '获取到的goods_id为空!'
+                except AssertionError:
+                    my_lg.error('遇到错误:', exc_info=True)
+                    try:
+                        del tb
+                    except:
+                        pass
                     return _null_goods_id()
-
+                    
                 wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
-                tmp_result = basic_taobao.get_goods_data(goods_id=goods_id)
-                data = basic_taobao.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-                time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
-                if tmp_result == {} or data == {}:
-                    my_lg.info('获取到的data为空!')
-                    del basic_taobao
-                    collect()
-
+                try:
+                    tmp_result = tb.get_goods_data(goods_id=goods_id)
+                    assert tmp_result != {}, '获取到的data为空!'
+                    data = tb.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
+                    assert data != {}, '获取到的data为空!'
+                    time.sleep(TAOBAO_SLEEP_TIME)  # 这个在服务器里面可以注释掉为.5s
+                except AssertionError:
+                    my_lg.error('遇到错误:', exc_info=True)
+                    try:
+                        del tb
+                    except:
+                        pass
                     return _null_goods_data()
 
+                _goods_id = goods_id
                 data = {
-                    'title': data.get('title'),
-                    'price': data.get('taobao_price'),
-                    'month_sell_count': data.get('sell_count'),     # 月销量
+                    'title': data.get('title', ''),
+                    'price': data.get('taobao_price',),
+                    'month_sell_count': data.get('sell_count',),     # 月销量
                     'img_url': data.get('all_img_url'),
                     'spider_url': wait_to_deal_with_url,
-                    'goods_id': goods_id,
+                    'goods_id': _goods_id,
                 }
-
                 result = {
                     'reason': 'success',
                     'data': data,
                     'error_code': 0,
                 }
-
-                result_json = dumps(result, ensure_ascii=False).encode()
-                my_lg.info('------>>>| 下面是爬取到的页面信息: ')
-                my_lg.info(str(result_json.decode()))
-                my_lg.info('-------------------------------')
-
-                del basic_taobao  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                collect()  
-
-                return result_json.decode()
+                try:
+                    del tb  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
+                except:
+                    pass
 
             elif _is_tmall_url(wait_to_deal_with_url):
-                basic_tmall = TmallParse(logger=my_lg)
-
-                goods_id = basic_tmall.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
-                if goods_id == []:  # 如果得不到goods_id, 则return error
-                    my_lg.info('获取到的goods_id为空!')
-                    del basic_tmall  # 每次都回收一下
-                    collect()
-
+                tm = TmallParse(logger=my_lg)
+                goods_id = tm.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
+                try:
+                    assert goods_id != [], '获取到的goods_id为空!'
+                except AssertionError:
+                    my_lg.error('遇到错误', exc_info=True)
+                    try:
+                        del tm  # 每次都回收一下
+                    except:
+                        pass
                     return _null_goods_id()
 
                 # 改进判断，根据传入数据判断是天猫，还是天猫超市，还是天猫国际
                 #####################################################
-                if goods_id[0] == 0:  # [0, '1111']
-                    wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + goods_id[1]  # 构造成标准干净的淘宝商品地址
-                elif goods_id[0] == 1:  # [1, '1111']
-                    wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + goods_id[1]
-                elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
-                    wait_to_deal_with_url = str(goods_id[2]) + '?id=' + goods_id[1]
-                tmp_result = basic_tmall.get_goods_data(goods_id=goods_id)
-                if tmp_result == {}:
-                    my_lg.info('获取到的data为空!')
-                    del basic_tmall
-                    collect()
-
-                    return _null_goods_data()
-
-                data = basic_tmall.deal_with_data()  # 如果成功获取的话, 返回的是一个data的dict对象
-                if data == {}:
-                    my_lg.info('获取到的data为空!')
-                    del basic_tmall
-                    collect()
-
+                _type, _goods_id = goods_id[0], goods_id[1]
+                if _type == 0:  # [0, '1111']
+                    wait_to_deal_with_url = 'https://detail.tmall.com/item.htm?id=' + _goods_id
+                elif _type == 1:  # [1, '1111']
+                    wait_to_deal_with_url = 'https://chaoshi.detail.tmall.com/item.htm?id=' + _goods_id
+                elif _type == 2:  # [2, '1111', 'https://xxxxx']
+                    wait_to_deal_with_url = str(goods_id[2]) + '?id=' + _goods_id
+                try:
+                    tmp_result = tm.get_goods_data(goods_id=goods_id)
+                    assert tmp_result != {}, '获取到的data为空!'
+                    data = tm.deal_with_data()
+                    assert data != {}, '获取到的data为空!'
+                except AssertionError:
+                    my_lg.error('遇到错误', exc_info=True)
+                    try:
+                        del tm
+                    except:
+                        pass
                     return _null_goods_data()
 
                 data = {
@@ -1746,57 +1748,53 @@ def get_basic_data():
                     'month_sell_count': data.get('sell_count'),     # 月销量
                     'img_url': data.get('all_img_url'),
                     'spider_url': wait_to_deal_with_url,
-                    'goods_id': goods_id[1],
+                    'goods_id': _goods_id,
                 }
-
                 result = {
                     'reason': 'success',
                     'data': data,
                     'error_code': 0,
                 }
-
-                result_json = dumps(result, ensure_ascii=False).encode()
-                my_lg.info('------>>>| 下面是爬取到的页面信息: ')
-                my_lg.info(str(result_json.decode()))
-                my_lg.info('-------------------------------')
-
-                del basic_tmall  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                collect()  
-                return result_json.decode()
+                try:
+                    del tm
+                except:
+                    pass
 
             elif _is_jd_url(wait_to_deal_with_url):
                 jd = JdParse(logger=my_lg)
 
                 goods_id = jd.get_goods_id_from_url(wait_to_deal_with_url)  # 获取goods_id, 这里返回的是一个list
-                if goods_id == []:  # 如果得不到goods_id, 则return error
-                    my_lg.info('获取到的goods_id为空!')
-                    del jd  # 每次都回收一下
-                    collect()
-
+                try:
+                    assert goods_id != [], '获取到的goods_id为空!'
+                except AssertionError:
+                    my_lg.error('遇到错误', exc_info=True)
+                    try:
+                        del jd
+                    except:
+                        pass
                     return _null_goods_id()
 
                 # 改进判断，根据传入数据判断是京东(京东超市属于其中)，还是京东全球购，还是京东大药房
                 #####################################################
-                if goods_id[0] == 0:  # [0, '1111']
-                    wait_to_deal_with_url = 'https://item.jd.com/' + goods_id[1] + '.html'  # 构造成标准干净的淘宝商品地址
-                elif goods_id[0] == 1:  # [1, '1111']
-                    wait_to_deal_with_url = 'https://item.jd.hk/' + goods_id[1] + '.html'
-                elif goods_id[0] == 2:  # [2, '1111', 'https://xxxxx']
-                    wait_to_deal_with_url = 'https://item.yiyaojd.com/' + goods_id[1] + '.html'
-                tmp_result = jd.get_goods_data(goods_id=goods_id)
-                if tmp_result == {}:
-                    my_lg.info('获取到的data为空!')
-                    del jd
-                    collect()
+                _type, _goods_id = goods_id
+                if _type == 0:  # [0, '1111']
+                    wait_to_deal_with_url = 'https://item.jd.com/' + _goods_id + '.html'  # 构造成标准干净的淘宝商品地址
+                elif _type == 1:  # [1, '1111']
+                    wait_to_deal_with_url = 'https://item.jd.hk/' + _goods_id + '.html'
+                elif _type == 2:  # [2, '1111', 'https://xxxxx']
+                    wait_to_deal_with_url = 'https://item.yiyaojd.com/' + _goods_id + '.html'
 
-                    return _null_goods_data()
-
-                data = jd.deal_with_data(goods_id=goods_id)  # 如果成功获取的话, 返回的是一个data的dict对象
-                if data == {}:
-                    my_lg.info('获取到的data为空!')
-                    del jd
-                    collect()
-
+                try:
+                    tmp_result = jd.get_goods_data(goods_id=goods_id)
+                    assert tmp_result != {}, '获取到的data为空!'
+                    data = jd.deal_with_data(goods_id=goods_id)
+                    assert data != {}, '获取到的data为空!'
+                except AssertionError:
+                    my_lg.error('遇到错误', exc_info=True)
+                    try:
+                        del jd
+                    except:
+                        pass
                     return _null_goods_data()
 
                 data = {
@@ -1805,28 +1803,30 @@ def get_basic_data():
                     'all_sell_count': data.get('all_sell_count'),  # 月销量
                     'img_url': data.get('all_img_url'),
                     'spider_url': wait_to_deal_with_url,
-                    'goods_id': goods_id[1],
+                    'goods_id': _goods_id,
                 }
-
                 result = {
                     'reason': 'success',
                     'data': data,
                     'error_code': 0,
                 }
-
-                result_json = dumps(result, ensure_ascii=False).encode()
-                my_lg.info('------>>>| 下面是爬取到的页面信息: ')
-                my_lg.info(str(result_json.decode()))
-                my_lg.info('-------------------------------')
-
-                del jd  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
-                collect()  
-                return result_json.decode()
+                try:
+                    del jd
+                except:
+                    pass
 
             else:
-                # 直接把空值给pass，不打印信息
-                # my_lg.info('goodsLink为空值...')
+                my_lg.info('goodsLink为空值...')
                 return _null_goods_link()
+
+            result_json = dumps(
+                obj=result,
+                ensure_ascii=False).encode()
+            my_lg.info('------>>>| 下面是爬取到的页面信息: ')
+            my_lg.info(str(result_json.decode()))
+            my_lg.info('-------------------------------')
+
+            return result_json.decode()
 
         else:
             my_lg.info('goodsLink为空值...')
@@ -1843,7 +1843,9 @@ def get_basic_data():
 @Sign.signature_required
 def _get_basic_data_2():
     # 正确请求将返回以下内容，否则将被signature_required拦截，返回请求验证信息： {"msg": "Invaild message", "success": False}
-    return dumps({'ping':"pong"})
+    return dumps({
+        'ping':"pong"
+    })
 
 ######################################################
 """
@@ -1955,6 +1957,7 @@ def get_article_link(**kwargs):
 /api/fortune_telling
 """
 @app.route('/api/fortune_telling', methods=['GET'])
+# @Sign.signature_required
 def fortune_telling():
     """
     算命接口

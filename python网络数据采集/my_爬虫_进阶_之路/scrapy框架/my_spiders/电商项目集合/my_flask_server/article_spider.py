@@ -10,15 +10,15 @@
 文章资讯爬虫obj
 
 supported:
-    1. 微信文章内容爬取(https://weixin.sogou.com)
-    2. 简书文章内容爬取(https://www.jianshu.com)
-    3. 今日头条文章内容爬取(https://www.toutiao.com)
-    4. 搜狗头条(https://wap.sogou.com)
-    5. 百度m站(https://m.baidu.com/)
-    6. qq看点文章内容爬取(根据QQ看点中分享出的地址)
-    7. 天天快报(根据天天快报分享出的地址)
-    8. 东方头条文章内容爬取(https://toutiao.eastday.com)
-    9. 中青看点(https://focus.youth.cn/html/articleTop/mobile.html)
+    1.  微信文章内容爬取(https://weixin.sogou.com)
+    2.  简书文章内容爬取(https://www.jianshu.com)
+    3.  今日头条文章内容爬取(https://www.toutiao.com)
+    4.  搜狗头条(https://wap.sogou.com)
+    5.  百度m站(https://m.baidu.com/)
+    6.  qq看点文章内容爬取(根据QQ看点中分享出的地址)
+    7.  天天快报(根据天天快报分享出的地址)
+    8.  东方头条文章内容爬取(https://toutiao.eastday.com)
+    9.  中青看点(https://focus.youth.cn/html/articleTop/mobile.html)
     10. 阳光宽频网(短视频)(https://www.365yg.com/)
     11. 凤凰网(https://news.ifeng.com/ | https://i.ifeng.com article m站都跳转到pc站, 故直接做pc)
     12. 51健康养生网(http://www.51jkst.com/)
@@ -33,10 +33,13 @@ supported:
     21. 西瓜视频(短视频)(https://www.ixigua.com)
     
 not supported:
-    1. 新华网(http://m.xinhuanet.com)
-    2. 36氪(https://36kr.com)
-    3. 太平洋时尚网(https://www.pclady.com.cn/)
-    4. 网易新闻
+    1. 场库网(高质量短视频)(https://www.vmovier.com/)
+    2. 捉米网(短视频)(http://www.zhomi.com/)
+    3. 艾墨镇(短视频)(https://aimozhen.com/)
+    3. 新华网(http://m.xinhuanet.com)
+    4. 36氪(https://36kr.com)
+    5. 太平洋时尚网(https://www.pclady.com.cn/)
+    6. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -1257,6 +1260,38 @@ class ArticleParser(AsyncCrawler):
             target_obj=body,
             logger=self.lg,)
         if article_title == '':
+            # # todo 有两种情况, 一种是文章, 一种是视频
+            # _id_sel = {
+            #     'method': 're',
+            #     'selector': '/s/(\w+)\?',
+            # }
+            # _id = await async_parse_field(
+            #     parser=_id_sel,
+            #     target_obj=article_url,
+            #     logger=self.lg,
+            #     is_print_error=True,)
+            # self.lg.info('_id: {}'.format(_id))
+            # params = (
+            #     ('id', str(_id)),       # eg: '20190721A0JCZT00'
+            #     ('openid', ''),
+            #     # ('ukey', 'ukey_155817081468585658'),
+            #     ('style', 'json'),
+            # )
+            # body = await unblock_request(
+            #     url='https://kuaibao.qq.com/getSubNewsContent',
+            #     headers=headers,
+            #     params=params,
+            #     ip_pool_type=self.ip_pool_type,
+            #     logger=self.lg,
+            #     # 只进行2次请求, 避免无法执行下步请求
+            #     num_retries=2,)
+            # # self.lg.info(body)
+            # data = json_2_dict(
+            #     json_str=body,
+            #     default_res={},
+            #     logger=self.lg,)
+            # pprint(data)
+
             # 单独处理含视频的
             # 表示title获取到为空值, 可能是含视频的
             # TODO 暂时先不获取天天快报含视频的
@@ -1287,6 +1322,9 @@ class ArticleParser(AsyncCrawler):
                 logger=self.lg,)
 
             self.lg.info('video_url: {}'.format(video_url))
+
+        else:
+            pass
 
         return body, video_url
 
@@ -2669,6 +2707,8 @@ def main():
     # url = 'https://kuaibao.qq.com/s/NEW2018120200710400?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # url = 'https://kuaibao.qq.com/s/20181201A0VJE800?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # url = 'https://kuaibao.qq.com/s/20190515A06XAW00?refer=kb_news&coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&omgid=22c4ac23307a6a33267184cafd2df8b6&chlid=news_news_top&atype=0&from=groupmessage&isappinstalled=0'
+    # 此类文章先不处理
+    # url = 'https://kuaibao.qq.com/s/20190721A0JCZT00?refer=kb_news&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&amp;chlid=daily_timeline&amp;atype=0&from=groupmessage&isappinstalled=0'
     # TODO 含视频(先不处理, 本地可以，但是server无法请求到body)
     # url = 'https://kuaibao.qq.com/s/20180906V1A30P00?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # 第一种类型
@@ -2677,6 +2717,7 @@ def main():
     # url = 'https://kuaibao.qq.com/s/20190221V170RM00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190505V0FMTX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190509V0JOTG00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
+    url = 'https://kuaibao.qq.com/s/20190328V0E9OX00?refer=kb_news&amp;titleFlag=2&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&from=groupmessage&isappinstalled=0'
 
     # 东方头条新闻
     # url = 'https://mini.eastday.com/mobile/190505214138491.html?qid=null&idx=1&recommendtype=crb_a579c9a168dd382c_1_1_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0'
@@ -3062,7 +3103,7 @@ def main():
     # 设计
     # url = 'http://m.qdaily.com/mobile/articles/64056.html'
     # 游戏
-    url = 'http://m.qdaily.com/mobile/articles/64050.html'
+    # url = 'http://m.qdaily.com/mobile/articles/64050.html'
 
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
