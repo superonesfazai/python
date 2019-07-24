@@ -15,7 +15,6 @@ import sys
 sys.path.append('..')
 
 import json
-from pprint import pprint
 import datetime
 import gc
 
@@ -41,8 +40,7 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             logger=logger,
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/',
-        )
+            log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/',)
         self._set_headers()
         self.msg = ''
         self._set_main_sort()
@@ -358,27 +356,21 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
-        taobao_tiantaintejia = TaoBaoTianTianTeJia()
+        tb = TaoBaoTianTianTeJia()
         loop = get_event_loop()
-        loop.run_until_complete(taobao_tiantaintejia.deal_with_all_goods_id())
+        loop.run_until_complete(tb.deal_with_all_goods_id())
         try:
-            del taobao_tiantaintejia
+            del tb
             loop.close()
         except: pass
         gc.collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-        restart_program()   # 通过这个重启环境, 避免log重复打印
-        sleep(60*5)
+        sleep(60 * 5)
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

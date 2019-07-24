@@ -1152,6 +1152,31 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'ck',
+        'debug': True,
+        'obj_origin': 'www.vmovier.com',
+        'article_id': {
+            'method': 're',
+            'selector': '\.com/(\d+)\?',
+        },
+        'video_id': None,
+        'title': None,
+        'video_title': None,
+        'author': None,
+        'video_author': None,
+        'head_url': None,                   # 默认''
+        'video_head_url': None,
+        'create_time': None,
+        'video_create_time': None,
+        'content': None,
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''

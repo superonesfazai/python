@@ -31,15 +31,16 @@ supported:
     19. 南方周末(http://www.infzm.com/wap/#/)
     20. 好奇心日报(http://m.qdaily.com/mobile/homes.html)
     21. 西瓜视频(短视频)(https://www.ixigua.com)
+    22. 场库网(短视频)(https://www.vmovier.com/)
     
 not supported:
-    1. 场库网(高质量短视频)(https://www.vmovier.com/)
-    2. 捉米网(短视频)(http://www.zhomi.com/)
-    3. 艾墨镇(短视频)(https://aimozhen.com/)
-    3. 新华网(http://m.xinhuanet.com)
-    4. 36氪(https://36kr.com)
-    5. 太平洋时尚网(https://www.pclady.com.cn/)
-    6. 网易新闻
+    1. 捉米网(短视频)(http://www.zhomi.com/)
+    2. 艾墨镇(短视频)(https://aimozhen.com/)
+    3. 梨视频(短视频)(https://www.pearvideo.com/)
+    4. 新华网(http://m.xinhuanet.com)
+    5. 36氪(https://36kr.com)
+    6. 太平洋时尚网(https://www.pclady.com.cn/)
+    7. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -260,6 +261,10 @@ class ArticleParser(AsyncCrawler):
             'xg': {
                 'obj_origin': 'www.ixigua.com',
                 'site_id': 24,
+            },
+            'ck': {
+                'obj_origin': 'www.vmovier.com',
+                'site_id': 25,
             },
         }
 
@@ -504,6 +509,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'hqx':
                 return await self._get_hqx_article_html(article_url=article_url)
 
+            elif article_url_type == 'ck':
+                return await self._get_ck_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -511,6 +519,54 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_ck_article_html(self, article_url) -> tuple:
+        """
+        获取ck html
+        :param article_url:
+        :return:
+        """
+        # 走api
+        # 获取article_id
+        parser_obj = await self._get_parse_obj(article_url_type='ck')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg,)
+        assert article_id != '', 'article_id != ""'
+        # method1: driver 请求pc地址但是user_agent=phone
+        # method2: driver pc 页面转phone, 可获得下方接口
+        headers = await self._get_random_phone_headers()
+        headers.update({
+            'origin': 'https://h5.vmovier.com',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept': '*/*',
+            'referer': 'https://h5.vmovier.com/index.html?id={}'.format(article_id),
+            'authority': 'www.vmovier.com',
+        })
+        params = (
+            ('id', str(article_id)),
+        )
+        url = 'https://www.vmovier.com/post/getViewData'
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取hx的body为空值!'
+        self.hook_target_api_data = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={},).get('data', {})
+        assert self.hook_target_api_data != {}, 'ck的api data为空dict!'
+        # pprint(self.hook_target_api_data)
+        video_url = self.hook_target_api_data.get('video_link', '')
+        assert video_url != "", 'video_url != ""'
+
+        return body, video_url
 
     async def _get_hqx_article_html(self, article_url) -> tuple:
         """
@@ -1421,10 +1477,22 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
         fav_num = await async_parse_field(
             parser=parse_obj['fav_num'],
             target_obj=target_obj,
             logger=self.lg)
+
+        if short_name == 'ck':
+            fav_num = self.hook_target_api_data['count_like']
+
+        else:
+            pass
+
+        try:
+            fav_num = int(fav_num)
+        except:
+            fav_num = 0
 
         return fav_num
 
@@ -1506,6 +1574,9 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'nfzm':
             author = self.hook_target_api_data['content']['author']
 
+        elif short_name == 'ck':
+            author = self.hook_target_api_data['editor_username']
+
         else:
             pass
 
@@ -1523,6 +1594,7 @@ class ArticleParser(AsyncCrawler):
             'nfzm',
             'hqx',
             'xg',
+            'ck',
         ]
         if short_name in short_name_list2:
             pass
@@ -1594,6 +1666,9 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'nfzm':
             # pprint(self.hook_target_api_data)
             title = self.hook_target_api_data['content']['subject']
+
+        elif short_name == 'ck':
+            title = self.hook_target_api_data['title']
 
         else:
             pass
@@ -1750,6 +1825,9 @@ class ArticleParser(AsyncCrawler):
 
         if short_name == 'nfzm':
             comment_num = self.hook_target_api_data['content']['comment_count']
+
+        elif short_name == 'ck':
+            comment_num = self.hook_target_api_data['count_comment']
 
         else:
             pass
@@ -1945,6 +2023,9 @@ class ArticleParser(AsyncCrawler):
                 short_name=short_name,
                 create_time=self.hook_target_api_data['content']['publish_time'])
 
+        elif short_name == 'ck':
+            create_time = str(timestamp_to_regulartime(int(self.hook_target_api_data['publish_time'])))
+
         else:
             pass
 
@@ -2024,6 +2105,9 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'nfzm':
             content = self.hook_target_api_data['content']['fulltext']
 
+        elif short_name == 'ck':
+            content = self.hook_target_api_data['content']
+
         else:
             pass
 
@@ -2042,6 +2126,7 @@ class ArticleParser(AsyncCrawler):
             'nfzm',
             'hqx',
             'xg',
+            'ck',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -2128,9 +2213,21 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'hqx':
             content = await self._wash_hqx_article_content(content=content)
 
+        elif short_name == 'ck':
+            content = await self._wash_ck_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_ck_article_content(content) -> str:
+        """
+        清洗ck 的content
+        :param content:
+        :return:
+        """
         return content
 
     @staticmethod
@@ -2548,6 +2645,7 @@ class ArticleParser(AsyncCrawler):
             'nfzm',
             'hqx',
             'xg',
+            'ck',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2717,7 +2815,7 @@ def main():
     # url = 'https://kuaibao.qq.com/s/20190221V170RM00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190505V0FMTX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190509V0JOTG00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
-    url = 'https://kuaibao.qq.com/s/20190328V0E9OX00?refer=kb_news&amp;titleFlag=2&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&from=groupmessage&isappinstalled=0'
+    # url = 'https://kuaibao.qq.com/s/20190328V0E9OX00?refer=kb_news&amp;titleFlag=2&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&from=groupmessage&isappinstalled=0'
 
     # 东方头条新闻
     # url = 'https://mini.eastday.com/mobile/190505214138491.html?qid=null&idx=1&recommendtype=crb_a579c9a168dd382c_1_1_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0'
@@ -3104,6 +3202,14 @@ def main():
     # url = 'http://m.qdaily.com/mobile/articles/64056.html'
     # 游戏
     # url = 'http://m.qdaily.com/mobile/articles/64050.html'
+
+    # 场库
+    # url = 'https://www.vmovier.com/57050?from=index_new_title'
+    # url = 'https://www.vmovier.com/57057?from=index_new_title'
+    # url = 'https://www.vmovier.com/57035?from=index_new_title'
+    # url = 'https://www.vmovier.com/56985?from=index_hot_week_title'
+    # url = 'https://www.vmovier.com/57028?from=index_hot_week_title'
+    url = 'https://www.vmovier.com/56442?from=index_rand_title'
 
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(

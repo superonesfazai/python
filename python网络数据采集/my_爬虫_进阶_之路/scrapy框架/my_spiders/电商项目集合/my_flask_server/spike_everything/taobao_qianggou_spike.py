@@ -15,7 +15,6 @@
 import sys
 sys.path.append('..')
 
-from gc import collect
 from settings import (
     MY_SPIDER_LOGS_PATH,
     TAOBAO_QIANGGOU_SPIDER_HOUR_LIST,
@@ -303,7 +302,6 @@ def just_fuck_run():
                     pass
                 collect()
                 print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
-                restart_program()   # 通过这个重启环境, 避免log重复打印
                 sleep(60*30)
 
         else:
@@ -311,10 +309,6 @@ def just_fuck_run():
             sleep(60*2)
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
     print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')

@@ -19,8 +19,6 @@ import asyncio
 import gc
 import uuid
 
-from fzutils.linux_utils import restart_program
-
 my_queue = Queue(100)
 old_message_url_uuid_list = []
 
@@ -113,7 +111,6 @@ def weitao_spider():
         except:
             pass
         gc.collect()
-        restart_program()  # 通过这个重启环境, 避免log重复打印
 
         return True
     else:

@@ -48,7 +48,7 @@ class BuYiJuSpider(AsyncCrawler):
         # res = await self.birthday_fortune_telling(month=12, day=25)
 
         # ** 手机号码测吉凶
-        res = await self.phone_number_for_good_or_bad_luck(phone_num=18796571279)
+        # res = await self.phone_number_for_good_or_bad_luck(phone_num=18796571279)
 
         # ** 车牌号码测吉凶
         # res = await self.license_plate_num_for_good_or_bad(
@@ -65,6 +65,8 @@ class BuYiJuSpider(AsyncCrawler):
         #     name2='摩羯座')
 
         # ** 抽签算命
+        # 财神灵签
+        res = await self.fortune_telling_by_lot(lot_type='cs')
         # 观音灵签
         # res = await self.fortune_telling_by_lot(lot_type='gy')
         # 佛祖灵签
@@ -79,8 +81,6 @@ class BuYiJuSpider(AsyncCrawler):
         # res = await self.fortune_telling_by_lot(lot_type='lz')
         # 天后妈祖灵签
         # res = await self.fortune_telling_by_lot(lot_type='mz')
-        # 财神灵签
-        # res = await self.fortune_telling_by_lot(lot_type='cs')
         # 地藏王灵签
         # res = await self.fortune_telling_by_lot(lot_type='dzw')
         # 易经64卦灵签
@@ -88,7 +88,7 @@ class BuYiJuSpider(AsyncCrawler):
         # 太上老君灵签
         # res = await self.fortune_telling_by_lot(lot_type='tslj')
 
-        # pprint(res)
+        pprint(res)
 
     async def constellation_pairing(self, name1: str, name2: str) -> dict:
         """
@@ -117,9 +117,8 @@ class BuYiJuSpider(AsyncCrawler):
             data=data,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.num_retries,
-            logger=self.lg, )
+            logger=self.lg,)
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(
@@ -145,7 +144,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param name2:
         :return:
         """
-        assert name1 != '' and name2 != '', 'name1 or name2其一为空值'
+        assert name1 != '' and name2 != '', \
+            'name1 or name2其一为空值'
 
         headers = await self.get_random_phone_headers()
         headers.update({
@@ -165,9 +165,8 @@ class BuYiJuSpider(AsyncCrawler):
             data=data,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.num_retries,
-            logger=self.lg, )
+            logger=self.lg,)
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(
@@ -217,7 +216,6 @@ class BuYiJuSpider(AsyncCrawler):
             num_retries=self.num_retries,
             logger=self.lg, )
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(
@@ -261,7 +259,6 @@ class BuYiJuSpider(AsyncCrawler):
             num_retries=self.num_retries,
             logger=self.lg, )
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(
@@ -296,7 +293,6 @@ class BuYiJuSpider(AsyncCrawler):
             num_retries=self.num_retries,
             logger=self.lg, )
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(
@@ -321,6 +317,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param lot_type:
         :return:
         """
+        assert lot_type != '', 'lot_type != ""'
+
         base_referer = 'https://m.buyiju.com/{}/'
         base_url = 'https://m.buyiju.com/{}/'
         base_referer2 = 'https://m.buyiju.com/chouqian/{}/'
@@ -469,7 +467,6 @@ class BuYiJuSpider(AsyncCrawler):
             num_retries=self.num_retries,
             logger=self.lg,)
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(
@@ -495,7 +492,8 @@ class BuYiJuSpider(AsyncCrawler):
         :param name: 名字
         :return:
         """
-        assert surname != '' and name != '', 'surname or name 为空值!'
+        assert surname != '' and name != '', \
+            'surname or name 为空值!'
 
         headers = await self.get_random_phone_headers()
         headers.update({
@@ -517,7 +515,6 @@ class BuYiJuSpider(AsyncCrawler):
             num_retries=self.num_retries,
             logger=self.lg,)
         # self.lg.info(body)
-
         try:
             assert body != ''
             content = await async_parse_field(

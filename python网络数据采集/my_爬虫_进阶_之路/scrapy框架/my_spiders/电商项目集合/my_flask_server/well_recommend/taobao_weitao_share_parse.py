@@ -16,7 +16,6 @@ sys.path.append('..')
 
 import asyncio
 import gc
-from pprint import pprint
 from urllib.parse import unquote
 
 from settings import (
@@ -529,7 +528,6 @@ class TaoBaoWeiTaoShareParse(AsyncCrawler):
 # _short_url = 'http://m.tb.cn/h.WAjz5RP'
 # _short_url = 'http://m.tb.cn/h.WA6JGoC'
 # _short_url = 'http://m.tb.cn/h.WA6Hp6H'
-
 _short_url = 'https://m.tb.cn/h.e18JeHI'
 
 if __name__ == '__main__':
@@ -544,4 +542,3 @@ if __name__ == '__main__':
         except:
             pass
         gc.collect()
-        restart_program()  # 通过这个重启环境, 避免log重复打印

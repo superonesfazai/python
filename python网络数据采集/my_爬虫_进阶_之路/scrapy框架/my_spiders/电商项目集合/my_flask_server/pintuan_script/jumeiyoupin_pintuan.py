@@ -11,11 +11,8 @@ import sys
 sys.path.append('..')
 
 import json
-import re
 import time
-from pprint import pprint
 import gc
-from time import sleep
 from logging import INFO, ERROR
 import asyncio
 
@@ -38,16 +35,8 @@ from sql_str_controller import (
 )
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,)
-from fzutils.safe_utils import get_uuid1
-from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.async_always import *
 
 class JuMeiYouPinPinTuan(object):
     def __init__(self, logger=None):
@@ -293,20 +282,16 @@ def just_fuck_run():
         try:
             del jumeiyoupin_pintuan
             loop.close()
-        except: pass
+        except:
+            pass
         gc.collect()
         sleep(10*60)
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

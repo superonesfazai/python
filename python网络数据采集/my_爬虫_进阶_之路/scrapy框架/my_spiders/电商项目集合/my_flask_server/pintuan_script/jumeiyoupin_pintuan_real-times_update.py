@@ -16,7 +16,6 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 import gc
 import json
-from pprint import pprint
 import time
 from logging import INFO, ERROR
 from settings import (
@@ -25,8 +24,6 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
     IP_POOL_TYPE,)
-import asyncio
-from asyncio import sleep as async_sleep
 from sql_str_controller import (
     jm_select_str_3,
     jm_delete_str_3,
@@ -36,13 +33,8 @@ from multiplex_code import (
     _get_new_db_conn,)
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,)
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,)
-from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.async_always import *
 
 class JuMeiYouPinRealTimesUpdate(object):
     def __init__(self):
@@ -67,10 +59,10 @@ class JuMeiYouPinRealTimesUpdate(object):
 
     def _set_logger(self):
         self.lg = set_logger(
+            logger_name=get_uuid1(),
             log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + str(get_shanghai_time())[0:10] + '.txt',
             console_log_level=INFO,
-            file_log_level=ERROR
-        )
+            file_log_level=ERROR)
 
     async def run_forever(self):
         '''
@@ -201,7 +193,7 @@ class JuMeiYouPinRealTimesUpdate(object):
                 if e_time - s_time > JUMEIYOUPIN_SLEEP_TIME:  # 使其更智能点
                     pass
                 else:
-                    await asyncio.sleep(JUMEIYOUPIN_SLEEP_TIME - (e_time - s_time))
+                    await async_sleep(JUMEIYOUPIN_SLEEP_TIME - (e_time - s_time))
 
             else:
                 pass
@@ -273,7 +265,7 @@ def just_fuck_run():
     while True:
         print('一次大更新即将开始'.center(30, '-'))
         tmp = JuMeiYouPinRealTimesUpdate()
-        loop = asyncio.get_event_loop()
+        loop = get_event_loop()
         loop.run_until_complete(tmp.run_forever())      # 切记run_until_complete()一定要接收一个return值，不然视为未结束重复打印结果
         print('麻痹的执行完了')
         try:
@@ -283,17 +275,11 @@ def just_fuck_run():
             pass
         gc.collect()
         print('一次大更新完毕'.center(30, '-'))
-        restart_program()       # 通过这个重启环境, 避免log重复打印
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

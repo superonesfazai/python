@@ -13,14 +13,12 @@ sys.path.append('..')
 from taobao_parse import TaoBaoLoginAndParse
 
 import gc
-from time import sleep
 from settings import (
     IS_BACKGROUND_RUNNING,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
     MY_SPIDER_LOGS_PATH,)
 import datetime
 from logging import INFO, ERROR
-import asyncio
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -29,22 +27,16 @@ from sql_str_controller import (
 )
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
-from fzutils.linux_utils import (
-    daemon_init,
-    restart_program,
-)
+from fzutils.spider.async_always import *
 
 async def run_forever():
     #### 实时更新数据
     # ** 不能写成全局变量并放在循环中, 否则会一直记录到同一文件中, 不能实现每日一志
     my_lg = set_logger(
+        logger_name=get_uuid1(),
         log_file_name=MY_SPIDER_LOGS_PATH + '/淘宝/天天特价/' + str(get_shanghai_time())[0:10] + '.txt',
         console_log_level=INFO,
-        file_log_level=ERROR
-    )
+        file_log_level=ERROR)
 
     tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
     # 由于不处理下架的商品，所以is_delete=0
@@ -122,7 +114,7 @@ async def run_forever():
                 #     break
                 # tejia_goods_list = await tmp_taobao_tiantiantejia.get_tiantiantejia_goods_list(data=tmp_sort_data)
                 # # my_lg.info(str(tejia_goods_list))
-                # await asyncio.sleep(.45)
+                # await async_sleep(.45)
                 # # my_lg.info('111')
 
                 '''
@@ -168,14 +160,13 @@ async def run_forever():
                     await taobao.update_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
 
                 else:
-                    await asyncio.sleep(4)    # 否则休息4秒
-                    pass
+                    await async_sleep(4)
 
-                await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+                await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
                 index += 1
                 gc.collect()
 
-        else:  # 表示返回的data值为空值
+        else:
             my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
             pass
         gc.collect()
@@ -213,7 +204,7 @@ async def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server, 
 
         # logger.info('------>>>| 爬取到的数据为: %s' % str(data_before))
         await taobao.update_taobao_tiantiantejia_table(data_before, pipeline=tmp_sql_server)
-        await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 避免服务器更新太频繁
+        await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)  # 避免服务器更新太频繁
         index += 1
         try: del taobao
         except: pass
@@ -226,9 +217,9 @@ async def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server, 
         goods_data['goods_id'] = goods_id
         await taobao.update_expired_goods_id_taobao_tiantiantejia_table(data=goods_data, pipeline=tmp_sql_server)
     else:
-        await asyncio.sleep(4)  # 否则休息4秒
+        await async_sleep(4)  # 否则休息4秒
         pass
-    await asyncio.sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+    await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
     index += 1
     try: del taobao
     except: pass
@@ -265,12 +256,11 @@ async def get_this_goods_id_tejia_time(tejia_goods_list, goods_id):
 
 def main_2():
     while True:
-        loop = asyncio.get_event_loop()
+        loop = get_event_loop()
         loop.run_until_complete(run_forever())
         try: loop.close()
         except: pass
         gc.collect()
-        restart_program()
 
 def main():
     print('========主函数开始========')

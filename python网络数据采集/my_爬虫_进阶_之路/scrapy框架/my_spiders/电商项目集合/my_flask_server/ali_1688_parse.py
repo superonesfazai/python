@@ -13,9 +13,7 @@
 本地ip被封时, 可通过重启路由器来获取新ip
 """
 
-from gc import collect
 from decimal import Decimal
-
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
     PHANTOMJS_DRIVER_PATH,
