@@ -39,7 +39,9 @@ class BuYiJuSpider(AsyncCrawler):
         # self.test()
 
         # ** 姓名打分
-        # res = await self.name_scoring(surname='吕', name='布')
+        res = await self.name_scoring(
+            surname='吕',
+            name='布',)
 
         # ** 测字算命
         # res = await self.word_and_fortune_telling(two_words='你好')
@@ -57,7 +59,9 @@ class BuYiJuSpider(AsyncCrawler):
         #     num='66666')
 
         # ** 姓名缘分配对
-        # res = await self.distribution_pairs_of_names(name1='吕布', name2='貂蝉')
+        # res = await self.distribution_pairs_of_names(
+        #     name1='吕布',
+        #     name2='貂蝉')
 
         # ** 星座配对
         # res = await self.constellation_pairing(
@@ -66,7 +70,7 @@ class BuYiJuSpider(AsyncCrawler):
 
         # ** 抽签算命
         # 财神灵签
-        res = await self.fortune_telling_by_lot(lot_type='cs')
+        # res = await self.fortune_telling_by_lot(lot_type='cs')
         # 观音灵签
         # res = await self.fortune_telling_by_lot(lot_type='gy')
         # 佛祖灵签
@@ -499,7 +503,8 @@ class BuYiJuSpider(AsyncCrawler):
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
-            # 'Referer': 'https://m.buyiju.com/cm/',
+            'Referer': 'https://m.buyiju.com/cm/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         data = {
             'xs': surname,
@@ -712,7 +717,12 @@ class BuYiJuSpider(AsyncCrawler):
                 ('<div class=\"inform\">.*</div>', '</div>'),
                 ('<table>', '<table border=\"1\" width=\"100%\" bgcolor=\"white\" cellpadding=\"2\">')
             ],
-            add_sensitive_str_list=None,
+            add_sensitive_str_list=[
+                # 笔画不准, 过滤掉
+                '<tr><td>笔划：.*?</td></tr>',
+                '<p><strong>八字姓名详批</strong></p>',
+                '<p>优秀网独家研发的姓名学祥批，打破五行笔划测吉凶的限制，为您正确揭示姓名 <span class=\"red\">.*?</span> 的吉凶能量，并针对你的姓名提供专属的开运方法，让你全面掌握姓名的权威解读！起名必看！</p>',
+            ],
             is_default_filter=False,
             is_lower=False,)
 
@@ -739,49 +749,49 @@ class BuYiJuSpider(AsyncCrawler):
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'word_and_fortune_telling': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'fortune_telling_by_lot': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'birthday_fortune_telling': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'phone_number_for_good_or_bad_luck': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'license_plate_num_for_good_or_bad': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'distribution_pairs_of_names': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
                 'constellation_pairing': {
                     'content': {
                         'method': 'css',
                         'selector': 'div.content',
-                    }
+                    },
                 },
             },
         }

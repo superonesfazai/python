@@ -157,7 +157,6 @@ my_lg = set_logger(
     log_file_name=MY_SPIDER_LOGS_PATH + '/my_spiders_server/day_by_day/' + str(get_shanghai_time())[0:10] + '.txt',
     console_log_level=INFO,
     file_log_level=INFO,)
-
 Sign = Signature(logger=my_lg)
 
 # saveData[]为空的msg
