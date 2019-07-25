@@ -65,6 +65,11 @@ else:
     IS_BACKGROUND_RUNNING = True
 
 """
+zwm
+"""
+ZWM_PWD_PATH = '/Users/afa/myFiles/pwd/zwm_pwd.json'
+
+"""
 taobao
 """
 def get_u_and_p_info():

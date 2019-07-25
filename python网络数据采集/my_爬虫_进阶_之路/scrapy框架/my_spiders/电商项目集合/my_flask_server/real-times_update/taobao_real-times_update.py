@@ -21,7 +21,6 @@ from my_pipeline import (
 )
 
 from settings import TAOBAO_REAL_TIMES_SLEEP_TIME
-from gc import collect
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)
@@ -227,10 +226,6 @@ def _fck_run():
         pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
     print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')

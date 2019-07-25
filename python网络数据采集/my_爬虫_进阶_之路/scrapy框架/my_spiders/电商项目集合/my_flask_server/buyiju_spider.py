@@ -92,7 +92,7 @@ class BuYiJuSpider(AsyncCrawler):
         # 太上老君灵签
         # res = await self.fortune_telling_by_lot(lot_type='tslj')
 
-        pprint(res)
+        # pprint(res)
 
     async def constellation_pairing(self, name1: str, name2: str) -> dict:
         """

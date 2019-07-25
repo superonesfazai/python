@@ -82,6 +82,7 @@ def server_tasks(my_group):
             ('/Users/afa/my_company_db_info.json', '/root/my_company_db_info.json'),
             ('/Users/afa/my_username_and_passwd.json', '/root/my_username_and_passwd.json'),
             ('/Users/afa/myFiles/pwd/horocn_info.json', '/root/horocn_info.json'),
+            ('/Users/afa/myFiles/pwd/zwm_pwd.json', '/root/zwm_pwd.json'),
             ('/Users/afa/myFiles/tmp/my_spider_logs.zip', '/root/myFiles/my_spider_logs.zip'),
             ('/Users/afa/myFiles/tmp/my_flask_server.zip', '/root/myFiles/python/my_flask_server.zip'),
             ('/Users/afa/myFiles/tmp/tri_party_agent_ip_pool.zip', '/root/myFiles/tri_party_agent_ip_pool.zip'),

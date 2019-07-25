@@ -14,7 +14,9 @@ from decimal import Decimal
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
-    IP_POOL_TYPE,)
+    IP_POOL_TYPE,
+    IS_BACKGROUND_RUNNING,
+    ZWM_PWD_PATH,)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_items import (
     ZWMBusinessSettlementRecordItem,
@@ -31,8 +33,6 @@ from requests import session
 from datetime import datetime
 from requests_toolbelt import MultipartEncoder
 from fzutils.spider.async_always import *
-
-ZWM_PWD_PATH = '/Users/afa/myFiles/pwd/zwm_pwd.json'
 
 class ZWMSpider(AsyncCrawler):
     def __init__(self):
@@ -951,7 +951,19 @@ class ZWMSpider(AsyncCrawler):
             pass
         collect()
 
-if __name__ == '__main__':
+def _fck_run():
     zwm = ZWMSpider()
     loop = get_event_loop()
     loop.run_until_complete(zwm._fck_run())
+
+def main():
+    print('========主函数开始========')
+    daemon_init()
+    print('--->>>| 孤儿进程成功被init回收成为单独进程!')
+    _fck_run()
+
+if __name__ == '__main__':
+    if IS_BACKGROUND_RUNNING:
+        main()
+    else:
+        _fck_run()
