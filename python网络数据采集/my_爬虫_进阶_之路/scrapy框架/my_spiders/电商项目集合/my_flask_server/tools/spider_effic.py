@@ -6,14 +6,17 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+spider effic
+"""
+
 import sys
 sys.path.append('..')
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import SqlServerConnectionException
-from gc import collect
-from concurrent.futures import ThreadPoolExecutor
 from fzutils.ip_pools import tri_ip_pool
+from fzutils.exceptions import catch_exceptions
 from fzutils.spider.async_always import *
 
 class SpiderInfo(AsyncCrawler):
@@ -57,16 +60,24 @@ class SpiderInfo(AsyncCrawler):
             return tasks_params_list
 
         async def get_one_res(slice_params_list) -> list:
+            """
+            :param slice_params_list:
+            :return:
+            """
             tasks = []
             for k in slice_params_list:
                 index = k['index']
                 print('create task[where index: {}] ...'.format(index))
-                tasks.append(self.loop.create_task(self.async_get_save_2_db_count_by_time_period(
-                    sql_str=sql_str,
-                    index=index,
-                    now_timestamp=now_timestamp,
-                    time_period=time_period,
-                )))
+                func_args = [
+                    sql_str,
+                    index,
+                    now_timestamp,
+                    time_period,
+                ]
+                tasks.append(self.loop.create_task(unblock_func(
+                    func_name=self.get_save_2_db_count_by_time_period,
+                    func_args=func_args,
+                    default_res={},)))
 
             one_res = await async_wait_tasks_finished(tasks=tasks)
             try:
@@ -78,7 +89,9 @@ class SpiderInfo(AsyncCrawler):
 
         now_timestamp = datetime_to_timestamp(get_shanghai_time())
         tasks_params_list = await get_tasks_params_list()
-        tasks_params_list = TasksParamsListObj(tasks_params_list=tasks_params_list, step=self.concurrency)
+        tasks_params_list = TasksParamsListObj(
+            tasks_params_list=tasks_params_list,
+            step=self.concurrency)
         all_res = []
         while True:
             try:
@@ -89,6 +102,7 @@ class SpiderInfo(AsyncCrawler):
             one_res = await get_one_res(slice_params_list=slice_params_list)
             for i in one_res:
                 all_res.append(i)
+
             try:
                 del one_res
             except:
@@ -111,6 +125,7 @@ class SpiderInfo(AsyncCrawler):
 
         return all_res
 
+    @catch_exceptions(default_res={})
     def get_save_2_db_count_by_time_period(self, sql_str, index, now_timestamp, time_period) -> dict:
         """
         获取某个时间区间的采集信息
@@ -119,15 +134,20 @@ class SpiderInfo(AsyncCrawler):
         :param time_period:
         :return:
         """
-        before_time = get_some_time(now_timestamp=now_timestamp, index=index + 1, time_period=time_period)
-        end_time = get_some_time(now_timestamp=now_timestamp, index=index, time_period=time_period)
+        before_time = get_some_time(
+            now_timestamp=now_timestamp,
+            index=index + 1,
+            time_period=time_period)
+        end_time = get_some_time(
+            now_timestamp=now_timestamp,
+            index=index,
+            time_period=time_period)
         middle_time = timestamp_to_regulartime(int(datetime_to_timestamp(string_to_datetime(before_time))) + .5 * time_period)
         # print('index: {}, before_time: {}, middle_time: {}, end_time: {}'.format(index, before_time, middle_time, end_time))
         sql_params = self._get_sql_params(
             before_time=before_time,
             end_time=end_time,)
 
-        res = {}
         try:
             sql_cli = SqlServerMyPageInfoSaveItemPipeline()
             if not sql_cli.is_connect_success:
@@ -143,10 +163,8 @@ class SpiderInfo(AsyncCrawler):
             # TODO 此处不进行垃圾回收, 否则报对象无法被回收异常: malloc: *** error for object 0x10297b000: pointer being freed was not allocated
             # collect()
         except Exception as e:
-            print(e)
             print('[-] index: {}, middle_time: {}, count: 0'.format(index, middle_time,))
-
-            return res
+            raise e
 
         print('[+] index: {}, middle_time: {}, count: {}'.format(index, middle_time, count))
         res = {
@@ -158,40 +176,6 @@ class SpiderInfo(AsyncCrawler):
         }
 
         return res
-
-    async def async_get_save_2_db_count_by_time_period(self, sql_str, index, now_timestamp, time_period) -> dict:
-        """
-        非阻塞获取某个时间区间的采集信息
-        :param index:
-        :param now_timestamp:
-        :param time_period:
-        :return:
-        """
-        async def _get_args() -> list:
-            """获取args"""
-            return [
-                sql_str,
-                index,
-                now_timestamp,
-                time_period,
-            ]
-
-        loop = get_event_loop()
-        args = await _get_args()
-        res = {}
-        try:
-            res = await loop.run_in_executor(self.executor, self.get_save_2_db_count_by_time_period, *args)
-        except Exception as e:
-            print(e)
-        finally:
-            # loop.close()
-            try:
-                del loop
-            except:
-                pass
-            # collect()
-
-            return res
 
     def __del__(self):
         try:
@@ -210,11 +194,10 @@ if __name__ == '__main__':
     sql_str = '''
     select count(id)
     from dbo.company_info
-    where site_id=5
+    where site_id=15
     and (phone != %s or email_address != %s)
     and create_time >= %s 
     and create_time <= %s
     '''
     res = loop.run_until_complete(_.some_spider_crawl_effic(
-        sql_str=sql_str,
-    ))
+        sql_str=sql_str,))

@@ -142,10 +142,13 @@ tb_select_str_5 = tb_select_str_4
 # 天天特价秒杀
 tb_select_str_6 = 'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
 # 天天特价实时更新
+# and GETDATE()-modfiy_time > 2
 tb_select_str_7 = '''
 select goods_id, is_delete, tejia_end_time, block_id, tag_id 
 from dbo.taobao_tiantiantejia 
-where site_id=19 and is_delete=0 and GETDATE()-modfiy_time>2 and MainGoodsID is not null
+where site_id=19 
+and is_delete=0 
+and MainGoodsID is not null
 '''
 '''insert'''
 # 带MainGoodsID的插入
@@ -163,9 +166,13 @@ tb_update_str_2 = 'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_na
 tb_update_str_3 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s  where GoodsID=%s'
 # 秒杀逻辑删
 tb_update_str_4 = 'update dbo.tao_qianggou_xianshimiaosha set is_delete=1 where goods_id=%s'
+# 天天特价下架标记
+tb_update_str_5 = 'update dbo.taobao_tiantiantejia set is_delete=1, modfiy_time=%s where goods_id=%s'
 '''delete'''
 # 淘抢购下架删除
 tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
+# 天天特价过期清空
+tb_delete_str_2 = 'delete from dbo.taobao_tiantiantejia where tejia_end_time < GETDATE()-2'
 
 """
 天猫
@@ -526,7 +533,8 @@ pd_delete_str_1 = 'delete from dbo.pinduoduo_xianshimiaosha where goods_id=%s'
 vip_select_str_1 = '''
 select GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
-where SiteID=25'''
+where SiteID=25
+'''
 '''update'''
 vip_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, Schedule=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, {0} {1} where GoodsID = %s'
 

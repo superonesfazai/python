@@ -12,10 +12,6 @@
 import sys
 sys.path.append('..')
 
-from pprint import pprint
-from gc import collect
-from time import sleep
-
 from settings import (
     IS_BACKGROUND_RUNNING,
     ZHE_800_PINTUAN_SLEEP_TIME,
@@ -24,12 +20,7 @@ from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import z8_select_str_1
-
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.spider.async_always import *
 
 class Zhe800Pintuan(object):
     def __init__(self):
@@ -151,16 +142,10 @@ def just_fuck_run():
         sleep(60*5)
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
-
 
 if __name__ == '__main__':
     if IS_BACKGROUND_RUNNING:

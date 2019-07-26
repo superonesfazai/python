@@ -22,13 +22,6 @@ from settings import (
     IP_POOL_TYPE,
 )
 
-from gc import collect
-from time import sleep
-
-from pprint import pprint
-import re
-from scrapy.selector import Selector
-
 from sql_str_controller import (
     kw_insert_str_1,
     kw_select_str_1,
@@ -39,13 +32,8 @@ from sql_str_controller import (
 )
 from multiplex_code import _block_get_new_db_conn
 
-from fzutils.common_utils import deal_with_JSONDecodeError_about_value_invalid_escape
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
 from fzutils.data.excel_utils import read_info_from_excel_file
-from fzutils.spider.crawler import Crawler
+from fzutils.spider.async_always import *
 
 class GoodsKeywordsSpider(Crawler):
     def __init__(self):

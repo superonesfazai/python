@@ -19,8 +19,6 @@ sys.path.append('..')
 from ali_1688_parse import ALi1688LoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
-
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)
@@ -48,7 +46,7 @@ class ALUpdater(AsyncCrawler):
             *params, 
             **kwargs,
             log_print=True,
-            log_save_path=MY_SPIDER_LOGS_PATH + '/1688/实时更新/')
+            log_save_path=MY_SPIDER_LOGS_PATH + '/1688/实时更新/',)
         self.sql_cli = None
         self.goods_index = 1
         # 并发量

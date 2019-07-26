@@ -24,7 +24,7 @@ spike_file_name_list = [
     'zhe_800_miaosha_real-times_update',
     'juanpi_spike',
     'juanpi_miaosha_real-times_update',
-    # 'pinduoduo_spike',
+    # 'pinduoduo_spike',                        # 不维护
     # 'pinduoduo_miaosha_real-times_update',
     'mia_spike',
     'mia_miaosha_real-times_update',
@@ -71,6 +71,10 @@ logs_file_name_list = [
     'expired_logs_deal_with'
 ]
 
+zwm_file_name_list = [
+    # 'zwm_spider',
+]
+
 # 只在晚上run
 night_run_file_name_list = [
     'ali_1688_real-times_update',
@@ -96,12 +100,12 @@ def run_one_file_name_list(path, file_name_list):
 
 def auto_run(*params):
     print('开始执行秒杀脚本'.center(60, '*'))
-
     run_one_file_name_list(path=params[0], file_name_list=spike_file_name_list)
     run_one_file_name_list(path=params[1], file_name_list=pintuan_file_name_list)
     run_one_file_name_list(path=params[2], file_name_list=real_file_name_list)
     run_one_file_name_list(path=params[3], file_name_list=other_file_name_list)
     run_one_file_name_list(path=params[4], file_name_list=logs_file_name_list)
+    run_one_file_name_list(path=params[5], file_name_list=zwm_file_name_list)
 
     if str(get_shanghai_time())[11:13] not in night_run_time:
         # kill冲突process
@@ -116,21 +120,17 @@ def main_2():
         real_path = '~/myFiles/python/my_flask_server/real-times_update'
         other_path = '~/myFiles/python/my_flask_server/other_scripts'
         logs_path = '~/myFiles/python/my_flask_server/logs'
+        zwm_path = '~/myFiles/python/my_flask_server'
 
-        auto_run(spike_path, pintuan_path, real_path, other_path, logs_path)
+        auto_run(spike_path, pintuan_path, real_path, other_path, logs_path, zwm_path)
         print(' Money is on the way! '.center(100, '*'))
 
         sleep(60*15)
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     main_2()
 
 if __name__ == '__main__':

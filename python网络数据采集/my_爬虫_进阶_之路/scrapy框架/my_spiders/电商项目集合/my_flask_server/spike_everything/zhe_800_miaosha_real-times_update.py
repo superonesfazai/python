@@ -34,7 +34,6 @@ from multiplex_code import (
     _print_db_old_data,
 )
 
-from gc import collect
 from fzutils.spider.async_always import *
 
 class Z8Updater(AsyncCrawler):
