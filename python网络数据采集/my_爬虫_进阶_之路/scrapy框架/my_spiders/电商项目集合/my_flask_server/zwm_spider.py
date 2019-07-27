@@ -454,7 +454,7 @@ class ZWMSpider(AsyncCrawler):
                 if trans_status == '已结算':
                     trans_status = 0
                 else:
-                    raise ValueError('trans_status 未知交易状态!')
+                    raise ValueError('trans_status: {}, 未知交易状态!'.format(trans_status))
                 settle_type = item['type']
                 settle_date = date_parse(item['minDay'])
                 # 生成唯一标识码

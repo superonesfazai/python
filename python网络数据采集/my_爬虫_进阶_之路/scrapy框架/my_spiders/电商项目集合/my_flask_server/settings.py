@@ -422,6 +422,10 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': 'omgid=(\w+)',
         },
+        'article_id2': {
+            'method': 're',
+            'selector': '/s/(\w+)\?',
+        },
         'title': {
             'method': 're',
             'selector': '\'title\': \'(.*?)\',',

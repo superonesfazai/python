@@ -152,7 +152,8 @@ class ArticleParser(AsyncCrawler):
         _['share_id'] = await self._get_share_id(
             article_url_type=article_url_type,
             article_url=article_url,
-            video_url=video_url)
+            video_url=video_url,
+            parse_obj=parse_obj,)
         _['title'] = title
         _['comment_content'] = ''
         _['share_img_url_list'] = []
@@ -1298,6 +1299,43 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
+        async def get_special_case_api_data() -> dict:
+            """
+            二类情况接口数据获取
+            :return:
+            """
+            nonlocal parse_obj
+            # # todo 有两种情况, 一种是文章, 一种是视频
+            _id = await async_parse_field(
+                parser=parse_obj['article_id2'],
+                target_obj=article_url,
+                logger=self.lg,
+                is_print_error=True, )
+            self.lg.info('_id: {}'.format(_id))
+            params = (
+                ('id', str(_id)),  # eg: '20190721A0JCZT00'
+                ('openid', ''),
+                # ('ukey', 'ukey_155817081468585658'),
+                ('style', 'json'),
+            )
+            body = await unblock_request(
+                url='https://kuaibao.qq.com/getSubNewsContent',
+                headers=headers,
+                params=params,
+                ip_pool_type=self.ip_pool_type,
+                logger=self.lg,
+                # 只进行2次请求, 避免时间过长无法执行下步请求
+                num_retries=3,)
+            # self.lg.info(body)
+            data = json_2_dict(
+                json_str=body,
+                default_res={},
+                logger=self.lg,)
+            # pprint(data)
+            assert data != {}, 'data 不管是视频或者文章都不为空值!'
+
+            return data
+
         video_url = ''
         headers = await self._get_phone_headers()
         headers.update({
@@ -1316,68 +1354,49 @@ class ArticleParser(AsyncCrawler):
             target_obj=body,
             logger=self.lg,)
         if article_title == '':
-            # # todo 有两种情况, 一种是文章, 一种是视频
-            # _id_sel = {
-            #     'method': 're',
-            #     'selector': '/s/(\w+)\?',
-            # }
-            # _id = await async_parse_field(
-            #     parser=_id_sel,
-            #     target_obj=article_url,
-            #     logger=self.lg,
-            #     is_print_error=True,)
-            # self.lg.info('_id: {}'.format(_id))
-            # params = (
-            #     ('id', str(_id)),       # eg: '20190721A0JCZT00'
-            #     ('openid', ''),
-            #     # ('ukey', 'ukey_155817081468585658'),
-            #     ('style', 'json'),
-            # )
-            # body = await unblock_request(
-            #     url='https://kuaibao.qq.com/getSubNewsContent',
-            #     headers=headers,
-            #     params=params,
-            #     ip_pool_type=self.ip_pool_type,
-            #     logger=self.lg,
-            #     # 只进行2次请求, 避免无法执行下步请求
-            #     num_retries=2,)
-            # # self.lg.info(body)
-            # data = json_2_dict(
-            #     json_str=body,
-            #     default_res={},
-            #     logger=self.lg,)
-            # pprint(data)
+            self.hook_target_api_data = await get_special_case_api_data()
+            # pprint(self.hook_target_api_data)
+            # todo play_url != ""表明是视频文章
+            play_url = self.hook_target_api_data\
+                .get('attribute', {})\
+                .get('VIDEO_0', {})\
+                .get('playurl', '')
+            # self.lg.info('play_url: {}'.format(play_url))
 
-            # 单独处理含视频的
-            # 表示title获取到为空值, 可能是含视频的
-            # TODO 暂时先不获取天天快报含视频的
-            self.lg.info('此article_url可能含有视频')
-            # 点击播放按钮
-            exec_code = '''
-            self.driver.find_element_by_css_selector('div.play-btn').click() 
-            sleep(2)
-            '''
-            body = await self._get_html_by_driver(
-                url=article_url,
-                _type=FIREFOX,
-                load_images=True,
-                headless=True,
-                css_selector='div#mainVideo video',     # 必须等待这个显示后再关闭, 否则无video_url
-                exec_code=exec_code,
-                user_agent_type=PHONE,
-                timeout=25,)
-            # self.lg.info(body)
-            # TODO 有多种视频类型格式, 先处理这种
-            video_url_sel = {
-                'method': 'css',
-                'selector': 'div#mainVideo video:nth-child(1) ::attr("src")',
-            }
-            video_url = await async_parse_field(
-                parser=video_url_sel,
-                target_obj=body,
-                logger=self.lg,)
+            if play_url != '':
+                # 单独处理含视频的
+                # 表示title获取到为空值, 可能是含视频的
+                # TODO 暂时先不获取天天快报含视频的
+                self.lg.info('此article_url可能含有视频')
+                # 点击播放按钮
+                exec_code = '''
+                self.driver.find_element_by_css_selector('div.play-btn').click() 
+                sleep(2)
+                '''
+                body = await self._get_html_by_driver(
+                    url=article_url,
+                    _type=FIREFOX,
+                    load_images=True,
+                    headless=True,
+                    css_selector='div#mainVideo video',     # 必须等待这个显示后再关闭, 否则无video_url
+                    exec_code=exec_code,
+                    user_agent_type=PHONE,
+                    timeout=25,)
+                # self.lg.info(body)
+                # TODO 有多种视频类型格式, 先处理这种
+                video_url_sel = {
+                    'method': 'css',
+                    'selector': 'div#mainVideo video:nth-child(1) ::attr("src")',
+                }
+                video_url = await async_parse_field(
+                    parser=video_url_sel,
+                    target_obj=body,
+                    logger=self.lg,)
 
-            self.lg.info('video_url: {}'.format(video_url))
+                self.lg.info('video_url: {}'.format(video_url))
+
+            else:
+                self.lg.info('此文章为二类图文文章!')
 
         else:
             pass
@@ -1561,6 +1580,13 @@ class ArticleParser(AsyncCrawler):
                             parser=author_selector3,
                             target_obj=target_obj,
                             logger=self.lg, )
+            else:
+                if author == '':
+                    author = self.hook_target_api_data\
+                        .get('card', {})\
+                        .get('chlname', '')
+                else:
+                    pass
 
         elif short_name == 'pp':
             if author == '':
@@ -1647,7 +1673,7 @@ class ArticleParser(AsyncCrawler):
         if short_name == 'kb':
             if video_url != '':
                 if title == '':
-                    # 第一种情况
+                    # 情况1:
                     title_selector2 = parse_obj['video_title2']
                     # pprint(title_selector2)
                     title = await async_parse_field(
@@ -1655,13 +1681,23 @@ class ArticleParser(AsyncCrawler):
                         target_obj=target_obj,
                         logger=self.lg,)
                     if title == '':
-                        # 第二种情况
+                        # 情况2
                         title_selector3 = parse_obj['video_title3']
                         # pprint(title_selector3)
                         title = await async_parse_field(
                             parser=title_selector3,
                             target_obj=target_obj,
                             logger=self.lg, )
+                    else:
+                        pass
+                else:
+                    pass
+            else:
+                if title == '':
+                    # 情况1
+                    title = self.hook_target_api_data['title']
+                else:
+                    pass
 
         elif short_name == 'nfzm':
             # pprint(self.hook_target_api_data)
@@ -1673,7 +1709,9 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
-        title = await self._wash_title(short_name=short_name, title=title)
+        title = await self._wash_title(
+            short_name=short_name,
+            title=title)
         assert title != '', '获取到的title为空值!'
         # self.lg.info(title)
 
@@ -1743,6 +1781,8 @@ class ArticleParser(AsyncCrawler):
                     pass
             else:
                 pass
+        else:
+            pass
 
         # 天天快报存在头像为''
         if head_url != '' \
@@ -1761,6 +1801,8 @@ class ArticleParser(AsyncCrawler):
         article_url_type = kwargs.get('article_url_type', '')
         article_url = kwargs.get('article_url', '')
         video_url = kwargs.get('video_url', '')
+        parse_obj = kwargs.get('parse_obj', {})
+        short_name = parse_obj.get('short_name', '')
 
         if article_url_type == 'wx'\
                 or article_url_type == 'sg':
@@ -1773,6 +1815,18 @@ class ArticleParser(AsyncCrawler):
             parser=article_id_selector,
             target_obj=article_url,
             logger=self.lg)
+
+        if short_name == 'kb':
+            if share_id == '':
+                share_id = await async_parse_field(
+                    parser=parse_obj['article_id2'],
+                    target_obj=article_url,
+                    logger=self.lg)
+            else:
+                pass
+        else:
+            pass
+
         assert share_id != '', '获取到的share_id为空值!'
 
         return share_id
@@ -1828,6 +1882,14 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'ck':
             comment_num = self.hook_target_api_data['count_comment']
+
+        elif short_name == 'kb':
+            if _ == '':
+                comment_num = self.hook_target_api_data\
+                    .get('count_info', {})\
+                    .get('comments', '')
+            else:
+                pass
 
         else:
             pass
@@ -2018,6 +2080,14 @@ class ArticleParser(AsyncCrawler):
                     short_name=short_name,
                     create_time=create_time)
 
+        elif short_name == 'kb':
+            if create_time == '':
+                create_time = await parse_create_time(
+                    short_name=short_name,
+                    create_time=self.hook_target_api_data.get('pub_time', ''),)
+            else:
+                pass
+
         elif short_name == 'nfzm':
             create_time = await parse_create_time(
                 short_name=short_name,
@@ -2102,6 +2172,39 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        elif short_name == 'kb':
+            if video_url != '':
+                pass
+            else:
+                if content == '':
+                    # 第二类图文
+                    content = self.hook_target_api_data.get('cnt_html_origin', '')
+                    if content == '':
+                        # 第三类图文
+                        ori_content = self.hook_target_api_data.get('orig_content', [])
+                        for item in ori_content:
+                            try:
+                                _type = item.get('type' '')
+                                if _type == 'img_url':
+                                    img_url = item.get('img_url', '')
+                                    assert img_url != ''
+                                    content += '<img src=\"{}\">'.format(img_url)
+                                elif _type == 'cnt_article':
+                                    _desc = item.get('desc', '')
+                                    assert _desc != ''
+                                    content += '<p>{}</p>'.format(_desc)
+                                else:
+                                    raise ValueError('_type: {}, 值异常!'.format(_type))
+
+                            except (AssertionError, Exception):
+                                # self.lg.error('遇到错误:', exc_info=True)
+                                continue
+
+                    else:
+                        pass
+                else:
+                    pass
+
         elif short_name == 'nfzm':
             content = self.hook_target_api_data['content']['fulltext']
 
@@ -2115,6 +2218,7 @@ class ArticleParser(AsyncCrawler):
             'df',
             'sg',
             'bd',
+            'kb',
             'yg',
             'fh',
             'cn',
@@ -2549,7 +2653,9 @@ class ArticleParser(AsyncCrawler):
         """
         # 给与原生的css
         content = r'<link href="//mat1.gtimg.com/www/cssn/newsapp/cyshare/cyshare_20181121.css" type="text/css" rel="stylesheet">' + \
-            content
+            content if content != '' else content
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -2721,6 +2827,7 @@ class ArticleParser(AsyncCrawler):
             del self.user_agent_type
             del self.ip_pool_type
             del self.request_num_retries
+            del self.hook_target_api_data
         except:
             pass
         try:
@@ -2809,8 +2916,12 @@ def main():
     # url = 'https://kuaibao.qq.com/s/NEW2018120200710400?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # url = 'https://kuaibao.qq.com/s/20181201A0VJE800?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # url = 'https://kuaibao.qq.com/s/20190515A06XAW00?refer=kb_news&coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&omgid=22c4ac23307a6a33267184cafd2df8b6&chlid=news_news_top&atype=0&from=groupmessage&isappinstalled=0'
-    # 此类文章先不处理
+    # 第二类图文文章
+    # url = 'https://kuaibao.qq.com/s/20190710AZOJ0B00?from=groupmessage&isappinstalled=0'
+    # 第三类图文文章(跟第二类是同一接口但是字段不同)
+    # url = 'https://kuaibao.qq.com/s/20190708A0INL100?refer=kb_news&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&amp;chlid=daily_timeline&amp;atype=0&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190721A0JCZT00?refer=kb_news&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&amp;chlid=daily_timeline&amp;atype=0&from=groupmessage&isappinstalled=0'
+    url = 'https://kuaibao.qq.com/s/20190723A0IRBX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&from=groupmessage&isappinstalled=0'
     # TODO 含视频(先不处理, 本地可以，但是server无法请求到body)
     # url = 'https://kuaibao.qq.com/s/20180906V1A30P00?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # 第一种类型
@@ -2864,7 +2975,7 @@ def main():
     # url = 'https://www.ixigua.com/i6711509850636943876/'
 
     # 西瓜视频(短视频)
-    url = 'https://www.ixigua.com/i6711509850636943876/'
+    # url = 'https://www.ixigua.com/i6711509850636943876/'
     # url = 'https://www.ixigua.com/i6693050837997978126/#mid=1568175129542657'
     # url = 'https://www.ixigua.com/i6689557180368028173/'
     # url = 'https://www.ixigua.com/i6623552886510977540/'
