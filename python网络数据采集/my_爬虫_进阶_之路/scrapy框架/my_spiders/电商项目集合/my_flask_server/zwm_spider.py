@@ -223,6 +223,11 @@ class ZWMSpider(AsyncCrawler):
             zwm_item['approval_status_change_time'] = approval_status_change_time
             all_res.append(dict(zwm_item))
 
+            # 查看
+            # if shop_id == 'YRMPAY100038574':
+            # if shop_chat_name == '哇哇叫':
+            #     pprint(dict(zwm_item))
+
         # pprint(all_res)
         await self._insert_or_update_shop_manage_records_table(all_res=all_res)
         try:
