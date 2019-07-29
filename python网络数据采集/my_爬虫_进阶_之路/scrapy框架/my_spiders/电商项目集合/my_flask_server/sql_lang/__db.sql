@@ -544,4 +544,5 @@ create table zwm_buss_manage_records(
   process_context nvarchar(2000),         --可为空
   is_non_contact int not null,            -- 0 否 1是
   approval_status int not null,           -- 审核通过0, 待审核1, 退回2
+  approval_status_change_time datetime,
 );

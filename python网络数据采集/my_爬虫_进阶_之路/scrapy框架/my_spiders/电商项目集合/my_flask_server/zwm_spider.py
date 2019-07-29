@@ -152,7 +152,7 @@ class ZWMSpider(AsyncCrawler):
         for item in target_list:
             try:
                 now_time = get_shanghai_time()
-                create_time, modify_time = now_time, now_time
+                create_time, modify_time, approval_status_change_time = now_time, now_time, now_time
                 agent_name = item['agentName']
                 top_agent_name = item['topAgentName']
                 shop_type = item['merType']
@@ -220,6 +220,7 @@ class ZWMSpider(AsyncCrawler):
             zwm_item['process_context'] = process_context
             zwm_item['is_non_contact'] = is_non_contact
             zwm_item['approval_status'] = approval_status
+            zwm_item['approval_status_change_time'] = approval_status_change_time
             all_res.append(dict(zwm_item))
 
         # pprint(all_res)
@@ -270,6 +271,14 @@ class ZWMSpider(AsyncCrawler):
                     self.lg.error('遇到错误:', exc_info=True)
                     continue
             else:
+                db_old_approval_status, db_old_approval_status_change_time = await self._get_dd_old_approval_status_and_approval_status_change_time(
+                    db_data=db_data,
+                    unique_id=unique_id,)
+                item['approval_status_change_time'] = await self._get_new_approval_status_change_time(
+                    db_old_approval_status=db_old_approval_status,
+                    db_old_approval_status_change_time=db_old_approval_status_change_time,
+                    new_approval_status=item['approval_status'],
+                    new_approval_status_change_time=item['approval_status_change_time'])
                 # 更新
                 self.lg.info('updating unique_id: {} ...'.format(unique_id))
                 params = await self._get_update_item_params(item=item)
@@ -287,7 +296,44 @@ class ZWMSpider(AsyncCrawler):
         else:
             pass
 
+        try:
+            del db_data
+            del db_unique_id_list
+        except:
+            pass
+
         self.lg.info('table.zwm_buss_manage_records新增个数: {}'.format(new_add_count))
+
+    async def _get_new_approval_status_change_time(self,
+                                                   db_old_approval_status,
+                                                   db_old_approval_status_change_time,
+                                                   new_approval_status,
+                                                   new_approval_status_change_time):
+        """
+        获取新的approval_status_change_time
+        :return:
+        """
+        if db_old_approval_status_change_time is not None:
+            new_approval_status_change_time = db_old_approval_status_change_time \
+                if db_old_approval_status == new_approval_status \
+                else get_shanghai_time()
+        else:
+            pass
+
+        return new_approval_status_change_time
+
+    async def _get_dd_old_approval_status_and_approval_status_change_time(self, db_data: list, unique_id: str) -> tuple:
+        """
+        获取db 原先的approval_status
+        :param db_data:
+        :param unique_id:
+        :return:
+        """
+        for item in db_data:
+            if unique_id == item[0]:
+                return item[1], item[2]
+            else:
+                continue
 
     async def _get_all_business_manage_records_by_something(self,):
         """
@@ -580,6 +626,7 @@ class ZWMSpider(AsyncCrawler):
             item['process_context'],
             item['is_non_contact'],
             item['approval_status'],
+            item['approval_status_change_time'],
         ])
 
     async def _get_update_item_params(self, item: dict) -> tuple:
@@ -607,6 +654,7 @@ class ZWMSpider(AsyncCrawler):
             item['process_context'],
             item['is_non_contact'],
             item['approval_status'],
+            item['approval_status_change_time'],
 
             item['unique_id'],
         ])
