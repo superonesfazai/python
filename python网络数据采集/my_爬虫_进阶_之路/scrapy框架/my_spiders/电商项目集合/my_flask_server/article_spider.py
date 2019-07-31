@@ -32,15 +32,15 @@ supported:
     20. 好奇心日报(http://m.qdaily.com/mobile/homes.html)
     21. 西瓜视频(短视频)(https://www.ixigua.com)
     22. 场库网(短视频)(https://www.vmovier.com/)
+    23. 梨视频(短视频)(https://www.pearvideo.com/)
     
 not supported:
     1. 捉米网(短视频)(http://www.zhomi.com/)
     2. 艾墨镇(短视频)(https://aimozhen.com/)
-    3. 梨视频(短视频)(https://www.pearvideo.com/)
-    4. 新华网(http://m.xinhuanet.com)
-    5. 36氪(https://36kr.com)
-    6. 太平洋时尚网(https://www.pclady.com.cn/)
-    7. 网易新闻
+    3. 新华网(http://m.xinhuanet.com)
+    4. 36氪(https://36kr.com)
+    5. 太平洋时尚网(https://www.pclady.com.cn/)
+    6. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -62,10 +62,13 @@ from fzutils.spider.fz_driver import (
     PHANTOMJS,
     FIREFOX,
     PC,
-    PHONE,)
+    PHONE,
+    BaseDriver,)
 from fzutils.internet_utils import _get_url_contain_params
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
-from fzutils.spider.selector import async_parse_field
+from fzutils.spider.selector import (
+    async_parse_field,
+    parse_field,)
 from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
 
@@ -266,6 +269,10 @@ class ArticleParser(AsyncCrawler):
             'ck': {
                 'obj_origin': 'www.vmovier.com',
                 'site_id': 25,
+            },
+            'lsp': {
+                'obj_origin': 'www.pearvideo.com',
+                'site_id': 26,
             },
         }
 
@@ -513,6 +520,15 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'ck':
                 return await self._get_ck_article_html(article_url=article_url)
 
+            elif article_url_type == 'lsp':
+                return await unblock_func(
+                    func_name=self.unblock_get_lsp_article_html,
+                    func_args=[
+                        article_url,
+                    ],
+                    default_res=('', ''),
+                    logger=self.lg,)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -520,6 +536,46 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    def unblock_get_lsp_article_html(self, article_url) -> tuple:
+        """
+        阻塞获取梨视频的html
+        :param artice_url:
+        :return:
+        """
+        driver = BaseDriver(
+            type=PHANTOMJS,
+            executable_path=PHANTOMJS_DRIVER_PATH,
+            # type=FIREFOX,
+            # executable_path=FIREFOX_DRIVER_PATH,
+            ip_pool_type=self.ip_pool_type,
+            load_images=True,
+            headless=True,)
+        driver.get_url_body(
+            url=article_url,
+            timeout=25,)
+        driver.find_element(value='i.play-icon').click()
+        sleep(2.)
+        body = driver._wash_html(html=driver.page_source)
+        # self.lg.info(body)
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div.video-main video ::attr("src")',
+        }
+        video_url = parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        self.lg.info('Get lsp video_url: {}'.format(video_url))
+        try:
+            del driver
+        except:
+            pass
+        assert video_url != '', 'lsp 的video_url不为空值!'
+        assert body != '', '获取到lsp的body为空值!'
+
+        return body, video_url
 
     async def _get_ck_article_html(self, article_url) -> tuple:
         """
@@ -1552,6 +1608,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'hqx',
             'xg',
+            'lsp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1621,6 +1678,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'xg',
             'ck',
+            'lsp',
         ]
         if short_name in short_name_list2:
             pass
@@ -1654,13 +1712,13 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'hqx',
             'xg',
+            'lsp',
         ]
         if short_name in short_name_list:
             if video_url != '':
                 title_selector = parse_obj['video_title']
             else:
                 pass
-
         else:
             pass
 
@@ -1755,6 +1813,7 @@ class ArticleParser(AsyncCrawler):
             'kb',
             'hx',
             'hqx',
+            'lsp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -1924,7 +1983,8 @@ class ArticleParser(AsyncCrawler):
         if tags_list == '':
             return []
 
-        if parse_obj.get('obj_origin', '') == self.obj_origin_dict['kd'].get('obj_origin'):
+        if parse_obj.get('obj_origin', '') \
+                == self.obj_origin_dict['kd'].get('obj_origin'):
             tags_list = tags_list.split(',')
 
         short_name_list = [
@@ -1933,6 +1993,7 @@ class ArticleParser(AsyncCrawler):
             'kd',
             'if',
             'ss',
+            'lsp',
         ]
         if short_name in short_name_list:
             tags_list = [{
@@ -2021,6 +2082,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'hqx',
             'xg',
+            'lsp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2053,6 +2115,7 @@ class ArticleParser(AsyncCrawler):
             'pp',
             'hx',
             'hqx',
+            'lsp',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -2125,6 +2188,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'hqx',
             'xg',
+            'lsp',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2140,7 +2204,6 @@ class ArticleParser(AsyncCrawler):
                     content_selector = parse_obj['content2']
                 else:
                     pass
-
         else:
             pass
 
@@ -2231,6 +2294,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'xg',
             'ck',
+            'lsp',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -2320,9 +2384,21 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ck':
             content = await self._wash_ck_article_content(content=content)
 
+        elif short_name == 'lsp':
+            content = await self._wash_lsp_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_lsp_article_content(content) -> str:
+        """
+        清洗lsp content
+        :param content:
+        :return:
+        """
         return content
 
     @staticmethod
@@ -2752,6 +2828,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'xg',
             'ck',
+            'lsp',
         ]
         if article_url_type in article_url_type_list:
             return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
@@ -2921,7 +2998,7 @@ def main():
     # 第三类图文文章(跟第二类是同一接口但是字段不同)
     # url = 'https://kuaibao.qq.com/s/20190708A0INL100?refer=kb_news&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&amp;chlid=daily_timeline&amp;atype=0&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190721A0JCZT00?refer=kb_news&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&amp;chlid=daily_timeline&amp;atype=0&from=groupmessage&isappinstalled=0'
-    url = 'https://kuaibao.qq.com/s/20190723A0IRBX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&from=groupmessage&isappinstalled=0'
+    # url = 'https://kuaibao.qq.com/s/20190723A0IRBX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&from=groupmessage&isappinstalled=0'
     # TODO 含视频(先不处理, 本地可以，但是server无法请求到body)
     # url = 'https://kuaibao.qq.com/s/20180906V1A30P00?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # 第一种类型
@@ -3325,6 +3402,38 @@ def main():
     # url = 'https://www.vmovier.com/56985?from=index_hot_week_title'
     # url = 'https://www.vmovier.com/57028?from=index_hot_week_title'
     # url = 'https://www.vmovier.com/56442?from=index_rand_title'
+
+    # 梨视频
+    # url = 'https://www.pearvideo.com/video_1584072'
+    # url = 'https://www.pearvideo.com/video_1583852'
+    # 新知
+    # url = 'https://www.pearvideo.com/video_1584002'
+    # url = 'https://www.pearvideo.com/video_1583149'
+    # 社会
+    # url = 'https://www.pearvideo.com/video_1583889'
+    # 世界
+    # url = 'https://www.pearvideo.com/video_1584109'
+    # 体育
+    # url = 'https://www.pearvideo.com/video_1584079'
+    # 生活
+    # url = 'https://www.pearvideo.com/video_1570493'
+    # 科技
+    # url = 'https://www.pearvideo.com/video_1584259'
+    # 娱乐
+    # url = 'https://www.pearvideo.com/video_1584141'
+    # 财富
+    # url = 'https://www.pearvideo.com/video_1584122'
+    # 汽车
+    # url = 'https://www.pearvideo.com/video_1584113'
+    # 美食
+    # url = 'https://www.pearvideo.com/video_1584089'
+    # 音乐
+    # url = 'https://www.pearvideo.com/video_1584314'
+    # 拍客
+    url = 'https://www.pearvideo.com/video_1584404'
+    # todo 万象, 图文文章(多为国家相关, 不采集)
+    # todo 直播不采集
+    # url = 'https://www.pearvideo.com/living_1583854'
 
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(

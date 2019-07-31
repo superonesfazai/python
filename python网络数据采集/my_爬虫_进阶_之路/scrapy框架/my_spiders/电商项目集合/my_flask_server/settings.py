@@ -1186,6 +1186,51 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'lsp',
+        'debug': True,
+        'obj_origin': 'www.pearvideo.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/video_(\d+)',
+        },
+        'title': None,
+        'video_title': {
+            'method': 'css',
+            'selector': 'h1.video-tt ::text',
+        },
+        'author': None,
+        'video_author': {
+            'method': 'css',
+            'selector': 'div.col-name ::text',
+        },
+        'head_url': None,
+        'video_head_url': {
+            'method': 'css',
+            'selector': 'div.col-name i.col-icon img ::attr("src")',
+        },
+        'create_time': None,
+        'video_create_time': {
+            'method': 'css',
+            'selector': 'div.date ::text',
+        },
+        'content': None,
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'div.summary',
+        },
+        'comment_num': None,
+        'tags_list': {
+            'method': 'css',
+            'selector': 'div.tags a span.tag ::text',
+        },
+        'praise_num': None,
+        'profile': None,
+        'fav_num': {
+            'method': 'css',
+            'selector': 'div.fav ::text'
+        },
+    },
 ]
 
 '''
