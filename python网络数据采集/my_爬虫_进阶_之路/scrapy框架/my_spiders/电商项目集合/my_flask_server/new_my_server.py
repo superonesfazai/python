@@ -92,6 +92,9 @@ from logging import (
 )
 from pprint import pprint
 from base64 import b64decode
+from threading import Lock as ThreadingLock
+from threading import Thread
+from queue import Queue
 
 try:
     from gevent.wsgi import WSGIServer      # 高并发部署
@@ -111,7 +114,9 @@ from sql_str_controller import (
     fz_kl_insert_str,
     fz_yx_insert_str,
     fz_yp_insert_str,
-    fz_mi_insert_str,)
+    fz_mi_insert_str,
+    tm_select_str_3,
+)
 
 from article_spider import ArticleParser
 from buyiju_spider import BuYiJuSpider
@@ -127,6 +132,7 @@ from fzutils.safe_utils import (
     decrypt,
     get_uuid1,)
 from fzutils.exceptions import catch_exceptions
+from fzutils.data.json_utils import get_new_list_by_handle_list_2_json_error
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -2057,6 +2063,106 @@ def fortune_telling():
         msg='抓取成功',
         data=res,
     )
+
+######################################################
+"""
+/spider/dcs
+"""
+tm_real_time_update_queue = Queue()
+tm_real_time_update_lock = ThreadingLock()
+
+@app.route('/spider/dcs', methods=['GET'])
+def spider_dcs():
+    """
+    待更新数据获取接口
+    :return:
+    """
+    @catch_exceptions(logger=my_lg, default_res=[])
+    def get_dcs_res(req_args_dict: dict) -> list:
+        """
+        :param req_args_dict:
+        :return:
+        """
+        def add_2_tm_real_time_update_queue() -> None:
+            global tm_real_time_update_queue
+
+            if tm_real_time_update_queue.empty():
+                sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+                my_lg.info('tm_real_time_update_queue is null queue, 从db赋值ing...')
+                res = list(sql_cli._select_table(
+                    sql_str=tm_select_str_3,
+                    logger=my_lg, ))
+                for item in res:
+                    tm_real_time_update_lock.acquire()
+                    new_item = get_new_list_by_handle_list_2_json_error(
+                        target_list=item)
+                    try:
+                        tm_real_time_update_queue.put(new_item)
+                    except Exception:
+                        pass
+                    finally:
+                        tm_real_time_update_lock.release()
+                try:
+                    del sql_cli
+                except:
+                    pass
+                my_lg.info('tm_real_time_update_queue 赋值完毕!')
+            else:
+                my_lg.info('tm_real_time_update_queue is not null queue, 直接取值中ing...')
+
+            return
+
+        global tm_real_time_update_queue
+
+        res = []
+        # 待获取的type, eg: 'tm', 'tb'
+        dcs_type = req_args_dict.get('type', '')
+        assert dcs_type != ''
+        dcs_child_type = int(req_args_dict.get('child_type', '0'))
+        # 单次请求获取数据量个数
+        max_one_get_num = 100
+
+        target_queue = None
+        if dcs_type == 'tm':
+            if dcs_child_type == 0:
+                # 实时更新
+                t1 = Thread(
+                    target=add_2_tm_real_time_update_queue,
+                    args=(),)
+                t1.start()
+                t1.join(timeout=20)
+                try:
+                    del t1
+                except:
+                    pass
+                target_queue = tm_real_time_update_queue
+            else:
+                raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
+
+        else:
+            raise ValueError('dcs_type: {} 值异常!'.format(dcs_type))
+
+        while not target_queue.empty() \
+                and max_one_get_num > 0:
+            res.append(target_queue.get())
+            max_one_get_num -= 1
+
+        return res
+
+    global tm_real_time_update_queue
+
+    req_args_dict = request.args
+    my_lg.info(str(req_args_dict))
+
+    try:
+        res = get_dcs_res(req_args_dict=req_args_dict)
+    except Exception:
+        my_lg.error('遇到错误:', exc_info=True)
+        return _error_msg(msg='抓取失败', default_res=[])
+
+    return _success_data(
+        msg='获取db数据成功!',
+        data=res,)
 
 ######################################################
 # wechat

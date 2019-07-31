@@ -157,7 +157,7 @@ def _insert_into_db_result(**kwargs):
         'error_code': '0006',
     })
 
-def _error_msg(msg):
+def _error_msg(msg, default_res=''):
     '''
     错误的msg, json返回
     :param msg:
@@ -166,6 +166,6 @@ def _error_msg(msg):
     return dumps({
         'reason': 'error',
         'msg': str(msg),
-        'data': '',
+        'data': default_res,
         'error_code': '0007',
     })

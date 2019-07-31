@@ -48,6 +48,7 @@ class TMUpdater(AsyncCrawler):
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/')
         self.sql_cli = None
+        self.server_ip = 'http://0.0.0.0:5000'
         self.crawl_type = CRAWL_TYPE_ASYNCIO
         # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
         self.concurrency = 50
@@ -61,12 +62,33 @@ class TMUpdater(AsyncCrawler):
         result = None
         try:
             result = list(self.sql_cli._select_table(sql_str=tm_select_str_3))
+            # result = await self.get_wait_2_update_data_from_server()
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
         await _print_db_old_data(logger=self.lg, result=result)
 
         return result
+
+    async def get_wait_2_update_data_from_server(self) -> list:
+        """
+        从server获取待更新数据
+        :return:
+        """
+        url = self.server_ip + '/spider/dcs'
+        params = (
+            ('type', 'tm'),
+            ('child_type', 0),
+        )
+        body = await unblock_request(
+            url=url,
+            params=params,
+            use_proxy=False,)
+        res = json_2_dict(
+            json_str=body,
+            default_res={},).get('data', [])
+
+        return res
     
     def _get_tmp_item(self, site_id, goods_id):
         tmp_item = []
