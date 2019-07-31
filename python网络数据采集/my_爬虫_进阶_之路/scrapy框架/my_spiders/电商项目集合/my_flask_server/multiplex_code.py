@@ -49,6 +49,28 @@ from fzutils.cp_utils import (
 from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.spider.async_always import *
 
+async def get_waited_2_update_db_data_from_server(server_ip: str='http://0.0.0.0:5000',
+                                                  _type: str='tm',
+                                                  child_type: int=0) -> list:
+    """
+    从server获取待更新数据
+    :return:
+    """
+    url = server_ip + '/spider/dcs'
+    params = (
+        ('type', _type),
+        ('child_type', child_type),
+    )
+    body = await unblock_request(
+        url=url,
+        params=params,
+        use_proxy=False,)
+    res = json_2_dict(
+        json_str=body,
+        default_res={},).get('data', [])
+
+    return res
+
 def _z8_get_parent_dir(goods_id) -> str:
     '''
     折800获取parent_dir (常规, 拼团, 秒杀都可用)

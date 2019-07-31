@@ -29,7 +29,9 @@ from multiplex_code import (
     _print_db_old_data,
     to_right_and_update_tm_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,)
+    BaseDbCommomGoodsInfoParamsObj,
+    get_waited_2_update_db_data_from_server,
+)
 
 from fzutils.celery_utils import _get_celery_async_results
 from fzutils.spider.async_always import *
@@ -62,7 +64,10 @@ class TMUpdater(AsyncCrawler):
         result = None
         try:
             result = list(self.sql_cli._select_table(sql_str=tm_select_str_3))
-            # result = await self.get_wait_2_update_data_from_server()
+            # result = await get_waited_2_update_db_data_from_server(
+            #     server_ip=self.server_ip,
+            #     _type='tm',
+            #     child_type=0,)
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
@@ -70,26 +75,6 @@ class TMUpdater(AsyncCrawler):
 
         return result
 
-    async def get_wait_2_update_data_from_server(self) -> list:
-        """
-        从server获取待更新数据
-        :return:
-        """
-        url = self.server_ip + '/spider/dcs'
-        params = (
-            ('type', 'tm'),
-            ('child_type', 0),
-        )
-        body = await unblock_request(
-            url=url,
-            params=params,
-            use_proxy=False,)
-        res = json_2_dict(
-            json_str=body,
-            default_res={},).get('data', [])
-
-        return res
-    
     def _get_tmp_item(self, site_id, goods_id):
         tmp_item = []
         # 从数据库中取出时，先转换为对应的类型
