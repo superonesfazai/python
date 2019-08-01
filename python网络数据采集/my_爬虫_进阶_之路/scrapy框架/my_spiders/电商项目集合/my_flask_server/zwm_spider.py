@@ -32,6 +32,7 @@ from sql_str_controller import (
 from requests import session
 from datetime import datetime
 from requests_toolbelt import MultipartEncoder
+from fzutils.exceptions import catch_exceptions_with_class_logger
 from fzutils.spider.async_always import *
 
 class ZWMSpider(AsyncCrawler):
@@ -99,6 +100,42 @@ class ZWMSpider(AsyncCrawler):
 
             # 定时
             await async_sleep(60 * self.sleep_time)
+
+    async def _get_all_business_manage_records_tasks_params_list(self,) -> list:
+        """获取tasks_params_list"""
+        tasks_params_list = []
+        for page_num in range(1, self.max_business_manage_page_num):
+            tasks_params_list.append({
+                'page_num': page_num,
+            })
+
+        return tasks_params_list
+
+    def get_create_task_msg1(self, k) -> str:
+        return 'create task[where page_num: {}]...'.format(k['page_num'])
+
+    def get_now_args1(self, k) -> list:
+        return [
+            k['page_num'],
+        ]
+
+    async def get_all_business_settlement_records_tasks_params_list(self) -> list:
+        """获取tasks_params_list"""
+        tasks_params_list = []
+        for page_num in range(1, self.max_business_settlement_records_page_num):
+            tasks_params_list.append({
+                'page_num': page_num,
+            })
+
+        return tasks_params_list
+
+    def get_create_task_msg0(self, k) -> str:
+        return 'create task[where page_num: {}]...'.format(k['page_num'])
+
+    def get_now_args0(self, k) -> list:
+        return [
+            k['page_num'],
+        ]
 
     async def _login(self) -> bool:
         """
@@ -345,52 +382,21 @@ class ZWMSpider(AsyncCrawler):
         获取所有商户及门店管理记录
         :return:
         """
-        async def _get_tasks_params_list() -> list:
-            """获取tasks_params_list"""
-            tasks_params_list = []
-            for page_num in range(1, self.max_business_manage_page_num):
-                tasks_params_list.append({
-                    'page_num': page_num,
-                })
+        res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=await self._get_all_business_manage_records_tasks_params_list(),
+            func_name_where_get_create_task_msg=self.get_create_task_msg1,
+            func_name=self._get_one_page_business_manage_records_by_something,
+            func_name_where_get_now_args=self.get_now_args1,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,)
 
-            return tasks_params_list
+        return res
 
-        tasks_params_list = await _get_tasks_params_list()
-        tasks_params_list_obj = TasksParamsListObj(
-            tasks_params_list=tasks_params_list,
-            step=self.concurrency,)
-
-        all_res = []
-        while True:
-            try:
-                slice_params_list = tasks_params_list_obj.__next__()
-            except AssertionError:
-                break
-
-            tasks = []
-            for k in slice_params_list:
-                page_num = k['page_num']
-                self.lg.info('create task[where page_num: {}]...'.format(page_num))
-                func_args = [
-                    page_num,
-                ]
-                tasks.append(self.loop.create_task(unblock_func(
-                        func_name=self._get_one_page_business_manage_records_by_something,
-                        func_args=func_args,
-                        logger=self.lg,)))
-
-            one_res = await async_wait_tasks_finished(tasks=tasks)
-            # pprint(one_res)
-            try:
-                del tasks
-            except:
-                pass
-            for i in one_res:
-                for j in i:
-                    all_res.append(j)
-
-        return all_res
-
+    @catch_exceptions_with_class_logger(default_res=[])
     def _get_one_page_business_manage_records_by_something(self,
                                                            page_num: int,
                                                            start_date: str = None,
@@ -403,14 +409,10 @@ class ZWMSpider(AsyncCrawler):
         :return:
         """
         res = []
-        try:
-            start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0] + ' 00:00'
-            # start_date = '2018-01-01 00:00'
-            end_date = (str(get_shanghai_time()) if end_date is None else end_date)[0:16]
-            self.lg.info('start_date: {}, end_date: {}'.format(start_date, end_date))
-        except (IndexError, Exception):
-            self.lg.error('遇到错误:', exc_info=True)
-            return res
+        start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0] + ' 00:00'
+        # start_date = '2018-01-01 00:00'
+        end_date = (str(get_shanghai_time()) if end_date is None else end_date)[0:16]
+        self.lg.info('start_date: {}, end_date: {}'.format(start_date, end_date))
 
         headers = self.get_random_pc_headers()
         headers.update({
@@ -437,24 +439,20 @@ class ZWMSpider(AsyncCrawler):
             'limit': '100',
         }
         url = 'https://agent.yrmpay.com/JHAdminConsole/merchantMaterial/materialList.do'
-        try:
-            body = Requests.get_url_body(
-                method='post',
-                url=url,
-                headers=headers,
-                params=params,
-                cookies=self.login_cookies_dict,
-                data=data,
-                ip_pool_type=self.ip_pool_type,
-                num_retries=self.num_retries,)
-            assert body != '', 'body不为空值!'
-            res = json_2_dict(
-                json_str=body,
-                logger=self.lg,
-                default_res={}).get('materialList', [])
-        except Exception:
-            self.lg.error('遇到错误:', exc_info=True)
-            return res
+        body = Requests.get_url_body(
+            method='post',
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=self.login_cookies_dict,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,)
+        assert body != '', 'body不为空值!'
+        res = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={}).get('materialList', [])
 
         self.lg.info('[{}] page_num: {}'.format(
             '+' if res != [] else '-',
@@ -677,52 +675,21 @@ class ZWMSpider(AsyncCrawler):
         获取所有商户结算记录
         :return:
         """
-        async def _get_tasks_params_list() -> list:
-            """获取tasks_params_list"""
-            tasks_params_list = []
-            for page_num in range(1, self.max_business_settlement_records_page_num):
-                tasks_params_list.append({
-                    'page_num': page_num,
-                })
+        res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=await self.get_all_business_settlement_records_tasks_params_list(),
+            func_name_where_get_create_task_msg=self.get_create_task_msg0,
+            func_name=self._get_one_page_business_settlement_records_by_something,
+            func_name_where_get_now_args=self.get_now_args0,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,)
 
-            return tasks_params_list
+        return res
 
-        tasks_params_list = await _get_tasks_params_list()
-        tasks_params_list_obj = TasksParamsListObj(
-            tasks_params_list=tasks_params_list,
-            step=self.concurrency,)
-
-        all_res = []
-        while True:
-            try:
-                slice_params_list = tasks_params_list_obj.__next__()
-            except AssertionError:
-                break
-
-            tasks = []
-            for k in slice_params_list:
-                page_num = k['page_num']
-                self.lg.info('create task[where page_num: {}]...'.format(page_num))
-                func_args = [
-                    page_num,
-                ]
-                tasks.append(self.loop.create_task(
-                    unblock_func(
-                        func_name=self._get_one_page_business_settlement_records_by_something,
-                        func_args=func_args,
-                        logger=self.lg,)))
-
-            one_res = await async_wait_tasks_finished(tasks=tasks)
-            try:
-                del tasks
-            except:
-                pass
-            for i in one_res:
-                for j in i:
-                    all_res.append(j)
-
-        return all_res
-
+    @catch_exceptions_with_class_logger(default_res=[])
     def _get_one_page_business_settlement_records_by_something(self,
                                                                page_num :int,
                                                                start_date: str=None,
@@ -738,16 +705,10 @@ class ZWMSpider(AsyncCrawler):
         :param agent_name:              顶级机构名称
         :return:
         """
-        res = []
-
-        try:
-            start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0]
-            # start_date = '2018-01-01'
-            end_date = (str(get_shanghai_time()) if end_date is None else end_date).split(' ')[0]
-            self.lg.info('start_date: {}, end_date: {}'.format(start_date, end_date))
-        except IndexError:
-            self.lg.error('遇到错误:', exc_info=True)
-            return res
+        start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0]
+        # start_date = '2018-01-01'
+        end_date = (str(get_shanghai_time()) if end_date is None else end_date).split(' ')[0]
+        self.lg.info('start_date: {}, end_date: {}'.format(start_date, end_date))
 
         headers = self.get_random_pc_headers()
         headers.update({
@@ -770,25 +731,21 @@ class ZWMSpider(AsyncCrawler):
             'limit': '100',
         }
         url = 'https://agent.yrmpay.com/JHAdminConsole/merSettle/queryMerSettleList.do'
-        try:
-            body = Requests.get_url_body(
-                method='post',
-                url=url,
-                headers=headers,
-                params=params,
-                cookies=self.login_cookies_dict,
-                data=data,
-                ip_pool_type=self.ip_pool_type,
-                num_retries=self.num_retries,)
-            # self.lg.info(body)
-            assert body != '', 'body不为空值!'
-            res = json_2_dict(
-                json_str=body,
-                logger=self.lg,
-                default_res={}).get('data', [])
-        except Exception:
-            self.lg.error('遇到错误:', exc_info=True)
-            return res
+        body = Requests.get_url_body(
+            method='post',
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=self.login_cookies_dict,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,)
+        # self.lg.info(body)
+        assert body != '', 'body不为空值!'
+        res = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={}).get('data', [])
 
         self.lg.info('[{}] page_num: {}'.format(
             '+' if res != [] else '-',
@@ -848,6 +805,7 @@ class ZWMSpider(AsyncCrawler):
 
         return all_res
 
+    @catch_exceptions_with_class_logger(default_res=[])
     def _get_one_page_transaction_details_by_something(self,
                                                       page_num: int,
                                                       start_date: str=None,
@@ -904,24 +862,20 @@ class ZWMSpider(AsyncCrawler):
         }
         url = 'https://agent.yrmpay.com/JHAdminConsole/limafuReport/querylimafuTransFlow.do'
 
-        try:
-            body = Requests.get_url_body(
-                method='post',
-                url=url,
-                headers=headers,
-                params=params,
-                cookies=self.login_cookies_dict,
-                data=data,
-                ip_pool_type=self.ip_pool_type,
-                num_retries=self.num_retries,)
-            assert body != '', 'body不为空值!'
-            res = json_2_dict(
-                json_str=body,
-                logger=self.lg,
-                default_res={}).get('data', [])
-        except Exception:
-            self.lg.error('遇到错误:', exc_info=True)
-            return res
+        body = Requests.get_url_body(
+            method='post',
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=self.login_cookies_dict,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.num_retries,)
+        assert body != '', 'body不为空值!'
+        res = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={}).get('data', [])
 
         self.lg.info('[{}] page_num: {}'.format(
             '+' if res != [] else '-',
@@ -949,7 +903,7 @@ class ZWMSpider(AsyncCrawler):
         """
         now_time = get_shanghai_time()
         # 避免月底流水无法获取
-        day = 27
+        day = 25
 
         now_month = now_time.month
         if now_month > 1:
