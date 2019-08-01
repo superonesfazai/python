@@ -33,14 +33,14 @@ supported:
     21. 西瓜视频(短视频)(https://www.ixigua.com)
     22. 场库网(短视频)(https://www.vmovier.com/)
     23. 梨视频(短视频)(https://www.pearvideo.com/)
+    24. 艾墨镇(短视频)(https://aimozhen.com/)
     
 not supported:
     1. 捉米网(短视频)(http://www.zhomi.com/)
-    2. 艾墨镇(短视频)(https://aimozhen.com/)
-    3. 新华网(http://m.xinhuanet.com)
-    4. 36氪(https://36kr.com)
-    5. 太平洋时尚网(https://www.pclady.com.cn/)
-    6. 网易新闻
+    2. 新华网(http://m.xinhuanet.com)
+    3. 36氪(https://36kr.com)
+    4. 太平洋时尚网(https://www.pclady.com.cn/)
+    5. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -273,6 +273,10 @@ class ArticleParser(AsyncCrawler):
             'lsp': {
                 'obj_origin': 'www.pearvideo.com',
                 'site_id': 26,
+            },
+            'amz': {
+                'obj_origin': 'aimozhen.com',
+                'site_id': 27,
             },
         }
 
@@ -529,6 +533,9 @@ class ArticleParser(AsyncCrawler):
                     default_res=('', ''),
                     logger=self.lg,)
 
+            elif article_url_type == 'amz':
+                return await self._get_amz_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -536,6 +543,32 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_amz_article_html(self, article_url) -> tuple:
+        """
+        获取amz html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await self._get_random_phone_headers()
+        headers.update({
+            'authority': 'aimozhen.com',
+            'referer': 'https://aimozhen.com/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        })
+        # 只能获取到iframe, 故切入到视频文章中
+        # todo request只能获取到部分的
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg, )
+        # self.lg.info(body)
+        assert body != '', '获取hx的body为空值!'
+
+        return body, video_url
 
     def unblock_get_lsp_article_html(self, article_url) -> tuple:
         """
@@ -1679,6 +1712,7 @@ class ArticleParser(AsyncCrawler):
             'xg',
             'ck',
             'lsp',
+            'amz',
         ]
         if short_name in short_name_list2:
             pass
@@ -2274,6 +2308,15 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ck':
             content = self.hook_target_api_data['content']
 
+        elif short_name == 'amz':
+            # 不管content是否为空, 都进入
+            video_iframe = await self._get_amz_video_iframe(
+                parse_obj=parse_obj,
+                target_obj=target_obj,)
+            self.lg.info('video_iframe: {}'.format(video_iframe))
+            # 视频iframe在前面
+            content = video_iframe + content
+
         else:
             pass
 
@@ -2312,6 +2355,42 @@ class ArticleParser(AsyncCrawler):
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
 
         return content
+
+    async def _get_amz_video_iframe(self, parse_obj, target_obj) -> str:
+        """
+        获取amz video_iframe
+        :param parse_obj:
+        :param target_obj:
+        :return:
+        """
+        video_iframe = await async_parse_field(
+            parser=parse_obj['video_iframe'],
+            target_obj=target_obj,
+            logger=self.lg, )
+        if video_iframe == '':
+            # 第二种情况视频处理, 生成iframe(eg: 优酷视频云)
+            client_id = await async_parse_field(
+                parser=parse_obj['client_id'],
+                target_obj=target_obj,
+                logger=self.lg, )
+            assert client_id != ''
+            vid = await async_parse_field(
+                parser=parse_obj['vid'],
+                target_obj=target_obj,
+                logger=self.lg, )
+            assert vid != ''
+            # eg: https://player.youku.com/embed/XNDExMjEzMzMxNg==?client_id=53c06c7e23bff2b5&amp;password=&amp;autoplay=true#aimozhen.com
+            iframe_src = 'https://player.youku.com/embed/{vid}?client_id={client_id}&amp;password=&amp;autoplay=true#aimozhen.com'.format(
+                vid=vid,
+                client_id=client_id, )
+            self.lg.info('生成的iframe_src: {}'.format(iframe_src))
+            video_iframe = '<iframe width=\"100%\" height=\"100%\" allow=\"autoplay\" src=\"{iframe_src}\" name=\"iframeId\" id=\"iframeId\" frameborder=\"0\" allowfullscreen=\"true\" scrolling=\"no\"></iframe>'.format(
+                iframe_src=iframe_src, )
+        else:
+            pass
+        assert video_iframe != '', 'amz的video_iframe不为空值!'
+
+        return video_iframe
 
     async def _wash_article_content(self, short_name: str, content: str) -> str:
         """
@@ -2387,9 +2466,22 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'lsp':
             content = await self._wash_lsp_article_content(content=content)
 
+        elif short_name == 'amz':
+            content = await self._wash_amz_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_amz_article_content(content) -> str:
+        """
+        清洗amz content
+        :param content:
+        :return:
+        """
+        # firefox上正常显示, chrome变形, 后台可以改下iframe的属性, 使其自适应
         return content
 
     @staticmethod
@@ -2805,36 +2897,8 @@ class ArticleParser(AsyncCrawler):
         获取文章的site_id
         :return:
         """
-        article_url_type_list = [
-            'wx',
-            'tt',
-            'js',
-            'kd',
-            'kb',
-            'df',
-            'sg',
-            'bd',
-            'zq',
-            'yg',
-            'fh',
-            'ys',
-            'cn',
-            'if',
-            'ss',
-            'jm',
-            'pp',
-            'hx',
-            'nfzm',
-            'hqx',
-            'xg',
-            'ck',
-            'lsp',
-        ]
-        if article_url_type in article_url_type_list:
-            return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
-
-        else:
-            raise ValueError('未知的文章url!')
+        # 肯定在里面, 否则无法走到这一步
+        return self.obj_origin_dict.get(article_url_type, {}).get('site_id', '')
 
     async def _judge_url_type(self, article_url) -> str:
         """
@@ -3430,10 +3494,22 @@ def main():
     # 音乐
     # url = 'https://www.pearvideo.com/video_1584314'
     # 拍客
-    url = 'https://www.pearvideo.com/video_1584404'
+    # url = 'https://www.pearvideo.com/video_1584404'
     # todo 万象, 图文文章(多为国家相关, 不采集)
     # todo 直播不采集
     # url = 'https://www.pearvideo.com/living_1583854'
+
+    # 艾墨镇
+    # url = 'https://aimozhen.com/view/15994/'
+    # url = 'https://aimozhen.com/view/15770/'
+    # url = 'https://aimozhen.com/view/15537/'
+    # url = 'https://aimozhen.com/view/15505/'
+    # url = 'https://aimozhen.com/view/15996/'
+    # url = 'https://aimozhen.com/view/15993/'
+    # url = 'https://aimozhen.com/view/2789/'
+    # url = 'https://aimozhen.com/view/10345/'
+    # url = 'https://aimozhen.com/view/15620/'
+    url = 'https://aimozhen.com/view/15960/'
 
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(

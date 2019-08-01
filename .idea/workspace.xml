@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" line="1248" mnemonic="3" />
+    <bookmark url="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" line="1296" mnemonic="3" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -270,7 +270,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$Unittests_in_test_py.coverage" NAME="Unittests in test.py Coverage Results" MODIFIED="1500980366632" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/modules/turtle" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$taobao_qianggou_miaosha_real_times_update.coverage" NAME="taobao_qianggou_miaosha_real-times_update Coverage Results" MODIFIED="1526368400077" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/spike_everything" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$legb.coverage" NAME="legb规则 Coverage Results" MODIFIED="1501820085662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_cookbook_notes/闭包" />
-    <SUITE FILE_PATH="coverage/python$article_spider.coverage" NAME="article_spider Coverage Results" MODIFIED="1564540973634" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
+    <SUITE FILE_PATH="coverage/python$article_spider.coverage" NAME="article_spider Coverage Results" MODIFIED="1564629542719" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$xpath__.coverage" NAME="xpath_多线程_糗事百科 Coverage Results" MODIFIED="1504086876423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/使用xpath的crawler/xpath_my_demo/xpath_糗事百科" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$send_to_myself.coverage" NAME="send_to_myself Coverage Results" MODIFIED="1504878053916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/微信聊天机器人" />
     <SUITE FILE_PATH="coverage/python$urllib_request_request_header.coverage" NAME="urllib_request_request_header Coverage Results" MODIFIED="1535090311818" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/urllib_request(网络资源访问)" />
@@ -315,7 +315,7 @@
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$test_select.coverage" NAME="test_select Coverage Results" MODIFIED="1505201151484" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/db_and_数据持久化/mysql/mysql与python交互" />
     <SUITE FILE_PATH="coverage/python$alert.coverage" NAME="处理alert弹窗 Coverage Results" MODIFIED="1556254843331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/动态html处理与机器图像识别/Selenium/Selenium_demo" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$simple_flask_server2.coverage" NAME="simple_flask_server2 Coverage Results" MODIFIED="1502808923531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/web_编程/flask" />
-    <SUITE FILE_PATH="coverage/python$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1564537748201" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
+    <SUITE FILE_PATH="coverage/python$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1564625095732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1527304090746" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/appium/android/淘宝微淘" />
     <SUITE FILE_PATH="coverage/python$Doctest_safe_unicode.coverage" NAME="Doctest safe_unicode Coverage Results" MODIFIED="1533360341314" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/data" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$udp_test.coverage" NAME="udp广播_test Coverage Results" MODIFIED="1502763302054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes_万物皆对象/网络编程/套接字:通信端点/socket/udp" />
@@ -935,7 +935,7 @@
     <SUITE FILE_PATH="coverage/python$qutoutiao_ops.coverage" NAME="qutoutiao_ops Coverage Results" MODIFIED="1557467279643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/App爬虫相关/atx/android/趣头条" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$YDMHTTPDemo3_x.coverage" NAME="YDMHTTPDemo3.x Coverage Results" MODIFIED="1507588002364" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/用爬虫测试网站/动态html处理与机器图像识别/第三方打码sdk/云打码" />
     <SUITE FILE_PATH="coverage/python$sina_weibo_spider.coverage" NAME="sina_weibo_spider Coverage Results" MODIFIED="1544148731649" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/sina_weibo_项目/sina_weibo" />
-    <SUITE FILE_PATH="coverage/python$demo.coverage" NAME="demo Coverage Results" MODIFIED="1563959346504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
+    <SUITE FILE_PATH="coverage/python$demo.coverage" NAME="demo Coverage Results" MODIFIED="1564625024428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
     <SUITE FILE_PATH="PyCharm2017.2/coverage/PythonDoc$test_sql_str.coverage" NAME="test_sql_str Coverage Results" MODIFIED="1528936042662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/阿里1688_淘宝_天猫_京东_折800_卷皮_拼多多_蜜芽_蘑菇街_楚楚街_唯品会_聚美优品/my_flask_server/sql_lang" />
     <SUITE FILE_PATH="PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/PyCharm2017.2/coverage/PythonDoc$use_eval_.coverage" NAME="use_eval_实现简单的计算器 Coverage Results" MODIFIED="1502164697296" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/my_py_notes/执行环境" />
     <SUITE FILE_PATH="coverage/PythonDoc$linux_utils.coverage" NAME="linux_utils Coverage Results" MODIFIED="1531900583517" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils" />
@@ -1133,7 +1133,73 @@
     <favorites_list name="python" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="306">
+                  <caret line="3508" lean-forward="true" selection-start-line="3508" selection-end-line="3508" />
+                  <folding>
+                    <element signature="e#25866#26997#0" />
+                    <element signature="e#81716#84253#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="120">
+                  <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="216">
+                  <caret line="1260" column="29" lean-forward="true" selection-start-line="1260" selection-start-column="29" selection-end-line="1260" selection-end-column="42" />
+                  <folding>
+                    <element signature="e#5720#6595#0" />
+                    <element signature="e#6601#7726#0" />
+                    <element signature="e#7732#9298#0" />
+                    <element signature="e#9304#10515#0" />
+                    <element signature="e#10521#12686#0" />
+                    <element signature="e#12692#13677#0" />
+                    <element signature="e#13683#14816#0" />
+                    <element signature="e#14822#16254#0" />
+                    <element signature="e#16260#17227#0" />
+                    <element signature="e#17233#18063#0" />
+                    <element signature="e#18069#19680#0" />
+                    <element signature="e#19686#20448#0" />
+                    <element signature="e#20454#21720#0" />
+                    <element signature="e#21726#23284#0" />
+                    <element signature="e#23290#24342#0" />
+                    <element signature="e#24348#25797#0" />
+                    <element signature="e#25803#27143#0" />
+                    <element signature="e#27149#28900#0" />
+                    <element signature="e#28906#29587#0" />
+                    <element signature="e#29593#30849#0" />
+                    <element signature="e#30855#31788#0" />
+                    <element signature="e#31794#32474#0" />
+                    <element signature="e#32480#33702#0" />
+                    <element signature="e#33745#58945#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -1149,10 +1215,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>asyncio</find>
-      <find>restart_program</find>
-      <find>fort</find>
-      <find>吕</find>
       <find>ab2title</find>
       <find>charset</find>
       <find>74</find>
@@ -1175,10 +1237,14 @@
       <find>_get_insert_item_params2</find>
       <find>_get_update_item_params</find>
       <find>700ml</find>
-      <find>video</find>
-      <find>&lt;video</find>
       <find>def _par</find>
       <find>dcs</find>
+      <find>&lt;video</find>
+      <find>video</find>
+      <find>if</find>
+      <find>ifram</find>
+      <find>video-content</find>
+      <find>def _pa</find>
     </findStrings>
     <replaceStrings>
       <replace>'[+] add to db!'</replace>
@@ -1233,7 +1299,6 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script/jumeiyoupin_pintuan.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/logs/expired_logs_deal_with.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/exceptions.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/buyiju_spider.py" />
@@ -1262,16 +1327,12 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/goods_keywords_spiders/goods_keywords_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tejia/taobao_tiantiantejia_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_lang/__db.sql" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/sql_str_controller.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tmall_parse_2.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/zwm_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/my_items.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/my_client.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/ali_1688_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/apps/msg.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils/fzutils/data/json_utils.py" />
@@ -1279,6 +1340,11 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/tmall_real-times_update.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" />
       </list>
     </option>
   </component>
@@ -1669,6 +1735,15 @@
               <item name="my_爬虫_进阶_之路" type="9f88c78c:ScopeViewTreeModel$FileNode" />
               <item name="scrapy框架" type="9f88c78c:ScopeViewTreeModel$FileNode" />
               <item name="my_spiders" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="curl转python" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="python" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="python网络数据采集" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="my_爬虫_进阶_之路" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="scrapy框架" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="my_spiders" type="9f88c78c:ScopeViewTreeModel$FileNode" />
               <item name="电商项目集合" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
             <path>
@@ -1680,17 +1755,6 @@
               <item name="my_spiders" type="9f88c78c:ScopeViewTreeModel$FileNode" />
               <item name="电商项目集合" type="9f88c78c:ScopeViewTreeModel$FileNode" />
               <item name="my_flask_server" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-            </path>
-            <path>
-              <item name="python" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
-              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
-              <item name="python网络数据采集" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-              <item name="my_爬虫_进阶_之路" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-              <item name="scrapy框架" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-              <item name="my_spiders" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-              <item name="电商项目集合" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-              <item name="my_flask_server" type="9f88c78c:ScopeViewTreeModel$FileNode" />
-              <item name="real-times_update" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
           </expand>
           <select />
@@ -1822,7 +1886,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.new_my_server">
+  <component name="RunManager" selected="Python.article_spider">
     <configuration name="article_spider" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -1837,6 +1901,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -1881,28 +1967,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_py_notes_万物皆对象/internet_code/urllib/Handler处理器和自定义Opener/案例/链家爬虫/lianjia_spider.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="my_client" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="python" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/my_client.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -2065,6 +2129,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="test" type="PythonConfigurationType" factoryName="Python">
       <module name="PythonDoc" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -2166,22 +2252,6 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest in 非阻塞方式使用互斥锁.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <module name="python" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/线程/同步/互斥锁" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/my_py_notes_万物皆对象/进程_线程_and_同步/线程/同步/互斥锁/非阻塞方式使用互斥锁.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Python.lianjia_login" />
       <item itemvalue="Python.lianjia_spider" />
@@ -2193,19 +2263,19 @@
       <item itemvalue="Python.str_format_文本缩进_test" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.turtle_test" />
-      <item itemvalue="Python.article_spider" />
-      <item itemvalue="Python.my_client" />
       <item itemvalue="Python tests.pytest in 互斥锁使用的位置.py" />
-      <item itemvalue="Python tests.pytest in 非阻塞方式使用互斥锁.py" />
       <item itemvalue="Python.new_my_server" />
+      <item itemvalue="Python.test (1)" />
+      <item itemvalue="Python.demo" />
+      <item itemvalue="Python.article_spider" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.article_spider" />
+        <item itemvalue="Python.test (1)" />
+        <item itemvalue="Python.demo" />
         <item itemvalue="Python.new_my_server" />
         <item itemvalue="Python tests.pytest in 互斥锁使用的位置.py" />
-        <item itemvalue="Python tests.pytest in 非阻塞方式使用互斥锁.py" />
-        <item itemvalue="Python.my_client" />
-        <item itemvalue="Python.article_spider" />
       </list>
     </recent_temporary>
   </component>
@@ -2272,7 +2342,7 @@
       <workItem from="1564038865026" duration="398000" />
       <workItem from="1564039369236" duration="28409000" />
       <workItem from="1564366518005" duration="9502000" />
-      <workItem from="1564543222871" duration="9171000" />
+      <workItem from="1564543222871" duration="15345000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2324,7 +2394,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1964328000" />
+    <option name="totallyTimeSpent" value="1970502000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2337,19 +2407,20 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.14110756" />
       <window_info id="Structure" order="1" sideWeight="0.5019802" side_tool="true" weight="0.1400426" />
       <window_info id="Favorites" order="2" sideWeight="0.5009901" side_tool="true" weight="0.12140575" />
       <window_info anchor="bottom" id="Database Console" order="0" weight="0.34059405" />
       <window_info anchor="bottom" id="Message" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49840257" weight="0.42970297" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49840257" visible="true" weight="0.42970297" />
       <window_info anchor="bottom" id="Find" order="3" weight="0.3029703" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.43069306" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="7" weight="0.32871288" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.38019803" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.38019803" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50159746" side_tool="true" weight="0.28316832" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.32871288" />
       <window_info anchor="bottom" id="Python Console" order="11" weight="0.32970297" />
@@ -2469,13 +2540,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/tejia/taobao_tiantiantejia.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5265">
-          <caret line="351" column="12" selection-start-line="351" selection-start-column="12" selection-end-line="351" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/pintuan_script/zhe_800_pintuan.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-720">
@@ -2568,13 +2632,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/celery_tasks.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="276">
@@ -2646,53 +2703,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
           <caret line="168" column="9" lean-forward="true" selection-start-line="168" selection-start-column="9" selection-end-line="168" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="1234" lean-forward="true" selection-start-line="1234" selection-end-line="1234" />
-          <folding>
-            <element signature="e#5714#34059#0" />
-            <element signature="e#5720#6595#0" />
-            <element signature="e#6601#7726#0" />
-            <element signature="e#7732#9298#0" />
-            <element signature="e#9304#10515#0" />
-            <element signature="e#10521#12686#0" />
-            <element signature="e#12692#13677#0" />
-            <element signature="e#13683#14816#0" />
-            <element signature="e#14822#16254#0" />
-            <element signature="e#16260#17227#0" />
-            <element signature="e#17233#18063#0" />
-            <element signature="e#18069#19680#0" />
-            <element signature="e#19686#20448#0" />
-            <element signature="e#20454#21720#0" />
-            <element signature="e#21726#23284#0" />
-            <element signature="e#23290#24342#0" />
-            <element signature="e#24348#25797#0" />
-            <element signature="e#25803#27143#0" />
-            <element signature="e#27149#28900#0" />
-            <element signature="e#28906#29587#0" />
-            <element signature="e#29593#30849#0" />
-            <element signature="e#30855#31788#0" />
-            <element signature="e#31794#32474#0" />
-            <element signature="e#32480#34056#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="873">
-          <caret line="225" column="11" selection-start-line="225" selection-start-column="11" selection-end-line="225" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="24" column="32" selection-start-line="24" selection-start-column="32" selection-end-line="24" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -2884,6 +2894,71 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="167">
           <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/demo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="3" lean-forward="true" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/curl转python/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="439">
+          <caret line="225" column="11" selection-start-line="225" selection-start-column="11" selection-end-line="225" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="1260" column="29" lean-forward="true" selection-start-line="1260" selection-start-column="29" selection-end-line="1260" selection-end-column="42" />
+          <folding>
+            <element signature="e#5720#6595#0" />
+            <element signature="e#6601#7726#0" />
+            <element signature="e#7732#9298#0" />
+            <element signature="e#9304#10515#0" />
+            <element signature="e#10521#12686#0" />
+            <element signature="e#12692#13677#0" />
+            <element signature="e#13683#14816#0" />
+            <element signature="e#14822#16254#0" />
+            <element signature="e#16260#17227#0" />
+            <element signature="e#17233#18063#0" />
+            <element signature="e#18069#19680#0" />
+            <element signature="e#19686#20448#0" />
+            <element signature="e#20454#21720#0" />
+            <element signature="e#21726#23284#0" />
+            <element signature="e#23290#24342#0" />
+            <element signature="e#24348#25797#0" />
+            <element signature="e#25803#27143#0" />
+            <element signature="e#27149#28900#0" />
+            <element signature="e#28906#29587#0" />
+            <element signature="e#29593#30849#0" />
+            <element signature="e#30855#31788#0" />
+            <element signature="e#31794#32474#0" />
+            <element signature="e#32480#33702#0" />
+            <element signature="e#33745#58945#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/test/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/article_spider.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="3508" lean-forward="true" selection-start-line="3508" selection-end-line="3508" />
+          <folding>
+            <element signature="e#25866#26997#0" />
+            <element signature="e#81716#84253#0" />
+          </folding>
         </state>
       </provider>
     </entry>

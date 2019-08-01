@@ -1231,6 +1231,54 @@ ARTICLE_ITEM_LIST = [
             'selector': 'div.fav ::text'
         },
     },
+    {
+        'short_name': 'amz',
+        'debug': True,
+        'obj_origin': 'aimozhen.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/view/(\d+)/',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div#video-headline ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div#video-user-name ::text',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'a.user-avatar img ::attr("src")',
+        },
+        'video_head_url': None,
+        'create_time': None,                                # 默认null
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div#video-content',
+        },
+        'video_article_content': None,
+        'video_iframe': {
+            'method': 're',
+            'selector': 'var player = \'(.*?)\'',
+        },
+        'client_id': {
+            'method': 're',
+            'selector': 'client_id: \'(.*?)\'',
+        },
+        'vid': {
+            'method': 're',
+            'selector': 'vid: \'(.*?)\'',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': None,
+    },
 ]
 
 '''
