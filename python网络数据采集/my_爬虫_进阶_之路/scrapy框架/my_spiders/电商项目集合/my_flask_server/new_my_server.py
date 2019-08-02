@@ -82,26 +82,23 @@ from apps.save import (
     get_who_right_data,
     get_db_who_insert_params,)
 
-from json import dumps
 import time
 import datetime
-import re
 from logging import (
     INFO,
     ERROR,
 )
-from pprint import pprint
 from base64 import b64decode
 from threading import Lock as ThreadingLock
 from threading import Thread
 from queue import Queue
 
 try:
-    from gevent.wsgi import WSGIServer      # 高并发部署
+    # 高并发部署
+    from gevent.wsgi import WSGIServer
 except Exception as e:
     from gevent.pywsgi import WSGIServer
 
-from gc import collect
 from sql_str_controller import (
     fz_al_insert_str,
     fz_tb_insert_str,
@@ -120,19 +117,11 @@ from sql_str_controller import (
 
 from article_spider import ArticleParser
 from buyiju_spider import BuYiJuSpider
-from asyncio import get_event_loop
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,)
-from fzutils.linux_utils import daemon_init
-from fzutils.common_utils import json_2_dict
-from fzutils.safe_utils import (
-    encrypt,
-    decrypt,
-    get_uuid1,)
 from fzutils.exceptions import catch_exceptions
 from fzutils.data.json_utils import get_new_list_by_handle_list_2_json_error
+from fzutils.spider.async_always import *
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -2068,6 +2057,7 @@ def fortune_telling():
 """
 /spider/dcs
 """
+# 避免与asyncio的Queue冲突
 tm_real_time_update_queue = Queue()
 tm_real_time_update_lock = ThreadingLock()
 
