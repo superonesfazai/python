@@ -19,19 +19,15 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 
-from gc import collect
-
 from multiplex_code import (
     _print_db_old_data,
     handle_and_save_goods_comment_info,
     get_goods_comment_async_one_res,
     record_goods_comment_modify_time,
 )
-
 from sql_str_controller import (
     cm_select_str_1,
 )
-
 from fzutils.spider.async_always import *
 
 class CommentRealTimesUpdateSpider(AsyncCrawler):

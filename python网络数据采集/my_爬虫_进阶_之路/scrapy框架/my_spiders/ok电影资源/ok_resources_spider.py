@@ -45,30 +45,26 @@ class OkResourcesSpider(AsyncCrawler):
         获取最新的video信息
         :return:
         """
-        tasks = []
-        func_name = self._get_the_latest_video_info_by_page_num
-        for page_num in range(1, self.max_latest_page_num + 1):
-            print('create task[where page_num: {}]...'.format(page_num))
-            func_args = [
-                page_num,
+        def get_now_args(k) -> list:
+            return [
+                k,
             ]
-            tasks.append(self.loop.create_task(unblock_func(
-                func_name=func_name,
-                func_args=func_args,
-                default_res=[],)))
 
-        all_res = await async_wait_tasks_finished(tasks=tasks)
-        # pprint(all_res)
-        all_latest_video_info_list = []
-        for i in all_res:
-            for j in i:
-                all_latest_video_info_list.append(j)
+        def get_create_task_msg(k) -> str:
+            return 'create task[where page_num: {}]...'.format(k)
+
+        all_latest_video_info_list = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=list(range(1, self.max_latest_page_num + 1)),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self._get_the_latest_video_info_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            get_all_res=True,)
         pprint(all_latest_video_info_list)
         print('all_latest_video_info_list len: {}'.format(len(all_latest_video_info_list)))
-        try:
-            del all_res
-        except:
-            pass
 
         return all_latest_video_info_list
 
@@ -77,30 +73,32 @@ class OkResourcesSpider(AsyncCrawler):
         获取所有ok_video_id_list的video info
         :return:
         """
-        tasks = []
-        func_name = self._get_video_page_info_by_ok_video_id
-        for item in ok_video_id_list:
-            try:
-                ok_video_id = item.get('ok_video_id', '')
-                assert ok_video_id != ''
-            except AssertionError:
-                continue
-            print('create task[where ok_video_id: {}]...'.format(ok_video_id))
-            func_args = [
-                ok_video_id,
-            ]
-            tasks.append(self.loop.create_task(unblock_func(
-                func_name=func_name,
-                func_args=func_args,
-                default_res=[],)))
+        def add_one_res_2_all_res(one_res: list, all_res: list):
+            for item in one_res:
+                all_res.append(item)
 
-        all_res = await async_wait_tasks_finished(tasks=tasks)
+            return all_res
+
+        def get_now_args(k) -> list:
+            return [
+                k.get('ok_video_id', ''),
+            ]
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where ok_video_id: {}]...'.format(k.get('ok_video_id', ''))
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=ok_video_id_list,
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self._get_video_page_info_by_ok_video_id,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_add_one_res_2_all_res=add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            get_all_res=True,)
         pprint(all_res)
-        print('_ len: {}'.format(len(_)))
-        # try:
-        #     del all_res
-        # except:
-        #     pass
+        print('all_res len: {}'.format(len(all_res)))
 
         return all_res
 
@@ -164,6 +162,7 @@ class OkResourcesSpider(AsyncCrawler):
                 'm3u8_li': new_m3u8_li,
             }
 
+        assert ok_video_id != ''
         headers = self.get_random_pc_headers()
         headers.update({
             'authority': 'www.okzyw.com',

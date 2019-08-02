@@ -48,7 +48,7 @@ class ZWMSpider(AsyncCrawler):
         self.num_retries = 6
         self.max_transaction_details_page_num = 20              # 交易截止抓取页
         self.max_business_settlement_records_page_num = 20      # 商户结算记录截止抓取页
-        self.max_business_manage_page_num = 20                  # 商户及门店管理截止抓取页
+        self.max_business_manage_page_num = 80                  # 商户及门店管理截止抓取页(单数据也超过此数量就得进行修改)
         self.login_cookies_dict = {}
         self.sleep_time = 5
 
@@ -100,42 +100,6 @@ class ZWMSpider(AsyncCrawler):
 
             # 定时
             await async_sleep(60 * self.sleep_time)
-
-    async def _get_all_business_manage_records_tasks_params_list(self,) -> list:
-        """获取tasks_params_list"""
-        tasks_params_list = []
-        for page_num in range(1, self.max_business_manage_page_num):
-            tasks_params_list.append({
-                'page_num': page_num,
-            })
-
-        return tasks_params_list
-
-    def get_create_task_msg1(self, k) -> str:
-        return 'create task[where page_num: {}]...'.format(k['page_num'])
-
-    def get_now_args1(self, k) -> list:
-        return [
-            k['page_num'],
-        ]
-
-    async def get_all_business_settlement_records_tasks_params_list(self) -> list:
-        """获取tasks_params_list"""
-        tasks_params_list = []
-        for page_num in range(1, self.max_business_settlement_records_page_num):
-            tasks_params_list.append({
-                'page_num': page_num,
-            })
-
-        return tasks_params_list
-
-    def get_create_task_msg0(self, k) -> str:
-        return 'create task[where page_num: {}]...'.format(k['page_num'])
-
-    def get_now_args0(self, k) -> list:
-        return [
-            k['page_num'],
-        ]
 
     async def _login(self) -> bool:
         """
@@ -262,6 +226,7 @@ class ZWMSpider(AsyncCrawler):
 
             # 查看
             # if shop_id == 'YRMPAY100038574':
+            # if phone_num == '18192242001':
             # if shop_chat_name == '哇哇叫':
             #     pprint(dict(zwm_item))
 
@@ -382,12 +347,32 @@ class ZWMSpider(AsyncCrawler):
         获取所有商户及门店管理记录
         :return:
         """
+        async def get_tasks_params_list(max_business_manage_page_num) -> list:
+            """获取tasks_params_list"""
+            tasks_params_list = []
+            for page_num in range(1, max_business_manage_page_num):
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where page_num: {}]...'.format(k['page_num'])
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
         res = await get_or_handle_target_data_by_task_params_list(
             loop=self.loop,
-            tasks_params_list=await self._get_all_business_manage_records_tasks_params_list(),
-            func_name_where_get_create_task_msg=self.get_create_task_msg1,
+            tasks_params_list=await get_tasks_params_list(
+                max_business_manage_page_num=self.max_business_manage_page_num),
+            func_name_where_get_create_task_msg=get_create_task_msg,
             func_name=self._get_one_page_business_manage_records_by_something,
-            func_name_where_get_now_args=self.get_now_args1,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
             func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
             one_default_res=[],
             step=self.concurrency,
@@ -404,13 +389,13 @@ class ZWMSpider(AsyncCrawler):
         """
         获取单页商户及门店管理记录
         :param page_num:
-        :param start_date: 默认设置前一个月27号, eg: '2019-01-27 00:00'
-        :param end_date: eg: '2019-07-20 09:39'
+        :param start_date:      默认设置前一个月27号, eg: '2019-01-27 00:00'
+        :param end_date:        eg: '2019-07-20 09:39'
         :return:
         """
-        res = []
-        start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0] + ' 00:00'
-        # start_date = '2018-01-01 00:00'
+        # todo 获取最开始->至今的, 即采集所有, 避免老店铺的审核状态变动, 而后台无法同步状态, 审核时间
+        # start_date = str(self.get_1_on_the_month() if start_date is None else start_date).split(' ')[0] + ' 00:00'
+        start_date = '2018-01-01 00:00'
         end_date = (str(get_shanghai_time()) if end_date is None else end_date)[0:16]
         self.lg.info('start_date: {}, end_date: {}'.format(start_date, end_date))
 
@@ -675,12 +660,31 @@ class ZWMSpider(AsyncCrawler):
         获取所有商户结算记录
         :return:
         """
+        async def get_tasks_params_list(max_business_settlement_records_page_num) -> list:
+            """获取tasks_params_list"""
+            tasks_params_list = []
+            for page_num in range(1, max_business_settlement_records_page_num):
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where page_num: {}]...'.format(k['page_num'])
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
         res = await get_or_handle_target_data_by_task_params_list(
             loop=self.loop,
-            tasks_params_list=await self.get_all_business_settlement_records_tasks_params_list(),
-            func_name_where_get_create_task_msg=self.get_create_task_msg0,
+            tasks_params_list=await get_tasks_params_list(
+                max_business_settlement_records_page_num=self.max_business_settlement_records_page_num),
+            func_name_where_get_create_task_msg=get_create_task_msg,
             func_name=self._get_one_page_business_settlement_records_by_something,
-            func_name_where_get_now_args=self.get_now_args0,
+            func_name_where_get_now_args=get_now_args,
             func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
             one_default_res=[],
             step=self.concurrency,
@@ -903,7 +907,7 @@ class ZWMSpider(AsyncCrawler):
         """
         now_time = get_shanghai_time()
         # 避免月底流水无法获取
-        day = 25
+        day = 5
 
         now_month = now_time.month
         if now_month > 1:

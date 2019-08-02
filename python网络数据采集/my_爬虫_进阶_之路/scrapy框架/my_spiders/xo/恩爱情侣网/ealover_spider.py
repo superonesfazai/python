@@ -22,7 +22,7 @@ class EALoverSpider(AsyncCrawler):
             ip_pool_type=tri_ip_pool,
         )
         self.req_num_retries = 6
-        self.max_pnbd_page_num = 20
+        self.max_pnbd_page_num = 30
         self.concurrency = 10
 
     async def _fck_run(self):

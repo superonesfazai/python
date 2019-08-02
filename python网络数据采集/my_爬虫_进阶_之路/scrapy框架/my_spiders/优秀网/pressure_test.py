@@ -57,8 +57,8 @@ class YXPT(AsyncCrawler):
 
             tasks = []
             for index in slice_list:
-                    print('create task [where is {}]'.format(index))
-                    tasks.append(self.loop.create_task(_._main_page_one_test(index=index)))
+                print('create task [where is {}]'.format(index))
+                tasks.append(self.loop.create_task(_._main_page_one_test(index=index)))
 
             one_res = await async_wait_tasks_finished(tasks=tasks)
             for i in one_res:
