@@ -51,6 +51,7 @@ class TmallParse(Crawler):
         self.result_data = {}
         self.msg = ''
         self.proxy_type = PROXY_TYPE_HTTP
+        self.req_num_retries = 3
 
     def _set_headers(self):
         self.headers = {
@@ -86,7 +87,8 @@ class TmallParse(Crawler):
             headers=self.headers,
             timeout=14,
             ip_pool_type=self.ip_pool_type,
-            proxy_type=self.proxy_type,)
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
 
         try:
             assert body != '', '获取到的body为空值, 此处跳过! 出错type %s: , goods_id: %s' % (str(type), goods_id)

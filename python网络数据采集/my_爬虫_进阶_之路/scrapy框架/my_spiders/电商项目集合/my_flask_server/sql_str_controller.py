@@ -105,7 +105,9 @@ al_select_str_5 = al_select_str_1
 al_select_str_6 = '''
 select top 1200 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
-where SiteID=2 and MainGoodsID is not null and IsDelete=0
+where SiteID=2 
+and MainGoodsID is not null 
+and IsDelete=0
 order by ModfiyTime asc
 '''
 
