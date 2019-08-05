@@ -157,7 +157,10 @@ class RequestClient(object):
         # article_link = 'https://www.pearvideo.com/video_1584404'
 
         # 艾墨镇
-        article_link = 'https://aimozhen.com/view/15960/'
+        # article_link = 'https://aimozhen.com/view/15960/'
+
+        # 美拍
+        article_link = 'https://www.meipai.com/media/1131644923'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))

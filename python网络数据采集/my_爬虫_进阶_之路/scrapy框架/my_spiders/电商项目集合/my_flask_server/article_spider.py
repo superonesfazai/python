@@ -34,13 +34,13 @@ supported:
     22. 场库网(短视频)(https://www.vmovier.com/)
     23. 梨视频(短视频)(https://www.pearvideo.com/)
     24. 艾墨镇(短视频)(https://aimozhen.com/)
+    25. 美拍(短视频)(https://www.meipai.com/)
     
 not supported:
-    1. 捉米网(短视频)(http://www.zhomi.com/)
-    2. 新华网(http://m.xinhuanet.com)
-    3. 36氪(https://36kr.com)
-    4. 太平洋时尚网(https://www.pclady.com.cn/)
-    5. 网易新闻
+    1. 新华网(http://m.xinhuanet.com)
+    2. 36氪(https://36kr.com)
+    3. 太平洋时尚网(https://www.pclady.com.cn/)
+    4. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -277,6 +277,10 @@ class ArticleParser(AsyncCrawler):
             'amz': {
                 'obj_origin': 'aimozhen.com',
                 'site_id': 27,
+            },
+            'mp': {
+                'obj_origin': 'www.meipai.com',
+                'site_id': 28,
             },
         }
 
@@ -536,6 +540,15 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'amz':
                 return await self._get_amz_article_html(article_url=article_url)
 
+            elif article_url_type == 'mp':
+                return await unblock_func(
+                    func_name=self.unblock_get_mp_article_html,
+                    func_args=[
+                        article_url,
+                    ],
+                    default_res=('', ''),
+                    logger=self.lg,)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -543,6 +556,51 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    def unblock_get_mp_article_html(self, article_url) -> tuple:
+        """
+        阻塞获取美拍的html
+        :param article_url:
+        :return:
+        """
+        driver = BaseDriver(
+            # phantomjs被封, 无数据, 改用firefox
+            type=FIREFOX,
+            executable_path=FIREFOX_DRIVER_PATH,
+            load_images=True,
+            headless=True,
+            user_agent_type=PHONE,
+            ip_pool_type=self.ip_pool_type,
+            logger=self.lg,)
+        driver.get_url_body(
+            url=article_url,
+            timeout=25,)
+        # 点击播放按钮
+        driver.find_element(value='div.Button.play-btn').click()
+        sleep(2.)
+        body = driver._wash_html(html=driver.page_source)
+        # self.lg.info(body)
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div.meipai-player video source ::attr("src")',
+        }
+        video_url = parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        self.lg.info('Get mp video_url: {}'.format(video_url))
+        try:
+            del driver
+        except:
+            try:
+                del driver
+            except:
+                pass
+        assert body != '', '获取到mp的body为空值!'
+        assert video_url != '', 'mp 的video_url不为空值!'
+
+        return body, video_url
 
     async def _get_amz_article_html(self, article_url) -> tuple:
         """
@@ -583,7 +641,8 @@ class ArticleParser(AsyncCrawler):
             # executable_path=FIREFOX_DRIVER_PATH,
             ip_pool_type=self.ip_pool_type,
             load_images=True,
-            headless=True,)
+            headless=True,
+            logger=self.lg,)
         driver.get_url_body(
             url=article_url,
             timeout=25,)
@@ -1652,6 +1711,7 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
+        # self.lg.info(target_obj)
         author = await async_parse_field(
             parser=author_selector,
             target_obj=target_obj,
@@ -1857,6 +1917,7 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
+        # self.lg.info(target_obj)
         head_url = await async_parse_field(
             parser=head_url_sel,
             target_obj=target_obj,
@@ -2150,6 +2211,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'hqx',
             'lsp',
+            'mp',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -2338,6 +2400,7 @@ class ArticleParser(AsyncCrawler):
             'xg',
             'ck',
             'lsp',
+            'mp',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -2469,9 +2532,21 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'amz':
             content = await self._wash_amz_article_content(content=content)
 
+        elif short_name == 'mp':
+            content = await self._wash_mp_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_mp_article_content(content) -> str:
+        """
+        清洗mp content
+        :param content:
+        :return:
+        """
         return content
 
     @staticmethod
@@ -3509,7 +3584,16 @@ def main():
     # url = 'https://aimozhen.com/view/2789/'
     # url = 'https://aimozhen.com/view/10345/'
     # url = 'https://aimozhen.com/view/15620/'
-    url = 'https://aimozhen.com/view/15960/'
+    # url = 'https://aimozhen.com/view/15960/'
+
+    # 美拍
+    # url = 'https://www.meipai.com/media/1129488204'
+    # url = 'https://www.meipai.com/media/1119174156'
+    # url = 'https://www.meipai.com/media/1131644923'
+    # url = 'https://www.meipai.com/media/1133207409'
+    # url = 'https://www.meipai.com/media/1132365942'
+    url = 'https://www.meipai.com/media/1131644923'
+    # todo 直播不采集
 
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(

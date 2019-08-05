@@ -1279,6 +1279,51 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num': None,
     },
+    {
+        'short_name': 'mp',
+        'debug': True,
+        'obj_origin': 'www.meipai.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/media/(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'title ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 're',
+            'selector': '<meta property=\"og:video:director\" content=\"(.*?)\">',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.user-info img.avatar ::attr("src")',
+        },
+        'video_head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '<meta property=\"og:video:release_date\" content=\"(.*?)\">'
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 're',
+            'selector': '<meta name=\"description\" content=\"(.*?)\">',
+        },
+        'video_article_content': None,
+        'comment_num': {                                # 评价数和喜欢数, 可从pc找到对应数字, 再在m站找位置
+            'method': 're',
+            'selector': '\"comments_count\":(\d+),',
+        },
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num': {
+            'method': 're',
+            'selector': '\"likes_count\":(\d+),',
+        },
+    },
 ]
 
 '''
