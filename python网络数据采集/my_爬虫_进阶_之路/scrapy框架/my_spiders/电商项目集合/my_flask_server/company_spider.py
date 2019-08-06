@@ -703,11 +703,10 @@ class CompanySpider(AsyncCrawler):
         """
         get_current_func_info_by_traceback(logger=self.lg, self=self)
         # search
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
-            'Connection': 'keep-alive',
             # 'Referer': 'http://www.go2.cn/search/all/?category_id=all&search_1=1&q=%E9%9E%8B%E5%AD%90',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         params = (
             ('category_id', 'all'),
@@ -995,9 +994,10 @@ class CompanySpider(AsyncCrawler):
             :param main_cate_id:
             :return:
             """
-            headers = await self._get_phone_headers()
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                cache_control='', )
             headers.update({
-                'connection': 'keep-alive',
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
                 'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
                 # 'Referer': 'http://m.nanguo.cn/',
@@ -1332,7 +1332,10 @@ class CompanySpider(AsyncCrawler):
         :return: ['上衣', ...]
         """
         parser_obj = await self._get_parser_obj(short_name='pk')
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         headers.update({
             'authority': 'm.ppkoo.com',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -1646,7 +1649,7 @@ class CompanySpider(AsyncCrawler):
         """
         async def _get_hn_base_info(trade_type_selector) -> tuple:
             """获取相关信息"""
-            headers = await self._get_pc_headers()
+            headers = await async_get_random_headers()
             headers.update({
                 'Proxy-Connection': 'keep-alive',
             })
@@ -1715,7 +1718,7 @@ class CompanySpider(AsyncCrawler):
             :param cate_id:
             :return: ['短袖', ...]
             """
-            headers = await self._get_pc_headers()
+            headers = await async_get_random_headers()
             headers.update({
                 'Proxy-Connection': 'keep-alive',
             })
@@ -2039,7 +2042,7 @@ class CompanySpider(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
             return []
 
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'Proxy-Connection': 'keep-alive',
         })
@@ -2193,10 +2196,9 @@ class CompanySpider(AsyncCrawler):
         """
         async def _get_yw_main_cate_info_list(cate_name, type_name_parser, type_url_parser) -> list:
             """获取yw主分类的cate info"""
-            headers = await self._get_phone_headers()
-            headers.update({
-                'Connection': 'keep-alive',
-            })
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                cache_control='', )
             url = 'http://wap.yiwugo.com/categories'
             body = await unblock_request(
                 url=url,
@@ -2234,11 +2236,12 @@ class CompanySpider(AsyncCrawler):
 
         async def _get_yw_one_cate_info_list(cate_name, cate_id) -> list:
             """获取yw m站单个页面分类的cate info"""
-            headers = await self._get_phone_headers()
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                cache_control='', )
             headers.update({
                 'Referer': 'http://wap.yiwugo.com/categories',
                 'X-Requested-With': 'XMLHttpRequest',
-                'Connection': 'keep-alive',
             })
             params = (
                 ('uppertype', str(cate_id)),
@@ -2540,9 +2543,13 @@ class CompanySpider(AsyncCrawler):
                 return ['https://3g.made-in-china.com' + item for item in cate_url_list]
 
             # TODO 测试发现: 其子分类下面的页面并非根据页码增长, 故采集m站的分类, 其是有规律的
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False,
+                cache_control='', )
             body = await unblock_request(
                 url=cate_url,
-                headers=await self._get_phone_headers(),
+                headers=headers,
                 ip_pool_type=self.ip_pool_type,
                 logger=self.lg,)
             m_child_cate_name_list = await async_parse_field(
@@ -2727,10 +2734,14 @@ class CompanySpider(AsyncCrawler):
             self.lg.info('获取到的cate_id为空!')
             return []
 
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         url = 'https://3g.made-in-china.com/product/{}-{}.html'.format(cate_id, page_num)
         body = await unblock_request(
             url=url,
-            headers=await self._get_phone_headers(),
+            headers=headers,
             ip_pool_type=self.ip_pool_type,
             logger=self.lg,)
         # self.lg.info(body)
@@ -3003,7 +3014,7 @@ class CompanySpider(AsyncCrawler):
         parser_obj = kwargs['parser_obj']
         category_number = kwargs['category_number']
 
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'Proxy-Connection': 'keep-alive',
         })
@@ -3219,11 +3230,11 @@ class CompanySpider(AsyncCrawler):
         cate_num = kwargs['cate_num']       # int
         page_num = kwargs['page_num']       # str '' | '2', ...
 
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'Proxy-Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         # 第一页是c-xx.html, 后续都是c-xx-yy
         url = 'http://m.114pifa.com/c-{}{}{}'.format(
@@ -3547,7 +3558,7 @@ class CompanySpider(AsyncCrawler):
         从jd总分类拿到keyword
         :return:
         """
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'authority': 'www.jd.com',
         })
@@ -3580,7 +3591,7 @@ class CompanySpider(AsyncCrawler):
             url = 'https://www.qqxiuzi.cn/zh/hanzi/daquan-{}.htm'.format(page_num)
             body = await unblock_request(
                 url=url,
-                headers=await self._get_pc_headers(),
+                headers=await async_get_random_headers(),
                 encoding='gbk',
                 ip_pool_type=self.ip_pool_type)
             # self.lg.info(body)
@@ -3622,9 +3633,9 @@ class CompanySpider(AsyncCrawler):
 
             return all_sort_list
 
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
-            'Referer': 'https://www.taobao.com/',
+            'referer': 'https://www.taobao.com/',
         })
         params = (
             ('ids', '222887,222890,222889,222886,222906,222898,222907,222885,222895,222878,222908,222879,222893,222896,222918,222917,222888,222902,222880,222913,222910,222882,222883,222921,222899,222905,222881,222911,222894,222920,222914,222877,222919,222915,222922,222884,222912,222892,222900,222923,222909,222897,222891,222903,222901,222904,222916,222924'),
@@ -3872,7 +3883,10 @@ class CompanySpider(AsyncCrawler):
 
             return word
 
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',)
         headers.update({
             'Proxy-Connection': 'keep-alive',
             # 'Referer': 'http://www.youdict.com/ciku/id_0_0_0_0_2238.html',
@@ -3903,7 +3917,10 @@ class CompanySpider(AsyncCrawler):
         async def _get_one_body(sub_cate_id='') -> str:
             """获取一个cate的body"""
             # 总分类: https://m.1688.com/page/cateList.html
-            headers = await self._get_phone_headers()
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False,
+                cache_control='', )
             headers.update({
                 'authority': 'm.1688.com',
             })
@@ -4515,13 +4532,16 @@ class CompanySpider(AsyncCrawler):
         cookies = kwargs['cookies']
 
         city_name_pinyin:str = ''.join(lazy_pinyin(city_name))
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',)
         referer = 'http://i.meituan.com/{}/all/?cid={}&p={}&cateType=poi&stid_b=3'.format(
             city_name_pinyin,
             cid,
             page_num)
         headers.update({
-            'Accept': 'text/html',
+            'accept': 'text/html',
             'Referer': referer,
             'X-Requested-With': 'XMLHttpRequest',
             'Proxy-Connection': 'keep-alive',
@@ -4921,7 +4941,10 @@ class CompanySpider(AsyncCrawler):
             return type_list
 
         city_name: str = ''.join(lazy_pinyin(city_name))
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         headers.update({
             'Proxy-Connection': 'keep-alive',
             'Referer': 'http://i.meituan.com/category?city={}&cevent=imt/homepage/category2/99999'.format(city_name),
@@ -5061,7 +5084,7 @@ class CompanySpider(AsyncCrawler):
         天眼模拟登陆
         :return: 登陆后的cookies
         """
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'Origin': 'https://www.tianyancha.com',
             'Referer': 'https://www.tianyancha.com/',
@@ -5203,7 +5226,10 @@ class CompanySpider(AsyncCrawler):
             return new_province_and_city_info
 
         url = 'https://www.tianyancha.com/'
-        body = await unblock_request(url=url, headers=await self._get_pc_headers(), ip_pool_type=self.ip_pool_type)
+        body = await unblock_request(
+            url=url,
+            headers=await async_get_random_headers(),
+            ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         assert body != '', 'body为空值!'
 
@@ -5279,7 +5305,7 @@ class CompanySpider(AsyncCrawler):
 
             return new_province_and_city_info
 
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'authority': 'www.qichacha.com',
         })
@@ -5476,7 +5502,7 @@ class CompanySpider(AsyncCrawler):
             self.lg.error('获取base时索引异常!')
             return []
 
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         params = (
             ('base', base),
         )
@@ -5539,7 +5565,10 @@ class CompanySpider(AsyncCrawler):
         province_url = kwargs['province_url']
         page_num = kwargs['page_num']
 
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         headers.update({
             'authority': 'www.qichacha.com',
         })
@@ -6484,10 +6513,9 @@ class CompanySpider(AsyncCrawler):
         :return:
         """
         self.lg.info('crawling company_id: {} introduction ...'.format(company_id))
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         url = 'http://{}.go2.cn/introduce.html'.format(company_id)
         body = await unblock_request(
@@ -7397,10 +7425,10 @@ class CompanySpider(AsyncCrawler):
         :param company_id:
         :return:
         """
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         url = 'http://{}.go2.cn/'.format(company_id)
         body = await unblock_request(
@@ -7421,9 +7449,10 @@ class CompanySpider(AsyncCrawler):
         :param company_id:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            cache_control='', )
         headers.update({
-            'Connection': 'keep-alive',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             # 'Referer': 'http://m.nanguo.cn/company/index/id/13583',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -7460,7 +7489,10 @@ class CompanySpider(AsyncCrawler):
 
         # 获取店铺信息
         # https://m.ppkoo.com/shop/58507
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',)
         headers.update({
             'origin': 'https://m.ppkoo.com',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -7506,7 +7538,7 @@ class CompanySpider(AsyncCrawler):
         :param company_url:
         :return:
         """
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'Proxy-Connection': 'keep-alive',
             # 'Referer': 'http://hz.huoniuniu.com/goods?q=%E7%9F%AD%E8%A2%96&sourcePage=/',
@@ -7590,7 +7622,10 @@ class CompanySpider(AsyncCrawler):
         """
         detail_url = 'https://3g.made-in-china.com/company-{}/info.html'.format(company_id)
         contact_url = 'https://3g.made-in-china.com/company-{}/contact.html'.format(company_id)
-        phone_headers = await self._get_phone_headers()
+        phone_headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         detail_body = await unblock_request(
             url=detail_url,
             headers=phone_headers,
@@ -7620,11 +7655,11 @@ class CompanySpider(AsyncCrawler):
         :param company_id:
         :return:
         """
-        headers = await self._get_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'Proxy-Connection': 'keep-alive',
             # 'Referer': 'http://www.114pifa.com/c-3181.html',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         url = 'http://www.114pifa.com/ca/{}'.format(company_id)
         body = await unblock_request(
@@ -7646,10 +7681,11 @@ class CompanySpider(AsyncCrawler):
         :param company_id:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'authority': 'm.1688.com',
-            'cache-control': 'max-age=0',
         })
         # self.lg.info(company_id)
         url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
@@ -7670,7 +7706,10 @@ class CompanySpider(AsyncCrawler):
         :param company_url:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         city_name_pinyin = ''.join(lazy_pinyin(city_name))
         random_page_num = get_random_int_number(1, 100)
         referer = 'http://i.meituan.com/select/{}/page_{}.html?cid={}&bid=-1&sid=defaults&p={}&bizType=area&csp=&stid_b=_b2&cateType=poi&nocount=true'.format(
@@ -7698,7 +7737,10 @@ class CompanySpider(AsyncCrawler):
         """
         detail_url = 'http://m.huangye88.com/gongsi/{}/detail.html'.format(company_id)
         contact_url = 'http://m.huangye88.com/gongsi/{}/contact.html'.format(company_id)
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         with await self.sema:
             # requests老是无数据, 改用驱动
             # body_1 = await unblock_request(url=detail_url, headers=headers, ip_pool_type=self.ip_pool_type)
@@ -7742,8 +7784,12 @@ class CompanySpider(AsyncCrawler):
         :param company_url:
         :return:
         """
-        headers = await self._get_pc_headers()
-        body = await unblock_request(url=company_url, headers=headers, cookies=self.ty_cookies_dict, ip_pool_type=self.ip_pool_type)
+        headers = await async_get_random_headers()
+        body = await unblock_request(
+            url=company_url,
+            headers=headers,
+            cookies=self.ty_cookies_dict,
+            ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         if body == '':
             self.lg.error('company_url: {}, 获取到的body为空值!'.format(company_url))
@@ -7760,7 +7806,10 @@ class CompanySpider(AsyncCrawler):
         :param company_url:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
         headers.update({
             'authority': 'm.qichacha.com',
         })
@@ -7855,26 +7904,6 @@ class CompanySpider(AsyncCrawler):
         assert parser_obj is not None, 'parser_obj为None!'
 
         return parser_obj
-
-    async def _get_pc_headers(self) -> dict:
-        return {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': get_random_pc_ua(),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-        }
-
-    async def _get_phone_headers(self) -> dict:
-        return {
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
 
     @staticmethod
     async def _get_mt_ciid(city_name) -> str:

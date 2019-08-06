@@ -42,27 +42,6 @@ class JdParse(Crawler):
         )
         self.result_data = {}
 
-    def _get_pc_headers(self):
-        return {
-            'authority': 'item.jd.com',
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_pc_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-
-    def _get_phone_headers(self):
-        return {
-            'authority': 'item.m.jd.com',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-
     def _get_goods_is_delete(self, body) -> bool:
         '''
         根据body判断商品是否下架
@@ -88,9 +67,17 @@ class JdParse(Crawler):
 
         url = 'https://item.m.jd.com/product/{}.html'.format(goods_id[1])
         # self.lg.info(url)
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',
+        )
+        headers.update({
+            'authority': 'item.m.jd.com',
+        })
         body = Requests.get_url_body(
             url=url,
-            headers=self._get_phone_headers(),
+            headers=headers,
             ip_pool_type=self.ip_pool_type)
         # self.lg.info(body)
 
@@ -259,8 +246,13 @@ class JdParse(Crawler):
             # ('t', '0.31518758092351407'),
         )
         url = 'https://wq.jd.com/commodity/comment/getcommentlist'
-        headers = self._get_phone_headers()
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',
+        )
         headers.update({
+            'authority': 'item.m.jd.com',
             'Referer': 'https://item.m.jd.com/product/{}.html'.format(goods_id),
         })
         body = Requests.get_url_body(
@@ -425,7 +417,14 @@ class JdParse(Crawler):
         :return:
         '''
         url = 'https://item.jd.com/{}.html'.format(goods_id)
-        body = Requests.get_url_body(url=url, headers=self._get_pc_headers(), ip_pool_type=self.ip_pool_type)
+        headers = get_random_headers()
+        headers.update({
+            'authority': 'item.jd.com',
+        })
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,)
         # self.lg.info(str(body))
         li_list = Selector(text=body).css('div.p-parameter ul li ::text').extract() or []   # 尽可能多匹配
         # pprint(li_list)
@@ -481,9 +480,17 @@ class JdParse(Crawler):
         :return:
         '''
         url = 'https://wqsitem.jd.com/detail/{}_d{}_normal.html'.format(goods_id, description_id)
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',
+        )
+        headers.update({
+            'authority': 'item.m.jd.com',
+        })
         body = Requests.get_url_body(
             url=url,
-            headers=self._get_phone_headers(),
+            headers=headers,
             ip_pool_type=self.ip_pool_type)
         # self.lg.info(str(body))
         try:
@@ -606,7 +613,19 @@ class JdParse(Crawler):
             # ('t', '0.5813500121860642'),
         )
         url = 'https://item.m.jd.com/item/mview2'
-        body = Requests.get_url_body(url=url, headers=self._get_phone_headers(), params=params, ip_pool_type=self.ip_pool_type)
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',
+        )
+        headers.update({
+            'authority': 'item.m.jd.com',
+        })
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type)
         # print(body)
         try:
             _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0], default_res={})

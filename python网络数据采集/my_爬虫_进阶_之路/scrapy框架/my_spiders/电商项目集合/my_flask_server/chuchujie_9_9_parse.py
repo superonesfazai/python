@@ -31,21 +31,7 @@ class ChuChuJie_9_9_Parse(Crawler):
             ip_pool_type=IP_POOL_TYPE,
             is_use_driver=True,
             driver_executable_path=PHANTOMJS_DRIVER_PATH)
-        self._set_headers()
         self.result_data = {}
-
-    def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Host': 'api-product.chuchujie.com',
-            'Origin': 'https://m.chuchujie.com',
-            'Referer': 'https://m.chuchujie.com/details/detail.html?id=10016793335',
-            'Cache-Control': 'max-age=0',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
 
     def get_goods_data(self, goods_id):
         '''
@@ -63,9 +49,16 @@ class ChuChuJie_9_9_Parse(Crawler):
         tmp_url = 'http://wx.chuchujie.com/index.php?s=/WebProduct/product_detail/product_id/' + str(goods_id)
 
         # 开始常规requests有数据, 后面无数据, 改用phantomjs
+        # headers = get_random_headers(user_agent_type=0,)
+        # headers.update({
+        #     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        #     'Host': 'api-product.chuchujie.com',
+        #     'Origin': 'https://m.chuchujie.com',
+        #     'Referer': 'https://m.chuchujie.com/details/detail.html?id=10016793335',
+        # })
         # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
         
-        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
+        body = self.driver.get_url_body(url=tmp_url)
         # print(body)
         if body == '':
             print('获取到的body为空str!')

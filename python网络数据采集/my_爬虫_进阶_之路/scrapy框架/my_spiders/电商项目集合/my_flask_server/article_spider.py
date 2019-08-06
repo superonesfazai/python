@@ -326,7 +326,7 @@ class ArticleParser(AsyncCrawler):
         """
         body = await unblock_request(
             url=article_url,
-            headers=await self._get_random_pc_headers(),
+            headers=await async_get_random_headers(),
             ip_pool_type=self.ip_pool_type,
             logger=self.lg)
         # self.lg.info(body)
@@ -340,7 +340,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return: body, video_url
         """
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'authority': 'www.toutiao.com',
             'referer': 'https://www.toutiao.com/',
@@ -361,7 +361,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'authority': 'www.jianshu.com',
             'referer': 'https://www.jianshu.com/',
@@ -609,7 +609,9 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'authority': 'aimozhen.com',
             'referer': 'https://aimozhen.com/',
@@ -685,7 +687,9 @@ class ArticleParser(AsyncCrawler):
         assert article_id != '', 'article_id != ""'
         # method1: driver 请求pc地址但是user_agent=phone
         # method2: driver pc 页面转phone, 可获得下方接口
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'origin': 'https://h5.vmovier.com',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -724,12 +728,11 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
-            'Connection': 'keep-alive',
             # 'Referer': 'http://m.qdaily.com/mobile/homes.html',
             'Referer': article_url,
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         body = await unblock_request(
             url=article_url,
@@ -751,10 +754,9 @@ class ArticleParser(AsyncCrawler):
         """
         # 走api
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
-            'Connection': 'keep-alive',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         params = (
             ('version', '1.1.15'),
@@ -796,7 +798,9 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'authority': 'm.huxiu.com',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -840,9 +844,8 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
-            'Connection': 'keep-alive',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         body = await unblock_request(
@@ -875,10 +878,10 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
-            'Referer': 'https://www.jiemian.com/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'referer': 'https://www.jiemian.com/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         body = await unblock_request(
             url=article_url,
@@ -910,10 +913,10 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
-            'Referer': 'https://songshuhui.net/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'referer': 'https://songshuhui.net/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         body = await unblock_request(
             url=article_url,
@@ -932,11 +935,11 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
             'authority': 'www.ifanr.com',
             'referer': 'https://www.ifanr.com/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
             # 'if-none-match': '"5d101f41-e0ce"',
             # 'if-modified-since': 'Mon, 24 Jun 2019 00:54:25 GMT',
         })
@@ -968,11 +971,10 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
-            'Connection': 'keep-alive',
             'Referer': 'http://m.cnys.com/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         body = await unblock_request(
             url=article_url,
@@ -1004,10 +1006,10 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
-            'Referer': 'http://www.51jkst.com/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'referer': 'http://www.51jkst.com/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         body = await unblock_request(
             url=article_url,
@@ -1053,7 +1055,7 @@ class ArticleParser(AsyncCrawler):
                 logger=self.lg, )
             assert m3u8_base_url != '', 'm3u8_base_url != ""'
             self.lg.info('Getting auth_params ...')
-            headers = await self._get_random_pc_headers()
+            headers = await async_get_random_headers()
             headers.update({
                 # 'Referer': 'https://v.ifeng.com/c/7n9OP680pzt',
             })
@@ -1086,7 +1088,7 @@ class ArticleParser(AsyncCrawler):
             # 视频
             # 用requests请求body(速度更快)
             # TODO 不用driver, 因为失败率太高!!
-            headers = await self._get_random_pc_headers()
+            headers = await async_get_random_headers()
             body = await unblock_request(
                 url=article_url,
                 headers=headers,
@@ -1183,9 +1185,8 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
-            'Connection': 'keep-alive',
             # 'Referer': 'https://focus.youth.cn/html/articleTop/mobile.html?type=1',
         })
         body = await unblock_request(
@@ -1271,9 +1272,9 @@ class ArticleParser(AsyncCrawler):
 
         # TODO bd的文字详情的图片在chrome中无法显示, 但是firefox中可以, 此处还未解决!
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,)
         headers.update({
-            'Connection': 'keep-alive',
             'Referer': 'https://m.baidu.com/',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
@@ -1311,9 +1312,8 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
-            'Connection': 'keep-alive',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'Referer': 'https://wap.sogou.com/',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -1356,7 +1356,9 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'Referer': 'http://toutiao.eastday.com/',
         })
@@ -1402,11 +1404,11 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_random_pc_headers()
+        headers = await async_get_random_headers()
         headers.update({
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'authority': 'post.mp.qq.com',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
             'If-Modified-Since': 'Wed, 15 May 2019 10:17:11 GMT',
         })
         # self.lg.info(article_url)
@@ -1484,7 +1486,9 @@ class ArticleParser(AsyncCrawler):
             return data
 
         video_url = ''
-        headers = await self._get_random_phone_headers()
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
         headers.update({
             'authority': 'kuaibao.qq.com',
         })
@@ -3003,29 +3007,6 @@ class ArticleParser(AsyncCrawler):
 
         raise ValueError('未知的文章url!')
 
-    @staticmethod
-    async def _get_random_pc_headers():
-        return {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': get_random_pc_ua(),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-        }
-
-    @staticmethod
-    async def _get_random_phone_headers():
-        return {
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-
     def __del__(self):
         try:
             del self.lg
@@ -3034,7 +3015,6 @@ class ArticleParser(AsyncCrawler):
             del self.request_num_retries
             del self.hook_target_api_data
             del self.concurrency
-            del self.headers
         except:
             pass
         try:

@@ -11,8 +11,6 @@
 聚美优品常规商品页面解析系统
 """
 
-from gc import collect
-
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
     jm_insert_str_1,
@@ -30,17 +28,15 @@ class JuMeiYouPinParse(Crawler):
         self.result_data = {}
 
     def _set_headers(self):
-        self.headers = {
-            'Accept': 'application/json,text/javascript,*/*;q=0.01',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Connection': 'keep-alive',
+        self.headers = get_random_headers(
+            upgrade_insecure_requests=False,
+        )
+        self.headers.update({
+            'accept': 'application/json,text/javascript,*/*;q=0.01',
             'Host': 'h5.jumei.com',
-            'Referer': 'http://h5.jumei.com/product/detail?item_id=ht180310p3365132t1&type=global_deal',
-            'Cache-Control': 'max-age=0',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
+            'referer': 'http://h5.jumei.com/product/detail?item_id=ht180310p3365132t1&type=global_deal',
             'X-Requested-With': 'XMLHttpRequest',
-        }
+        })
 
     def get_goods_data(self, goods_id):
         '''

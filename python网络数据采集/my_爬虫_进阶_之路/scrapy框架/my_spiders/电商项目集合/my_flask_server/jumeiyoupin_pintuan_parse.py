@@ -42,16 +42,15 @@ class JuMeiYouPinPinTuanParse(Crawler):
         self.msg = ''
 
     def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
+        self.headers = get_random_headers(
+            upgrade_insecure_requests=False,
+        )
+        self.headers.update({
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'Host': 's.h5.jumei.com',
             'Referer': 'https://s.h5.jumei.com/yiqituan/detail?item_id=ht180321p2453550t4&type=global_deal',
-            'User-Agent': get_random_pc_ua(),
             'X-Requested-With': 'XMLHttpRequest',
-        }
+        })
 
     async def get_goods_data(self, jumei_pintuan_url):
         '''

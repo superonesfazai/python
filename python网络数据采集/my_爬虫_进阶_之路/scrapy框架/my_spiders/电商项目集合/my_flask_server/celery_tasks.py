@@ -37,6 +37,7 @@ from fzutils.internet_utils import (
     get_random_pc_ua,
     get_random_phone_ua,
     get_base_headers,
+    get_random_headers,
     _get_url_contain_params,
     dict_cookies_2_str,)
 from fzutils.common_utils import json_2_dict
@@ -74,26 +75,6 @@ app = init_celery_app(
     celeryd_max_tasks_per_child=60,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
 )
 lg = get_task_logger(tasks_name)
-
-def _get_pc_headers() -> dict:
-    return {
-        'Connection': 'keep-alive',
-        'Cache-Control': 'max-age=0',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': get_random_pc_ua(),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-CN,zh;q=0.9',
-    }
-
-def _get_phone_headers() -> dict:
-    return {
-        'upgrade-insecure-requests': '1',
-        'user-agent': get_random_phone_ua(),
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9',
-    }
 
 @app.task(name=tasks_name + '._get_al_one_type_company_id_list_task', bind=True)
 def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, timeout=15):
@@ -165,10 +146,11 @@ def _get_al_company_page_html_task(self,
     :param company_id:
     :return: (company_id, body)
     """
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,)
     headers.update({
         'authority': 'm.1688.com',
-        'cache-control': 'max-age=0',
     })
     url = 'https://m.1688.com/winport/company/{}.html'.format(company_id)
     body = Requests.get_url_body(
@@ -280,11 +262,10 @@ def _get_114_company_page_html_task(self, company_id, ip_pool_type, num_retries)
     :param company_id:
     :return: (company_id, body)
     '''
-    headers = _get_pc_headers()
+    headers = get_random_headers()
     headers.update({
         'Proxy-Connection': 'keep-alive',
         # 'Referer': 'http://www.114pifa.com/c-3181.html',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     })
     url = 'http://www.114pifa.com/ca/{}'.format(company_id)
     body = Requests.get_url_body(
@@ -312,12 +293,13 @@ def _get_yw_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num,
     :param timeout:
     :return:
     """
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        cache_control='',)
     headers.update({
         # 'x-csrf-token': 'v8N2st76hSgzPPYQ-1DYgqOh',
         # 'Referer': 'http://wap.yiwugo.com/search?q=%E5%8E%8B%E7%BC%A9%E6%9C%BA',
         'X-Requested-With': 'XMLHttpRequest',
-        'Connection': 'keep-alive',
     })
     params = (
         ('q', str(keyword)),
@@ -395,7 +377,7 @@ def _get_hn_one_type_company_id_list_task(self,
         lg.error('遇到错误:', exc_info=True)
         return []
 
-    headers = _get_pc_headers()
+    headers = get_random_headers()
     headers.update({
         'Proxy-Connection': 'keep-alive',
     })
@@ -700,7 +682,10 @@ def _get_z8_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, p
         return params
 
     url = 'https://th5.m.zhe800.com/app/detail/comment/list'
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,
+        cache_control='',)
     headers.update({
         'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
     })
@@ -778,7 +763,10 @@ def _get_pk_one_type_company_id_list_task(self,
     :param timeout:
     :return:
     """
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,
+        cache_control='',)
     headers.update({
         'accept': 'application/json, text/plain, */*',
         'Origin': 'https://m.ppkoo.com',
@@ -858,13 +846,14 @@ def _get_ng_one_type_company_id_list_task(self,
     :param timeout:
     :return:
     """
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=True,)
     headers.update({
         'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         'accept': '*/*',
         # 'Referer': 'http://m.nanguo.cn/search/?q=%E6%88%91&l=zh-CN',
         'X-Requested-With': 'XMLHttpRequest',
-        'Connection': 'keep-alive',
     })
     params = (
         ('q', str(keyword)),
@@ -938,10 +927,10 @@ def _get_gt_one_type_company_id_list_task(self,
     :return:
     """
     # search
-    headers = _get_pc_headers()
+    headers = get_random_headers()
     headers.update({
         # 'Referer': 'http://www.go2.cn/search/all/?category_id=all&search_1=1&q=%E9%9E%8B%E5%AD%90',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
     })
     params = (
         ('category_id', 'all'),
@@ -997,10 +986,9 @@ def _get_gt_company_page_html_task(self, ip_pool_type, company_id, num_retries=8
     :param ip_pool_type:
     :return:
     """
-    headers = _get_pc_headers()
+    headers = get_random_headers()
     headers.update({
         # 'Referer': 'http://z.go2.cn/product/oaamaeq.html',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     })
     url = 'http://{}.go2.cn/'.format(company_id)
     body = Requests.get_url_body(

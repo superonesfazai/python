@@ -42,18 +42,7 @@ class JuanPiParse(Crawler):
             is_use_driver=True,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
-        self._set_headers()
         self.result_data = {}
-
-    def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'web.juanpi.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
 
     def get_goods_data(self, goods_id):
         '''
@@ -70,7 +59,7 @@ class JuanPiParse(Crawler):
             '''
             2.采用phantomjs来处理，记住使用前别翻墙
             '''
-            # body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
+            # body = self.driver.get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
             body = self.driver.get_url_body(url=tmp_url)    # 该css为手机端标题块
             # print(body)
             if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:    # 页面为空处理
@@ -94,9 +83,14 @@ class JuanPiParse(Crawler):
             # 现在卷皮skudata请求地址2
             skudata_url = 'https://webservice.juanpi.com/api/getMemberAboutInfo?goods_id=' + str(goods_id)
 
-            self.skudata_headers = self.headers
-            self.skudata_headers.update({'Host': 'webservice.juanpi.com'})
-            skudata_body = Requests.get_url_body(url=skudata_url, headers=self.skudata_headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+            headers = get_random_headers(upgrade_insecure_requests=False,)
+            headers.update({
+                'Host': 'webservice.juanpi.com'
+            })
+            skudata_body = Requests.get_url_body(
+                url=skudata_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,)
             if skudata_body == '':
                 print('获取到的skudata_body为空str!请检查!')
                 return self._data_error_init()

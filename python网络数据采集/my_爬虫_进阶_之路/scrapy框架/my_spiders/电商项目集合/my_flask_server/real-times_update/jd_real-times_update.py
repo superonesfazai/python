@@ -13,7 +13,6 @@ sys.path.append('..')
 from jd_parse import JdParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)

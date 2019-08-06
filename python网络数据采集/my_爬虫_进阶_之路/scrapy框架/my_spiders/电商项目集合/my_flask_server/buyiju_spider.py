@@ -103,11 +103,11 @@ class BuYiJuSpider(AsyncCrawler):
         """
         assert name1 != '' and name2 != '', 'name1 or name2其一为空值'
 
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Referer': 'https://m.buyiju.com/peidui/xzpd.php',
+            'referer': 'https://m.buyiju.com/peidui/xzpd.php',
         })
         data = {
             'xz1': name1,
@@ -151,11 +151,11 @@ class BuYiJuSpider(AsyncCrawler):
         assert name1 != '' and name2 != '', \
             'name1 or name2其一为空值'
 
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Referer': 'https://m.buyiju.com/peidui/xmyf.php',
+            'referer': 'https://m.buyiju.com/peidui/xmyf.php',
         })
         data = {
             'cname1': name1,
@@ -199,7 +199,7 @@ class BuYiJuSpider(AsyncCrawler):
         """
         assert province != '' and city_num != '' and num != '',\
             'province or city_num or num 其一为空值'
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -244,7 +244,7 @@ class BuYiJuSpider(AsyncCrawler):
         :param phone_num:
         :return:
         """
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -286,9 +286,9 @@ class BuYiJuSpider(AsyncCrawler):
         生日算命
         :return:
         """
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
-            'Referer': 'https://m.buyiju.com/birth/shu/',
+            'referer': 'https://m.buyiju.com/birth/shu/',
         })
         body = await unblock_request(
             url='https://m.buyiju.com/birth/shu/{month}-{day}.html'.format(month=month, day=day),
@@ -407,7 +407,7 @@ class BuYiJuSpider(AsyncCrawler):
         assert lot_type != '', 'lot_type != ""'
 
         referer, qid, url = await self.get_lot_some_params(lot_type=lot_type)
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -452,7 +452,7 @@ class BuYiJuSpider(AsyncCrawler):
         """
         assert two_words != '', 'two_words != ""'
 
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -499,12 +499,12 @@ class BuYiJuSpider(AsyncCrawler):
         assert surname != '' and name != '', \
             'surname or name 为空值!'
 
-        headers = await self.get_random_phone_headers()
+        headers = await async_get_random_headers(user_agent_type=1,)
         headers.update({
             'Origin': 'https://m.buyiju.com',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Referer': 'https://m.buyiju.com/cm/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'referer': 'https://m.buyiju.com/cm/',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         })
         data = {
             'xs': surname,
@@ -794,18 +794,6 @@ class BuYiJuSpider(AsyncCrawler):
                     },
                 },
             },
-        }
-
-    @staticmethod
-    async def get_random_phone_headers() -> dict:
-        return {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': get_random_phone_ua(),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         }
 
     def __del__(self):

@@ -98,17 +98,6 @@ class ALi1688LoginAndParse(Crawler):
             'x5sec': '7b226c61707574613b32223a22333135626663303333363965303766306635323665303064613362383466636343493752332b554645493777684e65777575505465686f4d4d6a49304d6a41794e444d784e7a7379227d'
         }
 
-    def _get_phone_headers(self):
-        return {
-            'authority': 'm.1688.com',
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-
     def get_ali_1688_data(self, goods_id):
         if goods_id == '':
             return self._data_error_init()
@@ -124,9 +113,13 @@ class ALi1688LoginAndParse(Crawler):
             # css_selector='div.d-content',)
 
         # 改用requests
+        # headers = get_random_headers(user_agent_type=1)
+        # headers.update({
+        #     'authority': 'm.1688.com',
+        # })
         # body = Requests.get_url_body(
         #     url=wait_to_deal_with_url,
-        #     headers=self._get_phone_headers(),
+        #     headers=headers,
         #     cookies=self._get_cookies(),
         #     ip_pool_type=self.ip_pool_type,)
         # self.lg.info(str(body))
