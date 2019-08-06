@@ -840,8 +840,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        video_url = ''
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'Connection': 'keep-alive',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -969,7 +968,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'Connection': 'keep-alive',
             'Referer': 'http://m.cnys.com/',
@@ -1184,7 +1183,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'Connection': 'keep-alive',
             # 'Referer': 'https://focus.youth.cn/html/articleTop/mobile.html?type=1',
@@ -1272,7 +1271,7 @@ class ArticleParser(AsyncCrawler):
 
         # TODO bd的文字详情的图片在chrome中无法显示, 但是firefox中可以, 此处还未解决!
         video_url = ''
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'Connection': 'keep-alive',
             'Referer': 'https://m.baidu.com/',
@@ -1312,7 +1311,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'Connection': 'keep-alive',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
@@ -1357,7 +1356,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'Referer': 'http://toutiao.eastday.com/',
         })
@@ -1485,7 +1484,7 @@ class ArticleParser(AsyncCrawler):
             return data
 
         video_url = ''
-        headers = await self._get_phone_headers()
+        headers = await self._get_random_phone_headers()
         headers.update({
             'authority': 'kuaibao.qq.com',
         })
@@ -3027,16 +3026,6 @@ class ArticleParser(AsyncCrawler):
             'accept-language': 'zh-CN,zh;q=0.9',
         }
 
-    async def _get_phone_headers(self):
-        return {
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_phone_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-        }
-    
     def __del__(self):
         try:
             del self.lg
@@ -3044,6 +3033,8 @@ class ArticleParser(AsyncCrawler):
             del self.ip_pool_type
             del self.request_num_retries
             del self.hook_target_api_data
+            del self.concurrency
+            del self.headers
         except:
             pass
         try:
