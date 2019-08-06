@@ -50,10 +50,11 @@ class TMUpdater(AsyncCrawler):
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/实时更新/')
         self.sql_cli = None
-        self.server_ip = 'http://0.0.0.0:5000'
         self.crawl_type = CRAWL_TYPE_ASYNCIO
         # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
         self.concurrency = 50
+        # self.server_ip = 'http://0.0.0.0:5000'
+        self.server_ip = 'http://118.31.39.97'
 
     async def _get_db_old_data(self) -> (list, None):
         """
@@ -63,11 +64,11 @@ class TMUpdater(AsyncCrawler):
         self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
-            result = list(self.sql_cli._select_table(sql_str=tm_select_str_3))
-            # result = await get_waited_2_update_db_data_from_server(
-            #     server_ip=self.server_ip,
-            #     _type='tm',
-            #     child_type=0,)
+            # result = list(self.sql_cli._select_table(sql_str=tm_select_str_3))
+            result = await get_waited_2_update_db_data_from_server(
+                server_ip=self.server_ip,
+                _type='tm',
+                child_type=0,)
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
@@ -115,7 +116,7 @@ class TMUpdater(AsyncCrawler):
                 # 0点以后不更新
                 await async_sleep(60 * 60 * 4.5)
             else:
-                await async_sleep(5.5)
+                await async_sleep(5.)
             collect()
             
     async def _get_one_res(self, slice_params_list, index) -> tuple:

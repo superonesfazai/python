@@ -32,7 +32,8 @@ from multiplex_code import (
     _print_db_old_data,
     to_right_and_update_tb_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,)
+    BaseDbCommomGoodsInfoParamsObj,
+    get_waited_2_update_db_data_from_server,)
 
 from fzutils.spider.async_always import *
 
@@ -48,6 +49,8 @@ class TBUpdater(AsyncCrawler):
         self.goods_index = 1
         # 并发量
         self.concurrency = 50
+        # self.server_ip = 'http://0.0.0.0:5000'
+        self.server_ip = 'http://118.31.39.97'
 
     async def _update_db(self):
         '''
@@ -86,7 +89,7 @@ class TBUpdater(AsyncCrawler):
             if get_shanghai_time().hour == 0:  # 0点以后不更新
                 await async_sleep(60 * 60 * 5.5)
             else:
-                await async_sleep(10)
+                await async_sleep(5.)
             collect()
 
     async def _get_db_old_data(self) -> (list, None):
@@ -95,11 +98,15 @@ class TBUpdater(AsyncCrawler):
         :return:
         '''
         # self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        self.sql_cli = SqlPools()  # 使用sqlalchemy管理数据库连接池
+        # 使用sqlalchemy管理数据库连接池
+        self.sql_cli = SqlPools()
         result = None
         try:
-            # result = list(self.sql_cli.select_taobao_all_goods_id())
-            result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
+            # result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
+            result = await get_waited_2_update_db_data_from_server(
+                server_ip=self.server_ip,
+                _type='tb',
+                child_type=0,)
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
         except Exception:

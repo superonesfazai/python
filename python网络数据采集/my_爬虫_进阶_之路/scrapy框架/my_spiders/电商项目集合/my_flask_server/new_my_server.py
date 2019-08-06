@@ -113,6 +113,7 @@ from sql_str_controller import (
     fz_yp_insert_str,
     fz_mi_insert_str,
     tm_select_str_3,
+    tb_select_str_3,
 )
 
 from article_spider import ArticleParser
@@ -2060,6 +2061,8 @@ def fortune_telling():
 # 避免与asyncio的Queue冲突
 tm_real_time_update_queue = Queue()
 tm_real_time_update_lock = ThreadingLock()
+tb_real_time_update_queue = Queue()
+tb_real_time_update_lock = ThreadingLock()
 
 @app.route('/spider/dcs', methods=['GET'])
 def spider_dcs():
@@ -2073,36 +2076,45 @@ def spider_dcs():
         :param req_args_dict:
         :return:
         """
-        def add_2_tm_real_time_update_queue() -> None:
-            global tm_real_time_update_queue
+        def add_2_update_queue(queue_name, sql_str, target_queue, target_queue_thread_lock) -> None:
+            """
+            target_queue为空队列时, 从db新增数据进target_queue
+            :param queue_name:
+            :param sql_str:
+            :param target_queue: eg: tm_real_time_update_queue
+            :param target_queue_thread_lock: eg: tm_real_time_update_lock
+            :return:
+            """
+            # todo 可注释, 闭包中全局变量若已在上层父包导入, 即可直接在闭包中取值or修改
+            # global tm_real_time_update_queue
 
-            if tm_real_time_update_queue.empty():
+            if target_queue.empty():
                 sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-                my_lg.info('tm_real_time_update_queue is null queue, 从db赋值ing...')
+                my_lg.info('{} is null queue, 从db赋值ing...'.format(queue_name))
                 res = list(sql_cli._select_table(
-                    sql_str=tm_select_str_3,
+                    sql_str=sql_str,
                     logger=my_lg, ))
                 for item in res:
-                    tm_real_time_update_lock.acquire()
+                    target_queue_thread_lock.acquire()
                     new_item = get_new_list_by_handle_list_2_json_error(
                         target_list=item)
                     try:
-                        tm_real_time_update_queue.put(new_item)
+                        target_queue.put(new_item)
                     except Exception:
                         pass
                     finally:
-                        tm_real_time_update_lock.release()
+                        target_queue_thread_lock.release()
                 try:
                     del sql_cli
                 except:
                     pass
-                my_lg.info('tm_real_time_update_queue 赋值完毕!')
+                my_lg.info('{} 赋值完毕!'.format(queue_name))
             else:
-                my_lg.info('tm_real_time_update_queue is not null queue, 直接取值中ing...')
+                my_lg.info('{} is not null queue, 直接取值中ing...'.format(queue_name))
 
             return
 
-        global tm_real_time_update_queue
+        global tm_real_time_update_queue, tb_real_time_update_queue
 
         res = []
         # 待获取的type, eg: 'tm', 'tb'
@@ -2112,26 +2124,51 @@ def spider_dcs():
         # 单次请求获取数据量个数
         max_one_get_num = 100
 
-        target_queue = None
         if dcs_type == 'tm':
             if dcs_child_type == 0:
                 # 实时更新
+                queue_name = '{}_{}_queue'.format(dcs_type, 'real_time_update')
+                sql_str = tm_select_str_3
                 t1 = Thread(
-                    target=add_2_tm_real_time_update_queue,
-                    args=(),)
+                    target=add_2_update_queue,
+                    args=(
+                        queue_name,
+                        sql_str,
+                        tm_real_time_update_queue,
+                        tm_real_time_update_lock,
+                    ),)
                 t1.start()
                 t1.join(timeout=20)
-                try:
-                    del t1
-                except:
-                    pass
                 target_queue = tm_real_time_update_queue
+            else:
+                raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
+
+        elif dcs_type == 'tb':
+            if dcs_child_type == 0:
+                # 实时更新
+                queue_name = '{}_{}_queue'.format(dcs_type, 'real_time_update')
+                sql_str = tb_select_str_3
+                t1 = Thread(
+                    target=add_2_update_queue,
+                    args=(
+                        queue_name,
+                        sql_str,
+                        tb_real_time_update_queue,
+                        tb_real_time_update_lock,
+                    ),)
+                t1.start()
+                t1.join(timeout=20)
+                target_queue = tb_real_time_update_queue
             else:
                 raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
 
         else:
             raise ValueError('dcs_type: {} 值异常!'.format(dcs_type))
 
+        try:
+            del t1
+        except:
+            pass
         while not target_queue.empty() \
                 and max_one_get_num > 0:
             res.append(target_queue.get())
@@ -2139,7 +2176,7 @@ def spider_dcs():
 
         return res
 
-    global tm_real_time_update_queue
+    global tm_real_time_update_queue, tb_real_time_update_queue
 
     req_args_dict = request.args
     my_lg.info(str(req_args_dict))

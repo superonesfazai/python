@@ -338,20 +338,6 @@ class SqlPools(object):
             except Exception:
                 pass
 
-    def select_taobao_all_goods_id(self):
-        self.engine.begin()
-        self.conn = self.engine.connect()
-        try:
-            result = list(self.conn.execute('select GoodsID, IsDelete, MyShelfAndDownTime, Price, TaoBaoPrice from dbo.GoodsInfoAutoGet where SiteID=1'))
-            # self.conn.commit()
-            self.conn.close()
-            # print(result)
-            return result
-        except Exception as e:
-            print('--------------------| 筛选level时报错：', e)
-            self.conn.close()
-            return None
-
     def select_taobao_tiantian_tejia_all_goods_id(self):
         self.engine.begin()
         self.conn = self.engine.connect()
