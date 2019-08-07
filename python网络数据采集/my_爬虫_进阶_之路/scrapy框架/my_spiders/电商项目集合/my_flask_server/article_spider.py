@@ -1173,7 +1173,7 @@ class ArticleParser(AsyncCrawler):
             parser=video_url_selector,
             target_obj=body,
             logger=self.lg, )
-        video_url = 'https:' + tmp_video_url if tmp_video_url != '' else ''
+        video_url = 'https://' + tmp_video_url.replace('http://', '') if tmp_video_url != '' else ''
         # self.lg.info(video_url)
 
         return body, video_url

@@ -60,12 +60,14 @@ class TaoBaoLoginAndParse(Crawler):
         self.req_num_retries = 3
 
     def _set_headers(self):
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_pc_ua(),
+        self.headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control=''
+        )
+        self.headers.update({
             'accept': '*/*',
-        }
+        })
 
     def get_goods_data(self, goods_id):
         '''

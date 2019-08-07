@@ -38,14 +38,11 @@ class Zhe800Parse(Crawler):
         self.result_data = {}
 
     def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
+        self.headers = get_random_headers(upgrade_insecure_requests=False,)
+        self.headers.update({
+            'accept-language': 'zh-CN,zh;q=0.8',
             'Host': 'm.zhe800.com',
-            'User-Agent': get_random_pc_ua()  # 随机一个请求头
-        }
+        })
 
     def get_goods_data(self, goods_id):
         '''

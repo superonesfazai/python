@@ -41,7 +41,7 @@ from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
     _get_url_contain_params,
     get_random_pc_ua,
-    get_base_headers,
+    get_random_headers,
     str_cookies_2_dict,
     get_random_phone_ua,)
 from fzutils.time_utils import get_shanghai_time
@@ -259,7 +259,10 @@ class TmallCommentParse(Crawler):
             return params
 
         _url = 'https://rate.tmall.com/list_detail_rate.htm'
-        headers = get_base_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
         headers.update({
             'referer': 'https://detail.m.tmall.com/item.htm?id={}'.format(goods_id),
         })

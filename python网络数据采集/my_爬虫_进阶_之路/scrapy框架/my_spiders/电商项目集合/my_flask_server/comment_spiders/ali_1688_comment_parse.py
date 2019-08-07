@@ -46,7 +46,7 @@ from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
     get_random_pc_ua,
     str_cookies_2_dict,
-    get_base_headers,)
+    get_random_headers,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import (
     json_2_dict,
@@ -358,7 +358,10 @@ class ALi1688CommentParse(Crawler):
             page_num=page_num,
             member_id=member_id)
         url = 'https://rate.1688.com/remark/offerDetail/rates.json'
-        headers = get_base_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
         headers.update({
             'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
         })

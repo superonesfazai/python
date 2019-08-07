@@ -42,16 +42,12 @@ class Zhe800PintuanParse(Crawler):
         # self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
+        self.headers = get_random_headers(upgrade_insecure_requests=False,)
+        self.headers.update({
+            'accept-language': 'zh-CN,zh;q=0.8',
             'Host': 'pina.m.zhe800.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
             # 'Cookie': 'api_uid=rBQh+FoXerAjQWaAEOcpAg==;',      # 分析发现需要这个cookie值
-        }
+        })
 
     def get_goods_data(self, goods_id):
         '''

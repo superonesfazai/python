@@ -6,21 +6,11 @@
 @connect : superonesfazai@gmail.com
 '''
 
-import re
-from gc import collect
 from celery.utils.log import get_task_logger
-from asyncio import (
-    wait_for,
-    Future,)
 from functools import partial
 from threading import (
     Thread,
     current_thread,)
-from asyncio import (
-    new_event_loop,
-    get_event_loop,
-    set_event_loop,)
-from time import sleep
 from logging import config as logging_config
 from multiplex_code import (
     _get_al_one_type_company_id_list,
@@ -33,26 +23,14 @@ from settings import (
 from company_spider import CompanySpider
 from tmall_parse_2 import TmallParse
 
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_random_phone_ua,
-    get_base_headers,
-    get_random_headers,
-    _get_url_contain_params,
-    dict_cookies_2_str,)
-from fzutils.common_utils import json_2_dict
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
-from fzutils.time_utils import (
-    get_shanghai_time,
-    datetime_to_timestamp,)
-from fzutils.common_utils import get_random_int_number
 from fzutils.celery_utils import *
 from fzutils.spider.selector import parse_field
-from fzutils.spider.fz_requests import Requests
 from fzutils.spider.fz_driver import BaseDriver
 from fzutils.free_api_utils import (
     get_bd_map_shop_info_list_by_keyword_and_area_name,
     get_gd_map_shop_info_list_by_keyword_and_area_name,)
+from fzutils.spider.async_always import *
 
 """
 redis:
@@ -461,7 +439,10 @@ def _get_tb_one_page_comment_info_task(self, ip_pool_type, goods_id, page_num, c
             # ('callback', 'jsonp_tbcrate_reviews_list'),
         )
 
-    headers = get_base_headers()
+    headers = get_random_headers(
+        connection_status_keep_alive=False,
+        upgrade_insecure_requests=False,
+        cache_control='', )
     headers.update({
         'authority': 'rate.taobao.com',
         'referer': 'https://item.taobao.com/item.htm?id={}'.format(goods_id)
@@ -526,7 +507,10 @@ def _get_tm_one_page_comment_info_task(self,
         return params
 
     url = 'https://rate.tmall.com/list_detail_rate.htm'
-    headers = get_base_headers()
+    headers = get_random_headers(
+        connection_status_keep_alive=False,
+        upgrade_insecure_requests=False,
+        cache_control='', )
     headers.update({
         'referer': 'https://detail.m.tmall.com/item.htm?id={}'.format(goods_id),
     })
@@ -624,7 +608,10 @@ def _get_al_one_page_comment_info_task(self,
         return params
 
     url = 'https://rate.1688.com/remark/offerDetail/rates.json'
-    headers = get_base_headers()
+    headers = get_random_headers(
+        connection_status_keep_alive=False,
+        upgrade_insecure_requests=False,
+        cache_control='',)
     headers.update({
         'referer': 'https://detail.1688.com/offer/{0}.html'.format(str(goods_id))
     })

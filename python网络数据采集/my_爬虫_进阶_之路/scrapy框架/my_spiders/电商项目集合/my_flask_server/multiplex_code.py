@@ -77,22 +77,21 @@ def _z8_get_parent_dir(goods_id) -> str:
     :param goods_id:
     :return: '' | 'xxx/xxx'
     '''
-    headers = {
+    headers = get_random_headers(connection_status_keep_alive=False,)
+    headers.update({
         'authority': 'shop.zhe800.com',
-        'cache-control': 'max-age=0',
-        'upgrade-insecure-requests': '1',
-        'user-agent': get_random_pc_ua(),
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         # 'referer': 'https://brand.zhe800.com/yl?brandid=353130&page_stats_w=ju_tag/taofushi/1*1&ju_flag=1&pos_type=jutag&pos_value=taofushi&x=1&y=1&n=1&listversion=&sourcetype=brand&brand_id=353130',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9',
-    }
+    })
     params = (
         ('jump_source', '1'),
         ('qd_key', 'qyOwt6Jn'),
     )
     url = 'https://shop.zhe800.com/products/{0}'.format(goods_id)
-    body = Requests.get_url_body(url=url, headers=headers, params=None, high_conceal=True, ip_pool_type=IP_POOL_TYPE)
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=None,
+        ip_pool_type=IP_POOL_TYPE)
     # print(body)
 
     parent_dir = []
@@ -776,15 +775,6 @@ async def _print_db_old_data(*params, **kwargs) -> None:
     '''
     return _block_print_db_old_data(*params, **kwargs)
 
-def _get_phone_headers() -> dict:
-    return {
-        'upgrade-insecure-requests': '1',
-        'user-agent': get_random_phone_ua(),
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9',
-    }
-
 def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料合金', page_num:int=100, timeout=15) -> list:
     '''
     获取某个子分类的单页的company_id_list
@@ -813,7 +803,10 @@ def _get_al_one_type_company_id_list(ip_pool_type, logger, keyword:str='塑料�
             # 'spm': 'a26g8.7710019.0.0'
         })
 
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,
+        cache_control='',)
     headers.update({
         # 'referer': 'https://m.1688.com/offer_search/-CBDCC1CFBACFBDF0.html?spm=a26g8.7710019.0.0',
         'authority': 'h5api.m.1688.com',
@@ -908,7 +901,10 @@ def _get_114_one_type_company_id_list(ip_pool_type,
     :param logger:
     :return: [{'company_id': 'xxx'}, ...]
     '''
-    headers = _get_phone_headers()
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,
+        cache_control='', )
     headers.update({
         'Proxy-Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
@@ -1353,12 +1349,9 @@ def get_mia_pintuan_one_page_api_goods_info(page_num:(int, str)) -> list:
     :param page_num:
     :return:
     """
-    headers = get_base_headers()
+    headers = get_random_headers(upgrade_insecure_requests=False,)
     headers.update({
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'accept-language': 'zh-CN,zh;q=0.8',
-        'Cache-Control': 'max-age=0',
-        'Connection': 'keep-alive',
         'Host': 'm.mia.com',
     })
     tmp_url = 'https://m.mia.com/instant/groupon/common_list/{}/0/'.format(str(page_num))

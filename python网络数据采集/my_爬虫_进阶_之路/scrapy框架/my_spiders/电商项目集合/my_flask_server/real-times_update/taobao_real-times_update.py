@@ -58,7 +58,7 @@ class TBUpdater(AsyncCrawler):
         :return:
         '''
         while True:
-            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            self.lg = await self._get_new_logger()
             result = await self._get_db_old_data()
             if result is None:
                 pass
@@ -70,7 +70,7 @@ class TBUpdater(AsyncCrawler):
                 while True:
                     try:
                         slice_params_list = tasks_params_list.__next__()
-                    except AssertionError:  # 全部提取完毕, 正常退出
+                    except AssertionError:
                         break
 
                     tasks = []
@@ -90,6 +90,11 @@ class TBUpdater(AsyncCrawler):
                 await async_sleep(60 * 60 * 5.5)
             else:
                 await async_sleep(5.)
+            try:
+                del self.lg
+                del result
+            except:
+                pass
             collect()
 
     async def _get_db_old_data(self) -> (list, None):

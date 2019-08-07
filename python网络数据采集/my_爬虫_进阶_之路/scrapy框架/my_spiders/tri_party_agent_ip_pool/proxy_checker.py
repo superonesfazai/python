@@ -22,12 +22,11 @@ from settings import (
     HOROCN_API_URL,
     HOROCN_TOKEN,)
 
-from gc import collect
 from os import system
 from urllib.parse import unquote_plus
-from fzutils.spider.async_always import *
 from fzutils.sql_utils import BaseSqlite3Cli
 from fzutils.spider.selector import async_parse_field
+from fzutils.spider.async_always import *
 
 import requests
 from requests.exceptions import ProxyError
@@ -447,7 +446,10 @@ class ProxyChecker(AsyncCrawler):
                 break
         assert api_url != '' or api_return_type != '', 'api_url为空值 or api_return_type为空值!'
 
-        headers = get_base_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
         body = Requests.get_url_body(
             use_proxy=False,
             url=api_url,

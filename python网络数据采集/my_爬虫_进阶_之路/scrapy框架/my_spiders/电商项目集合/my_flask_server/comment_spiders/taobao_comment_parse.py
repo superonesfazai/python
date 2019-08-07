@@ -39,9 +39,8 @@ import requests
 
 from fzutils.cp_utils import filter_invalid_comment_content
 from fzutils.internet_utils import (
-    get_random_pc_ua,
     str_cookies_2_dict,
-    get_base_headers,)
+    get_random_headers,)
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.time_utils import get_shanghai_time
@@ -222,7 +221,10 @@ class TaoBaoCommentParse(Crawler):
                 # ('callback', 'jsonp_tbcrate_reviews_list'),
             )
 
-        headers = get_base_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
         headers.update({
             'authority': 'rate.taobao.com',
             'referer': 'https://item.taobao.com/item.htm?id={}'.format(goods_id)
@@ -392,8 +394,15 @@ class TaoBaoCommentParse(Crawler):
         '''
         tmp_proxies = Requests._get_proxies(ip_pool_type=self.ip_pool_type)
 
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
         try:
-            _res = requests.get(url=url, headers=get_base_headers(), proxies=tmp_proxies)
+            _res = requests.get(
+                url=url,
+                headers=headers,
+                proxies=tmp_proxies)
             self.lg.info(str(_res.url))
             if _res.url == 'https://gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
                 return True

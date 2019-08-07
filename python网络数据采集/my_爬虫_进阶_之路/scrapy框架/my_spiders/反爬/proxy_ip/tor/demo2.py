@@ -13,7 +13,7 @@ import stem.connection
 from stem import Signal
 from stem.control import Controller
 
-from fzutils.internet_utils import get_base_headers
+from fzutils.internet_utils import get_random_headers
 
 # with Controller.from_port(port=9051) as controller:
 #     """连接tor前必须先认证"""
@@ -39,7 +39,14 @@ def get_public_ip():
     proxies = {
         'http': '127.0.0.1:8118'
     }
-    body = requests.get("https://httpbin.org/get", headers=get_base_headers(), proxies=proxies)\
+    headers = get_random_headers(
+        connection_status_keep_alive=False,
+        upgrade_insecure_requests=False,
+        cache_control='', )
+    body = requests.get(
+        url="https://httpbin.org/get",
+        headers=headers,
+        proxies=proxies)\
         .text
     print(body)
 

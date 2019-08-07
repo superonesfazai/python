@@ -54,14 +54,14 @@ class TmallParse(Crawler):
         self.req_num_retries = 3
 
     def _set_headers(self):
-        self.headers = {
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-            'Accept': '*/*',
-            'Referer': 'https://detail.m.tmall.com/item.htm?id=541107920538',
-            'Connection': 'keep-alive',
-        }
+        self.headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control=''
+        )
+        self.headers.update({
+            'accept': '*/*',
+            'referer': 'https://detail.m.tmall.com/item.htm?id=541107920538',
+        })
 
     def get_goods_data(self, goods_id):
         '''

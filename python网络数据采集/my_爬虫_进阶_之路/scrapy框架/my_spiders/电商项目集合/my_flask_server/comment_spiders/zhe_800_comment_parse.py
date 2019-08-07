@@ -39,9 +39,7 @@ from fzutils.time_utils import (
     date_parse,
     string_to_datetime,)
 from fzutils.cp_utils import filter_invalid_comment_content
-from fzutils.internet_utils import (
-    get_random_pc_ua,
-    get_base_headers,)
+from fzutils.internet_utils import get_random_headers
 from fzutils.spider.fz_requests import Requests
 from fzutils.common_utils import json_2_dict
 from fzutils.spider.crawler import Crawler
@@ -203,7 +201,10 @@ class Zhe800CommentParse(Crawler):
             return params
         
         tmp_url = 'https://th5.m.zhe800.com/app/detail/comment/list'
-        headers = get_base_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
         headers.update({
             'referer': 'https://th5.m.zhe800.com/h5/comment/list?zid={0}&dealId=39890410&tagId='.format(str(goods_id))
         })

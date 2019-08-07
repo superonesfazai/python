@@ -92,7 +92,7 @@ class TMUpdater(AsyncCrawler):
 
     async def _update_db(self):
         while True:
-            self.lg = await self._get_new_logger(logger_name=get_uuid1())
+            self.lg = await self._get_new_logger()
             result = await self._get_db_old_data()
             if result is None:
                 pass
@@ -117,6 +117,12 @@ class TMUpdater(AsyncCrawler):
                 await async_sleep(60 * 60 * 4.5)
             else:
                 await async_sleep(5.)
+
+            try:
+                del self.lg
+                del result
+            except:
+                pass
             collect()
             
     async def _get_one_res(self, slice_params_list, index) -> tuple:

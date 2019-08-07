@@ -939,16 +939,17 @@ class ZWMSpider(AsyncCrawler):
 
     @staticmethod
     def get_random_pc_headers() -> dict:
-        return {
+        headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control='',)
+        headers.update({
             'Origin': 'https://agent.yrmpay.com',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'User-Agent': get_random_pc_ua(),
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
             # 'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundarytSJCAoaErjNY4IbM',
-            'Accept': 'text/plain, */*; q=0.01',
+            'accept': 'text/plain, */*; q=0.01',
             'X-Requested-With': 'XMLHttpRequest',
-            'Connection': 'keep-alive',
-        }
+        })
+        return headers
 
     def __del__(self):
         try:
