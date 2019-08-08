@@ -58,7 +58,8 @@ class TBUpdater(AsyncCrawler):
         :return:
         '''
         while True:
-            self.lg = await self._get_new_logger()
+            # 长期运行报: OSError: [Errno 24] Too many open files, 故不采用每日一志
+            # self.lg = await self._get_new_logger(logger_name=get_uuid1())
             result = await self._get_db_old_data()
             if result is None:
                 pass
@@ -91,7 +92,7 @@ class TBUpdater(AsyncCrawler):
             else:
                 await async_sleep(5.)
             try:
-                del self.lg
+                # del self.lg
                 del result
             except:
                 pass

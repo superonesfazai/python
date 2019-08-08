@@ -1324,6 +1324,48 @@ ARTICLE_ITEM_LIST = [
             'selector': '\"likes_count\":(\d+),',
         },
     },
+    {
+        'short_name': 'hk',
+        'debug': True,
+        'obj_origin': 'haokan.baidu.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'vid=(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'div#content h1 ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div.detail span.name-text ::text',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'span.face-wrap img.face ::attr("src")',
+        },
+        'video_head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '<div class=\"c-gap-top-small c-gray date\">发布时间：(.*?)</div>'
+        },
+        'video_create_time': None,
+        'content': None,
+        'video_article_content': None,
+        'comment_num': {
+            'method': 're',
+            'selector': '(\d+)人对此视频发表评论',
+        },
+        'tags_list': None,
+        'praise_num': {
+            'method': 're',
+            'selector': ',有(\d+)人点赞,'
+        },
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

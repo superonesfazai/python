@@ -90,6 +90,47 @@ sql_str_17 = '''
 exec sp_helpdb gather 
 '''
 
+# 查看db每张表的行数
+sql_str_22 = '''
+SELECT a.name, b.rows
+FROM sysobjects AS a 
+INNER JOIN sysindexes AS b ON a.id = b.id
+WHERE (a.type = 'u') 
+AND (b.indid IN (0, 1))
+ORDER BY b.rows DESC
+'''
+
+# 查看点半每张表大小
+sql_str_23 = '''
+SELECT 
+    t.NAME AS TableName,
+    s.Name AS SchemaName,
+    p.rows AS RowCounts,
+    SUM(a.total_pages) * 8 AS TotalSpaceKB, 
+    CAST(ROUND(((SUM(a.total_pages) * 8) / 1024.00), 2) AS NUMERIC(36, 2)) AS TotalSpaceMB,
+    SUM(a.used_pages) * 8 AS UsedSpaceKB, 
+    CAST(ROUND(((SUM(a.used_pages) * 8) / 1024.00), 2) AS NUMERIC(36, 2)) AS UsedSpaceMB, 
+    (SUM(a.total_pages) - SUM(a.used_pages)) * 8 AS UnusedSpaceKB,
+    CAST(ROUND(((SUM(a.total_pages) - SUM(a.used_pages)) * 8) / 1024.00, 2) AS NUMERIC(36, 2)) AS UnusedSpaceMB
+FROM 
+    sys.tables t
+INNER JOIN      
+    sys.indexes i ON t.OBJECT_ID = i.object_id
+INNER JOIN 
+    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+INNER JOIN 
+    sys.allocation_units a ON p.partition_id = a.container_id
+LEFT OUTER JOIN 
+    sys.schemas s ON t.schema_id = s.schema_id
+WHERE 
+    t.NAME NOT LIKE 'dt%' 
+    AND t.is_ms_shipped = 0
+    AND i.OBJECT_ID > 255 
+GROUP BY 
+    t.Name, s.Name, p.Rows
+ORDER BY t.Name
+'''
+
 # 秒杀取值(修改方案: 全按第一类来)(over)
 sql_str_6 = '''
 -- 秒杀取值

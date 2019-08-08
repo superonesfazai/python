@@ -18,7 +18,6 @@ except:
 from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
 from settings import IS_BACKGROUND_RUNNING, MY_SPIDER_LOGS_PATH
 from settings import TMALL_REAL_TIMES_SLEEP_TIME
 
@@ -92,7 +91,8 @@ class TMUpdater(AsyncCrawler):
 
     async def _update_db(self):
         while True:
-            self.lg = await self._get_new_logger()
+            # 长期运行报: OSError: [Errno 24] Too many open files, 故不采用每日一志
+            # self.lg = await self._get_new_logger(logger_name=get_uuid1())
             result = await self._get_db_old_data()
             if result is None:
                 pass
@@ -119,7 +119,7 @@ class TMUpdater(AsyncCrawler):
                 await async_sleep(5.)
 
             try:
-                del self.lg
+                # del self.lg
                 del result
             except:
                 pass
@@ -131,6 +131,39 @@ class TMUpdater(AsyncCrawler):
         :param slice_params_list:
         :return: (list, int)
         """
+        def get_tasks_params_list(slice_params_list: list, index: int) -> list:
+            tasks_params_list = []
+            for item in slice_params_list:
+                db_goods_info_obj = TMDbGoodsInfoObj(item=item, logger=self.lg)
+                tmp_item = self._get_tmp_item(
+                    site_id=db_goods_info_obj.site_id,
+                    goods_id=db_goods_info_obj.goods_id, )
+                tasks_params_list.append({
+                    'db_goods_info_obj': db_goods_info_obj,
+                    'index': index,
+                    'tmp_item': tmp_item,
+                })
+                index += 1
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where is goods_id: {}, index: {}] ...'.format(
+                k['db_goods_info_obj'].goods_id,
+                k['index'], )
+
+        def get_now_args(k) -> list:
+            return [
+                k['tmp_item'],
+                k['index'],
+            ]
+
+        def add_one_res_2_all_res(one_res: list, all_res: list):
+            for i in one_res:
+                all_res.append(i)
+
+            return all_res
+
         async def handle_one_res(one_res: list):
             """
             one_res后续处理
@@ -144,6 +177,7 @@ class TMUpdater(AsyncCrawler):
             for item in slice_params_list:
                 goods_id = item[1]
                 for i in one_res:
+                    # self.lg.info(str(i))
                     try:
                         goods_id2 = i[1]
                         index = i[2]
@@ -214,6 +248,25 @@ class TMUpdater(AsyncCrawler):
             #     )))
             #     index += 1
             # one_res = await async_wait_tasks_finished(tasks=tasks)
+            # res = await handle_one_res(one_res=one_res)
+
+            # method 3
+            # one_res = await get_or_handle_target_data_by_task_params_list(
+            #     loop=self.loop,
+            #     tasks_params_list=get_tasks_params_list(
+            #         slice_params_list=slice_params_list,
+            #         index=index,),
+            #     func_name_where_get_create_task_msg=get_create_task_msg,
+            #     func_name=self.block_get_tm_one_goods_info_task,
+            #     func_name_where_get_now_args=get_now_args,
+            #     func_name_where_handle_one_res=None,
+            #     func_name_where_add_one_res_2_all_res=add_one_res_2_all_res,
+            #     one_default_res=(),
+            #     step=self.concurrency,
+            #     logger=self.lg,
+            #     get_all_res=True,
+            # )
+            # # pprint(one_res)
             # res = await handle_one_res(one_res=one_res)
 
         elif self.crawl_type == CRAWL_TYPE_CELERY:

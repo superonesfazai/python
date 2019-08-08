@@ -35,6 +35,7 @@ supported:
     23. 梨视频(短视频)(https://www.pearvideo.com/)
     24. 艾墨镇(短视频)(https://aimozhen.com/)
     25. 美拍(短视频)(https://www.meipai.com/)
+    26. 百度好看视频(https://haokan.baidu.com/)
     
 not supported:
     1. 新华网(http://m.xinhuanet.com)
@@ -281,6 +282,10 @@ class ArticleParser(AsyncCrawler):
             'mp': {
                 'obj_origin': 'www.meipai.com',
                 'site_id': 28,
+            },
+            'hk': {
+                'obj_origin': 'haokan.baidu.com',
+                'site_id': 29,
             },
         }
 
@@ -549,6 +554,9 @@ class ArticleParser(AsyncCrawler):
                     default_res=('', ''),
                     logger=self.lg,)
 
+            elif article_url_type == 'hk':
+                return await self._get_hk_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -556,6 +564,57 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_hk_article_html(self, article_url) -> tuple:
+        """
+        获取hk html
+        :param article_url:
+        :return:
+        """
+        parser_obj = await self._get_parse_obj(article_url_type='hk')
+        video_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg,)
+        assert video_id != ''
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
+        headers.update({
+            'authority': 'haokan.baidu.com',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-user': '?1',
+            'sec-fetch-site': 'none',
+            'referer': 'https://haokan.baidu.com/',
+            # 'cookie': 'BAIDUID=1666ADBB95B083DBB2DA29E9BEFCB50B:FG=1; BIDUPSID=1666ADBB95B083DBB2DA29E9BEFCB50B; PSTM=1553750958; H_WISE_SIDS=130611_124610_128699_132218_131777_128065_130510_126064_130163_120216_131602_132213_131517_132261_118882_118872_131401_118851_118819_118796_130763_132244_131649_131576_131555_131536_131534_131529_130222_131295_131872_131391_129565_107313_131796_131392_130120_131874_130569_131196_130348_129647_131246_125086_131435_131686_131036_131906_132090_129838_130413_129646_124030_132204_130824_110085_131767_127969_131506_123289_130818_127417_131550_131826_131750_131264_131263_131662_131946_128808; BDUSS=RtNkhNbXFTQWY1flppR3ZOd281SGtuMGlOaHhuWX5QUX5XZ3Y2MFZ4cHNIaGRkSVFBQUFBJCQAAAAAAAAAAAEAAADfukJXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGyR71xske9cRz; pgv_pvi=169221120; locale=zh; yjs_js_security_passport=66b912c3641c4e58bd4cd990686fb14faf28df5f_1565146880_js; Hm_lvt_4aadd610dfd2f5972f1efee2653a2bc5=1565229221; COMMON_LID=f3435a0e1c48660589c8fcd526e0f8bf; Hm_lvt_77ca61e523cd51ec7ac7a23bc4d24edf=1565229278; Hm_lpvt_4aadd610dfd2f5972f1efee2653a2bc5=1565229363; HK_CH_EXPIRED_TIME=1565279999000; HK_CH_IS_CLICKED=0; HK_SID=3116_2-3157_2-3168_1-3217_1-3265_1-3292_1; Hm_lpvt_77ca61e523cd51ec7ac7a23bc4d24edf=1565229372; HK_CH_REFRESH_TIMES=3; HK_CH_MAT_INDEX=0',
+        })
+        params = (
+            ('vid', video_id),
+            ('tab', 'recommend'),
+        )
+        url = 'https://haokan.baidu.com/v'
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        assert body != '', '获取hk的body为空值!'
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div.play1er-box video ::attr("src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        self.lg.info('got hk video_url: {}'.format(video_url))
+        assert video_url != ''
+
+        return body, video_url
 
     def unblock_get_mp_article_html(self, article_url) -> tuple:
         """
@@ -2204,7 +2263,7 @@ class ArticleParser(AsyncCrawler):
             parser=create_time_selector,
             target_obj=target_obj,
             logger=self.lg)
-
+        # self.lg.info(create_time)
         short_name_list2 = [
             'cn',
             'if',
@@ -2257,6 +2316,14 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'ck':
             create_time = str(timestamp_to_regulartime(int(self.hook_target_api_data['publish_time'])))
+
+        elif short_name == 'hk':
+            if create_time != '':
+                # 原先'2019年7月9日'
+                create_time = create_time.replace('年', '-').replace('月', '-').replace('日', '-')
+                create_time = await parse_create_time(
+                    short_name=short_name,
+                    create_time=create_time)
 
         else:
             pass
@@ -2404,6 +2471,7 @@ class ArticleParser(AsyncCrawler):
             'ck',
             'lsp',
             'mp',
+            'hk',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3563,8 +3631,61 @@ def main():
     # url = 'https://www.meipai.com/media/1131644923'
     # url = 'https://www.meipai.com/media/1133207409'
     # url = 'https://www.meipai.com/media/1132365942'
-    url = 'https://www.meipai.com/media/1131644923'
+    # url = 'https://www.meipai.com/media/1131644923'
     # todo 直播不采集
+
+    # 百度好看视频
+    # 推荐
+    # url = 'https://haokan.baidu.com/v?vid=4136323293933620725&tab=recommend'
+    # url = 'https://haokan.baidu.com/v?vid=13905274734303307712&tab=recommend'
+    # 影视
+    # url = 'https://haokan.baidu.com/v?vid=17753035492617182944&tab=yingshi'
+    # 音乐
+    # url = 'https://haokan.baidu.com/v?vid=15566590767854893570&tab=yinyue'
+    # 搞笑
+    # url = 'https://haokan.baidu.com/v?vid=11049055717053789925&tab=gaoxiao'
+    # vlog
+    # url = 'https://haokan.baidu.com/v?vid=18364192214912567672&tab=vlog'
+    # 娱乐
+    # url = 'https://haokan.baidu.com/v?vid=2039585784239075755&tab=yule'
+    # 动漫
+    # url = 'https://haokan.baidu.com/v?vid=13669502144755223017&tab=dongman'
+    # 生活
+    # url = 'https://haokan.baidu.com/v?vid=6013186501247664939&tab=shenghuo'
+    # 小品
+    # url = 'https://haokan.baidu.com/v?vid=1950334490626075127&tab=xiaopin'
+    # 综艺
+    # url = 'https://haokan.baidu.com/v?vid=3543129372355380096&tab=zongyi'
+    # 游戏
+    # url = 'https://haokan.baidu.com/v?vid=16045267043621223572&tab=youxi'
+    # 秒懂
+    # url = 'https://haokan.baidu.com/v?vid=8764292721309064181&tab=miaodong'
+    # 教育
+    # url = 'https://haokan.baidu.com/v?vid=13019064242738140769&tab=jiaoyu'
+    # 军事
+    # url = 'https://haokan.baidu.com/v?vid=9293974956392010975&tab=junshi'
+    # 科技
+    # url = 'https://haokan.baidu.com/v?vid=3788911623189008455&tab=keji'
+    # 汽车
+    # url = 'https://haokan.baidu.com/v?vid=8655585633607378937&tab=qiche'
+    # 纪录片
+    # url = 'https://haokan.baidu.com/v?vid=11997191395202643272&tab=record'
+    # 体育
+    # url = 'https://haokan.baidu.com/v?vid=16107732794840639604&tab=tiyu'
+    # 文化
+    # url = 'https://haokan.baidu.com/v?vid=7456588810512052606&tab=wenhua'
+    # 亲子
+    # url = 'https://haokan.baidu.com/v?vid=15546006886814520106&tab=qinzi'
+    # 社会
+    # url = 'https://haokan.baidu.com/v?vid=648167893261511164&tab=shehui'
+    # 三农
+    # url = 'https://haokan.baidu.com/v?vid=4161801005423552525&tab=sannong'
+    # 宠物
+    # url = 'https://haokan.baidu.com/v?vid=9740175951467494081&tab=chongwu'
+    # 美食
+    # url = 'https://haokan.baidu.com/v?vid=11754326304031754679&tab=meishi'
+    # 时尚
+    url = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
 
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(

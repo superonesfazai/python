@@ -160,7 +160,10 @@ class RequestClient(object):
         # article_link = 'https://aimozhen.com/view/15960/'
 
         # 美拍
-        article_link = 'https://www.meipai.com/media/1131644923'
+        # article_link = 'https://www.meipai.com/media/1131644923'
+
+        # 好看视频
+        article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
