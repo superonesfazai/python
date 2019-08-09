@@ -35,7 +35,7 @@ supported:
     23. 梨视频(短视频)(https://www.pearvideo.com/)
     24. 艾墨镇(短视频)(https://aimozhen.com/)
     25. 美拍(短视频)(https://www.meipai.com/)
-    26. 百度好看视频(https://haokan.baidu.com/)
+    26. 百度好看视频(短视频)(https://haokan.baidu.com/)
     
 not supported:
     1. 新华网(http://m.xinhuanet.com)
@@ -133,7 +133,7 @@ class ArticleParser(AsyncCrawler):
                 target_obj=article_html,
                 article_url=article_url,
                 video_url=video_url,)
-            print(content)
+            # print(content)
             create_time = await self._get_article_create_time(
                 parse_obj=parse_obj,
                 target_obj=article_html,
@@ -184,110 +184,251 @@ class ArticleParser(AsyncCrawler):
         """
         return {
             'wx': {
+                'debug': True,
+                'index': 1,
+                'name': '搜狗微信公众号',
+                'url': 'https://weixin.sogou.com',
                 'obj_origin': 'mp.weixin.qq.com',
                 'site_id': 4,
             },
             'tt': {
+                'debug': True,
+                'index': 2,
+                'name': '今日头条',
+                'url': 'https://www.toutiao.com',
                 'obj_origin': 'www.toutiao.com',
                 'site_id': 5,
             },
             'js': {
+                'debug': True,
+                'index': 3,
+                'name': '简书',
+                'url': 'https://www.jianshu.com',
                 'obj_origin': 'www.jianshu.com',
                 'site_id': 6,
             },
             'kd': {
+                'debug': True,
+                'index': 4,
+                'name': 'qq看点',
+                'url': '根据QQ看点中分享出的地址',
                 'obj_origin': 'post.mp.qq.com',
                 'site_id': 7,
             },
             'kb': {
+                'debug': True,
+                'index': 5,
+                'name': '天天快报',
+                'url': '根据天天快报分享出的地址',
                 'obj_origin': 'kuaibao.qq.com',
                 'site_id': 8,
             },
             'df': {
+                'debug': True,
+                'index': 6,
+                'name': '东方头条',
+                'url': 'https://toutiao.eastday.com',
                 'obj_origin': 'toutiao.eastday.com',
                 'site_id': 9,
             },
             'sg': {
+                'debug': True,
+                'index': 7,
+                'name': '搜狗头条',
+                'url': 'https://wap.sogou.com',
                 'obj_origin': 'sa.sogou.com',
                 'site_id': 10,
             },
             'bd': {
+                'debug': True,
+                'index': 8,
+                'name': '百度m站',
+                'url': 'https://m.baidu.com/',
                 'obj_origin': 'm.baidu.com',
                 'site_id': 11,
             },
             'zq': {
+                'debug': True,
+                'index': 9,
+                'name': '中青看点',
+                'url': 'https://focus.youth.cn/html/articleTop/mobile.html',
                 'obj_origin': 'focus.youth.cn',
                 'site_id': 12,
             },
             'yg': {
+                'debug': True,
+                'index': 10,
+                'name': '阳光宽频网(短视频)',
+                'url': 'https://www.365yg.com/',
                 'obj_origin': 'www.365yg.com',
                 'site_id': 13,
             },
             'fh': {
+                'debug': True,
+                'index': 11,
+                'name': '凤凰网',
+                'url': 'https://news.ifeng.com/',
                 'obj_origin': 'news.ifeng.com',
                 'site_id': 14,
             },
             'ys': {
+                'debug': True,
+                'index': 12,
+                'name': '51健康养生网',
+                'url': 'http://www.51jkst.com/',
                 'obj_origin': 'www.51jkst.com',
                 'site_id': 15,
             },
             'cn': {
+                'debug': True,
+                'index': 13,
+                'name': '彩牛养生网(短视频)',
+                'url': 'http://m.cnys.com/',
                 'obj_origin': 'm.cnys.com',
                 'site_id': 16,
             },
             'if': {
+                'debug': True,
+                'index': 14,
+                'name': '爱范儿',
+                'url': 'https://www.ifanr.com/',
                 'obj_origin': 'www.ifanr.com',
                 'site_id': 17,
             },
             'ss': {
+                'debug': True,
+                'index': 15,
+                'name': '科学松鼠会',
+                'url': 'https://songshuhui.net/',
                 'obj_origin': 'songshuhui.net',
                 'site_id': 18,
             },
             'jm': {
+                'debug': True,
+                'index': 16,
+                'name': '界面新闻',
+                'url': 'https://www.jiemian.com/',
                 'obj_origin': 'www.jiemian.com',
                 'site_id': 19,
             },
             'pp': {
+                'debug': True,
+                'index': 17,
+                'name': '澎湃网',
+                'url': 'https://m.thepaper.cn/',
                 'obj_origin': 'm.thepaper.cn',
                 'site_id': 20,
             },
             'hx': {
+                'debug': True,
+                'index': 18,
+                'name': '虎嗅网',
+                'url': 'https://m.huxiu.com',
                 'obj_origin': 'm.huxiu.com',
                 'site_id': 21,
             },
             'nfzm': {
+                'debug': True,
+                'index': 19,
+                'name': '南方周末',
+                'url': 'http://www.infzm.com/wap/#/',
                 'obj_origin': 'www.infzm.com',
                 'site_id': 22,
             },
             'hqx': {
+                'debug': True,
+                'index': 20,
+                'name': '好奇心日报',
+                'url': 'http://m.qdaily.com/mobile/homes.html',
                 'obj_origin': 'm.qdaily.com',
                 'site_id': 23,
             },
             'xg': {
+                'debug': True,
+                'index': 21,
+                'name': '西瓜视频(短视频)',
+                'url': 'https://www.ixigua.com',
                 'obj_origin': 'www.ixigua.com',
                 'site_id': 24,
             },
-            'ck': {
-                'obj_origin': 'www.vmovier.com',
+            'hk': {
+                'debug': True,
+                'index': 22,
+                'name': '百度好看视频(短视频)',
+                'url': 'https://haokan.baidu.com/',
+                'obj_origin': 'haokan.baidu.com',
                 'site_id': 25,
             },
-            'lsp': {
-                'obj_origin': 'www.pearvideo.com',
+            'ck': {
+                'debug': False,
+                'index': 23,
+                'name': '场库网(短视频)',
+                'url': 'https://www.vmovier.com/',
+                'obj_origin': 'www.vmovier.com',
                 'site_id': 26,
             },
-            'amz': {
-                'obj_origin': 'aimozhen.com',
+            'lsp': {
+                'debug': False,
+                'index': 24,
+                'name': '梨视频(短视频)',
+                'url': 'https://www.pearvideo.com/',
+                'obj_origin': 'www.pearvideo.com',
                 'site_id': 27,
             },
-            'mp': {
-                'obj_origin': 'www.meipai.com',
+            'amz': {
+                'debug': False,
+                'index': 25,
+                'name': '艾墨镇(短视频)',
+                'url': 'https://aimozhen.com/',
+                'obj_origin': 'aimozhen.com',
                 'site_id': 28,
             },
-            'hk': {
-                'obj_origin': 'haokan.baidu.com',
+            'mp': {
+                'debug': False,
+                'index': 26,
+                'name': '美拍(短视频)',
+                'url': 'https://www.meipai.com/',
+                'obj_origin': 'www.meipai.com',
                 'site_id': 29,
             },
         }
+
+    async def get_article_spiders_intro(self,) -> str:
+        """
+        获取可用文章爬虫介绍
+        :return:
+        """
+        _ = await self._get_obj_origin()
+        intro_str = '<tr><th>index</th><th>name</th><th>url</th></tr>'
+        for value in _.values():
+            try:
+                debug = value.get('debug', False)
+                index = value.get('index', 0)
+                name = value.get('name', '')
+                assert name != ''
+                url = value.get('url', '')
+            except AssertionError:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+
+            if debug:
+                a, b = index, name
+                if re.compile('^http').findall(url) != []:
+                    c = '<a href=\"{}\">{}</a>'.format(url, url)
+                else:
+                    c = url
+                intro_str += '<tr><th>{}</th><th>{}</th><th>{}</th></tr>'.format(
+                    a,
+                    b,
+                    c,)
+
+            else:
+                continue
+
+        res = '<style type=\"text/css\">table{border-collapse: collapse;margin: 0 auto;text-align: center;}table td, table th{border: 1px solid #cad9ea;color: #666;height: 30px;}table thead th{background-color: #CCE8EB;width: 100px;}table tr:nth-child(odd){background: #fff;}table tr:nth-child(even){background: #F5FAFA;}</style>' \
+            + '<table border=\"1\">' + intro_str + '</table>'
+
+        return res
 
     async def _get_html_by_driver(self,
                                   url,
@@ -2487,6 +2628,31 @@ class ArticleParser(AsyncCrawler):
             content=content,)
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+        print(content)
+        # cp后台处理, 此处不处理
+        # content = await self._wash_my_style_in_content(content=content)
+        # self.lg.info(content)
+
+        return content
+
+    @staticmethod
+    async def _wash_my_style_in_content(content: str) -> str:
+        """
+        清洗掉自己的样式
+        :param self:
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=None,
+            add_sensitive_str_list=[
+                '<meta name=\"referrer\" content=\"never\">',
+                # 图片居中, p, 原生style
+                '<style type=\"text/css\">.*?</style>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
 
         return content
 
@@ -2925,13 +3091,32 @@ class ArticleParser(AsyncCrawler):
         return content
 
     @staticmethod
-    async def _wash_wx_article_content(content) -> str:
+    async def _wash_wx_article_content(content: str) -> str:
         """
         清洗wx content
         :param content:
         :return:
         """
-        content = re.compile('<p><br></p>').sub('<br>', content)
+        # print(content)
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('<p><br></p>', '<br>'),
+            ],
+            add_sensitive_str_list=[
+                # 洗掉编辑, 校对
+                '<span style=\"max-width: 100%;.*?\">编辑：.*?</span>',
+                '<span style=\"max-width: 100%;.*?\">校对：.*?</span>',
+                # 空行
+                '<p><span style=\"color: rgb\(217, 33, 66\);font-size: 14px;\"><strong><br></strong></span></p>',
+                # 最下方a标签: 洗掉往期回顾 or 推荐内容
+                '<p style=\".*?\"><a href=\".*?mp.weixin.qq.com/s.*?\" target=\"_blank\" data-itemshowtype=\"0\" data-linktype=\"2\".*?>.*?</a>.*?</p>',
+
+                # todo section容易错洗, 导致正常内容无法显示, 不处理
+                # '<section .*? data-tools=\"新媒体排版\".*?>.*?</section>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
 
         return content
 
@@ -3126,16 +3311,8 @@ def main():
     # 存在链接过期的情况
     # https://mp.weixin.qq.com/s?__biz=MzA4MjQxNjQzMA==&mid=2768396229&idx=1&sn=&scene=0#wechat_redirect
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1545195601&ver=1283&signature=0wD3ij5dP9cs5hAXeHqb12I6CgxVu8HmadJhszmKuGI-PSMqcIoYd66qvE4Mg5ejrxCxWTgDC-s1xMaKviWC4Noe9GjwKzZpFCXLyRt6IkTne1YF4Yc8qmDvBVgb3w5c&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=7nrWhsLUvCvON5P2eyyDS9--DnPJegyCz94JSJiSxIlt4i4X4p*r-CRx13dyqa0OWH7ZOM2WESEdS4nvSNV6UwuPKrdz1xFN8aJztHuRlRV59EIflvbd8jxBnduHRajo&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557019801&ver=1587&signature=kf9hmcbFbQtaBCqoj6pCgVNA6CjurCbsTBTA5g4ZesH2I5hMGp*HKdwqLrxJvQL5X-AELkcj5V*ukSgC8kQlWtS8-ELZuwmezs*H8OHLc4dSy0wWfr3s*Th8dMQYoIBm&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1557111601&ver=1589&signature=ALBo1FMtv3X*yJa8CzViSYK*FV-Cr7rHblhsr-96NCZDD5jK8ra2daIg2QWCSVnnqJ4H4KJG*n820P0PULQ6PIQblWXUf*7R69P8ObOCR7UJmpRlKU8s2FgRFiUMrR7N&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=3-AY5oIX1fgkA7pyqxT2rcYtdtBH*8zx0AmORHLICAIH5GaAl6K6omx5qrLStNbXXLoMGm7i9O8KFuJdA4hRjN4yFadybiTCiT13AKSipinfc5IvHbGS5xraz3qvduhe&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=3-AY5oIX1fgkA7pyqxT2rcYtdtBH*8zx0AmORHLICAJWtC2d6WpK9-7eXo8niLCVfbsKlVmU1gvrp1eoRxXK-TCKkqDRLlgytD-w2Lq-SmsjWqXRbHZxWqrqOPE9D6il&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1564034408&ver=1749&signature=k7JY7Vn53aacavzffafWSHvLQDRhHPebhFWU*BiYdgYi8ycBZOIRoYyevdlFNp0Sli1O17jyEV3citlGNDPhUrMnMIdOsoKtPbGcnsSxs-vZVfd2Jl6w*7MHDkdgFDDD&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1564034408&ver=1749&signature=pgKGltfxEKGAtEOOIvBeugmKyND1YusPHnj4sw6EeOXRQlUIP5ylyZcv4egYs8PLyKXx5EpKZlHEIt6YOBAA9zl0tDR4Z4jWQb859xvPFmMXKbYTVmh1W73js0eaCKCX&new=1'
-    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1564034409&ver=1749&signature=Pyxx187vCIJeDbnqZSehHm3XDpGkY*eXx9LO-Zrf6tCWOmxo2RnKk9C9iA*LvScDq3D0Wm2cTdA4nKNDm-UUem71qzZdZoNqNvT1J5WJrkG1KCFQVK4pO4F7oxKC8Hxw&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1564036201&ver=1749&signature=XCTMLVFytVL3FzjyURHVRICZb2bM1kLWhSpUrNeb8SGD1jvxgHkJgicFiMNBOl6W0Ow6m*Gzke*tlPVCzOJTcDx4WYv2FyOsY1FtMzB-pHIOErSsuq4H3T-yUeyMq9vg&new=1'
+    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1565314201&ver=1779&signature=3RxHcLiybXKqNJH95V5UekL6udEBs6tZFNnqPKCxEbXHOWcnQ2djUfXBA1hrMOerxiKAIKVyvPOYW9Frj-rwmPDpnzZE8WuiSZWZCFhIoLUKVRHD5AfsH90C1vupHvUH&new=1'
     # 含视频
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=kF7BFCtTqr9OlfBzqLSgUfnD413Ig9JfMVKCc1ew8YQ8maPdhL8zFXgrctDdl5Z3HfI0ZOb7yThhKR1QHrtuUjVQE*gTTPBvBOTagAA5wN*bylpMTtwBqwv7ctFh-j5P&new=1'
 
@@ -3487,6 +3664,9 @@ def main():
     # url = 'https://m.thepaper.cn/newsDetail_forward_3839854'
 
     # 虎嗅网
+    # url = 'https://m.huxiu.com/article/312411.html'
+    # url = 'https://m.huxiu.com/article/309642.html'
+    url = 'https://m.huxiu.com/article/312390.html'
     # 医疗健康
     # url = 'https://m.huxiu.com/article/308324.html'
     # url = 'https://m.huxiu.com/article/308204.html'
@@ -3525,6 +3705,8 @@ def main():
     # 视频
     # url = 'https://m.huxiu.com/article/308402.html'
     # url = 'https://m.huxiu.com/article/307339.html'
+    # todo collection非图文, pass
+    # url = 'https://m.huxiu.com/collection/381.html'
 
     # 南方周末(其中只有部分文章可用, 不推荐使用)
     # url = 'http://www.infzm.com/wap/#/content/153845'
@@ -3685,13 +3867,18 @@ def main():
     # 美食
     # url = 'https://haokan.baidu.com/v?vid=11754326304031754679&tab=meishi'
     # 时尚
-    url = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
+    # url = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
 
+    # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
         future=_._parse_article(article_url=url))
     pprint(article_parse_res)
     # print(dumps(article_parse_res))
+
+    # article spiders intro
+    # tmp = loop.run_until_complete(_.get_article_spiders_intro())
+    # print(tmp)
 
 if __name__ == '__main__':
     main()

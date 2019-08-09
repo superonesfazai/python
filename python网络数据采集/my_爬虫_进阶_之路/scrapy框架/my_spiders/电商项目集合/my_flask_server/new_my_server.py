@@ -1902,6 +1902,29 @@ def get_goods_link(**kwargs):
 """
 /api/article
 """
+@app.route('/api/article_spiders_intro', methods=['GET'])
+def article_spiders_intro() -> str:
+    """
+    获取article spiders intro
+    :return:
+    """
+    article_parser = ArticleParser(logger=my_lg)
+    loop = get_event_loop()
+    res = ''
+    try:
+        res = loop.run_until_complete(
+            article_parser.get_article_spiders_intro())
+    except Exception:
+        my_lg.error('遇到错误:', exc_info=True)
+
+    try:
+        del article_parser
+    except:
+        pass
+    collect()
+
+    return res
+
 @app.route('/api/article', methods=['GET'])
 # @Sign.signature_required
 def _article():
@@ -1913,14 +1936,18 @@ def _article():
     article_url = b64decode(s=_.encode('utf-8')).decode('utf-8')     # _ 传来的起初是str, 先str->byte, 再b64decode解码
     my_lg.info('获取到的article_url: {}'.format(str(article_url)))
 
-    _ = ArticleParser(logger=my_lg)
+    article_parser = ArticleParser(logger=my_lg)
     loop = get_event_loop()
     article_res = {}
     try:
-        article_res = loop.run_until_complete(_._parse_article(article_url=article_url))
+        article_res = loop.run_until_complete(article_parser._parse_article(article_url=article_url))
     except Exception:
         my_lg.error('遇到错误:', exc_info=True)
 
+    try:
+        del article_parser
+    except:
+        pass
     collect()
     if article_res == {}:
         return _error_msg(msg='文章抓取失败!')
