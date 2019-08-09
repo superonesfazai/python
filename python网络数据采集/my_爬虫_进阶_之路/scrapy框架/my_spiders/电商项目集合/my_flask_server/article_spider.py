@@ -400,13 +400,16 @@ class ArticleParser(AsyncCrawler):
         """
         _ = await self._get_obj_origin()
         intro_str = '<tr><th>index</th><th>name</th><th>url</th></tr>'
-        for value in _.values():
+        order_list = [value for value in _.values()]
+        order_list.sort(key=lambda k: (k.get('index', 0)))
+
+        for item in order_list:
             try:
-                debug = value.get('debug', False)
-                index = value.get('index', 0)
-                name = value.get('name', '')
+                debug = item.get('debug', False)
+                index = item.get('index', 0)
+                name = item.get('name', '')
                 assert name != ''
-                url = value.get('url', '')
+                url = item.get('url', '')
             except AssertionError:
                 self.lg.error('遇到错误:', exc_info=True)
                 continue
@@ -414,7 +417,7 @@ class ArticleParser(AsyncCrawler):
             if debug:
                 a, b = index, name
                 if re.compile('^http').findall(url) != []:
-                    c = '<a href=\"{}\">{}</a>'.format(url, url)
+                    c = '<a href=\"{}\" target=\"_blank\">{}</a>'.format(url, url)
                 else:
                     c = url
                 intro_str += '<tr><th>{}</th><th>{}</th><th>{}</th></tr>'.format(
