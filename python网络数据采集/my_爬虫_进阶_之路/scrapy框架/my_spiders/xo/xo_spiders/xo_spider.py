@@ -36,7 +36,7 @@ class XOSpider(AsyncCrawler):
         # total 210
         self.max_s63_chinese_captions_page_num = 10
         self.max_n15_japan_page_num = 3
-        self.max_n15_all_page_num = 20
+        self.max_n15_all_page_num = 30
 
     async def _fck_run(self):
         # await self.s69zy3_spider()

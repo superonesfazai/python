@@ -93,12 +93,6 @@ from threading import Lock as ThreadingLock
 from threading import Thread
 from queue import Queue
 
-try:
-    # 高并发部署
-    from gevent.wsgi import WSGIServer
-except Exception as e:
-    from gevent.pywsgi import WSGIServer
-
 from sql_str_controller import (
     fz_al_insert_str,
     fz_tb_insert_str,
@@ -119,10 +113,18 @@ from sql_str_controller import (
 from article_spider import ArticleParser
 from buyiju_spider import BuYiJuSpider
 
+from multiprocessing import Pool as MultiprocessingPool
+
 from fzutils.log_utils import set_logger
 from fzutils.exceptions import catch_exceptions
 from fzutils.data.json_utils import get_new_list_by_handle_list_2_json_error
 from fzutils.spider.async_always import *
+
+try:
+    # 高并发部署
+    from gevent.wsgi import WSGIServer
+except Exception as e:
+    from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__, root_path=os.getcwd())
 
@@ -1929,18 +1931,63 @@ def article_spiders_intro() -> str:
 # @Sign.signature_required
 def _article():
     """
-    文章接口
+    文章接口(此接口为阻塞接口)
     :return: json
     """
     _ = get_article_link(request=request)
     article_url = b64decode(s=_.encode('utf-8')).decode('utf-8')     # _ 传来的起初是str, 先str->byte, 再b64decode解码
     my_lg.info('获取到的article_url: {}'.format(str(article_url)))
 
+    # todo 确实可以变成非阻塞
+    #  但是: 不可这样, 由于一个loop已在执行的同时, 其他请求到来, 会抛出(RuntimeError: Cannot run the event loop while another loop is running)异常
+    #  导致其他的同时的请求全部失败!
+    # from gevent import monkey
+    # monkey.patch_all()
+
+    # 进程池执行
+    # pool = MultiprocessingPool(1)
+    # _queue = Queue()
+    # for item in range(0, 1):
+    #     _queue.put(pool.apply_async(
+    #         func=get_article_res,
+    #         args=[
+    #             article_url,
+    #         ],))
+    # while True:
+    #     article_res = _queue.get().get()
+    #     # pprint(article_res)
+    #     if article_res:
+    #         # 结束进程池中的所有子进程
+    #         pool.terminate()
+    #         break
+    # my_lg.info('退出while')
+    # pool.join()
+    # try:
+    #     del pool
+    #     del _queue
+    # except:
+    #     pass
+
+    # 正常执行
+    article_res = get_article_res(
+        article_url=article_url,)
+
+    if article_res == {}:
+        return _error_msg(msg='文章抓取失败!')
+
+    return _success_data(msg='文章抓取成功!', data=article_res)
+
+def get_article_res(article_url: str) -> dict:
+    """
+    获取采集结果
+    :return:
+    """
     article_parser = ArticleParser(logger=my_lg)
-    loop = get_event_loop()
+    loop = new_event_loop()
     article_res = {}
     try:
-        article_res = loop.run_until_complete(article_parser._parse_article(article_url=article_url))
+        article_res = loop.run_until_complete(
+            article_parser._parse_article(article_url=article_url))
     except Exception:
         my_lg.error('遇到错误:', exc_info=True)
 
@@ -1948,11 +1995,13 @@ def _article():
         del article_parser
     except:
         pass
+    try:
+        del loop
+    except:
+        pass
     collect()
-    if article_res == {}:
-        return _error_msg(msg='文章抓取失败!')
 
-    return _success_data(msg='文章抓取成功!', data=article_res)
+    return article_res
 
 def get_article_link(**kwargs):
     """

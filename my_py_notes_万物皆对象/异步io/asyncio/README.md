@@ -17,6 +17,12 @@
 
 [零拷贝](https://blog.csdn.net/cnweike/article/details/48166121)
 
+报错: RuntimeError: Cannot run the event loop while another loop is running
+
+原因如下blog:
+
+[asyncio与多线程/多进程那些事](https://zhuanlan.zhihu.com/p/38575715)
+
 ## 基本事件循环
 [源码](https://github.com/python/cpython/tree/3.6/Lib/asyncio/events.py)
 

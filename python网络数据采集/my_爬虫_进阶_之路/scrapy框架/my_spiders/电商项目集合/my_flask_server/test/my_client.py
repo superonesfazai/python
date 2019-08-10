@@ -16,14 +16,22 @@ sys.path.append('..')
 import hashlib
 from base64 import b64encode
 from requests import get
-from pprint import pprint
 
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import *
+from settings import IP_POOL_TYPE
 
-class RequestClient(object):
+from fzutils.spider.async_always import *
+
+class RequestClient(AsyncCrawler):
     """ 接口签名client示例 """
     def __init__(self):
+        AsyncCrawler.__init__(
+            self,
+            ip_pool_type=IP_POOL_TYPE,
+        )
+        # 并发数
+        self.concurrency = 3
+        # 最大请求数
+        self.max_req_num = 3
         self._version = "v1"
         self._access_key_id = "yiuxiu"
         self._access_key_secret = "22879be192793e9d80289b58a451f857"
@@ -56,11 +64,51 @@ class RequestClient(object):
 
         return sign
 
-    def _request(self) -> str:
-        '''
-        测试用例
+    async def _fck_run(self):
+        await self.concurrent_test()
+
+    async def concurrent_test(self):
+        """
+        并发测试
         :return:
-        '''
+        """
+        def get_tasks_params_list(url):
+            tasks_params_list = []
+            for index in range(0, self.max_req_num):
+                tasks_params_list.append({
+                    'url': url,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where url: {}] ...'.format(
+                k['url'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['url'],
+            ]
+
+        url = self.get_target_url()
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(url=url),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self._request,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
+            one_default_res={},
+            step=self.concurrency,
+            get_all_res=True,)
+        pprint(all_res)
+
+    def get_target_url(self) -> str:
+        """
+        获取目标url
+        :return:
+        """
         # NOTICE:
         # goods_link = 'https://h5.m.taobao.com/awp/core/detail.htm?id=551047454198&umpChannel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&u_channel=libra-A9F9140EBD8F9031B980FBDD4B9038F4&spm=a2141.8147851.1.1'
         # 由于: link中不能带&否则会被编码在sign中加密, 因此先进行b64encode格式化再decode
@@ -94,7 +142,7 @@ class RequestClient(object):
         # article_link = 'https://kuaibao.qq.com/s/20190322V0DCSY00?refer=kb_news&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;chlid=daily_timeline&amp;atype=4&from=groupmessage&isappinstalled=0'
         # 第二种类型
         # article_link = 'https://kuaibao.qq.com/s/20190221V170RM00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
-        article_link = 'https://kuaibao.qq.com/s/20190509V0JOTG00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
+        # article_link = 'https://kuaibao.qq.com/s/20190509V0JOTG00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
 
         # 搜狗头条
         # article_link = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
@@ -168,7 +216,18 @@ class RequestClient(object):
         # article_link = 'https://www.meipai.com/media/1131644923'
 
         # 好看视频
-        # article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
+        article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
+
+        url = article_link
+
+        return url
+
+    def _request(self, target_url) -> str:
+        '''
+        测试用例
+        :return:
+        '''
+        article_link = target_url
 
         now_timestamp = self.get_current_timestamp() - 5
         print('请求时间戳为: {}[{}]'.format(now_timestamp, str(timestamp_to_regulartime(now_timestamp))))
@@ -196,8 +255,8 @@ class RequestClient(object):
         # url = 'http://spider.other.k85u.com/api/goods'
 
         # article
-        # url = 'http://127.0.0.1:5000/api/article'
-        url = 'http://118.31.39.97/api/article'
+        url = 'http://127.0.0.1:5000/api/article'
+        # url = 'http://118.31.39.97/api/article'
         # url = 'http://23.239.0.250/api/article'
 
         with get(url, params=params) as response:
@@ -216,4 +275,16 @@ class RequestClient(object):
     def __call__(self, *args, **kwargs):
         return self._request()
 
-print(RequestClient()())
+    def __del__(self):
+        try:
+            del self.loop
+        except:
+            pass
+        collect()
+
+# 单次请求
+# print(RequestClient()._request())
+
+client = RequestClient()
+loop = get_event_loop()
+loop.run_until_complete(client._fck_run())
