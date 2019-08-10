@@ -386,7 +386,15 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': 'data-article-title=\"(.*?)\"',
         },
+        'video_title': {
+            'method': 're',
+            'selector': 'data-article-title=\"(.*?)\"',
+        },
         'author': {
+            'method': 're',
+            'selector': 'data-mp-name=\"(.*?)\"',
+        },
+        'video_author': {
             'method': 're',
             'selector': 'data-mp-name=\"(.*?)\"',
         },
@@ -394,16 +402,29 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': 'data-mp-icon=\"(.*?)\"',               # 'https:' + xxx
         },
+        'video_head_url': {
+            'method': 're',
+            'selector': 'data-mp-icon=\"(.*?)\"',               # 'https:' + xxx
+        },
         'create_time': {
-            'method': 'css',
-            'selector': 'div.rich_media_meta_list em:nth-child(1) ::text',
+            'method': 're',
+            'selector': 'data-timestamp=\"(\d+)\"',
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': 'data-timestamp=\"(\d+)\"',
         },
         'content': {
             'method': 'css',
             'selector': 'div#main-content',
         },
+        'video_article_content': None,
         'comment_num': None,
         'tags_list': {
+            'method': 're',
+            'selector': 'data-tags=\"(.*?)\"',       # '军舰,海军,舰艇,扫雷舰,水雷,地雷'
+        },
+        'video_tags_list': {
             'method': 're',
             'selector': 'data-tags=\"(.*?)\"',       # '军舰,海军,舰艇,扫雷舰,水雷,地雷'
         },

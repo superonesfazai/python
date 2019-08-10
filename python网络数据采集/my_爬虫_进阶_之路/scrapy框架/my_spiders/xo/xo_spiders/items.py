@@ -18,3 +18,14 @@ class VideoListItem(Item):
     video_type = Field()            # 影片类别
     url = Field()                   # 电影介绍页url
     create_time = Field()           # 创建时间
+
+class VideoItem(Item):
+    """
+    video item
+    """
+    video_name = Field()                # 电影名
+    static_img_url = Field()            # 电影某帧画面的img_url
+    video_url = Field()                 # 播放地址
+    like_num = Field()                  # 喜欢数
+    dislike_num = Field()               # 不喜欢数
+    collected_num = Field()             # 收藏数

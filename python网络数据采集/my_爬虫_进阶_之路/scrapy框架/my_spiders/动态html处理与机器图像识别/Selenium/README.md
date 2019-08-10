@@ -16,7 +16,31 @@ Selenium IDE是一个Firefox/chrome插件，可用于记录Firefox本身的测�
 
 鉴于通过Selenium IDE生成的代码的可维护性，建议不要将其用于了解元素定位器或生成 丢弃代码。我们确信，一旦习惯了WebDriver API，就永远不会使用Selenium IDE。
 
+## chromedriver
+
+### linux上启动报错处理
+```bash
+# 报错处理: selenium.common.exceptions.WebDriverException: Message: Service /root/myFiles/linux_drivers/chromedriver unexpectedly exited. Status code was: 127
+# 尝试运行chromedriver
+# $ ./chromedriver
+# 报错: ./chromedriver: error while loading shared libraries: libgconf-2.so.4: cannot open shared object file: No such file or directory
+
+# method1(推荐):
+# 解决:
+# apt-get install chromium-browser && apt-get install libnss3 libgconf-2-4
+
+# method2:
+# 安装google-chrome(其依赖会被自动安装)
+# 添加源
+# 1. $ sudo wget http://www.linuxidc.com/files/repo/google-chrome.list -P /etc/apt/sources.list.d/
+# 导入google公钥
+# 2. $ wget -q -O - https://dl.google.com/linux/linux_signing_key.pub  | sudo apt-key add -
+# 3. apt-get update && apt-get install google-chrome-stable
+```
+
 ## firefox
+[geckodriver最新版本下载地址](https://github.com/mozilla/geckodriver/releases)
+
 firefox安全性强，不允许跨域调用出现报错。导致定位不到元素, 这种就可以使用chromedriver
 
 ## PhantomJS
