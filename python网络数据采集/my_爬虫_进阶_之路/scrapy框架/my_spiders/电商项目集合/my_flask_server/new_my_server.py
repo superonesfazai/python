@@ -1972,6 +1972,39 @@ def _article():
     article_res = get_article_res(
         article_url=article_url,)
 
+    # celery
+    # from celery_tasks import get_article_res_task
+    # from fzutils.celery_utils import block_get_celery_async_results
+    #
+    # tasks = []
+    # for k in range(0, 1):
+    #     try:
+    #         async_obj = get_article_res_task.apply_async(
+    #             args=[
+    #                 article_url,
+    #             ],
+    #             expires=3 * 60,
+    #             retry=False,)
+    #         tasks.append(async_obj)
+    #     except Exception:
+    #         my_lg.error('遇到错误:', exc_info=True)
+    #         continue
+    #
+    # my_lg.info('已发送任务..')
+    # one_res = block_get_celery_async_results(
+    #     tasks=tasks,
+    #     func_timeout=50,)
+    # pprint(one_res)
+    # article_res = {}
+    # try:
+    #     article_res = one_res[0]
+    # except Exception:
+    #     my_lg.error('遇到错误:', exc_info=True)
+    # try:
+    #     del tasks
+    # except:
+    #     pass
+
     if article_res == {}:
         return _error_msg(msg='文章抓取失败!')
 
@@ -1982,6 +2015,7 @@ def get_article_res(article_url: str) -> dict:
     获取采集结果
     :return:
     """
+    # 原先
     article_parser = ArticleParser(logger=my_lg)
     loop = new_event_loop()
     article_res = {}
@@ -2002,6 +2036,47 @@ def get_article_res(article_url: str) -> dict:
     collect()
 
     return article_res
+
+    # # todo 主线程运行新线程, 并行执行, [失败!还是阻塞]
+    # thread_loop = new_event_loop()
+    # # 定义一个线程, 运行一个事件循环对象, 用于实时接收新任务
+    # thread0 = Thread(
+    #     target=start_bg_loop,
+    #     args=[
+    #         thread_loop,
+    #     ], )
+    # thread0.start()
+    #
+    # async def worker(loop, article_url) -> dict:
+    #     article_parser = ArticleParser(logger=my_lg, loop=thread_loop,)
+    #     article_res = {}
+    #     try:
+    #         article_res = await article_parser._parse_article(article_url=article_url)
+    #     except Exception:
+    #         my_lg.error('遇到错误:', exc_info=True)
+    #
+    #     try:
+    #         del article_parser
+    #     except:
+    #         pass
+    #     try:
+    #         del loop
+    #     except:
+    #         pass
+    #     collect()
+    #
+    #     return article_res
+    #
+    # res = {}
+    # try:
+    #     future = run_coroutine_threadsafe(
+    #         coro=worker(loop=thread_loop, article_url=article_url),
+    #         loop=thread_loop, )
+    #     res = future.result(timeout=45)
+    # except Exception:
+    #     my_lg.error('遇到错误:', exc_info=True)
+    #
+    # return res
 
 def get_article_link(**kwargs):
     """

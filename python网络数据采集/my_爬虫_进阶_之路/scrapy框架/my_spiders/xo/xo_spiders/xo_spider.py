@@ -31,7 +31,7 @@ class XOSpider(AsyncCrawler):
             log_print=True,
             log_save_path='/Users/afa/myFiles/my_spider_logs/xo/',
         )
-        self.concurrency = 10
+        self.concurrency = 20
         self.req_num_retries = 5
         # total 210
         self.max_s63_chinese_captions_page_num = 10
@@ -156,12 +156,6 @@ class XOSpider(AsyncCrawler):
                 k['base_video_info'],
             ]
 
-        def add_one_res_2_all_res(one_res: list, all_res: list):
-            for item in one_res:
-                all_res.append(item)
-
-            return all_res
-
         all_res = await get_or_handle_target_data_by_task_params_list(
             loop=self.loop,
             tasks_params_list=get_tasks_params_list(),
@@ -169,7 +163,7 @@ class XOSpider(AsyncCrawler):
             func_name=self.get_n15_some_video_info_by_video_url,
             func_name_where_get_now_args=get_now_args,
             func_name_where_handle_one_res=None,
-            func_name_where_add_one_res_2_all_res=add_one_res_2_all_res,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
             one_default_res={},
             step=self.concurrency,
             logger=self.lg,

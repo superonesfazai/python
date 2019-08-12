@@ -77,13 +77,15 @@ from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):
     """article spider"""
-    def __init__(self, logger=None, *params, **kwargs):
+    def __init__(self, logger=None, loop=None, *params, **kwargs):
         AsyncCrawler.__init__(
             self,
             *params,
             **kwargs,
             log_print=True,
             logger=logger,
+            is_new_loop=False,
+            loop=loop,
             log_save_path=MY_SPIDER_LOGS_PATH + '/articles/_/',
             ip_pool_type=IP_POOL_TYPE)
         self.request_num_retries = 6

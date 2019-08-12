@@ -21,6 +21,7 @@ from settings import (
 )
 
 from company_spider import CompanySpider
+from article_spider import ArticleParser
 from tmall_parse_2 import TmallParse
 
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
@@ -53,6 +54,53 @@ app = init_celery_app(
     celeryd_max_tasks_per_child=60,    # 避免设置过大, 达到100即可销毁重建!! 防止内存泄漏
 )
 lg = get_task_logger(tasks_name)
+
+@app.task(name=tasks_name + '.get_article_res_task', bind=True)
+def get_article_res_task(self, article_url: str) -> dict:
+    """
+    获取采集结果
+    :param self:
+    :param article_url:
+    :return:
+    """
+    # todo notice: 一个进程/线程只能一个 event loop
+    thread_loop = new_event_loop()
+    # 定义一个线程，运行一个事件循环对象，用于实时接收新任务
+    thread0 = Thread(
+        target=start_bg_loop,
+        args=[
+            thread_loop,
+        ], )
+    thread0.start()
+
+    async def worker(loop, article_url) -> dict:
+        article_parser = ArticleParser(logger=lg, loop=loop,)
+        lg.info('loop_id: {}'.format(id(article_parser.loop)))
+        article_res = {}
+        try:
+            article_res = await article_parser._parse_article(article_url=article_url)
+        except Exception:
+            lg.error('遇到错误:', exc_info=True)
+
+        try:
+            del article_parser
+        except:
+            pass
+        try:
+            del loop
+        except:
+            pass
+        collect()
+
+        return article_res
+
+    future = run_coroutine_threadsafe(
+        coro=worker(loop=thread_loop, article_url=article_url),
+        loop=thread_loop,)
+    res = future.result(timeout=40)
+    # lg.info(res)
+
+    return res
 
 @app.task(name=tasks_name + '._get_al_one_type_company_id_list_task', bind=True)
 def _get_al_one_type_company_id_list_task(self, ip_pool_type, keyword, page_num, timeout=15):

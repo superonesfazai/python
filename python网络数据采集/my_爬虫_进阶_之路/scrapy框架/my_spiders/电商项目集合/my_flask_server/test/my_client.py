@@ -272,9 +272,6 @@ class RequestClient(AsyncCrawler):
 
         return res
 
-    def __call__(self, *args, **kwargs):
-        return self._request()
-
     def __del__(self):
         try:
             del self.loop
@@ -283,8 +280,9 @@ class RequestClient(AsyncCrawler):
         collect()
 
 # 单次请求
-# print(RequestClient()._request())
-
 client = RequestClient()
+
+# print(RequestClient()._request(target_url=client.get_target_url()))
+
 loop = get_event_loop()
 loop.run_until_complete(client._fck_run())
