@@ -92,6 +92,8 @@ from base64 import b64decode
 from threading import Lock as ThreadingLock
 from threading import Thread
 from queue import Queue
+# 处理并发请求时协程报错: 'RuntimeError: This event loop is already running'
+import nest_asyncio
 
 from sql_str_controller import (
     fz_al_insert_str,
@@ -1941,32 +1943,8 @@ def _article():
     # todo 确实可以变成非阻塞
     #  但是: 不可这样, 由于一个loop已在执行的同时, 其他请求到来, 会抛出(RuntimeError: Cannot run the event loop while another loop is running)异常
     #  导致其他的同时的请求全部失败!
-    # from gevent import monkey
-    # monkey.patch_all()
-
-    # 进程池执行
-    # pool = MultiprocessingPool(1)
-    # _queue = Queue()
-    # for item in range(0, 1):
-    #     _queue.put(pool.apply_async(
-    #         func=get_article_res,
-    #         args=[
-    #             article_url,
-    #         ],))
-    # while True:
-    #     article_res = _queue.get().get()
-    #     # pprint(article_res)
-    #     if article_res:
-    #         # 结束进程池中的所有子进程
-    #         pool.terminate()
-    #         break
-    # my_lg.info('退出while')
-    # pool.join()
-    # try:
-    #     del pool
-    #     del _queue
-    # except:
-    #     pass
+    from gevent import monkey
+    monkey.patch_all()
 
     # 正常执行
     article_res = get_article_res(
@@ -2017,7 +1995,15 @@ def get_article_res(article_url: str) -> dict:
     """
     # 原先
     article_parser = ArticleParser(logger=my_lg)
-    loop = new_event_loop()
+    # 这个会导致报错: 'RuntimeError: Cannot run the event loop while another loop is running'
+    # 不采用, 并发时由于上诉报错, 导致其他的同时请求皆失败!!
+    # loop = new_event_loop()
+
+    # success! 非阻塞!
+    nest_asyncio.apply()
+    # 无上方一行时, 报错: 'RuntimeError: This event loop is already running'
+    loop = get_event_loop()
+
     article_res = {}
     try:
         article_res = loop.run_until_complete(
@@ -2037,7 +2023,7 @@ def get_article_res(article_url: str) -> dict:
 
     return article_res
 
-    # # todo 主线程运行新线程, 并行执行, [失败!还是阻塞]
+    # # # todo 主线程运行新线程, 并行执行, [失败!还是阻塞]
     # thread_loop = new_event_loop()
     # # 定义一个线程, 运行一个事件循环对象, 用于实时接收新任务
     # thread0 = Thread(

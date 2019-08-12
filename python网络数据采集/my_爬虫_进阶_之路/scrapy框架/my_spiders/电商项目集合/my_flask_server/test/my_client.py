@@ -29,9 +29,9 @@ class RequestClient(AsyncCrawler):
             ip_pool_type=IP_POOL_TYPE,
         )
         # 并发数
-        self.concurrency = 3
+        self.concurrency = 6
         # 最大请求数
-        self.max_req_num = 3
+        self.max_req_num = 6
         self._version = "v1"
         self._access_key_id = "yiuxiu"
         self._access_key_secret = "22879be192793e9d80289b58a451f857"
