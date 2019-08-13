@@ -37,20 +37,20 @@ supported:
     25. 美拍(短视频)(https://www.meipai.com/)
     26. 百度好看视频(短视频)(https://haokan.baidu.com/)
     27. 七丽女性网(https://i.7y7.com/)
+    28. 亲亲宝贝网(https://m.qbaobei.com/)
     
 not supported:
     1. 5号女性网(http://m.5h.com/)
     2. 男人窝(https://m.nanrenwo.net/)
     3. 爱秀美(https://m.ixiumei.com/)
-    4. 亲亲宝贝(https://m.qbaobei.com/)
-    5. 觅糖网(https://www.91mitang.com/)
-    6. 发条(短视频)(https://m.fatiao.pro/)
-    7. yoka时尚网(http://www.yoka.com/dna/m/)
-    8. 美妆网(http://www.chinabeauty.cn/)
-    9. 新华网(http://m.xinhuanet.com)
-    10. 36氪(https://36kr.com)
-    11. 太平洋时尚网(https://www.pclady.com.cn/)
-    12. 网易新闻
+    4. 觅糖网(https://www.91mitang.com/)
+    5. 发条(短视频)(https://m.fatiao.pro/)
+    6. yoka时尚网(http://www.yoka.com/dna/m/)
+    7. 美妆网(http://www.chinabeauty.cn/)
+    8. 新华网(http://m.xinhuanet.com)
+    9. 36氪(https://36kr.com)
+    10. 太平洋时尚网(https://www.pclady.com.cn/)
+    11. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -201,7 +201,6 @@ class ArticleParser(AsyncCrawler):
         return {
             'wx': {
                 'debug': True,
-                'index': 1,
                 'name': '搜狗微信公众号',
                 'url': 'https://weixin.sogou.com',
                 'obj_origin': 'mp.weixin.qq.com',
@@ -209,7 +208,6 @@ class ArticleParser(AsyncCrawler):
             },
             'tt': {
                 'debug': True,
-                'index': 2,
                 'name': '今日头条',
                 'url': 'https://www.toutiao.com',
                 'obj_origin': 'www.toutiao.com',
@@ -217,7 +215,6 @@ class ArticleParser(AsyncCrawler):
             },
             'js': {
                 'debug': True,
-                'index': 3,
                 'name': '简书',
                 'url': 'https://www.jianshu.com',
                 'obj_origin': 'www.jianshu.com',
@@ -225,7 +222,6 @@ class ArticleParser(AsyncCrawler):
             },
             'kd': {
                 'debug': True,
-                'index': 4,
                 'name': 'qq看点',
                 'url': '根据QQ看点中分享出的地址',
                 'obj_origin': 'post.mp.qq.com',
@@ -233,7 +229,6 @@ class ArticleParser(AsyncCrawler):
             },
             'kb': {
                 'debug': True,
-                'index': 5,
                 'name': '天天快报',
                 'url': '根据天天快报分享出的地址',
                 'obj_origin': 'kuaibao.qq.com',
@@ -241,7 +236,6 @@ class ArticleParser(AsyncCrawler):
             },
             'df': {
                 'debug': True,
-                'index': 6,
                 'name': '东方头条',
                 'url': 'https://toutiao.eastday.com',
                 'obj_origin': 'toutiao.eastday.com',
@@ -249,7 +243,6 @@ class ArticleParser(AsyncCrawler):
             },
             'sg': {
                 'debug': True,
-                'index': 7,
                 'name': '搜狗头条',
                 'url': 'https://wap.sogou.com',
                 'obj_origin': 'sa.sogou.com',
@@ -257,7 +250,6 @@ class ArticleParser(AsyncCrawler):
             },
             'bd': {
                 'debug': True,
-                'index': 8,
                 'name': '百度m站',
                 'url': 'https://m.baidu.com/',
                 'obj_origin': 'm.baidu.com',
@@ -265,7 +257,6 @@ class ArticleParser(AsyncCrawler):
             },
             'zq': {
                 'debug': True,
-                'index': 9,
                 'name': '中青看点',
                 'url': 'https://focus.youth.cn/html/articleTop/mobile.html',
                 'obj_origin': 'focus.youth.cn',
@@ -273,7 +264,6 @@ class ArticleParser(AsyncCrawler):
             },
             'yg': {
                 'debug': True,
-                'index': 10,
                 'name': '阳光宽频网(短视频)',
                 'url': 'https://www.365yg.com/',
                 'obj_origin': 'www.365yg.com',
@@ -281,7 +271,6 @@ class ArticleParser(AsyncCrawler):
             },
             'fh': {
                 'debug': True,
-                'index': 11,
                 'name': '凤凰网',
                 'url': 'https://news.ifeng.com/',
                 'obj_origin': 'news.ifeng.com',
@@ -289,7 +278,6 @@ class ArticleParser(AsyncCrawler):
             },
             'ys': {
                 'debug': True,
-                'index': 12,
                 'name': '51健康养生网',
                 'url': 'http://www.51jkst.com/',
                 'obj_origin': 'www.51jkst.com',
@@ -297,7 +285,6 @@ class ArticleParser(AsyncCrawler):
             },
             'cn': {
                 'debug': True,
-                'index': 13,
                 'name': '彩牛养生网(短视频)',
                 'url': 'http://m.cnys.com/',
                 'obj_origin': 'm.cnys.com',
@@ -305,7 +292,6 @@ class ArticleParser(AsyncCrawler):
             },
             'if': {
                 'debug': True,
-                'index': 14,
                 'name': '爱范儿',
                 'url': 'https://www.ifanr.com/',
                 'obj_origin': 'www.ifanr.com',
@@ -313,7 +299,6 @@ class ArticleParser(AsyncCrawler):
             },
             'ss': {
                 'debug': True,
-                'index': 15,
                 'name': '科学松鼠会',
                 'url': 'https://songshuhui.net/',
                 'obj_origin': 'songshuhui.net',
@@ -321,7 +306,6 @@ class ArticleParser(AsyncCrawler):
             },
             'jm': {
                 'debug': True,
-                'index': 16,
                 'name': '界面新闻',
                 'url': 'https://www.jiemian.com/',
                 'obj_origin': 'www.jiemian.com',
@@ -329,7 +313,6 @@ class ArticleParser(AsyncCrawler):
             },
             'pp': {
                 'debug': True,
-                'index': 17,
                 'name': '澎湃网',
                 'url': 'https://m.thepaper.cn/',
                 'obj_origin': 'm.thepaper.cn',
@@ -337,7 +320,6 @@ class ArticleParser(AsyncCrawler):
             },
             'hx': {
                 'debug': True,
-                'index': 18,
                 'name': '虎嗅网',
                 'url': 'https://m.huxiu.com',
                 'obj_origin': 'm.huxiu.com',
@@ -345,7 +327,6 @@ class ArticleParser(AsyncCrawler):
             },
             'nfzm': {
                 'debug': True,
-                'index': 19,
                 'name': '南方周末',
                 'url': 'http://www.infzm.com/wap/#/',
                 'obj_origin': 'www.infzm.com',
@@ -353,7 +334,6 @@ class ArticleParser(AsyncCrawler):
             },
             'hqx': {
                 'debug': True,
-                'index': 20,
                 'name': '好奇心日报',
                 'url': 'http://m.qdaily.com/mobile/homes.html',
                 'obj_origin': 'm.qdaily.com',
@@ -361,7 +341,6 @@ class ArticleParser(AsyncCrawler):
             },
             'xg': {
                 'debug': True,
-                'index': 21,
                 'name': '西瓜视频(短视频)',
                 'url': 'https://www.ixigua.com',
                 'obj_origin': 'www.ixigua.com',
@@ -369,7 +348,6 @@ class ArticleParser(AsyncCrawler):
             },
             'hk': {
                 'debug': True,
-                'index': 22,
                 'name': '百度好看视频(短视频)',
                 'url': 'https://haokan.baidu.com/',
                 'obj_origin': 'haokan.baidu.com',
@@ -377,7 +355,6 @@ class ArticleParser(AsyncCrawler):
             },
             'ck': {
                 'debug': False,
-                'index': 23,
                 'name': '场库网(短视频)',
                 'url': 'https://www.vmovier.com/',
                 'obj_origin': 'www.vmovier.com',
@@ -385,7 +362,6 @@ class ArticleParser(AsyncCrawler):
             },
             'lsp': {
                 'debug': False,
-                'index': 24,
                 'name': '梨视频(短视频)',
                 'url': 'https://www.pearvideo.com/',
                 'obj_origin': 'www.pearvideo.com',
@@ -393,7 +369,6 @@ class ArticleParser(AsyncCrawler):
             },
             'amz': {
                 'debug': False,
-                'index': 25,
                 'name': '艾墨镇(短视频)',
                 'url': 'https://aimozhen.com/',
                 'obj_origin': 'aimozhen.com',
@@ -401,7 +376,6 @@ class ArticleParser(AsyncCrawler):
             },
             'mp': {
                 'debug': False,
-                'index': 26,
                 'name': '美拍(短视频)',
                 'url': 'https://www.meipai.com/',
                 'obj_origin': 'www.meipai.com',
@@ -409,11 +383,17 @@ class ArticleParser(AsyncCrawler):
             },
             '7y7': {
                 'debug': False,
-                'index': 27,
                 'name': '七丽女性网',
                 'url': 'https://i.7y7.com/',
                 'obj_origin': 'i.7y7.com',
                 'site_id': 30,
+            },
+            'qqbb': {
+                'debug': False,
+                'name': '亲亲宝贝网',
+                'url': 'https://m.qbaobei.com/',
+                'obj_origin': 'm.qbaobei.com',
+                'site_id': 31,
             },
         }
 
@@ -425,12 +405,12 @@ class ArticleParser(AsyncCrawler):
         _ = await self._get_obj_origin()
         intro_str = '<tr><th>index</th><th>name</th><th>url</th></tr>'
         order_list = [value for value in _.values()]
-        order_list.sort(key=lambda k: (k.get('index', 0)))
+        order_list.sort(key=lambda k: (k.get('site_id', 0)))
 
+        index = 1
         for item in order_list:
             try:
                 debug = item.get('debug', False)
-                index = item.get('index', 0)
                 name = item.get('name', '')
                 assert name != ''
                 url = item.get('url', '')
@@ -448,6 +428,7 @@ class ArticleParser(AsyncCrawler):
                     a,
                     b,
                     c,)
+                index += 1
 
             else:
                 continue
@@ -740,6 +721,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == '7y7':
                 return await self._get_7y7_article_html(article_url=article_url)
 
+            elif article_url_type == 'qqbb':
+                return await self._get_qqbb_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -747,6 +731,135 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_qqbb_article_html(self, article_url) -> tuple:
+        """
+        获取qqbb html
+        :param article_url:
+        :return:
+        """
+        async def get_next_page_body_by_page_num(article_url: str,
+                                                 parse_obj: dict,
+                                                 page_num: int=1) -> tuple:
+            """
+            根据page_num获取对应页码文章信息
+            :param article_url:
+            :param parse_obj:
+            :param page_num:
+            :return:
+            """
+            # 是否还有下一页
+            had_next_page = False
+            # 下一页的content
+            next_content = ''
+
+            self.lg.info('获取第{}页body...'.format(page_num))
+            if page_num > 1:
+                # eg:
+                # 首页: https://m.qbaobei.com/a/1145214.html
+                # 第二页: https://m.qbaobei.com/a/1145214_2.html
+                article_url = article_url.replace('.html', '_{}.html'.format(page_num))
+                if page_num > 2:
+                    referer = re.compile('\.html')\
+                        .sub('_{}\.html'.format(page_num-1), article_url)
+                else:
+                    # 2
+                    referer = article_url
+            else:
+                referer = article_url
+            # self.lg.info('article_url: {}'.format(article_url))
+
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False,)
+            headers.update({
+                'authority': 'm.qbaobei.com',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-site': 'none',
+                # 'referer': 'https://m.qbaobei.com/',
+                'referer': referer,
+                # 'cookie': 'Hm_lvt_3d8ae083091c839222c62a3e4ab746ee=1565660348; PHPSESSID=85ukti67lk3419g8hcnbogc025; Hm_lvt_4ba23929a20904dd1920a6e67b6258d3=1565660780; Hm_lvt_90f5390d52559687ed0ea6b8603e7018=1565660780; Hm_lpvt_4ba23929a20904dd1920a6e67b6258d3=1565671441; Hm_lpvt_90f5390d52559687ed0ea6b8603e7018=1565671441; Hm_lpvt_3d8ae083091c839222c62a3e4ab746ee=1565671441',
+            })
+            body = await unblock_request(
+                url=article_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.lg,
+                logger=self.lg,)
+            assert body != ''
+            # self.lg.info(body)
+
+            had_next_text_sel = {
+                'method': 'css',
+                'selector': 'div.detail_page a[id^="href_"] ::text',
+            }
+            # 因为如果存在第三页的话, 第二页是有上一页和下一页的
+            had_next_text_list = await async_parse_field(
+                parser=had_next_text_sel,
+                target_obj=body,
+                logger=self.lg,
+                is_first=False)
+            if '下一页' in had_next_text_list:
+                had_next_page = True
+                # self.lg.info('有下一页!')
+            else:
+                pass
+            if page_num > 1:
+                next_content_sel = {
+                    'method': 're',
+                    'selector': '<article class=\"art-body art-body-\d+.*?\">(.*)<div class=\"detail_page\">',
+                }
+                next_content = await async_parse_field(
+                    parser=next_content_sel,
+                    target_obj=body,
+                    logger=self.lg, )
+                # self.lg.info(next_content)
+            else:
+                pass
+
+            return body, next_content, had_next_page
+
+        video_url = ''
+        parse_obj = await self._get_parse_obj(article_url_type='qqbb')
+        if 'video_' not in article_url:
+            # 图文
+            had_next_page = True
+            page_num = 1
+            last_body = ''
+            while had_next_page:
+                body, next_content, had_next_page = await get_next_page_body_by_page_num(
+                    article_url=article_url,
+                    parse_obj=parse_obj,
+                    page_num=page_num, )
+                if page_num > 1:
+                    last_body = re.compile('<div class=\"detail_page\">') \
+                        .sub(next_content + '<div class="detail_page">', last_body)
+                else:
+                    last_body = body
+                # self.lg.info('last_body: {}'.format(last_body))
+                page_num += 1
+
+            # self.lg.info(last_body)
+
+        else:
+            self.lg.info('此为视频文章')
+            last_body = (await get_next_page_body_by_page_num(
+                article_url=article_url,
+                parse_obj=parse_obj,
+                page_num=1,))[0]
+            # 视频文章
+            video_url_sel = {
+                'method': 're',
+                'selector': '\"contentUrl\": \"(.*?)\",'
+            }
+            video_url = await async_parse_field(
+                parser=video_url_sel,
+                target_obj=last_body,
+                logger=self.lg,)
+            self.lg.info('got video_url: {}'.format(video_url))
+
+        return last_body, video_url
 
     async def _get_7y7_article_html(self, article_url) -> tuple:
         """
@@ -2110,6 +2223,7 @@ class ArticleParser(AsyncCrawler):
             'xg',
             'lsp',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2184,6 +2298,7 @@ class ArticleParser(AsyncCrawler):
             'amz',
             'kd',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list2:
             pass
@@ -2220,6 +2335,7 @@ class ArticleParser(AsyncCrawler):
             'xg',
             'lsp',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2323,6 +2439,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'lsp',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2506,6 +2623,7 @@ class ArticleParser(AsyncCrawler):
         short_name_list = [
             'kd',
             '7y7',
+            'qqbb',
         ]
         tags_list_sel = parse_obj['tags_list']
         if short_name in short_name_list:
@@ -2532,6 +2650,7 @@ class ArticleParser(AsyncCrawler):
             'ss',
             'lsp',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list2:
             tags_list = [{
@@ -2626,6 +2745,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             'kd',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2661,6 +2781,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             'mp',
             '7y7',
+            'qqbb',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -2749,6 +2870,7 @@ class ArticleParser(AsyncCrawler):
             'xg',
             'lsp',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2777,6 +2899,10 @@ class ArticleParser(AsyncCrawler):
         short_name_list3 = [
             'hx',
             'hqx',
+        ]
+        short_name_list4 = [
+            '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list3:
             if video_url == '' and content != '':
@@ -2837,7 +2963,7 @@ class ArticleParser(AsyncCrawler):
             # 视频iframe在前面
             content = video_iframe + content
 
-        elif short_name == '7y7':
+        elif short_name in short_name_list4:
             if video_url != '':
                 pass
             else:
@@ -2879,6 +3005,7 @@ class ArticleParser(AsyncCrawler):
             'mp',
             'hk',
             '7y7',
+            'qqbb',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3041,8 +3168,72 @@ class ArticleParser(AsyncCrawler):
         elif short_name == '7y7':
             content = await self._wash_7y7_article_content(content=content)
 
+        elif short_name == 'qqbb':
+            content = await self._wash_qqbb_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    async def _wash_qqbb_article_content(self, content: str) -> str:
+        """
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=None,
+            add_sensitive_str_list=[
+                # 洗掉下一页或上一页
+                '<div class=\"detail_page\">.*?</div>',
+                # 洗掉推荐
+                '<section class=\"hotwrap about-rec-ul dis-bot tab-box\">.*?</section>',
+                # 查看更多
+                '<div class=\"art-body-fold-\d+\">查看全文</div>',
+                # 洗掉视频文章中的额查看更多
+                '<div class=\"more\">展开查看全文<img src=\"http.*?\" alt=\"\"></div>',
+                # 洗掉脚本
+                '<script type=\"text/javascript\" src=\".*?\"></script>',
+                '<footer><footer>©2019 QBAOBEI.COM</footer>.*?</footer>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
+
+        # 把下一页中的div.item-nub em.nub替换成正确的顺序
+        em_nub_list_sel = {
+            'method': 'css',
+            'selector': 'div.item-nub em.nub ::text',
+        }
+        em_nub_list = await async_parse_field(
+            parser=em_nub_list_sel,
+            target_obj=content,
+            is_first=False,
+            # 不打印
+            logger=None,)
+        # eg: ['1', '2', '3', '4', '1', '2']
+        # pprint(em_nub_list)
+        index = 1
+        replace_str_list = []
+        for num in em_nub_list:
+            # self.lg.info(num, index)
+            replace_str_list.append([
+                '<em class=\"nub\">{}</em>'.format(num), '<em class=\"nub\" id=\"fz\">{}</em>'.format(index),
+            ])
+            index += 1
+        # pprint(replace_str_list)
+        for item in replace_str_list:
+            content = content.replace(item[0], item[1], 1)
+
+        # item 的css
+        content = '<style type="text/css">.art-body .item {position: relative;background-color: #fff;border-radius: 5px;border: 1px solid #e9ebed; padding: 10px;margin-top: 10px;overflow: hidden;}</style>'\
+            + content if content != '' else content
+
+        ## dl dd ul的css
+        content = '<style type="text/css">ul {display: block;list-style-type: disc;margin-block-start: 1em;margin-block-end: 1em;margin-inline-start: 0px;margin-inline-end: 0px;padding-inline-start: 40px;} dl {display: block;margin-block-start: 1em;margin-block-end: 1em;margin-inline-start: 0px;margin-inline-end: 0px;} dd {line-height: 25px;}</style>'\
+            + content if content != '' else content
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -4225,8 +4416,46 @@ def main():
     # 影视
     # url = 'https://i.7y7.com/yingshi/48/381648.html'
     # 家居
-    url = 'https://i.7y7.com/jiaju/97/386197.html'
+    # url = 'https://i.7y7.com/jiaju/97/386197.html'
     # todo 广场不采集, 纯图文章不采集
+
+    # 亲亲宝贝
+    # todo 听声音cp后台无法转, pass
+    # url = 'https://m.qbaobei.com/a/1372873.html'
+    # 备孕
+    # url = 'https://m.qbaobei.com/a/1372711.html'
+    # url = 'https://m.qbaobei.com/a/1365780.html'
+    # 怀孕
+    # url = 'https://m.qbaobei.com/a/1145214.html'
+    # 分娩
+    # url = 'https://m.qbaobei.com/a/1103497.html'
+    # 产后
+    # url = 'https://m.qbaobei.com/a/1064188.html'
+    # 新生儿
+    # url = 'https://m.qbaobei.com/a/1372717.html'
+    # url = 'https://m.qbaobei.com/a/387813.html'
+    # 0-1岁
+    # url = 'https://m.qbaobei.com/a/470111.html'
+    # 1-3岁
+    # url = 'https://m.qbaobei.com/a/807352.html'
+    # 3-6岁
+    # url = 'https://m.qbaobei.com/a/442792.html'
+    # 早教
+    # url = 'https://m.qbaobei.com/a/1192626.html'
+    # 食谱
+    # url = 'https://m.qbaobei.com/a/1191509.html'
+    # 百科
+    # url = 'https://m.qbaobei.com/a/439598.html'
+    # url = 'https://m.qbaobei.com/a/671501.html'
+    # 用品
+    # url = 'https://m.qbaobei.com/a/1000502.html'
+    # 奶粉
+    # url = 'https://m.qbaobei.com/a/1361544.html'
+    # 视频
+    # url = 'https://m.qbaobei.com/v/video_2972.html'
+    # url = 'https://m.qbaobei.com/v/video_8.html'
+    url = 'https://m.qbaobei.com/v/video_25.html'
+    # todo 小时光, 听听 不采集
 
     # 文章url 测试
     print('article_url: {}'.format(url))

@@ -219,7 +219,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
 
         # 七丽女性网
-        article_link = 'https://i.7y7.com/jiaju/97/386197.html'
+        # article_link = 'https://i.7y7.com/jiaju/97/386197.html'
+
+        # 亲亲宝贝
+        article_link = 'https://m.qbaobei.com/v/video_25.html'
 
         url = article_link
 

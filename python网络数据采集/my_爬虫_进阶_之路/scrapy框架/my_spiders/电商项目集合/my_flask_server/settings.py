@@ -1430,6 +1430,62 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'qqbb',
+        'debug': True,
+        'obj_origin': 'm.qbaobei.com',
+        'article_id': {
+            'method': 're',
+            'selector': '(\d+)\.html',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'video_title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'author': None,                     # 默认留空
+        'video_author': {
+            'method': 'css',
+            'selector': 'div.jiangshiinfo div.mt div.title ::text',
+        },
+        'head_url': None,                   # 默认留空
+        'video_head_url': {
+            'method': 'css',
+            'selector': 'div.jiangshiinfo div.mt div.pic img ::attr("src")',
+        },
+        'create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\"'
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\"'
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'article.art-body',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'div.article',
+        },
+        'desc_div': {
+            'method': 're',
+            'selector': '\"description\": \"(.*?)\",',
+        },
+        'comment_num': None,
+        'tags_list': {
+            'method': 'css',
+            'selector': 'div.ico-tags-main div.swiper-wrapper a ::text',
+        },
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''
