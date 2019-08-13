@@ -36,12 +36,21 @@ supported:
     24. 艾墨镇(短视频)(https://aimozhen.com/)
     25. 美拍(短视频)(https://www.meipai.com/)
     26. 百度好看视频(短视频)(https://haokan.baidu.com/)
+    27. 七丽女性网(https://i.7y7.com/)
     
 not supported:
-    1. 新华网(http://m.xinhuanet.com)
-    2. 36氪(https://36kr.com)
-    3. 太平洋时尚网(https://www.pclady.com.cn/)
-    4. 网易新闻
+    1. 5号女性网(http://m.5h.com/)
+    2. 男人窝(https://m.nanrenwo.net/)
+    3. 爱秀美(https://m.ixiumei.com/)
+    4. 亲亲宝贝(https://m.qbaobei.com/)
+    5. 觅糖网(https://www.91mitang.com/)
+    6. 发条(短视频)(https://m.fatiao.pro/)
+    7. yoka时尚网(http://www.yoka.com/dna/m/)
+    8. 美妆网(http://www.chinabeauty.cn/)
+    9. 新华网(http://m.xinhuanet.com)
+    10. 36氪(https://36kr.com)
+    11. 太平洋时尚网(https://www.pclady.com.cn/)
+    12. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -398,6 +407,14 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.meipai.com',
                 'site_id': 29,
             },
+            '7y7': {
+                'debug': False,
+                'index': 27,
+                'name': '七丽女性网',
+                'url': 'https://i.7y7.com/',
+                'obj_origin': 'i.7y7.com',
+                'site_id': 30,
+            },
         }
 
     async def get_article_spiders_intro(self,) -> str:
@@ -720,6 +737,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'hk':
                 return await self._get_hk_article_html(article_url=article_url)
 
+            elif article_url_type == '7y7':
+                return await self._get_7y7_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -727,6 +747,113 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_7y7_article_html(self, article_url) -> tuple:
+        """
+        获取7y7 html
+        :param article_url:
+        :return:
+        """
+        async def get_next_page_body_by_page_num(article_url: str,
+                                                 parse_obj: dict,
+                                                 page_num: int=1) -> tuple:
+            """
+            获取下一页的body信息
+            :param page_num:
+            :return:
+            """
+            # 是否还有下一页
+            had_next_page = False
+            # 下一页的content
+            next_content = ''
+
+            self.lg.info('获取第{}页body...'.format(page_num))
+            if page_num > 1:
+                # eg:
+                # 首页: https://i.7y7.com/caizhuang/47/385947.html
+                # 第二页: https://i.7y7.com/caizhuang/47/385947_2.html
+                article_url = article_url.replace('.html', '_{}.html'.format(page_num))
+                if page_num > 2:
+                    referer = re.compile('\.html').sub('_{}\.html'.format(page_num-1), article_url)
+                else:
+                    # 2
+                    referer = article_url
+            else:
+                referer = article_url
+            # self.lg.info('article_url: {}'.format(article_url))
+
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False, )
+            headers.update({
+                'authority': 'i.7y7.com',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-site': 'none',
+                # 'referer': 'https://i.7y7.com/',
+                'referer': referer,                 # 请求下一页时必须使用上一页的地址
+                # 'cookie': 'Hm_lvt_7905279f5e0979a49bdc161dbad2708d=1565659612; Hm_lvt_8257a196df3916574fa89d7567071790=1565659642; Hm_lvt_6557398d368c2c5d56b4ebf03da843a7=1565659990; Hm_lpvt_6557398d368c2c5d56b4ebf03da843a7=1565659990; Hm_lpvt_8257a196df3916574fa89d7567071790=1565660942; Hm_lpvt_7905279f5e0979a49bdc161dbad2708d=1565660942',
+            })
+            body = await unblock_request(
+                url=article_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.request_num_retries,
+                logger=self.lg, )
+            assert body != ''
+            # self.lg.info(body)
+
+            had_next_text_sel = {
+                'method': 'css',
+                'selector': 'div.detail_page a[id^="href_"] ::text',
+            }
+            # 因为如果存在第三页的话, 第二页是有上一页和下一页的
+            had_next_text_list = await async_parse_field(
+                parser=had_next_text_sel,
+                target_obj=body,
+                logger=self.lg,
+                is_first=False)
+            if '下一页' in had_next_text_list:
+                had_next_page = True
+                # self.lg.info('有下一页!')
+            else:
+                pass
+            if page_num > 1:
+                next_content_sel = {
+                    'method': 're',
+                    'selector': '<div class=\"contents\">(.*?)</div><div class=\"detail_page\">',
+                }
+                next_content = await async_parse_field(
+                    parser=next_content_sel,
+                    target_obj=body,
+                    logger=self.lg,)
+                # self.lg.info(next_content)
+            else:
+                pass
+
+            return body, next_content, had_next_page
+
+        video_url = ''
+        parse_obj = await self._get_parse_obj(article_url_type='7y7')
+        had_next_page = True
+        page_num = 1
+        last_body = ''
+        while had_next_page:
+            body, next_content, had_next_page = await get_next_page_body_by_page_num(
+                article_url=article_url,
+                parse_obj=parse_obj,
+                page_num=page_num,)
+            if page_num > 1:
+                last_body = re.compile('</div><div class=\"detail_page\">')\
+                    .sub(next_content+'</div><div class="detail_page">', last_body)
+            else:
+                last_body = body
+            # self.lg.info('last_body: {}'.format(last_body))
+            page_num += 1
+
+        # self.lg.info(last_body)
+
+        return last_body, video_url
 
     async def _get_hk_article_html(self, article_url) -> tuple:
         """
@@ -1982,6 +2109,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'xg',
             'lsp',
+            '7y7',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2055,6 +2183,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             'amz',
             'kd',
+            '7y7',
         ]
         if short_name in short_name_list2:
             pass
@@ -2090,6 +2219,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'xg',
             'lsp',
+            '7y7',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2192,6 +2322,7 @@ class ArticleParser(AsyncCrawler):
             'hx',
             'hqx',
             'lsp',
+            '7y7',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2219,6 +2350,13 @@ class ArticleParser(AsyncCrawler):
                     pass
             else:
                 pass
+
+        elif short_name == '7y7':
+            if video_url != '':
+                pass
+            else:
+                head_url = 'https://i.7y7.com' + head_url if head_url != '' else ''
+
         else:
             pass
 
@@ -2367,6 +2505,7 @@ class ArticleParser(AsyncCrawler):
 
         short_name_list = [
             'kd',
+            '7y7',
         ]
         tags_list_sel = parse_obj['tags_list']
         if short_name in short_name_list:
@@ -2392,6 +2531,7 @@ class ArticleParser(AsyncCrawler):
             'if',
             'ss',
             'lsp',
+            '7y7',
         ]
         if short_name in short_name_list2:
             tags_list = [{
@@ -2485,6 +2625,7 @@ class ArticleParser(AsyncCrawler):
             'xg',
             'lsp',
             'kd',
+            '7y7',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2519,6 +2660,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'lsp',
             'mp',
+            '7y7',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -2606,6 +2748,7 @@ class ArticleParser(AsyncCrawler):
             'hqx',
             'xg',
             'lsp',
+            '7y7',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2694,6 +2837,23 @@ class ArticleParser(AsyncCrawler):
             # 视频iframe在前面
             content = video_iframe + content
 
+        elif short_name == '7y7':
+            if video_url != '':
+                pass
+            else:
+                if content != '':
+                    # 加上最上方描述div
+                    desc_div = await async_parse_field(
+                        parser=parse_obj['desc_div'],
+                        target_obj=target_obj,
+                        logger=self.lg)
+                    if desc_div != '':
+                        content = '<p>{}</p>'.format(desc_div) + content
+                    else:
+                        pass
+                else:
+                    pass
+
         else:
             pass
 
@@ -2718,6 +2878,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             'mp',
             'hk',
+            '7y7',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -2877,8 +3038,44 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'mp':
             content = await self._wash_mp_article_content(content=content)
 
+        elif short_name == '7y7':
+            content = await self._wash_7y7_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_7y7_article_content(content: str) -> str:
+        """
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('<p><br></p>', '<br>'),
+            ],
+            add_sensitive_str_list=[
+                # 洗掉下一页或上一页
+                '<div class=\"detail_page\">.*?</div>',
+                '<div class=\"adver\"></div>',
+                # 洗掉推荐
+                '<section id=\"related\" class=\"y7-sec y7-sec-3\">.*</div>',
+                # 洗掉了解更多
+                '<div class=\"box gzh_div\" style=\"display: none\">.*?</div>',
+                # 洗掉展开更多
+                '<div onclick=\"showfullcontent\(\)\" id=\"show_more\">.*?</div>',
+                '<div class=\"befo_fa\"><div class=\"beforead\"></div></div>',
+                '<div class=\"relativ\"></div>',
+                # 洗掉脚本
+                '<script type=\"text/javascript\" src=\".*?\"></script>',
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -3985,6 +4182,51 @@ def main():
     # url = 'https://haokan.baidu.com/v?vid=11754326304031754679&tab=meishi'
     # 时尚
     # url = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
+
+    # 七丽女性网
+    # url = 'https://i.7y7.com/hufu/84/385784.html'
+    # url = 'https://i.7y7.com/remenzixun/31/386631.html'
+    # 时尚
+    # url = 'https://i.7y7.com/fushi/04/386404.html'
+    # url = 'https://i.7y7.com/fushi/62/385562.html'
+    # 护肤
+    # url = 'https://i.7y7.com/hufu/35/386635.html'
+    # 彩妆
+    # url = 'https://i.7y7.com/caizhuang/36/386636.html'
+    # 减肥
+    # url = 'https://i.7y7.com/shoushen/93/386493.html'
+    # 美发
+    # url = 'https://i.7y7.com/meifa/28/386628.html'
+    # 医美
+    # url = 'https://i.7y7.com/yimei/91/386491.html'
+    # 博主
+    # url = 'https://i.7y7.com/bozhu/93/338893.html'
+    # 街拍
+    # url = 'https://i.7y7.com/jiepai/34/383734.html'
+    # 星座
+    # url = 'https://i.7y7.com/xingzuo/05/386605.html'
+    # 情感
+    # url = 'https://i.7y7.com/qinggan/24/384924.html'
+    # 健康
+    # url = 'https://i.7y7.com/jiankang/36/386536.html'
+    # 亲子
+    # url = 'https://i.7y7.com/qinzi/37/386237.html'
+    # 美甲
+    # url = 'https://i.7y7.com/meijia/60/386260.html'
+    # 时装
+    # url = 'https://i.7y7.com/shizhuang/77/386177.html'
+    # 优品
+    # url = 'https://i.7y7.com/youpin/13/384213.html'
+    # 秀场
+    # url = 'https://i.7y7.com/xiuchang/84/364884.html'
+    # 明星
+    # url = 'https://i.7y7.com/mingxing/25/384425.html'
+    # 大片(多为纯图, 不提取)
+    # 影视
+    # url = 'https://i.7y7.com/yingshi/48/381648.html'
+    # 家居
+    url = 'https://i.7y7.com/jiaju/97/386197.html'
+    # todo 广场不采集, 纯图文章不采集
 
     # 文章url 测试
     print('article_url: {}'.format(url))

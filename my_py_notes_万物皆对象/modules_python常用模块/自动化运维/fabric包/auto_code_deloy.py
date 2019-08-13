@@ -69,6 +69,7 @@ def server_tasks(my_group):
             # connect_object.run('sudo apt-get install libcurl4-openssl-dev')   # for pycurl
             connect_object.run('pip3 install --upgrade pip')
             connect_object.run('pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com -U')
+            # connect_object.run('pip3 install fzutils -U')
         except Exception as e:
             print(e)
             return False

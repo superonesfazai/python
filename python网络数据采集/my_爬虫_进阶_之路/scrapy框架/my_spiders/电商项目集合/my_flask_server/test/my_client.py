@@ -216,7 +216,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://www.meipai.com/media/1131644923'
 
         # 好看视频
-        article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
+        # article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
+
+        # 七丽女性网
+        article_link = 'https://i.7y7.com/jiaju/97/386197.html'
 
         url = article_link
 
@@ -255,8 +258,8 @@ class RequestClient(AsyncCrawler):
         # url = 'http://spider.other.k85u.com/api/goods'
 
         # article
-        url = 'http://127.0.0.1:5000/api/article'
-        # url = 'http://118.31.39.97/api/article'
+        # url = 'http://127.0.0.1:5000/api/article'
+        url = 'http://118.31.39.97/api/article'
         # url = 'http://23.239.0.250/api/article'
 
         with get(url, params=params) as response:

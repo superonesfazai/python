@@ -1387,6 +1387,49 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': '7y7',
+        'debug': True,
+        'obj_origin': 'i.7y7.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'div.wxbox div.name ::text',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.wxbox img.avatar ::attr("src")',
+        },
+        'video_head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\",'
+        },
+        'video_create_time': None,
+        'content': {                            # 存在下一页[即存在'div.detail_page a[id^="href_"] ::text' == '下一页']
+            'method': 'css',
+            'selector': 'div.contents',
+        },
+        'video_article_content': None,
+        'desc_div': {
+            'method': 're',
+            'selector': '\"description\": \"(.*?)\",',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''
