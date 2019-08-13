@@ -38,19 +38,19 @@ supported:
     26. 百度好看视频(短视频)(https://haokan.baidu.com/)
     27. 七丽女性网(https://i.7y7.com/)
     28. 亲亲宝贝网(https://m.qbaobei.com/)
+    29. 发条网(https://m.fatiao.pro/)
     
 not supported:
     1. 5号女性网(http://m.5h.com/)
     2. 男人窝(https://m.nanrenwo.net/)
     3. 爱秀美(https://m.ixiumei.com/)
     4. 觅糖网(https://www.91mitang.com/)
-    5. 发条(短视频)(https://m.fatiao.pro/)
-    6. yoka时尚网(http://www.yoka.com/dna/m/)
-    7. 美妆网(http://www.chinabeauty.cn/)
-    8. 新华网(http://m.xinhuanet.com)
-    9. 36氪(https://36kr.com)
-    10. 太平洋时尚网(https://www.pclady.com.cn/)
-    11. 网易新闻
+    5. yoka时尚网(http://www.yoka.com/dna/m/)
+    6. 美妆网(http://www.chinabeauty.cn/)
+    7. 新华网(http://m.xinhuanet.com)
+    8. 36氪(https://36kr.com)
+    9. 太平洋时尚网(https://www.pclady.com.cn/)
+    10. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -395,6 +395,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.qbaobei.com',
                 'site_id': 31,
             },
+            'ft': {
+                'debug': False,
+                'name': '发条网',
+                'url': 'https://m.fatiao.pro/',
+                'obj_origin': 'fatiao.pro',
+                'site_id': 32,
+            },
         }
 
     async def get_article_spiders_intro(self,) -> str:
@@ -724,6 +731,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'qqbb':
                 return await self._get_qqbb_article_html(article_url=article_url)
 
+            elif article_url_type == 'ft':
+                return await self._get_ft_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -731,6 +741,45 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_ft_article_html(self, article_url) -> tuple:
+        """
+        获取ft 的html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers(user_agent_type=1)
+        headers.update({
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-User': '?1',
+            'Sec-Fetch-Site': 'none',
+            'Referer': 'https://m.fatiao.pro/',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        if 'detail' in article_url:
+            self.lg.info('此为视频文章')
+            video_url_sel = {
+                'method': 're',
+                'selector': 'src: \[\"(.*?)\"\],',
+            }
+            video_url = await async_parse_field(
+                parser=video_url_sel,
+                target_obj=body,
+                logger=self.lg,)
+            self.lg.info('got video_url: {}'.format(video_url))
+        else:
+            pass
+
+        return body, video_url
 
     async def _get_qqbb_article_html(self, article_url) -> tuple:
         """
@@ -2224,6 +2273,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2299,6 +2349,7 @@ class ArticleParser(AsyncCrawler):
             'kd',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list2:
             pass
@@ -2336,6 +2387,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2440,6 +2492,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2624,6 +2677,7 @@ class ArticleParser(AsyncCrawler):
             'kd',
             '7y7',
             'qqbb',
+            'ft',
         ]
         tags_list_sel = parse_obj['tags_list']
         if short_name in short_name_list:
@@ -2746,6 +2800,7 @@ class ArticleParser(AsyncCrawler):
             'kd',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2782,6 +2837,7 @@ class ArticleParser(AsyncCrawler):
             'mp',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -2871,6 +2927,7 @@ class ArticleParser(AsyncCrawler):
             'lsp',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3006,6 +3063,7 @@ class ArticleParser(AsyncCrawler):
             'hk',
             '7y7',
             'qqbb',
+            'ft',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3171,16 +3229,30 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'qqbb':
             content = await self._wash_qqbb_article_content(content=content)
 
+        elif short_name == 'ft':
+            content = await self._wash_ft_article_content(content=content)
+
         else:
             pass
 
         return content
 
+    @staticmethod
+    async def _wash_ft_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=None,
+            add_sensitive_str_list=[
+                '<em>查看全部<i class=\"iconfont icon-xiajiantou\"></i></em>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
+
+        content = modify_body_img_centering(content=content)
+
+        return content
+
     async def _wash_qqbb_article_content(self, content: str) -> str:
-        """
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=None,
@@ -3239,10 +3311,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_7y7_article_content(content: str) -> str:
-        """
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -3272,48 +3340,23 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_mp_article_content(content) -> str:
-        """
-        清洗mp content
-        :param content:
-        :return:
-        """
         return content
 
     @staticmethod
     async def _wash_amz_article_content(content) -> str:
-        """
-        清洗amz content
-        :param content:
-        :return:
-        """
         # firefox上正常显示, chrome变形, 后台可以改下iframe的属性, 使其自适应
         return content
 
     @staticmethod
     async def _wash_lsp_article_content(content) -> str:
-        """
-        清洗lsp content
-        :param content:
-        :return:
-        """
         return content
 
     @staticmethod
     async def _wash_ck_article_content(content) -> str:
-        """
-        清洗ck 的content
-        :param content:
-        :return:
-        """
         return content
 
     @staticmethod
     async def _wash_hqx_article_content(content) -> str:
-        """
-        清洗hqx content
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -3340,11 +3383,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_nfzm_article_content(content) -> str:
-        """
-        清洗nfzm content
-        :param content:
-        :return:
-        """
         content = re.compile('\n').sub('', content)
 
         content = modify_body_img_centering(content=content)
@@ -3354,11 +3392,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_hx_article_content(content) -> str:
-        """
-        清洗hx content
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -3395,11 +3428,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_pp_article_content(content) -> str:
-        """
-        清洗pp content
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -3421,11 +3449,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_jm_article_content(content) -> str:
-        """
-        清洗jm content
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -3456,11 +3479,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_ss_article_content(content) -> str:
-        """
-        清洗ss content
-        :param content:
-        :return:
-        """
         # 洗掉本文禁止商业转载
         content = re.compile('<blockquote>.*?</blockquote>').sub('', content)
         content = re.compile('<strong>为您推荐</strong>').sub('', content)
@@ -3484,11 +3502,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_if_article_content(content) -> str:
-        """
-        清洗if content
-        :param content:
-        :return:
-        """
         # 避免a标签调转
         content = re.compile('<a href=\".*?\">').sub('<a href=\"\">', content)
         content = modify_body_img_centering(content=content)
@@ -3498,11 +3511,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_cn_article_content(content) -> str:
-        """
-        清洗cn content
-        :param content:
-        :return:
-        """
         content = re.compile('<mip-img').sub('<img', content)
         content = re.compile('</mip-img>').sub('</img>', content)
         content = modify_body_img_centering(content=content)
@@ -3511,22 +3519,12 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_ys_article_content(content) -> str:
-        """
-        清洗ys content
-        :param content:
-        :return:
-        """
         content = modify_body_img_centering(content=content)
 
         return content
 
     @staticmethod
     async def _wash_fh_article_content(content) -> str:
-        """
-        清洗fh content
-        :param content:
-        :return:
-        """
         content = re.compile('凤凰网汽车讯').sub('', content)
         # TODO chrome 显示content时会带上手机默认客户端的css样式, 导致显示异常, 用firefox查看是正常的!!
         content = modify_body_img_centering(content=content)
@@ -3536,11 +3534,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_zq_article_content(content) -> str:
-        """
-        清洗zq content
-        :param content:
-        :return:
-        """
         content = re.compile('<img data-src=').sub('<img src=', content)
         content = modify_body_img_centering(content=content)
 
@@ -3548,11 +3541,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_bd_article_content(content) -> str:
-        """
-        清洗bd content
-        :param content:
-        :return:
-        """
         # TODO firefox正常显示, 但是chrome无图, 原因图片地址无响应!
         # 顶部空白替换
         content = re.compile('<div style=\"padding-top:\d+\.\d+%\">').sub('<div>', content)
@@ -3563,33 +3551,18 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_sg_article_content(content) -> str:
-        """
-        清洗sg的content
-        :param content:
-        :return:
-        """
         content = modify_body_img_centering(content=content)
 
         return content
 
     @staticmethod
     async def _wash_df_article_content(content) -> str:
-        """
-        清洗df的content
-        :param content:
-        :return:
-        """
         content = re.compile('<p class=\"section txt\">对此你怎么看，欢迎大家在评论区留言！</p>').sub('', content)
 
         return content
 
     @staticmethod
     async def _wash_wx_article_content(content: str) -> str:
-        """
-        清洗wx content
-        :param content:
-        :return:
-        """
         # print(content)
         content = wash_sensitive_info(
             data=content,
@@ -3615,11 +3588,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_kd_article_content(content) -> str:
-        """
-        清洗QQ看点content
-        :param content:
-        :return:
-        """
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -3644,11 +3612,6 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_kb_article_content(content) -> str:
-        """
-        清洗kb content
-        :param content:
-        :return:
-        """
         # 给与原生的css
         content = r'<link href="//mat1.gtimg.com/www/cssn/newsapp/cyshare/cyshare_20181121.css" type="text/css" rel="stylesheet">' + \
             content if content != '' else content
@@ -4454,8 +4417,26 @@ def main():
     # 视频
     # url = 'https://m.qbaobei.com/v/video_2972.html'
     # url = 'https://m.qbaobei.com/v/video_8.html'
-    url = 'https://m.qbaobei.com/v/video_25.html'
+    # url = 'https://m.qbaobei.com/v/video_25.html'
     # todo 小时光, 听听 不采集
+
+    # 发条网
+    # 视频
+    # url = 'https://mart.fatiao.pro/detail/1522.html'
+    # url = 'https://mart.fatiao.pro/detail/2268.html'
+    # url = 'https://mlive.fatiao.pro/detail/8755.html'
+    # url = 'https://mlive.fatiao.pro/detail/8909.html'
+    # url = 'https://mlive.fatiao.pro/detail/8772.html'
+    # url = 'https://mnatural.fatiao.pro/detail/4194.html'
+    # url = 'https://mqtwj.fatiao.pro/detail/8937.html'
+    # 图文
+    # url = 'https://mpet.fatiao.pro/article/7858.html'
+    # url = 'https://mpet.fatiao.pro/article/1093.html'
+    # url = 'https://mpet.fatiao.pro/article/5137.html'
+    # url = 'https://mpet.fatiao.pro/article/9477.html'
+    # url = 'https://mbeauty.fatiao.pro/article/52633.html'
+    # url = 'https://mbeauty.fatiao.pro/article/28785.html'
+    url = 'https://mlive.fatiao.pro/article/52761.html'
 
     # 文章url 测试
     print('article_url: {}'.format(url))

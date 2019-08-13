@@ -222,7 +222,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://i.7y7.com/jiaju/97/386197.html'
 
         # 亲亲宝贝
-        article_link = 'https://m.qbaobei.com/v/video_25.html'
+        # article_link = 'https://m.qbaobei.com/v/video_25.html'
+
+        # 发条网
+        article_link = 'https://mqtwj.fatiao.pro/detail/8937.html'
 
         url = article_link
 

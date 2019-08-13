@@ -1486,6 +1486,61 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'ft',
+        'debug': True,
+        'obj_origin': 'fatiao.pro',
+        'article_id': {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'video_title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'author': {
+            'method': 'css',
+            'selector': 'section.information span p ::text',
+        },
+        'video_author': {
+            'method': 'css',
+            'selector': 'section.videoInformationHeader section.InfoRight p ::text',
+        },
+        'head_url': {
+            'method': 'css',
+            'selector': 'section.information section.titleLeft strong img ::attr("src")',
+        },
+        'video_head_url': {
+            'method': 'css',
+            'selector': 'section.videoInformationHeader section.InfoLeft img ::attr("src")',
+        },
+        'create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\",'
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\",'
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'section.content',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'section.introduction',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''
