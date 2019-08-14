@@ -807,9 +807,9 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        parser_obj = await self._get_parse_obj(article_url_type='91mt')
+        parse_obj = await self._get_parse_obj(article_url_type='91mt')
         article_id = await async_parse_field(
-            parser=parser_obj['article_id'],
+            parser=parse_obj['article_id'],
             target_obj=article_url,
             logger=self.lg,)
         assert article_id != ''
@@ -1131,9 +1131,9 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        parser_obj = await self._get_parse_obj(article_url_type='hk')
+        parse_obj = await self._get_parse_obj(article_url_type='hk')
         video_id = await async_parse_field(
-            parser=parser_obj['article_id'],
+            parser=parse_obj['article_id'],
             target_obj=article_url,
             logger=self.lg,)
         assert video_id != ''
@@ -1298,9 +1298,9 @@ class ArticleParser(AsyncCrawler):
         """
         # 走api
         # 获取article_id
-        parser_obj = await self._get_parse_obj(article_url_type='ck')
+        parse_obj = await self._get_parse_obj(article_url_type='ck')
         article_id = await async_parse_field(
-            parser=parser_obj['article_id'],
+            parser=parse_obj['article_id'],
             target_obj=article_url,
             logger=self.lg,)
         assert article_id != '', 'article_id != ""'
@@ -1384,9 +1384,9 @@ class ArticleParser(AsyncCrawler):
             ('token', ''),
         )
         # 获取article_id
-        parser_obj = await self._get_parse_obj(article_url_type='nfzm')
+        parse_obj = await self._get_parse_obj(article_url_type='nfzm')
         article_id = await async_parse_field(
-            parser=parser_obj['article_id'],
+            parser=parse_obj['article_id'],
             target_obj=article_url,
             logger=self.lg, )
         assert article_id != '', 'nfzm的article_id != ""'
