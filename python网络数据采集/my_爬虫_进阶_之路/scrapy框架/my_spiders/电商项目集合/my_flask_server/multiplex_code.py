@@ -516,56 +516,66 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         price_info_list=tmp_price_info_list,
         site_id=site_id,)
 
-    data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
-        old_sku_info=old_sku_info,
-        new_sku_info=new_sku_info,
-        is_price_change=db_goods_info_obj.is_price_change,
-        db_price_change_info=db_goods_info_obj.db_price_change_info,
-        old_price_trans_time=db_goods_info_obj.old_price_trans_time)
+    try:
+        data['_is_price_change'], data['sku_info_trans_time'], price_change_info = _get_sku_price_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_price_change=db_goods_info_obj.is_price_change,
+            db_price_change_info=db_goods_info_obj.db_price_change_info,
+            old_price_trans_time=db_goods_info_obj.old_price_trans_time)
 
-    # 处理单规格的情况
-    # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
-    data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
-        old_price=db_goods_info_obj.old_price,
-        old_taobao_price=db_goods_info_obj.old_taobao_price,
-        new_price=data['price'],
-        new_taobao_price=data['taobao_price'],
-        is_price_change=data['_is_price_change'],
-        price_change_info=price_change_info)
-    if data['_is_price_change'] == 1:
-        _print(
-            msg='{:10s} [{}]'.format(
-                'price changed!',
-                db_goods_info_obj.goods_id),
-            logger=logger,)
-        # pprint(data['_price_change_info'])
+        # 处理单规格的情况
+        # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
+        data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+            old_price=db_goods_info_obj.old_price,
+            old_taobao_price=db_goods_info_obj.old_taobao_price,
+            new_price=data['price'],
+            new_taobao_price=data['taobao_price'],
+            is_price_change=data['_is_price_change'],
+            price_change_info=price_change_info)
+        if data['_is_price_change'] == 1:
+            _print(
+                msg='{:10s} [{}]'.format(
+                    'price changed!',
+                    db_goods_info_obj.goods_id),
+                logger=logger, )
+            # pprint(data['_price_change_info'])
 
-    # 监控纯规格变动
-    data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
-        old_sku_info=old_sku_info,
-        new_sku_info=new_sku_info,
-        is_spec_change=db_goods_info_obj.is_spec_change,
-        old_spec_trans_time=db_goods_info_obj.old_spec_trans_time,)
-    if data['is_spec_change'] == 1:
-        _print(
-            msg='{:10s} [{}]'.format(
-                'specs changed!',
-                db_goods_info_obj.goods_id),
-            logger=logger,)
+        # 监控纯规格变动
+        data['is_spec_change'], data['spec_trans_time'] = _get_spec_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_spec_change=db_goods_info_obj.is_spec_change,
+            old_spec_trans_time=db_goods_info_obj.old_spec_trans_time, )
+        if data['is_spec_change'] == 1:
+            _print(
+                msg='{:10s} [{}]'.format(
+                    'specs changed!',
+                    db_goods_info_obj.goods_id),
+                logger=logger, )
 
-    # 监控纯库存变动
-    data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
-        old_sku_info=old_sku_info,
-        new_sku_info=new_sku_info,
-        is_stock_change=db_goods_info_obj.is_stock_change,
-        db_stock_change_info=db_goods_info_obj.db_stock_change_info,
-        old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
-    if data['is_stock_change'] == 1:
+        # 监控纯库存变动
+        data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
+            old_sku_info=old_sku_info,
+            new_sku_info=new_sku_info,
+            is_stock_change=db_goods_info_obj.is_stock_change,
+            db_stock_change_info=db_goods_info_obj.db_stock_change_info,
+            old_stock_trans_time=db_goods_info_obj.old_stock_trans_time)
+        if data['is_stock_change'] == 1:
+            _print(
+                msg='{:10s} [{}]'.format(
+                    'stock changed!',
+                    db_goods_info_obj.goods_id),
+                logger=logger, )
+
+    except Exception as e:
+        # 记录goods_id, 并抛出异常!
         _print(
-            msg='{:10s} [{}]'.format(
-                'stock changed!',
-                db_goods_info_obj.goods_id),
-            logger=logger,)
+            msg='出错goods_id: {}'.format(db_goods_info_obj.goods_id),
+            logger=logger,
+            log_level=2,
+            exception=e,)
+        raise e
 
     # 单独处理起批量>=1的
     if target_short_name == 'al':
