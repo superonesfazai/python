@@ -229,9 +229,12 @@ class RequestClient(AsyncCrawler):
 
         # 觅糖
         # 视频
-        article_link = 'https://www.91mitang.com/pages/91022'
+        # article_link = 'https://www.91mitang.com/pages/91022'
         # 图文
         # article_link = 'https://www.91mitang.com/pages/2106106'
+
+        # 雪球
+        article_link = 'https://xueqiu.com/5157574024/130400677'
 
         url = article_link
 

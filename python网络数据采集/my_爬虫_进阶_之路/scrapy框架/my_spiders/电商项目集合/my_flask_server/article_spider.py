@@ -40,6 +40,7 @@ supported:
     28. 亲亲宝贝网(https://m.qbaobei.com/)
     29. 发条网(https://m.fatiao.pro/)
     30. 觅糖网(短视频or图文)(https://www.91mitang.com/)
+    31. 雪球网(https://xueqiu.com)
     
 not supported:
     1. 5号女性网(http://m.5h.com/)
@@ -409,6 +410,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.91mitang.com',
                 'site_id': 33,
             },
+            'xq': {
+                'debug': False,
+                'name': '雪球网',
+                'url': 'https://xueqiu.com',
+                'obj_origin': 'xueqiu.com',
+                'site_id': 34,
+            },
         }
 
     async def get_article_spiders_intro(self,) -> str:
@@ -744,6 +752,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == '91mt':
                 return await self._get_91mt_article_html(article_url=article_url)
 
+            elif article_url_type == 'xq':
+                return await self._get_xq_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -751,6 +762,44 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_xq_article_html(self, article_url) -> tuple:
+        """
+        获取雪球网 html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers()
+        headers.update({
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-User': '?1',
+            'Sec-Fetch-Site': 'none',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        hook_target_api_data_sel = {
+            'method': 're',
+            'selector': 'window\.SNOWMAN_STATUS = (.*?);window\.SNOWMAN_TARGET',
+        }
+        self.hook_target_api_data = json_2_dict(
+            json_str=await async_parse_field(
+                parser=hook_target_api_data_sel,
+                target_obj=body,
+                logger=self.lg,),
+            default_res={},
+            logger=self.lg,)
+        assert self.hook_target_api_data != {}
+        # pprint(self.hook_target_api_data)
+
+        return body, video_url
 
     async def _get_91mt_article_html(self, article_url) -> tuple:
         """
@@ -2279,7 +2328,10 @@ class ArticleParser(AsyncCrawler):
             logger=self.lg)
 
         if short_name == 'ck':
-            fav_num = self.hook_target_api_data['count_like']
+            fav_num = self.hook_target_api_data.get('count_like', 0)
+
+        elif short_name == 'xq':
+            fav_num = self.hook_target_api_data.get('fav_count', 0)
 
         else:
             pass
@@ -2298,10 +2350,19 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        short_name = parse_obj['short_name']
+
         profile = await async_parse_field(
             parser=parse_obj['profile'],
             target_obj=target_obj,
             logger=self.lg)
+
+        if short_name == 'xq':
+            profile = self.hook_target_api_data\
+                .get('user', {})\
+                .get('description', '')
+        else:
+            pass
 
         return profile
 
@@ -2386,6 +2447,9 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ck':
             author = self.hook_target_api_data['editor_username']
 
+        elif short_name == 'xq':
+            author = self.hook_target_api_data.get('user', {}).get('screen_name', '')
+
         else:
             pass
 
@@ -2411,6 +2475,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            'xq',
         ]
         if short_name in short_name_list2:
             pass
@@ -2501,6 +2566,9 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ck':
             title = self.hook_target_api_data['title']
 
+        elif short_name == 'xq':
+            title = self.hook_target_api_data.get('title', '')
+
         else:
             pass
 
@@ -2589,6 +2657,9 @@ class ArticleParser(AsyncCrawler):
                 pass
             else:
                 head_url = 'https://i.7y7.com' + head_url if head_url != '' else ''
+
+        elif short_name == 'xq':
+            head_url = ''
 
         else:
             pass
@@ -2865,6 +2936,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            'xq',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2958,6 +3030,13 @@ class ArticleParser(AsyncCrawler):
                 create_time = await parse_create_time(
                     short_name=short_name,
                     create_time=create_time)
+
+        elif short_name == 'xq':
+            try:
+                create_time = timestamp_to_regulartime(
+                    int(str(self.hook_target_api_data.get('created_at', ''))[0:10]))
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
 
         else:
             pass
@@ -3077,6 +3156,9 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ck':
             content = self.hook_target_api_data['content']
 
+        elif short_name == 'xq':
+            content = self.hook_target_api_data.get('text', '')
+
         elif short_name == 'amz':
             # 不管content是否为空, 都进入
             video_iframe = await self._get_amz_video_iframe(
@@ -3131,6 +3213,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            'xq',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3302,8 +3385,32 @@ class ArticleParser(AsyncCrawler):
         elif short_name == '91mt':
             content = await self._wash_91mt_article_content(content=content)
 
+        elif short_name == 'xq':
+            content = await self._wash_xq_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_xq_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=None,
+            add_sensitive_str_list=[
+                '<p>作者：\w+</p>',
+                '<p>编辑：\w+</p>',
+                '<p><b>作者：\w+</b></p>',
+                '<p>来源：.*?</p>',
+                '<p><b>免责申明：以上内容仅供参考，不作为买卖依据，据此操作，盈亏自负！</b></p>',
+                '<p><a href=\"http://xueqiu\.com/n/今日话题\" target=\"_blank\">@今日话题</a> </p>',
+                '<p>原文链接：<a href=\"http.*?\" title=\"http.*?\" target=\"_blank\" class=\"status-link\">网页链接</a></p>',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -4556,7 +4663,33 @@ def main():
     # url = 'https://www.91mitang.com/pages/91022'
     # 图文文章
     # url = 'https://www.91mitang.com/pages/2106103'
-    url = 'https://www.91mitang.com/pages/2106106'
+    # url = 'https://www.91mitang.com/pages/2106106'
+
+    # 雪球网
+    # 推荐
+    # url = 'https://xueqiu.com/8036802659/131021825'
+    # url = 'https://xueqiu.com/3075122481/131022515'
+    # 沪深
+    # url = 'https://xueqiu.com/S/SH600309/131099947'
+    # url = 'https://xueqiu.com/8992033978/131027969'
+    # url = 'https://xueqiu.com/9220236682/131126259'
+    # 科创板
+    # url = 'https://xueqiu.com/1896346964/130972987'
+    # 港股
+    # url = 'https://xueqiu.com/1055336715/129835730'
+    # 基金
+    # url = 'https://xueqiu.com/7298671747/131128718'
+    # 美股
+    # url = 'https://xueqiu.com/S/DL/131099586'
+    # url = 'https://xueqiu.com/8041756563/131102425'
+    # 房产
+    # url = 'https://xueqiu.com/1428373799/130981044'
+    # 私募
+    # url = 'https://xueqiu.com/3186487370/130986249'
+    # 汽车
+    # url = 'https://xueqiu.com/4828772707/130482225'
+    # 保险
+    url = 'https://xueqiu.com/5157574024/130400677'
 
     # 文章url 测试
     print('article_url: {}'.format(url))
