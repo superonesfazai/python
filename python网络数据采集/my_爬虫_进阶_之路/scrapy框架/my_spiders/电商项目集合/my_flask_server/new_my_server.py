@@ -1912,6 +1912,11 @@ def article_spiders_intro() -> str:
     获取article spiders intro
     :return:
     """
+    from gevent import monkey
+    monkey.patch_all()
+
+    nest_asyncio.apply()
+
     article_parser = ArticleParser(logger=my_lg)
     loop = get_event_loop()
     res = ''

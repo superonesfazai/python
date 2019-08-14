@@ -225,7 +225,13 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://m.qbaobei.com/v/video_25.html'
 
         # 发条网
-        article_link = 'https://mqtwj.fatiao.pro/detail/8937.html'
+        # article_link = 'https://mqtwj.fatiao.pro/detail/8937.html'
+
+        # 觅糖
+        # 视频
+        article_link = 'https://www.91mitang.com/pages/91022'
+        # 图文
+        # article_link = 'https://www.91mitang.com/pages/2106106'
 
         url = article_link
 

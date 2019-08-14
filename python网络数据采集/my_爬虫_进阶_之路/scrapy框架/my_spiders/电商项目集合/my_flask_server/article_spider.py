@@ -39,18 +39,18 @@ supported:
     27. 七丽女性网(https://i.7y7.com/)
     28. 亲亲宝贝网(https://m.qbaobei.com/)
     29. 发条网(https://m.fatiao.pro/)
+    30. 觅糖网(短视频or图文)(https://www.91mitang.com/)
     
 not supported:
     1. 5号女性网(http://m.5h.com/)
     2. 男人窝(https://m.nanrenwo.net/)
     3. 爱秀美(https://m.ixiumei.com/)
-    4. 觅糖网(https://www.91mitang.com/)
-    5. yoka时尚网(http://www.yoka.com/dna/m/)
-    6. 美妆网(http://www.chinabeauty.cn/)
-    7. 新华网(http://m.xinhuanet.com)
-    8. 36氪(https://36kr.com)
-    9. 太平洋时尚网(https://www.pclady.com.cn/)
-    10. 网易新闻
+    4. yoka时尚网(http://www.yoka.com/dna/m/)
+    5. 美妆网(http://www.chinabeauty.cn/)
+    6. 新华网(http://m.xinhuanet.com)
+    7. 36氪(https://36kr.com)
+    8. 太平洋时尚网(https://www.pclady.com.cn/)
+    9. 网易新闻
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -402,6 +402,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'fatiao.pro',
                 'site_id': 32,
             },
+            '91mt': {
+                'debug': True,
+                'name': '觅糖网',
+                'url': 'https://www.91mitang.com',
+                'obj_origin': 'www.91mitang.com',
+                'site_id': 33,
+            },
         }
 
     async def get_article_spiders_intro(self,) -> str:
@@ -734,6 +741,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'ft':
                 return await self._get_ft_article_html(article_url=article_url)
 
+            elif article_url_type == '91mt':
+                return await self._get_91mt_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -741,6 +751,55 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_91mt_article_html(self, article_url) -> tuple:
+        """
+        获取91觅糖 html
+        :param article_url:
+        :return:
+        """
+        parser_obj = await self._get_parse_obj(article_url_type='91mt')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg,)
+        assert article_id != ''
+
+        # 研究发现, 视频or图文文章的所有信息在视频详情页中都有, 故直接请求视频详情页
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            cache_control='',)
+        headers.update({
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-User': '?1',
+            'Sec-Fetch-Site': 'same-origin',
+            'Referer': article_url,
+        })
+        video_detail_url = 'https://www.91mitang.com/pageDetails/{}'.format(article_id)
+        body = await unblock_request(
+            url=video_detail_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            logger=self.lg, )
+        assert body != ''
+        # self.lg.info(body)
+
+        video_url_sel = {
+            'method': 're',
+            'selector': '\"contentUrl\": \"(.*?)\",',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        if video_url != '':
+            self.lg.info('此为视频文章!')
+            self.lg.info('got video_url: {}'.format(video_url))
+        else:
+            self.lg.info('此为图文文章!')
+
+        return body, video_url
 
     async def _get_ft_article_html(self, article_url) -> tuple:
         """
@@ -2274,6 +2333,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2350,6 +2410,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list2:
             pass
@@ -2388,6 +2449,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2493,6 +2555,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2801,6 +2864,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2838,6 +2902,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -2928,6 +2993,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3064,6 +3130,7 @@ class ArticleParser(AsyncCrawler):
             '7y7',
             'qqbb',
             'ft',
+            '91mt',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3232,8 +3299,28 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ft':
             content = await self._wash_ft_article_content(content=content)
 
+        elif short_name == '91mt':
+            content = await self._wash_91mt_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_91mt_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                # 视频详情介绍
+                ('<mip-img popup', '<img'),
+                ('</mip-img>', '</img>'),
+            ],
+            add_sensitive_str_list=None,
+            is_default_filter=False,
+            is_lower=False,)
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -4436,7 +4523,40 @@ def main():
     # url = 'https://mpet.fatiao.pro/article/9477.html'
     # url = 'https://mbeauty.fatiao.pro/article/52633.html'
     # url = 'https://mbeauty.fatiao.pro/article/28785.html'
-    url = 'https://mlive.fatiao.pro/article/52761.html'
+    # url = 'https://mlive.fatiao.pro/article/52761.html'
+
+    # 觅糖
+    # 视频
+    # url = 'https://www.91mitang.com/pages/2019011772010'
+    # 时尚
+    # url = 'https://www.91mitang.com/pages/81047'
+    # 美食
+    # url = 'https://www.91mitang.com/pages/2019011771915'
+    # 生活百科
+    # url = 'https://www.91mitang.com/pages/2019011751000'
+    # 教育
+    # url = 'https://www.91mitang.com/pages/2019011772120'
+    # 其他
+    # url = 'https://www.91mitang.com/pages/2019011761003'
+    # 诗词朗诵
+    # url = 'https://www.91mitang.com/pages/71225'
+    # 节日风俗
+    # url = 'https://www.91mitang.com/pages/70006'
+    # 课程学习
+    # url = 'https://www.91mitang.com/pages/71115'
+    # 家常菜谱
+    # url = 'https://www.91mitang.com/pages/72014'
+    # 风味小吃
+    # url = 'https://www.91mitang.com/pages/72176'
+    # 旅游出行
+    # url = 'https://www.91mitang.com/pages/83527'
+    # 美妆护肤
+    # url = 'https://www.91mitang.com/pages/81047'
+    # 娱乐
+    # url = 'https://www.91mitang.com/pages/91022'
+    # 图文文章
+    # url = 'https://www.91mitang.com/pages/2106103'
+    url = 'https://www.91mitang.com/pages/2106106'
 
     # 文章url 测试
     print('article_url: {}'.format(url))

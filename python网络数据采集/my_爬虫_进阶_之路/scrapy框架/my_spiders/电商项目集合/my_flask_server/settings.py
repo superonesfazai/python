@@ -1541,6 +1541,49 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': '91mt',
+        'debug': True,
+        'obj_origin': 'www.91mitang.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/pages/(\d+)',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'video_title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'author': None,
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\",'
+        },
+        'video_create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\",'
+        },
+        'content': {
+            'method': 'css',
+            'selector': 'div.content.bg_fff',
+        },
+        'video_article_content': {
+            'method': 'css',
+            'selector': 'div.content.bg_fff',
+        },
+        'comment_num': None,
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''
