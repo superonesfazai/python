@@ -17,10 +17,7 @@ from fzutils.ip_pools import tri_ip_pool
 from fzutils.exceptions import catch_exceptions_with_class_logger
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.selector import parse_field
-from fzutils.spider.fz_requests import (
-    PROXY_TYPE_HTTP,
-    PROXY_TYPE_HTTPS,
-)
+from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
 
 class XOSpider(AsyncCrawler):
@@ -33,14 +30,224 @@ class XOSpider(AsyncCrawler):
         )
         self.concurrency = 20
         self.req_num_retries = 5
-        # total 210
-        self.max_s63_chinese_captions_page_num = 10
+        self.max_s63_chinese_captions_page_num = 10                     # total 210
         self.max_n15_japan_page_num = 3
         self.max_n15_all_page_num = 25
+        self.max_8xs_dalu_all_page_num = 20
 
     async def _fck_run(self):
         # await self.s69zy3_spider()
-        await self.n15_spider()
+        # await self.n15_spider()
+        await self._8xs_spider()
+
+    async def _8xs_spider(self):
+        """
+        target_url: https://8xsan.com/
+        :return:
+        """
+        self.parser_obj = self.get_parser_obj()['8xs']
+        all_video_list = await self.get_8xs_some_label_all_video_list_by_label_name(
+            label_name='大陆', )
+        await self.get_8xs_all_video_info_by_video_list(
+            video_list=all_video_list, )
+
+    async def get_8xs_some_label_all_video_list_by_label_name(self, label_name='大陆') -> list:
+        """
+        根据label_name 获取指定的所有视频信息
+        :param label_name:
+        :return:
+        """
+        def get_tasks_params_list():
+            tasks_params_list = []
+            sort_name_dict = self.get_8xs_all_sort_label_name_dict(sort_name=label_name)
+            max_page_num = sort_name_dict.get('max_page_num', 0)
+            sort_type = sort_name_dict.get('sort_type', '')
+            assert sort_type != ''
+
+            for page_num in range(1, max_page_num + 1):
+                tasks_params_list.append({
+                    'page_num': page_num,
+                    'label_name': label_name,
+                    'sort_type': sort_type,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where type: {}, page_num: {}] ...'.format(
+                k['label_name'],
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['label_name'],
+                k['sort_type'],
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_8xs_video_list_by_label_name_and_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,)
+        pprint(all_res)
+        print('获取{} video_all_res_num: {}'.format(label_name, len(all_res)))
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='video_name',)
+        print('实际获取{} video_all_res_num: {}'.format(label_name, len(all_res)))
+
+        return all_res
+
+    def get_8xs_all_sort_label_name_dict(self, sort_name):
+        """
+        获取8xs所有分类信息
+        :param sort_name:
+        :return:
+        """
+        sort_info_dict = {
+            '大陆': {
+                'label_name': '大陆',
+                'max_page_num': self.max_8xs_dalu_all_page_num,
+                'sort_type': 'video1',
+            },
+        }
+        if sort_name not in sort_info_dict.keys():
+            raise ValueError('sort_name value 异常!'.format(sort_name))
+
+        return sort_info_dict.get(sort_name, {})
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_8xs_video_list_by_label_name_and_page_num(self, label_name, sort_name, page_num: int) -> list:
+        """
+        根据label_name, page_num获取指定页面的video info
+        :param label_name:
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            cache_control='', )
+        headers.update({
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-User': '?1',
+            # 'Referer': 'https://8xsan.com/html/category/video/video1/',
+        })
+        url = 'https://8xsan.com/html/category/video/{}/page_{}.html'.format(
+            sort_name,
+            page_num,)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            proxy_type=PROXY_TYPE_HTTPS,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.req_num_retries,)
+        assert body != ''
+        # self.lg.info(body)
+
+        res = self.parse_video_list_page_body_by_short_name(
+            short_name='8xs',
+            label_name=label_name,
+            body=body,)
+        self.lg.info('[{}] page_num: {}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
+
+    async def get_8xs_all_video_info_by_video_list(self, video_list: list) -> list:
+        """
+        根据video_list 获取对应所有视频信息
+        :param video_list:
+        :return:
+        """
+        def get_tasks_params_list():
+            tasks_params_list = []
+            for item in video_list:
+                tasks_params_list.append({
+                    'video_url': item['url'],
+                    'base_video_info': item,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where video_url: {}] ...'.format(
+                k['video_url'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['video_url'],
+                k['base_video_info'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_8xs_some_video_info_by_video_url,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
+            one_default_res={},
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,)
+        pprint(all_res)
+        print('all_res_num: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res={})
+    def get_8xs_some_video_info_by_video_url(self, video_url, base_video_info: dict) -> dict:
+        """
+        根据video_url 获取video info
+        :param video_url:
+        :param base_video_info:
+        :return:
+        """
+        headers = get_random_headers(connection_status_keep_alive=False)
+        headers.update({
+            'authority': '8xsan.com',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-user': '?1',
+            'sec-fetch-site': 'none',
+            # 'cookie': '_ym_uid=156584726460845301; _ym_d=1565847264; _ga=GA1.2.2016683436.1565847265; _gid=GA1.2.1698900139.1565847265; _ym_isad=2; _ym_wasSynced=%7B%22time%22%3A1565847265927%2C%22params%22%3A%7B%22eu%22%3A0%7D%2C%22bkParams%22%3A%7B%7D%7D; _ym_visorc_54691198=w; _ym_hostIndex=0-2%2C1-0; _gat_gtag_UA_140380073_1=1',
+            # 'if-none-match': 'W/"5d52a7ae-5e59"',
+            # 'if-modified-since': 'Tue, 13 Aug 2019 12:06:06 GMT',
+        })
+        body = Requests.get_url_body(
+            url=video_url,
+            headers=headers,
+            proxy_type=PROXY_TYPE_HTTPS,
+            ip_pool_type=tri_ip_pool,
+            num_retries=self.req_num_retries,)
+        assert body != ''
+        # self.lg.info(body)
+
+        res = self.parse_video_page_body_by_short_name(
+            short_name='8xs',
+            body=body,)
+        self.lg.info('[{}] video_url: {}'.format(
+            '+' if res != {} else '-',
+            video_url,
+        ))
+        # 增加base_video_info
+        res.update({
+            'base': base_video_info,
+        })
+
+        return res
 
     async def n15_spider(self):
         """
@@ -241,8 +448,8 @@ class XOSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
             num_retries=self.req_num_retries,)
-        # self.lg.info(body)
         assert body != ''
+        # self.lg.info(body)
 
         res = self.parse_video_list_page_body_by_short_name(
             short_name='n15',
@@ -374,6 +581,22 @@ class XOSpider(AsyncCrawler):
 
             if short_name == 'n15':
                 static_img_url = 'https:' + static_img_url if static_img_url != '' else ''
+
+            elif short_name == '8xs':
+                if static_img_url != '':
+                    # eg: 'db9b743f134910dbc697fc9f1513428c/index.m3u8'
+                    video_id_sel = {
+                        'method': 're',
+                        'selector': '(\w+)/index\.m3u8',
+                    }
+                    # 从m3u8地址中生成静态图
+                    video_id = parse_field(
+                        parser=video_id_sel,
+                        target_obj=static_img_url,
+                        logger=self.lg,)
+                    static_img_url = 'https://8xcha.com/p/{}.jpg'.format(video_id)\
+                        if video_id != '' else ''
+
             else:
                 pass
 
@@ -389,6 +612,13 @@ class XOSpider(AsyncCrawler):
             if short_name == 'n15':
                 # 用http, 部分地址https无法正常显示
                 video_url = 'http:' + video_url if video_url != '' else ''
+
+            elif short_name == '8xs':
+                # eg: video_url: 'db9b743f134910dbc697fc9f1513428c/index.m3u8'
+                # eg: https://8xche.com/v/da054a7415135d9c5d602baf027ff206/index.m3u8
+                video_url = 'https://8xche.com/v/' + video_url \
+                    if video_url != '' else ''
+
             else:
                 pass
 
@@ -532,6 +762,26 @@ class XOSpider(AsyncCrawler):
                     continue
                 res.append(dict(video_list_item))
 
+        elif short_name == '8xs':
+            assert video_name_list != []
+            assert url_list != []
+
+            _ = list(zip(video_name_list, url_list))
+            for item in _:
+                try:
+                    url = 'https://8xsan.com' + item[1] if item[1] != '' else ''
+                    assert url != ''
+                    video_list_item = VideoListItem()
+                    video_list_item['video_name'] = item[0]
+                    video_list_item['video_region'] = '未知'
+                    video_list_item['video_type'] = label_name
+                    video_list_item['url'] = url
+                    video_list_item['create_time'] = get_shanghai_time()
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+                res.append(dict(video_list_item))
+
         else:
             raise NotImplemented
 
@@ -614,6 +864,38 @@ class XOSpider(AsyncCrawler):
                         'method': 'css',
                         'selector': 'span.favoriteBtn span ::text',
                     },
+                },
+            },
+            '8xs': {
+                '大陆': {
+                    'video_name': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::text',
+                    },
+                    'video_region': None,
+                    'video_type': None,
+                    'url': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::attr("href")',
+                    },
+                    'create_time': None,
+                },
+                'video_info': {
+                    'video_name': {
+                        'method': 'css',
+                        'selector': 'h1 ::text',
+                    },
+                    'static_img_url': {
+                        'method': 'css',
+                        'selector': 'div.y_p span#vpath ::text',
+                    },
+                    'video_url': {
+                        'method': 'css',
+                        'selector': 'div.y_p span#vpath ::text',
+                    },
+                    'like_num': None,
+                    'dislike_num': None,
+                    'collected_num': None,
                 },
             },
         }

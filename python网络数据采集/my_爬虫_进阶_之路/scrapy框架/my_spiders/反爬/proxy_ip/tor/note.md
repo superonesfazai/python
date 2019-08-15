@@ -21,6 +21,8 @@ $ tor --hash-password haguagaugugxa
 
 ```
 ## mac 设置方式
+# 不存在目录可手动创建, 因为运行tor会去加载这个目录下的torrc
+# 官方torrc.sample地址: https://github.com/torproject/tor/blob/master/src/config/torrc.sample.in
 $ cd /usr/local/etc/tor/
 $ cp torrc.sample torrc
 $ vi torrc
@@ -28,8 +30,8 @@ $ vi torrc
 ## linux 设置方式
 # 之后编辑/etc/tor/torrc加上
 # 开启ControlPort，这是其它应用(python-stem)和Tor沟通的端口
+# HashedControlPassword要设置成跟上方生成的一致
 ControlPort 9051
-
 HashedControlPassword 16:872860B76453A77D60CA2BB8C1A7042072093276A3D701AD684053EC4C
 
 # 开启cookie认证

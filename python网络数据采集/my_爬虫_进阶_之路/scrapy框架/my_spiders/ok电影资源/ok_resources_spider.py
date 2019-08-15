@@ -10,10 +10,16 @@
 ok资源采集
 """
 
-from gc import collect
+import requests
+
 from fzutils.ip_pools import tri_ip_pool
 from fzutils.spider.selector import parse_field
+from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
+
+# 避免报安全异常!
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class OkResourcesSpider(AsyncCrawler):
     """
@@ -27,6 +33,7 @@ class OkResourcesSpider(AsyncCrawler):
         self.num_retries = 3
         # 最新电影截止页
         self.max_latest_page_num = 20
+        self.concurrency = 20
 
     async def _fck_run(self):
         """
@@ -73,12 +80,6 @@ class OkResourcesSpider(AsyncCrawler):
         获取所有ok_video_id_list的video info
         :return:
         """
-        def add_one_res_2_all_res(one_res: list, all_res: list):
-            for item in one_res:
-                all_res.append(item)
-
-            return all_res
-
         def get_now_args(k) -> list:
             return [
                 k.get('ok_video_id', ''),
@@ -93,7 +94,7 @@ class OkResourcesSpider(AsyncCrawler):
             func_name_where_get_create_task_msg=get_create_task_msg,
             func_name=self._get_video_page_info_by_ok_video_id,
             func_name_where_get_now_args=get_now_args,
-            func_name_where_add_one_res_2_all_res=add_one_res_2_all_res,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
             one_default_res=[],
             step=self.concurrency,
             get_all_res=True,)
@@ -163,10 +164,11 @@ class OkResourcesSpider(AsyncCrawler):
             }
 
         assert ok_video_id != ''
-        headers = self.get_random_pc_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,)
         headers.update({
             'authority': 'www.okzyw.com',
-            'cache-control': 'max-age=0',
         })
         params = (
             ('m', 'vod-detail-id-{}.html'.format(ok_video_id)),
@@ -175,6 +177,8 @@ class OkResourcesSpider(AsyncCrawler):
             url='https://www.okzyw.com/',
             headers=headers,
             params=params,
+            verify=False,
+            proxy_type=PROXY_TYPE_HTTPS,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.num_retries,)
         # print(body)
@@ -266,9 +270,14 @@ class OkResourcesSpider(AsyncCrawler):
 
             return res
 
-        headers = self.get_random_pc_headers()
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            cache_control='', )
         headers.update({
             'authority': 'www.okzyw.com',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-user': '?1',
+            'sec-fetch-site': 'same-origin',
             'referer': 'https://www.okzyw.com/',
         })
         params = (
@@ -279,6 +288,8 @@ class OkResourcesSpider(AsyncCrawler):
             url=url,
             headers=headers,
             params=params,
+            verify=False,
+            proxy_type=PROXY_TYPE_HTTPS,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.num_retries,)
         # print(body)
@@ -289,16 +300,6 @@ class OkResourcesSpider(AsyncCrawler):
         ))
 
         return res
-
-    @staticmethod
-    def get_random_pc_headers():
-        return {
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_pc_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        }
 
     def __del__(self):
         try:

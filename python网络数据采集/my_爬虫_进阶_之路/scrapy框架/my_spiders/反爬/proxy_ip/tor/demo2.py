@@ -25,10 +25,10 @@ from fzutils.internet_utils import get_random_headers
 #     print("My Tor relay has read %s bytes and written %s." % (bytes_read, bytes_written))
 
 def renew_tor():
-    '''
+    """
     让Tor重建连接，获得新的线路
     :return:
-    '''
+    """
     with Controller.from_port(port=9051) as controller:
         controller.authenticate(password='haguagaugugxa')
         controller.signal(Signal.NEWNYM)
@@ -37,7 +37,8 @@ def renew_tor():
 def get_public_ip():
     renew_tor()
     proxies = {
-        'http': '127.0.0.1:8118'
+        # privoxy默认监听8118端口，它把http请求转向到Tor的9050端口
+        'http': '127.0.0.1:8118',
     }
     headers = get_random_headers(
         connection_status_keep_alive=False,
@@ -50,8 +51,10 @@ def get_public_ip():
         .text
     print(body)
 
+sleep_time = 8
+
 # 47.91.21.176
 for i in range(10):
     get_public_ip()
-    print('sleep 20s...')
-    sleep(20)
+    print('sleep {} s...'.format(sleep_time))
+    sleep(sleep_time)

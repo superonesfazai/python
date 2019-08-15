@@ -1,6 +1,5 @@
 # coding:utf-8
 
-import os
 import socket
 import socks
 import requests
